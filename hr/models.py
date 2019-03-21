@@ -20,3 +20,6 @@ class Employee(models.Model):
     dispatchCompany = models.CharField(max_length=100, default='내근')
     message = models.CharField(max_length=200, default='내근 업무 내용을 작성해 주세요.', help_text='내근 업무 내용을 작성해 주세요.')
     empStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
+
+    def __str__(self):
+        return self.empName
