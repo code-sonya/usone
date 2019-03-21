@@ -4,16 +4,16 @@ from hr.models import Employee
 
 class Company(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'))
+
     companyName = models.CharField(max_length=100, primary_key=True)
-    saleEmpId = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
-                                  related_name='saleEmpID')
-    solutionMainEmpId = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+    saleEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='saleEmpID')
+    solutionMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True,
                                           related_name='solutionMainEmpID')
-    solutionSubEmpId = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+    solutionSubEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True,
                                          related_name='solutionSubEmpId')
-    dbMainEmpId = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+    dbMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True,
                                     related_name='dbMainEmpId')
-    dbSubEmpId = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True,
+    dbSubEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True,
                                    related_name='dbSubEmpId')
     companyAddress = models.CharField(max_length=200)
     companyLatitude = models.FloatField(null=True, blank=True)
@@ -32,6 +32,7 @@ class Company(models.Model):
 
 class Customer(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'))
+
     customerName = models.CharField(max_length=10)
     companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
     customerDeptName = models.CharField(max_length=30, null=True, blank=True)
