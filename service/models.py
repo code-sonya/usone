@@ -95,4 +95,4 @@ class Vacation(models.Model):
     vacationEndDate = models.DateField()
 
     def __str__(self):
-        return self.empId
+        return 'Vacation : {}'.format(self.empId)

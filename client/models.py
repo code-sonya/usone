@@ -27,7 +27,7 @@ class Company(models.Model):
     companyStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     def __str__(self):
-        return self.companyName
+        return 'Company : {}'.format(self.companyName)
 
 
 class Customer(models.Model):
@@ -44,4 +44,4 @@ class Customer(models.Model):
         unique_together = (('customerName', 'companyName'),)
 
     def __str__(self):
-        return self.customerName
+        return 'Customer : {}'.format(self.customerName)
