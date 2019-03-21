@@ -48,6 +48,9 @@ class Servicereport(models.Model):
     serviceSignPath = models.CharField(max_length=254, null=True, blank=True)
     serviceStatus = models.CharField(max_length=1, choices=statusChoices, default='N')
 
+    def __str__(self):
+        return 'Servicereport : {} {}'.format(self.serviceId, self.empName)
+
 
 class Serviceform(models.Model):
     serviceTypeChoices = (
@@ -81,9 +84,15 @@ class Serviceform(models.Model):
     serviceTitle = models.CharField(max_length=200, help_text="제목을 작성해 주세요.")
     serviceDetails = models.TextField(help_text="상세 내용을 작성해 주세요.")
 
+    def __str__(self):
+        return 'Serviceform : {} {}'.format(self.empId, self.companyName)
+
 
 class Vacation(models.Model):
     vacationId = models.AutoField(primary_key=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     vacationStartDate = models.DateField()
     vacationEndDate = models.DateField()
+
+    def __str__(self):
+        return self.empId

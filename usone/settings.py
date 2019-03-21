@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'hr',
     'client',
     'service',
-
+    'noticeboard',
 ]
 
 MIDDLEWARE = [
