@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import include, url
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url(r'^hr/', include('hr.urls')),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^dashboard/', include('dashboard.urls')),
 ]

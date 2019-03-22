@@ -1,0 +1,18 @@
+{% extends 'dashboard/layout.html' %}
+{% block content %}
+    <body onload="javascript:window_onload()">
+    <div style="text-align: center"><h2> 로그아웃 되었습니다. </h2></div>
+
+    <script language="javascript">
+
+        function window_onload() {
+            setTimeout('go_url()', 500)
+        }
+
+        function go_url() {
+            location.href = "/accounts/login/"  // 페이지 이동...
+        }
+
+    </script>
+    </body>
+{% endblock %}
