@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'client',
     'service',
     'noticeboard',
-    'calendarr',
+    'scheduler',
 ]
 
 MIDDLEWARE = [
