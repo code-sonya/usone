@@ -20,7 +20,12 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^hr/', include('hr.urls')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
+    url(r'^client/', include('client.urls')),
     url(r'^dashboard/', include('dashboard.urls')),
+    url(r'^hr/', include('hr.urls')),
+    url(r'^mail/', include('mail.urls')),
+    url(r'^noticeboard/', include('noticeboard.urls')),
+    url(r'^scheduler/', include('scheduler.urls')),
+    url(r'^service/', include('service.urls')),
 ]
