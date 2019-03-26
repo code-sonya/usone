@@ -7,30 +7,26 @@ import datetime
 
 
 class ServicereportForm(forms.ModelForm):
-    startdate = forms.CharField(max_length = 16,widget = forms.TextInput(attrs={'class': 'form-control','type': 'date','id':'startdate','onchange':"showVal(this.value)"}),label = '시작 일자')
-    starttime = forms.CharField(max_length = 16,widget = forms.TextInput(attrs={'class': 'form-control','type': 'time','id':'starttime'}),label = '시작 시간')
-    finishdate = forms.CharField(max_length = 16,widget = forms.TextInput(attrs={'class': 'form-control','type': 'date','id':'finishdate'}),label = '종료 일자')
-    finishtime = forms.CharField(max_length = 16,widget = forms.TextInput(attrs={'class': 'form-control','type': 'time','id':'finishtime'}),label = '종료 시간')
+    startdate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'startdate', 'onchange': "showVal(this.value)"}))
+    starttime = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time', 'id': 'starttime'}))
+    enddate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'enddate'}))
+    endtime = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time', 'id': 'endtime'}))
 
     class Meta:
         model = Servicereport
-        fields = ('companyName','serviceType',
-                  'startdate','starttime','finishdate','finishtime',
-                  'serviceLocation','directgo','serviceTitle','serviceDetails')
+        fields = ('companyName', 'serviceType',
+                  'startdate', 'starttime', 'enddate', 'endtime',
+                  'serviceLocation', 'directgo', 'serviceTitle', 'serviceDetails')
 
         widgets = {
-            'companyName': forms.Select(attrs={'class': 'form-control','id':'company'}),
-            'serviceType': forms.Select(attrs={'class': 'form-control' ,'onchange':'chageLangSelect()' , 'id' : "selectBox"}),
-            'serviceLocation': forms.Select(attrs={'class': 'form-control','id':'location'}),
-            'directgo': forms.Select(attrs={'class': 'form-control','id':'jigchul'}),
-            'serviceTitle': forms.TextInput(attrs={'class': 'form-control','id':'title'}),
-            'serviceDetails': forms.Textarea(attrs={'class': 'form-control'}),
+            'companyName': forms.Select(attrs={'class': 'form-control', 'id': 'companyName'}),
+            'serviceType': forms.Select(attrs={'class': 'form-control', 'onchange': 'chageLangSelect()', 'id': "serviceType"}),
+            'serviceLocation': forms.Select(attrs={'class': 'form-control', 'id': 'serviceLocation'}),
+            'directgo': forms.Select(attrs={'class': 'form-control', 'id': 'directgo'}),
+            'serviceTitle': forms.TextInput(attrs={'class': 'form-control', 'id': 'serviceTitle'}),
+            'serviceDetails': forms.Textarea(attrs={'class': 'form-control', 'id': 'serviceDetails'}),
         }
 
     def __init__(self, *args, **kwargs):
         super(ServicereportForm, self).__init__(*args, **kwargs)
-        self.fields["startdate"].initial = str(datetime.datetime.now())[:10]
-        self.fields["starttime"].initial = '09:00'
-        self.fields["finishdate"].initial = str(datetime.datetime.now())[:10]
-        self.fields["finishtime"].initial = '18:00'
-        self.fields["companyName"].queryset = Company.objects.filter(companyStatus = 'Y').order_by('companyName')
+        self.fields["companyName"].queryset = Company.objects.filter(companyStatus='Y').order_by('companyName')

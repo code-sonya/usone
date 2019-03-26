@@ -5,8 +5,10 @@ from django.db.models import Q, Sum
 from .models import Servicereport, Serviceform, Vacation
 from client.models import Company, Customer
 from hr.models import Employee
+from scheduler.models import Eventday
 from .forms import ServicereportForm
 
+from .functions import date_list, overtime, str_timedelta_hour
 import datetime
 import json
 
@@ -16,19 +18,60 @@ def post(request, postdate):
 
     if userId:
         # 로그인 사용자 정보
-        empId = request.user.employee.empId
+        empId = Employee(empId=request.user.employee.empId)
         empName = request.user.employee.empName
         empDeptName = request.user.employee.empDeptName
 
         if request.method == "POST":
             form = ServicereportForm(request.POST)
+            for_status = request.POST['for']
+
+            # 기간(휴일제외)
+            if for_status == 'for_hn':
+                dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
+                count = 0
+
+                for date in dateRange:
+                    if not Eventday.objects.filter(eventDate=date) and date.weekday() != 5 and date.weekday() != 6:
+                        post = form.save(commit=False)
+                        post.empId = empId
+                        post.empName = empName
+                        post.empDeptName = empDeptName
+                        post.serviceFinishDatetime = datetime.datetime.now()
+                        post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+                        post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+                        post.serviceDate = str(post.serviceStartDatetime)[:10]
+                        if count == 0:
+                            post.serviceHour = str_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                            post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                            post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                            count += 1
+                        post.serviceStatus = 'N'
+                        post.save()
+            # 기본등록
+            if for_status == 'for_n':
+                post = form.save(commit=False)
+                post.empId = empId
+                post.empName = empName
+                post.empDeptName = empDeptName
+                post.serviceFinishDatetime = datetime.datetime.now()
+                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceDate = str(post.serviceStartDatetime)[:10]
+                post.serviceHour = str_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.serviceStatus = 'N'
+                post.save()
+            # return redirect('scheduler:scheduler_month') # redirect URL 설정
+            return HttpResponse("일정등록 완료!")
+
         else:
             form = ServicereportForm(request.POST)
             context = {'form': form,
                        'empName': empName,
                        'postdate': postdate,
                        }
-            print('등록화면')
             return render(request, 'service/post.html', context)
 
     else:

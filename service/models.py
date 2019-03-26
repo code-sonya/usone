@@ -94,6 +94,7 @@ class Vacation(models.Model):
         ('오전반차', '오전반차'),
         ('오후반차', '오후반차'),
     )
+
     vacationId = models.AutoField(primary_key=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     empName = models.CharField(max_length=10)
