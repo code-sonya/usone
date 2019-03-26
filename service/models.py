@@ -89,12 +89,17 @@ class Serviceform(models.Model):
 
 
 class Vacation(models.Model):
+    vacationTypeChoices = (
+        ('일차', '일차'),
+        ('오전반차', '오전반차'),
+        ('오후반차', '오후반차'),
+    )
     vacationId = models.AutoField(primary_key=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     empName = models.CharField(max_length=10)
     empDeptName = models.CharField(max_length=30)
-    vacationStartDate = models.DateField()
-    vacationEndDate = models.DateField()
+    vacationDate = models.DateField()
+    vacationType = models.CharField(max_length=10, choices=vacationTypeChoices, default='일차')
 
     def __str__(self):
         return 'Vacation : {}'.format(self.empName)

@@ -27,14 +27,6 @@ class ServicereportForm(forms.ModelForm):
             'serviceDetails': forms.Textarea(attrs={'class': 'form-control'}),
         }
 
-        labels = {
-            'companyName': '고객사 명',
-            'serviceType': '지원 타입',
-            'serviceLocation': '지역 구분',
-            'directgo':'직출 여부',
-            'serviceDetails': '지원 내용'
-        }
-
     def __init__(self, *args, **kwargs):
         super(ServicereportForm, self).__init__(*args, **kwargs)
         self.fields["startdate"].initial = str(datetime.datetime.now())[:10]
