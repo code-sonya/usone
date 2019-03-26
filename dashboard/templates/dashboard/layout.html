@@ -18,6 +18,10 @@
   <!-- Custom styles for this page -->
   <link href='{% static "hr/vendor/datatables/dataTables.bootstrap4.min.css"%}' rel="stylesheet">
 
+  <!-- fullcalendar-->
+  <link rel="stylesheet" href="{% static 'scheduler/css/fullcalendar.css' %}">
+  <link rel="stylesheet" href="{% static 'scheduler/css/fullcalendar_custom.css' %}">
+
 </head>
 <body id="page-top">
 
@@ -38,7 +42,7 @@
 
       <!-- Nav Item - Dashboard -->
       <li class="nav-item active">
-        <a class="nav-link" href="index.html">
+        <a class="nav-link" href="/dashboard/">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Dashboard</span></a>
       </li>
@@ -55,14 +59,14 @@
 
         <!-- Nav Item - Daily Report -->
       <li class="nav-item">
-        <a class="nav-link" href="/hr/dailyReport/">
+        <a class="nav-link" href="/scheduler/">
           <i class="fas fa-fw fa-pencil-ruler"></i>
           <span>일일 업무</span></a>
       </li>
 
         <!-- Nav Item - Calendar -->
       <li class="nav-item">
-        <a class="nav-link" href="/hr/Calendar/">
+        <a class="nav-link" href="/scheduler/">
           <i class="fas fa-fw fa-calendar"></i>
           <span>캘린더</span></a>
       </li>
@@ -171,25 +175,7 @@
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
 
-            <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-            <li class="nav-item dropdown no-arrow d-sm-none">
-              <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-search fa-fw"></i>
-              </a>
-              <!-- Dropdown - Messages -->
-              <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
-                <form class="form-inline mr-auto w-100 navbar-search">
-                  <div class="input-group">
-                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                    <div class="input-group-append">
-                      <button class="btn btn-primary" type="button">
-                        <i class="fas fa-search fa-sm"></i>
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </li>
+
 
             <!-- Nav Item - Alerts -->
             <li class="nav-item dropdown no-arrow mx-1">
@@ -388,6 +374,8 @@
   <!-- Page level custom scripts -->
   <script src='{% static "hr/js/demo/chart-area-demo.js"%}'></script>
   <script src='{% static "hr/js/demo/chart-pie-demo.js"%}'></script>
+
+
 
 </body>
 
