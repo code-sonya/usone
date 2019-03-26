@@ -18,6 +18,6 @@ class ServiceformAdmin(admin.ModelAdmin):
 
 @admin.register(Vacation)
 class VacationAdmin(admin.ModelAdmin):
-    list_display = ('empId', 'vacationStartDate', 'vacationEndDate')
+    list_display = ('empId', 'empDeptName', 'empName', 'vacationStartDate', 'vacationEndDate')
     list_filter = ('empId',)
     list_display_links = ['empId']

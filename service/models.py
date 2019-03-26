@@ -91,8 +91,10 @@ class Serviceform(models.Model):
 class Vacation(models.Model):
     vacationId = models.AutoField(primary_key=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    empName = models.CharField(max_length=10)
+    empDeptName = models.CharField(max_length=30)
     vacationStartDate = models.DateField()
     vacationEndDate = models.DateField()
 
     def __str__(self):
-        return 'Vacation : {}'.format(self.empId)
+        return 'Vacation : {}'.format(self.empName)
