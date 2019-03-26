@@ -1,0 +1,710 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>{% block title %}{% endblock %}</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Custom fonts for this template-->
+    <link href='{% static "hr/vendor/fontawesome-free/css/all.min.css" %}' rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+          rel="stylesheet">
+    <!-- Custom styles for this template-->
+    <link href='{% static "hr/css/sb-admin-2.min.css" %}' rel="stylesheet">
+
+    <!-- Custom styles for this page -->
+    <link href='{% static "hr/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
+
+    {# 스크립트 파일 순서 중요 #}
+    <link rel="stylesheet" href="{% static 'scheduler/css/fullcalendar.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{% static 'scheduler/js/moment.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scheduler/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scheduler/js/fullcalendar.js' %}"></script>
+    <script type="text/javascript" src="{% static 'scheduler/js/locale-all.js' %}"></script>
+
+
+    <style type="text/css">
+
+        #accordionSidebar {
+            z-index: 999;
+        }
+
+        #calendar {
+            font-size: 18px;
+
+
+        }
+
+        #calendar-container {
+            position: fixed;
+            top: 70px;
+            right: 0;
+            bottom: 0;
+        }
+
+
+        .demo-topbar { /* will be stripped out */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+        }
+
+        .demo-topbar + #calendar-container { /* will be stripped out */
+            top: 40px;
+        }
+
+        .fc-header-toolbar {
+            /*
+            the calendar will be butting up against the edges,
+            but let's scoot in the header's buttons
+            */
+            padding-top: 1em;
+            padding-left: 1em;
+            padding-right: 1em;
+        }
+
+        .fc-sun {
+            color: #e31b23
+        }
+
+        .fc-sat {
+            color: #007dc3
+        }
+
+        .fc-day-number {
+            color: black
+        }
+
+        .fc-sun .fc-day-number {
+            color: #e31b23
+        }
+
+        .fc-sat .fc-day-number {
+            color: #007dc3
+        }
+
+        .hide {
+            display: none
+        }
+
+        @media only screen and (max-width: 800px) {
+            .fc-day-grid-event .fc-time {
+                display: none;
+            }
+
+            .fc-center {
+                padding-top: 15px
+            }
+
+            #calendar {
+                font-size: 12px;
+            }
+        }
+
+        @media only screen and (min-width: 600px) {
+
+            #calendar-container{
+                 left: 105px;
+            }
+        }
+
+
+    </style>
+
+</head>
+<body id="page-top">
+
+<!-- Page Wrapper -->
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+
+            <div class="sidebar-brand-text mx-4">USONE</div>
+        </a>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider my-0">
+
+        <!-- Nav Item - Dashboard -->
+        <li class="nav-item active">
+            <a class="nav-link" href="/dashboard/">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>Dashboard</span></a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Nav Item - Pages Collapse Menu -->
+
+        <!-- Nav Item - Daily Report -->
+        <li class="nav-item">
+            <a class="nav-link" href="/scheduler/">
+                <i class="fas fa-fw fa-pencil-ruler"></i>
+                <span>일일 업무</span></a>
+        </li>
+
+        <!-- Nav Item - Calendar -->
+        <li class="nav-item">
+            <a class="nav-link" href="/scheduler/">
+                <i class="fas fa-fw fa-calendar"></i>
+                <span>캘린더</span></a>
+        </li>
+
+
+        <!-- Nav Item - Board -->
+        <li class="nav-item">
+            <a class="nav-link" href="/hr/Board/">
+                <i class="fas fa-fw fa-file"></i>
+                <span>게시판</span></a>
+        </li>
+
+
+        <!-- Nav Item - Client -->
+        <li class="nav-item">
+            <a class="nav-link" href="/hr/Client/">
+                <i class="fas fa-fw fa-building"></i>
+                <span>고객사</span></a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block">
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+
+    </ul>
+    <!-- End of Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Topbar -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                <!-- Sidebar Toggle (Topbar) -->
+                <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <!-- Topbar Navbar -->
+                <ul class="navbar-nav ml-auto">
+
+
+                    <!-- Nav Item - Alerts -->
+                    <li class="nav-item dropdown no-arrow mx-1">
+                        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bell fa-fw"></i>
+                            <!-- Counter - Alerts -->
+                            <span class="badge badge-danger badge-counter">3+</span>
+                        </a>
+                        <!-- Dropdown - Alerts -->
+                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                             aria-labelledby="alertsDropdown">
+                            <h6 class="dropdown-header">
+                                Alerts Center
+                            </h6>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="mr-3">
+                                    <div class="icon-circle bg-primary">
+                                        <i class="fas fa-file-alt text-white"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-gray-500">December 12, 2019</div>
+                                    <span class="font-weight-bold">A new monthly report is ready to download!</span>
+                                </div>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="mr-3">
+                                    <div class="icon-circle bg-success">
+                                        <i class="fas fa-donate text-white"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-gray-500">December 7, 2019</div>
+                                    $290.29 has been deposited into your account!
+                                </div>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="mr-3">
+                                    <div class="icon-circle bg-warning">
+                                        <i class="fas fa-exclamation-triangle text-white"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="small text-gray-500">December 2, 2019</div>
+                                    Spending Alert: We've noticed unusually high spending for your account.
+                                </div>
+                            </a>
+                            <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
+                        </div>
+                    </li>
+
+                    <!-- Nav Item - Messages -->
+                    <li class="nav-item dropdown no-arrow mx-1">
+
+                        <!-- Dropdown - Messages -->
+                        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                             aria-labelledby="messagesDropdown">
+                            <h6 class="dropdown-header">
+                                Message Center
+                            </h6>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="dropdown-list-image mr-3">
+                                    <img class="rounded-circle" src="https://source.unsplash.com/fn_BT9fwg_E/60x60"
+                                         alt="">
+                                    <div class="status-indicator bg-success"></div>
+                                </div>
+                                <div class="font-weight-bold">
+                                    <div class="text-truncate">Hi there! I am wondering if you can help me with a
+                                        problem I've been having.
+                                    </div>
+                                    <div class="small text-gray-500">Emily Fowler · 58m</div>
+                                </div>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="dropdown-list-image mr-3">
+                                    <img class="rounded-circle" src="https://source.unsplash.com/AU4VPcFN4LE/60x60"
+                                         alt="">
+                                    <div class="status-indicator"></div>
+                                </div>
+                                <div>
+                                    <div class="text-truncate">I have the photos that you ordered last month, how would
+                                        you like them sent to you?
+                                    </div>
+                                    <div class="small text-gray-500">Jae Chun · 1d</div>
+                                </div>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="dropdown-list-image mr-3">
+                                    <img class="rounded-circle" src="https://source.unsplash.com/CS2uCrpNzJY/60x60"
+                                         alt="">
+                                    <div class="status-indicator bg-warning"></div>
+                                </div>
+                                <div>
+                                    <div class="text-truncate">Last month's report looks great, I am very happy with the
+                                        progress so far, keep up the good work!
+                                    </div>
+                                    <div class="small text-gray-500">Morgan Alvarez · 2d</div>
+                                </div>
+                            </a>
+                            <a class="dropdown-item d-flex align-items-center" href="#">
+                                <div class="dropdown-list-image mr-3">
+                                    <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
+                                         alt="">
+                                    <div class="status-indicator bg-success"></div>
+                                </div>
+                                <div>
+                                    <div class="text-truncate">Am I a good boy? The reason I ask is because someone told
+                                        me that people say this to all dogs, even if they aren't good...
+                                    </div>
+                                    <div class="small text-gray-500">Chicken the Dog · 2w</div>
+                                </div>
+                            </a>
+                            <a class="dropdown-item text-center small text-gray-500" href="#">Read More Messages</a>
+                        </div>
+                    </li>
+
+                    <div class="topbar-divider d-none d-sm-block"></div>
+
+                    <!-- Nav Item - User Information -->
+                    <li class="nav-item dropdown no-arrow">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small">환영합니다. <B>{{ user.username }}</B> 님 </span>
+                        </a>
+                        <!-- Dropdown - User Information -->
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                             aria-labelledby="userDropdown">
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Profile
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </li>
+
+                </ul>
+
+            </nav>
+            <!-- End of Topbar -->
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
+
+
+                <div id='legend' style="float: right;">
+                    <p style="float: left;font-size: 0.7rem"><img src="/media/icon/mainta.png" width="12px"> 정기점검
+                        &nbsp </p>
+                    <p style="float: left;font-size: 0.7rem"><img src="/media/icon/support.png" width="12px"> 일반작업
+                        &nbsp </p>
+                    <p style="float: left;font-size: 0.7rem"><img src="/media/icon/proj.png" width="12px"> 프로젝트
+                        &nbsp </p>
+                    <p style="float: left;font-size: 0.7rem"><img src="/media/icon/else.png" width="12px"> 기타 </p>
+                </div>
+
+                <div class="row">
+                    <div class="ui container">
+                        <div class="ui container">
+                            <div class="ui grid">
+                                <div class="ui sixteen column">
+                                    <div id='calendar-container' style="margin-top:30px">
+                                        <div id='calendar'></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- /.container-fluid -->
+        </div>
+        <!-- End of Main Content -->
+
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+</div>
+<!-- End of Page Wrapper -->
+
+<!-- Scroll to Top Button-->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Logout Modal-->
+<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Logout</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">로그아웃 하시겠습니까?</div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <a class="btn btn-primary" href="{% url 'logout' %}">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    function myRemove(event) {
+        return "me" == event.className;
+    }
+
+    function teamRemove(event) {
+        return "team" == event.className;
+    }
+
+    $('#calendar').fullCalendar({
+        myCustomButton1: {
+                    text: '내 일정',
+                    click: function () {
+                        var button = $('.fc-myCustomButton1-button');
+                        if (button.hasClass('fc-state-active')) {
+                            $('#calendar').fullCalendar('removeEvents', myRemove);
+                            button.removeClass('fc-state-active');
+                        } else {
+                            $('#calendar').fullCalendar('addEventSource',
+                                {
+                                    events: [
+                                        {% for i in myVacation %}
+                                            {
+                                                title: '[휴가] {{ i.empId }}',
+                                                start: '{{ i.VacationStartDate|date:"Y-m-d" }}',
+                                                end: '{{ i.VacationEndDate|date:"Y-m-d" }}',
+                                                {#url: '{% url 'usone:viewdetails' i.id %}',#}
+                                            },
+                                        {% endfor %}
+                                    ],
+                                    backgroundColor: '#FFFF0000',
+                                    borderColor: '#FFFF0000',
+                                    textColor: '#3dbd9a'
+                                }
+                            );
+                            $('#calendar').fullCalendar('addEventSource',
+                                {
+                                    events: [
+                                        {% for i in myCalendar %}
+                                            {
+                                                title: '{{ i.EmpName }}',
+                                                start: '{{ i.ServiceStartDatetime|date:"Y-m-d" }}T{{ i.ServiceStartDatetime|time:"H:i" }}:00',
+                                                end: '{{ i.ServiceEndDatetime|date:"Y-m-d" }}T{{ i.ServiceEndDatetime|time:"H:i" }}:00',
+                                                {#url: '{% url 'usone:viewdetails' i.serviceid %}',#}
+                                                service_id: '{{ i.serviceid }}',
+                                                name: '{{ i.EmpName }}',
+                                                detail: '{{ i.ServiceTitle|linebreaksbr }}',
+                                                company: '{{ i.CompanyName|linebreaksbr }}',
+                                                service_type: '{{ i.ServiceType }}',
+                                                type: 'N',
+                                                className: 'me',
+                                                {% if i.Directgo == 'Y' %}
+                                                    imageurl: '/media/icon/jigchul.png', {% endif %}
+                                                {% if i.ServiceOverHour > 0 %}
+                                                    imageurl2: '/media/icon/moon.png',{% endif %}
+                                                {%  if i.ServiceType == "정기점검" %}
+                                                    backgroundColor: '#3DBD9A',
+                                                    borderColor: '#3DBD9A',
+                                                {% elif i.ServiceType == "일반작업지원" %}
+                                                    backgroundColor: '#365D66',
+                                                    borderColor: '#45a18d',
+                                                {% elif i.ServiceType == "프로젝트" %}
+                                                    backgroundColor: '#8a85ab',
+                                                    borderColor: '#8a85ab',
+                                                {% else %}
+                                                    backgroundColor: '#487ea1',
+                                                    borderColor: '#487ea1',
+                                                {% endif %}
+                                            },
+                                        {% endfor %}
+                                    ],
+                                    <!--backgroundColor: '#487EA1',-->
+                                    <!--borderColor: '#487EA1',-->
+                                    textColor: 'white'
+                                }
+                            );
+                            button.addClass('fc-state-active');
+                        }
+                    }
+                },
+        header: {
+            left: 'prev,next',
+            center: 'title',
+            right: 'month,basicWeek,myCustomButton1'
+        },
+        locale: 'ko',
+        defaultView: 'month',
+        defaultDate: '{{ today }}',
+        eventLimit: 3,
+        eventLimitText: "더보기",
+        eventLimitClick: "popover",
+        editable: false,
+        droppable: false,
+        height: "parent",
+        eventSources: [
+                {
+                    events: [
+                        {% for i in myVacation %}
+                            {
+                                title: '[휴가] {{ i.empId }}',
+                                start: '{{ i.VacationStartDate|date:"Y-m-d" }}',
+                                end: '{{ i.VacationEndDate|date:"Y-m-d" }}',
+                                {#url: '{% url 'usone:viewdetails' i.id %}',#}
+                            },
+                        {% endfor %}
+                    ],
+                    backgroundColor: '#FFFF0000',
+                    borderColor: '#FFFF0000',
+                    textColor: '#3dbd9a'
+                },
+
+                {
+                    events: [
+                        {% for i in myCalendar %}
+                            {
+                                title: '{{ i.EmpName }}',
+                                start: '{{ i.ServiceStartDatetime|date:"Y-m-d" }}T{{ i.ServiceStartDatetime|time:"H:i" }}:00',
+                                end: '{{ i.ServiceEndDatetime|date:"Y-m-d" }}T{{ i.ServiceEndDatetime|time:"H:i" }}:00',
+                                {#url: '{% url 'usone:viewdetails' i.serviceid %}',#}
+                                service_id: '{{ i.serviceid }}',
+                                name: '{{ i.EmpName }}',
+                                detail: '{{ i.ServiceTitle|linebreaksbr }}',
+                                company: '{{ i.CompanyName|linebreaksbr }}',
+                                service_type: '{{ i.ServiceType }}',
+                                type: 'N',
+                                className: 'me',
+                                {% if i.Directgo == 'Y' %}
+                                    imageurl: '/media/icon/jigchul.png', {% endif %}
+                                {% if i.ServiceOverHour > 0 %}
+                                    imageurl2: '/media/icon/moon.png',{% endif %}
+                                {%  if i.ServiceType == "정기점검" %}
+                                    backgroundColor: '#3DBD9A',
+                                    borderColor: '#3DBD9A',
+                                {% elif i.ServiceType == "일반작업지원" %}
+                                    backgroundColor: '#365D66',
+                                    borderColor: '#45a18d',
+                                {% elif i.ServiceType == "프로젝트" %}
+                                    backgroundColor: '#8a85ab',
+                                    borderColor: '#8a85ab',
+                                {% else %}
+                                    backgroundColor: '#487ea1',
+                                    borderColor: '#487ea1',
+                                {% endif %}
+                            },
+                        {% endfor %}
+                    ],
+                    <!--backgroundColor: '#487EA1',-->
+                    <!--borderColor: '#487EA1',-->
+                    textColor: 'white'
+                },
+
+                {
+                    events: [
+                        {% for i in services_my_y %}
+                            {
+                                title: '{{ i.EMP_NAME }}',
+                                start: '{{ i.START_DATETIME|date:"Y-m-d" }}T{{ i.START_DATETIME|time:"H:i" }}:00',
+                                end: '{{ i.FINISH_DATETIME|date:"Y-m-d" }}T{{ i.FINISH_DATETIME|time:"H:i" }}:00',
+                                url: '{% url 'usone:viewdetails' i.id %}',
+                                service_id: '{{ i.id }}',
+                                name: '{{ i.EMP_NAME }}',
+                                detail: '{{ i.DETAILS|linebreaksbr }}',
+                                company: '{{ i.COMPANY_NAME|linebreaksbr }}',
+                                service_type: '{{ i.SERVICE_TYPE }}',
+                                type: 'Y',
+                                className: 'me',
+                                {% if i.JIGCHUL_YN == 'Y' %} imageurl: '/media/icon/jigchul.png', {% endif %}
+                                {% if i.OVER_HOUR > 0 %}  imageurl2: '/media/icon/moon.png',{% endif %}
+                            },
+                        {% endfor %}
+                    ],
+                    backgroundColor: '#FFFF0000',
+                    borderColor: '#FFFF0000',
+                    textColor: '#656565'
+                },
+
+                {
+                    events: [
+                        {% for i in services_team_x %}
+                            {
+                                title: '[휴가] {{ i.EMP_NAME }}',
+                                start: '{{ i.START_DATETIME|date:"Y-m-d" }}',
+                                end: '{{ i.FINISH_DATETIME|date:"Y-m-d" }}',
+                                url: '{% url 'usone:viewdetails' i.id %}',
+                                service_id: '{{ i.id }}',
+                                name: '{{ i.EMP_NAME }}',
+                                detail: '{{ i.DETAILS|linebreaksbr }}',
+                                company: '{{ i.COMPANY_NAME|linebreaksbr }}',
+                                service_type: '{{ i.SERVICE_TYPE }}',
+                                type: 'X',
+                                className: 'team',
+                            },
+                        {% endfor %}
+                    ],
+                    backgroundColor: '#FFFF0000',
+                    borderColor: '#FFFF0000',
+                    textColor: '#3dbd9a'
+                },
+
+                {
+                    events: [
+                        {% for i in services_team_n %}
+                            {
+                                title: '{{ i.EMP_NAME }}',
+                                start: '{{ i.START_DATETIME|date:"Y-m-d" }}T{{ i.START_DATETIME|time:"H:i" }}:00',
+                                end: '{{ i.FINISH_DATETIME|date:"Y-m-d" }}T{{ i.FINISH_DATETIME|time:"H:i" }}:00',
+                                url: '{% url 'usone:viewdetails' i.id %}',
+                                service_id: '{{ i.id }}',
+                                name: '{{ i.EMP_NAME }}',
+                                detail: '{{ i.DETAILS|linebreaksbr }}',
+                                company: '{{ i.COMPANY_NAME|linebreaksbr }}',
+                                service_type: '{{ i.SERVICE_TYPE }}',
+                                type: 'N',
+                                className: 'team',
+                                {% if i.JIGCHUL_YN == 'Y' %} imageurl: '/media/icon/jigchul.png', {% endif %}
+                                {% if i.OVER_HOUR > 0 %}  imageurl2: '/media/icon/moon.png',{% endif %}
+                                {%  if i.SERVICE_TYPE == "정기점검" %}
+                                    backgroundColor: '#3DBD9A',
+                                    borderColor: '#3DBD9A',
+                                {% elif i.SERVICE_TYPE == "일반작업지원" %}
+                                    backgroundColor: '#365D66',
+                                    borderColor: '#45a18d',
+                                {% elif i.SERVICE_TYPE == "프로젝트" %}
+                                    backgroundColor: '#8a85ab',
+                                    borderColor: '#8a85ab',
+                                {% else %}
+                                    backgroundColor: '#487ea1',
+                                    borderColor: '#487ea1',
+                                {% endif %}
+                            },
+                        {% endfor %}
+                    ],
+                    <!--backgroundColor: '#487EA1',-->
+                    <!--borderColor: '#487EA1',-->
+                    textColor: 'white'
+                },
+
+                {
+                    events: [
+                        {% for i in services_team_y %}
+                            {
+                                title: '{{ i.EMP_NAME }}',
+                                start: '{{ i.START_DATETIME|date:"Y-m-d" }}T{{ i.START_DATETIME|time:"H:i" }}:00',
+                                end: '{{ i.FINISH_DATETIME|date:"Y-m-d" }}T{{ i.FINISH_DATETIME|time:"H:i" }}:00',
+                                url: '{% url 'usone:viewdetails' i.id %}',
+                                service_id: '{{ i.id }}',
+                                name: '{{ i.EMP_NAME }}',
+                                detail: '{{ i.DETAILS|linebreaksbr }}',
+                                company: '{{ i.COMPANY_NAME|linebreaksbr }}',
+                                service_type: '{{ i.SERVICE_TYPE }}',
+                                type: 'Y',
+                                className: 'team',
+                                {% if i.JIGCHUL_YN == 'Y' %} imageurl: '/media/icon/jigchul.png', {% endif %}
+                                {% if i.OVER_HOUR > 0 %}  imageurl2: '/media/icon/moon.png',{% endif %}
+                            },
+                        {% endfor %}
+                    ],
+                    backgroundColor: '#FFFF0000',
+                    borderColor: '#FFFF0000',
+                    textColor: '#656565'
+                }
+            ],
+    });
+    $(".fc-prev-button").on("click", function () {
+        //alert("!!!");
+        getViewDate();
+    });
+    $(".fc-next-button").on("click", function () {
+        //alert("next!!!");
+        getViewDate();
+    });
+    $(".fc-today-button").on("click", function () {
+        //alert("next!!!");
+        getViewDate();
+    });
+
+    $('.fc-myCustomButton1-button').addClass('fc-state-active');
+    $('.fc-myCustomButton2-button').addClass('fc-state-active');
+</script>
+<!-- Bootstrap core JavaScript-->
+<script src='{% static "hr/vendor/jquery/jquery.min.js" %}'></script>
+<script src='{% static "hr/vendor/bootstrap/js/bootstrap.bundle.min.js" %}'></script>
+
+<!-- Core plugin JavaScript-->
+<script src='{% static "hr/vendor/jquery-easing/jquery.easing.min.js" %}'></script>
+
+<!-- Custom scripts for all pages-->
+<script src='{% static "hr/js/sb-admin-2.min.js" %}'></script>
+
+</body>
+</html>

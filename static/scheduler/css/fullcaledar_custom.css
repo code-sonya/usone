@@ -1,0 +1,138 @@
+html, body {
+    overflow: hidden; /* don't do scrollbars */
+    font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+    font-size: 14px;
+}
+
+#calendar {
+    font-size: 18px;
+}
+
+#calendar-container {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.demo-topbar { /* will be stripped out */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+}
+
+.demo-topbar + #calendar-container { /* will be stripped out */
+    top: 40px;
+}
+
+.fc-header-toolbar {
+    /*
+    the calendar will be butting up against the edges,
+    but let's scoot in the header's buttons
+    */
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+.fc-sun {
+    color: #e31b23
+}
+
+.fc-sat {
+    color: #007dc3
+}
+
+.fc-day-number {
+    color: black
+}
+
+.fc-sun .fc-day-number {
+    color: #e31b23
+}
+
+.fc-sat .fc-day-number {
+    color: #007dc3
+}
+
+.hide {
+    display: none
+}
+
+@media only screen and (max-width: 800px) {
+    .fc-day-grid-event .fc-time {
+        display: none;
+    }
+
+    .fc-center {
+        padding-top: 15px
+    }
+
+    #calendar {
+        font-size: 12px;
+    }
+}
+
+.fc-state-default,
+.fc-widget-content .fc-state-default,
+.fc-widget-header .fc-state-default {
+    border: 1px solid #cccccc;
+    background: #f6f6f6 50% 50% repeat-x;
+    font-weight: bold;
+    color: #1c94c4;
+}
+
+.fc-state-default a,
+.fc-state-default a:link,
+.fc-state-default a:visited {
+    color: #1c94c4;
+    text-decoration: none;
+}
+
+.fc-state-hover,
+.fc-widget-content .fc-state-hover,
+.fc-widget-header .fc-state-hover,
+.fc-state-focus,
+.fc-widget-content .fc-state-focus,
+.fc-widget-header .fc-state-focus {
+    border: 1px solid #fbcb09;
+    background: #fdf5ce 50% 50% repeat-x;
+    font-weight: bold;
+    color: #c77405;
+}
+
+.fc-state-hover a,
+.fc-state-hover a:hover,
+.fc-state-hover a:link,
+.fc-state-hover a:visited,
+.fc-state-focus a,
+.fc-state-focus a:hover,
+.fc-state-focus a:link,
+.fc-state-focus a:visited {
+    color: #c77405;
+    text-decoration: none;
+}
+
+.fc-state-active,
+.fc-widget-content .fc-state-active,
+.fc-widget-header .fc-state-active {
+    border: 1px solid #1c94c4;
+    background: #cccccc 50% 50% repeat-x;
+    font-weight: bold;
+
+}
+
+.fc-state-active a,
+.fc-state-active a:link,
+.fc-state-active a:visited {
+    color: #eb8f00;
+    text-decoration: none;
+}
+
+.fc-googleButton-button {
+    background: #ea4335;
+    color: white
+}
