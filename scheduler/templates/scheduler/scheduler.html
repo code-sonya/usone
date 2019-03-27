@@ -109,8 +109,8 @@
 
         @media only screen and (min-width: 600px) {
 
-            #calendar-container{
-                 left: 105px;
+            #calendar-container {
+                left: 105px;
             }
         }
 
@@ -364,6 +364,44 @@
                     <p style="float: left;font-size: 0.7rem"><img src="/media/icon/else.png" width="12px"> 기타 </p>
                 </div>
 
+                <div id="SearchLayer" style="position:absolute;z-index:999;display:none; width:90%; height:50%;background: none rgba(255,255,255,0.0);
+                                 filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr='#80000000', endColorstr='#80000000');" align='center'>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="h5 font-weight-bold text-warning text-uppercase mb-1">부서 목록</div>
+                                        <form name="DeptCheck" id="DeptCheck" method="post">
+                                            {% csrf_token %}
+                                            <div class="h6 mb-0 font-weight-bold text-gray-800" style="align:center;margin-left: 30px">
+                                                {% for i in DeptList %}
+                                                    <div class="row">
+                                                        <label><input type="checkbox" name="dept" value="{{ i }}"> {{ i }} </label></div>
+                                                {% endfor %}
+                                                <input type="text" name="deptList" style="visibility:hidden;">
+
+                                            </div>
+                                            <div class="text-center">
+                                                <a href="#" class="btn btn-danger btn-icon-split" onclick="btnClose()">
+                                                    <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                                                    <span class="text"> 취소 </span>
+                                                </a>
+                                                <a href="#" class="btn btn-success btn-icon-split" onclick="btnSubmit()">
+                                                    <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                                                    <span class="text"> 확인 </span>
+                                                </a>
+                                            </div>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
                 <div class="row">
                     <div class="ui container">
                         <div class="ui container">
@@ -418,108 +456,90 @@
 
 <script type="text/javascript">
 
-    function myRemove(event) {
-        return "me" == event.className;
+    function btnView() {
+        document.getElementById("SearchLayer").style.display = 'inline'
     }
 
-    function teamRemove(event) {
-        return "team" == event.className;
+    function btnClose() {
+        document.getElementById("SearchLayer").style.display = 'none'
     }
 
-    $('#calendar').fullCalendar({
-        myCustomButton1: {
-                    text: '내 일정',
-                    click: function () {
-                        var button = $('.fc-myCustomButton1-button');
-                        if (button.hasClass('fc-state-active')) {
-                            $('#calendar').fullCalendar('removeEvents', myRemove);
-                            button.removeClass('fc-state-active');
-                        } else {
-                            $('#calendar').fullCalendar('addEventSource',
-                                {
-                                    events: [
-                                        {% for i in myVacation %}
-                                            {
-                                                title: '[휴가] {{ i.empId }}',
-                                                start: '{{ i.VacationStartDate|date:"Y-m-d" }}',
-                                                end: '{{ i.VacationEndDate|date:"Y-m-d" }}',
-                                                {#url: '{% url 'usone:viewdetails' i.id %}',#}
-                                            },
-                                        {% endfor %}
-                                    ],
-                                    backgroundColor: '#FFFF0000',
-                                    borderColor: '#FFFF0000',
-                                    textColor: '#3dbd9a'
-                                }
-                            );
-                            $('#calendar').fullCalendar('addEventSource',
-                                {
-                                    events: [
-                                        {% for i in myCalendar %}
-                                            {
-                                                title: '{{ i.EmpName }}',
-                                                start: '{{ i.ServiceStartDatetime|date:"Y-m-d" }}T{{ i.ServiceStartDatetime|time:"H:i" }}:00',
-                                                end: '{{ i.ServiceEndDatetime|date:"Y-m-d" }}T{{ i.ServiceEndDatetime|time:"H:i" }}:00',
-                                                {#url: '{% url 'usone:viewdetails' i.serviceid %}',#}
-                                                service_id: '{{ i.serviceid }}',
-                                                name: '{{ i.EmpName }}',
-                                                detail: '{{ i.ServiceTitle|linebreaksbr }}',
-                                                company: '{{ i.CompanyName|linebreaksbr }}',
-                                                service_type: '{{ i.ServiceType }}',
-                                                type: 'N',
-                                                className: 'me',
-                                                {% if i.Directgo == 'Y' %}
-                                                    imageurl: '/media/icon/jigchul.png', {% endif %}
-                                                {% if i.ServiceOverHour > 0 %}
-                                                    imageurl2: '/media/icon/moon.png',{% endif %}
-                                                {%  if i.ServiceType == "정기점검" %}
-                                                    backgroundColor: '#3DBD9A',
-                                                    borderColor: '#3DBD9A',
-                                                {% elif i.ServiceType == "일반작업지원" %}
-                                                    backgroundColor: '#365D66',
-                                                    borderColor: '#45a18d',
-                                                {% elif i.ServiceType == "프로젝트" %}
-                                                    backgroundColor: '#8a85ab',
-                                                    borderColor: '#8a85ab',
-                                                {% else %}
-                                                    backgroundColor: '#487ea1',
-                                                    borderColor: '#487ea1',
-                                                {% endif %}
-                                            },
-                                        {% endfor %}
-                                    ],
-                                    <!--backgroundColor: '#487EA1',-->
-                                    <!--borderColor: '#487EA1',-->
-                                    textColor: 'white'
-                                }
-                            );
-                            button.addClass('fc-state-active');
-                        }
+    function btnSubmit() {
+        let arrsize = document.getElementsByName("dept").length;
+        let DeptList = "";
+        let arrList = new Array();
+        //check이름을 가진 check중에서 체크된 것만 값 가져오기
+        j = 0;
+        for (let i = 0; i < arrsize; i++) {
+            console.log("i", i);
+            console.log("j", j);
+            if (document.getElementsByName("dept")[i].checked == true) {
+
+                arrList[j] = document.getElementsByName("dept")[i].value;
+                j += 1;
+            }
+        }
+        let form_check = document.getElementById('DeptCheck');
+        form_check.deptList.value = arrList;
+        form_check.submit();
+
+
+    }
+
+    $(document).ready(function () {
+        $('#calendar').fullCalendar({
+            customButtons: {
+
+                addEvent: {
+                    text: '+일정',
+                    click: function (event) {
+
+                        onSelectEvent(event);
+
                     }
                 },
-        header: {
-            left: 'prev,next',
-            center: 'title',
-            right: 'month,basicWeek,myCustomButton1'
-        },
-        locale: 'ko',
-        defaultView: 'month',
-        defaultDate: '{{ today }}',
-        eventLimit: 3,
-        eventLimitText: "더보기",
-        eventLimitClick: "popover",
-        editable: false,
-        droppable: false,
-        height: "parent",
-        eventSources: [
+                addCalendar: {
+                    text: '+팀',
+                    click: function popupLayer() {
+
+                        btnView();
+
+                    }
+
+                }
+
+            },
+            header: {
+                left: 'addCalendar prev,next',
+                center: 'title',
+                right: 'month,basicWeek addEvent'
+            }, defaultDate: new Date(),
+            locale:'ko',
+            selectable: false,
+            navLinks: false,
+            editable: true,
+            eventLimit: false,
+            eventSources: [
                 {
                     events: [
                         {% for i in myVacation %}
                             {
-                                title: '[휴가] {{ i.empId }}',
-                                start: '{{ i.VacationStartDate|date:"Y-m-d" }}',
-                                end: '{{ i.VacationEndDate|date:"Y-m-d" }}',
-                                {#url: '{% url 'usone:viewdetails' i.id %}',#}
+                                title: '[휴가] {{ i.empName }}',
+                                start: '{{ i.vacationStartDate|date:"Y-m-d" }}',
+                                end: '{{ i.vacationStartDate|date:"Y-m-d" }}',
+                                service_id: '{{ i.vacationId }}',
+                                name: '{{ i.empName }}',
+                                type :'X'
+                            },
+                        {% endfor %}
+                        {% for i in teamVacation %}
+                            {
+                                title: '[휴가] {{ i.empName }}',
+                                start: '{{ i.vacationStartDate|date:"Y-m-d" }}',
+                                end: '{{ i.vacationStartDate|date:"Y-m-d" }}',
+                                service_id: '{{ i.vacationId }}',
+                                name: '{{ i.empName }}',
+                                type :'X'
                             },
                         {% endfor %}
                     ],
@@ -527,177 +547,193 @@
                     borderColor: '#FFFF0000',
                     textColor: '#3dbd9a'
                 },
-
                 {
                     events: [
                         {% for i in myCalendar %}
                             {
-                                title: '{{ i.EmpName }}',
-                                start: '{{ i.ServiceStartDatetime|date:"Y-m-d" }}T{{ i.ServiceStartDatetime|time:"H:i" }}:00',
-                                end: '{{ i.ServiceEndDatetime|date:"Y-m-d" }}T{{ i.ServiceEndDatetime|time:"H:i" }}:00',
-                                {#url: '{% url 'usone:viewdetails' i.serviceid %}',#}
-                                service_id: '{{ i.serviceid }}',
-                                name: '{{ i.EmpName }}',
-                                detail: '{{ i.ServiceTitle|linebreaksbr }}',
-                                company: '{{ i.CompanyName|linebreaksbr }}',
-                                service_type: '{{ i.ServiceType }}',
-                                type: 'N',
+                                title: '{{ i.empName }}',
+                                start: '{{ i.serviceStartDatetime|date:"Y-m-d" }}',
+                                end: '{{ i.serviceEndDatetime|date:"Y-m-d" }}',
+                                {#url: '{% url 'usone:viewdetails' i.id %}',#}
+                                service_id: '{{ i.serviceId }}',
+                                name: '{{ i.empName }}',
+                                detail: '{{ i.serviceDetails|linebreaksbr }}',
+                                company: '{{ i.companyName|linebreaksbr }}',
+                                service_type: '{{ i.serviceType }}',
                                 className: 'me',
-                                {% if i.Directgo == 'Y' %}
-                                    imageurl: '/media/icon/jigchul.png', {% endif %}
-                                {% if i.ServiceOverHour > 0 %}
-                                    imageurl2: '/media/icon/moon.png',{% endif %}
-                                {%  if i.ServiceType == "정기점검" %}
-                                    backgroundColor: '#3DBD9A',
-                                    borderColor: '#3DBD9A',
-                                {% elif i.ServiceType == "일반작업지원" %}
-                                    backgroundColor: '#365D66',
-                                    borderColor: '#45a18d',
-                                {% elif i.ServiceType == "프로젝트" %}
-                                    backgroundColor: '#8a85ab',
-                                    borderColor: '#8a85ab',
+                                {#직출 여부#}
+                                {% if i.directgo == 'Y' %}
+                                    imageurl: '/media/icon/jigchul.png',
+                                {% endif %}
+                                {#야간 근무#}
+                                {% if i.serviceOverHour > 0 %}
+                                    imageurl2: '/media/icon/moon.png',
+                                {% endif %}
+                                {#일정 완료 여부#}
+                                {% if i.serviceStatus == 'Y' %}
+                                    type: 'Y',
+                                    backgroundColor: '#FFFF0000',
+                                    borderColor: '#FFFF0000',
+                                    textColor: '#656565',
                                 {% else %}
-                                    backgroundColor: '#487ea1',
-                                    borderColor: '#487ea1',
+                                    type: 'N',
+                                    {%  if i.serviceType == "정기점검" %}
+                                        backgroundColor: '#3DBD9A',
+                                        borderColor: '#3DBD9A',
+                                    {% elif i.serviceType == "일반작업지원" %}
+                                        backgroundColor: '#365D66',
+                                        borderColor: '#45a18d',
+                                    {% elif i.serviceType == "프로젝트" %}
+                                        backgroundColor: '#8a85ab',
+                                        borderColor: '#8a85ab',
+                                    {% else %}
+                                        backgroundColor: '#487ea1',
+                                        borderColor: '#487ea1',
+                                    {% endif %}
+                                     textColor: 'white'
                                 {% endif %}
                             },
                         {% endfor %}
                     ],
-                    <!--backgroundColor: '#487EA1',-->
-                    <!--borderColor: '#487EA1',-->
-                    textColor: 'white'
                 },
-
                 {
                     events: [
-                        {% for i in services_my_y %}
+                        {% for i in teamCalendar %}
                             {
-                                title: '{{ i.EMP_NAME }}',
-                                start: '{{ i.START_DATETIME|date:"Y-m-d" }}T{{ i.START_DATETIME|time:"H:i" }}:00',
-                                end: '{{ i.FINISH_DATETIME|date:"Y-m-d" }}T{{ i.FINISH_DATETIME|time:"H:i" }}:00',
-                                url: '{% url 'usone:viewdetails' i.id %}',
-                                service_id: '{{ i.id }}',
-                                name: '{{ i.EMP_NAME }}',
-                                detail: '{{ i.DETAILS|linebreaksbr }}',
-                                company: '{{ i.COMPANY_NAME|linebreaksbr }}',
-                                service_type: '{{ i.SERVICE_TYPE }}',
-                                type: 'Y',
-                                className: 'me',
-                                {% if i.JIGCHUL_YN == 'Y' %} imageurl: '/media/icon/jigchul.png', {% endif %}
-                                {% if i.OVER_HOUR > 0 %}  imageurl2: '/media/icon/moon.png',{% endif %}
-                            },
-                        {% endfor %}
-                    ],
-                    backgroundColor: '#FFFF0000',
-                    borderColor: '#FFFF0000',
-                    textColor: '#656565'
-                },
-
-                {
-                    events: [
-                        {% for i in services_team_x %}
-                            {
-                                title: '[휴가] {{ i.EMP_NAME }}',
-                                start: '{{ i.START_DATETIME|date:"Y-m-d" }}',
-                                end: '{{ i.FINISH_DATETIME|date:"Y-m-d" }}',
-                                url: '{% url 'usone:viewdetails' i.id %}',
-                                service_id: '{{ i.id }}',
-                                name: '{{ i.EMP_NAME }}',
-                                detail: '{{ i.DETAILS|linebreaksbr }}',
-                                company: '{{ i.COMPANY_NAME|linebreaksbr }}',
-                                service_type: '{{ i.SERVICE_TYPE }}',
-                                type: 'X',
+                                title: '{{ i.empName }}',
+                                start: '{{ i.serviceStartDatetime|date:"Y-m-d" }}T{{ i.serviceStartDatetime|time:"H:i" }}:00',
+                                end: '{{ i.serviceEndDatetime|date:"Y-m-d" }}T{{ i.serviceEndDatetime|time:"H:i" }}:00',
+                                {#url: '{% url 'usone:viewdetails' i.id %}',#}
+                                service_id: '{{ i.serviceId }}',
+                                name: '{{ i.empName }}',
+                                detail: '{{ i.serviceDetails|linebreaksbr }}',
+                                company: '{{ i.companyName|linebreaksbr }}',
+                                service_type: '{{ i.serviceType }}',
                                 className: 'team',
-                            },
-                        {% endfor %}
-                    ],
-                    backgroundColor: '#FFFF0000',
-                    borderColor: '#FFFF0000',
-                    textColor: '#3dbd9a'
-                },
-
-                {
-                    events: [
-                        {% for i in services_team_n %}
-                            {
-                                title: '{{ i.EMP_NAME }}',
-                                start: '{{ i.START_DATETIME|date:"Y-m-d" }}T{{ i.START_DATETIME|time:"H:i" }}:00',
-                                end: '{{ i.FINISH_DATETIME|date:"Y-m-d" }}T{{ i.FINISH_DATETIME|time:"H:i" }}:00',
-                                url: '{% url 'usone:viewdetails' i.id %}',
-                                service_id: '{{ i.id }}',
-                                name: '{{ i.EMP_NAME }}',
-                                detail: '{{ i.DETAILS|linebreaksbr }}',
-                                company: '{{ i.COMPANY_NAME|linebreaksbr }}',
-                                service_type: '{{ i.SERVICE_TYPE }}',
-                                type: 'N',
-                                className: 'team',
-                                {% if i.JIGCHUL_YN == 'Y' %} imageurl: '/media/icon/jigchul.png', {% endif %}
-                                {% if i.OVER_HOUR > 0 %}  imageurl2: '/media/icon/moon.png',{% endif %}
-                                {%  if i.SERVICE_TYPE == "정기점검" %}
-                                    backgroundColor: '#3DBD9A',
-                                    borderColor: '#3DBD9A',
-                                {% elif i.SERVICE_TYPE == "일반작업지원" %}
-                                    backgroundColor: '#365D66',
-                                    borderColor: '#45a18d',
-                                {% elif i.SERVICE_TYPE == "프로젝트" %}
-                                    backgroundColor: '#8a85ab',
-                                    borderColor: '#8a85ab',
+                                {#직출 여부#}
+                                {% if i.directgo == 'Y' %}
+                                    imageurl: '/media/icon/jigchul.png',
+                                {% endif %}
+                                {#야간 근무#}
+                                {% if i.serviceOverHour > 0 %}
+                                    imageurl2: '/media/icon/moon.png',
+                                {% endif %}
+                                {#일정 완료 여부#}
+                                {% if i.serviceStatus == 'Y' %}
+                                    type: 'Y',
+                                    backgroundColor: '#FFFF0000',
+                                    borderColor: '#FFFF0000',
+                                    textColor: '#656565',
                                 {% else %}
-                                    backgroundColor: '#487ea1',
-                                    borderColor: '#487ea1',
+                                    type: 'N',
+                                    {%  if i.serviceType == "정기점검" %}
+                                        backgroundColor: '#3DBD9A',
+                                        borderColor: '#3DBD9A',
+                                    {% elif i.serviceType == "일반작업지원" %}
+                                        backgroundColor: '#365D66',
+                                        borderColor: '#45a18d',
+                                    {% elif i.serviceType == "프로젝트" %}
+                                        backgroundColor: '#8a85ab',
+                                        borderColor: '#8a85ab',
+                                    {% else %}
+                                        backgroundColor: '#487ea1',
+                                        borderColor: '#487ea1',
+                                    {% endif %}
+                                     textColor: 'white'
                                 {% endif %}
                             },
                         {% endfor %}
                     ],
-                    <!--backgroundColor: '#487EA1',-->
-                    <!--borderColor: '#487EA1',-->
-                    textColor: 'white'
                 },
-
-                {
-                    events: [
-                        {% for i in services_team_y %}
-                            {
-                                title: '{{ i.EMP_NAME }}',
-                                start: '{{ i.START_DATETIME|date:"Y-m-d" }}T{{ i.START_DATETIME|time:"H:i" }}:00',
-                                end: '{{ i.FINISH_DATETIME|date:"Y-m-d" }}T{{ i.FINISH_DATETIME|time:"H:i" }}:00',
-                                url: '{% url 'usone:viewdetails' i.id %}',
-                                service_id: '{{ i.id }}',
-                                name: '{{ i.EMP_NAME }}',
-                                detail: '{{ i.DETAILS|linebreaksbr }}',
-                                company: '{{ i.COMPANY_NAME|linebreaksbr }}',
-                                service_type: '{{ i.SERVICE_TYPE }}',
-                                type: 'Y',
-                                className: 'team',
-                                {% if i.JIGCHUL_YN == 'Y' %} imageurl: '/media/icon/jigchul.png', {% endif %}
-                                {% if i.OVER_HOUR > 0 %}  imageurl2: '/media/icon/moon.png',{% endif %}
-                            },
-                        {% endfor %}
-                    ],
-                    backgroundColor: '#FFFF0000',
-                    borderColor: '#FFFF0000',
-                    textColor: '#656565'
-                }
             ],
-    });
-    $(".fc-prev-button").on("click", function () {
-        //alert("!!!");
-        getViewDate();
-    });
-    $(".fc-next-button").on("click", function () {
-        //alert("next!!!");
-        getViewDate();
-    });
-    $(".fc-today-button").on("click", function () {
-        //alert("next!!!");
-        getViewDate();
+            eventMouseover: function (data, event, view) {
+                if (data.type == 'X') {
+                    tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br>' + data.detail + '</div>';
+                } else {
+
+                    tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br>' + data.start.format('YYYY/MM/DD HH:mm') + '~' + data.end.format('YYYY/MM/DD HH:mm') + '<br>' + data.detail + '</div>';
+                }
+                $("body").append(tooltip);
+                $(this).mouseover(function (e) {
+                    $(this).css('z-index', 10000);
+                    $('.tooltiptopicevent').fadeIn('500');
+                    $('.tooltiptopicevent').fadeTo('10', 1.9);
+                }).mousemove(function (e) {
+                    $('.tooltiptopicevent').css('top', e.pageY + 10);
+                    $('.tooltiptopicevent').css('left', e.pageX + 20);
+                });
+            },
+            eventMouseout: function (data, event, view) {
+                $(this).css('z-index', 8);
+                $('.tooltiptopicevent').remove();
+            },
+
+            eventRender: function (event, element) {
+                if (event.imageurl) {
+                    element.find("span.fc-title").prepend("<img src='" + event.imageurl + "' width='12' height='12' >");
+                }
+                if (event.imageurl2) {
+                    element.find("span.fc-title").append("<img src='" + event.imageurl2 + "' width='12' height='12' >");
+                }
+            },
+            eventDrop: function (event, delta, revertFunc) {
+                {#로그인한 유저 엔지니어 이름#}
+                const userName = "{{ empName }}";
+                {#선택된 이벤트의 엔지니어 이름, 타입, id#}
+                const empName = event.name;
+                const serviceType = event.type;
+                const serviceId = event.service_id;
+                const startDate = String(event.start.format());
+                let endDate;
+                if (empName == userName) {
+                    {#완료된 일정일 경우#}
+                    if (event.serviceType == 'Y') {
+                        alert('완료된 일정은 수정할 수 없습니다. :)');
+                        revertFunc()
+
+                    } else {
+                        {#휴가일 경우#}
+                        if (serviceType == 'X') {
+                            endDate = startDate;
+                        } else {
+                            endDate = String(event.end.format());
+                        }
+                        $.ajax({
+                            type: "POST",
+                            url: "/scheduler/changeDate/",
+                            data: {'start': startDate, 'end': endDate , 'serviceId': serviceId ,'serviceType' :serviceType},
+                            dataType: "json",
+                            success: function (response) {
+                                console.log(response.serviceId + "일정 변경");
+                            },
+                            error: function (request, status, error) {
+                                alert("일정변경실패");
+                            },
+                        });
+                    }
+                } else {
+                    alert("본인 일정만 변경 가능합니다 :)");
+                    revertFunc()
+                }
+            },
+
+            dayClick: function (date, jsEvent, view) {
+                if (~jsEvent.target.className.indexOf('fc-day-number')) {
+                    if (confirm(date.format() + "에 일정을 등록 할까요?") == true) {
+                        server_url = '/usone/post/' + date.format() + '/';
+                        location.href = server_url;
+                    }
+                }
+            }
+
+        });
+
+
     });
 
-    $('.fc-myCustomButton1-button').addClass('fc-state-active');
-    $('.fc-myCustomButton2-button').addClass('fc-state-active');
 </script>
 <!-- Bootstrap core JavaScript-->
-<script src='{% static "hr/vendor/jquery/jquery.min.js" %}'></script>
+{#<script src='{% static "hr/vendor/jquery/jquery.min.js" %}'></script>#}
 <script src='{% static "hr/vendor/bootstrap/js/bootstrap.bundle.min.js" %}'></script>
 
 <!-- Core plugin JavaScript-->
