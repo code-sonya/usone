@@ -156,4 +156,5 @@ def post(request, postdate):
             return render(request, 'service/post.html', context)
 
     else:
-        return HttpResponse("로그아웃")
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+

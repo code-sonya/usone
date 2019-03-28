@@ -35,52 +35,60 @@
                     <form id="ServicereportForm" method="POST">
                         {% csrf_token %}
                         <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
+                            <div class="col-6 mb-3 mb-sm-0">
                                 <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-6">
                                 <label for="serviceType" class="font-weight-bold text-primary"> 지원 타입 </label> {{ form.serviceType }}
                             </div>
                         </div>
                         <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
+                            <div class="col-6 mb-3 mb-sm-0">
                                 <label for="startdate" class="font-weight-bold text-primary"> 시작 일자 </label> {{ form.startdate }}
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-6">
                                 <label for="starttime" class="font-weight-bold text-primary"> 시작 시간 </label> {{ form.starttime }}
                             </div>
                         </div>
                         <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
+                            <div class="col-6 mb-3 mb-sm-0">
                                 <label for="enddate" class="font-weight-bold text-primary"> 종료 일자 </label> {{ form.enddate }}
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-6">
                                 <label for="endtime" class="font-weight-bold text-primary"> 종료 시간 </label> {{ form.endtime }}
                             </div>
                         </div>
                         <div class="form-group row">
-                            <div class="col-sm-3 text-center">
-                                <input type="radio" id="for1" name="for" value="for_n" checked/>
-                                <label for="for1"> 기본등록 </label>
+                            <div class="col-sm-6 text-center">
+                                <div class="form-group row">
+                                    <div class="col-6 text-center">
+                                        <input type="radio" id="for1" name="for" value="for_n" checked/>
+                                        <label for="for1"> 기본등록 </label>
+                                    </div>
+                                    <div class="col-6 text-center">
+                                        <input type="radio" id="for2" name="for" value="for_my"/>
+                                        <label for="for2"> 매월반복 </label>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-sm-3 text-center">
-                                <input type="radio" id="for2" name="for" value="for_my"/>
-                                <label for="for2"> 매월반복 </label>
-                            </div>
-                            <div class="col-sm-3 text-center">
-                                <input type="radio" id="for3" name="for" value="for_hn"/>
-                                <label for="for3"> 기간(휴일제외) </label>
-                            </div>
-                            <div class="col-sm-3 text-center">
-                                <input type="radio" id="for4" name="for" value="for_hy"/>
-                                <label for="for4"> 기간(휴일포함) </label>
+                            <div class="col-sm-6 text-center">
+                                <div class="form-group row">
+                                    <div class="col-6 text-center">
+                                        <input type="radio" id="for3" name="for" value="for_hn"/>
+                                        <label for="for3"> 기간(휴일제외) </label>
+                                    </div>
+                                    <div class="col-6 text-center">
+                                        <input type="radio" id="for4" name="for" value="for_hy"/>
+                                        <label for="for4"> 기간(휴일포함) </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
+                            <div class="col-6 mb-3 mb-sm-0">
                                 <label for="serviceLocation" class="font-weight-bold text-primary"> 지역 구분 </label> {{ form.serviceLocation }}
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-6">
                                 <label for="directgo" class="font-weight-bold text-primary"> 직출 여부 </label> {{ form.directgo }}
                             </div>
                         </div>
