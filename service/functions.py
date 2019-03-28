@@ -13,7 +13,19 @@ def date_list(startDatetime, endDatetime):
     return dateRange
 
 
-def str_timedelta_hour(str_endDatetime, str_startDatetime):
+def month_list(startDatetime, endDatetime):
+    startDatetime = datetime(year=int(startDatetime[:4]), month=int(startDatetime[5:7]), day=int(startDatetime[8:10]))
+    endDatetime = datetime(year=int(endDatetime[:4]), month=int(endDatetime[5:7]), day=int(endDatetime[8:10]))
+
+    monthRange = []
+    insertDate = startDatetime
+    while insertDate <= endDatetime:
+        monthRange.append(insertDate.date())
+        insertDate = insertDate + relativedelta(months=1)
+    return monthRange
+
+
+def str_to_timedelta_hour(str_endDatetime, str_startDatetime):
     e = datetime(year=int(str(str_endDatetime)[:4]), month=int(str(str_endDatetime)[5:7]), day=int(str(str_endDatetime)[8:10]),
                  hour=int(str(str_endDatetime)[11:13]), minute=int(str(str_endDatetime)[14:16]), second=0)
     s = datetime(year=int(str(str_startDatetime)[:4]), month=int(str(str_startDatetime)[5:7]), day=int(str(str_startDatetime)[8:10]),

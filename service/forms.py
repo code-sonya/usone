@@ -20,7 +20,7 @@ class ServicereportForm(forms.ModelForm):
 
         widgets = {
             'companyName': forms.Select(attrs={'class': 'form-control', 'id': 'companyName'}),
-            'serviceType': forms.Select(attrs={'class': 'form-control', 'onchange': 'chageLangSelect()', 'id': "serviceType"}),
+            'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType"}),
             'serviceLocation': forms.Select(attrs={'class': 'form-control', 'id': 'serviceLocation'}),
             'directgo': forms.Select(attrs={'class': 'form-control', 'id': 'directgo'}),
             'serviceTitle': forms.TextInput(attrs={'class': 'form-control', 'id': 'serviceTitle'}),
