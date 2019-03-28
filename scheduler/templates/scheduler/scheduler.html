@@ -504,7 +504,7 @@
                             dd = '0' + dd
                         }
                         const strToday = yyyy + '-' + mm + '-' + dd;
-                        const url="/service/post/" + strToday;
+                        const url="/service/postservice/" + strToday;
                         location.href = url;
                     }
                 },
@@ -730,7 +730,7 @@
             dayClick: function (date, jsEvent, view) {
                 if (~jsEvent.target.className.indexOf('fc-day-number')) {
                     if (confirm(date.format() + "에 일정을 등록 할까요?") == true) {
-                        server_url = '/service/post/' + date.format() + '/';
+                        server_url = '/service/postservice/' + date.format() + '/';
                         location.href = server_url;
                     }
                 }

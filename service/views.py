@@ -13,7 +13,7 @@ import datetime
 import json
 
 
-def post(request, postdate):
+def postservice(request, postdate):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
@@ -153,8 +153,12 @@ def post(request, postdate):
                        'empName': empName,
                        'postdate': postdate,
                        }
-            return render(request, 'service/post.html', context)
+            return render(request, 'service/postservice.html', context)
 
     else:
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
+
+def postvacation(request):
+    context = {}
+    return render(request, 'service/postvacation.html', context)

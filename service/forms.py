@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Servicereport
+from .models import Servicereport, Vacation
 from client.models import Company, Customer
 
 import datetime
@@ -30,3 +30,9 @@ class ServicereportForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ServicereportForm, self).__init__(*args, **kwargs)
         self.fields["companyName"].queryset = Company.objects.filter(companyStatus='Y').order_by('companyName')
+
+
+class vacationForm(forms.ModelForm):
+    class Meta:
+        model = Vacation
+        fields = ('vacationDate', 'vacationType')

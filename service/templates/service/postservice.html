@@ -1,0 +1,179 @@
+{% extends "dashboard/layout.html" %}
+
+{% block title %}
+  일정등록
+{% endblock %}
+
+
+{% block content %}
+
+  <div>
+    <p id="postdate" style="display:none">{{ postdate }}</p>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-8">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> 일정등록 </h6>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                 aria-labelledby="dropdownMenuLink" x-placement="bottom-end"
+                 style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-156px, 19px, 0px);">
+              <div class="dropdown-header"> 내 양식:</div>
+              <a class="dropdown-item" href="#"> 고객사1 정기점검 </a>
+              <a class="dropdown-item" href="#"> 고객사2 정기점검 </a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#"> 양식등록 </a>
+              <a class="dropdown-item" href="#"> 휴가등록 </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <form id="ServicereportForm" method="POST">
+            {% csrf_token %}
+            <div class="form-group row">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
+              </div>
+              <div class="col-6">
+                <label for="serviceType" class="font-weight-bold text-primary"> 지원 타입 </label> {{ form.serviceType }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="font-weight-bold text-primary"> 시작 일자 </label> {{ form.startdate }}
+              </div>
+              <div class="col-6">
+                <label for="starttime" class="font-weight-bold text-primary"> 시작 시간 </label> {{ form.starttime }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="enddate" class="font-weight-bold text-primary"> 종료 일자 </label> {{ form.enddate }}
+              </div>
+              <div class="col-6">
+                <label for="endtime" class="font-weight-bold text-primary"> 종료 시간 </label> {{ form.endtime }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-sm-6 text-center">
+                <div class="form-group row">
+                  <div class="col-6 text-center">
+                    <input type="radio" id="for1" name="for" value="for_n" checked/>
+                    <label for="for1"> 기본등록 </label>
+                  </div>
+                  <div class="col-6 text-center">
+                    <input type="radio" id="for2" name="for" value="for_my"/>
+                    <label for="for2"> 매월반복 </label>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 text-center">
+                <div class="form-group row">
+                  <div class="col-6 text-center">
+                    <input type="radio" id="for3" name="for" value="for_hn"/>
+                    <label for="for3"> 기간(휴일제외) </label>
+                  </div>
+                  <div class="col-6 text-center">
+                    <input type="radio" id="for4" name="for" value="for_hy"/>
+                    <label for="for4"> 기간(휴일포함) </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="serviceLocation" class="font-weight-bold text-primary"> 지역 구분 </label> {{ form.serviceLocation }}
+              </div>
+              <div class="col-6">
+                <label for="directgo" class="font-weight-bold text-primary"> 직출 여부 </label> {{ form.directgo }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="serviceTitle" class="font-weight-bold text-primary"> 제목 </label> {{ form.serviceTitle }}
+            </div>
+            <div class="form-group">
+              <label for="serviceDetails" class="font-weight-bold text-primary"> 지원 내용 </label> {{ form.serviceDetails }}
+            </div>
+
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      $(document).ready(function () {
+          // 일자, 시간 초기화
+          const postdate = document.getElementById("postdate").textContent;
+          $('#startdate').val(postdate);
+          $('#starttime').val("09:00");
+          $('#enddate').val(postdate);
+          $('#endtime').val("18:00");
+      });
+
+      function showVal(newVal) {
+          $('#enddate').val(newVal);
+      }
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              location.href = "/scheduler/"
+          } else {
+              return false;
+          }
+      }
+
+      function btn_save() {
+          const companyName = document.getElementById("companyName").value;
+          const serviceType = document.getElementById("serviceType").value;
+          const serviceTitle = document.getElementById("serviceTitle").value;
+          const serviceDetails = document.getElementById("serviceDetails").value;
+
+          if (companyName === '') {
+              alert("고객사 명을 입력해주세요.");
+              return false;
+          }
+          if (serviceType === '') {
+              alert("지원 타입을 입력해주세요.");
+              return false;
+          }
+          if (serviceTitle === '') {
+              alert("제목을 입력해주세요.");
+              return false;
+          }
+          if (serviceDetails === '') {
+              alert("지원 내용을 입력해주세요.");
+              return false;
+          }
+          if (confirm("일정등록을 하시겠습니까?") === true) {    //확인
+              document.getElementById("ServicereportForm").submit();
+          }
+      }
+
+  </script>
+
+{% endblock %}
