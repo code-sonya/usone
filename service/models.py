@@ -19,7 +19,6 @@ class Servicereport(models.Model):
         ('튜닝', '튜닝'),
         ('프로젝트', '프로젝트'),
         ('프리세일즈', '프리세일즈'),
-        ('휴가', '휴가')
     )
     serviceLocationChoices = (('서울', '서울'), ('경기', '경기'), ('기타', '기타'))
     statusChoices = (('Y', 'Y'), ('N', 'N'))
@@ -68,7 +67,6 @@ class Serviceform(models.Model):
         ('튜닝', '튜닝'),
         ('프로젝트', '프로젝트'),
         ('프리세일즈', '프리세일즈'),
-        ('휴가', '휴가')
     )
     serviceLocationChoices = (('서울', '서울'), ('경기', '경기'), ('기타', '기타'))
     statusChoices = (('Y', 'Y'), ('N', 'N'))

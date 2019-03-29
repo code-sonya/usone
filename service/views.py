@@ -149,8 +149,10 @@ def postservice(request, postdate):
 
         else:
             form = ServicereportForm()
+            serviceforms = Serviceform.objects.filter(empId=empId)
             context = {'form': form,
                        'postdate': postdate,
+                       'serviceforms': serviceforms,
                        }
             return render(request, 'service/postservice.html', context)
 
@@ -208,7 +210,7 @@ def postserviceform(request):
                 post = form.save(commit=False)
                 post.empId = empId
                 post.save()
-                return redirect('scheduler')
+                return redirect('postservice',str(datetime.date.today()))
 
         else:
             form = ServiceformForm()

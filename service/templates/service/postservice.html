@@ -32,11 +32,17 @@
                  aria-labelledby="dropdownMenuLink" x-placement="bottom-end"
                  style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-156px, 19px, 0px);">
               <div class="dropdown-header"> 내 양식:</div>
-              <a class="dropdown-item" href="#"> 고객사1 정기점검 </a>
-              <a class="dropdown-item" href="#"> 고객사2 정기점검 </a>
+                {% for serviceform in serviceforms %}
+                  <a class="dropdown-item" href="#" onclick="applyform('{{ serviceform.companyName.companyName }}', '{{ serviceform.serviceType }}',
+                          '{{ serviceform.serviceStartTime | time:"H:i"}}', '{{ serviceform.serviceEndTime | time:"H:i"}}',
+                          '{{ serviceform.serviceLocation }}', '{{ serviceform.directgo }}',
+                          '{{ serviceform.serviceTitle }}', '{{ serviceform.serviceDetails }}')">
+                    {{ serviceform.serviceTitle | truncatechars:"15" }}
+                  </a>
+                {% endfor %}
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#"> 양식등록 </a>
-              <a class="dropdown-item" href="#"> 휴가등록 </a>
+                <a class="dropdown-item" href="/service/postserviceform/"> 양식등록 </a>
+                <a class="dropdown-item" href="/service/postvacation/"> 휴가등록 </a>
             </div>
           </div>
 
@@ -125,6 +131,7 @@
             </div>
 
           </form>
+
         </div>
 
       </div>
@@ -178,6 +185,17 @@
           if (confirm("일정등록을 하시겠습니까?") === true) {    //확인
               document.getElementById("ServicereportForm").submit();
           }
+      }
+
+      function applyform(companyName, serviceType, serviceStartTime, serviceEndTime, serviceLocation, directgo, serviceTitle, serviceDetails) {
+          $('#companyName').val(companyName);
+          $('#serviceType').val(serviceType);
+          $('#starttime').val(serviceStartTime);
+          $('#endtime').val(serviceEndTime);
+          $('#serviceLocation').val(serviceLocation);
+          $('#directgo').val(directgo);
+          $('#serviceTitle').val(serviceTitle);
+          $('#serviceDetails').val(serviceDetails);
       }
 
       $(document).ready(function () {

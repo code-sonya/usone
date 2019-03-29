@@ -27,7 +27,7 @@ class Company(models.Model):
     companyStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     def __str__(self):
-        return 'Company : {}'.format(self.companyName)
+        return self.companyName
 
 
 class Customer(models.Model):
