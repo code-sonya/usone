@@ -1,5 +1,6 @@
 {% extends "dashboard/layout.html" %}
 
+
 {% block title %}
   일정등록
 {% endblock %}
@@ -12,11 +13,16 @@
   </div>
 
   <div class="row">
-    <div class="col-lg-2"></div>
-    <div class="col-lg-8">
+    <div class="col-xl-2"></div>
+
+    <div class="col-xl-8">
+
       <div class="card shadow mb-4">
+
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
           <h6 class="m-0 h3 text-gray-800"> 일정등록 </h6>
+
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">
@@ -33,10 +39,13 @@
               <a class="dropdown-item" href="#"> 휴가등록 </a>
             </div>
           </div>
+
         </div>
 
         <div class="card-body">
+
           <form id="ServicereportForm" method="POST">
+
             {% csrf_token %}
             <div class="form-group row">
               <div class="col-6 mb-3 mb-sm-0">
@@ -112,12 +121,17 @@
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text"> 저장 </span>
               </a>
+
             </div>
+
           </form>
         </div>
+
       </div>
+
     </div>
-    <div class="col-lg-2"></div>
+
+    <div class="col-xl-2"></div>
   </div>
 
 {% endblock %}
@@ -126,14 +140,6 @@
 {% block script %}
 
   <script type="text/javascript">
-      $(document).ready(function () {
-          // 일자, 시간 초기화
-          const postdate = document.getElementById("postdate").textContent;
-          $('#startdate').val(postdate);
-          $('#starttime').val("09:00");
-          $('#enddate').val(postdate);
-          $('#endtime').val("18:00");
-      });
 
       function showVal(newVal) {
           $('#enddate').val(newVal);
@@ -173,6 +179,14 @@
               document.getElementById("ServicereportForm").submit();
           }
       }
+
+      $(document).ready(function () {
+          const postdate = document.getElementById("postdate").textContent;
+          $('#startdate').val(postdate);
+          $('#starttime').val("09:00");
+          $('#enddate').val(postdate);
+          $('#endtime').val("18:00");
+      } );
 
   </script>
 

@@ -160,5 +160,39 @@ def postservice(request, postdate):
 
 
 def postvacation(request):
-    context = {}
-    return render(request, 'service/postvacation.html', context)
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+
+        if request.method == "POST":
+            # 로그인 사용자 정보
+            empId = Employee(empId=request.user.employee.empId)
+            empName = request.user.employee.empName
+            empDeptName = request.user.employee.empDeptName
+
+            vacationTypeDict = request.POST
+            dateArray = list(request.POST.keys())[1:]
+
+            for vacationDate in dateArray:
+                if vacationTypeDict[vacationDate] == 'all':
+                    vacationType = "일차"
+                elif vacationTypeDict[vacationDate] == 'am':
+                    vacationType = "오전반차"
+                elif vacationTypeDict[vacationDate] == 'pm':
+                    vacationType = "오후반차"
+
+                Vacation.objects.create(
+                    empId=empId,
+                    empName=empName,
+                    empDeptName=empDeptName,
+                    vacationDate=vacationDate,
+                    vacationType=vacationType
+                )
+            return redirect('scheduler')
+
+        else:
+            context = {}
+            return render(request, 'service/postvacation.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
