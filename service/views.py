@@ -6,7 +6,7 @@ from .models import Servicereport, Serviceform, Vacation
 from client.models import Company, Customer
 from hr.models import Employee
 from scheduler.models import Eventday
-from .forms import ServicereportForm
+from .forms import ServicereportForm, ServiceformForm
 
 from .functions import date_list, month_list, overtime, str_to_timedelta_hour
 import datetime
@@ -148,9 +148,8 @@ def postservice(request, postdate):
                     return redirect('scheduler')
 
         else:
-            form = ServicereportForm(request.POST)
+            form = ServicereportForm()
             context = {'form': form,
-                       'empName': empName,
                        'postdate': postdate,
                        }
             return render(request, 'service/postservice.html', context)
@@ -167,8 +166,6 @@ def postvacation(request):
         if request.method == "POST":
             # 로그인 사용자 정보
             empId = Employee(empId=request.user.employee.empId)
-            empName = request.user.employee.empName
-            empDeptName = request.user.employee.empDeptName
 
             vacationTypeDict = request.POST
             dateArray = list(request.POST.keys())[1:]
@@ -196,3 +193,26 @@ def postvacation(request):
 
     else:
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def postserviceform(request):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        empId = Employee(empId=request.user.employee.empId)
+
+        if request.method == "POST":
+            form = ServiceformForm(request.POST)
+
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.empId = empId
+                post.save()
+                return redirect('scheduler')
+
+        else:
+            form = ServiceformForm()
+            context={
+                'form': form,
+            }
+            return render(request, 'service/postserviceform.html', context)
