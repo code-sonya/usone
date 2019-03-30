@@ -164,11 +164,12 @@ def postvacation(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
+        # 로그인 사용자 정보
+        empId = Employee(empId=request.user.employee.empId)
+        empName = request.user.employee.empName
+        empDeptName = request.user.employee.empDeptName
 
         if request.method == "POST":
-            # 로그인 사용자 정보
-            empId = Employee(empId=request.user.employee.empId)
-
             vacationTypeDict = request.POST
             dateArray = list(request.POST.keys())[1:]
 
@@ -179,6 +180,8 @@ def postvacation(request):
                     vacationType = "오전반차"
                 elif vacationTypeDict[vacationDate] == 'pm':
                     vacationType = "오후반차"
+                else:
+                    vacationType = ""
 
                 Vacation.objects.create(
                     empId=empId,
@@ -210,11 +213,24 @@ def postserviceform(request):
                 post = form.save(commit=False)
                 post.empId = empId
                 post.save()
-                return redirect('postservice',str(datetime.date.today()))
+                return redirect('postservice', str(datetime.date.today()))
 
         else:
             form = ServiceformForm()
-            context={
+            context = {
                 'form': form,
             }
             return render(request, 'service/postserviceform.html', context)
+
+
+def showservices(request):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        empId = Employee(empId=request.user.employee.empId)
+        services = Servicereport.objects.filter(empId=empId)
+
+        context = {
+            'services': services,
+        }
+        return render(request, 'service/showservices.html', context)

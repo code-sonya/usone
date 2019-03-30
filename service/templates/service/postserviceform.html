@@ -31,7 +31,7 @@
                 <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
               </div>
               <div class="col-6">
-                <label for="serviceType" class="font-weight-bold text-primary"> 지원 타입 </label> {{ form.serviceType }}
+                <label for="serviceType" class="font-weight-bold text-primary"> 일정 구분 </label> {{ form.serviceType }}
               </div>
             </div>
             <div class="form-group row">
@@ -54,7 +54,7 @@
               <label for="serviceTitle" class="font-weight-bold text-primary"> 제목 </label> {{ form.serviceTitle }}
             </div>
             <div class="form-group">
-              <label for="serviceDetails" class="font-weight-bold text-primary"> 지원 내용 </label> {{ form.serviceDetails }}
+              <label for="serviceDetails" class="font-weight-bold text-primary"> 내용 </label> {{ form.serviceDetails }}
             </div>
 
             <div class="text-center">
@@ -105,7 +105,7 @@
               return false;
           }
           if (serviceType === '') {
-              alert("지원 타입을 입력해주세요.");
+              alert("일정 구분을 입력해주세요.");
               return false;
           }
           if (serviceTitle === '') {
@@ -113,7 +113,7 @@
               return false;
           }
           if (serviceDetails === '') {
-              alert("지원 내용을 입력해주세요.");
+              alert("내용을 입력해주세요.");
               return false;
           }
           if (confirm("양식등록을 하시겠습니까?") === true) {    //확인
