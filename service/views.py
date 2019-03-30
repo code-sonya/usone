@@ -13,7 +13,7 @@ import datetime
 import json
 
 
-def postservice(request, postdate):
+def post_service(request, postdate):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
@@ -149,18 +149,23 @@ def postservice(request, postdate):
 
         else:
             form = ServicereportForm()
+            form.fields['startdate'].initial = postdate
+            form.fields['starttime'].initial = "09:00"
+            form.fields['enddate'].initial = postdate
+            form.fields['endtime'].initial = "18:00"
             serviceforms = Serviceform.objects.filter(empId=empId)
-            context = {'form': form,
-                       'postdate': postdate,
-                       'serviceforms': serviceforms,
-                       }
+            context = {
+                'form': form,
+                'postdate': postdate,
+                'serviceforms': serviceforms,
+            }
             return render(request, 'service/postservice.html', context)
 
     else:
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
-def postvacation(request):
+def post_vacation(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
@@ -200,7 +205,7 @@ def postvacation(request):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
-def postserviceform(request):
+def post_serviceform(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
@@ -217,13 +222,18 @@ def postserviceform(request):
 
         else:
             form = ServiceformForm()
+            form.fields['serviceStartTime'].initial = "09:00"
+            form.fields['serviceEndTime'].initial = "18:00"
             context = {
                 'form': form,
             }
             return render(request, 'service/postserviceform.html', context)
 
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
-def showservices(request):
+
+def show_services(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
@@ -234,3 +244,210 @@ def showservices(request):
             'services': services,
         }
         return render(request, 'service/showservices.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def view_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        service = Servicereport.objects.get(serviceId=serviceId)
+
+        context = {
+            'service': service,
+        }
+
+        return render(request, 'service/viewservice.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def save_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        service = Servicereport.objects.get(serviceId=serviceId)
+        service.serviceStatus = 'Y'
+        service.serviceFinishDatetime = datetime.datetime.now()
+        service.save()
+        
+        return HttpResponse("일정 완료. 메일 연결")
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def delete_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        Servicereport.objects.filter(serviceId=serviceId).delete()
+
+        return redirect('scheduler')
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def modify_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        # 로그인 사용자 정보
+        instance = Servicereport.objects.get(serviceId=serviceId)
+        empId = Employee(empId=request.user.employee.empId)
+        empName = request.user.employee.empName
+        empDeptName = request.user.employee.empDeptName
+
+        if request.method == "POST":
+            form = ServicereportForm(request.POST, instance=instance)
+
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.empId = empId
+                post.empName = empName
+                post.empDeptName = empDeptName
+                post.serviceFinishDatetime = datetime.datetime.now()
+                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceDate = str(post.serviceStartDatetime)[:10]
+                post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.save()
+                return redirect('scheduler')
+        else:
+            form = ServicereportForm(instance=instance)
+            form.fields['startdate'].initial = str(instance.serviceStartDatetime)[:10]
+            form.fields['starttime'].initial = str(instance.serviceStartDatetime)[11:16]
+            form.fields['enddate'].initial = str(instance.serviceEndDatetime)[:10]
+            form.fields['endtime'].initial = str(instance.serviceEndDatetime)[11:16]
+
+            context = {
+                'form': form,
+            }
+            return render(request, 'service/postservice.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def copy_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        # 로그인 사용자 정보
+        instance = Servicereport.objects.get(serviceId=serviceId)
+        empId = Employee(empId=request.user.employee.empId)
+        empName = request.user.employee.empName
+        empDeptName = request.user.employee.empDeptName
+        Servicereport.objects.create(
+            serviceDate=instance.serviceDate,
+            empId=empId,
+            empName=empName,
+            empDeptName=empDeptName,
+            companyName=instance.companyName,
+            serviceType=instance.serviceType,
+            serviceStartDatetime=instance.serviceStartDatetime,
+            serviceEndDatetime=instance.serviceEndDatetime,
+            serviceFinishDatetime=instance.serviceFinishDatetime,
+            serviceHour=instance.serviceHour,
+            serviceOverHour=instance.serviceOverHour,
+            serviceRegHour=instance.serviceRegHour,
+            serviceLocation=instance.serviceLocation,
+            directgo=instance.directgo,
+            serviceTitle=instance.serviceTitle,
+            serviceDetails=instance.serviceDetails,
+            serviceStatus=instance.serviceStatus,
+        )
+        return redirect('scheduler')
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def show_serviceforms(request):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        empId = Employee(empId=request.user.employee.empId)
+        serviceforms = Serviceform.objects.filter(empId=empId)
+
+        context = {
+            'serviceforms': serviceforms,
+        }
+        return render(request, 'service/showserviceforms.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def modify_serviceform(request, serviceFormId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        instance = Serviceform.objects.get(serviceFormId=serviceFormId)
+        empId = Employee(empId=request.user.employee.empId)
+
+        if request.method == "POST":
+            form = ServiceformForm(request.POST, instance=instance)
+
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.empId = empId
+                post.save()
+                return redirect('postservice', str(datetime.date.today()))
+
+        else:
+            form = ServiceformForm(instance=instance)
+            context = {
+                'form': form,
+                'serviceFormId': serviceFormId,
+            }
+            return render(request, 'service/postserviceform.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def delete_serviceform(request, serviceFormId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        Serviceform.objects.filter(serviceFormId=serviceFormId).delete()
+
+        return redirect('showserviceforms')
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def show_vacations(request):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        empId = Employee(empId=request.user.employee.empId)
+        vacations = Vacation.objects.filter(empId=empId)
+
+        context = {
+            'vacations': vacations,
+        }
+        return render(request, 'service/showvacations.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def delete_vacation(request, vacationId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        Vacation.objects.filter(vacationId=vacationId).delete()
+
+        return redirect('showvacations')
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")

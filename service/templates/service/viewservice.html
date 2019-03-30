@@ -9,57 +9,9 @@
 {% block content %}
 
   <div class="row">
+    <div class="col-xl-2"></div>
 
-    <div class="col-xl-6">
-
-      <div class="card shadow mb-4">
-
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-          <h6 class="m-0 h3 text-gray-800"> 일정 </h6>
-
-          <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-               aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-filter fa-fw text-gray-400"></i>
-            </a>
-
-          </div>
-
-        </div>
-
-        <div class="card-body">
-
-          <div class="table-responsive">
-            <table id="showservice" class="hover row-border" width="100%" style="width: 100%;">
-              <thead>
-              <tr>
-                <th>날짜</th>
-                <th>고객사</th>
-                <th>제목</th>
-                <th class="d-none">serviceId</th>
-                <th class="d-none">empName</th>
-                <th class="d-none">directgo</th>
-                <th class="d-none">companyName</th>
-                <th class="d-none">serviceType</th>
-                <th class="d-none">serviceStartDatetime</th>
-                <th class="d-none">serviceEndDatetime</th>
-                <th class="d-none">serviceHour</th>
-                <th class="d-none">serviceOverHour</th>
-                <th class="d-none">serviceTitle</th>
-                <th class="d-none">serviceDetails</th>
-              </tr>
-              </thead>
-            </table>
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="col-xl-6 d-none d-xl-block">
+    <div class="col-xl-8">
 
       <div class="card shadow mb-4">
 
@@ -71,6 +23,7 @@
 
         <div class="card-body">
 
+          {% csrf_token %}
           <div class="form-group row">
             <div class="col-6 mb-3 mb-sm-0">
               <div class="card border-left-info shadow h-100 py-2">
@@ -78,7 +31,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">이름</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="empName"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="empName">{{ service.empName }}</div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -93,7 +46,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">직출</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="directgo"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="directgo">{{ service.directgo }}</div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -111,7 +64,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">고객사</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="companyName"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="companyName">{{ service.companyName }} ({{ service.serviceLocation }})</div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -126,7 +79,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">일정구분</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceType"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceType">{{ service.serviceType }}</div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -144,7 +97,9 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">시작시간</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceStartDatetime"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceStartDatetime">
+                        {{ service.serviceStartDatetime | date:"Y년 m월 d일"}} {{ service.serviceStartDatetime | time:"H:i"}}
+                      </div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -159,7 +114,9 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">종료시간</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceEndDatetime"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceEndDatetime">
+                        {{ service.serviceStartDatetime | date:"Y년 m월 d일"}} {{ service.serviceEndDatetime | time:"H:i"}}
+                      </div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -177,7 +134,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">소요시간</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceHour"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceHour">{{ service.serviceHour }} 시간</div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -192,7 +149,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">초과근무</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceOverHour"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceOverHour">{{ service.serviceOverHour }} 시간</div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -210,7 +167,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">제목</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceTitle"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceTitle">{{ service.serviceTitle }}</div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -228,7 +185,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">내용</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceDetails"></div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceDetails">{{ service.serviceDetails | linebreaksbr }}</div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-calendar fa-2x text-gray-300"></i>
@@ -239,11 +196,37 @@
             </div>
           </div>
 
+          {% if service.empId.empId == user.employee.empId and service.serviceStatus == 'N' %}
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+                <span class="text"> 삭제 </span>
+              </a>
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+                <span class="text"> 수정 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 완료 </span>
+              </a>
+            </div>
+          {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
+            <div class="text-center">
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_copy()">
+                <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
+                <span class="text"> 복사 </span>
+              </a>
+            </div>
+          {% endif %}
+
         </div>
 
       </div>
 
     </div>
+
+    <div class="col-xl-2"></div>
   </div>
 
 {% endblock %}
@@ -253,79 +236,29 @@
 
   <script type="text/javascript">
 
-      $(document).ready(function () {
+      function btn_save(){
+          if (confirm("일정을 완료 하시겠습니까?") === true) {
+              location.href = '/service/saveservice/' + {{ service.serviceId }} + '/';
+          }
+      }
 
-          const table = $('#showservice').DataTable({
-              data: [],
-              columns: [
-                  {data: "날짜"},
-                  {data: "고객사"},
-                  {data: "제목"},
-                  {data: "serviceId"},
-                  {data: "empName"},
-                  {data: "directgo"},
-                  {data: "companyName"},
-                  {data: "serviceType"},
-                  {data: "serviceStartDatetime"},
-                  {data: "serviceEndDatetime"},
-                  {data: "serviceHour"},
-                  {data: "serviceOverHour"},
-                  {data: "serviceTitle"},
-                  {data: "serviceDetails"},
-              ],
-              columnDefs: [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: [3,4,5,6,7,8,9,10,11,12,13 ], visible:false}
-              ],
-              "ordering": false,
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollCollapse": true,
-          });
+      function btn_modify(){
+          if (confirm("일정을 수정 하시겠습니까?") === true) {
+              location.href = '/service/modifyservice/' + {{ service.serviceId }} + '/';
+          }
+      }
 
-          {% for service in services %}
-              table.row.add( {
-                  "날짜": "{{ service.serviceDate | date:"Y-m-d" }}",
-                  "고객사": "{{ service.companyName.companyName }}<br>({{ service.serviceType }})",
-                  "제목": "{{ service.serviceTitle }}",
-                  "serviceId": "{{ service.serviceId }}",
-                  "empName": "{{ service.empName }}",
-                  "directgo": "{{ service.directgo }}",
-                  "companyName": "{{ service.companyName.companyName }} ({{ service.serviceLocation }})",
-                  "serviceType": "{{ service.serviceType }}",
-                  "serviceStartDatetime": "{{ service.serviceStartDatetime | date:"Y년 m월 d일"}} {{ service.serviceStartDatetime | time:"H:i"}}",
-                  "serviceEndDatetime": "{{ service.serviceStartDatetime | date:"Y년 m월 d일"}} {{ service.serviceEndDatetime | time:"H:i"}}",
-                  "serviceHour": "{{ service.serviceHour }} 시간",
-                  "serviceOverHour": "{{ service.serviceOverHour }} 시간",
-                  "serviceTitle": "{{ service.serviceTitle }}",
-                  "serviceDetails": "{{ service.serviceDetails | linebreaksbr }}"
-              } ).draw();
-          {% endfor %}
+      function btn_delete(){
+          if (confirm("일정을 삭제 하시겠습니까?") === true) {
+              location.href = '/service/deleteservice/' + {{ service.serviceId }} + '/';
+          }
+      }
 
-          $("#showservice").on("click", 'tr', function(){
-              const data = table.row(this).data();
-              location.href='/service/viewservice/' + data.serviceId + '/'
-          });
-
-          $("#showservice").on("mouseenter", 'tr', function(){
-              const data = table.row(this).data();
-              $('#empName').text(data.empName);
-              $('#directgo').text(data.directgo);
-              $('#companyName').text(data.companyName);
-              $('#serviceType').text(data.serviceType);
-              $('#serviceStartDatetime').text(data.serviceStartDatetime);
-              $('#serviceEndDatetime').text(data.serviceEndDatetime);
-              $('#serviceHour').text(data.serviceHour);
-              $('#serviceOverHour').text(data.serviceOverHour);
-              $('#serviceTitle').text(data.serviceTitle);
-              $('#serviceDetails').html(data.serviceDetails);
-          });
-
-      });
+      function btn_copy(){
+          if (confirm("일정을 복사 하시겠습니까?") === true) {
+              location.href = '/service/copyservice/' + {{ service.serviceId }} + '/';
+          }
+      }
 
   </script>
 

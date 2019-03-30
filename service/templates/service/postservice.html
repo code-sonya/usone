@@ -8,10 +8,6 @@
 
 {% block content %}
 
-  <div>
-    <p id="postdate" style="display:none">{{ postdate }}</p>
-  </div>
-
   <div class="row">
     <div class="col-xl-2"></div>
 
@@ -23,15 +19,16 @@
 
           <h6 class="m-0 h3 text-gray-800"> 일정등록 </h6>
 
-          <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-               aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                 aria-labelledby="dropdownMenuLink" x-placement="bottom-end"
-                 style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-156px, 19px, 0px);">
-              <div class="dropdown-header"> 내 양식:</div>
+          {% if form.serviceTitle.value == None %} <!-- 일정 등록 화면과 일정 수정 화면 구분 -->
+            <div class="dropdown no-arrow">
+              <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
+                 aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
+                   aria-labelledby="dropdownMenuLink" x-placement="bottom-end"
+                   style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-156px, 19px, 0px);">
+                <div class="dropdown-header" id="myForm"> 내 양식:</div>
                 {% for serviceform in serviceforms %}
                   <a class="dropdown-item" href="#" onclick="applyform('{{ serviceform.companyName.companyName }}', '{{ serviceform.serviceType }}',
                           '{{ serviceform.serviceStartTime | time:"H:i"}}', '{{ serviceform.serviceEndTime | time:"H:i"}}',
@@ -40,11 +37,14 @@
                     {{ serviceform.serviceTitle | truncatechars:"15" }}
                   </a>
                 {% endfor %}
-              <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/service/postserviceform/"> 양식등록 </a>
-                <a class="dropdown-item" href="/service/postvacation/"> 휴가등록 </a>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-header" id="myForm"> 관리:</div>
+                <a class="dropdown-item" href="/service/showserviceforms/"> 양식관리 </a>
+                <a class="dropdown-item" href="/service/showvacations/"> 휴가관리 </a>
+
+              </div>
             </div>
-          </div>
+          {% endif %}
 
         </div>
 
@@ -77,32 +77,34 @@
                 <label for="endtime" class="font-weight-bold text-primary"> 종료 시간 </label> {{ form.endtime }}
               </div>
             </div>
-            <div class="form-group row">
-              <div class="col-sm-6 text-center">
-                <div class="form-group row">
-                  <div class="col-6 text-center">
-                    <input type="radio" id="for1" name="for" value="for_n" checked/>
-                    <label for="for1"> 기본등록 </label>
+            {% if form.serviceTitle.value == None %} <!-- 일정 등록 화면과 일정 수정 화면 구분 -->
+              <div class="form-group row">
+                <div class="col-sm-6 text-center">
+                  <div class="form-group row">
+                    <div class="col-6 text-center">
+                      <input type="radio" id="for1" name="for" value="for_n" checked/>
+                      <label for="for1"> 기본등록 </label>
+                    </div>
+                    <div class="col-6 text-center">
+                      <input type="radio" id="for2" name="for" value="for_my"/>
+                      <label for="for2"> 매월반복 </label>
+                    </div>
                   </div>
-                  <div class="col-6 text-center">
-                    <input type="radio" id="for2" name="for" value="for_my"/>
-                    <label for="for2"> 매월반복 </label>
+                </div>
+                <div class="col-sm-6 text-center">
+                  <div class="form-group row">
+                    <div class="col-6 text-center">
+                      <input type="radio" id="for3" name="for" value="for_hn"/>
+                      <label for="for3"> 기간(휴일제외) </label>
+                    </div>
+                    <div class="col-6 text-center">
+                      <input type="radio" id="for4" name="for" value="for_hy"/>
+                      <label for="for4"> 기간(휴일포함) </label>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="col-sm-6 text-center">
-                <div class="form-group row">
-                  <div class="col-6 text-center">
-                    <input type="radio" id="for3" name="for" value="for_hn"/>
-                    <label for="for3"> 기간(휴일제외) </label>
-                  </div>
-                  <div class="col-6 text-center">
-                    <input type="radio" id="for4" name="for" value="for_hy"/>
-                    <label for="for4"> 기간(휴일포함) </label>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {% endif %}
             <div class="form-group row">
               <div class="col-6 mb-3 mb-sm-0">
                 <label for="serviceLocation" class="font-weight-bold text-primary"> 지역 구분 </label> {{ form.serviceLocation }}
@@ -127,7 +129,6 @@
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text"> 저장 </span>
               </a>
-
             </div>
 
           </form>
@@ -197,14 +198,6 @@
           $('#serviceTitle').val(serviceTitle);
           $('#serviceDetails').val(serviceDetails);
       }
-
-      $(document).ready(function () {
-          const postdate = document.getElementById("postdate").textContent;
-          $('#startdate').val(postdate);
-          $('#starttime').val("09:00");
-          $('#enddate').val(postdate);
-          $('#endtime').val("18:00");
-      } );
 
   </script>
 
