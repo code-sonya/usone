@@ -33,7 +33,8 @@ def scheduler(request):
             print(postDeptList)
 
             ### 일정(한달치) ###
-            teamCalendar = Servicereport.objects.filter(Q(empDeptName__in=postDeptList) & Q(serviceStartDatetime__gte=datetime.date.today() - relativedelta(months=1))).exclude(empId=empId)
+            teamCalendar = Servicereport.objects.filter(Q(empDeptName__in=postDeptList) &
+                           Q(serviceStartDatetime__gte=datetime.date.today() - relativedelta(months=1))).exclude(empId=empId)
             myCalendar = Servicereport.objects.filter(Q(empDeptName__in=postDeptList)&Q(empName=empName))
 
             ### 휴가(전체) ###
@@ -55,7 +56,8 @@ def scheduler(request):
         else:
 
             ### 일정(한달치) ###
-            teamCalendar = Servicereport.objects.filter(Q(empDeptName=empDeptName) & Q(serviceStartDatetime__gte=datetime.date.today() - relativedelta(months=1))).exclude(empId=empId)
+            teamCalendar = Servicereport.objects.filter(Q(empDeptName=empDeptName) &
+                           Q(serviceStartDatetime__gte=datetime.date.today() - relativedelta(months=1))).exclude(empId=empId)
             myCalendar = Servicereport.objects.filter(empName=empName)
 
             ### 휴가(전체) ###
