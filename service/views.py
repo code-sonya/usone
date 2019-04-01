@@ -451,3 +451,23 @@ def delete_vacation(request, vacationId):
 
     else:
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def day_report(request, day):
+    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    Date_min = datetime.datetime.combine(Date, datetime.datetime.min.time())
+    Date_max = datetime.datetime.combine(Date, datetime.datetime.max.time())
+
+    serviceSolution = Servicereport.objects.filter(
+        Q(empDeptName='솔루션지원팀') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
+    )
+    serviceDb = Servicereport.objects.filter(
+        Q(empDeptName='DB지원팀') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
+    )
+    context = {
+        'day': day,
+        'serviceSolution': serviceSolution,
+        'serviceDb': serviceDb,
+    }
+
+    return render(request, 'service/dayreport.html', context)

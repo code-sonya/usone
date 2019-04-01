@@ -53,7 +53,7 @@
 
       <!-- Nav Item - Daily Report -->
       <li class="nav-item">
-        <a class="nav-link" href="/scheduler/">
+        <a class="nav-link" href="#" onclick="btn_dayreport()">
           <i class="fas fa-fw fa-pencil-ruler"></i>
           <span>일일 업무</span></a>
       </li>
@@ -264,6 +264,19 @@
   <script type="text/javascript" src="{% static 'scheduler/js/locale-all.js' %}"></script>
 
   {% block script %}{% endblock %}
+
+  <script type="text/javascript">
+    function btn_dayreport() {
+        const dateToday = new Date();
+        const yyyy = dateToday.getFullYear();
+        const mm = ((dateToday.getMonth() + 1) > 9 ? '' : '0') + (dateToday.getMonth() + 1);
+        const dd = (dateToday.getDate() > 9 ? '' : '0') + dateToday.getDate();
+        const strToday = yyyy + '-' + mm + '-' + dd;
+        const url="/service/dayreport/" + strToday;
+        location.href = url;
+    }
+
+  </script>
 </body>
 
 </html>

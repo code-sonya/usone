@@ -1,0 +1,119 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  일정관리
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+
+    <div class="col-xl-6">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 솔루션지원팀 </h6>
+
+        </div>
+
+        <div class="card-body">
+          <table class="table">
+
+            <thead>
+            <tr>
+              <td width="10%" style="text-align:center"><b>구분</b></td>
+              <td width="10%" style="text-align:center"><b>성함</b></td>
+              <td width="20%" style="text-align:center"><b>시간</b></td>
+              <td width="20%" style="text-align:center"><b>고객사</b></td>
+              <td width="40%" style="text-align:center"><b>업무내용</b></td>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for service in serviceSolution %}
+              <tr onclick="document.location.href='/service/viewservice/{{ service.serviceId }}/'">
+                <!-- 구분 : 상주, 내근, 직출, 일반, 휴가 -->
+                <td width="10%" style="text-align:center"><img width="17px" src="/media/icon/check_Y.png"></td>
+
+                <!-- 성함 : 동일인 일정 2개 이상시, 이름 표시 없음. -->
+                {% ifchanged service.empName %}
+                  <td width="10%" style="text-align:center"><b>{{ service.empName }}</b></td>
+                {% else %}
+                  <td width="10%" style="text-align:center"></td>
+                {% endifchanged %}
+
+                <!-- 시간 : 이틀 이상 진행되는 업무시, 일자 표시. 완료표시 -->
+                <td width="20%" style="text-align:center"> {{ service.serviceStartDatetime|date:"H:i" }} ~ {{ service.serviceEndDatetime|date:"H:i" }}
+                  <div class="row">
+                    <div class="col-6 p-0 text-right">
+                      {% if service.serviceStartDatetime.date|date:"Y-m-d" != day %}
+                        ({{ service.serviceStartDatetime|date:"d" }}일) &nbsp
+                      {% endif %}
+                    </div>
+                    <div class="col-6 p-0 text-left">
+                      {% if service.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                        &nbsp ({{ service.serviceEndDatetime|date:"d" }}일)
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  {% if service.serviceStatus == 'Y' %}
+                    <div style="color:red">(지원완료)</div>
+                  {% endif %}
+                </td>
+
+                <!-- 고객사 : 내근, 휴가, 교육 시 고객사 표시 없음  -->
+                <td width="20%" style="text-align:center">
+                {% if service.serviceType != '내근' %}
+                  {{ service.companyName }}<br>({{ service.serviceType }})
+                {% else %}
+                  {{ service.companyName }}<br><br>
+                {% endif %}
+                </td>
+
+                <!-- 업무내용 : 모바일 화면에서 표시방법 강구 -->
+                <td width="40%" style="text-align:center">{{ service.serviceTitle }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-6">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> DB지원팀 </h6>
+
+        </div>
+
+        <div class="card-body">
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+  </script>
+
+{% endblock %}
