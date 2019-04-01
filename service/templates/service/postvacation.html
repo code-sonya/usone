@@ -1,0 +1,176 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  휴가등록
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 휴가등록 </h6>
+
+        </div>
+
+        <div class="card-body">
+
+          <div class="form-group row">
+            <div class="col-6 mb-3 mb-sm-0">
+              <label for="startdate" class="font-weight-bold text-primary"> 시작 일자 </label>
+              <input type="date" name="startdate" class="form-control" id="startdate" onchange="showVal(this.value)" maxlength="16" required="">
+            </div>
+            <div class="col-6">
+              <label for="enddate" class="font-weight-bold text-primary"> 종료 일자 </label>
+              <input type="date" name="enddate" class="form-control" id="enddate" onchange="showTable()" maxlength="16" required="">
+            </div>
+          </div>
+
+          <form id="VacationForm" method="POST">
+
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-lg-3"></div>
+              <div class="col-lg-6">
+                <table id="vacation" class="hover row-border" width="100%" style="width: 100%;">
+                  <thead>
+                  <tr>
+                    <th>휴가일</th>
+                    <th>일차</th>
+                    <th>오전</th>
+                    <th>오후</th>
+                  </tr>
+                  </thead>
+                </table>
+              </div>
+              <div class="col-lg-3"></div>
+            </div>
+
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function showTable() {
+          if ($.fn.dataTable.isDataTable('#vacation')) {
+              $('#vacation').DataTable().destroy();
+          }
+
+          const convertDay = 24 * 60 * 60 * 1000;
+          const strStart = document.getElementById("startdate").value;
+          const strEnd = document.getElementById("enddate").value;
+          const arrStart = strStart.split('-');
+          const arrEnd = strEnd.split('-');
+          const dateStart = new Date(arrStart[0], arrStart[1] - 1, arrStart[2]);
+          const dateEnd = new Date(arrEnd[0], arrEnd[1] - 1, arrEnd[2]);
+          const intDiffDay = parseInt((dateEnd - dateStart) / convertDay);
+
+          let data = [
+              {
+                  "휴가일": strStart,
+                  "일차": '<input type="radio" name=' + strStart + ' value="all" checked>',
+                  "오전": '<input type="radio" name=' + strStart + ' value="am">',
+                  "오후": '<input type="radio" name=' + strStart + ' value="pm">'
+              }
+          ];
+
+          for (var i = 1; i <= intDiffDay; i++) {
+              var dateTemp = new Date(arrStart[0], arrStart[1] - 1, arrStart[2]);
+              dateTemp.setDate(dateTemp.getDate() + i);
+              var strTemp = [dateTemp.getFullYear(), ((dateTemp.getMonth() + 1) > 9 ? '' : '0') + (dateTemp.getMonth() + 1),
+                  (dateTemp.getDate() > 9 ? '' : '0') + dateTemp.getDate()].join('-');
+              data.push(
+                  {
+                      "휴가일": strTemp,
+                      "일차": '<input type="radio" name=' + strTemp + ' value="all" checked>',
+                      "오전": '<input type="radio" name=' + strTemp + ' value="am">',
+                      "오후": '<input type="radio" name=' + strTemp + ' value="pm">'
+                  }
+              )
+          }
+
+          $('#vacation').DataTable({
+              data: data,
+              columns: [
+                  {data: '휴가일'},
+                  {data: '일차'},
+                  {data: '오전'},
+                  {data: '오후'}
+              ],
+              columnDefs: [
+                  {targets: [0], width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap"},
+                  {targets: [1, 2, 3], width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap"},
+              ],
+              "ordering": false,
+              "searching": false,
+              "paging": false,
+              "info": false,
+          });
+      }
+
+      function showVal(newVal) {
+          $('#enddate').val(newVal);
+          showTable();
+      }
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              location.href = "/scheduler/"
+          } else {
+              return false;
+          }
+      }
+
+      function btn_save() {
+          if (confirm("휴가등록을 하시겠습니까?") === true) {
+              document.getElementById("VacationForm").submit();
+          }
+      }
+
+      $(document).ready(function () {
+          const dateToday = new Date();
+          const yyyy = dateToday.getFullYear();
+          const mm = ((dateToday.getMonth() + 1) > 9 ? '' : '0') + (dateToday.getMonth() + 1);
+          const dd = (dateToday.getDate() > 9 ? '' : '0') + dateToday.getDate();
+          const strToday = yyyy + '-' + mm + '-' + dd;
+          $('#startdate').val(strToday);
+          $('#enddate').val(strToday);
+
+          showTable();
+      });
+
+  </script>
+
+{% endblock %}

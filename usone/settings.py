@@ -25,7 +25,7 @@ SECRET_KEY = 'gc418^thjvw80=t9bd$vxd(uv2+$clkzmtl0yf7d$_3amx+*%n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = '*'
 
 INTERNAL_IPS = ["127.0.0.1"]
 
@@ -121,7 +121,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)

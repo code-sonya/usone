@@ -5,240 +5,449 @@ from django.db.models import Q, Sum
 from .models import Servicereport, Serviceform, Vacation
 from client.models import Company, Customer
 from hr.models import Employee
-from .forms import ServicereportForm
+from scheduler.models import Eventday
+from .forms import ServicereportForm, ServiceformForm
 
+from .functions import date_list, month_list, overtime, str_to_timedelta_hour
 import datetime
 import json
 
 
-def post(request, postdate):
+def post_service(request, postdate):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
         # 로그인 사용자 정보
-        empId = request.user.employee.empId
+        empId = Employee(empId=request.user.employee.empId)
         empName = request.user.employee.empName
         empDeptName = request.user.employee.empDeptName
 
         if request.method == "POST":
             form = ServicereportForm(request.POST)
+
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.empId = empId
+                post.empName = empName
+                post.empDeptName = empDeptName
+                post.serviceFinishDatetime = datetime.datetime.now()
+                for_status = request.POST['for']
+
+                # 기본등록
+                if for_status == 'for_n':
+                    post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                    post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                    post.serviceDate = str(post.serviceStartDatetime)[:10]
+                    post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                    post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                    post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                    post.save()
+                    return redirect('scheduler')
+
+                # 매월반복
+                elif for_status == 'for_my':
+                    dateRange = month_list(form.clean()['startdate'], form.clean()['enddate'])
+                    timeCalculateFlag = True
+                    for date in dateRange:
+                        post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+                        post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+                        post.serviceDate = str(post.serviceStartDatetime)[:10]
+                        if timeCalculateFlag:
+                            post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                            post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                            post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                            timeCalculateFlag = False
+                        Servicereport.objects.create(
+                            serviceDate=post.serviceDate,
+                            empId=post.empId,
+                            empName=post.empName,
+                            empDeptName=post.empDeptName,
+                            companyName=post.companyName,
+                            serviceType=post.serviceType,
+                            serviceStartDatetime=post.serviceStartDatetime,
+                            serviceEndDatetime=post.serviceEndDatetime,
+                            serviceFinishDatetime=post.serviceFinishDatetime,
+                            serviceHour=post.serviceHour,
+                            serviceOverHour=post.serviceOverHour,
+                            serviceRegHour=post.serviceRegHour,
+                            serviceLocation=post.serviceLocation,
+                            directgo=post.directgo,
+                            serviceTitle=post.serviceTitle,
+                            serviceDetails=post.serviceDetails,
+                            serviceStatus=post.serviceStatus,
+                        )
+                    return redirect('scheduler')
+
+                # 기간(휴일제외)
+                elif for_status == 'for_hn':
+                    dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
+                    timeCalculateFlag = True
+                    for date in dateRange:
+                        if not Eventday.objects.filter(eventDate=date) and date.weekday() != 5 and date.weekday() != 6:
+                            post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+                            post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+                            post.serviceDate = str(post.serviceStartDatetime)[:10]
+                            if timeCalculateFlag:
+                                post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                                post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                                timeCalculateFlag = False
+                            Servicereport.objects.create(
+                                serviceDate=post.serviceDate,
+                                empId=post.empId,
+                                empName=post.empName,
+                                empDeptName=post.empDeptName,
+                                companyName=post.companyName,
+                                serviceType=post.serviceType,
+                                serviceStartDatetime=post.serviceStartDatetime,
+                                serviceEndDatetime=post.serviceEndDatetime,
+                                serviceFinishDatetime=post.serviceFinishDatetime,
+                                serviceHour=post.serviceHour,
+                                serviceOverHour=post.serviceOverHour,
+                                serviceRegHour=post.serviceRegHour,
+                                serviceLocation=post.serviceLocation,
+                                directgo=post.directgo,
+                                serviceTitle=post.serviceTitle,
+                                serviceDetails=post.serviceDetails,
+                                serviceStatus=post.serviceStatus,
+                            )
+                    return redirect('scheduler')
+
+                # 기간(휴일포함)
+                elif for_status == 'for_hy':
+                    dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
+                    timeCalculateFlag = True
+                    for date in dateRange:
+                        post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+                        post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+                        post.serviceDate = str(post.serviceStartDatetime)[:10]
+                        if timeCalculateFlag:
+                            post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                            post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                            post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                            timeCalculateFlag = False
+                        Servicereport.objects.create(
+                            serviceDate=post.serviceDate,
+                            empId=post.empId,
+                            empName=post.empName,
+                            empDeptName=post.empDeptName,
+                            companyName=post.companyName,
+                            serviceType=post.serviceType,
+                            serviceStartDatetime=post.serviceStartDatetime,
+                            serviceEndDatetime=post.serviceEndDatetime,
+                            serviceFinishDatetime=post.serviceFinishDatetime,
+                            serviceHour=post.serviceHour,
+                            serviceOverHour=post.serviceOverHour,
+                            serviceRegHour=post.serviceRegHour,
+                            serviceLocation=post.serviceLocation,
+                            directgo=post.directgo,
+                            serviceTitle=post.serviceTitle,
+                            serviceDetails=post.serviceDetails,
+                            serviceStatus=post.serviceStatus,
+                        )
+                    return redirect('scheduler')
+
         else:
-            form = ServicereportForm(request.POST)
-            context = {'form': form,
-                       'empName': empName,
-                       'postdate': postdate,
-                       }
-            print('등록화면')
-            return render(request, 'service/post.html', context)
+            form = ServicereportForm()
+            form.fields['startdate'].initial = postdate
+            form.fields['starttime'].initial = "09:00"
+            form.fields['enddate'].initial = postdate
+            form.fields['endtime'].initial = "18:00"
+            serviceforms = Serviceform.objects.filter(empId=empId)
+            context = {
+                'form': form,
+                'postdate': postdate,
+                'serviceforms': serviceforms,
+            }
+            return render(request, 'service/postservice.html', context)
 
     else:
-        return HttpResponse("로그아웃")
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+def post_vacation(request):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        # 로그인 사용자 정보
+        empId = Employee(empId=request.user.employee.empId)
+        empName = request.user.employee.empName
+        empDeptName = request.user.employee.empDeptName
+
+        if request.method == "POST":
+            vacationTypeDict = request.POST
+            dateArray = list(request.POST.keys())[1:]
+
+            for vacationDate in dateArray:
+                if vacationTypeDict[vacationDate] == 'all':
+                    vacationType = "일차"
+                elif vacationTypeDict[vacationDate] == 'am':
+                    vacationType = "오전반차"
+                elif vacationTypeDict[vacationDate] == 'pm':
+                    vacationType = "오후반차"
+                else:
+                    vacationType = ""
+
+                Vacation.objects.create(
+                    empId=empId,
+                    empName=empName,
+                    empDeptName=empDeptName,
+                    vacationDate=vacationDate,
+                    vacationType=vacationType
+                )
+            return redirect('scheduler')
+
+        else:
+            context = {}
+            return render(request, 'service/postvacation.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+def post_serviceform(request):
+    userId = request.user.id  # 로그인 유무 판단 변수
 
-#
-# if request.method == "POST":
-#     form = PostForm(request.POST)
-#
-#     if form.is_valid():
-#         post = form.save(commit=False)
-#
-#         post.EMP_NAME = name
-#         post.DEPT_NAME = EMPLOYEES.objects.filter(emp_name__icontains=post.EMP_NAME)[0].dept_name
-#         post.END_DATETIME = datetime.datetime.now()
-#
-#         for_status = request.POST['for']
-#
-#         # 기간(휴일제외)
-#         if for_status == 'for_hn':
-#             date = date_list(form.clean()['startdate'], form.clean()['finishdate'])
-#             count = 0
-#             for i in date:
-#                 if not EVENT.objects.filter(EVENT_DATE=i) and i.weekday() != 5 and i.weekday() != 6:
-#                     post.START_DATETIME = str(i) + ' ' + form.clean()['starttime']
-#                     post.FINISH_DATETIME = str(i) + ' ' + form.clean()['finishtime']
-#                     post.SERVICE_DATE = str(post.START_DATETIME)[:10]
-#                     if count == 0:
-#                         st = datetime.datetime(year=int(str(post.FINISH_DATETIME)[:4]),
-#                                                month=int(str(post.FINISH_DATETIME)[5:7]),
-#                                                day=int(str(post.FINISH_DATETIME)[8:10]),
-#                                                hour=int(str(post.FINISH_DATETIME)[11:13]),
-#                                                minute=int(str(post.FINISH_DATETIME)[14:16]), second=00) - \
-#                              datetime.datetime(year=int(str(post.START_DATETIME)[:4]),
-#                                                month=int(str(post.START_DATETIME)[5:7]),
-#                                                day=int(str(post.START_DATETIME)[8:10]),
-#                                                hour=int(str(post.START_DATETIME)[11:13]),
-#                                                minute=int(str(post.START_DATETIME)[14:16]), second=00)
-#                         post.HOUR = round(st.total_seconds() / 60 / 60, 1)
-#                         post.HOUR_EXCEPT_DISPATCH = post.HOUR
-#                         post.MINUTE = int(st.total_seconds() / 60)
-#                         post.OVER_MINUTE = int(overtime_sum(post.START_DATETIME, post.FINISH_DATETIME))
-#                         post.OVER_HOUR = round((post.OVER_MINUTE / 60), 1)
-#                         post.REG_HOUR = post.HOUR - post.OVER_HOUR
-#                         post.REG_MINUTE = post.MINUTE - post.OVER_MINUTE
-#                         count += 1
-#                     SERVICES.objects.create(SERVICE_DATE=post.SERVICE_DATE, DEPT_NAME=post.DEPT_NAME, EMP_NAME=post.EMP_NAME,
-#                                             COMPANY_NAME=post.COMPANY_NAME, SERVICE_TYPE=post.SERVICE_TYPE, START_DATETIME=post.START_DATETIME,
-#                                             FINISH_DATETIME=post.FINISH_DATETIME, END_DATETIME=post.END_DATETIME,
-#                                             HOUR=post.HOUR, HOUR_EXCEPT_DISPATCH=post.HOUR_EXCEPT_DISPATCH, MINUTE=post.MINUTE,
-#                                             OVER_HOUR=post.OVER_HOUR, OVER_MINUTE=post.OVER_MINUTE, REG_HOUR=post.REG_HOUR, REG_MINUTE=post.REG_MINUTE,
-#                                             LOCATION=post.LOCATION, JIGCHUL_YN=post.JIGCHUL_YN, DETAILS=post.DETAILS, SERVICE_STATUS='N')
-#             return redirect('scheduler:scheduler_month')
-#
-#         # 기간(휴일포함)
-#         if for_status == 'for_hy':
-#             date = date_list(form.clean()['startdate'], form.clean()['finishdate'])
-#             for i in date:
-#
-#                 post.START_DATETIME = str(i) + ' ' + form.clean()['starttime']
-#                 post.FINISH_DATETIME = str(i) + ' ' + form.clean()['finishtime']
-#                 post.SERVICE_DATE = str(post.START_DATETIME)[:10]
-#                 st = datetime.datetime(year=int(str(post.FINISH_DATETIME)[:4]),
-#                                        month=int(str(post.FINISH_DATETIME)[5:7]),
-#                                        day=int(str(post.FINISH_DATETIME)[8:10]),
-#                                        hour=int(str(post.FINISH_DATETIME)[11:13]),
-#                                        minute=int(str(post.FINISH_DATETIME)[14:16]), second=00) - \
-#                      datetime.datetime(year=int(str(post.START_DATETIME)[:4]),
-#                                        month=int(str(post.START_DATETIME)[5:7]),
-#                                        day=int(str(post.START_DATETIME)[8:10]),
-#                                        hour=int(str(post.START_DATETIME)[11:13]),
-#                                        minute=int(str(post.START_DATETIME)[14:16]), second=00)
-#                 post.HOUR = round(st.total_seconds() / 60 / 60, 1)
-#                 post.HOUR_EXCEPT_DISPATCH = post.HOUR
-#                 post.MINUTE = int(st.total_seconds() / 60)
-#                 post.OVER_MINUTE = int(overtime_sum(post.START_DATETIME, post.FINISH_DATETIME))
-#                 post.OVER_HOUR = round((post.OVER_MINUTE / 60), 1)
-#                 post.REG_HOUR = post.HOUR - post.OVER_HOUR
-#                 post.REG_MINUTE = post.MINUTE - post.OVER_MINUTE
-#                 SERVICES.objects.create(SERVICE_DATE=post.SERVICE_DATE, DEPT_NAME=post.DEPT_NAME, EMP_NAME=post.EMP_NAME,
-#                                         COMPANY_NAME=post.COMPANY_NAME, SERVICE_TYPE=post.SERVICE_TYPE, START_DATETIME=post.START_DATETIME,
-#                                         FINISH_DATETIME=post.FINISH_DATETIME, END_DATETIME=post.END_DATETIME,
-#                                         HOUR=post.HOUR, HOUR_EXCEPT_DISPATCH=post.HOUR_EXCEPT_DISPATCH, MINUTE=post.MINUTE,
-#                                         OVER_HOUR=post.OVER_HOUR, OVER_MINUTE=post.OVER_MINUTE, REG_HOUR=post.REG_HOUR, REG_MINUTE=post.REG_MINUTE,
-#                                         LOCATION=post.LOCATION, JIGCHUL_YN=post.JIGCHUL_YN, DETAILS=post.DETAILS, SERVICE_STATUS='N')
-#             return redirect('scheduler:scheduler_month')
-#
-#         # 매월반복
-#         if for_status == 'for_my':
-#             date = month_list(form.clean()['startdate'], form.clean()['finishdate'])
-#             for i in date:
-#                 post.START_DATETIME = str(i) + ' ' + form.clean()['starttime']
-#                 post.FINISH_DATETIME = str(i) + ' ' + form.clean()['finishtime']
-#                 post.SERVICE_DATE = str(post.START_DATETIME)[:10]
-#                 st = datetime.datetime(year=int(str(post.FINISH_DATETIME)[:4]),
-#                                        month=int(str(post.FINISH_DATETIME)[5:7]),
-#                                        day=int(str(post.FINISH_DATETIME)[8:10]),
-#                                        hour=int(str(post.FINISH_DATETIME)[11:13]),
-#                                        minute=int(str(post.FINISH_DATETIME)[14:16]), second=00) - \
-#                      datetime.datetime(year=int(str(post.START_DATETIME)[:4]),
-#                                        month=int(str(post.START_DATETIME)[5:7]),
-#                                        day=int(str(post.START_DATETIME)[8:10]),
-#                                        hour=int(str(post.START_DATETIME)[11:13]),
-#                                        minute=int(str(post.START_DATETIME)[14:16]), second=00)
-#                 post.HOUR = round(st.total_seconds() / 60 / 60, 1)
-#                 post.HOUR_EXCEPT_DISPATCH = post.HOUR
-#                 post.MINUTE = int(st.total_seconds() / 60)
-#                 post.OVER_MINUTE = int(overtime_sum(post.START_DATETIME, post.FINISH_DATETIME))
-#                 post.OVER_HOUR = round((post.OVER_MINUTE / 60), 1)
-#                 post.REG_HOUR = post.HOUR - post.OVER_HOUR
-#                 post.REG_MINUTE = post.MINUTE - post.OVER_MINUTE
-#                 SERVICES.objects.create(SERVICE_DATE=post.SERVICE_DATE, DEPT_NAME=post.DEPT_NAME, EMP_NAME=post.EMP_NAME,
-#                                         COMPANY_NAME=post.COMPANY_NAME, SERVICE_TYPE=post.SERVICE_TYPE, START_DATETIME=post.START_DATETIME,
-#                                         FINISH_DATETIME=post.FINISH_DATETIME, END_DATETIME=post.END_DATETIME,
-#                                         HOUR=post.HOUR, HOUR_EXCEPT_DISPATCH=post.HOUR_EXCEPT_DISPATCH, MINUTE=post.MINUTE,
-#                                         OVER_HOUR=post.OVER_HOUR, OVER_MINUTE=post.OVER_MINUTE, REG_HOUR=post.REG_HOUR, REG_MINUTE=post.REG_MINUTE,
-#                                         LOCATION=post.LOCATION, JIGCHUL_YN=post.JIGCHUL_YN, DETAILS=post.DETAILS, SERVICE_STATUS='N')
-#             return redirect('scheduler:scheduler_month')
-#
-#         post.START_DATETIME = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-#         post.FINISH_DATETIME = form.clean()['finishdate'] + ' ' + form.clean()['finishtime']
-#         post.SERVICE_DATE = str(post.START_DATETIME)[:10]
-#
-#         # 휴가등록
-#         if post.SERVICE_TYPE == "휴가" and request.POST['status'] != 'form':
-#             date = (date_list(post.START_DATETIME, post.FINISH_DATETIME))
-#             for i in date:
-#                 SERVICES.objects.create(SERVICE_DATE=i, DEPT_NAME=post.DEPT_NAME, EMP_NAME=name,
-#                                         COMPANY_NAME=post.COMPANY_NAME, SERVICE_TYPE="휴가", START_DATETIME=i,
-#                                         FINISH_DATETIME=i,HOUR=0, HOUR_EXCEPT_DISPATCH=0, MINUTE=0, OVER_HOUR=0,
-#                                         OVER_MINUTE=0,REG_HOUR=0, REG_MINUTE=0, DETAILS=post.DETAILS,
-#                                         SERVICE_STATUS="X", END_DATETIME=post.END_DATETIME)
-#             return redirect('scheduler:scheduler_month')
-#
-#         # 기본
-#         st = datetime.datetime(year=int(str(post.FINISH_DATETIME)[:4]),
-#                                month=int(str(post.FINISH_DATETIME)[5:7]),
-#                                day=int(str(post.FINISH_DATETIME)[8:10]),
-#                                hour=int(str(post.FINISH_DATETIME)[11:13]),
-#                                minute=int(str(post.FINISH_DATETIME)[14:16]), second=00) - \
-#              datetime.datetime(year=int(str(post.START_DATETIME)[:4]), month=int(str(post.START_DATETIME)[5:7]),
-#                                day=int(str(post.START_DATETIME)[8:10]),
-#                                hour=int(str(post.START_DATETIME)[11:13]),
-#                                minute=int(str(post.START_DATETIME)[14:16]), second=00)
-#         post.HOUR = round(st.total_seconds() / 60 / 60, 1)
-#         post.HOUR_EXCEPT_DISPATCH = post.HOUR
-#         post.MINUTE = int(st.total_seconds() / 60)
-#         post.OVER_MINUTE = int(overtime_sum(post.START_DATETIME, post.FINISH_DATETIME))
-#         post.OVER_HOUR = round((post.OVER_MINUTE / 60), 1)
-#         post.REG_HOUR = post.HOUR - post.OVER_HOUR
-#         post.REG_MINUTE = post.MINUTE - post.OVER_MINUTE
-#
-#         # 기본등록(저장)
-#         if request.POST['status'] == "save":
-#             post.SERVICE_STATUS = 'N'
-#             post.save()
-#             return redirect('scheduler:scheduler_month')
-#
-#         # 기본등록(지원완료)
-#         elif request.POST['status'] == "sign":
-#             post.SERVICE_STATUS = 'Y'
-#             post.save()
-#             return redirect('mail:select', post.id)
-#
-#         # 새로운 양식 저장
-#         elif request.POST['status'] == "form":
-#             post.SERVICE_STATUS = 'F'
-#             post.save()
-#
-#             form = PostForm()
-#             try:
-#                 myform = SERVICES.objects.filter(Q(SERVICE_STATUS='F') & Q(EMP_NAME=name))
-#             except Exception as ex:
-#                 myform = {}
-#             type = 1
-#             context = {'form': form,
-#                        'name': name,
-#                        "myform": myform,
-#                        "type": type}
-#             return render(request, 'usone/post.html', context)
-#
-#     # 새로운 양식 저장 화면(POST했을때 is_valid가 False이면 넘어가는 로직이므로, 칸을 채우고 새로운 양식 등록 누르면 오류)
-#     else:
-#         form = PostForm()
-#         try:
-#             myform = SERVICES.objects.filter(Q(SERVICE_STATUS='F') & Q(EMP_NAME=name))
-#         except Exception as ex:
-#             myform = {}
-#         type = 1
-#         context = {'form': form,
-#                    'name': name,
-#                    "myform": myform,
-#                    "type": type}
-#         return render(request, 'usone/post.html', context)
-#
-# # 일정등록화면
-# else:
-#     form = PostForm()
-#     try:
-#         myform = SERVICES.objects.filter(Q(SERVICE_STATUS='F')& Q(EMP_NAME=name))
-#     except Exception as ex:
-#         myform = {}
-#     type = 0
-#     context = {'form': form,
-#                'name': name,
-#                "myform":myform,
-#                "type": type,
-#                "postdate":postdate}
-#     return render(request, 'usone/post.html', context)
+    if userId:
+        empId = Employee(empId=request.user.employee.empId)
+
+        if request.method == "POST":
+            form = ServiceformForm(request.POST)
+
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.empId = empId
+                post.save()
+                return redirect('postservice', str(datetime.date.today()))
+
+        else:
+            form = ServiceformForm()
+            form.fields['serviceStartTime'].initial = "09:00"
+            form.fields['serviceEndTime'].initial = "18:00"
+            context = {
+                'form': form,
+            }
+            return render(request, 'service/postserviceform.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def show_services(request):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        empId = Employee(empId=request.user.employee.empId)
+        services = Servicereport.objects.filter(empId=empId)
+
+        context = {
+            'services': services,
+        }
+        return render(request, 'service/showservices.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def view_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        service = Servicereport.objects.get(serviceId=serviceId)
+
+        context = {
+            'service': service,
+        }
+
+        return render(request, 'service/viewservice.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def save_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        service = Servicereport.objects.get(serviceId=serviceId)
+        service.serviceStatus = 'Y'
+        service.serviceFinishDatetime = datetime.datetime.now()
+        service.save()
+        
+        return HttpResponse("일정 완료. 메일 연결")
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def delete_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        Servicereport.objects.filter(serviceId=serviceId).delete()
+
+        return redirect('scheduler')
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def modify_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        # 로그인 사용자 정보
+        instance = Servicereport.objects.get(serviceId=serviceId)
+        empId = Employee(empId=request.user.employee.empId)
+        empName = request.user.employee.empName
+        empDeptName = request.user.employee.empDeptName
+
+        if request.method == "POST":
+            form = ServicereportForm(request.POST, instance=instance)
+
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.empId = empId
+                post.empName = empName
+                post.empDeptName = empDeptName
+                post.serviceFinishDatetime = datetime.datetime.now()
+                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceDate = str(post.serviceStartDatetime)[:10]
+                post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.save()
+                return redirect('scheduler')
+        else:
+            form = ServicereportForm(instance=instance)
+            form.fields['startdate'].initial = str(instance.serviceStartDatetime)[:10]
+            form.fields['starttime'].initial = str(instance.serviceStartDatetime)[11:16]
+            form.fields['enddate'].initial = str(instance.serviceEndDatetime)[:10]
+            form.fields['endtime'].initial = str(instance.serviceEndDatetime)[11:16]
+
+            context = {
+                'form': form,
+            }
+            return render(request, 'service/postservice.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def copy_service(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        # 로그인 사용자 정보
+        instance = Servicereport.objects.get(serviceId=serviceId)
+        empId = Employee(empId=request.user.employee.empId)
+        empName = request.user.employee.empName
+        empDeptName = request.user.employee.empDeptName
+        Servicereport.objects.create(
+            serviceDate=instance.serviceDate,
+            empId=empId,
+            empName=empName,
+            empDeptName=empDeptName,
+            companyName=instance.companyName,
+            serviceType=instance.serviceType,
+            serviceStartDatetime=instance.serviceStartDatetime,
+            serviceEndDatetime=instance.serviceEndDatetime,
+            serviceFinishDatetime=instance.serviceFinishDatetime,
+            serviceHour=instance.serviceHour,
+            serviceOverHour=instance.serviceOverHour,
+            serviceRegHour=instance.serviceRegHour,
+            serviceLocation=instance.serviceLocation,
+            directgo=instance.directgo,
+            serviceTitle=instance.serviceTitle,
+            serviceDetails=instance.serviceDetails,
+            serviceStatus=instance.serviceStatus,
+        )
+        return redirect('scheduler')
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def show_serviceforms(request):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        empId = Employee(empId=request.user.employee.empId)
+        serviceforms = Serviceform.objects.filter(empId=empId)
+
+        context = {
+            'serviceforms': serviceforms,
+        }
+        return render(request, 'service/showserviceforms.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def modify_serviceform(request, serviceFormId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        instance = Serviceform.objects.get(serviceFormId=serviceFormId)
+        empId = Employee(empId=request.user.employee.empId)
+
+        if request.method == "POST":
+            form = ServiceformForm(request.POST, instance=instance)
+
+            if form.is_valid():
+                post = form.save(commit=False)
+                post.empId = empId
+                post.save()
+                return redirect('postservice', str(datetime.date.today()))
+
+        else:
+            form = ServiceformForm(instance=instance)
+            context = {
+                'form': form,
+                'serviceFormId': serviceFormId,
+            }
+            return render(request, 'service/postserviceform.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def delete_serviceform(request, serviceFormId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        Serviceform.objects.filter(serviceFormId=serviceFormId).delete()
+
+        return redirect('showserviceforms')
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def show_vacations(request):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        empId = Employee(empId=request.user.employee.empId)
+        vacations = Vacation.objects.filter(empId=empId)
+
+        context = {
+            'vacations': vacations,
+        }
+        return render(request, 'service/showvacations.html', context)
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def delete_vacation(request, vacationId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        Vacation.objects.filter(vacationId=vacationId).delete()
+
+        return redirect('showvacations')
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")

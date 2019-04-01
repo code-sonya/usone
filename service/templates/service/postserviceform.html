@@ -1,0 +1,126 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  일정관리
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 양식등록 </h6>
+
+        </div>
+
+        <div class="card-body">
+
+          <form id="ServiceformForm" method="POST">
+
+            {% csrf_token %}
+            <div class="form-group row">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
+              </div>
+              <div class="col-6">
+                <label for="serviceType" class="font-weight-bold text-primary"> 일정 구분 </label> {{ form.serviceType }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="serviceStartTime" class="font-weight-bold text-primary"> 시작 시간 </label> {{ form.serviceStartTime }}
+              </div>
+              <div class="col-6">
+                <label for="serviceEndTime" class="font-weight-bold text-primary"> 종료 시간 </label> {{ form.serviceEndTime }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="serviceLocation" class="font-weight-bold text-primary"> 지역 구분 </label> {{ form.serviceLocation }}
+              </div>
+              <div class="col-6">
+                <label for="directgo" class="font-weight-bold text-primary"> 직출 여부 </label> {{ form.directgo }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="serviceTitle" class="font-weight-bold text-primary"> 제목 </label> {{ form.serviceTitle }}
+            </div>
+            <div class="form-group">
+              <label for="serviceDetails" class="font-weight-bold text-primary"> 내용 </label> {{ form.serviceDetails }}
+            </div>
+
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              history.back();
+          } else {
+              return false;
+          }
+      }
+
+      function btn_save() {
+          const companyName = document.getElementById("companyName").value;
+          const serviceType = document.getElementById("serviceType").value;
+          const serviceTitle = document.getElementById("serviceTitle").value;
+          const serviceDetails = document.getElementById("serviceDetails").value;
+
+          if (companyName === '') {
+              alert("고객사 명을 입력해주세요.");
+              return false;
+          }
+          if (serviceType === '') {
+              alert("일정 구분을 입력해주세요.");
+              return false;
+          }
+          if (serviceTitle === '') {
+              alert("제목을 입력해주세요.");
+              return false;
+          }
+          if (serviceDetails === '') {
+              alert("내용을 입력해주세요.");
+              return false;
+          }
+          if (confirm("양식등록을 하시겠습니까?") === true) {    //확인
+              document.getElementById("ServiceformForm").submit();
+          }
+      }
+
+  </script>
+
+{% endblock %}
