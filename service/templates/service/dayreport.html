@@ -6,6 +6,28 @@
 {% endblock %}
 
 
+{% block css %}
+  <style type="text/css">
+    .font-c-sm{
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .table{
+      color: #333333
+    }
+
+    .table td, .table th{
+      padding: .75rem;
+      vertical-align: middle;
+      border-top: 1px solid #e3e6f0;
+      font-size: 13px;
+      text-align: center;
+    }
+  </style>
+{% endblock %}
+
+
 {% block content %}
 
   <div class="row">
@@ -25,10 +47,10 @@
 
             <thead>
             <tr>
-              <td width="10%" style="text-align:center"><b>구분</b></td>
-              <td width="10%" style="text-align:center"><b>성함</b></td>
-              <td width="20%" style="text-align:center"><b>시간</b></td>
-              <td width="20%" style="text-align:center"><b>고객사</b></td>
+              <td width="10%"><b>구분</b></td>
+              <td width="10%"><b>성함</b></td>
+              <td width="20%"><b>시간</b></td>
+              <td width="20%"><b>고객사</b></td>
               <td width="40%" style="text-align:center"><b>업무내용</b></td>
             </tr>
             </thead>
@@ -37,7 +59,7 @@
             {% for service in serviceSolution %}
               <tr onclick="document.location.href='/service/viewservice/{{ service.serviceId }}/'">
                 <!-- 구분 : 상주, 내근, 직출, 일반, 휴가 -->
-                <td width="10%" style="text-align:center"><img width="17px" src="/media/icon/check_Y.png"></td>
+                <td width="5%" style="text-align:center"><img width="17px" src="/media/icon/check_Y.png"></td>
 
                 <!-- 성함 : 동일인 일정 2개 이상시, 이름 표시 없음. -->
                 {% ifchanged service.empName %}
@@ -67,7 +89,7 @@
                 </td>
 
                 <!-- 고객사 : 내근, 휴가, 교육 시 고객사 표시 없음  -->
-                <td width="20%" style="text-align:center">
+                <td width="25%" style="text-align:center">
                 {% if service.serviceType != '내근' %}
                   {{ service.companyName }}<br>({{ service.serviceType }})
                 {% else %}

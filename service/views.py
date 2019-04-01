@@ -464,6 +464,7 @@ def day_report(request, day):
     serviceDb = Servicereport.objects.filter(
         Q(empDeptName='DB지원팀') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
     )
+
     context = {
         'day': day,
         'serviceSolution': serviceSolution,
