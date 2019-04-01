@@ -37,6 +37,8 @@ def scheduler(request):
                            Q(serviceStartDatetime__gte=datetime.date.today() - relativedelta(months=1))).exclude(empId=empId)
             myCalendar = Servicereport.objects.filter(Q(empDeptName__in=postDeptList)&Q(empName=empName))
 
+            print(teamCalendar)
+
             ### 휴가(전체) ###
             teamVacation = Vacation.objects.filter(Q(empDeptName__in=postDeptList)).exclude(empId=empId)
             myVacation = Vacation.objects.filter(Q(empDeptName__in=postDeptList)&Q(empId=empId))
@@ -44,6 +46,7 @@ def scheduler(request):
             context = {
                 'today': str(datetime.date.today()),
                 'empName':empName,
+                'empDeptName': empDeptName,
                 'teamCalendar': teamCalendar,
                 'myCalendar': myCalendar,
                 'teamVacation': teamVacation,
@@ -67,6 +70,7 @@ def scheduler(request):
             context = {
                 'today': str(datetime.date.today()),
                 'empName': empName,
+                'empDeptName': empDeptName,
                 'teamCalendar' : teamCalendar,
                 'myCalendar' : myCalendar,
                 'teamVacation' : teamVacation,

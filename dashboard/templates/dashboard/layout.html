@@ -19,6 +19,9 @@
   <link href='{% static "hr/css/sb-admin-2.min.css" %}' rel="stylesheet">
   <link href='{% static "hr/vendor/datatables/jquery.dataTables.min.css" %}' rel="stylesheet">
   <link href='{% static "hr/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
+  <link href="{% static 'scheduler/css/fullcalendar.css' %}" rel="stylesheet">
+
+  {% block css %}{% endblock %}
 
 </head>
 
@@ -202,7 +205,7 @@
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
-            <span>Copyright &copy; Your Website 2019</span>
+            <span>Copyright &copy; lop.unioneinc.co.kr 2019</span>
           </div>
         </div>
       </footer>
@@ -252,6 +255,13 @@
   <script src='{% static "hr/vendor/chart.js/Chart.min.js" %}'></script>
   <script src='{% static "hr/vendor/datatables/jquery.dataTables.min.js" %}'></script>
   <script src='{% static "hr/vendor/datatables/dataTables.bootstrap4.min.js" %}'></script>
+
+{#  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>#}
+{#  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>#}
+  <script type="text/javascript" src="{% static 'scheduler/js/moment.js' %}"></script>
+{#  <script type="text/javascript" src="{% static 'scheduler/js/jquery.js' %}"></script>#}
+  <script type="text/javascript" src="{% static 'scheduler/js/fullcalendar.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'scheduler/js/locale-all.js' %}"></script>
 
   {% block script %}{% endblock %}
 </body>
