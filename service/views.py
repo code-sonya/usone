@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, QueryDict
 from django.db.models import Q, Sum
+from django.contrib.auth.models import User
 
 from .models import Servicereport, Serviceform, Vacation
 from client.models import Company, Customer
@@ -8,7 +9,7 @@ from hr.models import Employee
 from scheduler.models import Eventday
 from .forms import ServicereportForm, ServiceformForm
 
-from .functions import date_list, month_list, overtime, str_to_timedelta_hour
+from .functions import date_list, month_list, overtime, str_to_timedelta_hour, dayreport_sort
 import datetime
 import json
 
@@ -461,14 +462,96 @@ def day_report(request, day):
     serviceSolution = Servicereport.objects.filter(
         Q(empDeptName='솔루션지원팀') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
     )
+    vacationSolution = Vacation.objects.filter(
+        Q(empDeptName='솔루션지원팀') & Q(vacationDate=Date)
+    )
+    inSolution = User.objects.filter(
+        Q(employee__empDeptName='솔루션지원팀') & Q(employee__empStatus='Y')
+    ).exclude(
+        Q(employee__empId__in=serviceSolution.values('empId')) | Q(employee__empId__in=vacationSolution.values('empId'))
+    )
+
+    listSolution = []
+    for service in serviceSolution:
+        if service.directgo == 'Y':
+            flag = '직출'
+            companyName = service.companyName
+            serviceType = service.serviceType
+        elif service.serviceType == '교육':
+            flag = '교육'
+            companyName = ''
+            serviceType = ''
+        else:
+            flag = ''
+            companyName = service.companyName
+            serviceType = service.serviceType
+
+        listSolution.append({
+            'serviceId': service.serviceId,
+            'flag': flag,
+            'empName': service.empName,
+            'serviceStartDatetime': service.serviceStartDatetime,
+            'serviceEndDatetime': service.serviceEndDatetime,
+            'serviceStatus': service.serviceStatus,
+            'companyName': companyName,
+            'serviceType': serviceType,
+            'serviceTitle': service.serviceTitle,
+        })
+    for vacation in vacationSolution:
+        listSolution.append({
+            'serviceId': '',
+            'flag': '휴가',
+            'empName': vacation.empName,
+            'serviceStartDatetime': '',
+            'serviceEndDatetime': '',
+            'serviceStatus': '',
+            'companyName': '',
+            'serviceType': '',
+            'serviceTitle': vacation.vacationType,
+        })
+    for emp in inSolution:
+        if emp.employee.dispatchCompany == '내근':
+            flag = '내근'
+            emp.employee.dispatchCompany = ''
+            serviceType = ''
+        else:
+            flag = '상주'
+            serviceType = '상주'
+        listSolution.append({
+            'serviceId': '',
+            'flag': flag,
+            'empName': emp.employee.empName,
+            'serviceStartDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
+            'serviceEndDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
+            'serviceStatus': '',
+            'companyName': emp.employee.dispatchCompany,
+            'serviceType': serviceType,
+            'serviceTitle': emp.employee.message,
+        })
+    listSolution.sort(key=dayreport_sort)
+    qSolution = []
+    for l in listSolution:
+        temp = QueryDict('', mutable=True)
+        temp.update(l)
+        qSolution.append(temp)
+
     serviceDb = Servicereport.objects.filter(
         Q(empDeptName='DB지원팀') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
+    )
+    vacationDb = Vacation.objects.filter(
+        Q(empDeptName='DB지원팀') & Q(vacationDate=Date)
+    )
+    inDb = User.objects.filter(
+        Q(employee__empDeptName='DB지원팀') & Q(employee__empStatus='Y')
+    ).exclude(
+        Q(employee__empId=serviceDb.values('empId')) | Q(employee__empId=vacationDb.values('empId'))
     )
 
     context = {
         'day': day,
         'serviceSolution': serviceSolution,
         'serviceDb': serviceDb,
+        'qSolution': qSolution,
     }
 
     return render(request, 'service/dayreport.html', context)

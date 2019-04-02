@@ -7,24 +7,25 @@
 
 
 {% block css %}
+
   <style type="text/css">
-    .font-c-sm{
-      font-size: 13px;
-      text-align: center;
-    }
 
     .table{
-      color: #333333
+      color: #333333;
+      table-layout:fixed;
     }
 
     .table td, .table th{
       padding: .75rem;
       vertical-align: middle;
       border-top: 1px solid #e3e6f0;
-      font-size: 13px;
+      font-size: 14px;
       text-align: center;
+      white-space: nowrap;
     }
+
   </style>
+
 {% endblock %}
 
 
@@ -43,67 +44,77 @@
         </div>
 
         <div class="card-body">
-          <table class="table">
+
+          <table class="table mb-0" width="100%">
 
             <thead>
             <tr>
-              <td width="10%"><b>구분</b></td>
+              <td class="d-none d-xl-table-cell" width="10%"><b>구분</b></td>
               <td width="10%"><b>성함</b></td>
               <td width="20%"><b>시간</b></td>
               <td width="20%"><b>고객사</b></td>
-              <td width="40%" style="text-align:center"><b>업무내용</b></td>
+              <td class="d-none d-xl-table-cell" width="40%"><b>업무내용</b></td>
             </tr>
             </thead>
 
             <tbody>
-            {% for service in serviceSolution %}
-              <tr onclick="document.location.href='/service/viewservice/{{ service.serviceId }}/'">
-                <!-- 구분 : 상주, 내근, 직출, 일반, 휴가 -->
-                <td width="5%" style="text-align:center"><img width="17px" src="/media/icon/check_Y.png"></td>
+            {% for q in qSolution %}
+              <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
 
-                <!-- 성함 : 동일인 일정 2개 이상시, 이름 표시 없음. -->
-                {% ifchanged service.empName %}
-                  <td width="10%" style="text-align:center"><b>{{ service.empName }}</b></td>
-                {% else %}
-                  <td width="10%" style="text-align:center"></td>
-                {% endifchanged %}
+                <!-- 구분: 휴가, 직출, 내근, 교육, 상주-->
+                <td class="d-none d-xl-table-cell" width="10%">
+                  <b>{{ q.flag }}</b>
+                </td>
 
-                <!-- 시간 : 이틀 이상 진행되는 업무시, 일자 표시. 완료표시 -->
-                <td width="20%" style="text-align:center"> {{ service.serviceStartDatetime|date:"H:i" }} ~ {{ service.serviceEndDatetime|date:"H:i" }}
-                  <div class="row">
-                    <div class="col-6 p-0 text-right">
-                      {% if service.serviceStartDatetime.date|date:"Y-m-d" != day %}
-                        ({{ service.serviceStartDatetime|date:"d" }}일) &nbsp
-                      {% endif %}
-                    </div>
-                    <div class="col-6 p-0 text-left">
-                      {% if service.serviceEndDatetime.date|date:"Y-m-d" != day %}
-                        &nbsp ({{ service.serviceEndDatetime|date:"d" }}일)
-                      {% endif %}
-                    </div>
-                  </div>
-
-                  {% if service.serviceStatus == 'Y' %}
-                    <div style="color:red">(지원완료)</div>
+                <!-- 성함 -->
+                <td width="10%">
+                  {% ifchanged q.empName %}
+                    <b>{{ q.empName }}</b>
+                  {% endifchanged %}
+                  {% if q.flag %}
+                    <b class="d-xl-none"><br>({{ q.flag }})</b>
                   {% endif %}
                 </td>
 
-                <!-- 고객사 : 내근, 휴가, 교육 시 고객사 표시 없음  -->
-                <td width="25%" style="text-align:center">
-                {% if service.serviceType != '내근' %}
-                  {{ service.companyName }}<br>({{ service.serviceType }})
-                {% else %}
-                  {{ service.companyName }}<br><br>
-                {% endif %}
+                <!-- 시간: 휴가 시 -, 해당일 전후 표시, 완료 표시 -->
+                <td width="20%">
+                  {% if q.serviceStartDatetime %}
+                    {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+
+                    {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% endif %}
+
+                    {% if q.serviceStatus == 'Y' %}
+                      <div style="color:red">(완료)</div>
+                    {% endif %}
+                  {% else %}
+                    -
+                  {% endif %}
                 </td>
 
-                <!-- 업무내용 : 모바일 화면에서 표시방법 강구 -->
-                <td width="40%" style="text-align:center">{{ service.serviceTitle }}</td>
+                <!-- 고객사: 휴가, 내근, 교육 시 - -->
+                <td width="20%" style="text-align:center">
+                  {% if q.companyName %}
+                    {{ q.companyName }}<br>({{ q.serviceType }})
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+
+                <!-- 업무내용: 휴가 시 반차 종류 표시 -->
+                <td class="d-none d-xl-table-cell" width="40%">{{ q.serviceTitle }}</td>
+
               </tr>
             {% endfor %}
             </tbody>
 
           </table>
+
         </div>
 
       </div>
