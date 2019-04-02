@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^noticeboard/', include('noticeboard.urls')),
     url(r'^scheduler/', include('scheduler.urls')),
     url(r'^service/', include('service.urls')),
+    url(r'^signature/', include('signature.urls')),
 ]
 
 urlpatterns += static(

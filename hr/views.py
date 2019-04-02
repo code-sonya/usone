@@ -17,12 +17,10 @@ def profile(request):
             print(postMessage)
             user.employee.message=postMessage
             user.save()
-
             context = {
                 'user': user,
             }
             return HttpResponse(template.render(context, request))
-
 
         else:
             context = {

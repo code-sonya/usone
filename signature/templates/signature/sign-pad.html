@@ -1,0 +1,61 @@
+﻿{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>지원 확인 서명</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href={% static "css/signature-pad.css" %}>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+</head>
+<body onselectstart="return false">
+
+<div id="signature-pad" class="signature-pad">
+    <h5>NO.{{ serviceId }} </h5>
+    <textarea id="service_id" style="display: none">{{ serviceId }}</textarea>
+    <div class="signature-pad--body">
+        <canvas></canvas>
+    </div>
+    <div class="signature-pad--footer">
+        <div class="description">담당자 서명</div>
+
+        <div class="signature-pad--actions">
+            <div>
+                <a href="/service/showservices/">
+                    <button  class="btn btn-danger" type="button">서명 취소</button>
+                </a>
+            </div>
+            <div>
+                <button type="button" class="btn btn-info" data-action="clear">Clear</button>
+                <button type="button" class="button" data-action="change-color" style="display:none">Change color
+                </button>
+                <button type="button" class="button" data-action="undo" style="display:none">Undo</button>
+
+            </div>
+
+            <div>
+                <button type="button" class="button save" data-action="save-png" style="display:none">Save as PNG
+                </button>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-success" data-action="save-jpg">서명 완료</button>
+                </form>
+                <button type="button" class="btn btn-success" data-action="save-svg" style="display:none"></button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src={% static "js/signature_pad.umd.js" %}></script>
+<script src={% static "js/app.js" %}></script>
+</body>
+</html>

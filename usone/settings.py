@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'scheduler',
     'mail',
     'dashboard',
-    "debug_toolbar",
+    'debug_toolbar',
+    'signature',
 ]
 
 MIDDLEWARE = [
