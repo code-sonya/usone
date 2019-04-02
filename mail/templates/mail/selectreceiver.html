@@ -1,0 +1,117 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+SERVICE REPORT 메일 발송
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> SERVICE REPORT 메일 발송 </h6>
+          <h7> NO.{{ serviceId }} </h7>
+
+        </div>
+
+        <div class="card-body">
+          <div class="row">
+            <div class="col-xl-2"></div>
+            <div class="col-xl-8">
+              <form id="receiverForm" name="receiverForm" method=POST>
+
+        <div class="list-group">
+            <a href="#" class="list-group-item" style="background-color: steelblue;color:#fff">
+                메일 수신자
+            </a>
+
+                <div class="list-group-item">
+                    <div class="checkbox">
+                        <label><input type="checkbox" id="leader" value="tomato@unioneinc.co.kr"
+                                      name="check" >정훈기 (UnioneI&C) </label>
+                    </div>
+                </div>
+
+	              <div class="list-group-item">
+                    <div class="checkbox">
+                        <label><input type="checkbox" id="emp" value="{{ user.employee.empEmail }}"
+                                      name="check" >{{ user.employee.empName }} (UnioneI&C) </label>
+                    </div>
+                </div>
+
+	              <div class="list-group-item">
+                    <div class="checkbox">
+                            <label><input type="checkbox" id="sales" name="check" style="display: block"
+                                          value={{ sales.empEmail }}>{{ sales.empName }} (UnioneI&C)
+                            </label>
+                    </div>
+                </div>
+                {# 임시 담당자 있을 경우 출력 #}
+                {% for service in  services  %}
+                    <a href="#" class="list-group-item">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="check"
+                                       value={{ service.CUSTOMER_EMAIL }} checked>
+                                {{ service.CUSTOMER_NAME }} ({{ service.COMPANY_NAME }})
+                            </label>
+                        </div>
+                    </a>
+
+                {% for customer in customers %}
+                    {% if service.CUSTOMER_EMAIL != customer.CUSTOMER_EMAIL %}
+                        <a href="#" class="list-group-item">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="check"
+                                           value={{ customer.CUSTOMER_EMAIL }}>
+                                    {{ customer.CUSTOMER_NAME }} ({{ service.COMPANY_NAME }})
+                                </label>
+                            </div>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+
+        </div>
+              <br>
+              <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_return_click()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_send_click()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+
+            </div>
+    </form>
+            </div>
+            <div class="col-xl-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6"></div>
+  </div>
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      function button_click() {
+          alert("버튼1을 누르셨습니다.");
+      }
+
+  </script>
+
+{% endblock %}

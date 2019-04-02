@@ -1,0 +1,96 @@
+﻿{% extends "dashboard/layout.html" %}
+{% block title %}
+  SERVICE REPORT 담당자 선택
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 담당자 선택 </h6>
+          <h7> NO.{{ serviceId }} </h7>
+
+        </div>
+
+        <div class="card-body">
+          <div class="row">
+            <div class="col-xl-2"></div>
+            <div class="col-xl-8">
+             <form action="/signature/{{ serviceId }}/" id="managerForm" name="form1" method=post>
+                {% csrf_token %}
+                <div>
+                  <div class="list-group">
+                    <a href="#" class="list-group-item" style="background-color: steelblue;color:#fff">
+                      SERVICE REPORT 담당자 선택
+                    </a>
+                    {% for customer in customers %}
+
+                      <a href="#" class="list-group-item">
+                        <div class="checkbox">
+                          <label>
+                            <input type="radio" name="customer"
+                                   value={{ customer.customerEmail }}>
+                            {{ customer.customerName }}
+                          </label>
+                        </div>
+                      </a>
+                    {% endfor %}
+                    <a href="#" class="list-group-item">
+                      <div class="checkbox">
+                        <label>
+                          <input type="radio" name="customer" value="temp" onclick="div_OnOff(this.value,'con');">
+                          임시 담당자
+                        </label>
+                        <div id="con" style="display:none">
+                          <label>이&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;름 : <input class="form-control" type="text" name="customerName"></label><br>
+                          <label>부&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;서 : <input class="form-control" type="text" name="customerDept"></label><br>
+                          <label>이&nbsp;&nbsp;메&nbsp;일 : <input class="form-control" type="text" name="customerEmail"></label><br>
+                          <label>휴대전화 : <input class="form-control" type="text" name="customerPhone"></label><br>
+
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              <br>
+                <div class="text-center">
+                  <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                    <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                    <span class="text"> 확인</span>
+                  </a>
+                </div>
+              </form>
+            </div>
+            <div class="col-xl-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6"></div>
+  </div>
+
+
+{% endblock %}
+{% block script %}
+  <script>
+      function div_OnOff(v, id) {
+          // 라디오 버튼 value 값 조건 비교
+          if (v == "temp") {
+              document.getElementById(id).style.display = ""; // 보여줌
+          } else {
+              document.getElementById(id).style.display = "none"; // 숨김
+          }
+      }
+
+      function btn_save() {
+          $("#managerForm").submit();
+      }
+  </script>
+
+{% endblock %}

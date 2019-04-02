@@ -1,36 +1,67 @@
-
-
-from PIL import Image
-# from datashape import json
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.http import HttpRequest, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, redirect
-from django.urls import reverse_lazy
+from django.http import HttpResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
-import datetime
-from service.models import Servicereport, Serviceform, Vacation
-from client.models import Company, Customer
-from hr.models import Employee
-from scheduler.models import Eventday
-
-def signature(request, serviceId):
-    template = loader.get_template('signature/sign-pad.html')
-    userId = request.user.id
-
-    if userId:
-        context = {
-            'serviceId': serviceId,
-        }
-        return HttpResponse(template.render(context, request))
-    else:
-        return render(request, 'accounts/login.html')
-
-
+from service.models import Servicereport
 import os
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 from django.conf import settings
+from client.models import Company, Customer
+
+def signature(request, serviceId):
+    template = loader.get_template('signature/sign-pad.html')
+    userId = request.user.id
+    servicereport = Servicereport.objects.get(serviceId=serviceId)
+
+    if userId:
+        if request.method == "POST":
+            if request.POST["customer"] == "temp":
+                servicereport.customerName = request.POST["customerDept"]
+                servicereport.customerDeptName = request.POST["customerDept"]
+                servicereport.customerEmail = request.POST["customerEmail"]
+                servicereport.customerPhone = request.POST["customerPhone"]
+                servicereport.save()
+
+            else:
+                customerInfo =Customer.objects.get(customerEmail=request.POST["customer"])
+                servicereport.customerName = customerInfo.customerName
+                servicereport.customerDeptName = customerInfo.customerDeptName
+                servicereport.customerEmail = customerInfo.customerEmail
+                servicereport.customerPhone = customerInfo.customerPhone
+                servicereport.save()
+
+            context = {
+                'serviceId': serviceId,
+            }
+            return HttpResponse(template.render(context, request))
+
+        else:
+            context = {
+                'serviceId': serviceId,
+            }
+            return HttpResponse(template.render(context, request))
+
+    else:
+        return render(request, 'accounts/login.html')
+
+def selectmanager(request, serviceId):
+    template = loader.get_template('signature/selectmanager.html')
+    userId = request.user.id
+
+    if userId:
+        servicereport = Servicereport.objects.get(serviceId=serviceId)
+        customers = Customer.objects.filter(companyName=servicereport.companyName)
+        context = {
+            'serviceId': serviceId,
+            'servicereport': servicereport,
+            'customers': customers,
+        }
+        return HttpResponse(template.render(context, request))
+
+    else:
+        return render(request, 'accounts/login.html')
+
 
 @csrf_exempt
 def saveimg(request, serviceId):
@@ -39,9 +70,9 @@ def saveimg(request, serviceId):
         data = request.FILES.get('file')
         path = default_storage.save('images/signature/'+serviceId+'.jpg', ContentFile(data.read()))
         img_file = os.path.join(settings.MEDIA_ROOT, path)
-
-        service = Servicereport.objects.get(pk=serviceId)
-        service.SERVICE_REPORT = img_file
+        print(img_file)
+        service = Servicereport.objects.get(serviceId=serviceId)
+        service.serviceSignPath = img_file
         service.save()
         resp="이미지 저장"
         return HttpResponse(resp)
