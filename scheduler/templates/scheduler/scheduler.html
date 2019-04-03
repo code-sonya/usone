@@ -321,7 +321,7 @@
                               title: '{{ i.empName }}',
                               start: '{{ i.serviceStartDatetime|date:"Y-m-d" }}T{{ i.serviceStartDatetime|time:"H:i" }}:00',
                               end: '{{ i.serviceEndDatetime|date:"Y-m-d" }}T{{ i.serviceEndDatetime|time:"H:i" }}:00',
-                              {#url: '{% url 'usone:viewdetails' i.id %}',#}
+                              url: '{% url 'service:viewservice' i.serviceId %}',
                               service_id: '{{ i.serviceId }}',
                               name: '{{ i.empName }}',
                               detail: '{{ i.serviceDetails|linebreaksbr }}',
@@ -374,7 +374,7 @@
                               title: '{{ i.empName }}',
                               start: '{{ i.serviceStartDatetime|date:"Y-m-d" }}T{{ i.serviceStartDatetime|time:"H:i" }}:00',
                               end: '{{ i.serviceEndDatetime|date:"Y-m-d" }}T{{ i.serviceEndDatetime|time:"H:i" }}:00',
-                              {#url: '{% url 'usone:viewdetails' i.id %}',#}
+                              url: '{% url 'service:viewservice' i.serviceId %}',
                               service_id: '{{ i.serviceId }}',
                               name: '{{ i.empName }}',
                               detail: '{{ i.serviceDetails|linebreaksbr }}',

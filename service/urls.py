@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from . import views
-
+app_name = 'service'
 urlpatterns = [
     url(r'^postservice/(?P<postdate>.+)/$', views.post_service, name='postservice'),
     url(r'^postvacation/', views.post_vacation, name='postvacation'),

@@ -51,6 +51,8 @@ def selectmanager(request, serviceId):
 
     if userId:
         servicereport = Servicereport.objects.get(serviceId=serviceId)
+        servicereport.serviceStatus = 'Y'
+        servicereport.save()
         customers = Customer.objects.filter(companyName=servicereport.companyName)
         context = {
             'serviceId': serviceId,

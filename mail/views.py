@@ -80,7 +80,7 @@ def sendmail(request, serviceId):
             message.attach(sign)
             message.send()
 
-            return redirect('showservices')
+            return redirect('service:showservices')
         else:
             resp = "잘못된 접근 방식"
             return HttpResponse(resp)
