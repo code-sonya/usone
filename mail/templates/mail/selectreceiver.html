@@ -1,0 +1,137 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  SERVICE REPORT 메일 발송
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> SERVICE REPORT 메일 발송 </h6>
+          <h7> NO.{{ serviceId }} </h7>
+
+        </div>
+
+        <div class="card-body">
+          <div class="row">
+            <div class="col-xl-2"></div>
+            <div class="col-xl-8">
+              <form action="/mail/sendmail/{{ serviceId }}/" id="receiverForm" name="receiverForm" method=POST>
+                {% csrf_token %}
+                <div class="list-group">
+                  <a href="#" class="list-group-item" style="background-color: steelblue;color:#fff">
+                    메일 수신자
+                  </a>
+
+                  <div class="list-group-item">
+                    <div class="checkbox">
+                      <label><input type="checkbox" id="leader" value="tomato@unioneinc.co.kr"
+                                    name="email">정훈기 (UnioneI&C) </label>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item">
+                    <div class="checkbox">
+                      <label><input type="checkbox" id="emp" value="{{ user.employee.empEmail }}"
+                                    name="email">{{ user.employee.empName }} (UnioneI&C) </label>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item">
+                    <div class="checkbox">
+                      <label><input type="checkbox" id="sales" value="{{ sales.empEmail }}"
+                                    name="email">{{ sales.empName }} (UnioneI&C) </label>
+                    </div>
+                  </div>
+
+
+                  {# 임시 담당자 있을 경우 출력 #}
+                  <a href="#" class="list-group-item">
+                    <div class="checkbox">
+                      <label>
+                        <input type="checkbox" name="email"
+                               value={{ servicereport.customerEmail }} checked>
+                        {{ servicereport.customerName }} ({{ servicereport.companyName }})
+                      </label>
+                    </div>
+                  </a>
+
+                  {% for customer in customers %}
+                    {% if servicereport.customerEmail != customer.customerEmail %}
+                      <a href="#" class="list-group-item">
+                        <div class="checkbox">
+                          <label>
+                            <input type="checkbox" name="email"
+                                   value={{ customer.customerEmail }}>
+                            {{ customer.customerName }} ({{ customer.companyName }})
+                          </label>
+                        </div>
+                      </a>
+                    {% endif %}
+                  {% endfor %}
+                  <input type="text" name="emailList" style="visibility:hidden;">
+
+                </div>
+                <br>
+                <div class="text-center">
+                  <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_return_click()">
+                    <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                    <span class="text"> 취소 </span>
+                  </a>
+                  <a href="#" class="btn btn-success btn-icon-split" onclick="btnSubmit()">
+                    <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                    <span class="text"> 저장 </span>
+                  </a>
+
+                </div>
+              </form>
+            </div>
+            <div class="col-xl-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6"></div>
+  </div>
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      function btn_return_click() {
+          link_url = "/service/showservices/";
+          location.href = link_url
+
+      }
+
+      function btnSubmit() {
+          let arrsize = document.getElementsByName("email").length;
+          let arrList = new Array();
+          //check이름을 가진 check중에서 체크된 것만 값 가져오기
+          j = 0;
+          for (let i = 0; i < arrsize; i++) {
+              if (document.getElementsByName("email")[i].checked == true) {
+
+                  arrList[j] = document.getElementsByName("email")[i].value;
+                  j += 1;
+              }
+          }
+          console.log(arrList);
+          let form_check = document.getElementById("receiverForm");
+          form_check.emailList.value = arrList;
+          form_check.submit();
+      }
+
+  </script>
+
+{% endblock %}

@@ -138,3 +138,13 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 # media files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+#Email info
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'unioneinc.aws@gmail.com'
+EMAIL_HOST_PASSWORD = 'Unione123!'
+# SERVER_EMAIL = 'Unioneinc.aws@gmail.com'
+# DEFAULT_FROM_MAIL = 'unioneinc.aws'

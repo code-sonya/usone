@@ -1,0 +1,125 @@
+﻿{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="ko">
+<head><title> UNIONEINC SERVICE REPORT</title>
+
+</head>
+<body style="margin:20px">
+<table style="width: 1000px; height: 600px; border-collapse: collapse; border: 2px solid black;table-layout:fixed;">
+    <tbody>
+    <tr style="height: 75px; border: 2px solid black; ">
+        <td style="width: 1000px; height: 75px; border: 2px solid black; text-align: center;" colspan="10">
+            <strong><font size="6">SERVICE REPORT</font></strong></td>
+    </tr>
+    <tr style="height: 25px; border: 1px solid black; ">
+        <td style="width: 195px; height: 25px; border: 2px solid black; text-align: center;" colspan="2">
+            <strong>고 객 사</strong></td>
+        <td style="width: 195px; height: 25px; border: 2px solid black; text-align: center;" colspan="2">
+            <strong>지 원 종 류</strong></td>
+        <td style="width: 205px; height: 25px; border: 2px solid black; text-align: center;" colspan="2">
+            <strong>개 시 일 시</strong></td>
+        <td style="width: 205px; height: 25px; border: 2px solid black; text-align: center;" colspan="2">
+            <strong>완 료 일 시</strong></td>
+        <td style="width: 195px; height: 25px; border: 2px solid black; text-align: center;" colspan="2">
+            <strong>소 요 시 간</strong></td>
+    </tr>
+    <tr style="height: 50px; border: 2px solid black; ">
+
+        <td style="width: 195px; height: 50px; border: 2px solid black; text-align: center;" colspan="2">
+            <strong><font size="4">{{ servicereport.companyName }}</font></strong> 귀중
+        </td>
+        <td style="width: 195px; height: 50px; border: 2px solid black; text-align: center;"
+            colspan="2">{{ servicereport.serviceType }}
+        </td>
+        <td style="width: 205px; height: 50px; border: 2px solid black; text-align: center;" colspan="2">
+            <font size="2.8">{{ servicereport.serviceStartDatetime }}</font></td>
+        <td style="width: 205px; height: 50px; border: 2px solid black; text-align: center;" colspan="2">
+            <font size="2.8">{{ servicereport.serviceEndDatetime }}</font></td>
+        <td style="width: 195px; height: 50px; border: 2px solid black; text-align: center;"
+            colspan="2">{{ servicereport.serviceHour }} 시간
+        </td>
+
+
+    </tr>
+    <tr style="height: 370px; border: 2px solid black; ">
+        <td style="width: 1000px; height: 370px; border: 2px solid black;" colspan="10" valign="top">
+            <p>&nbsp;</P>&nbsp;&nbsp;<strong>지 원 내 용 :</strong>
+            <p>
+            <div style="padding-left: 40px">{{ servicereport.serviceDetails|linebreaksbr }}</div> &nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;</p>
+        </td>
+    </tr>
+
+    <tr style="height: 20px; border: 2px solid black; ">
+
+        <td style="width: 300px; height: 20px; border: 2px solid black; " colspan="3"><strong>&nbsp;&nbsp;지원담당부서
+            :</strong> {{ servicereport.empDeptName }}
+        </td>
+
+
+        <td style="width: 300px; height: 20px; border: 2px solid black; " colspan="3"><strong>&nbsp;&nbsp;고객담당부서
+            :</strong>
+             {% if servicereport.customerDeptName == None %}
+                  &nbsp;
+            {% else %}
+                {{ servicereport.customerDeptName }}
+            {% endif %}
+        </td>
+        <td style="width: 100px; border: 2px solid black; text-align: center;" colspan="2" rowspan="4"><p>고객<br>서명
+        </p></td>
+        <td style="width: 300px; border: 2px solid black; text-align: center;" colspan="2" rowspan="4">
+            <img src={{ img }} height="85px">
+        </td>
+
+    </tr>
+    <tr style="height: 20px; border: 2px solid black; ">
+        <td style="width: 300px; height: 20px; border: 2px solid black; " colspan="3"><strong>&nbsp;&nbsp;성&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;명
+            :</strong> {{ user.employee.empName }}
+        </td>
+
+        <td style="width: 300px; height: 20px; border: 2px solid black; " colspan="3"><strong>&nbsp;&nbsp;성&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;명
+            :</strong>
+            {% if servicereport.customerName == None %}
+                  &nbsp;
+            {% else %}
+                {{ servicereport.customerName }}
+            {% endif %}
+        </td>
+    </tr>
+    <tr style="height: 20px; border: 2px solid black; ">
+        <td style="width: 300px; height: 20px; border: 2px solid black; " colspan="3"><strong>&nbsp;&nbsp;연&nbsp;락&nbsp;처
+            :</strong> {{ user.employee.empPhone }}
+        </td>
+
+        <td style="width: 300px; height: 20px; border: 2px solid black; " colspan="3"><strong>&nbsp;&nbsp;연&nbsp;락&nbsp;처
+            :</strong>
+            {% if servicereport.customerPhone == None %}
+                  &nbsp;
+            {% else %}
+                {{ servicereport.customerPhone }}
+            {% endif %}
+        </td>
+    </tr>
+    <tr style="height: 20px; border: 2px solid black; ">
+        <td style="width: 300px; height: 20px; border: 2px solid black;font-size:15px " colspan="3"><strong>&nbsp;&nbsp;이&nbsp;메&nbsp;일
+            :</strong>{{ user.employee.empEmail }}
+        </td>
+        <td style="width: 300px; height: 20px; border: 2px solid black;font-size:15px" colspan="3"><strong>&nbsp;&nbsp;이&nbsp;메&nbsp;일
+            :</strong>
+            {% if servicereport.customerEmail == None %}
+                  &nbsp;
+            {% else %}
+                {{ servicereport.customerEmail }}
+            {% endif %}
+        </td>
+    </tr>
+    </tbody>
+</table>
+<br>
+<div style="text-align:left;font-size:12px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[유니원아이앤씨(주)(Unione I&C)]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    대표 전화 : 02-780-0039&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Call
+    Center : 02-780-2502&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Fax : 02-780-2503&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    HomePage : http://www.unioneinc.co.kr
+</div>
+</body>
+</html>
