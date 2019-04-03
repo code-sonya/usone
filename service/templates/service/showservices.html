@@ -316,7 +316,7 @@
               $('#empName').text(data.empName);
               $('#directgo').text(data.directgo);
               $('#companyName').text(data.companyName);
-              $('#serviceType').text(data.serviceType);
+              $('#serviceType').text(data.serviceType.replace('&amp;','&'));
               $('#serviceStartDatetime').text(data.serviceStartDatetime);
               $('#serviceEndDatetime').text(data.serviceEndDatetime);
               $('#serviceHour').text(data.serviceHour);

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, QueryDict
 from django.db.models import Q, Sum
+from django.contrib.auth.models import User
 
 from .models import Servicereport, Serviceform, Vacation
 from client.models import Company, Customer
@@ -8,7 +9,7 @@ from hr.models import Employee
 from scheduler.models import Eventday
 from .forms import ServicereportForm, ServiceformForm
 
-from .functions import date_list, month_list, overtime, str_to_timedelta_hour
+from .functions import date_list, month_list, overtime, str_to_timedelta_hour, dayreport_query, dayreport_query2
 import datetime
 import json
 
@@ -454,21 +455,30 @@ def delete_vacation(request, vacationId):
 
 
 def day_report(request, day):
-    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    Date_min = datetime.datetime.combine(Date, datetime.datetime.min.time())
-    Date_max = datetime.datetime.combine(Date, datetime.datetime.max.time())
-
-    serviceSolution = Servicereport.objects.filter(
-        Q(empDeptName='솔루션지원팀') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
-    )
-    serviceDb = Servicereport.objects.filter(
-        Q(empDeptName='DB지원팀') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
-    )
+    solution = dayreport_query(empDeptName="솔루션지원팀", day=day)
+    db = dayreport_query(empDeptName="DB지원팀", day=day)
 
     context = {
         'day': day,
-        'serviceSolution': serviceSolution,
-        'serviceDb': serviceDb,
+        'solution': solution,
+        'db': db,
     }
 
     return render(request, 'service/dayreport.html', context)
+
+
+def day_report2(request, day):
+    solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
+    db = dayreport_query2(empDeptName="DB지원팀", day=day)
+
+    context = {
+        'day': day,
+        'serviceSolution': solution[0],
+        'educationSolution': solution[1],
+        'vacationSolution': solution[2],
+        'serviceDb': db[0],
+        'educationDb': db[1],
+        'vacationDb': db[2],
+    }
+
+    return render(request, 'service/dayreport2.html', context)
