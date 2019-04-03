@@ -68,11 +68,8 @@
 
                 <!-- 구분: 직출, 상주-->
                 <td>
-                  {% if q.flag == '직출' %}
-                    <img width="30px" src = "/media/icon/jigchulmark.png">
-                  {% elif q.flag == '상주' %}
-                    <img width="30px" src = "/media/icon/sangjumark.png">
-                  {% endif %}
+                  {% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}
+                  {% if q.flag == '상주' %} <b style="color: #333333">상주</b> {% endif %}
                 </td>
 
                 <!-- 성함 -->
@@ -136,9 +133,8 @@
                   {% ifchanged q.empName %}
                     <b>{{ q.empName }}</b><br>
                   {% endifchanged %}
-                  {% if q.flag %}
-                    <b class="d-xl-none">({{ q.flag }})</b>
-                  {% endif %}
+                  {% if q.flag == '직출' %} <b style="color: #4e73df">(직출)</b> {% endif %}
+                  {% if q.flag == '상주' %} <b style="color: #333333">(상주)</b> {% endif %}
                 </td>
 
                 <!-- 시간: 해당일 전후 표시, 완료 표시 -->
@@ -203,21 +199,15 @@
 
                   <!-- 구분: 직출 -->
                   <td class="d-none d-xl-table-cell">
-                    {% if q.flag == '직출' %}
-                      <img width="30px" src = "/media/icon/jigchulmark.png">
-                    {% elif q.flag == '상주' %}
-                      <img width="30px" src = "/media/icon/sangjumark.png">
-                    {% endif %}
+                    {% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}
                   </td>
 
                   <!-- 성함 -->
                   <td>
                     {% ifchanged q.empName %}
-                      <b>{{ q.empName }}</b>
+                      <b>{{ q.empName }}</b><br>
                     {% endifchanged %}
-                    {% if q.flag %}
-                      <b class="d-xl-none"><br>({{ q.flag }})</b>
-                    {% endif %}
+                    {% if q.flag == '직출' %} <b class="d-xl-none" style="color: #4e73df">(직출)</b> {% endif %}
                   </td>
 
                   <!-- 시간: 해당일 전후 표시, 완료 표시 -->
@@ -257,7 +247,8 @@
             </h5>
 
             {% for q in vacationSolution %}
-              <li> ({{ q.vacationType }}) {{ q.empName }} </li>
+
+              <li style="text-indent: 16px;"> ({{ q.vacationType }}) {{ q.empName }} </li>
             {% endfor %}
           {% endif %}
 
@@ -303,11 +294,8 @@
 
                 <!-- 구분: 직출, 상주-->
                 <td>
-                  {% if q.flag == '직출' %}
-                    <img width="30px" src = "/media/icon/jigchulmark.png">
-                  {% elif q.flag == '상주' %}
-                    <img width="30px" src = "/media/icon/sangjumark.png">
-                  {% endif %}
+                  {% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}
+                  {% if q.flag == '상주' %} <b style="color: #333333">상주</b> {% endif %}
                 </td>
 
                 <!-- 성함 -->
@@ -371,9 +359,8 @@
                   {% ifchanged q.empName %}
                     <b>{{ q.empName }}</b><br>
                   {% endifchanged %}
-                  {% if q.flag %}
-                    <b class="d-xl-none">({{ q.flag }})</b>
-                  {% endif %}
+                  {% if q.flag == '직출' %} <b style="color: #4e73df">(직출)</b> {% endif %}
+                  {% if q.flag == '상주' %} <b style="color: #333333">(상주)</b> {% endif %}
                 </td>
 
                 <!-- 시간: 해당일 전후 표시, 완료 표시 -->
@@ -438,21 +425,15 @@
 
                   <!-- 구분: 직출 -->
                   <td class="d-none d-xl-table-cell">
-                    {% if q.flag == '직출' %}
-                      <img width="30px" src = "/media/icon/jigchulmark.png">
-                    {% elif q.flag == '상주' %}
-                      <img width="30px" src = "/media/icon/sangjumark.png">
-                    {% endif %}
+                    {% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}
                   </td>
 
                   <!-- 성함 -->
                   <td>
                     {% ifchanged q.empName %}
-                      <b>{{ q.empName }}</b>
+                      <b>{{ q.empName }}</b><br>
                     {% endifchanged %}
-                    {% if q.flag %}
-                      <b class="d-xl-none"><br>({{ q.flag }})</b>
-                    {% endif %}
+                    {% if q.flag == '직출' %} <b class="d-xl-none" style="color: #4e73df">(직출)</b> {% endif %}
                   </td>
 
                   <!-- 시간: 해당일 전후 표시, 완료 표시 -->
@@ -492,7 +473,7 @@
             </h5>
 
             {% for q in vacationDb %}
-              <li> ({{ q.vacationType }}) {{ q.empName }} </li>
+              <li style="text-indent: 16px;"> ({{ q.vacationType }}) {{ q.empName }} </li>
             {% endfor %}
           {% endif %}
 
