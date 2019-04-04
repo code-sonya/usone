@@ -22,9 +22,9 @@ def html2pdf(url):
         'encoding': "UTF-8",
         'no-outline': None,
     }
-    #window: path_wkthmltopdf = u'/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
-    #mac:
-    path_wkthmltopdf = '/usr/local/bin/wkhtmltopdf'
+    #window:
+    path_wkthmltopdf = u'/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
+    #mac:path_wkthmltopdf = '/usr/local/bin/wkhtmltopdf'
     #server:path_wkthmltopdf = '/usr/local/bin/wkhtmltopdf'
 
     config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)

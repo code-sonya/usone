@@ -11,7 +11,7 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from .functions import servicereporthtml
+from .functions import servicereporthtml, html2pdf
 import os
 import pdfkit
 import smtplib
@@ -71,14 +71,39 @@ def sendmail(request, serviceId):
             html = servicereporthtml(serviceId)
             subject, from_email = title, request.user.employee.empEmail
             text_content = strip_tags(html)
+
+            #html 메일본문
             message = EmailMultiAlternatives(subject, text_content, from_email, emailList)
             message.attach_alternative(html, "text/html")
+
+            #서명 이미지
             with open(servicereport.serviceSignPath, 'rb') as f:
                 signatureimg = f.read()
+
             sign = MIMEImage(signatureimg)
             sign.add_header('Content-ID', '<sign>')
             message.attach(sign)
-            message.send()
+
+            #pdf file
+            #로컬:
+            base="127.0.0.1:8000"
+            #서버: base="lop.unioneinc.co.kr:6203
+            servicereportUrl = base+"/mail/servicereport/" + serviceId + "/"
+
+            try:
+                pdf = html2pdf(servicereportUrl)
+                pdffile = MIMEBase("application/pdf", "application/x-pdf")
+                pdffile.set_payload(pdf)
+                encoders.encode_base64(pdffile)
+                pdffile.add_header("Content-Disposition", "attachment", filename=title + '.pdf')
+                message.attach(pdffile)
+                message.send()
+            except Exception as ex:
+                print(ex)
+                resp = "메일 전송 실패! 관리자에게 문의하세요:)"
+                return HttpResponse(resp)
+
+
 
             return redirect('service:showservices')
         else:
@@ -97,7 +122,6 @@ def servicereport(request, serviceId):
     except:
         img = '/media/images/nosign.jpg'
 
-    print(img)
     context = {'servicereport': servicereport, "img": img}
 
     return render(request, 'mail/servicereport.html', context)
