@@ -37,7 +37,8 @@ def dashboard(request):
 
         customer_support_time= Servicereport.objects.values('companyName')\
                                                     .filter(Q(serviceDate__gte=startdate)&
-                                                            Q(serviceDate__lte=enddate))\
+                                                            Q(serviceDate__lte=enddate)&
+                                                            Q(empDeptName=request.user.employee.empDeptName))\
                                                     .annotate(sum_supportTime=Sum('serviceHour'))
 
         context = {
