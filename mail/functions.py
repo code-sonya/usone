@@ -36,7 +36,7 @@ def servicereporthtml(serviceId):
     emp = Employee.objects.get(empId=servicereport.empId.empId)
 
     servicereport.empId
-
+ 
     html = """<html lang="ko">
             <head>  <title> UNIONEINC SERVICE REPORT</title></head>
             <body>

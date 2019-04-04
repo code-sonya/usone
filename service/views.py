@@ -219,7 +219,7 @@ def post_serviceform(request):
                 post = form.save(commit=False)
                 post.empId = empId
                 post.save()
-                return redirect('postservice', str(datetime.date.today()))
+                return redirect('service:postservice', str(datetime.date.today()))
 
         else:
             form = ServiceformForm()
@@ -400,7 +400,7 @@ def modify_serviceform(request, serviceFormId):
                 post = form.save(commit=False)
                 post.empId = empId
                 post.save()
-                return redirect('postservice', str(datetime.date.today()))
+                return redirect('service:postservice', str(datetime.date.today()))
 
         else:
             form = ServiceformForm(instance=instance)
@@ -420,7 +420,7 @@ def delete_serviceform(request, serviceFormId):
     if userId:
         Serviceform.objects.filter(serviceFormId=serviceFormId).delete()
 
-        return redirect('showserviceforms')
+        return redirect('service:showserviceforms')
 
     else:
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
@@ -448,7 +448,7 @@ def delete_vacation(request, vacationId):
     if userId:
         Vacation.objects.filter(vacationId=vacationId).delete()
 
-        return redirect('showvacations')
+        return redirect('service:showvacations')
 
     else:
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
