@@ -238,13 +238,51 @@ def show_services(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
-        empId = Employee(empId=request.user.employee.empId)
-        services = Servicereport.objects.filter(empId=empId)
 
-        context = {
-            'services': services,
-        }
-        return render(request, 'service/showservices.html', context)
+        if request.method == "POST":
+            startdate = request.POST['startdate']
+            enddate= request.POST['enddate']
+            empDeptName= request.POST['empDeptName']
+            empName = request.POST['empName']
+            companyName = request.POST['companyName']
+            serviceType = request.POST['serviceType']
+            serviceTitle = request.POST['serviceTitle']
+
+            services = Servicereport.objects.all()
+            if startdate:
+                services = services.filter(serviceDate__gte=startdate)
+            if enddate:
+                services = services.filter(serviceDate__lte=enddate)
+            if empDeptName:
+                services = services.filter(empDeptName__icontains=empDeptName)
+            if empName:
+                services = services.filter(empName__icontains=empName)
+            if companyName:
+                services = services.filter(companyName__companyName__icontains=companyName)
+            if serviceType:
+                services = services.filter(serviceType__icontains=serviceType)
+            if serviceTitle:
+                services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
+
+            context = {
+                'services': services,
+                'today': datetime.datetime.today(),
+                'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'],
+                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum']
+            }
+            return render(request, 'service/showservices.html', context)
+
+        else:
+            empId = Employee(empId=request.user.employee.empId)
+            services = Servicereport.objects.filter(empId=empId)
+
+            context = {
+                'services': services,
+                'today': datetime.datetime.today(),
+                'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'],
+                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum']
+            }
+            return render(request, 'service/showservices.html', context)
 
     else:
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
@@ -455,11 +493,18 @@ def delete_vacation(request, vacationId):
 
 
 def day_report(request, day):
+    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    beforeDate = Date - datetime.timedelta(days=1)
+    afterDate = Date + datetime.timedelta(days=1)
+
     solution = dayreport_query(empDeptName="솔루션지원팀", day=day)
     db = dayreport_query(empDeptName="DB지원팀", day=day)
 
     context = {
         'day': day,
+        'Date': Date,
+        'beforeDate': beforeDate,
+        'afterDate': afterDate,
         'solution': solution,
         'db': db,
     }
@@ -468,11 +513,18 @@ def day_report(request, day):
 
 
 def day_report2(request, day):
+    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    beforeDate = Date - datetime.timedelta(days=1)
+    afterDate = Date + datetime.timedelta(days=1)
+
     solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
     db = dayreport_query2(empDeptName="DB지원팀", day=day)
 
     context = {
         'day': day,
+        'Date': Date,
+        'beforeDate': beforeDate,
+        'afterDate': afterDate,
         'serviceSolution': solution[0],
         'educationSolution': solution[1],
         'vacationSolution': solution[2],

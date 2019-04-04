@@ -12,7 +12,6 @@
 
     .table{
       color: #333333;
-      table-layout:fixed;
     }
 
     .table td, .table th{
@@ -30,6 +29,17 @@
 
 
 {% block content %}
+  <h2 class="text-center d-none d-xl-block mb-3">
+    <i class="fas fa-angle-left" onclick="location.href='/service/dayreport2/{{ beforeDate | date:'Y-m-d' }}/'"></i>
+    {{ Date | date:"Y년 m월 d일" }}
+    <i class="fas fa-angle-right" onclick="location.href='/service/dayreport2/{{ afterDate | date:'Y-m-d' }}/'"></i>
+  </h2>
+
+  <h3 class="text-center d-xl-none mb-3">
+    <i class="fas fa-angle-left" onclick="location.href='/service/dayreport2/{{ beforeDate | date:'Y-m-d' }}/'"></i>
+    {{ Date | date:"Y년 m월 d일" }}
+    <i class="fas fa-angle-right" onclick="location.href='/service/dayreport2/{{ afterDate | date:'Y-m-d' }}/'"></i>
+  </h3>
 
   <div class="row">
 
@@ -166,7 +176,7 @@
 
               <!-- 업무내용: 다음줄로 변경 -->
               <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
-                <td class="text-left" colspan="2">{{ q.serviceTitle }}</td>
+                <td colspan="2">{{ q.serviceTitle }}</td>
               </tr>
             {% endfor %}
             </tbody>
@@ -392,7 +402,7 @@
 
               <!-- 업무내용: 다음줄로 변경 -->
               <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
-                <td class="text-left" colspan="2">{{ q.serviceTitle }}</td>
+                <td colspan="2">{{ q.serviceTitle }}</td>
               </tr>
             {% endfor %}
             </tbody>
