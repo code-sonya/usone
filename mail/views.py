@@ -5,7 +5,7 @@ from django.db.models import Q
 from email.mime.image import MIMEImage
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-<<<<<<< HEAD
+
 from .functions import servicereporthtml, html2pdf
 import os
 import pdfkit
@@ -15,10 +15,9 @@ from email import encoders
 from email.mime.base import MIMEBase
 
 from service.models import Servicereport, Serviceform, Vacation
-=======
+
 from .functions import servicereporthtml
 from service.models import Servicereport
->>>>>>> sonya
 from client.models import Company, Customer
 from hr.models import Employee
 from django.core.mail import EmailMultiAlternatives
