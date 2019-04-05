@@ -21,11 +21,11 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">전체 지원 시간(이번 달)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">40시</div>
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">전체 지원 횟수</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_support_time.serviceHour__count }}건</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-calendar fa-2x text-gray-300"></i>
+              <i class="fas fa-briefcase fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -38,11 +38,11 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-success text-uppercase mb-1">초과 근무 시간(이번 달)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">5시간</div>
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">전체 지원 시간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_support_time.serviceHour__sum }}시간</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+              <i class="fas fa-clock fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -55,11 +55,11 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-info text-uppercase mb-1">완료 일정(이번달)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">2일</div>
+              <div class="text-sm font-weight-bold text-info text-uppercase mb-1">전체 초과 근무 시간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_support_Overtime.serviceOverHour__sum }}시간</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-check fa-2x text-gray-300"></i>
+              <i class="fas fa-moon fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -73,11 +73,11 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">남은 일정(이번달)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">12일</div>
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">전체 고객사</div>
+              <div class="h5 b-0 font-weight-bold text-gray-800">{{ customer_support_time|length }}개 고객사 지원</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+              <i class="fas fa-building fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -126,170 +126,110 @@
   <div class="row">
 
     <!-- Area Chart -->
-    <div class="col-xl-8 col-lg-7">
+    <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">월별 초과 근무</h6>
+          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 시간</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-area">
-            <canvas id="myAreaChart"></canvas>
+            <canvas id="empSupportTime"></canvas>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Pie Chart -->
-    <div class="col-xl-4 col-lg-5">
+    <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">서비스타입별 지원 시간</h6>
 
         </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-pie pt-4 pb-2">
-            <canvas id="myPieChart"></canvas>
+            <canvas id="typeSupportTime"></canvas>
           </div>
           <div class="mt-4 text-center small">
-                    <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> Direct
+            {% for i,j in multi_type %}
+              {% if j == 0 %}
+                <span class="mr-2">
+                      <i class="fas fa-circle text-primary"></i> {{ i.serviceType }}
                     </span>
-            <span class="mr-2">
-                      <i class="fas fa-circle text-success"></i> Social
+              {% elif j == 1 %}
+                <span class="mr-2">
+                      <i class="fas fa-circle text-success"></i> {{ i.serviceType }}
                     </span>
-            <span class="mr-2">
-                      <i class="fas fa-circle text-info"></i> Referral
-                    </span>
+              {% elif j == 2 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle text-info"></i> {{ i.serviceType }}
+                  </span>
+              {% elif j == 3 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle text-warning"></i> {{ i.serviceType }}
+                  </span>
+              {% elif j == 4 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle text-danger"></i> {{ i.serviceType }}
+                  </span>
+              {% elif j == 5 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle text-secondary"></i> {{ i.serviceType }}
+                  </span>
+              {% elif j == 6 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle" style="color:#e83e8c"></i> {{ i.serviceType }}
+                  </span>
+              {% else %}
+                <span class="mr-2">
+                    <i class="fas fa-circle"></i> {{ i.serviceType }}
+                  </span>
+              {% endif %}
+            {% endfor %}
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Content Row -->
   <div class="row">
 
-    <!-- Content Column -->
-    <div class="col-lg-6 mb-4">
-
-      <!-- Project Card Example -->
+    <!-- Bar Chart -->
+    <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
-        <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary">Projects</h6>
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 횟수</h6>
         </div>
+        <!-- Card Body -->
         <div class="card-body">
-          <h4 class="small font-weight-bold">Server Migration <span class="float-right">20%</span></h4>
-          <div class="progress mb-4">
-            <div class="progress-bar bg-danger" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-          <h4 class="small font-weight-bold">Sales Tracking <span class="float-right">40%</span></h4>
-          <div class="progress mb-4">
-            <div class="progress-bar bg-warning" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-          <h4 class="small font-weight-bold">Customer Database <span class="float-right">60%</span></h4>
-          <div class="progress mb-4">
-            <div class="progress-bar" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-          <h4 class="small font-weight-bold">Payout Details <span class="float-right">80%</span></h4>
-          <div class="progress mb-4">
-            <div class="progress-bar bg-info" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-          <h4 class="small font-weight-bold">Account Setup <span class="float-right">Complete!</span></h4>
-          <div class="progress">
-            <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+          <div class="chart-area">
+            <canvas id="empSupportCount"></canvas>
           </div>
         </div>
       </div>
-
-      <!-- Color System -->
-      <div class="row">
-        <div class="col-lg-6 mb-4">
-          <div class="card bg-primary text-white shadow">
-            <div class="card-body">
-              Primary
-              <div class="text-white-50 small">#4e73df</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-          <div class="card bg-success text-white shadow">
-            <div class="card-body">
-              Success
-              <div class="text-white-50 small">#1cc88a</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-          <div class="card bg-info text-white shadow">
-            <div class="card-body">
-              Info
-              <div class="text-white-50 small">#36b9cc</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-          <div class="card bg-warning text-white shadow">
-            <div class="card-body">
-              Warning
-              <div class="text-white-50 small">#f6c23e</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-          <div class="card bg-danger text-white shadow">
-            <div class="card-body">
-              Danger
-              <div class="text-white-50 small">#e74a3b</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 mb-4">
-          <div class="card bg-secondary text-white shadow">
-            <div class="card-body">
-              Secondary
-              <div class="text-white-50 small">#858796</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
 
-    <div class="col-lg-6 mb-4">
-
-      <!-- Illustrations -->
+    <!-- Bar Chart -->
+    <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
-        <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary">Illustrations</h6>
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 초과근무 시간</h6>
         </div>
+        <!-- Card Body -->
         <div class="card-body">
-          <div class="text-center">
+          <div class="chart-area">
+            <canvas id="empSupportOver"></canvas>
           </div>
-          <p>Add some quality, svg illustrations to your project courtesy of <a target="_blank" rel="nofollow" href="https://undraw.co/">unDraw</a>, a constantly updated collection of beautiful svg
-            images that you can use completely free and without attribution!</p>
-          <a target="_blank" rel="nofollow" href="https://undraw.co/">Browse Illustrations on unDraw &rarr;</a>
         </div>
       </div>
-
-      <!-- Approach -->
-      <div class="card shadow mb-4">
-        <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary">Development Approach</h6>
-        </div>
-        <div class="card-body">
-          <p>SB Admin 2 makes extensive use of Bootstrap 4 utility classes in order to reduce CSS bloat and poor page performance. Custom CSS classes are used to create custom components and custom
-            utility classes.</p>
-          <p class="mb-0">Before working with this theme, you should become familiar with the Bootstrap framework, especially the utility classes.</p>
-        </div>
-      </div>
-
     </div>
   </div>
-
 
 {% endblock %}
 
@@ -299,96 +239,212 @@
   <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
 
   <script>
-
-  // Bar Chart Example
-var ctx = document.getElementById("CustomerSupportTime");
-var myBarChart = new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: [
-        {% for i in customer_support_time %}
-            "{{ i.companyName }}",
-        {% endfor %}
-    ],
-    datasets: [{
-      label: "지원 시간",
-      backgroundColor: "#4e73df",
-      hoverBackgroundColor: "#2e59d9",
-      borderColor: "#4e73df",
-      data: [
-          {% for i in customer_support_time %}
-            "{{ i.sum_supportTime }}",
-        {% endfor %}
-      ],
-    }],
-  },
-  options: {
-    maintainAspectRatio: false,
-    layout: {
-      padding: {
-        left: 10,
-        right: 25,
-        top: 25,
-        bottom: 0
-      }
-    },
-    scales: {
-      xAxes: [{
-        time: {
-          unit: 'week'
-        },
-        gridLines: {
-          display: false,
-          drawBorder: false
-        },
-        ticks: {
-          maxTicksLimit: 6
-        },
-        maxBarThickness: 25,
-      }],
-      yAxes: [{
-        ticks: {
-          maxTicksLimit: 5,
-          padding: 10,
-          // Include a dollar sign in the ticks
-          callback: function(value, index, values) {
-            return number_format(value);
-          }
-        },
-        gridLines: {
-          color: "rgb(234, 236, 244)",
-          zeroLineColor: "rgb(234, 236, 244)",
-          drawBorder: false,
-          borderDash: [2],
-          zeroLineBorderDash: [2]
-        }
-      }],
-    },
-    legend: {
-      display: false
-    },
-    tooltips: {
-      titleMarginBottom: 10,
-      titleFontColor: '#6e707e',
-      titleFontSize: 14,
-      backgroundColor: "rgb(255,255,255)",
-      bodyFontColor: "#858796",
-      borderColor: '#dddfeb',
-      borderWidth: 1,
-      xPadding: 15,
-      yPadding: 15,
-      displayColors: false,
-      caretPadding: 10,
-      callbacks: {
-        label: function(tooltipItem, chart) {
-          return '총 ' + number_format(tooltipItem.yLabel) +"시간 지원";
-        }
-      }
-    },
-  }
-});
-
-
+      // 고객사별 지원 시간
+      // Bar Chart Example
+      const colors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
+      const options = {
+          maintainAspectRatio: false,
+          layout: {
+              padding: {
+                  left: 10,
+                  right: 25,
+                  top: 25,
+                  bottom: 0
+              }
+          },
+          scales: {
+              xAxes: [{
+                  time: {
+                      unit: 'week'
+                  },
+                  gridLines: {
+                      display: false,
+                      drawBorder: false
+                  },
+                  ticks: {
+                      maxTicksLimit: 6
+                  },
+                  maxBarThickness: 25,
+              }],
+              yAxes: [{
+                  ticks: {
+                      maxTicksLimit: 5,
+                      padding: 10,
+                      // Include a dollar sign in the ticks
+                      callback: function (value, index, values) {
+                          return number_format(value);
+                      }
+                  },
+                  gridLines: {
+                      color: "rgb(234, 236, 244)",
+                      zeroLineColor: "rgb(234, 236, 244)",
+                      drawBorder: false,
+                      borderDash: [2],
+                      zeroLineBorderDash: [2]
+                  }
+              }],
+          },
+          legend: {
+              display: false
+          },
+          tooltips: {
+              titleMarginBottom: 10,
+              titleFontColor: '#6e707e',
+              titleFontSize: 14,
+              backgroundColor: "rgb(255,255,255)",
+              bodyFontColor: "#858796",
+              borderColor: '#dddfeb',
+              borderWidth: 1,
+              xPadding: 15,
+              yPadding: 15,
+              displayColors: false,
+              caretPadding: 10,
+              callbacks: {
+                  label: function (tooltipItem, chart) {
+                      return '총 ' + number_format(tooltipItem.yLabel);
+                  }
+              }
+          },
+      };
+      // Bar Chart 1
+      var ctx = document.getElementById("CustomerSupportTime");
+      var myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [
+                  {% for i in customer_support_time %}
+                      "{{ i.companyName }}",
+                  {% endfor %}
+              ],
+              datasets: [{
+                  label: "지원 시간",
+                  backgroundColor: colors,
+                  hoverBackgroundColor: "#2e59d9",
+                  borderColor: "#4e73df",
+                  data: [
+                      {% for i in customer_support_time %}
+                          "{{ i.sum_supportTime }}",
+                      {% endfor %}
+                  ],
+              }],
+          },
+          options: options
+      });
+      // Bar Chart 2
+      var ctx = document.getElementById("empSupportTime");
+      var myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [
+                  {% for i in emp_support_time %}
+                      "{{ i.empName }}",
+                  {% endfor %}
+              ],
+              datasets: [{
+                  label: "지원 시간",
+                  hoverBackgroundColor: "#2e59d9",
+                  borderColor: "#4e73df",
+                  backgroundColor: colors,
+                  data: [
+                      {% for i in emp_support_time %}
+                          "{{ i.sum_supportTime }}",
+                      {% endfor %}
+                  ],
+              }],
+          },
+          options: options
+      });
+      // Bar Chart 3
+      var ctx = document.getElementById("empSupportCount");
+      var myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [
+                  {% for i in emp_support_time %}
+                      "{{ i.empName }}",
+                  {% endfor %}
+              ],
+              datasets: [{
+                  label: "지원 횟수",
+                  hoverBackgroundColor: "#2e59d9",
+                  borderColor: "#4e73df",
+                  backgroundColor: colors,
+                  data: [
+                      {% for i in emp_support_time %}
+                          "{{ i.sum_supportCount }}",
+                      {% endfor %}
+                  ],
+              }],
+          },
+          options: options
+      });
+      // Bar Chart 4
+      var ctx = document.getElementById("empSupportOver");
+      var myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [
+                  {% for i in emp_support_time %}
+                      "{{ i.empName }}",
+                  {% endfor %}
+              ],
+              datasets: [{
+                  label: "초과 근무 시간",
+                  hoverBackgroundColor: "#2e59d9",
+                  borderColor: "#4e73df",
+                  backgroundColor: colors,
+                  data: [
+                      {% for i in emp_support_time %}
+                          "{{ i.sum_overTime }}",
+                      {% endfor %}
+                  ],
+              }],
+          },
+          options: options
+      });
+  </script>
+  <script>
+      // Pie Chart 1
+      var ctx = document.getElementById("typeSupportTime");
+      var myPieChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+              labels: [
+                  {% for i in type_support_time %}
+                      "{{ i.serviceType }}".replace('&amp;', '&') ,
+                  {% endfor %}
+              ],
+              datasets: [{
+                  data: [
+                      {% for i in type_support_time %}
+                          "{{ i.sum_supportTime }}",
+                      {% endfor %}
+                  ],
+                  backgroundColor: colors,
+                  hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                  hoverBorderColor: "rgba(234, 236, 244, 1)",
+              }],
+          },
+          options: {
+              maintainAspectRatio: false,
+              tooltips: {
+                  backgroundColor: "rgb(255,255,255)",
+                  bodyFontColor: "#858796",
+                  borderColor: '#dddfeb',
+                  borderWidth: 1,
+                  xPadding: 15,
+                  yPadding: 15,
+                  displayColors: false,
+                  caretPadding: 10,
+              },
+              legend: {
+                  display: false
+              },
+              cutoutPercentage: 80,
+          },
+      });
   </script>
   <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
   <script src="https://cdn.anychart.com/releases/v8/js/anychart-ui.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
@@ -398,22 +454,36 @@ var myBarChart = new Chart(ctx, {
   <link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
   <link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
   <script>
-  anychart.onDocumentReady(function () {
+      anychart.onDocumentReady(function () {
 
-    // create data
-    var data = [
-      {name:   "고객사별 지원 시간", children: [
-           {% for i in customer_support_time %}
-           {name: "{{ i.companyName }}", value: {{ i.sum_supportTime }} },
-        {% endfor %}
-      ]}
-    ];
+          // create data
+          var data = [
+              {
+                  name: "고객사별 지원 시간", children: [
+                      {% for i in customer_support_time %}
+                          {name: "{{ i.companyName }}", value: {{ i.sum_supportTime }}},
+                      {% endfor %}
+                  ]
+              }
+          ];
 
-    var chart = anychart.treeMap(data, "as-tree");
+          var chart = anychart.treeMap(data, "as-tree");
 
-    chart.container("SupportTimeTreemap");
+          chart.container("SupportTimeTreemap");
 
-    chart.draw();
-});
+          var customColorScale = anychart.scales.ordinalColor();
+          customColorScale.ranges([
+              {less: 10},
+              {from: 10, to: 15},
+              {from: 15, to: 25},
+              {greater: 25}
+          ]);
+          customColorScale.colors(["lightgray", "#9ed1de", "#00ccff", "#ffcc00"]);
+
+          // set the color scale as the color scale of the chart
+          chart.colorScale(customColorScale);
+
+          chart.draw();
+      });
   </script>
 {% endblock %}
