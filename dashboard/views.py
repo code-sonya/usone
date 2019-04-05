@@ -23,15 +23,30 @@ def dashboard(request):
         #기간 설정 했을 경우
         if request.method=="POST":
 
-            startdate=request.POST['startdate']
-            enddate = request.POST['startdate']
+            startdate = request.POST['startdate']
+            enddate = request.POST['enddate']
+            print(startdate,enddate)
 
         #default : 주 단위 (월~일)
         else:
             today = datetime.today()
-            startdate = today - timedelta(days=today.weekday())
+            startdate = (today - timedelta(days=today.weekday())).date()
             enddate = startdate + timedelta(days=6)
-            print(startdate.date(),enddate.date())
+
+        ### 전체 지원 통계
+        all_support_data = Servicereport.objects.filter(Q(serviceDate__gte=startdate) &
+                                                        Q(serviceDate__lte=enddate) &
+                                                        Q(empDeptName=request.user.employee.empDeptName))
+
+        all_support_time = Servicereport.objects.filter(Q(serviceDate__gte=startdate) &
+                                                        Q(serviceDate__lte=enddate) &
+                                                        Q(empDeptName=request.user.employee.empDeptName)) \
+                                                .aggregate(Sum('serviceHour'), Count('serviceHour'))
+
+        all_support_Overtime = Servicereport.objects.filter(Q(serviceDate__gte=startdate) &
+                                                            Q(serviceDate__lte=enddate) &
+                                                            Q(empDeptName=request.user.employee.empDeptName)) \
+                                                    .aggregate(Sum('serviceOverHour'))
 
         ###고객사별 지원통계
         customer_support_time= Servicereport.objects.values('companyName')\
@@ -39,16 +54,6 @@ def dashboard(request):
                                                             Q(serviceDate__lte=enddate)&
                                                             Q(empDeptName=request.user.employee.empDeptName))\
                                                     .annotate(sum_supportTime=Sum('serviceHour'))
-
-        all_support_time = Servicereport.objects.filter(Q(serviceDate__gte=startdate) &
-                                                        Q(serviceDate__lte=enddate) &
-                                                        Q(empDeptName=request.user.employee.empDeptName))\
-                                                .aggregate(Sum('serviceHour'),Count('serviceHour'))
-
-        all_support_Overtime = Servicereport.objects.filter(Q(serviceDate__gte=startdate) &
-                                                        Q(serviceDate__lte=enddate) &
-                                                        Q(empDeptName=request.user.employee.empDeptName)) \
-                                                    .aggregate(Sum('serviceOverHour'))
 
         ###엔지니어별 지원통계
         emp_support_time = Servicereport.objects.values('empName') \
@@ -68,10 +73,13 @@ def dashboard(request):
         multi_type = zip(type_support_time, type_count)
 
         context = {
+            'startdate' : startdate,
+            'enddate' : enddate,
             'customer_support_time': customer_support_time,
             'emp_support_time' : emp_support_time,
             'type_support_time' : type_support_time,
             'multi_type' : multi_type,
+            'all_support_data' : all_support_data,
             'all_support_time' : all_support_time,
             'all_support_Overtime': all_support_Overtime
         }
