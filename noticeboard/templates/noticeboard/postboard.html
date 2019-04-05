@@ -1,0 +1,104 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  게시판
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          {% if service %}
+            <h6 class="m-0 h3 text-gray-800"> {{ service.serviceDate|date:"Y. m. d." }} {{ service.companyName }} ({{ service.serviceType }}) 추가내용 </h6>
+          {% else %}
+            <h6 class="m-0 h3 text-gray-800"> 게시판 글쓰기 </h6>
+          {% endif %}
+        </div>
+
+        <div class="card-body">
+          <form id="boardForm" method="POST">
+
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="boardTitle" class="font-weight-bold text-primary"> 제목 </label> {{ form.boardTitle }}
+            </div>
+            <div class="form-group">
+              <label for="boardDetails" class="font-weight-bold text-primary"> 내용 </label> {{ form.boardDetails }}
+            </div>
+            <div class="form-group">
+              <label for="boardFiles" class="font-weight-bold text-primary"> 첨부파일 </label>
+              <div>
+                <input class="btn-sm" type="text" id="file_route" readonly>
+                <label class="m-0 btn btn-secondary btn-icon-split btn-sm">
+                  <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>
+                  <span class="text text-white-100"> 파일 찾기 </span>
+                  {{ form.boardFiles }}
+                </label>
+              </div>
+            </div>
+
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              history.back();
+          } else {
+              return false;
+          }
+      }
+
+      function btn_save() {
+          const boardTitle = document.getElementById("boardTitle").value;
+          const boardDetails = document.getElementById("boardDetails").value;
+
+          if (boardTitle === '') {
+              alert("제목을 입력해주세요.");
+              return false;
+          }
+          if (boardDetails === '') {
+              alert("내용을 입력해주세요.");
+              return false;
+          }
+          if (confirm("게시글을 등록 하시겠습니까?") === true) {    //확인
+              document.getElementById("boardForm").submit();
+          }
+      }
+
+  </script>
+
+{% endblock %}

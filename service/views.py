@@ -268,7 +268,7 @@ def show_services(request):
                 'services': services,
                 'today': datetime.datetime.today(),
                 'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'],
-                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum']
+                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0
             }
             return render(request, 'service/showservices.html', context)
 
@@ -279,8 +279,8 @@ def show_services(request):
             context = {
                 'services': services,
                 'today': datetime.datetime.today(),
-                'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'],
-                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum']
+                'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'] or 0,
+                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0
             }
             return render(request, 'service/showservices.html', context)
 
