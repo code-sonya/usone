@@ -1,16 +1,11 @@
-# import lxml.html
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.db.models import Q
-from django.core.mail import send_mail
-import subprocess
-from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+
 from .functions import servicereporthtml, html2pdf
 import os
 import pdfkit
@@ -20,12 +15,12 @@ from email import encoders
 from email.mime.base import MIMEBase
 
 from service.models import Servicereport, Serviceform, Vacation
+
+from .functions import servicereporthtml
+from service.models import Servicereport
 from client.models import Company, Customer
 from hr.models import Employee
-from scheduler.models import Eventday
-
 from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 
@@ -36,25 +31,26 @@ def selectreceiver(request, serviceId):
     template = loader.get_template('mail/selectreceiver.html')
 
     if userId:
-        servicereport=Servicereport.objects.get(serviceId=serviceId)
-        customers=Customer.objects.filter(companyName=servicereport.companyName)
-        deptmanager=Employee.objects.filter(Q(empManager="Y") &
-                                            Q(empDeptName=request.user.employee.empDeptName))
+        servicereport = Servicereport.objects.get(serviceId=serviceId)
+        customers = Customer.objects.filter(companyName=servicereport.companyName)
+        deptmanager = Employee.objects.filter(Q(empManager="Y") &
+                                              Q(empDeptName=request.user.employee.empDeptName))
         company = Company.objects.get(companyName=servicereport.companyName)
         sales = Employee.objects.get(empId=company.saleEmpId.empId)
 
         context = {
             'serviceId': serviceId,
-            'servicereport':servicereport,
-            'customers':customers,
-            'sales':sales,
-            'deptmanager':deptmanager,
+            'servicereport': servicereport,
+            'customers': customers,
+            'sales': sales,
+            'deptmanager': deptmanager,
         }
 
         return HttpResponse(template.render(context, request))
     else:
 
         return render(request, 'accounts/login.html')
+
 
 def sendmail(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
@@ -63,11 +59,11 @@ def sendmail(request, serviceId):
 
         if request.method == 'POST':
             servicereport = Servicereport.objects.get(serviceId=serviceId)
-            emailList=request.POST["emailList"]
-            emailList=emailList.split(',')
+            emailList = request.POST["emailList"]
+            emailList = emailList.split(',')
 
             ###메일 전송
-            title = "[{}_{}]{} 유니원아이앤씨(주) SERVICE REPORT".format(servicereport.companyName, request.user.employee.empDeptName,servicereport.serviceDate)
+            title = "[{}_{}]{} 유니원아이앤씨(주) SERVICE REPORT".format(servicereport.companyName, request.user.employee.empDeptName, servicereport.serviceDate)
             html = servicereporthtml(serviceId)
             subject, from_email = title, request.user.employee.empEmail
             text_content = strip_tags(html)

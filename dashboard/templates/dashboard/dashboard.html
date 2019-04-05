@@ -1,0 +1,622 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}
+  대시보드
+{% endblock %}
+
+{% block content %}
+
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <span>
+    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate }}~{{ enddate }} )</h6>
+    </span>
+    <span>
+      <a href="#" class="d-sm-inline-block btn btn-sm btn-info shadow-sm" id="filterLink" data-toggle="modal" data-target="#filterModal"><i class="fas fa-filter fa-sm text-white-50"></i> 날짜 검색 </a>
+      <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
+    </span>
+
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">전체 지원 횟수</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_support_time.serviceHour__count }}건</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-briefcase fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">전체 지원 시간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_support_time.serviceHour__sum }}시간</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-clock fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-info text-uppercase mb-1">전체 초과 근무 시간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_support_Overtime.serviceOverHour__sum }}시간</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-moon fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Pending Requests Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">전체 고객사</div>
+              <div class="h5 b-0 font-weight-bold text-gray-800">{{ customer_support_time|length }}개 고객사 지원</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-building fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+
+  <div class="row">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원 시간</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <div id="SupportTimeTreemap" style="height: 100%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+
+  <div class="row">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원 시간</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="CustomerSupportTime"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <!-- Area Chart -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 시간</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="empSupportTime"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">서비스타입별 지원 시간</h6>
+
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-pie pt-4 pb-2">
+            <canvas id="typeSupportTime"></canvas>
+          </div>
+          <div class="mt-4 text-center small">
+            {% for i,j in multi_type %}
+              {% if j == 0 %}
+                <span class="mr-2">
+                      <i class="fas fa-circle text-primary"></i> {{ i.serviceType }}
+                    </span>
+              {% elif j == 1 %}
+                <span class="mr-2">
+                      <i class="fas fa-circle text-success"></i> {{ i.serviceType }}
+                    </span>
+              {% elif j == 2 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle text-info"></i> {{ i.serviceType }}
+                  </span>
+              {% elif j == 3 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle text-warning"></i> {{ i.serviceType }}
+                  </span>
+              {% elif j == 4 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle text-danger"></i> {{ i.serviceType }}
+                  </span>
+              {% elif j == 5 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle text-secondary"></i> {{ i.serviceType }}
+                  </span>
+              {% elif j == 6 %}
+                <span class="mr-2">
+                    <i class="fas fa-circle" style="color:#e83e8c"></i> {{ i.serviceType }}
+                  </span>
+              {% else %}
+                <span class="mr-2">
+                    <i class="fas fa-circle"></i> {{ i.serviceType }}
+                  </span>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <!-- Bar Chart -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 횟수</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="empSupportCount"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 초과근무 시간</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="empSupportOver"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- data table -->
+  <div class="row">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">상세 내용</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showservice" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>성함</th>
+                <th>고객사</th>
+                <th>구분</th>
+                <th>날짜</th>
+                <th>지원시간</th>
+                <th>초과근무시간</th>
+                <th>제목</th>
+                <th class="d-none">serviceId</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">날짜 검색</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
+                <input type="date" class="form-control" id="startdate" name="startdate">
+              </div>
+              <div class="col-6">
+                <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
+                <input type="date" class="form-control" id="enddate" name="enddate">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/hr/js/demo/chart-bar-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-area-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
+
+  <script>
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+  </script>
+
+  <script>
+      // 고객사별 지원 시간
+      // Bar Chart Example
+      const colors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
+      const options = {
+          maintainAspectRatio: false,
+          layout: {
+              padding: {
+                  left: 10,
+                  right: 25,
+                  top: 25,
+                  bottom: 0
+              }
+          },
+          scales: {
+              xAxes: [{
+                  time: {
+                      unit: 'week'
+                  },
+                  gridLines: {
+                      display: false,
+                      drawBorder: false
+                  },
+                  ticks: {
+                      maxTicksLimit: 6
+                  },
+                  maxBarThickness: 25,
+              }],
+              yAxes: [{
+                  ticks: {
+                      maxTicksLimit: 5,
+                      padding: 10,
+                      // Include a dollar sign in the ticks
+                      callback: function (value, index, values) {
+                          return number_format(value);
+                      }
+                  },
+                  gridLines: {
+                      color: "rgb(234, 236, 244)",
+                      zeroLineColor: "rgb(234, 236, 244)",
+                      drawBorder: false,
+                      borderDash: [2],
+                      zeroLineBorderDash: [2]
+                  }
+              }],
+          },
+          legend: {
+              display: false
+          },
+          tooltips: {
+              titleMarginBottom: 10,
+              titleFontColor: '#6e707e',
+              titleFontSize: 14,
+              backgroundColor: "rgb(255,255,255)",
+              bodyFontColor: "#858796",
+              borderColor: '#dddfeb',
+              borderWidth: 1,
+              xPadding: 15,
+              yPadding: 15,
+              displayColors: false,
+              caretPadding: 10,
+              callbacks: {
+                  label: function (tooltipItem, chart) {
+                      return '총 ' + number_format(tooltipItem.yLabel);
+                  }
+              }
+          },
+      };
+      // Bar Chart 1
+      var ctx = document.getElementById("CustomerSupportTime");
+      var myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [
+                  {% for i in customer_support_time %}
+                      "{{ i.companyName }}",
+                  {% endfor %}
+              ],
+              datasets: [{
+                  label: "지원 시간",
+                  backgroundColor: colors,
+                  hoverBackgroundColor: "#2e59d9",
+                  borderColor: "#4e73df",
+                  data: [
+                      {% for i in customer_support_time %}
+                          "{{ i.sum_supportTime }}",
+                      {% endfor %}
+                  ],
+              }],
+          },
+          options: options
+      });
+      // Bar Chart 2
+      var ctx = document.getElementById("empSupportTime");
+      var myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [
+                  {% for i in emp_support_time %}
+                      "{{ i.empName }}",
+                  {% endfor %}
+              ],
+              datasets: [{
+                  label: "지원 시간",
+                  hoverBackgroundColor: "#2e59d9",
+                  borderColor: "#4e73df",
+                  backgroundColor: colors,
+                  data: [
+                      {% for i in emp_support_time %}
+                          "{{ i.sum_supportTime }}",
+                      {% endfor %}
+                  ],
+              }],
+          },
+          options: options
+      });
+      // Bar Chart 3
+      var ctx = document.getElementById("empSupportCount");
+      var myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [
+                  {% for i in emp_support_time %}
+                      "{{ i.empName }}",
+                  {% endfor %}
+              ],
+              datasets: [{
+                  label: "지원 횟수",
+                  hoverBackgroundColor: "#2e59d9",
+                  borderColor: "#4e73df",
+                  backgroundColor: colors,
+                  data: [
+                      {% for i in emp_support_time %}
+                          "{{ i.sum_supportCount }}",
+                      {% endfor %}
+                  ],
+              }],
+          },
+          options: options
+      });
+      // Bar Chart 4
+      var ctx = document.getElementById("empSupportOver");
+      var myBarChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+              labels: [
+                  {% for i in emp_support_time %}
+                      "{{ i.empName }}",
+                  {% endfor %}
+              ],
+              datasets: [{
+                  label: "초과 근무 시간",
+                  hoverBackgroundColor: "#2e59d9",
+                  borderColor: "#4e73df",
+                  backgroundColor: colors,
+                  data: [
+                      {% for i in emp_support_time %}
+                          "{{ i.sum_overTime }}",
+                      {% endfor %}
+                  ],
+              }],
+          },
+          options: options
+      });
+  </script>
+  <script>
+      // Pie Chart 1
+      var ctx = document.getElementById("typeSupportTime");
+      var myPieChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+              labels: [
+                  {% for i in type_support_time %}
+                      "{{ i.serviceType }}".replace('&amp;', '&') ,
+                  {% endfor %}
+              ],
+              datasets: [{
+                  data: [
+                      {% for i in type_support_time %}
+                          "{{ i.sum_supportTime }}",
+                      {% endfor %}
+                  ],
+                  backgroundColor: colors,
+                  hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                  hoverBorderColor: "rgba(234, 236, 244, 1)",
+              }],
+          },
+          options: {
+              maintainAspectRatio: false,
+              tooltips: {
+                  backgroundColor: "rgb(255,255,255)",
+                  bodyFontColor: "#858796",
+                  borderColor: '#dddfeb',
+                  borderWidth: 1,
+                  xPadding: 15,
+                  yPadding: 15,
+                  displayColors: false,
+                  caretPadding: 10,
+              },
+              legend: {
+                  display: false
+              },
+              cutoutPercentage: 80,
+          },
+      });
+  </script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-ui.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-exports.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-treemap.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
+  <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
+  <link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
+  <link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
+  <script>
+      anychart.onDocumentReady(function () {
+
+          // create data
+          var data = [
+              {
+                  name: "고객사", children: [
+                      {% for i in customer_support_time %}
+                          {name: "{{ i.companyName }}", value: {{ i.sum_supportTime }}},
+                      {% endfor %}
+                  ]
+              }
+          ];
+
+          var chart = anychart.treeMap(data, "as-tree");
+
+          chart.container("SupportTimeTreemap");
+
+          var customColorScale = anychart.scales.ordinalColor();
+          customColorScale.ranges([
+              {less: 10},
+              {from: 10, to: 15},
+              {from: 15, to: 25},
+              {greater: 25}
+          ]);
+          customColorScale.colors(["lightgray", "#9ed1de", "#00ccff", "#ffcc00"]);
+
+          // set the color scale as the color scale of the chart
+          chart.colorScale(customColorScale);
+
+          chart.draw();
+      });
+  </script>
+  <script>
+  $(document).ready(function () {
+
+          const table = $('#showservice').DataTable({
+              data: [],
+              columns: [
+                  {data: "성함"},
+                  {data: "고객사"},
+                  {data: "구분"},
+                  {data: "날짜"},
+                  {data: "지원시간"},
+                  {data: "초과근무시간"},
+                  {data: "제목"},
+                  {data: "serviceId"}
+              ],
+              columnDefs: [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, visible:false}
+              ],
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollCollapse": true,
+          });
+
+          {% for service in all_support_data %}
+              var rowNode = table.row.add( {
+                  "성함":  "{{ service.empName }}",
+                  "고객사": "{{ service.companyName.companyName }}",
+                  "구분": "{{ service.serviceType }}",
+                  "날짜": "{{ service.serviceDate | date:"Y-m-d" }}",
+                  "지원시간": "{{ service.serviceHour }}",
+                  "초과근무시간": "{{ service.serviceOverHour }}",
+                  "제목": "{{ service.serviceTitle }}",
+                  "serviceId": "{{ service.serviceId }}",
+              } ).draw().node();
+
+          {% endfor %}
+
+          $("#showservice").on("click", 'tr', function(){
+              const data = table.row(this).data();
+              location.href='/service/viewservice/' + data.serviceId + '/'
+          });
+
+      });
+  </script>
+{% endblock %}
