@@ -3,7 +3,7 @@ from hr.models import Employee
 
 
 class Company(models.Model):
-    statusChoices = (('Y', 'Y'), ('N', 'N'))
+    statusChoices = (('Y', 'Y'), ('N', 'N'),('X', 'X'))
 
     companyName = models.CharField(max_length=100, primary_key=True)
     saleEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='saleEmpID')
@@ -22,8 +22,10 @@ class Company(models.Model):
     companySystem = models.TextField(null=True, blank=True)
     dbComment = models.TextField(null=True, blank=True)
     solutionComment = models.TextField(null=True, blank=True)
-    contractStartDate = models.DateField(null=True, blank=True)
-    contractEndDate = models.DateField(null=True, blank=True)
+    dbContractStartDate = models.DateField(null=True, blank=True)
+    dbContractEndDate = models.DateField(null=True, blank=True)
+    solutionContractStartDate = models.DateField(null=True, blank=True)
+    solutionContractEndDate = models.DateField(null=True, blank=True)
     companyStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     def __str__(self):

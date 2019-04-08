@@ -1,0 +1,163 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  고객사
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+
+    <div class="col-xl-8 d-xl-block">
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> 고객사</h6>
+
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            </a>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a class="dropdown-toggle" href="/client/postclient/" role="button">
+              <i class="fas fa-plus fa-fw text-gray-400"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          {% csrf_token %}
+
+          <div class="table-responsive">
+            <table id="showclientlist" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>고객사</th>
+                <th>영업대표</th>
+                <th>DB담당자</th>
+                <th>SYSTEM담당자</th>
+                <th>DB계약만료일</th>
+                <th>SYSTEM계약만료일</th>
+                <th class="d-none">companyId</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-xl-2"></div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="empName" class="font-weight-light text-primary">엔지니어 or 영업 대표</label>
+                <input type="text" class="form-control" id="empName" name="empName">
+              </div>
+              <div class="col-12">
+                <label for="companyName" class="font-weight-light text-primary">고객사</label>
+                <input type="text" class="form-control" id="companyName" name="companyName">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+
+      $(document).ready(function () {
+
+          const table = $('#showclientlist').DataTable({
+              data: [],
+              columns: [
+                  {data: "고객사"},
+                  {data: "영업대표"},
+                  {data: "DB담당자"},
+                  {data: "SYSTEM담당자"},
+                  {data: "DB계약만료일"},
+                  {data: "SYSTEM계약만료일"},
+                  {data: "companyId"},
+              ],
+              columnDefs: [
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, visible: false}
+              ],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+          });
+
+          {% for company in companylist %}
+              var rowNode = table.row.add({
+                  "고객사": "{{ company.companyName }}",
+                  "영업대표": "{{ company.saleEmpId.empName }}",
+                  "DB담당자": "{% if company.dbMainEmpId.empName %}{{ company.dbMainEmpId.empName }}{% else %}-{% endif %}/{% if company.dbSubEmpId.empName %}{{ company.dbSubEmpId.empName }}{% else %}-{% endif %}",
+                  "SYSTEM담당자": "{% if company.solutionMainEmpId.empName %}{{ company.solutionMainEmpId.empName }}{% else %}-{% endif %}/{% if company.solutionSubEmpId.empName %}{{ company.solutionSubEmpId.empName }}{% else %}-{% endif %}",
+                  "DB계약만료일": "{% if company.dbContractEndDate %}{{ company.dbContractEndDate }}{% else %}-{% endif %}",
+                  "SYSTEM계약만료일": "{% if company.solutionContractEndDate %}{{ company.solutionContractEndDate }}{% else %}-{% endif %}",
+                  "companyId": "{{ company.companyId }}",
+              }).draw().node();
+
+          {% endfor %}
+
+          $("#showclientlist").on("click", 'tr', function () {
+              const data = table.row(this).data();
+              location.href = '/showclientlist/viewclient/' + data.companyId + '/'
+          });
+
+      });
+
+  </script>
+
+{% endblock %}
