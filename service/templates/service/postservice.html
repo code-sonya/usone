@@ -166,6 +166,9 @@
           const serviceType = document.getElementById("serviceType").value;
           const serviceTitle = document.getElementById("serviceTitle").value;
           const serviceDetails = document.getElementById("serviceDetails").value;
+          const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g,'/') + ' ' + document.getElementById("starttime").value);
+          const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g,'/') + ' ' + document.getElementById("endtime").value);
+          const diff = ((serviceEndDatetime - serviceStartDatetime)/3600000).toFixed(1);
 
           if (companyName === '') {
               alert("고객사 명을 입력해주세요.");
@@ -183,9 +186,20 @@
               alert("내용을 입력해주세요.");
               return false;
           }
-          if (confirm("일정등록을 하시겠습니까?") === true) {    //확인
-              document.getElementById("ServicereportForm").submit();
+          if (diff < 0) {
+              alert("시작일시가 종료일시보다 느립니다. 확인해주세요.");
+              return false;
           }
+          if (diff > 12) {
+              if (confirm("일정이 12시간 이상입니다.\n반복되는 일정일 경우 반복 등록 기능을 사용해주세요.\n일정 등록 하시겠습니까?") === true) {
+                  document.getElementById("ServicereportForm").submit();
+              }
+          } else {
+              if (confirm("일정 등록 하시겠습니까?") === true) {
+                  document.getElementById("ServicereportForm").submit();
+              }
+          }
+
       }
 
       function applyform(companyName, serviceType, serviceStartTime, serviceEndTime, serviceLocation, directgo, serviceTitle, serviceDetails) {
