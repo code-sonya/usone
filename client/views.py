@@ -18,38 +18,56 @@ from django.contrib.auth.models import User
 from django.http import QueryDict
 from django.db.models import FloatField
 from django.db.models import F, Sum, Count, Case, When
-from .models import Company ,Customer
+from .models import Company, Customer
 from .forms import CompanyForm
 from hr.models import Employee
+
 
 def show_clientlist(request):
     if request.user.id:  # 로그인 유무
         template = loader.get_template('client/showclientlist.html')
 
         if request.method == "POST":
-            print(request.POST)
             companyName = request.POST["companyName"]
             empName = request.POST["empName"]
-            emp = Employee.objects.get(empName=empName)
-            empId = emp.empId
+            chkbox = request.POST.getlist('chkbox')
 
             companylist = Company.objects.all()
-            if companyName :
+
+            if 'present' in chkbox:
+                companylist_present = companylist.filter(companyStatus='Y')
+            else:
+                companylist_present = companylist.filter(companyStatus='O')
+            if 'past' in chkbox:
+                companylist_past = companylist.filter(companyStatus='N')
+            else:
+                companylist_past = companylist.filter(companyStatus='O')
+            if 'wait' in chkbox:
+                companylist_wait = companylist.filter(companyStatus='X')
+            else:
+                companylist_wait = companylist.filter(companyStatus='O')
+
+            companylist = companylist_present | companylist_past | companylist_wait
+
+            if companyName:
                 companylist = companylist.filter(companyName__icontains=companyName)
 
-            if empName :
-                companylist = companylist.filter(Q(dbMainEmpId=empId)|
-                                                 Q(dbSubEmpId=empId)|
-                                                 Q(solutionMainEmpId=empId)|
-                                                 Q(solutionSubEmpId=empId)|
-                                                 Q(saleEmpId=empId))
+            if empName:
+                empId = Employee.objects.get(empName=empName).empId
+                companylist = companylist.filter(
+                    Q(dbMainEmpId=empId) |
+                    Q(dbSubEmpId=empId) |
+                    Q(solutionMainEmpId=empId) |
+                    Q(solutionSubEmpId=empId) |
+                    Q(saleEmpId=empId)
+                )
 
             context = {
-                'companylist' : companylist,
+                'companylist': companylist,
             }
 
         else:
-            companylist = Company.objects.all()
+            companylist = Company.objects.filter(companyStatus='Y')
 
             context = {
                 'companylist': companylist,
@@ -84,6 +102,7 @@ def post_client(request):
     else:
         return redirect('login')
 
+
 def view_client(request, companyName):
     userId = request.user.id  # 로그인 유무 판단 변수
     template = loader.get_template('client/viewclient.html')
@@ -97,4 +116,3 @@ def view_client(request, companyName):
 
     else:
         return redirect('login')
-

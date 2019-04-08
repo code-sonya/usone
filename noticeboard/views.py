@@ -12,6 +12,7 @@ import datetime
 
 def post_board(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
+    instance = ''
 
     if userId:
         # 로그인 사용자 정보
@@ -23,9 +24,9 @@ def post_board(request, serviceId):
             post.boardWriter = empId
             post.boardWriteDatetime = datetime.datetime.now()
             post.boardEditDatetime = datetime.datetime.now()
-            post.save()
             if serviceId != '0':
                 post.serviceId = Servicereport(serviceId=serviceId)
+            post.save()
 
             return redirect('noticeboard:showboards')
 
@@ -41,6 +42,7 @@ def post_board(request, serviceId):
             context = {
                 'form': form,
                 'service': service,
+                'instance': instance,
             }
 
             return render(request, 'noticeboard/postboard.html', context)
@@ -136,6 +138,7 @@ def modify_board(request, boardId):
 
             context = {
                 'form': form,
+                'instance': instance,
             }
 
             return render(request, 'noticeboard/postboard.html', context)

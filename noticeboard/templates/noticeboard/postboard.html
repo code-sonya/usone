@@ -15,7 +15,7 @@
 
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          {% if form.boardTitle %}
+          {% if instance %}
             <h6 class="m-0 h3 text-gray-800"> 게시물 수정 </h6>
           {% elif service %}
             <h6 class="m-0 h3 text-gray-800"> {{ service.serviceDate|date:"Y. m. d." }} {{ service.companyName }} ({{ service.serviceType }}) 추가내용 </h6>

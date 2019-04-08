@@ -241,8 +241,8 @@ def show_services(request):
 
         if request.method == "POST":
             startdate = request.POST['startdate']
-            enddate= request.POST['enddate']
-            empDeptName= request.POST['empDeptName']
+            enddate = request.POST['enddate']
+            empDeptName = request.POST['empDeptName']
             empName = request.POST['empName']
             companyName = request.POST['companyName']
             serviceType = request.POST['serviceType']

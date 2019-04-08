@@ -24,7 +24,7 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 고객사</h6>
+          <h6 class="m-0 h3 text-gray-800">고객사</h6>
 
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
@@ -78,11 +78,24 @@
         <div class="modal-body">
           <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
+            <div class="row">
+              <div class="col-4 text-center">
+                <label class="checkbox"><input type="checkbox" name="chkbox" value="present" checked> 현재 고객사</label>
+              </div>
+              <div class="col-4 text-center">
+                <label class="checkbox"><input type="checkbox" name="chkbox" value="past"> 과거 고객사</label>
+              </div>
+              <div class="col-4 text-center">
+                <label class="checkbox"><input type="checkbox" name="chkbox" value="wait"> 등록대기</label>
+              </div>
+            </div>
             <div class="row mb-1">
               <div class="col-12">
-                <label for="empName" class="font-weight-light text-primary">엔지니어 or 영업 대표</label>
+                <label for="empName" class="font-weight-light text-primary">성함</label>
                 <input type="text" class="form-control" id="empName" name="empName">
               </div>
+            </div>
+            <div class="row mb-1">
               <div class="col-12">
                 <label for="companyName" class="font-weight-light text-primary">고객사</label>
                 <input type="text" class="form-control" id="companyName" name="companyName">
@@ -131,7 +144,6 @@
                   {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, visible: false}
               ],
-              "order": [[4, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
