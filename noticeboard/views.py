@@ -27,7 +27,7 @@ def post_board(request, serviceId):
             if serviceId != '0':
                 post.serviceId = Servicereport(serviceId=serviceId)
 
-            return redirect('noticeboard:showboards')  # redirect는 show_board
+            return redirect('noticeboard:showboards')
 
         else:
             form = BoardForm()
@@ -88,3 +88,54 @@ def show_boards(request):
             }
 
             return render(request, 'noticeboard/showboards.html', context)
+
+
+def view_board(request, boardId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        board = Board.objects.get(boardId=boardId)
+        filename = str(board.boardFiles).split('/')[-1]
+
+        context = {
+            'board': board,
+            'filename': filename,
+        }
+
+        return render(request, 'noticeboard/viewboard.html', context)
+
+
+def delete_board(request, boardId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        Board.objects.filter(boardId=boardId).delete()
+
+        return redirect('noticeboard:showboards')
+
+    else:
+        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+
+
+def modify_board(request, boardId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        instance = Board.objects.get(boardId=boardId)
+
+        if request.method == 'POST':
+            form = BoardForm(request.POST, request.FILES, instance=instance)
+            post = form.save(commit=False)
+            post.boardEditDatetime = datetime.datetime.now()
+            post.save()
+
+            return redirect('noticeboard:showboards')
+
+        else:
+            form = BoardForm(instance=instance)
+
+            context = {
+                'form': form,
+            }
+
+            return render(request, 'noticeboard/postboard.html', context)
