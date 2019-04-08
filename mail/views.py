@@ -11,10 +11,11 @@ import os
 import pdfkit
 import smtplib
 from email.mime.multipart import MIMEMultipart
-from email import encoders
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
 from email.mime.base import MIMEBase
-
-from service.models import Servicereport, Serviceform, Vacation
+from email.header import Header
+from email import encoders
 
 from .functions import servicereporthtml
 from service.models import Servicereport
@@ -22,6 +23,12 @@ from client.models import Company, Customer
 from hr.models import Employee
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
+
+
+smtp_server  = "mail.unioneinc.co.kr"
+port = 587
+userid = "slkim@unioneinc.co.kr"
+passwd = "rlathdud2!"
 
 
 @login_required
@@ -61,30 +68,32 @@ def sendmail(request, serviceId):
             servicereport = Servicereport.objects.get(serviceId=serviceId)
             emailList = request.POST["emailList"]
             emailList = emailList.split(',')
+            empEmail = request.user.employee.empEmail
 
             ###메일 전송
             title = "[{}_{}]{} 유니원아이앤씨(주) SERVICE REPORT".format(servicereport.companyName, request.user.employee.empDeptName, servicereport.serviceDate)
             html = servicereporthtml(serviceId)
-            subject, from_email = title, request.user.employee.empEmail
-            text_content = strip_tags(html)
 
-            #html 메일본문
-            message = EmailMultiAlternatives(subject, text_content, from_email, emailList)
-            message.attach_alternative(html, "text/html")
 
-            #서명 이미지
+            msg = MIMEMultipart("alternative")
+            msg["From"] = empEmail
+            msg["To"] = ",".join(emailList)
+            msg["Subject"] = Header(s=title, charset="utf-8")
+            msg.attach(MIMEText(html, "html", _charset="utf-8"))
+
+            # 서명 이미지
             with open(servicereport.serviceSignPath, 'rb') as f:
                 signatureimg = f.read()
 
             sign = MIMEImage(signatureimg)
             sign.add_header('Content-ID', '<sign>')
-            message.attach(sign)
+            msg.attach(sign)
 
-            #pdf file
-            #로컬:
-            base="127.0.0.1:8000"
-            #서버: base="lop.unioneinc.co.kr:6203
-            servicereportUrl = base+"/mail/servicereport/" + serviceId + "/"
+            # pdf file
+            # 로컬:
+            base = "127.0.0.1:8000"
+            # 서버: base="lop.unioneinc.co.kr:6203
+            servicereportUrl = base + "/mail/servicereport/" + serviceId + "/"
 
             try:
                 pdf = html2pdf(servicereportUrl)
@@ -92,16 +101,19 @@ def sendmail(request, serviceId):
                 pdffile.set_payload(pdf)
                 encoders.encode_base64(pdffile)
                 pdffile.add_header("Content-Disposition", "attachment", filename=title + '.pdf')
-                message.attach(pdffile)
-                message.send()
+                msg.attach(pdffile)
             except Exception as ex:
                 print(ex)
                 resp = "메일 전송 실패! 관리자에게 문의하세요:)"
                 return HttpResponse(resp)
 
-
+            smtp = smtplib.SMTP(smtp_server, port)
+            smtp.login(userid, passwd)
+            smtp.sendmail(empEmail, emailList, msg.as_string())
+            smtp.close()
 
             return redirect('service:showservices')
+
         else:
             resp = "잘못된 접근 방식"
             return HttpResponse(resp)
@@ -121,3 +133,4 @@ def servicereport(request, serviceId):
     context = {'servicereport': servicereport, "img": img}
 
     return render(request, 'mail/servicereport.html', context)
+
