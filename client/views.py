@@ -82,12 +82,19 @@ def post_client(request):
             return HttpResponse(template.render(context, request))
 
     else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+        return redirect('login')
 
-def view_client(request):
+def view_client(request, companyName):
     userId = request.user.id  # 로그인 유무 판단 변수
     template = loader.get_template('client/viewclient.html')
-    context = {
-        'companylist': 'companylist',
-    }
-    return HttpResponse(template.render(context, request))
+    if userId:
+        company = Company.objects.get(companyName=companyName)
+
+        context = {
+            'company': company,
+        }
+        return HttpResponse(template.render(context, request))
+
+    else:
+        return redirect('login')
+

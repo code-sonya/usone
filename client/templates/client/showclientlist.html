@@ -18,9 +18,9 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-2"></div>
+    <div class="col-xl-1"></div>
 
-    <div class="col-xl-8 d-xl-block">
+    <div class="col-xl-10 d-xl-block">
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -49,7 +49,7 @@
                 <th>SYSTEM담당자</th>
                 <th>DB계약만료일</th>
                 <th>SYSTEM계약만료일</th>
-                <th class="d-none">companyId</th>
+                <th class="d-none">companyName</th>
               </tr>
               </thead>
             </table>
@@ -60,7 +60,7 @@
       </div>
     </div>
 
-    <div class="col-xl-2"></div>
+    <div class="col-xl-1"></div>
   </div>
 
   <!-- Filter Modal -->
@@ -120,7 +120,7 @@
                   {data: "SYSTEM담당자"},
                   {data: "DB계약만료일"},
                   {data: "SYSTEM계약만료일"},
-                  {data: "companyId"},
+                  {data: "companyName"},
               ],
               columnDefs: [
                   {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
@@ -131,11 +131,22 @@
                   {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, visible: false}
               ],
+              "order": [[4, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
               "scrollY": "80vh",
               "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              }
           });
 
           {% for company in companylist %}
@@ -146,14 +157,14 @@
                   "SYSTEM담당자": "{% if company.solutionMainEmpId.empName %}{{ company.solutionMainEmpId.empName }}{% else %}-{% endif %}/{% if company.solutionSubEmpId.empName %}{{ company.solutionSubEmpId.empName }}{% else %}-{% endif %}",
                   "DB계약만료일": "{% if company.dbContractEndDate %}{{ company.dbContractEndDate }}{% else %}-{% endif %}",
                   "SYSTEM계약만료일": "{% if company.solutionContractEndDate %}{{ company.solutionContractEndDate }}{% else %}-{% endif %}",
-                  "companyId": "{{ company.companyId }}",
+                  "companyName": "{{ company.companyName }}",
               }).draw().node();
 
           {% endfor %}
 
           $("#showclientlist").on("click", 'tr', function () {
               const data = table.row(this).data();
-              location.href = '/showclientlist/viewclient/' + data.companyId + '/'
+              location.href = '/client/viewclient/' + data.companyName + '/'
           });
 
       });
