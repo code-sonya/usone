@@ -1,0 +1,97 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  고객사 등록
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          {% if service %}
+            <h6 class="m-0 h3 text-gray-800"> {{ service.serviceDate|date:"Y. m. d." }} {{ service.companyName }} ({{ service.serviceType }}) 추가내용 </h6>
+          {% else %}
+            <h6 class="m-0 h3 text-gray-800"> 고객사 등록 신청 </h6>
+          {% endif %}
+        </div>
+
+        <div class="card-body">
+          <form id="CompanyForm" method="POST">
+
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
+            </div>
+            <div class="form-group">
+              <label for="saleEmpId" class="font-weight-bold text-primary"> 영업대표 </label> {{ form.saleEmpId }}
+            </div>
+            <div class="form-group">
+              <label for="companyAddress" class="font-weight-bold text-primary"> 주소 </label> {{ form.companyAddress }}
+            </div>
+
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              history.back();
+          } else {
+              return false;
+          }
+      }
+
+      function btn_save() {
+          const companyName = document.getElementById("companyName").value;
+          const saleEmpId = document.getElementById("saleEmpId").value;
+          const companyAddress = document.getElementById("companyAddress").value;
+
+          if (companyName === '') {
+              alert("고객사명을 입력해주세요.");
+              return false;
+          }
+          if (saleEmpId === '') {
+              alert("영업대표를 선택해주세요.");
+              return false;
+          }
+          if (confirm("고객사 등록 신청을 하시겠습니까?") === true) {    //확인
+              document.getElementById("CompanyForm").submit();
+          }
+      }
+
+  </script>
+
+{% endblock %}
