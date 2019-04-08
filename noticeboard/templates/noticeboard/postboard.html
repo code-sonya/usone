@@ -15,7 +15,9 @@
 
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          {% if service %}
+          {% if form.boardTitle %}
+            <h6 class="m-0 h3 text-gray-800"> 게시물 수정 </h6>
+          {% elif service %}
             <h6 class="m-0 h3 text-gray-800"> {{ service.serviceDate|date:"Y. m. d." }} {{ service.companyName }} ({{ service.serviceType }}) 추가내용 </h6>
           {% else %}
             <h6 class="m-0 h3 text-gray-800"> 게시판 글쓰기 </h6>
@@ -23,7 +25,7 @@
         </div>
 
         <div class="card-body">
-          <form id="boardForm" method="POST">
+          <form id="boardForm" method="POST" enctype="multipart/form-data">
 
             {% csrf_token %}
             <div class="form-group">

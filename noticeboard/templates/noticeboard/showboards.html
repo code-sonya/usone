@@ -20,7 +20,7 @@
   <div class="row">
     <div class="col-xl-2"></div>
 
-    <div class="col-xl-8 d-none d-xl-block">
+    <div class="col-xl-8">
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -44,8 +44,8 @@
             <table id="showboards" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>구분</th>
-                <th>고객사</th>
+                <th class="d-none d-xl-table-cell">구분</th>
+                <th class="d-none d-xl-table-cell">고객사</th>
                 <th>제목</th>
                 <th>작성자</th>
                 <th>작성일</th>
@@ -148,19 +148,33 @@
                   {data: "boardId"},
               ],
               columnDefs: [
-                  {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
+                  {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
                   {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, visible:false}
               ],
+              "order": [[4, 'desc']],
               "searching": true,
               "paging": true,
-              "info": true,
+              "info": false,
               "scrollY": "80vh",
               "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              }
           });
+
+          document.getElementById("showboards_length").classList.add('d-none');
+          document.getElementById("showboards_length").classList.add('d-xl-block');
 
           {% for board in boards %}
               var rowNode = table.row.add( {
