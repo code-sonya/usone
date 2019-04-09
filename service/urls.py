@@ -16,6 +16,6 @@ urlpatterns = [
     url(r'^deleteserviceform/(?P<serviceFormId>.+)/$', views.delete_serviceform, name='deleteserviceform'),
     url(r'^showvacations/', views.show_vacations, name='showvacations'),
     url(r'^deletevacation/(?P<vacationId>.+)/$', views.delete_vacation, name='deletevacation'),
+    url(r'^dayreport_bak/(?P<day>.+)/$', views.day_report_bak, name='dayreport'),
     url(r'^dayreport/(?P<day>.+)/$', views.day_report, name='dayreport'),
-    url(r'^dayreport2/(?P<day>.+)/$', views.day_report2, name='dayreport2'),
 ]

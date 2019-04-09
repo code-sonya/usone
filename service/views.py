@@ -492,7 +492,7 @@ def delete_vacation(request, vacationId):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
-def day_report(request, day):
+def day_report_bak(request, day):
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     beforeDate = Date - datetime.timedelta(days=1)
     afterDate = Date + datetime.timedelta(days=1)
@@ -509,10 +509,10 @@ def day_report(request, day):
         'db': db,
     }
 
-    return render(request, 'service/dayreport.html', context)
+    return render(request, 'service/dayreport_bak.html', context)
 
 
-def day_report2(request, day):
+def day_report(request, day):
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     beforeDate = Date - datetime.timedelta(days=1)
     afterDate = Date + datetime.timedelta(days=1)
@@ -533,4 +533,4 @@ def day_report2(request, day):
         'vacationDb': db[2],
     }
 
-    return render(request, 'service/dayreport2.html', context)
+    return render(request, 'service/dayreport.html', context)
