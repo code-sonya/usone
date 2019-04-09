@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.shortcuts import render, redirect, get_object_or_404
-
+import json
 # Create your views here.
 from django.http import HttpResponse
 from django.template import loader
@@ -89,9 +89,16 @@ def view_client(request, companyName):
     template = loader.get_template('client/viewclient.html')
     if userId:
         company = Company.objects.get(companyName=companyName)
+        customers = Customer.objects.filter(companyName=companyName)
+        dbms = json.loads(company.companyDbms)
+        services = Servicereport.objects.filter(companyName=companyName)
+        print(services)
 
         context = {
             'company': company,
+            'customers':customers,
+            'dbms' : dbms,
+            'services' : services,
         }
         return HttpResponse(template.render(context, request))
 
