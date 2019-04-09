@@ -17,7 +17,7 @@ def signature(request, serviceId):
     if userId:
         if request.method == "POST":
             if request.POST["customer"] == "temp":
-                servicereport.customerName = request.POST["customerDept"]
+                servicereport.customerName = request.POST["customerName"]
                 servicereport.customerDeptName = request.POST["customerDept"]
                 servicereport.customerEmail = request.POST["customerEmail"]
                 servicereport.customerPhone = request.POST["customerPhone"]

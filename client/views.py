@@ -111,13 +111,40 @@ def view_client(request, companyName):
         customers = Customer.objects.filter(companyName=companyName)
         dbms = json.loads(company.companyDbms)
         services = Servicereport.objects.filter(companyName=companyName)
-        print(services)
+        if request.method == 'POST':
+            print(request.POST)
+            try:
+                company.dbComment = request.POST["dbtextArea"]
+                company.save()
+            except:
+                company.solutionComment = request.POST["soltextArea"]
+                company.save()
 
         context = {
             'company': company,
             'customers':customers,
             'dbms' : dbms,
             'services' : services,
+        }
+        return HttpResponse(template.render(context, request))
+
+    else:
+        return redirect('login')
+
+def view_customer(request, customerId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+    template = loader.get_template('client/viewcustomer.html')
+    if userId:
+        customer = Customer.objects.get(id=customerId)
+        if request.method == 'POST':
+            customer.customerName = request.POST["customerName"]
+            customer.customerDeptName = request.POST["customerDept"]
+            customer.customerEmail = request.POST["customerEmail"]
+            customer.customerPhone = request.POST["customerPhone"]
+            customer.save()
+
+        context = {
+            'customer': customer,
         }
         return HttpResponse(template.render(context, request))
 

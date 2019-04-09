@@ -19,8 +19,32 @@
       vertical-align: middle;
       border-top: 1px solid #e3e6f0;
       text-align: center;
-      white-space: nowrap;
+      white-space: normal;
     }
+
+    .a {
+      background-color: #f2f9f9;
+    }
+
+    .c {
+      font-size: 0.9vw;
+
+    }
+
+    .d {
+      font-size: 1.4vw;
+    }
+
+    @media only screen and (max-width: 800px) {
+      .b {
+        display: none;
+      }
+
+      .table{
+        font-size: 0.9vw;
+      }
+    }
+
 
   </style>
 
@@ -32,7 +56,7 @@
   <div class="row">
     <div class="col-xl-1"></div>
     <!-- PC화면 -->
-    <div class="col-xl-10 d-xl-block">
+    <div class="col-xl-10 ">
       <div class="card shadow mb-4">
         <!-- 카드 제목 : 게시물 제목 -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -41,21 +65,20 @@
         <!-- 카드 본문 -->
         <div class="card-body">
           {% csrf_token %}
-          <table class="table mb-0" width="100%" style="color:black">
-
+          <table class="table mb-0" width="100%">
             <tbody>
             <tr class="row">
-              <td class="col-2"><b>영업대표</b></td>
+              <td class="col-2 a"><b>영업대표</b></td>
               <td class="col-10">{{ company.saleEmpId.empName }}</td>
             </tr>
 
             <tr class="row">
-              <td class="col-2"><b>주소</b></td>
+              <td class="col-2 a"><b>주소</b></td>
               <td class="col-10">{{ company.companyAddress }}</td>
             </tr>
 
             <tr class="row">
-              <th class="col-2">계약만료일</th>
+              <th class="col-2 a">계약만료일</th>
               <td class="col-10">
                 <table class="table table" style="margin-bottom: 0px">
                   <thead>
@@ -74,17 +97,17 @@
               </td>
             </tr>
             <tr class="row">
-              <th class="col-2">담당자</th>
+              <th class="col-2 a">담당자</th>
               <td class="col-10">
                 {% for customer in customers %}
-                  <a href="/client/customer/{{ customer.pk }}">
-                    {{ customer.customerName }} ({{ customer.customerPhone }}) </a> <br>
+                  <a href="/client/viewcustomer/{{ customer.pk }}">
+                    {{ customer.customerName }}{% if customer.customerPhone %}({{ customer.customerPhone }}){% else %}{% endif %}</a> <br>
                 {% endfor %}
               </td>
             </tr>
 
             <tr class="row">
-              <th class="col-2">엔지니어</th>
+              <th class="col-2 a">엔지니어</th>
               <td class="col-10">
                 <table class="table table" style="margin-bottom: 0px">
                   <thead>
@@ -107,25 +130,10 @@
               </td>
             </tr>
 
-            <tr class="row">
-              <td class="col-2"><b>DB COMMNET</b></td>
+            <tr class="row b">
+              <th class="col-2 a">DB정보</th>
               <td class="col-10">
-                <p id="comment_text">
-                  {% if company.dbComment %}{{ company.dbComment }}{% else %}{% endif %}
-                </p>
-                {% if user.employee.empId == company.dbMainEmpId.empId or user.employee.empId == company.dbSubEmpId.empId %}
-                  <textarea id="dbtextArea" style="background-color: lightgoldenrodyellow;display: none" class="form-control" rows="3"> </textarea>
-                  <button id="dbcomment" style="background-color: lightseagreen" algin="right" class="btn btn-info" onclick="db_comment()">COMMNET작성</button>
-                  <br>
-                  <button id="dbcommentSave" style="background-color: lightseagreen;display: none" algin="right" class="btn btn-success" onclick="db_save()">저장</button>
-                {% endif %}
-              </td>
-            </tr>
-
-            <tr class="row">
-              <th class="col-2">DB정보</th>
-              <td class="col-10">
-                <table class="table table">
+                <table class="table table" style="font-size: 12px">
                   <thead>
                   <tr class="row">
                     <td class="col-2"><B>CLASSIFICATION</B></td>
@@ -133,7 +141,7 @@
                     <td class="col-1"><B>VERSION</B></td>
                     <td class="col-1"><B>DBTYPE</B></td>
                     <td class="col-1"><B>OSTYPE</B></td>
-                    <td class="col-1.5"><B>APPLIANCE</B></td>
+                    <td class="col-2"><B>APPLIANCE</B></td>
                     <td class="col-1.5"><B>DUPLICATION</B></td>
                     <td class="col-2"><B>DATASIZE_MB</B></td>
                     <td class="col-1.5"><B>REMARKS</B></td>
@@ -159,20 +167,43 @@
               </td>
             </tr>
 
-            <tr class="row">
-              <th class="col-2">시스템정보</th>
+            <tr class="row b">
+              <th class="col-2 a">SYSTEM정보</th>
               <td class="col-10">{{ company.companySystem }}</td>
             </tr>
+
             <tr class="row">
-              <th class="col-2">SYSTEM COMMENT</th>
+              <td class="col-2 a"><b>DB참고사항</b></td>
               <td class="col-10">
-                <p id="sol_comment_text">
-                  {% if company.SolutionComment %}{{ company.SolutionComment }}{% else %}{% endif %}
+                <p id="db_comment_text">
+                  {% if company.dbComment %}{{ company.dbComment }}{% else %}{% endif %}
+                </p>
+                {% if user.employee.empId == company.dbMainEmpId.empId or user.employee.empId == company.dbSubEmpId.empId %}
+                  <form id="dbsaveComment" method="POST">
+                    {% csrf_token %}
+                    <textarea id="dbtextArea" name="dbtextArea" style="display: none" class="form-control" rows="3">{{ company.dbComment }}</textarea>
+                    <button id="dbcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="dbcommentSubmit()">저장</button>
+                  </form>
+                  <button id="dbcomment" algin="right" class="btn btn-info c" onclick="db_comment()">참고사항작성</button>
+                  <br>
+
+                {% endif %}
+              </td>
+            </tr>
+
+            <tr class="row">
+              <th class="col-2 a">SYSTEM참고사항</th>
+              <td class="col-10">
+                <p id="sol_comment_text" method="POST">
+                  {% if company.solutionComment %}{{ company.solutionComment }}{% else %}{% endif %}
                 </p>
                 {% if user.employee.empId == company.solutionMainEmpId.empId or user.employee.empId == company.solutionSubEmpId.empId %}
-                  <textarea id="soltextArea" style="background-color: lightgoldenrodyellow;display: none" class="form-control" rows="3"> </textarea>
-                  <button id="solcomment" style="background-color: lightseagreen" algin="right" class="btn btn-info" onclick="sol_comment()">COMMENT작성</button><br>
-                  <button id="solcommentSave" style="background-color: lightseagreen;display: none" algin="right" class="btn btn-success" onclick="sol_save()">저장</button>
+                  <form name="solsaveComment" method="POST">
+                    {% csrf_token %}
+                    <textarea id="soltextArea" name="soltextArea" style="display: none" class="form-control" rows="3"> </textarea>
+                    <button id="solcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="solcommentSubmit()">저장</button>
+                  </form>
+                  <button id="solcomment" algin="right" class="btn btn-info c" onclick="sol_comment()">참고사항작성</button><br>
                 {% endif %}
               </td>
             </tr>
@@ -189,11 +220,12 @@
         </div>
         <!-- 카드 본문 -->
         <div class="card-body">
-        <table id="showclients" class="table mb-0" width="100%" style="color:black">
+          <table id="showclients" class="table mb-0" width="100%" style="color:black">
             <thead>
             <tr>
               <th>날짜</th>
               <th>엔지니어</th>
+              <th>부서</th>
               <th>지원타입</th>
               <th>지원내용</th>
               <th class="d-none">serviceId</th>
@@ -218,16 +250,18 @@
               columns: [
                   {data: "날짜"},
                   {data: "엔지니어"},
+                  {data: "부서"},
                   {data: "지원타입"},
                   {data: "지원내용"},
                   {data: "serviceId"},
               ],
               columnDefs: [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, visible: false}
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 4, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 5, visible: false}
               ],
               "order": [[4, 'desc']],
               "searching": true,
@@ -251,6 +285,7 @@
               var rowNode = table.row.add({
                   "날짜": "{{ service.serviceDate }}",
                   "엔지니어": "{{ service.empName }}",
+                  "부서": "{{ service.empDeptName }}",
                   "지원타입": "{{ service.serviceType }}",
                   "지원내용": "{{ service.serviceTitle }}",
                   "serviceId": "{{ service.serviceId }}",
@@ -276,6 +311,15 @@
           $('#solcommentSave').css("display", "inline");
           $('#soltextArea').css("display", "inline");
           $('#solcomment').css("display", "none");
+      }
+
+      function dbcommentSubmit() {
+          $("#dbsaveComment").submit();
+      }
+
+
+      function solcommentSubmit() {
+          $("#solsaveComment").submit();
       }
 
 
