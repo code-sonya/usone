@@ -10,11 +10,11 @@
 
   <style type="text/css">
 
-    .table{
+    .table {
       color: #333333;
     }
 
-    .table td, .table th{
+    .table td, .table th {
       padding: .75rem;
       vertical-align: middle;
       border-top: 1px solid #e3e6f0;
@@ -31,9 +31,8 @@
 
   <div class="row">
     <div class="col-xl-1"></div>
-
     <!-- PC화면 -->
-    <div class="col-xl-10 d-none d-xl-block">
+    <div class="col-xl-10 d-xl-block">
       <div class="card shadow mb-4">
         <!-- 카드 제목 : 게시물 제목 -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -45,109 +44,165 @@
           <table class="table mb-0" width="100%" style="color:black">
 
             <tbody>
-            {% if company.companyId %}
-              <tr class="row">
-                <td class="col-2"><b>일련번호</b></td>
-                <td class="col-4">{{ board.serviceId.serviceId }}</td>
-              </tr>
+            <tr class="row">
+              <td class="col-2"><b>영업대표</b></td>
+              <td class="col-10">{{ company.saleEmpId.empName }}</td>
+            </tr>
 
-              <tr class="row">
-                <td class="col-2"><b>고객사</b></td>
-                <td class="col-4">{{ board.serviceId.companyName }}</td>
-                <td class="col-2"><b>일정구분</b></td>
-                <td class="col-4">{{ board.serviceId.serviceType }}</td>
-              </tr>
-            {% endif %}
-              <tr class="row">
-                <td class="col-2"><b>본문</b></td>
-                <td class="col-10" colspan="3" style="text-align: left;white-space: pre-wrap;">{{ board.boardDetails|linebreaksbr }}</td>
-              </tr>
+            <tr class="row">
+              <td class="col-2"><b>주소</b></td>
+              <td class="col-10">{{ company.companyAddress }}</td>
+            </tr>
 
-              <tr class="row">
-                <td class="col-2"><b>첨부파일</b></td>
-                <td class="col-10" colspan="3" style="text-align: left;"><a href="/media/{{ board.boardFiles }}" download>{{ filename }}</a></td>
-              </tr>
+            <tr class="row">
+              <th class="col-2">계약만료일</th>
+              <td class="col-10">
+                <table class="table table" style="margin-bottom: 0px">
+                  <thead>
+                  <tr class="row">
+                    <td class="col-6"><B>DB지원팀</B></td>
+                    <td class="col-6"><B>SOLUTION지원</B></td>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr class="row">
+                    <td class="col-6">{% if company.dbContractEndDate %}{{ company.dbContractEndDate }}{% else %}-{% endif %}</td>
+                    <td class="col-6">{% if company.solutionContractEndDate %}{{ company.solutionContractEndDate }}{% else %}-{% endif %}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+            <tr class="row">
+              <th class="col-2">담당자</th>
+              <td class="col-10">
+                {% for customer in customers %}
+                  <a href="/client/customer/{{ customer.pk }}">
+                    {{ customer.customerName }} ({{ customer.customerPhone }}) </a> <br>
+                {% endfor %}
+              </td>
+            </tr>
+
+            <tr class="row">
+              <th class="col-2">엔지니어</th>
+              <td class="col-10">
+                <table class="table table" style="margin-bottom: 0px">
+                  <thead>
+                  <tr class="row">
+                    <td class="col-3"><B>DB 담당자(정)</B></td>
+                    <td class="col-3"><B>DB 담당자(부)</B></td>
+                    <td class="col-3"><B>SYSTEM 담당자(정)</B></td>
+                    <td class="col-3"><B>SYSTEM 담당자(부)</B></td>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr class="row">
+                    <td class="col-3">{% if company.dbMainEmpId %}{{ company.dbMainEmpId.empName }}{% else %}-{% endif %}</td>
+                    <td class="col-3">{% if company.dbSubEmpId %}{{ company.dbSubEmpId.empName }}{% else %}-{% endif %}</td>
+                    <td class="col-3">{% if company.solutionMainEmpId %}{{ company.solutionMainEmpId.empName }}{% else %}-{% endif %}</td>
+                    <td class="col-3">{% if company.solutionSubEmpId %}{{ company.solutionSubEmpId.empName }}{% else %}-{% endif %}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr class="row">
+              <td class="col-2"><b>DB COMMNET</b></td>
+              <td class="col-10">
+                <p id="comment_text">
+                  {% if company.dbComment %}{{ company.dbComment }}{% else %}{% endif %}
+                </p>
+                {% if user.employee.empId == company.dbMainEmpId.empId or user.employee.empId == company.dbSubEmpId.empId %}
+                  <textarea id="dbtextArea" style="background-color: lightgoldenrodyellow;display: none" class="form-control" rows="3"> </textarea>
+                  <button id="dbcomment" style="background-color: lightseagreen" algin="right" class="btn btn-info" onclick="db_comment()">COMMNET작성</button>
+                  <br>
+                  <button id="dbcommentSave" style="background-color: lightseagreen;display: none" algin="right" class="btn btn-success" onclick="db_save()">저장</button>
+                {% endif %}
+              </td>
+            </tr>
+
+            <tr class="row">
+              <th class="col-2">DB정보</th>
+              <td class="col-10">
+                <table class="table table">
+                  <thead>
+                  <tr class="row">
+                    <td class="col-2"><B>CLASSIFICATION</B></td>
+                    <td class="col-0.5"><B>SID</B></td>
+                    <td class="col-1"><B>VERSION</B></td>
+                    <td class="col-1"><B>DBTYPE</B></td>
+                    <td class="col-1"><B>OSTYPE</B></td>
+                    <td class="col-1.5"><B>APPLIANCE</B></td>
+                    <td class="col-1.5"><B>DUPLICATION</B></td>
+                    <td class="col-2"><B>DATASIZE_MB</B></td>
+                    <td class="col-1.5"><B>REMARKS</B></td>
+                  </tr>
+                  </thead>
+
+                  <tbody>
+                  <tr class="row">
+                    {% for db in dbms %}
+                      <td> {{ db.CLASSIFICATION }} </td>
+                      <td> {{ db.SID }} </td>
+                      <td> {{ db.VERSION }} </td>
+                      <td> {{ db.DBTYPE }} </td>
+                      <td> {{ db.OSTYPE }} </td>
+                      <td> {{ db.APPLIANCE }} </td>
+                      <td> {{ db.DUPLICATION }} </td>
+                      <td> {{ db.DATASIZE_MB }} </td>
+                      <td> {{ db.REMARKS }} </td>
+                    {% endfor %}
+                  </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+
+            <tr class="row">
+              <th class="col-2">시스템정보</th>
+              <td class="col-10">{{ company.companySystem }}</td>
+            </tr>
+            <tr class="row">
+              <th class="col-2">SYSTEM COMMENT</th>
+              <td class="col-10">
+                <p id="sol_comment_text">
+                  {% if company.SolutionComment %}{{ company.SolutionComment }}{% else %}{% endif %}
+                </p>
+                {% if user.employee.empId == company.solutionMainEmpId.empId or user.employee.empId == company.solutionSubEmpId.empId %}
+                  <textarea id="soltextArea" style="background-color: lightgoldenrodyellow;display: none" class="form-control" rows="3"> </textarea>
+                  <button id="solcomment" style="background-color: lightseagreen" algin="right" class="btn btn-info" onclick="sol_comment()">COMMENT작성</button><br>
+                  <button id="solcommentSave" style="background-color: lightseagreen;display: none" algin="right" class="btn btn-success" onclick="sol_save()">저장</button>
+                {% endif %}
+              </td>
+            </tr>
             </tbody>
-
           </table>
-          {% if board.boardWriter.empId == user.employee.empId %}
-            <div class="text-center">
-              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
-                <span class="text"> 삭제 </span>
-              </a>
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-                <span class="text"> 수정 </span>
-              </a>
-            </div>
-          {% endif %}
 
         </div>
+        <!--card body end -->
       </div>
-    </div>
-
-    <!-- 모바일화면 -->
-    <div class="col-xl-8 d-block d-xl-none">
       <div class="card shadow mb-4">
         <!-- 카드 제목 : 게시물 제목 -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> {{ board.boardTitle }} </h6>
+          <h6 class="m-0 h3 text-gray-800"> 이력 </h6>
         </div>
         <!-- 카드 본문 -->
         <div class="card-body">
-
-          {% csrf_token %}
-          <table class="table mb-0" width="100%" style="color:black">
-
-            <tbody>
-            {% if board.serviceId %}
-              <tr class="row">
-                <td class="col-4"><b>일련번호</b></td>
-                <td class="col-8">{{ board.serviceId.serviceId }}</td>
-              </tr>
-              <tr class="row">
-                <td class="col-4"><b>일시</b></td>
-                <td class="col-8">{{ board.serviceId.serviceDate | date:"Y.m.d" }}</td>
-              </tr>
-              <tr class="row">
-                <td class="col-4"><b>고객사</b></td>
-                <td class="col-8">{{ board.serviceId.companyName }}</td>
-              </tr>
-              <tr class="row">
-                <td class="col-4"><b>일정구분</b></td>
-                <td class="col-8">{{ board.serviceId.serviceType }}</td>
-              </tr>
-            {% endif %}
-              <tr class="row">
-                <td class="col-4"><b>본문</b></td>
-                <td class="col-8" style="white-space: pre-wrap;">{{ board.boardDetails|linebreaksbr }}</td>
-              </tr>
-
-              <tr class="row">
-                <td class="col-4"><b>첨부파일</b></td>
-                <td class="col-8"><a href="/media/{{ board.boardFiles }}" download>{{ filename }}</a></td>
-              </tr>
-            </tbody>
-
+        <table id="showclients" class="table mb-0" width="100%" style="color:black">
+            <thead>
+            <tr>
+              <th>날짜</th>
+              <th>엔지니어</th>
+              <th>지원타입</th>
+              <th>지원내용</th>
+              <th class="d-none">serviceId</th>
+            </tr>
+            </thead>
           </table>
-          {% if board.boardWriter.empId == user.employee.empId %}
-            <div class="text-center">
-              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
-                <span class="text"> 삭제 </span>
-              </a>
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-                <span class="text"> 수정 </span>
-              </a>
-            </div>
-          {% endif %}
         </div>
       </div>
     </div>
-
-    <div class="col-xl-1"></div>
   </div>
 
 {% endblock %}
@@ -156,18 +211,73 @@
 {% block script %}
 
   <script type="text/javascript">
+      $(document).ready(function () {
 
-      function btn_modify(){
-          if (confirm("일정을 수정 하시겠습니까?") === true) {
-              location.href = '/noticeboard/modifyboard/' + {{ board.boardId }} + '/';
-          }
+          const table = $('#showclients').DataTable({
+              data: [],
+              columns: [
+                  {data: "날짜"},
+                  {data: "엔지니어"},
+                  {data: "지원타입"},
+                  {data: "지원내용"},
+                  {data: "serviceId"},
+              ],
+              columnDefs: [
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, visible: false}
+              ],
+              "order": [[4, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              }
+          });
+
+          {% for service in services %}
+              var rowNode = table.row.add({
+                  "날짜": "{{ service.serviceDate }}",
+                  "엔지니어": "{{ service.empName }}",
+                  "지원타입": "{{ service.serviceType }}",
+                  "지원내용": "{{ service.serviceTitle }}",
+                  "serviceId": "{{ service.serviceId }}",
+              }).draw().node();
+
+          {% endfor %}
+
+          $("#showclients").on("click", 'tr', function () {
+              const data = table.row(this).data();
+              location.href = '/service/viewservice/' + data.serviceId + '/'
+          });
+
+      });
+
+
+      function db_comment() {
+          $('#dbcommentSave').css("display", "inline");
+          $('#dbtextArea').css("display", "inline");
+          $('#dbcomment').css("display", "none");
       }
 
-      function btn_delete(){
-          if (confirm("삭제 하시겠습니까?") === true) {
-              location.href = '/noticeboard/deleteboard/' + {{ board.boardId }} + '/';
-          }
+      function sol_comment() {
+          $('#solcommentSave').css("display", "inline");
+          $('#soltextArea').css("display", "inline");
+          $('#solcomment').css("display", "none");
       }
+
 
   </script>
 
