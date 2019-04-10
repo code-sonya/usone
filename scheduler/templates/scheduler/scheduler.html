@@ -307,7 +307,8 @@
                   ],
                   backgroundColor: '#FFFF0000',
                   borderColor: '#FFFF0000',
-                  textColor: '#3dbd9a'
+                  textColor : '#1cc88a'
+                  {#textColor: '#3dbd9a'#}
               },
           );
 
@@ -345,17 +346,22 @@
                               {% else %}
                                   type: 'N',
                                   {%  if i.serviceType == "정기점검" %}
-                                      backgroundColor: '#3DBD9A',
-                                      borderColor: '#3DBD9A',
+                                      {#backgroundColor: '#3DBD9A',#}
+                                      {#borderColor: '#3DBD9A'#}
+                                      backgroundColor: '#496fdb',
+                                      borderColor: '#496fdb',
                                   {% elif i.serviceType == "일반작업지원" %}
-                                      backgroundColor: '#365D66',
-                                      borderColor: '#45a18d',
+                                      backgroundColor: '#36b9cc',
+                                      borderColor: '#36b9cc',
+                                      {#backgroundColor: '#365D66',#}
+                                      {#borderColor: '#45a18d',#}
                                   {% elif i.serviceType == "프로젝트" %}
-                                      backgroundColor: '#8a85ab',
-                                      borderColor: '#8a85ab',
+                                      backgroundColor: '#835dab',
+                                      borderColor: '#835dab',
                                   {% else %}
-                                      backgroundColor: '#487ea1',
-                                      borderColor: '#487ea1',
+                                      backgroundColor: '#1cc88a',
+                                      {#borderColor: '#487ea1',#}
+                                      borderColor: '#1cc88a',
                                   {% endif %}
                                   textColor: 'white'
                               {% endif %}
@@ -398,23 +404,68 @@
                               {% else %}
                                   type: 'N',
                                   {%  if i.serviceType == "정기점검" %}
-                                      backgroundColor: '#3DBD9A',
-                                      borderColor: '#3DBD9A',
+                                      backgroundColor: '#496fdb',
+                                      borderColor: '#496fdb',
                                   {% elif i.serviceType == "일반작업지원" %}
-                                      backgroundColor: '#365D66',
-                                      borderColor: '#45a18d',
+                                      backgroundColor: '#36b9cc',
+                                      borderColor: '#36b9cc',
                                   {% elif i.serviceType == "프로젝트" %}
-                                      backgroundColor: '#8a85ab',
-                                      borderColor: '#8a85ab',
+                                      backgroundColor: '#835dab',
+                                      borderColor: '#835dab',
                                   {% else %}
-                                      backgroundColor: '#487ea1',
-                                      borderColor: '#487ea1',
+                                      backgroundColor: '#1cc88a',
+                                      borderColor: '#1cc88a',
                                   {% endif %}
                                   textColor: 'white'
                               {% endif %}
                           },
                       {% endfor %}
                   ],
+              },
+          );
+
+          $('#calendar').fullCalendar('addEventSource',
+              {#4. 공휴일#}
+              {
+                  events: [
+                      {% for i in holiday %}
+                          {
+                              title: '{{ i.eventName }}',
+                              start: '{{ i.eventDate|date:"Y-m-d" }}',
+                              end: '{{ i.eventDate|date:"Y-m-d" }}',
+                              service_id: '{{ i.serviceId }}',
+                              name: '{{ i.eventName }}',
+                              detail: '{{ i.eventName }}',
+                              service_type: '공휴일',
+                              className: 'holiday',
+                          },
+                      {% endfor %}
+                  ]
+                    ,color: "#fbc9d3"
+                    ,textColor: "#ff2121"
+                    ,borderColor: "#e6e6e6"
+              },
+          );
+          $('#calendar').fullCalendar('addEventSource',
+              {#5. unione event#}
+              {
+                  events: [
+                      {% for i in event %}
+                          {
+                              title: '{{ i.eventName }}',
+                              start: '{{ i.eventDate|date:"Y-m-d" }}',
+                              end: '{{ i.eventDate|date:"Y-m-d" }}',
+                              service_id: '{{ i.serviceId }}',
+                              name: '{{ i.eventName }}',
+                              detail: '{{ i.eventName }}',
+                              service_type: '사내일정',
+                              className: 'holiday',
+                          },
+                      {% endfor %}
+                  ]
+                    , color: "#fffcb4"
+                    , textColor: "#85680f"
+                    , borderColor: "#fbe261"
               },
           );
       });
