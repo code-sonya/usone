@@ -127,33 +127,33 @@
               <td class="col-10">
                 <table class="table table">
                   <thead>
-                  <tr class="row">
-                    <td class="col-2"><B>CLASSIFICATION</B></td>
-                    <td class="col-0.5"><B>SID</B></td>
-                    <td class="col-1"><B>VERSION</B></td>
-                    <td class="col-1"><B>DBTYPE</B></td>
-                    <td class="col-1"><B>OSTYPE</B></td>
-                    <td class="col-1.5"><B>APPLIANCE</B></td>
-                    <td class="col-1.5"><B>DUPLICATION</B></td>
-                    <td class="col-2"><B>DATASIZE_MB</B></td>
-                    <td class="col-1.5"><B>REMARKS</B></td>
+                  <tr>
+                    <td><b>CLASSIFICATION</b></td>
+                    <td><b>SID</b></td>
+                    <td><b>VERSION</b></td>
+                    <td><b>DBTYPE</b></td>
+                    <td><b>OSTYPE</b></td>
+                    <td><b>APPLIANCE</b></td>
+                    <td><b>DUPLICATION</b></td>
+                    <td><b>DATASIZE_MB</b></td>
+                    <td><b>REMARKS</b></td>
                   </tr>
                   </thead>
 
                   <tbody>
-                  <tr class="row">
-                    {% for db in dbms %}
-                      <td> {{ db.CLASSIFICATION }} </td>
-                      <td> {{ db.SID }} </td>
-                      <td> {{ db.VERSION }} </td>
-                      <td> {{ db.DBTYPE }} </td>
-                      <td> {{ db.OSTYPE }} </td>
-                      <td> {{ db.APPLIANCE }} </td>
-                      <td> {{ db.DUPLICATION }} </td>
-                      <td> {{ db.DATASIZE_MB }} </td>
-                      <td> {{ db.REMARKS }} </td>
-                    {% endfor %}
+                  {% for db in dbms %}
+                  <tr>
+                    <td> {{ db.CLASSIFICATION }} </td>
+                    <td> {{ db.SID }} </td>
+                    <td> {{ db.VERSION }} </td>
+                    <td> {{ db.DBTYPE }} </td>
+                    <td> {{ db.OSTYPE }} </td>
+                    <td> {{ db.APPLIANCE }} </td>
+                    <td> {{ db.DUPLICATION }} </td>
+                    <td> {{ db.DATASIZE_MB }} </td>
+                    <td> {{ db.REMARKS }} </td>
                   </tr>
+                  {% endfor %}
                   </tbody>
                 </table>
               </td>
