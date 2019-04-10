@@ -23,7 +23,7 @@
   <div class="row">
     <div class="col-xl-2"></div>
 
-    <!-- PC화면 -->
+    <!-- PC화면, 일정 완료 전 -->
     <div class="col-xl-8 d-none d-xl-block">
 
       <div class="card shadow mb-4">
@@ -46,9 +46,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">성함</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="empName">{{ service.empName }}</div>
                     </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -60,9 +57,6 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">직출</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="directgo">{{ service.directgo }}</div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -80,7 +74,7 @@
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="companyName">{{ service.companyName }} ({{ service.serviceLocation }})</div>
                     </div>
                     <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                      <a href="{% url 'client:view_client' service.companyName %}"><i class="fas fa-building fa-2x text-gray-300"></i></a>
                     </div>
                   </div>
                 </div>
@@ -239,7 +233,7 @@
 
     </div>
 
-    <!-- 모바일 화면 -->
+    <!-- 모바일 화면, 일정 완료 전 -->
     <div class="col-xl-8 d-block d-xl-none">
 
       <div class="card shadow mb-4">
