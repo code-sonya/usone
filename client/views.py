@@ -90,7 +90,7 @@ def post_client(request):
             post = form.save(commit=False)
             post.companyStatus = 'X'
             post.save()
-            return redirect('show_clientlist')
+            return redirect('client:show_clientlist')
 
         else:
             form = CompanyForm()

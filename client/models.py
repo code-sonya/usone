@@ -35,6 +35,7 @@ class Company(models.Model):
 class Customer(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'))
 
+    customerId = models.AutoField(primary_key=True)
     customerName = models.CharField(max_length=10)
     companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
     customerDeptName = models.CharField(max_length=30, null=True, blank=True)
