@@ -12,6 +12,7 @@ from hr.models import Employee
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from .models import Eventday
 
 
 @login_required
@@ -26,6 +27,9 @@ def scheduler(request):
         empDeptName = request.user.employee.empDeptName
         teamList = Employee.empDeptNameChoices
         DeptList = [i[0] for i in teamList]
+        ### event ###
+        holiday = Eventday.objects.filter(eventType="휴일")
+        event = Eventday.objects.filter(eventType="사내일정")
 
         ##### 1.선택한 부서만 #####
         if request.method == "POST":
@@ -51,7 +55,9 @@ def scheduler(request):
                 'myCalendar': myCalendar,
                 'teamVacation': teamVacation,
                 'myVacation': myVacation,
-                'DeptList': DeptList[1:-1]
+                'DeptList': DeptList[1:-1],
+                'holiday' : holiday,
+                'event' : event
             }
             return HttpResponse(template.render(context,request))
 
@@ -75,7 +81,9 @@ def scheduler(request):
                 'myCalendar' : myCalendar,
                 'teamVacation' : teamVacation,
                 'myVacation' : myVacation,
-                'DeptList': DeptList[1:-1]
+                'DeptList': DeptList[1:-1],
+                'holiday': holiday,
+                'event': event
             }
             return HttpResponse(template.render(context, request))
     else :
