@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'gc418^thjvw80=t9bd$vxd(uv2+$clkzmtl0yf7d$_3amx+*%n'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with  turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = '*'
@@ -45,12 +45,10 @@ INSTALLED_APPS = [
     'scheduler',
     'mail',
     'dashboard',
-    'debug_toolbar',
     'signature',
 ]
 
 MIDDLEWARE = [
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
