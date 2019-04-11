@@ -92,8 +92,8 @@ def sendmail(request, serviceId):
 
             # pdf file
             # 로컬:
-            base = "127.0.0.1:8000"
-            # 서버: base="lop.unioneinc.co.kr:6203
+            # base = "127.0.0.1:8000"
+            base="lop.unioneinc.co.kr:6203"
             servicereportUrl = base + "/mail/servicereport/" + serviceId + "/"
 
             try:

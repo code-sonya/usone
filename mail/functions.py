@@ -25,7 +25,8 @@ def html2pdf(url):
     #window:
     path_wkthmltopdf = u'/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
     #mac:path_wkthmltopdf = '/usr/local/bin/wkhtmltopdf'
-    #server:path_wkthmltopdf = '/usr/local/bin/wkhtmltopdf'
+    #server:\
+    path_wkthmltopdf = '/usr/local/bin/wkhtmltox/bin'
 
     config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
     return pdfkit.from_url(url, False, options=options, configuration=config)
