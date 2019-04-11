@@ -22,14 +22,9 @@ from .functions import servicereporthtml
 from service.models import Servicereport
 from client.models import Company, Customer
 from hr.models import Employee
+from .mailInfo import smtp_server, port, userid, passwd
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
-
-
-smtp_server  = "mail.unioneinc.co.kr"
-port = 587
-userid = "slkim@unioneinc.co.kr"
-passwd = "rlathdud2!"
 
 
 @login_required
