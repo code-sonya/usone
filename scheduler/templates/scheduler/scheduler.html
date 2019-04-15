@@ -90,9 +90,9 @@
                   {% for i in DeptList %}
                     <div class="row">
                       {% if i == empDeptName %}
-                        <label><input type="checkbox" name="dept" value="{{ i }}" checked> {{ i }} </label>
+                        <label><input type="checkbox" name="ckdept" value="{{ i }}" checked> {{ i }} </label>
                       {% else %}
-                        <label><input type="checkbox" name="dept" value="{{ i }}"> {{ i }} </label>
+                        <label><input type="checkbox" name="ckdept" value="{{ i }}"> {{ i }} </label>
                       {% endif %}
                     </div>
                   {% endfor %}
