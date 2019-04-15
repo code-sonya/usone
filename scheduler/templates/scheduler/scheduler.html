@@ -96,7 +96,6 @@
                       {% endif %}
                     </div>
                   {% endfor %}
-                  <input type="text" name="deptList" style="visibility:hidden;">
 
                 </div>
                 <div class="text-center">
@@ -135,20 +134,7 @@
       }
 
       function btnSubmit() {
-          let arrsize = document.getElementsByName("dept").length;
-          let DeptList = "";
-          let arrList = new Array();
-          //check이름을 가진 check중에서 체크된 것만 값 가져오기
-          j = 0;
-          for (let i = 0; i < arrsize; i++) {
-              if (document.getElementsByName("dept")[i].checked == true) {
-
-                  arrList[j] = document.getElementsByName("dept")[i].value;
-                  j += 1;
-              }
-          }
           let form_check = document.getElementById('DeptCheck');
-          form_check.deptList.value = arrList;
           form_check.submit();
       }
 
