@@ -33,7 +33,8 @@ def scheduler(request):
 
         ##### 1.선택한 부서만 #####
         if request.method == "POST":
-            postDeptList = request.POST.getlist('dept')
+            postDeptList = request.POST.getlist('dept','')
+            #postDeptList = request.POST.getlist('dept')
 
             ### 일정(한달치) ###
             teamCalendar = Servicereport.objects.filter(Q(empDeptName__in=postDeptList) &
