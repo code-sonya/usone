@@ -139,7 +139,7 @@ def view_customer(request, customerId):
     userId = request.user.id  # 로그인 유무 판단 변수
     template = loader.get_template('client/viewcustomer.html')
     if userId:
-        customer = Customer.objects.get(id=customerId)
+        customer = Customer.objects.get(customerId=customerId)
         if request.method == 'POST':
             customer.customerName = request.POST["customerName"]
             customer.customerDeptName = request.POST["customerDept"]
