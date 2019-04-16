@@ -85,9 +85,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">성함</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="empName"></div>
                     </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -99,9 +96,6 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">직출</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="directgo"></div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -118,9 +112,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">고객사</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="companyName"></div>
                     </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -132,9 +123,6 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">일정구분</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceType"></div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -151,9 +139,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">시작시간</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceStartDatetime"></div>
                     </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -165,9 +150,6 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">종료시간</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceEndDatetime"></div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -184,9 +166,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">소요시간</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceHour"></div>
                     </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -198,9 +177,6 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">초과근무</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceOverHour"></div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -217,9 +193,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">제목</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceTitle"></div>
                     </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -234,9 +207,6 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">내용</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceDetails"></div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -369,7 +339,7 @@
 
           {% for service in services %}
               var rowNode = table.row.add( {
-                  "날짜": "{{ service.serviceDate | date:"Y-m-d" }}<br>{% if service.serviceOverHour != 0 %}<span style=\"color: blue\">(초과근무)</span>{% endif %}",
+                  "날짜": "{{ service.serviceDate | date:"Y.m.d" }}<br>{% if service.serviceOverHour != 0 %}<span style=\"color: blue\">(초과근무)</span>{% endif %}",
                   "고객사": "{{ service.companyName.companyName }}<br>({{ service.serviceType }})",
                   "제목": "{{ service.serviceTitle }}",
                   "serviceId": "{{ service.serviceId }}",
@@ -377,8 +347,8 @@
                   "directgo": "{{ service.directgo }}",
                   "companyName": "{{ service.companyName.companyName }} ({{ service.serviceLocation }})",
                   "serviceType": "{{ service.serviceType }}",
-                  "serviceStartDatetime": "{{ service.serviceStartDatetime | date:"Y년 m월 d일"}} {{ service.serviceStartDatetime | time:"H:i"}}",
-                  "serviceEndDatetime": "{{ service.serviceStartDatetime | date:"Y년 m월 d일"}} {{ service.serviceEndDatetime | time:"H:i"}}",
+                  "serviceStartDatetime": "{{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:":12"}}) {{ service.serviceStartDatetime | time:"H:i"}}",
+                  "serviceEndDatetime": "{{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:":12"}}) {{ service.serviceEndDatetime | time:"H:i"}}",
                   "serviceHour": "{{ service.serviceHour }} 시간",
                   "serviceOverHour": "{{ service.serviceOverHour }} 시간",
                   "serviceTitle": "{{ service.serviceTitle }}",

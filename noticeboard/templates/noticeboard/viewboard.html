@@ -52,7 +52,7 @@
             {% if board.serviceId %}
               <tr class="row">
                 <td class="col-2"><b>일련번호</b></td>
-                <td class="col-4">{{ board.serviceId.serviceId }}</td>
+                <td class="col-4"><a href="/service/viewservice/{{ board.serviceId.serviceId }}/">{{ board.serviceId.serviceId }}</a></td>
                 <td class="col-2"><b>일시</b></td>
                 <td class="col-4">{{ board.serviceId.serviceDate | date:"Y.m.d" }}</td>
               </tr>
@@ -110,7 +110,7 @@
             {% if board.serviceId %}
               <tr class="row">
                 <td class="col-4"><b>일련번호</b></td>
-                <td class="col-8">{{ board.serviceId.serviceId }}</td>
+                <td class="col-8"><a href="/service/viewservice/{{ board.serviceId.serviceId }}/">{{ board.serviceId.serviceId }}</a></td>
               </tr>
               <tr class="row">
                 <td class="col-4"><b>일시</b></td>
