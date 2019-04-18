@@ -9,11 +9,6 @@
 {% block css %}
   <style type="text/css">
 
-    body {
-      overflow-y:hidden;
-    }
-
-
     #accordionSidebar {
       z-index: 999;
     }
@@ -54,6 +49,11 @@
     }
 
     @media only screen and (max-width: 765px) {
+
+      body {
+      overflow-y:hidden;
+      }
+
       .fc-day-grid-event .fc-time {
         display: none;
       }
