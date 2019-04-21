@@ -1,17 +1,24 @@
 {% extends "dashboard/layout.html" %}
-
-
 {% block title %}
   SERVICE REPORT 메일 발송
 {% endblock %}
-
-
+{% block css %}
+  <style type="text/css">
+   #wrapLoading {
+     position:relative;
+     left:50%;
+     margin-left:-25px;
+     top:45%;
+     z-index:1000;
+     visibility:hidden}
+  </style>
+{% endblock %}
 {% block content %}
-
   <div class="row">
+
     <div class="col-xl-2"></div>
     <div class="col-xl-8">
-
+       <div id="wrapLoading" ><img src="/media/icon/Loading.gif" width="50px"></div>
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -111,10 +118,11 @@
       function btn_return_click() {
           link_url = "/service/showservices/";
           location.href = link_url
-
       }
 
       function btnSubmit() {
+          let img = document.getElementById("wrapLoading");
+		  img.style.visibility="visible";
           let arrsize = document.getElementsByName("email").length;
           let arrList = new Array();
           //check이름을 가진 check중에서 체크된 것만 값 가져오기

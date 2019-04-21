@@ -29,7 +29,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">전체 지원 횟수</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__count %}{{ all_support_time.serviceHour__count }}{% else %}-{% endif %} 건</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__count %}{{ all_support_time.serviceHour__count }}{% else %}0{% endif %} 건</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-briefcase fa-2x text-gray-300"></i>
@@ -46,7 +46,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-success text-uppercase mb-1">전체 지원 시간</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__sum %}{{ all_support_time.serviceHour__sum }}{% else %}-{% endif %} 시간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__sum %}{{ all_support_time.serviceHour__sum }}{% else %}0.0{% endif %} 시간</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-clock fa-2x text-gray-300"></i>
@@ -325,6 +325,26 @@
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
       const options = {
+          animation: {
+              onComplete: function () {
+                  var ctx = this.chart.ctx;
+                  ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart.defaults.global.defaultFontFamily);
+                  ctx.fillStyle = "black";
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'bottom';
+
+                  this.data.datasets.forEach(function (dataset)
+                  {
+                      for (var i = 0; i < dataset.data.length; i++) {
+                          for(var key in dataset._meta)
+                          {
+                              var model = dataset._meta[key].data[i]._model;
+                              ctx.fillText(dataset.data[i], model.x, model.y - 5);
+                          }
+                      }
+                  });
+              }
+          },
           maintainAspectRatio: false,
           layout: {
               padding: {

@@ -49,6 +49,11 @@
     }
 
     @media only screen and (max-width: 765px) {
+
+      body {
+      overflow-y:hidden;
+      }
+
       .fc-day-grid-event .fc-time {
         display: none;
       }
@@ -59,13 +64,16 @@
 
       #calendar {
         font-size: 12px;
-        position: fixed;
-        top: 80px;
-        left: 5px;
-        right: 5px;
-        bottom: 0;
+        height : 600px;
+<!--        position: fixed;-->
+<!--        top: 80px;-->
+        left: 0px;
+        right: 0px;
+<!--        bottom: 0;-->
       }
     }
+
+
 
 
   </style>
@@ -176,6 +184,7 @@
                   center: 'title',
                   right: 'month,basicWeek addEvent'
               }, defaultDate: new Date(),
+              height: 700,
               locale: 'ko',
               selectable: false,
               navLinks: false,
