@@ -93,11 +93,11 @@ def sendmail(request, serviceId):
 
             # pdf file
             # 로컬:
-            # base = "127.0.0.1:8000"
+            base = "127.0.0.1:8000"
             #base = "lop.unioneinc.co.kr:6203"
-            base="lop.unioneinc.co.kr:6103"
+            #base="lop.unioneinc.co.kr:6103"
             servicereportUrl = base + "/mail/servicereport/" + serviceId + "/"
-
+            print(servicereportUrl)
             try:
                 pdf = html2pdf(servicereportUrl)
                 pdffile = MIMEBase("application/pdf", "application/x-pdf")
@@ -107,7 +107,7 @@ def sendmail(request, serviceId):
                 msg.attach(pdffile)
             except Exception as ex:
                 print(ex)
-                resp = "메일 전송 실패! 관리자에게 문의하세요:)"
+                resp = "메일 전송 실패!"+servicereportUrl+ex
                 return HttpResponse(resp)
 
             smtp = smtplib.SMTP(smtp_server, port)
