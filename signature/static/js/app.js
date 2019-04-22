@@ -56,7 +56,7 @@ function download(dataURL, filename) {
     form_data.append('file', blob);
 
     signatureUrl = '/signature/saveimg/'+ filename + "/";
-    console.log(signatureUrl);
+    // console.log(signatureUrl);
     $.ajax({
         url: signatureUrl,
         method: 'POST',
