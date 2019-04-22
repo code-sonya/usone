@@ -352,7 +352,7 @@
 
           {% for service in services %}
               var rowNode = table.row.add( {
-                  "날짜": "{{ service.serviceDate | date:"Y.m.d" }}<br>{% if service.serviceOverHour != 0 %}<span style=\"color: blue\">(초과근무)</span>{% endif %}",
+                  "날짜": "{{ service.serviceDate | date:"Y.m.d(D" | slice:"0:12" }})<br>{% if service.serviceOverHour != 0 %}<span style=\"color: blue\">(초과근무)</span>{% endif %}",
                   "고객사": "{{ service.companyName.companyName }}<br>({{ service.serviceType }})",
                   "제목": "{{ service.serviceTitle }}",
                   "serviceId": "{{ service.serviceId }}",
