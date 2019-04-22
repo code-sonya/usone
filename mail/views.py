@@ -6,7 +6,7 @@ from django.db.models import Q
 from email.mime.image import MIMEImage
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-
+from django.conf import settings
 from .functions import servicereporthtml, html2pdf
 import os
 import pdfkit
@@ -77,8 +77,14 @@ def sendmail(request, serviceId):
             msg["Subject"] = Header(s=title, charset="utf-8")
             msg.attach(MIMEText(html, "html", _charset="utf-8"))
 
+            if servicereport.serviceSignPath:
+                serviceSignPath = servicereport.serviceSignPath
+            else:
+                serviceSignPath = os.path.join(settings.MEDIA_ROOT, 'images/signature/nosign.jpg')
+
+
             # 서명 이미지
-            with open(servicereport.serviceSignPath, 'rb') as f:
+            with open(serviceSignPath, 'rb') as f:
                 signatureimg = f.read()
 
             sign = MIMEImage(signatureimg)
