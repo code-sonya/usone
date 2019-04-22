@@ -32,6 +32,12 @@
 
           <h6 class="m-0 h3 text-gray-800"> 상세내용 </h6>
 
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" onclick="btn_board()">
+              <i class="fas fa-plus fa-fw text-gray-400"></i>
+            </a>
+          </div>
+
         </div>
 
         <div class="card-body">
@@ -88,9 +94,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">일정구분</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceType">{{ service.serviceType }}</div>
                     </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -105,11 +108,8 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">시작시간</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceStartDatetime">
-                        {{ service.serviceStartDatetime | date:"Y년 m월 d일"}} {{ service.serviceStartDatetime | time:"H:i"}}
+                        {{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:":12"}}) {{ service.serviceStartDatetime | time:"H:i"}}
                       </div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -122,11 +122,8 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">종료시간</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceEndDatetime">
-                        {{ service.serviceStartDatetime | date:"Y년 m월 d일"}} {{ service.serviceEndDatetime | time:"H:i"}}
+                        {{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:":12"}}) {{ service.serviceEndDatetime | time:"H:i"}}
                       </div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -143,9 +140,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">소요시간</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceHour">{{ service.serviceHour }} 시간</div>
                     </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -157,9 +151,6 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">초과근무</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceOverHour">{{ service.serviceOverHour }} 시간</div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -176,9 +167,6 @@
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">제목</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceTitle">{{ service.serviceTitle }}</div>
                     </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -193,9 +181,6 @@
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">내용</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceDetails">{{ service.serviceDetails | linebreaksbr }}</div>
-                    </div>
-                    <div class="col-auto">
-                      <i class="fas fa-calendar fa-2x text-gray-300"></i>
                     </div>
                   </div>
                 </div>
@@ -371,6 +356,10 @@
           if (confirm("일정을 복사 하시겠습니까?") === true) {
               location.href = '/service/copyservice/' + {{ service.serviceId }} + '/';
           }
+      }
+
+      function btn_board(){
+          location.href = '/noticeboard/postboard/' + {{ service.serviceId }} + '/';
       }
 
   </script>

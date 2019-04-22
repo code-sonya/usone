@@ -49,6 +49,11 @@
     }
 
     @media only screen and (max-width: 765px) {
+
+      body {
+      overflow-y:hidden;
+      }
+
       .fc-day-grid-event .fc-time {
         display: none;
       }
@@ -59,13 +64,16 @@
 
       #calendar {
         font-size: 12px;
-        position: fixed;
-        top: 80px;
-        left: 5px;
-        right: 5px;
-        bottom: 0;
+        height : 600px;
+<!--        position: fixed;-->
+<!--        top: 80px;-->
+        left: 0px;
+        right: 0px;
+<!--        bottom: 0;-->
       }
     }
+
+
 
 
   </style>
@@ -90,13 +98,12 @@
                   {% for i in DeptList %}
                     <div class="row">
                       {% if i == empDeptName %}
-                        <label><input type="checkbox" name="dept" value="{{ i }}" checked> {{ i }} </label>
+                        <label><input type="checkbox" name="ckdept" value="{{ i }}" checked> {{ i }} </label>
                       {% else %}
-                        <label><input type="checkbox" name="dept" value="{{ i }}"> {{ i }} </label>
+                        <label><input type="checkbox" name="ckdept" value="{{ i }}"> {{ i }} </label>
                       {% endif %}
                     </div>
                   {% endfor %}
-                  <input type="text" name="deptList" style="visibility:hidden;">
 
                 </div>
                 <div class="text-center">
@@ -135,20 +142,7 @@
       }
 
       function btnSubmit() {
-          let arrsize = document.getElementsByName("dept").length;
-          let DeptList = "";
-          let arrList = new Array();
-          //check이름을 가진 check중에서 체크된 것만 값 가져오기
-          j = 0;
-          for (let i = 0; i < arrsize; i++) {
-              if (document.getElementsByName("dept")[i].checked == true) {
-
-                  arrList[j] = document.getElementsByName("dept")[i].value;
-                  j += 1;
-              }
-          }
           let form_check = document.getElementById('DeptCheck');
-          form_check.deptList.value = arrList;
           form_check.submit();
       }
 
@@ -190,6 +184,7 @@
                   center: 'title',
                   right: 'month,basicWeek addEvent'
               }, defaultDate: new Date(),
+              height: 700,
               locale: 'ko',
               selectable: false,
               navLinks: false,

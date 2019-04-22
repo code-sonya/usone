@@ -109,7 +109,6 @@
           for (var i = 1; i <= intDiffDay; i++) {
               var dateTemp = new Date(arrStart[0], arrStart[1] - 1, arrStart[2]);
               dateTemp.setDate(dateTemp.getDate() + i);
-              alert(dateTemp.getDay());
               var strTemp = [dateTemp.getFullYear(), ((dateTemp.getMonth() + 1) > 9 ? '' : '0') + (dateTemp.getMonth() + 1),
                   (dateTemp.getDate() > 9 ? '' : '0') + dateTemp.getDate()].join('-');
               data.push(

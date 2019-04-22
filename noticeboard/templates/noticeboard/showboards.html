@@ -182,7 +182,7 @@
                   "고객사": "{% if board.serviceId.companyName %}{{ board.serviceId.companyName }}{% else %}-{% endif %}",
                   "제목": "{{ board.boardTitle }}",
                   "작성자": "{{ board.boardWriter.empName }}",
-                  "작성일": "{{ board.boardWriteDatetime|date:"Y. m. d." }}",
+                  "작성일": "{{ board.boardWriteDatetime|date:"Y.m.d." }}",
                   "boardId": "{{ board.boardId }}",
               } ).draw().node();
 

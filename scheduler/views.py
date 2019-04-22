@@ -25,17 +25,18 @@ def scheduler(request):
         empId = request.user.employee.empId
         empName = request.user.employee.empName
         empDeptName = request.user.employee.empDeptName
-        teamList = Employee.empDeptNameChoices
-        DeptList = [i[0] for i in teamList]
+        #teamList = Employee.empDeptNameChoices
+        #DeptList = [i[0] for i in teamList]
+        DeptList = ['임원', '경영지원본부', '영업1팀', '영업2팀', '영업3팀', '인프라서비스사업팀', '솔루션지원팀', 'DB지원팀', '미정']
+
         ### event ###
         holiday = Eventday.objects.filter(eventType="휴일")
         event = Eventday.objects.filter(eventType="사내일정")
 
         ##### 1.선택한 부서만 #####
         if request.method == "POST":
-            postDeptList = request.POST['deptList']
-            postDeptList = postDeptList.split(',')
-            print(postDeptList)
+            #postDeptList = request.POST.getlist('dept','')
+            postDeptList = request.POST.getlist('ckdept')
 
             ### 일정(한달치) ###
             teamCalendar = Servicereport.objects.filter(Q(empDeptName__in=postDeptList) &
