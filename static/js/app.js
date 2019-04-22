@@ -55,11 +55,9 @@ function download(dataURL, filename) {
     var form_data = new FormData();
     form_data.append('file', blob);
 
-    // server_url = 'http://lop.unioneinc.co.kr:6203/signature/save_img/' + filename + "/"
-    signatureUrl = '/signature/saveimg/';
+    signatureUrl = '/signature/saveimg/'+ filename + "/";
     $.ajax({
         url: signatureUrl,
-        //url: 'save',
         method: 'POST',
         cache: false,
         contentType: false,
@@ -67,10 +65,9 @@ function download(dataURL, filename) {
         data: form_data,
         headers: {'X-CSRFToken': '{{ csrf_token }}'},
         success: function () {
-            alert("성공")
-            // load_url = "/mail/" + filename + "/";
-            // window.URL.revokeObjectURL(url);
-            // location.href = load_url
+            load_url = "/mail/" + filename + "/";
+            window.URL.revokeObjectURL(url);
+            location.href = load_url
         }
     });
 
@@ -130,14 +127,13 @@ saveJPGButton.addEventListener("click", function (event) {
     if (signaturePad.isEmpty()) {
         alert("서명을 해주세요.");
     } else {
-        var dataURL = signaturePad.toDataURL();
-        var fileName = String(service_id.value);
+        const dataURL = signaturePad.toDataURL();
+        const fileName = String(service_id.value);
 
 
-        var mgs = confirm("서명을 완료 하시겠습니까?");
+        const mgs = confirm("서명을 완료 하시겠습니까?");
         if (mgs) {
             download(dataURL, fileName);
-
         } else {
             alert("서명 확인이 취소되었습니다");
         }

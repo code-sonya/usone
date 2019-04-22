@@ -114,7 +114,7 @@ def view_client(request, companyName):
             dbms = json.loads(company.companyDbms)
         except:
             dbms = "{}"
-        services = Servicereport.objects.filter(companyName=companyName).order_by('-serviceDate')
+        services = Servicereport.objects.filter(companyName=companyName)
         if request.method == 'POST':
             print(request.POST)
             try:
