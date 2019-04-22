@@ -70,7 +70,6 @@ def sendmail(request, serviceId):
             title = "[{}_{}]{} 유니원아이앤씨(주) SERVICE REPORT".format(servicereport.companyName, request.user.employee.empDeptName, servicereport.serviceDate)
             html = servicereporthtml(serviceId)
 
-
             msg = MIMEMultipart("alternative")
             msg["From"] = empEmail
             msg["To"] = ",".join(emailList)
@@ -82,7 +81,6 @@ def sendmail(request, serviceId):
             else:
                 serviceSignPath = os.path.join(settings.MEDIA_ROOT, 'images/signature/nosign.jpg')
 
-
             # 서명 이미지
             with open(serviceSignPath, 'rb') as f:
                 signatureimg = f.read()
@@ -93,9 +91,9 @@ def sendmail(request, serviceId):
 
             # pdf file
             # 로컬:
-            base = "127.0.0.1:8000"
+            #base = "127.0.0.1:8000"
             #base = "lop.unioneinc.co.kr:6203"
-            #base="lop.unioneinc.co.kr:6103"
+            base="lop.unioneinc.co.kr:6103"
             servicereportUrl = base + "/mail/servicereport/" + serviceId + "/"
             print(servicereportUrl)
             try:
