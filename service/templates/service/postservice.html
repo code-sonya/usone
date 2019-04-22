@@ -30,10 +30,15 @@
                    style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-156px, 19px, 0px);">
                 <div class="dropdown-header" id="myForm"> 내 양식:</div>
                 {% for serviceform in serviceforms %}
-                  <a class="dropdown-item" href="#" onclick="applyform('{{ serviceform.companyName.companyName }}', '{{ serviceform.serviceType }}',
-                          '{{ serviceform.serviceStartTime | time:"H:i"}}', '{{ serviceform.serviceEndTime | time:"H:i"}}',
-                          '{{ serviceform.serviceLocation }}', '{{ serviceform.directgo }}',
-                          '{{ serviceform.serviceTitle }}', '{{ serviceform.serviceDetails }}')">
+                  <a class="dropdown-item" href="#" onclick="applyform(
+                      '{{ serviceform.companyName.companyName }}',
+                      '{{ serviceform.serviceType }}',
+                      '{{ serviceform.serviceStartTime | time:"H:i"}}',
+                      '{{ serviceform.serviceEndTime | time:"H:i"}}',
+                      '{{ serviceform.serviceLocation }}',
+                      '{{ serviceform.directgo }}',
+                      '{{ serviceform.serviceTitle }}',
+                      '{{ serviceform.serviceDetails }}')">
                     {{ serviceform.serviceTitle | truncatechars:"15" }}
                   </a>
                 {% endfor %}
@@ -211,7 +216,46 @@
           $('#directgo').val(directgo);
           $('#serviceTitle').val(serviceTitle);
           $('#serviceDetails').val(serviceDetails);
+          document.getElementById("companyName").style.backgroundColor = "#e8f0fe";
+          document.getElementById("serviceType").style.backgroundColor = "#e8f0fe";
+          document.getElementById("starttime").style.backgroundColor = "#e8f0fe";
+          document.getElementById("endtime").style.backgroundColor = "#e8f0fe";
+          document.getElementById("serviceLocation").style.backgroundColor = "#e8f0fe";
+          document.getElementById("directgo").style.backgroundColor = "#e8f0fe";
+          document.getElementById("serviceTitle").style.backgroundColor = "#e8f0fe";
+          document.getElementById("serviceDetails").style.backgroundColor = "#e8f0fe";
       }
+
+      function backgroundWhite(id) {
+          document.getElementById(id).style.backgroundColor = "#fff";
+      }
+
+      $(document).ready(function () {
+          $('#companyName').on("propertychange change keyup paste input", function () {
+              document.getElementById("companyName").style.backgroundColor = "#fff";
+          });
+          $('#serviceType').on("propertychange change keyup paste input", function () {
+              document.getElementById("serviceType").style.backgroundColor = "#fff";
+          });
+          $('#starttime').on("propertychange change keyup paste input", function () {
+              document.getElementById("starttime").style.backgroundColor = "#fff";
+          });
+          $('#endtime').on("propertychange change keyup paste input", function () {
+              document.getElementById("endtime").style.backgroundColor = "#fff";
+          });
+          $('#serviceLocation').on("propertychange change keyup paste input", function () {
+              document.getElementById("serviceLocation").style.backgroundColor = "#fff";
+          });
+          $('#directgo').on("propertychange change keyup paste input", function () {
+              document.getElementById("directgo").style.backgroundColor = "#fff";
+          });
+          $('#serviceTitle').on("propertychange change keyup paste input", function () {
+              document.getElementById("serviceTitle").style.backgroundColor = "#fff";
+          });
+          $('#serviceDetails').on("propertychange change keyup paste input", function () {
+              document.getElementById("serviceDetails").style.backgroundColor = "#fff";
+          });
+      });
 
   </script>
 

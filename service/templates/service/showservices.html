@@ -32,7 +32,8 @@
 
         <div class="card-body">
           <div class="text-center text-gray-900 font-weight-bold text-lg mb-3">
-            {{ services|length }}건, {{ sumHour }}시간({{ sumOverHour }}시간 초과근무)
+            {{ services|length }}건, {{ sumHour }}시간 <br class="d-xl-none">
+            ({{ sumOverHour }}시간 초과근무)
           </div>
           <b style="font-size:14px; color:red">※ 지난 일정은 "완료" 해주세요</b>
           <div class="table-responsive">
@@ -328,13 +329,25 @@
                   {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: [3,4,5,6,7,8,9,10,11,12,13 ], visible:false}
+                  {targets: [3,4,5,6,7,8,9,10,11,12,13 ], visible:false},
+                  {"orderable": false, "targets": [2,3,4,5,6,7,8,9,10,11,12,13]},
               ],
-              "searching": false,
+              "searching": true,
               "paging": false,
               "info": false,
               "scrollY": "60vh",
               "scrollCollapse": true,
+              "order": [[0, 'desc'], [8, 'asc']],
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              }
           });
 
           {% for service in services %}
