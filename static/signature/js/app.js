@@ -41,12 +41,11 @@ resizeCanvas();
 
 function download(dataURL, filename) {
     console.log(filename);
-    //print (dataURL)
     var blob = dataURLToBlob(dataURL);
     var url = window.URL.createObjectURL(blob);  //blob로 서명 데이터 참조를 가리키는 url 객체 : 파일의 전체 내용을 URL 텍스트로 변환한 값
 
     var fileType = "blob";
-    var fileName = service_id + ".jpg";
+    var fileName = filename + ".jpg";
     var a = document.createElement("a");
     a.style = "display: none";
     a.href = url;
@@ -56,7 +55,7 @@ function download(dataURL, filename) {
     var form_data = new FormData();
     form_data.append('file', blob);
 
-    signatureUrl = '/signature/saveimg/'+ service_id + '/';
+    signatureUrl = '/signature/saveimg/'+  String(service_id.value) + '/';
     console.log(signatureUrl);
     $.ajax({
         url: signatureUrl,
