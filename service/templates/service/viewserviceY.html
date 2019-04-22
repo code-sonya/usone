@@ -1,0 +1,310 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  일정관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+    .table{
+      color: #333333;
+      table-layout: fixed;
+      border: 2px solid black;
+      width: 100%;
+      height: 600px;
+      border-collapse: collapse;
+    }
+
+    .table td, .table th{
+      padding: 0px;
+      vertical-align: middle;
+      border: 2px solid black;
+      white-space: nowrap;
+      font-size: 16px;
+    }
+
+    .mobile-table{
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th{
+      padding: 4px;
+      vertical-align: middle;
+      font-size: 16px;
+      border-top: 1px dotted #858796a3;
+    }
+    a:link { color: black; text-decoration: none;}
+    a:visited { color: black; text-decoration: none;}
+    a:hover { color: blue; text-decoration: underline;}
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <!-- PC화면 -->
+    <div class="col-xl-8 d-none d-xl-block">
+      <div class="text-right mb-2" style="min-width: 1000px">
+        <a href="#" class="btn btn-warning">
+          <i class="fas fa-user fa-2x text-gray-100"></i>
+        </a>
+        &nbsp;&nbsp;
+        <a href="#" class="btn btn-info">
+          <i class="fas fa-envelope fa-2x text-gray-100"></i>
+        </a>
+        &nbsp;&nbsp;
+        <a href="#" class="btn btn-danger">
+          <i class="fas fa-file-pdf fa-2x text-gray-100"></i>
+        </a>
+      </div>
+      <table class="table">
+        <tbody>
+        <tr style="height: 75px;">
+          <td style="width: 1000px; text-align: center;" colspan="10">
+            <strong style="font-size: 40px">SERVICE REPORT</strong>
+          </td>
+        </tr>
+        <tr style="height: 25px;">
+          <td style="width: 195px; text-align: center;" colspan="2">
+            <strong>고 객 사</strong></td>
+          <td style="width: 195px; text-align: center;" colspan="2">
+            <strong>지 원 종 류</strong></td>
+          <td style="width: 205px; text-align: center;" colspan="2">
+            <strong>개 시 일 시</strong></td>
+          <td style="width: 205px; text-align: center;" colspan="2">
+            <strong>완 료 일 시</strong></td>
+          <td style="width: 195px; text-align: center;" colspan="2">
+            <strong>소 요 시 간</strong></td>
+        </tr>
+        <tr style="height: 50px;">
+          <td style="width: 195px; text-align: center; font-size:14px" colspan="2">
+            <strong>
+              <a href="/client/viewclient/{{ service.companyName }}/" style="font-size: 18px">{{ service.companyName }}</a>
+            </strong> 귀중
+          </td>
+          <td style="width: 195px; text-align: center;" colspan="2">
+            {{ service.serviceType }}
+          </td>
+          <td style="width: 205px; text-align: center;" colspan="2">
+            {{ service.serviceStartDatetime | date:"Y년 m월 d일 H:i"}}
+          </td>
+          <td style="width: 205px; text-align: center;" colspan="2">
+            {{ service.serviceEndDatetime | date:"Y년 m월 d일 H:i"}}
+          </td>
+          <td style="width: 195px; text-align: center;" colspan="2">
+            {{ service.serviceHour }} 시간
+          </td>
+        </tr>
+        <tr style="height: 370px;">
+          <td style="width: 1000px; vertical-align: top" colspan="10">
+            <p>&nbsp;</p>&nbsp;&nbsp;&nbsp;&nbsp;
+            <strong>내 용 :</strong>
+            <p>
+              <div style="padding-left: 40px">{{ service.serviceDetails|linebreaksbr }}</div>
+            </p>
+          </td>
+        </tr>
+        <tr style="height: 20px;">
+          <td style="width: 300px;" colspan="3">
+            <strong>&nbsp;&nbsp;지원담당부서 :</strong>
+            {{ service.empDeptName }}
+          </td>
+          <td style="width: 300px;" colspan="3">
+            <strong>&nbsp;&nbsp;고객담당부서 :</strong>
+            {% if service.customerDeptName == None %}
+              &nbsp;
+            {% else %}
+              {{ service.customerDeptName }}
+            {% endif %}
+          </td>
+          <td style="width: 100px; text-align: center;" colspan="2" rowspan="4">
+            <strong>고객<br>서명</strong>
+          </td>
+          <td style="width: 300px; text-align: center;" colspan="2" rowspan="4">
+            <img src={{ service.serviceSignPath }}>
+          </td>
+        </tr>
+        <tr style="height: 20px;">
+          <td style="width: 300px;" colspan="3">
+            <strong>&nbsp;&nbsp;담 당 자 :</strong>
+            {{ service.empName }}
+          </td>
+          <td style="width: 300px;" colspan="3">
+            <strong>&nbsp;&nbsp;담 당 자 :</strong>
+            {% if service.customerName == None %}
+              &nbsp;
+            {% else %}
+              {{ service.customerName }}
+            {% endif %}
+          </td>
+        </tr>
+        <tr style="height: 20px;">
+          <td style="width: 300px;" colspan="3">
+            <strong>&nbsp;&nbsp;연 락 처 :</strong>
+            {{ service.empId.empPhone }}
+          </td>
+
+          <td style="width: 300px;" colspan="3">
+            <strong>&nbsp;&nbsp;연 락 처 :</strong>
+            {% if service.customerPhone == None %}
+              &nbsp;
+            {% else %}
+              {{ service.customerPhone }}
+            {% endif %}
+          </td>
+        </tr>
+        <tr style="height: 20px;">
+          <td style="width: 300px;" colspan="3">
+            <strong>&nbsp;&nbsp;이 메 일 :</strong>
+            {{ service.empId.empEmail }}
+          </td>
+          <td style="width: 300px;" colspan="3">
+            <strong>&nbsp;&nbsp;이 메 일 :</strong>
+            {% if service.customerEmail == None %}
+              &nbsp;
+            {% else %}
+              {{ service.customerEmail }}
+            {% endif %}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- 모바일화면 -->
+    <div class="col-xl-8 d-block d-xl-none">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
+          <div class="text-right mb-2">
+            <a href="#" class="btn btn-warning">
+              <i class="fas fa-user text-gray-100"></i>
+            </a>
+            <a href="#" class="btn btn-info">
+              <i class="fas fa-envelope text-gray-100"></i>
+            </a>
+            <a href="#" class="btn btn-danger">
+              <i class="fas fa-file-pdf text-gray-100"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body ">
+          <table class="mobile-table">
+            <tbody>
+            <tr>
+              <td style="width: 30%; border-top: 0px;"><b>성함</b></td>
+              <td style="width: 70%; border-top: 0px;">{{ service.empName }} {% if service.directgo == "Y" %}<b>(직출)<b>{% endif %}</td>
+            </tr>
+            <tr>
+              <td><b>고객사</b></td>
+              <td>{{ service.companyName }} ({{ service.serviceLocation }})
+                <i class="fas fa-search text-gray-600" onclick="location.href='/client/viewclient/{{ service.companyName }}/'"></i>
+              </td>
+            </tr>
+            <tr>
+              <td><b>일정구분</b></td>
+              <td>{{ service.serviceType }}</td>
+            </tr>
+            <tr>
+              <td><b>시작시간</b></td>
+              <td>{{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:"0:12" }}) {{ service.serviceStartDatetime | date:"H:i" }}</td>
+            </tr>
+            <tr>
+              <td><b>종료시간</b></td>
+              <td>{{ service.serviceEndDatetime | date:"Y.m.d(D" | slice:"0:12" }}) {{ service.serviceEndDatetime | date:"H:i" }}</td>
+            </tr>
+            <tr>
+              <td><b>소요시간</b></td>
+              <td>{{ service.serviceHour }} 시간 {% if service.serviceOverHour > 0 %}<b>({{ service.serviceOverHour }} 초과근무)</b>{% endif %}</td>
+            </tr>
+            <tr>
+              <td><b>제목</b></td>
+              <td>{{ service.serviceTitle }}</td>
+            </tr>
+            <tr>
+              <td><b>내용</b></td>
+              <td>{{ service.serviceDetails | linebreaksbr }}</td>
+            </tr>
+            </tbody>
+          </table>
+
+          {% if service.empId.empId == user.employee.empId and service.serviceStatus == 'N' %}
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+                <span class="text p-2"> 삭제 </span>
+              </a>
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+                <span class="text p-2"> 수정 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text p-2"> 완료 </span>
+              </a>
+            </div>
+          {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
+            <div class="text-center">
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_copy()">
+                <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
+                <span class="text"> 복사 </span>
+              </a>
+            </div>
+          {% endif %}
+
+        </div>
+
+      </div>
+    </div>
+    <div class="col-xl-2"></div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_save(){
+          if (confirm("일정을 완료 하시겠습니까?") === true) {
+              location.href = '/signature/selectmanager/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_modify(){
+          if (confirm("일정을 수정 하시겠습니까?") === true) {
+              location.href = '/service/modifyservice/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_delete(){
+          if (confirm("일정을 삭제 하시겠습니까?") === true) {
+              location.href = '/service/deleteservice/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_copy(){
+          if (confirm("일정을 복사 하시겠습니까?") === true) {
+              location.href = '/service/copyservice/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_board(){
+          location.href = '/noticeboard/postboard/' + {{ service.serviceId }} + '/';
+      }
+
+  </script>
+
+{% endblock %}

@@ -298,8 +298,10 @@ def view_service(request, serviceId):
         context = {
             'service': service,
         }
-
-        return render(request, 'service/viewservice.html', context)
+        if service.serviceStatus == "N":
+            return render(request, 'service/viewserviceN.html', context)
+        elif service.serviceStatus == "Y":
+            return render(request, 'service/viewserviceY.html', context)
 
     else:
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
