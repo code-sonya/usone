@@ -261,9 +261,10 @@
                   {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 4, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 5, visible: false}
+                  {targets: 5, visible: false},
+                  {"orderable": false, "targets": [4,5]},
               ],
-              "order": [[4, 'desc']],
+              "order": [[0, 'desc'], [1, 'asc']],
               "searching": true,
               "paging": true,
               "info": false,
