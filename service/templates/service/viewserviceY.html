@@ -17,6 +17,7 @@
       width: 100%;
       height: 600px;
       border-collapse: collapse;
+      background-color: #ffffff;
     }
 
     .table td, .table th{
@@ -55,7 +56,7 @@
     <div class="col-xl-2"></div>
     <!-- PC화면 -->
     <div class="col-xl-8 d-none d-xl-block">
-      <div class="text-right mb-2" style="min-width: 1000px">
+      <div class="text-right mb-3" style="min-width: 1000px">
         <a href="#" class="btn btn-warning" style="width: 50px; height: 42px;">
           <i class="fas fa-user text-gray-100" style="font-size: 1.5em;"></i>
         </a>
@@ -135,7 +136,7 @@
             <strong>고객<br>서명</strong>
           </td>
           <td style="width: 300px; text-align: center;" colspan="2" rowspan="4">
-            <img src={{ service.serviceSignPath }}>
+            <img src="{{ service.serviceSignPath }}" height="104px" width="198px">
           </td>
         </tr>
         <tr style="height: 20px;">
@@ -185,15 +186,18 @@
       </table>
       <div class="text-center mb-2" style="min-width: 1000px">
         {% if board == None %}
-          <a href="#" class="btn btn-primary" onclick="btn_board()">
-            <i class="fas fa-plus text-gray-100"></i>
+          <a href="#" class="btn btn-primary btn-icon-split" onclick="btn_board()">
+            <span class="icon text-white-50">
+              <i class="fas fa-pen-fancy"></i>
+            </span>
+            <span class="text text-white">게시물 작성</span>
           </a>
         {% else %}
           <a href="#" class="btn btn-primary btn-icon-split" onclick="location.href='/noticeboard/viewboard/{{ board.boardId }}/'">
             <span class="icon text-white-50">
               <i class="fas fa-link"></i>
             </span>
-            <span class="text text-white">더보기</span>
+            <span class="text text-white">게시글 보기</span>
           </a>
         {% endif %}
       </div>
@@ -256,18 +260,22 @@
           </table>
           <div class="text-center mb-2">
             {% if board == None %}
-              <a href="#" class="btn btn-primary" onclick="btn_board()">
-                <i class="fas fa-plus text-gray-100"></i>
+              <a href="#" class="btn btn-primary btn-icon-split" onclick="btn_board()">
+                <span class="icon text-white-50">
+                  <i class="fas fa-pen-fancy"></i>
+                </span>
+                <span class="text text-white">게시물 작성</span>
               </a>
             {% else %}
               <a href="#" class="btn btn-primary btn-icon-split" onclick="location.href='/noticeboard/viewboard/{{ board.boardId }}/'">
                 <span class="icon text-white-50">
                   <i class="fas fa-link"></i>
                 </span>
-                <span class="text text-white">더보기</span>
+                <span class="text text-white">게시글 보기</span>
               </a>
             {% endif %}
           </div>
+
         </div>
 
       </div>

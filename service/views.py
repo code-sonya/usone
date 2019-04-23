@@ -294,6 +294,7 @@ def view_service(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
+        print(serviceId)
         service = Servicereport.objects.get(serviceId=serviceId)
 
         try:

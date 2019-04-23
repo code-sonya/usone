@@ -70,11 +70,9 @@ def saveimg(request, serviceId):
 
     if request.method == 'POST':
         data = request.FILES.get('file')
-        path = default_storage.save('images/signature/'+serviceId+'.jpg', ContentFile(data.read()))
-        img_file = os.path.join(settings.MEDIA_ROOT, path)
-        print(img_file)
+        default_storage.save('images/signature/'+serviceId+'.jpg', ContentFile(data.read()))
         service = Servicereport.objects.get(serviceId=serviceId)
-        service.serviceSignPath = img_file
+        service.serviceSignPath = service.serviceSignPath = '/media/images/signature/' + serviceId + '.jpg'
         service.save()
         resp="이미지 저장"
         return HttpResponse(resp)
