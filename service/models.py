@@ -45,7 +45,7 @@ class Servicereport(models.Model):
     customerDeptName = models.CharField(max_length=30, null=True, blank=True)
     customerPhone = models.CharField(max_length=20, null=True, blank=True)
     customerEmail = models.EmailField(max_length=254, null=True, blank=True)
-    serviceSignPath = models.CharField(max_length=254, null=True, blank=True)
+    serviceSignPath = models.CharField(max_length=254, null=True, blank=True, default='/media/images/signature/nosign.jpg')
     serviceStatus = models.CharField(max_length=1, choices=statusChoices, default='N')
 
     def __str__(self):

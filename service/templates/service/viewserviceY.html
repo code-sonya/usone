@@ -57,12 +57,12 @@
     <!-- PC화면 -->
     <div class="col-xl-8 d-none d-xl-block">
       <div class="text-right mb-3" style="min-width: 1000px">
-        <a href="#" class="btn btn-warning" style="width: 50px; height: 42px;">
-          <i class="fas fa-user text-gray-100" style="font-size: 1.5em;"></i>
+        <a href="#" class="btn btn-warning" style="width: 50px; height: 42px;" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+          <i class="fas fa-edit text-gray-100" style="font-size: 1.5em;"></i>
         </a>
         &nbsp;&nbsp;
         <a href="#" class="btn btn-info" style="width: 50px; height: 42px;">
-          <i class="fas fa-envelope text-gray-100" style="font-size: 1.5em;"></i>
+          <i class="fas fa-envelope text-gray-100" style="font-size: 1.5em;" onclick="location.href='/mail/{{ service.serviceId }}'"></i>
         </a>
         &nbsp;&nbsp;
         <a href="#" class="btn btn-danger" style="width: 50px; height: 42px;">
@@ -136,7 +136,7 @@
             <strong>고객<br>서명</strong>
           </td>
           <td style="width: 300px; text-align: center;" colspan="2" rowspan="4">
-            <img src="{{ service.serviceSignPath }}" height="104px" width="198px">
+            <img src="{{ service.serviceSignPath }}" height="100px" width="198px">
           </td>
         </tr>
         <tr style="height: 20px;">
@@ -208,10 +208,10 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
-            <a href="#" class="btn btn-warning">
-              <i class="fas fa-user text-gray-100"></i>
+            <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+              <i class="fas fa-edit text-gray-100"></i>
             </a>
-            <a href="#" class="btn btn-info">
+            <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
               <i class="fas fa-envelope text-gray-100"></i>
             </a>
             <a href="#" class="btn btn-danger">
