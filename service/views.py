@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from .models import Servicereport, Serviceform, Vacation
 from client.models import Company, Customer
 from hr.models import Employee
+from noticeboard.models import Board
 from scheduler.models import Eventday
 from .forms import ServicereportForm, ServiceformForm
 
@@ -295,8 +296,14 @@ def view_service(request, serviceId):
     if userId:
         service = Servicereport.objects.get(serviceId=serviceId)
 
+        try:
+            board = Board.objects.get(serviceId__serviceId=serviceId)
+        except:
+            board = None
+
         context = {
             'service': service,
+            'board': board,
         }
         if service.serviceStatus == "N":
             return render(request, 'service/viewserviceN.html', context)
