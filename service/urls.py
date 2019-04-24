@@ -18,4 +18,5 @@ urlpatterns = [
     url(r'^deletevacation/(?P<vacationId>.+)/$', views.delete_vacation, name='deletevacation'),
     url(r'^dayreport_bak/(?P<day>.+)/$', views.day_report_bak, name='dayreport'),
     url(r'^dayreport/(?P<day>.+)/$', views.day_report, name='dayreport'),
+    url(r'^viewservicepdf/(?P<serviceId>.+)/$', views.view_service_pdf, name='viewservicepdf'),
 ]
