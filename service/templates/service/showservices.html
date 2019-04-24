@@ -32,7 +32,7 @@
 
         <div class="card-body">
           <div class="text-center text-gray-900 font-weight-bold text-lg mb-3">
-            {{ services|length }}건, {{ sumHour }}시간 <br class="d-xl-none">
+            {{ countServices }}건, {{ sumHour }}시간 <br class="d-xl-none">
             ({{ sumOverHour }}시간 초과근무)
           </div>
           <b style="font-size:14px; color:red">※ 지난 일정은 "완료" 해주세요</b>
@@ -41,19 +41,27 @@
               <thead>
               <tr>
                 <th>날짜</th>
-                <th>고객사</th>
-                <th>제목</th>
-                <th class="d-none">serviceId</th>
+                <th class="d-none">empId</th>
                 <th class="d-none">empName</th>
-                <th class="d-none">directgo</th>
-                <th class="d-none">companyName</th>
+                <th class="d-none">empDeptName</th>
+                <th>고객사</th>
                 <th class="d-none">serviceType</th>
                 <th class="d-none">serviceStartDatetime</th>
                 <th class="d-none">serviceEndDatetime</th>
-                <th class="d-none">serviceHour</th>
+                <th class="d-none">serviceFinishDatetime</th>
                 <th class="d-none">serviceOverHour</th>
-                <th class="d-none">serviceTitle</th>
+                <th class="d-none">serviceRegHour</th>
+                <th class="d-none">serviceLocation</th>
+                <th class="d-none">directgo</th>
+                <th>제목</th>
                 <th class="d-none">serviceDetails</th>
+                <th class="d-none">customerName</th>
+                <th class="d-none">customerDeptName</th>
+                <th class="d-none">customerPhone</th>
+                <th class="d-none">customerEmail</th>
+                <th class="d-none">serviceSignPath</th>
+                <th class="d-none">serviceStatus</th>
+              </tr>
               </tr>
               </thead>
             </table>
@@ -306,87 +314,112 @@
       }
 
       $(document).ready(function () {
+          {% if filter == 'N'%}
 
-          const table = $('#showservice').DataTable({
-              data: [],
-              columns: [
-                  {data: "날짜"},
-                  {data: "고객사"},
-                  {data: "제목"},
-                  {data: "serviceId"},
-                  {data: "empName"},
-                  {data: "directgo"},
-                  {data: "companyName"},
-                  {data: "serviceType"},
-                  {data: "serviceStartDatetime"},
-                  {data: "serviceEndDatetime"},
-                  {data: "serviceHour"},
-                  {data: "serviceOverHour"},
-                  {data: "serviceTitle"},
-                  {data: "serviceDetails"},
-              ],
-              columnDefs: [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: [3,4,5,6,7,8,9,10,11,12,13 ], visible:false},
-                  {"orderable": false, "targets": [2,3,4,5,6,7,8,9,10,11,12,13]},
-              ],
-              "searching": true,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollCollapse": true,
-              "order": [[0, 'desc'], [8, 'asc']],
-              "language": {
-                  "lengthMenu": "_MENU_ 개씩 보기",
-                  "search": "검색:",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "다음",
-                      "previous": "이전"
+              $('#showservice').dataTable({
+                  "processing": true,
+                  "ajax": {
+                      "processing": true,
+                      "url": "{% url 'service:service_ajax_url' %}",
+                      "dataSrc": ""
                   },
-              }
-          });
 
-          {% for service in services %}
-              var rowNode = table.row.add( {
-                  "날짜": "{{ service.serviceDate | date:"Y.m.d(D" | slice:"0:12" }})<br>{% if service.serviceOverHour != 0 %}<span style=\"color: blue\">(초과근무)</span>{% endif %}",
-                  "고객사": "{{ service.companyName.companyName }}<br>({{ service.serviceType }})",
-                  "제목": "{{ service.serviceTitle }}",
-                  "serviceId": "{{ service.serviceId }}",
-                  "empName": "{{ service.empName }}",
-                  "directgo": "{{ service.directgo }}",
-                  "companyName": "{{ service.companyName.companyName }} ({{ service.serviceLocation }})",
-                  "serviceType": "{{ service.serviceType }}",
-                  "serviceStartDatetime": "{{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:":12"}}) {{ service.serviceStartDatetime | time:"H:i"}}",
-                  "serviceEndDatetime": "{{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:":12"}}) {{ service.serviceEndDatetime | time:"H:i"}}",
-                  "serviceHour": "{{ service.serviceHour }} 시간",
-                  "serviceOverHour": "{{ service.serviceOverHour }} 시간",
-                  "serviceTitle": "{{ service.serviceTitle }}",
-                  "serviceDetails": "{{ service.serviceDetails | linebreaksbr }}"
-              } ).draw().node();
+                  "columns": [
+                      {data: "fields.serviceDate"},
+                      {data: "fields.empId"},
+                      {data: "fields.empName"},
+                      {data: "fields.empDeptName"},
+                      {data: "fields.companyName"},
+                      {data: "fields.serviceType"},
+                      {data: "fields.serviceStartDatetime"},
+                      {data: "fields.serviceEndDatetime"},
+                      {data: "fields.serviceFinishDatetime"},
+                      {data: "fields.serviceOverHour"},
+                      {data: "fields.serviceRegHour"},
+                      {data: "fields.serviceLocation"},
+                      {data: "fields.directgo"},
+                      {data: "fields.serviceTitle"},
+                      {data: "fields.serviceDetails"},
+                      {data: "fields.customerName"},
+                      {data: "fields.customerDeptName"},
+                      {data: "fields.customerPhone"},
+                      {data: "fields.customerEmail"},
+                      {data: "fields.serviceSignPath"},
+                      {data: "fields.serviceStatus"},
+                  ],
+                  "columnDefs": [
+                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 13, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20], visible: false},
+                      {"orderable": false, "targets": [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]},
+                  ],
+              });
 
-              {% if service.serviceEndDatetime <= today and service.serviceStatus == 'N' %}
-                $( rowNode ).css('background-color','#fff2f9').css('color','red');
-              {% endif %}
-              {% if service.serviceStatus == 'Y' %}
-                $( rowNode ).css('background-color','#f2f2f2');
-              {% endif %}
-          {% endfor %}
+          {% else %}
+              $('#showservice').dataTable({
+                  "processing": true,
+                  "ajax": {
+                      "processing": true,
+                      "type": 'POST',
+                      "data": {
+                          "startdate":{% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
+                          "enddate":{% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                          "empDeptName":{% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
+                          "empName":{% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                          "companyName":{% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
+                          "serviceType":{% if serviceType %}"{{ serviceType }}",{% else %}"",{% endif %}
+                          "serviceTitle":{% if serviceTitle %}"{{ serviceTitle }}",{% else %}"",{% endif %}
+                      },
+                      "url": "{% url 'service:filter_ajax_url' %}",
+                      "dataSrc": ""
+                  },
 
-          $("#showservice").on("click", 'tr', function(){
+                  "columns": [
+                      {data: "fields.serviceDate"},
+                      {data: "fields.empId"},
+                      {data: "fields.empName"},
+                      {data: "fields.empDeptName"},
+                      {data: "fields.companyName"},
+                      {data: "fields.serviceType"},
+                      {data: "fields.serviceStartDatetime"},
+                      {data: "fields.serviceEndDatetime"},
+                      {data: "fields.serviceFinishDatetime"},
+                      {data: "fields.serviceOverHour"},
+                      {data: "fields.serviceRegHour"},
+                      {data: "fields.serviceLocation"},
+                      {data: "fields.directgo"},
+                      {data: "fields.serviceTitle"},
+                      {data: "fields.serviceDetails"},
+                      {data: "fields.customerName"},
+                      {data: "fields.customerDeptName"},
+                      {data: "fields.customerPhone"},
+                      {data: "fields.customerEmail"},
+                      {data: "fields.serviceSignPath"},
+                      {data: "fields.serviceStatus"},
+                  ],
+                  "columnDefs": [
+                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 13, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20], visible: false},
+                      {"orderable": false, "targets": [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]},
+                  ],
+              });
+          {% endif %}
+
+
+          $("#showservice").on("click", 'tr', function () {
               const data = table.row(this).data();
-              location.href='/service/viewservice/' + data.serviceId + '/'
+              location.href = '/service/viewservice/' + data.serviceId + '/'
           });
 
-          $("#showservice").on("mouseenter", 'tr', function(){
+          $("#showservice").on("mouseenter", 'tr', function () {
               const data = table.row(this).data();
               $('#empName').text(data.empName);
               $('#directgo').text(data.directgo);
               $('#companyName').text(data.companyName);
-              $('#serviceType').text(data.serviceType.replace('&amp;','&'));
+              $('#serviceType').text(data.serviceType.replace('&amp;', '&'));
               $('#serviceStartDatetime').text(data.serviceStartDatetime);
               $('#serviceEndDatetime').text(data.serviceEndDatetime);
               $('#serviceHour').text(data.serviceHour);

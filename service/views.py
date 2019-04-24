@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, QueryDict
 from django.db.models import Q, Sum
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Servicereport, Serviceform, Vacation
 from client.models import Company, Customer
@@ -14,6 +15,44 @@ from .forms import ServicereportForm, ServiceformForm
 from .functions import date_list, month_list, overtime, str_to_timedelta_hour, dayreport_query, dayreport_query2
 import datetime
 import json
+from django.http import HttpResponse
+from django.core import serializers
+
+def service_asjson(request):
+    empId = Employee(empId=request.user.employee.empId)
+    services = Servicereport.objects.filter(empId=empId)
+    json = serializers.serialize('json', services)
+    return HttpResponse(json, content_type='application/json')
+
+@csrf_exempt
+def filter_asjson(request):
+
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    empDeptName = request.POST['empDeptName']
+    empName = request.POST['empName']
+    companyName = request.POST['companyName']
+    serviceType = request.POST['serviceType']
+    serviceTitle = request.POST['serviceTitle']
+
+    services = Servicereport.objects.all()
+    if startdate != "":
+        services = services.filter(serviceDate__gte=startdate)
+    if enddate != "":
+        services = services.filter(serviceDate__lte=enddate)
+    if empDeptName != "":
+        services = services.filter(empDeptName__icontains=empDeptName)
+    if empName != "":
+        services = services.filter(empName__icontains=empName)
+    if companyName != "":
+        services = services.filter(companyName__companyName__icontains=companyName)
+    if serviceType != "":
+        services = services.filter(serviceType__icontains=serviceType)
+    if serviceTitle != "":
+        services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
+
+    json = serializers.serialize('json', services)
+    return HttpResponse(json, content_type='application/json')
 
 
 def post_service(request, postdate):
@@ -267,10 +306,18 @@ def show_services(request):
                 services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
 
             context = {
-                'services': services,
+                'filter': 'Y',
+                'countServices': services.count() or 0,
                 'today': datetime.datetime.today(),
                 'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'],
-                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0
+                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0,
+                'startdate' : startdate,
+                'enddate' : enddate,
+                'empDeptName' : empDeptName,
+                'empName' : empName,
+                'companyName' : companyName,
+                'serviceType' : serviceType,
+                'serviceTitle' : serviceTitle,
             }
             return render(request, 'service/showservices.html', context)
 
@@ -278,8 +325,10 @@ def show_services(request):
             empId = Employee(empId=request.user.employee.empId)
             services = Servicereport.objects.filter(empId=empId)
 
+
             context = {
-                'services': services,
+                'filter' : 'N',
+                'countServices': services.count() or 0,
                 'today': datetime.datetime.today(),
                 'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'] or 0,
                 'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0
