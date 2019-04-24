@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 import requests
 from django.db.models import Q
 from dateutil.relativedelta import relativedelta
+from django.views.decorators.csrf import csrf_exempt
 
 from scheduler.models import Eventday
 from service.models import Servicereport, Vacation
@@ -22,7 +23,16 @@ from django.db.models import F, Sum, Count, Case, When
 from .models import Company, Customer
 from .forms import CompanyForm
 from hr.models import Employee
+from django.core import serializers
 
+@csrf_exempt
+def client_asjson(request):
+    companyName = request.POST['companyName']
+    print(companyName)
+    services = Servicereport.objects.filter(companyName=companyName)
+    json = serializers.serialize('json', services)
+    print(json)
+    return HttpResponse(json, content_type='application/json')
 
 def show_clientlist(request):
     if request.user.id:  # 로그인 유무
@@ -114,7 +124,6 @@ def view_client(request, companyName):
             dbms = json.loads(company.companyDbms)
         except:
             dbms = "{}"
-        services = Servicereport.objects.filter(companyName=companyName)
         if request.method == 'POST':
             print(request.POST)
             try:
@@ -128,7 +137,6 @@ def view_client(request, companyName):
             'company': company,
             'customers':customers,
             'dbms' : dbms,
-            'services' : services,
         }
         return HttpResponse(template.render(context, request))
 

@@ -40,6 +40,7 @@
             <table id="showservice" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
+                <th class="d-none">pk</th>
                 <th>날짜</th>
                 <th class="d-none">empId</th>
                 <th class="d-none">empName</th>
@@ -313,6 +314,11 @@
           location.href = url;
       }
 
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 16);
+      }
+
       $(document).ready(function () {
           {% if filter == 'N'%}
 
@@ -325,6 +331,7 @@
                   },
 
                   "columns": [
+                      {data: "pk"},
                       {data: "fields.serviceDate"},
                       {data: "fields.empId"},
                       {data: "fields.empName"},
@@ -348,12 +355,28 @@
                       {data: "fields.serviceStatus"},
                   ],
                   "columnDefs": [
-                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 13, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20], visible: false},
-                      {"orderable": false, "targets": [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]},
+                      {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 5, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 14, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: [0, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21], visible: false},
+                      {"orderable": false, "targets": [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]},
                   ],
+                  "searching": true,
+                  "paging": false,
+                  "info": false,
+                  "scrollY": "60vh",
+                  "scrollCollapse": true,
+                  "order": [[0, 'desc'], [8, 'asc']],
+                  "language": {
+                      "lengthMenu": "_MENU_ 개씩 보기",
+                      "search": "검색:",
+                      "paginate": {
+                          "first": "처음",
+                          "last": "끝",
+                          "next": "다음",
+                          "previous": "이전"
+                      },
+                  }
               });
 
           {% else %}
@@ -363,19 +386,20 @@
                       "processing": true,
                       "type": 'POST',
                       "data": {
-                          "startdate":{% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
-                          "enddate":{% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
-                          "empDeptName":{% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
-                          "empName":{% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                          "companyName":{% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
-                          "serviceType":{% if serviceType %}"{{ serviceType }}",{% else %}"",{% endif %}
-                          "serviceTitle":{% if serviceTitle %}"{{ serviceTitle }}",{% else %}"",{% endif %}
+                          "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
+                          "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                          "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
+                          "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                          "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
+                          "serviceType": {% if serviceType %}"{{ serviceType }}",{% else %}"",{% endif %}
+                          "serviceTitle": {% if serviceTitle %}"{{ serviceTitle }}",{% else %}"",{% endif %}
                       },
                       "url": "{% url 'service:filter_ajax_url' %}",
                       "dataSrc": ""
                   },
 
                   "columns": [
+                      {data: "pk"},
                       {data: "fields.serviceDate"},
                       {data: "fields.empId"},
                       {data: "fields.empName"},
@@ -399,33 +423,50 @@
                       {data: "fields.serviceStatus"},
                   ],
                   "columnDefs": [
-                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 13, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20], visible: false},
-                      {"orderable": false, "targets": [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]},
+                      {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 5, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 14, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: [0, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21], visible: false},
+                      {"orderable": false, "targets": [1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]},
                   ],
+                  "searching": true,
+                  "paging": false,
+                  "info": false,
+                  "scrollY": "60vh",
+                  "scrollCollapse": true,
+                  "order": [[0, 'desc'], [8, 'asc']],
+                  "language": {
+                      "lengthMenu": "_MENU_ 개씩 보기",
+                      "search": "검색:",
+                      "paginate": {
+                          "first": "처음",
+                          "last": "끝",
+                          "next": "다음",
+                          "previous": "이전"
+                      },
+                  }
               });
           {% endif %}
 
+          var table = $('#showservice').DataTable();
 
           $("#showservice").on("click", 'tr', function () {
               const data = table.row(this).data();
-              location.href = '/service/viewservice/' + data.serviceId + '/'
+              location.href = '/service/viewservice/' + data.pk + '/'
           });
 
           $("#showservice").on("mouseenter", 'tr', function () {
               const data = table.row(this).data();
-              $('#empName').text(data.empName);
-              $('#directgo').text(data.directgo);
-              $('#companyName').text(data.companyName);
-              $('#serviceType').text(data.serviceType.replace('&amp;', '&'));
-              $('#serviceStartDatetime').text(data.serviceStartDatetime);
-              $('#serviceEndDatetime').text(data.serviceEndDatetime);
-              $('#serviceHour').text(data.serviceHour);
-              $('#serviceOverHour').text(data.serviceOverHour);
-              $('#serviceTitle').text(data.serviceTitle);
-              $('#serviceDetails').html(data.serviceDetails);
+              $('#empName').text(data.fields.empName);
+              $('#directgo').text(data.fields.directgo);
+              $('#companyName').text(data.fields.companyName);
+              $('#serviceType').text(data.fields.serviceType.replace('&amp;', '&'));
+              $('#serviceStartDatetime').text(replaceAll(data.fields.serviceStartDatetime, "-", "."));
+              $('#serviceEndDatetime').text(replaceAll(data.fields.serviceEndDatetime, "-", "."));
+              $('#serviceHour').text(data.fields.serviceHour);
+              $('#serviceOverHour').text(data.fields.serviceOverHour);
+              $('#serviceTitle').text(data.fields.serviceTitle);
+              $('#serviceDetails').html(data.fields.serviceDetails);
           });
 
       });

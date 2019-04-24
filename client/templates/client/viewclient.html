@@ -40,7 +40,7 @@
         display: none;
       }
 
-      .table{
+      .table {
         font-size: 0.9vw;
       }
     }
@@ -150,17 +150,17 @@
 
                   <tbody>
                   {% for db in dbms %}
-                  <tr>
-                    <td> {{ db.CLASSIFICATION }} </td>
-                    <td> {{ db.SID }} </td>
-                    <td> {{ db.VERSION }} </td>
-                    <td> {{ db.DBTYPE }} </td>
-                    <td> {{ db.OSTYPE }} </td>
-                    <td> {{ db.APPLIANCE }} </td>
-                    <td> {{ db.DUPLICATION }} </td>
-                    <td> {{ db.DATASIZE_MB }} </td>
-                    <td> {{ db.REMARKS }} </td>
-                  </tr>
+                    <tr>
+                      <td> {{ db.CLASSIFICATION }} </td>
+                      <td> {{ db.SID }} </td>
+                      <td> {{ db.VERSION }} </td>
+                      <td> {{ db.DBTYPE }} </td>
+                      <td> {{ db.OSTYPE }} </td>
+                      <td> {{ db.APPLIANCE }} </td>
+                      <td> {{ db.DUPLICATION }} </td>
+                      <td> {{ db.DATASIZE_MB }} </td>
+                      <td> {{ db.REMARKS }} </td>
+                    </tr>
                   {% endfor %}
                   </tbody>
                 </table>
@@ -223,12 +223,28 @@
           <table id="showclients" class="table mb-0" width="100%" style="color:black">
             <thead>
             <tr>
-              <th>날짜</th>
-              <th>엔지니어</th>
-              <th>부서</th>
-              <th>지원타입</th>
-              <th>지원내용</th>
-              <th class="d-none">serviceId</th>
+                <th class="d-none" >No</th>
+                <th>날짜</th>
+                <th class="d-none">empId</th>
+                <th>엔지니어</th>
+                <th>부서</th>
+                <th class="d-none">companyName</th>
+                <th>지원타입</th>
+                <th class="d-none">serviceStartDatetime</th>
+                <th class="d-none">serviceEndDatetime</th>
+                <th class="d-none">serviceFinishDatetime</th>
+                <th class="d-none">serviceOverHour</th>
+                <th class="d-none">serviceRegHour</th>
+                <th class="d-none">serviceLocation</th>
+                <th class="d-none">directgo</th>
+                <th>지원내용</th>
+                <th class="d-none">serviceDetails</th>
+                <th class="d-none">customerName</th>
+                <th class="d-none">customerDeptName</th>
+                <th class="d-none">customerPhone</th>
+                <th class="d-none">customerEmail</th>
+                <th class="d-none">serviceSignPath</th>
+                <th class="d-none">serviceStatus</th>
             </tr>
             </thead>
           </table>
@@ -244,25 +260,49 @@
 
   <script type="text/javascript">
       $(document).ready(function () {
-
-          const table = $('#showclients').DataTable({
-              data: [],
-              columns: [
-                  {data: "날짜"},
-                  {data: "엔지니어"},
-                  {data: "부서"},
-                  {data: "지원타입"},
-                  {data: "지원내용"},
-                  {data: "serviceId"},
+          $('#showclients').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      "companyName": "{{ company.companyName }}"
+                  },
+                  "url": "{% url 'client:client_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data : "pk"},
+                  {data: "fields.serviceDate"},
+                  {data: "fields.empId"},
+                  {data: "fields.empName"},
+                  {data: "fields.empDeptName"},
+                  {data: "fields.companyName"},
+                  {data: "fields.serviceType"},
+                  {data: "fields.serviceStartDatetime"},
+                  {data: "fields.serviceEndDatetime"},
+                  {data: "fields.serviceFinishDatetime"},
+                  {data: "fields.serviceOverHour"},
+                  {data: "fields.serviceRegHour"},
+                  {data: "fields.serviceLocation"},
+                  {data: "fields.directgo"},
+                  {data: "fields.serviceTitle"},
+                  {data: "fields.serviceDetails"},
+                  {data: "fields.customerName"},
+                  {data: "fields.customerDeptName"},
+                  {data: "fields.customerPhone"},
+                  {data: "fields.customerEmail"},
+                  {data: "fields.serviceSignPath"},
+                  {data: "fields.serviceStatus"},
               ],
-              columnDefs: [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 4, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 5, visible: false},
-                  {"orderable": false, "targets": [4,5]},
+              "columnDefs": [
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 14, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: [0,2,5,7,8,9,10,11,12,13,15,16,17,18,19,20,21], visible: false},
+                  {"orderable": false, "targets": [6, 0]},
               ],
               "order": [[0, 'desc'], [1, 'asc']],
               "searching": true,
@@ -282,22 +322,13 @@
               }
           });
 
-          {% for service in services %}
-              var rowNode = table.row.add({
-                  "날짜": "{{ service.serviceDate }}",
-                  "엔지니어": "{{ service.empName }}",
-                  "부서": "{{ service.empDeptName }}",
-                  "지원타입": "{{ service.serviceType }}",
-                  "지원내용": "{{ service.serviceTitle }}",
-                  "serviceId": "{{ service.serviceId }}",
-              }).draw().node();
-
-          {% endfor %}
+          var table = $('#showclients').DataTable();
 
           $("#showclients").on("click", 'tr', function () {
               const data = table.row(this).data();
-              location.href = '/service/viewservice/' + data.serviceId + '/'
+              location.href = '/service/viewservice/' + data.pk + '/'
           });
+
 
       });
 
