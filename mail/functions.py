@@ -9,37 +9,14 @@ from scheduler.models import Eventday
 from service.models import Servicereport
 from django.contrib.auth.models import User
 from hr.models import Employee
-import pdfkit
 
-def html2pdf(url):
-    options = {
-        'margin-top': '5mm',
-        'margin-right': '0mm',
-        'margin-left': '2mm',
-        'margin-bottom': '0mm',
-        'page-width': '225mm',
-        'page-height': '153mm',
-        'encoding': "UTF-8",
-        'no-outline': None,
-    }
-    #window:
-    path_wkthmltopdf = u'/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe'
-    #mac:path_wkthmltopdf = '/usr/local/bin/wkhtmltopdf'
-    #server:\
-    path_wkthmltopdf = '/usr/local/bin/wkhtmltox/bin'
-
-    config = pdfkit.configuration(wkhtmltopdf=path_wkthmltopdf)
-    return pdfkit.from_url(url, False, options=options, configuration=config)
 
 
 def servicereporthtml(serviceId):
     servicereport = Servicereport.objects.get(serviceId=serviceId)
     emp = Employee.objects.get(empId=servicereport.empId.empId)
-
-    servicereport.empId
  
     html = """<html lang="ko">
-            <head>  <title> UNIONEINC SERVICE REPORT</title></head>
             <body>
             <table style="width: 1000px; height: 600px; border-collapse: collapse; border: 2px solid black;table-layout:fixed; ">
             <tbody>
@@ -59,13 +36,12 @@ def servicereporthtml(serviceId):
                 <td style="width: 200px; height: 50px; border: 2px solid black; text-align: center;" colspan="2"><font size="2.5">""" + str(servicereport.serviceStartDatetime) + """</font></td>
                 <td style="width: 200px; height: 50px; border: 2px solid black; text-align: center;" colspan="2"><font size="2.5">""" + str(servicereport.serviceEndDatetime) + """</font></td>
                 <td style="width: 200px; height: 50px; border: 2px solid black; text-align: center;" colspan="2">""" + str(servicereport.serviceHour) + """ 시간</td>
-
-
-
             </tr>
             <tr style="height: 370px; border: 2px solid black; ">
                 <td style="width: 1000px; height: 370px;" colspan="10" valign="top">
-                    <p>&nbsp;</P>&nbsp;&nbsp;<strong>지 원 내 용 :</strong><p><br><div style="padding-left: 40px">""" + servicereport.serviceDetails + """</div> &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p>
+                    <p>&nbsp;</p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>내 용 :</strong>
+                    <p><div style="padding-left: 40px">""" + servicereport.serviceTitle + """</div></p>
+                    <p><div style="padding-left: 40px">""" + servicereport.serviceDetails + """</div></p>
                 </td>
             </tr>
 

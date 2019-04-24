@@ -554,19 +554,18 @@ def view_service_pdf(request, serviceId):
     if userId:
         service = Servicereport.objects.get(serviceId=serviceId)
 
-    template_path = 'service/viewservicepdf.html'
-    context = {'service': service}
-    # Create a Django response object, and specify content_type as pdf
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="report.pdf"'
-    # find the template and render it.
-    template = get_template(template_path)
-    html = template.render(context, request)
+        template_path = 'service/viewservicepdf.html'
+        context = {'service': service}
+        # Create a Django response object, and specify content_type as pdf
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="report.pdf"'
+        # find the template and render it.
+        template = get_template(template_path)
+        html = template.render(context, request)
 
-    # create a pdf
-    pisaStatus = pisa.CreatePDF(
-        html, dest=response, link_callback=link_callback)
-    # if error then show some funy view
-    if pisaStatus.err:
-        return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    return response
+        # create a pdf
+        pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+        # if error then show some funy view
+        if pisaStatus.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
