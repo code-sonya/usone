@@ -28,10 +28,8 @@ from django.core import serializers
 @csrf_exempt
 def client_asjson(request):
     companyName = request.POST['companyName']
-    print(companyName)
     services = Servicereport.objects.filter(companyName=companyName)
     json = serializers.serialize('json', services)
-    print(json)
     return HttpResponse(json, content_type='application/json')
 
 def show_clientlist(request):
@@ -125,7 +123,6 @@ def view_client(request, companyName):
         except:
             dbms = "{}"
         if request.method == 'POST':
-            print(request.POST)
             try:
                 company.dbComment = request.POST["dbtextArea"]
                 company.save()
