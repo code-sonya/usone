@@ -36,19 +36,19 @@ def filter_asjson(request):
     serviceTitle = request.POST['serviceTitle']
 
     services = Servicereport.objects.all()
-    if startdate != "":
+    if startdate:
         services = services.filter(serviceDate__gte=startdate)
-    if enddate != "":
+    if enddate:
         services = services.filter(serviceDate__lte=enddate)
-    if empDeptName != "":
+    if empDeptName:
         services = services.filter(empDeptName__icontains=empDeptName)
-    if empName != "":
+    if empName:
         services = services.filter(empName__icontains=empName)
-    if companyName != "":
+    if companyName:
         services = services.filter(companyName__companyName__icontains=companyName)
-    if serviceType != "":
+    if serviceType:
         services = services.filter(serviceType__icontains=serviceType)
-    if serviceTitle != "":
+    if serviceTitle:
         services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
 
     json = serializers.serialize('json', services)
