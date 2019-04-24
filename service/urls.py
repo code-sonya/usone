@@ -20,5 +20,6 @@ urlpatterns = [
     url(r'^dayreport/(?P<day>.+)/$', views.day_report, name='dayreport'),
     url(r'^json/$', views.service_asjson, name='service_ajax_url'),
     url(r'^jsonfilter/$', views.filter_asjson, name='filter_ajax_url'),
+    url(r'^viewservicepdf/(?P<serviceId>.+)/$', views.view_service_pdf, name='viewservicepdf'),
 ]
 
