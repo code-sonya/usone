@@ -87,7 +87,6 @@ def show_clientlist(request):
     else:
         return redirect('login')
 
-
 def post_client(request):
     userId = request.user.id  # 로그인 유무 판단 변수
     template = loader.get_template('client/postclient.html')
@@ -110,7 +109,6 @@ def post_client(request):
 
     else:
         return redirect('login')
-
 
 def view_client(request, companyName):
     userId = request.user.id  # 로그인 유무 판단 변수
