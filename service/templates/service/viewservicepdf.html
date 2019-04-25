@@ -1,0 +1,168 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+  <meta charset="utf-8">
+
+  <style type="text/css">
+    @font-face {
+      font-family: JejuGothic;
+      src: url({% static '/mail/JejuGothic.ttf' %});
+    }
+
+    html {
+      font-family: JejuGothic, serif;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin-left: 40pt;
+      margin-right: 40pt;
+      margin-top: 50pt;
+    }
+
+    .table{
+      color: #000000;
+      table-layout: fixed;
+      border: 2px solid black;
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+    }
+
+    .table td, .table th{
+      padding-top: 4px;
+      vertical-align: middle;
+      border: 2px solid black;
+      white-space: nowrap;
+      font-size: 16px;
+    }
+
+  </style>
+</head>
+<body>
+  <table class="table">
+    <tbody>
+    <tr style="height: 75px;">
+      <td style="width: 1000px; text-align: center; padding-top: 2px" colspan="10">
+        <strong style="font-size: 40px">SERVICE REPORT</strong>
+      </td>
+    </tr>
+    <tr style="height: 30px;">
+      <td style="width: 200px; text-align: center;" colspan="2">
+        <strong>고 객 사</strong></td>
+      <td style="width: 200px; text-align: center;" colspan="2">
+        <strong>지 원 종 류</strong></td>
+      <td style="width: 200px; text-align: center;" colspan="2">
+        <strong>개 시 일 시</strong></td>
+      <td style="width: 200px; text-align: center;" colspan="2">
+        <strong>완 료 일 시</strong></td>
+      <td style="width: 200px; text-align: center;" colspan="2">
+        <strong>소 요 시 간</strong></td>
+    </tr>
+    <tr style="height: 50px;">
+      <td style="width: 200px; text-align: center; font-size:14px" colspan="2">
+        <strong style="font-size: 18px">
+          {{ service.companyName }}
+        </strong> 귀중
+      </td>
+      <td style="width: 200px; text-align: center;" colspan="2">
+        {{ service.serviceType }}
+      </td>
+      <td style="width: 200px; text-align: center;" colspan="2">
+        {{ service.serviceStartDatetime | date:"Y년 m월 d일 H:i"}}
+      </td>
+      <td style="width: 200px; text-align: center;" colspan="2">
+        {{ service.serviceEndDatetime | date:"Y년 m월 d일 H:i"}}
+      </td>
+      <td style="width: 200px; text-align: center;" colspan="2">
+        {{ service.serviceHour }} 시간
+      </td>
+    </tr>
+    <tr style="height: 370px;">
+      <td style="width: 1000px; vertical-align: top" colspan="10">
+        <p>&nbsp;</p>&nbsp;&nbsp;&nbsp;&nbsp;
+        <strong>내 용 :</strong>
+        <p>
+          <div style="padding-left: 40px">{{ service.serviceTitle }}</div>
+        </p>
+        <p>
+          <div style="padding-left: 40px">{{ service.serviceDetails|linebreaksbr }}</div>
+        </p>
+      </td>
+    </tr>
+    <tr style="height: 30px;">
+      <td style="width: 300px;" colspan="3">
+        <strong>&nbsp;&nbsp;지원담당부서 :</strong>
+        {{ service.empDeptName }}
+      </td>
+      <td style="width: 300px;" colspan="3">
+        <strong>&nbsp;&nbsp;고객담당부서 :</strong>
+        {% if service.customerDeptName == None %}
+          &nbsp;
+        {% else %}
+          {{ service.customerDeptName }}
+        {% endif %}
+      </td>
+      <td style="width: 100px; text-align: center;" colspan="2" rowspan="4">
+        <strong>고객<br>서명</strong>
+      </td>
+      <td style="width: 300px; text-align: center;" colspan="2" rowspan="4">
+        <img src="{{ service.serviceSignPath }}" height="100px" width="198px">
+      </td>
+    </tr>
+    <tr style="height: 30px;">
+      <td style="width: 300px;" colspan="3">
+        <strong>&nbsp;&nbsp;담 당 자 :</strong>
+        {{ service.empName }}
+      </td>
+      <td style="width: 300px;" colspan="3">
+        <strong>&nbsp;&nbsp;담 당 자 :</strong>
+        {% if service.customerName == None %}
+          &nbsp;
+        {% else %}
+          {{ service.customerName }}
+        {% endif %}
+      </td>
+    </tr>
+    <tr style="height: 30px;">
+      <td style="width: 300px;" colspan="3">
+        <strong>&nbsp;&nbsp;연 락 처 :</strong>
+        {{ service.empId.empPhone }}
+      </td>
+
+      <td style="width: 300px;" colspan="3">
+        <strong>&nbsp;&nbsp;연 락 처 :</strong>
+        {% if service.customerPhone == None %}
+          &nbsp;
+        {% else %}
+          {{ service.customerPhone }}
+        {% endif %}
+      </td>
+    </tr>
+    <tr style="height: 30px;">
+      <td style="width: 300px;" colspan="3">
+        <strong>&nbsp;&nbsp;이 메 일 :</strong>
+        {{ service.empId.empEmail }}
+      </td>
+      <td style="width: 300px;" colspan="3">
+        <strong>&nbsp;&nbsp;이 메 일 :</strong>
+        {% if service.customerEmail == None %}
+          &nbsp;
+        {% else %}
+          {{ service.customerEmail }}
+        {% endif %}
+      </td>
+    </tr>
+    </tbody>
+  </table>
+  <p style="text-align: center; font-size:12px">
+    [ 유니원아이앤씨(주) (Unione I&C) ]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    대표전화 : 02-780-0039&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Call Center : 02-780-2502&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    Fax : 02-780-2503&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    HomePage : http://www.unioneinc.co.kr/
+  </p>
+</body>
+</html>

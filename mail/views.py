@@ -3,14 +3,13 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.db.models import Q
-from email.mime.image import MIMEImage
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from .functions import servicereporthtml, html2pdf
 import os
-import pdfkit
 import smtplib
+from io import BytesIO
+from xhtml2pdf import pisa
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
@@ -19,6 +18,7 @@ from email.header import Header
 from email import encoders
 
 from .functions import servicereporthtml
+from service.functions import link_callback
 from service.models import Servicereport
 from client.models import Company, Customer
 from hr.models import Employee
@@ -77,7 +77,9 @@ def sendmail(request, serviceId):
             msg.attach(MIMEText(html, "html", _charset="utf-8"))
 
             if servicereport.serviceSignPath:
-                serviceSignPath = servicereport.serviceSignPath
+                serviceSignPath = os.path.join(settings.MEDIA_ROOT, servicereport.serviceSignPath[7:])
+                print(settings.MEDIA_ROOT)
+                print(serviceSignPath)
             else:
                 serviceSignPath = os.path.join(settings.MEDIA_ROOT, 'images/signature/nosign.jpg')
 
@@ -88,25 +90,23 @@ def sendmail(request, serviceId):
             sign = MIMEImage(signatureimg)
             sign.add_header('Content-ID', '<sign>')
             msg.attach(sign)
+            
+            # pdf생성
+            template_path = 'service/viewservicepdf.html'
+            template = loader.get_template(template_path)
+            context = {'service': servicereport}
+            html = template.render(context, request)
+            src = BytesIO(html.encode('utf-8'))
+            dest = BytesIO()
 
-            # pdf file
-            # 로컬:
-            #base = "127.0.0.1:8000"
-            #base = "lop.unioneinc.co.kr:6203"
-            base="lop.unioneinc.co.kr:6103"
-            servicereportUrl = base + "/mail/servicereport/" + serviceId + "/"
-            print(servicereportUrl)
-            try:
-                pdf = html2pdf(servicereportUrl)
+            pdfStatus = pisa.pisaDocument(src, dest, encoding='utf-8', link_callback=link_callback)
+            if not pdfStatus.err:
+                pdf = dest.getvalue()
                 pdffile = MIMEBase("application/pdf", "application/x-pdf")
                 pdffile.set_payload(pdf)
                 encoders.encode_base64(pdffile)
                 pdffile.add_header("Content-Disposition", "attachment", filename=title + '.pdf')
                 msg.attach(pdffile)
-            except Exception as ex:
-                print(ex)
-                resp = "메일 전송 실패!"+servicereportUrl+ex
-                return HttpResponse(resp)
 
             smtp = smtplib.SMTP(smtp_server, port)
             smtp.login(userid, passwd)

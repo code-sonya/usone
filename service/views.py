@@ -4,6 +4,7 @@ from django.http import HttpResponse, QueryDict
 from django.db.models import Q, Sum
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import get_template
 
 from .models import Servicereport, Serviceform, Vacation
 from client.models import Company, Customer
@@ -12,8 +13,9 @@ from noticeboard.models import Board
 from scheduler.models import Eventday
 from .forms import ServicereportForm, ServiceformForm
 
-from .functions import date_list, month_list, overtime, str_to_timedelta_hour, dayreport_query, dayreport_query2
+from .functions import date_list, month_list, overtime, str_to_timedelta_hour, dayreport_query, dayreport_query2, link_callback
 import datetime
+from xhtml2pdf import pisa
 import json
 from django.http import HttpResponse
 from django.core import serializers
@@ -343,7 +345,6 @@ def view_service(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
     if userId:
-        print(serviceId)
         service = Servicereport.objects.get(serviceId=serviceId)
 
         try:
@@ -594,3 +595,26 @@ def day_report(request, day):
     }
 
     return render(request, 'service/dayreport.html', context)
+
+
+def view_service_pdf(request, serviceId):
+    userId = request.user.id  # 로그인 유무 판단 변수
+
+    if userId:
+        service = Servicereport.objects.get(serviceId=serviceId)
+
+        template_path = 'service/viewservicepdf.html'
+        context = {'service': service}
+        # Create a Django response object, and specify content_type as pdf
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="report.pdf"'
+        # find the template and render it.
+        template = get_template(template_path)
+        html = template.render(context, request)
+
+        # create a pdf
+        pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+        # if error then show some funy view
+        if pisaStatus.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
