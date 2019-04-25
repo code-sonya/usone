@@ -1,15 +1,55 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse, QueryDict, JsonResponse
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 
 from .forms import BoardForm
 from .models import Board
 from hr.models import Employee
 from service.models import Servicereport
+from django.core import serializers
 
 import datetime
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
+
+def board_asjson(request):
+    boards = Board.objects.values('boardWriteDatetime', 'serviceId__serviceType', 'boardWriter__empName', 'serviceId__companyName', 'boardTitle', 'boardDetails', 'boardId')
+    structure = json.dumps(list(boards), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+@csrf_exempt
+def filter_asjson(request):
+
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    empDeptName = request.POST['empDeptName']
+    empName = request.POST['empName']
+    companyName = request.POST['companyName']
+    serviceType = request.POST['serviceType']
+    boardTitle = request.POST['boardTitle']
+
+    boards = Board.objects.all()
+    if startdate:
+        boards = boards.filter(boardWriteDatetime__gte=startdate)
+    if enddate:
+        boards = boards.filter(boardWriteDatetime__lte=enddate)
+    if empDeptName:
+        boards = boards.filter(boardWriter__empDeptName__icontains=empDeptName)
+    if empName:
+        boards = boards.filter(boardWriter__empName__icontains=empName)
+    if companyName:
+        boards = boards.filter(serviceId__companyName__companyName__icontains=companyName)
+    if serviceType:
+        boards = boards.filter(serviceId__serviceType__icontains=serviceType)
+    if boardTitle:
+        boards = boards.filter(Q(boardTitle__icontains=boardTitle) | Q(boardDetails__icontains=boardTitle))
+
+    boards = boards.values('boardWriteDatetime', 'serviceId__serviceType', 'boardWriter__empName', 'serviceId__companyName', 'boardTitle', 'boardDetails', 'boardId')
+    structure = json.dumps(list(boards), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
 
 def post_board(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
@@ -55,41 +95,30 @@ def show_boards(request):
     if userId:
         if request.method == "POST":
             startdate = request.POST['startdate']
-            enddate= request.POST['enddate']
-            empDeptName= request.POST['empDeptName']
+            enddate = request.POST['enddate']
+            empDeptName = request.POST['empDeptName']
             empName = request.POST['empName']
             companyName = request.POST['companyName']
             serviceType = request.POST['serviceType']
             boardTitle = request.POST['boardTitle']
 
-            boards = Board.objects.all()
-            if startdate:
-                boards = boards.filter(boardWriteDatetime__gte=startdate)
-            if enddate:
-                boards = boards.filter(boardWriteDatetime__lte=enddate)
-            if empDeptName:
-                boards = boards.filter(boardWriter__empDeptName__icontains=empDeptName)
-            if empName:
-                boards = boards.filter(boardWriter__empName__icontains=empName)
-            if companyName:
-                boards = boards.filter(serviceId__companyName__companyName__icontains=companyName)
-            if serviceType:
-                boards = boards.filter(serviceId__serviceType__icontains=serviceType)
-            if boardTitle:
-                boards = boards.filter(Q(boardTitle__icontains=boardTitle) | Q(boardDetails__icontains=boardTitle))
-
             context = {
-                'boards': boards,
+                'filter': 'Y',
+                'startdate': startdate,
+                'enddate':enddate,
+                'empDeptName':empDeptName,
+                'empName':empName,
+                'companyName':companyName,
+                'serviceType':serviceType,
+                'boardTitle':boardTitle,
+
             }
             return render(request, 'noticeboard/showboards.html', context)
 
         else:
-            boards = Board.objects.all()
-
             context = {
-                'boards': boards,
+                'filter': 'N',
             }
-
             return render(request, 'noticeboard/showboards.html', context)
 
 

@@ -379,14 +379,14 @@
                   },
                   "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                       const today = new Date();
-                      const startdate = new Date(aData.fields.serviceStartDatetime);
+                      const startdate = new Date(aData.fields.serviceEndDatetime);
                       if (startdate <= today && aData.fields.serviceStatus == 'N') {
                           $('td', nRow).css('background-color', '#fff2f9').css('color', 'red');
                       } else if (aData.fields.serviceStatus == "Y") {
                           $('td', nRow).css('background-color', '#f2f2f2');
                       } else {
                           $('td', nRow).css('background-color', '#ffffff');
-                           alert(today);
+
                       }
                   }
 
@@ -460,14 +460,13 @@
                   },
                   "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                       const today = new Date();
-                      const startdate = new Date(aData.fields.serviceStartDatetime);
+                      const startdate = new Date(aData.fields.serviceEndDatetime);
                       if (startdate <= today && aData.fields.serviceStatus == 'N') {
                           $('td', nRow).css('background-color', '#fff2f9').css('color', 'red');
                       } else if (aData.fields.serviceStatus == "Y") {
                           $('td', nRow).css('background-color', '#f2f2f2');
                       } else {
                           $('td', nRow).css('background-color', '#ffffff');
-                           alert(today);
                       }
                   }
               });
