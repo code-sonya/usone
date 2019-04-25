@@ -258,9 +258,18 @@
           $('#serviceDetails').on("propertychange change keyup paste input", function () {
               document.getElementById("serviceDetails").style.backgroundColor = "#fff";
           });
-          $('#coWorker').autocomplete({
-              source: "{% url 'service:empnameautocomplete' %}",
+
+          $('#coWorker').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'value',
+              id: 'id',
+              multiple: true,
+              multiField: 'value',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음'
           });
+
       });
 
   </script>

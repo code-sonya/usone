@@ -198,10 +198,16 @@ def post_service(request, postdate):
             form.fields['enddate'].initial = postdate
             form.fields['endtime'].initial = "18:00"
             serviceforms = Serviceform.objects.filter(empId=empId)
+            empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+            empNames = []
+            for emp in empList:
+                temp = {'id': emp.empId, 'value': emp.empName}
+                empNames.append(temp)
             context = {
                 'form': form,
                 'postdate': postdate,
                 'serviceforms': serviceforms,
+                'empNames': empNames,
             }
             return render(request, 'service/postservice.html', context)
 
@@ -425,9 +431,14 @@ def modify_service(request, serviceId):
             form.fields['starttime'].initial = str(instance.serviceStartDatetime)[11:16]
             form.fields['enddate'].initial = str(instance.serviceEndDatetime)[:10]
             form.fields['endtime'].initial = str(instance.serviceEndDatetime)[11:16]
-
+            empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+            empNames = []
+            for emp in empList:
+                temp = {'id': emp.empId, 'value': emp.empName}
+                empNames.append(temp)
             context = {
                 'form': form,
+                'empNames': empNames,
             }
             return render(request, 'service/postservice.html', context)
 
@@ -618,14 +629,3 @@ def view_service_pdf(request, serviceId):
         if pisaStatus.err:
             return HttpResponse('We had some errors <pre>' + html + '</pre>')
         return response
-
-
-def emp_name_autocomplete(request):
-    if request.GET['term']:
-        tags = Employee.objects.filter(empName__icontains=request.GET['term'])[:10]
-        results = []
-        for tag in tags:
-            tag_json = {'id': tag.empId, 'label': tag.empName, 'value': tag.empName}
-            results.append(tag_json)
-        data = json.dumps(results)
-        return HttpResponse(data, 'application/json')

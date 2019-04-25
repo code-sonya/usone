@@ -23,7 +23,7 @@ class ServicereportForm(forms.ModelForm):
             'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType"}),
             'serviceLocation': forms.Select(attrs={'class': 'form-control', 'id': 'serviceLocation'}),
             'directgo': forms.Select(attrs={'class': 'form-control', 'id': 'directgo'}),
-            'coWorker': forms.TextInput(attrs={'class': 'form-control', 'id': 'coWorker'}),
+            'coWorker': forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'coWorker', 'autocomplete': 'off'}),
             'serviceTitle': forms.TextInput(attrs={'class': 'form-control', 'id': 'serviceTitle'}),
             'serviceDetails': forms.Textarea(attrs={'class': 'form-control', 'id': 'serviceDetails'}),
         }
