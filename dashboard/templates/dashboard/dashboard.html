@@ -574,12 +574,12 @@
 
           var customColorScale = anychart.scales.ordinalColor();
           customColorScale.ranges([
-              {less: 10},
-              {from: 10, to: 15},
-              {from: 15, to: 25},
-              {greater: 25}
+              {less: 8},
+              {from: 9, to: 12},
+              {from: 13, to: 15},
+              {greater: 16}
           ]);
-          customColorScale.colors(["lightgray", "#9ed1de", "#00ccff", "#ffcc00"]);
+          customColorScale.colors(["lightgray", "#00ccff", "#ffcc00", "pink"]);
 
           // set the color scale as the color scale of the chart
           chart.colorScale(customColorScale);
