@@ -75,6 +75,7 @@ def post_service(request, postdate):
                 post.empName = empName
                 post.empDeptName = empDeptName
                 post.serviceFinishDatetime = datetime.datetime.now()
+                post.coWorker = request.POST['coWorkerId']
                 for_status = request.POST['for']
 
                 # 기본등록
@@ -116,6 +117,7 @@ def post_service(request, postdate):
                             serviceRegHour=post.serviceRegHour,
                             serviceLocation=post.serviceLocation,
                             directgo=post.directgo,
+                            coWorker=post.coWorker,
                             serviceTitle=post.serviceTitle,
                             serviceDetails=post.serviceDetails,
                             serviceStatus=post.serviceStatus,
@@ -151,6 +153,7 @@ def post_service(request, postdate):
                                 serviceRegHour=post.serviceRegHour,
                                 serviceLocation=post.serviceLocation,
                                 directgo=post.directgo,
+                                coWorker=post.coWorker,
                                 serviceTitle=post.serviceTitle,
                                 serviceDetails=post.serviceDetails,
                                 serviceStatus=post.serviceStatus,
@@ -185,6 +188,7 @@ def post_service(request, postdate):
                             serviceRegHour=post.serviceRegHour,
                             serviceLocation=post.serviceLocation,
                             directgo=post.directgo,
+                            coWorker=post.coWorker,
                             serviceTitle=post.serviceTitle,
                             serviceDetails=post.serviceDetails,
                             serviceStatus=post.serviceStatus,
@@ -423,6 +427,7 @@ def modify_service(request, serviceId):
                 post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
                 post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
                 post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.coWorker = request.POST['coWorkerId']
                 post.save()
                 return redirect('scheduler')
         else:
@@ -431,14 +436,19 @@ def modify_service(request, serviceId):
             form.fields['starttime'].initial = str(instance.serviceStartDatetime)[11:16]
             form.fields['enddate'].initial = str(instance.serviceEndDatetime)[:10]
             form.fields['endtime'].initial = str(instance.serviceEndDatetime)[11:16]
+
             empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
             empNames = []
             for emp in empList:
                 temp = {'id': emp.empId, 'value': emp.empName}
                 empNames.append(temp)
+
+            coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+
             context = {
                 'form': form,
                 'empNames': empNames,
+                'coWorkers': coWorkers,
             }
             return render(request, 'service/postservice.html', context)
 
