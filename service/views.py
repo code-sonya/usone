@@ -618,3 +618,14 @@ def view_service_pdf(request, serviceId):
         if pisaStatus.err:
             return HttpResponse('We had some errors <pre>' + html + '</pre>')
         return response
+
+
+def emp_name_autocomplete(request):
+    if request.GET['term']:
+        tags = Employee.objects.filter(empName__icontains=request.GET['term'])[:10]
+        results = []
+        for tag in tags:
+            tag_json = {'id': tag.empId, 'label': tag.empName, 'value': tag.empName}
+            results.append(tag_json)
+        data = json.dumps(results)
+        return HttpResponse(data, 'application/json')

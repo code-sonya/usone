@@ -21,5 +21,5 @@ urlpatterns = [
     url(r'^json/$', views.service_asjson, name='service_ajax_url'),
     url(r'^jsonfilter/$', views.filter_asjson, name='filter_ajax_url'),
     url(r'^viewservicepdf/(?P<serviceId>.+)/$', views.view_service_pdf, name='viewservicepdf'),
+    url(r'^empnameautocomplete/$', views.emp_name_autocomplete, name='empnameautocomplete'),
 ]
-

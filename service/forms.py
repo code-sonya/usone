@@ -16,13 +16,14 @@ class ServicereportForm(forms.ModelForm):
         model = Servicereport
         fields = ('companyName', 'serviceType',
                   'startdate', 'starttime', 'enddate', 'endtime',
-                  'serviceLocation', 'directgo', 'serviceTitle', 'serviceDetails')
+                  'serviceLocation', 'directgo', 'coWorker','serviceTitle', 'serviceDetails')
 
         widgets = {
             'companyName': forms.Select(attrs={'class': 'form-control', 'id': 'companyName'}),
             'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType"}),
             'serviceLocation': forms.Select(attrs={'class': 'form-control', 'id': 'serviceLocation'}),
             'directgo': forms.Select(attrs={'class': 'form-control', 'id': 'directgo'}),
+            'coWorker': forms.TextInput(attrs={'class': 'form-control', 'id': 'coWorker'}),
             'serviceTitle': forms.TextInput(attrs={'class': 'form-control', 'id': 'serviceTitle'}),
             'serviceDetails': forms.Textarea(attrs={'class': 'form-control', 'id': 'serviceDetails'}),
         }

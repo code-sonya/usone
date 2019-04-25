@@ -119,6 +119,9 @@
               </div>
             </div>
             <div class="form-group">
+              <label for="coWorker" class="font-weight-bold text-primary"> 동행자 <span class="text-danger">(초과근무 시 필수 작성)</span> </label> {{ form.coWorker }}
+            </div>
+            <div class="form-group">
               <label for="serviceTitle" class="font-weight-bold text-primary"> 제목 </label> {{ form.serviceTitle }}
             </div>
             <div class="form-group">
@@ -254,6 +257,9 @@
           });
           $('#serviceDetails').on("propertychange change keyup paste input", function () {
               document.getElementById("serviceDetails").style.backgroundColor = "#fff";
+          });
+          $('#coWorker').autocomplete({
+              source: "{% url 'service:empnameautocomplete' %}",
           });
       });
 
