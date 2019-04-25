@@ -26,7 +26,6 @@ from .mailInfo import smtp_server, port, userid, passwd
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 
-
 @login_required
 @csrf_exempt
 def selectreceiver(request, serviceId):
@@ -54,7 +53,8 @@ def selectreceiver(request, serviceId):
 
         return render(request, 'accounts/login.html')
 
-
+@login_required
+@csrf_exempt
 def sendmail(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
