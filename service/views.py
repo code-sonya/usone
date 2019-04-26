@@ -603,7 +603,7 @@ def day_report_bak(request, day):
     return render(request, 'service/dayreport_bak.html', context)
 
 
-def day_report(request, day):
+def day_report(request, day=str(datetime.datetime.today())[:10]):
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     beforeDate = Date - datetime.timedelta(days=1)
     afterDate = Date + datetime.timedelta(days=1)
