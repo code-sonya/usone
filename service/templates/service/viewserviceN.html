@@ -51,7 +51,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">성함</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="empName">{{ service.empName }}</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="empName">{{ service.empName }}{% if service.directgo == "Y" %} (직출){% endif %}</div>
                     </div>
                   </div>
                 </div>
@@ -62,8 +62,10 @@
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">직출</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="directgo">{{ service.directgo }}</div>
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">동행자</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="coWorker">
+                        {% if coWorker %}{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}{% endif %}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -232,6 +234,12 @@
               <td style="width: 30%; border-top: 0px;"><b>성함</b></td>
               <td style="width: 70%; border-top: 0px;">{{ service.empName }} {% if service.directgo == "Y" %}(직출){% endif %}</td>
             </tr>
+            {% if coWorker %}
+            <tr>
+              <td><b>동행자</b></td>
+              <td>{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}</td>
+            </tr>
+            {% endif %}
             <tr>
               <td><b>고객사</b></td>
               <td><b class="text-primary">{{ service.companyName }}</b> ({{ service.serviceLocation }})

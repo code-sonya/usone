@@ -18,13 +18,14 @@ from email.header import Header
 from email import encoders
 
 from .functions import servicereporthtml
-from service.functions import link_callback
+from service.functions import link_callback, num_to_str_position
 from service.models import Servicereport
 from client.models import Company, Customer
 from hr.models import Employee
 from .mailInfo import smtp_server, port, userid, passwd
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
+
 
 @login_required
 @csrf_exempt
@@ -53,6 +54,7 @@ def selectreceiver(request, serviceId):
 
         return render(request, 'accounts/login.html')
 
+
 @login_required
 @csrf_exempt
 def sendmail(request, serviceId):
@@ -62,13 +64,21 @@ def sendmail(request, serviceId):
 
         if request.method == 'POST':
             servicereport = Servicereport.objects.get(serviceId=serviceId)
+            if servicereport.coWorker:
+                coWorker = ''
+                for coWorkerId in servicereport.coWorker.split(','):
+                    coWorker = coWorker + (str(Employee.objects.get(empId=coWorkerId).empName) +
+                                           ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition)) + ', '
+                coWorker = coWorker[:-2]
+            else:
+                coWorker = ''
             emailList = request.POST["emailList"]
             emailList = emailList.split(',')
             empEmail = request.user.employee.empEmail
 
             ###메일 전송
             title = "[{}_{}]{} 유니원아이앤씨(주) SERVICE REPORT".format(servicereport.companyName, request.user.employee.empDeptName, servicereport.serviceDate)
-            html = servicereporthtml(serviceId)
+            html = servicereporthtml(serviceId, coWorker)
 
             msg = MIMEMultipart("alternative")
             msg["From"] = empEmail
@@ -92,9 +102,19 @@ def sendmail(request, serviceId):
             msg.attach(sign)
             
             # pdf생성
+            if servicereport.coWorker:
+                coWorker = []
+                for coWorkerId in servicereport.coWorker.split(','):
+                    coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
+                                    ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
+            else:
+                coWorker = ''
             template_path = 'service/viewservicepdf.html'
             template = loader.get_template(template_path)
-            context = {'service': servicereport}
+            context = {
+                'service': servicereport,
+                'coWorker': coWorker,
+            }
             html = template.render(context, request)
             src = BytesIO(html.encode('utf-8'))
             dest = BytesIO()
@@ -121,17 +141,3 @@ def sendmail(request, serviceId):
 
     else:
         return render(request, 'accounts/login.html')
-
-
-def servicereport(request, serviceId):
-    servicereport = Servicereport.objects.get(serviceId=serviceId)
-    try:
-        img = servicereport.serviceSignPath.split('/')
-        img = "/media/images/signature/" + img[-1]
-    except:
-        img = '/media/images/nosign.jpg'
-
-    context = {'servicereport': servicereport, "img": img}
-
-    return render(request, 'mail/servicereport.html', context)
-

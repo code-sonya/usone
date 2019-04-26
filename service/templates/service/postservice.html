@@ -119,7 +119,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="coWorker" class="font-weight-bold text-primary"> 동행자 <span class="text-danger">(초과근무 시 필수 작성)</span> </label> {{ form.coWorker }}
+              <label for="coWorkers" class="font-weight-bold text-primary"> 동행자 <span class="text-danger">(초과근무 시 필수 작성)</span> </label> {{ form.coWorkers }}
             </div>
             <div class="form-group">
               <label for="serviceTitle" class="font-weight-bold text-primary"> 제목 </label> {{ form.serviceTitle }}
@@ -170,27 +170,31 @@
       }
 
       function btn_save() {
-          const companyName = document.getElementById("companyName").value;
-          const serviceType = document.getElementById("serviceType").value;
-          const serviceTitle = document.getElementById("serviceTitle").value;
-          const serviceDetails = document.getElementById("serviceDetails").value;
           const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g,'/') + ' ' + document.getElementById("starttime").value);
           const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g,'/') + ' ' + document.getElementById("endtime").value);
           const diff = ((serviceEndDatetime - serviceStartDatetime)/3600000).toFixed(1);
 
-          if (companyName === '') {
+          let Form = document.getElementById("ServicereportForm");
+          const coWorkers = document.getElementById('coWorkers').getAttribute('data-id');
+          let coWorkerInput = document.createElement("input");
+          coWorkerInput.setAttribute("type", "hidden");
+          coWorkerInput.setAttribute("name", "coWorkerId");
+          coWorkerInput.setAttribute("value", coWorkers);
+          Form.appendChild(coWorkerInput);
+
+          if (document.getElementById("companyName").value === '') {
               alert("고객사 명을 입력해주세요.");
               return false;
           }
-          if (serviceType === '') {
+          if (document.getElementById("serviceType").value === '') {
               alert("일정 구분을 입력해주세요.");
               return false;
           }
-          if (serviceTitle === '') {
+          if (document.getElementById("serviceTitle").value === '') {
               alert("제목을 입력해주세요.");
               return false;
           }
-          if (serviceDetails === '') {
+          if (document.getElementById("serviceDetails").value === '') {
               alert("내용을 입력해주세요.");
               return false;
           }
@@ -200,14 +204,13 @@
           }
           if (diff > 12) {
               if (confirm("일정이 12시간 이상입니다.\n반복 일정은 반복 등록 기능을 사용해주세요.\n일정 등록 하시겠습니까?") === true) {
-                  document.getElementById("ServicereportForm").submit();
+                  Form.submit();
               }
           } else {
               if (confirm("일정 등록 하시겠습니까?") === true) {
-                  document.getElementById("ServicereportForm").submit();
+                  Form.submit();
               }
           }
-
       }
 
       function applyform(companyName, serviceType, serviceStartTime, serviceEndTime, serviceLocation, directgo, serviceTitle, serviceDetails) {
@@ -234,6 +237,11 @@
       }
 
       $(document).ready(function () {
+          const coWorkers = document.getElementById('coWorkers');
+          {% if coWorkers %}
+              coWorkers.setAttribute("data-id", "{{ coWorkers }}");
+          {% endif %}
+
           $('#companyName').on("propertychange change keyup paste input", function () {
               document.getElementById("companyName").style.backgroundColor = "#fff";
           });
@@ -258,8 +266,7 @@
           $('#serviceDetails').on("propertychange change keyup paste input", function () {
               document.getElementById("serviceDetails").style.backgroundColor = "#fff";
           });
-
-          $('#coWorker').magicsearch({
+          $('#coWorkers').magicsearch({
               dataSource: {{ empNames|safe }},
               fields: 'value',
               id: 'id',
@@ -267,9 +274,11 @@
               multiField: 'value',
               format: '%value%',
               multiStyle: {space: 5, width: 80},
-              noResult: '검색결과없음'
+              noResult: '검색결과없음',
+              focusShow: true,
           });
-
+          coWorkers.removeAttribute("style");
+          coWorkers.parentElement.removeAttribute("style");
       });
 
   </script>
