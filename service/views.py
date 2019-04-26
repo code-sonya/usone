@@ -13,7 +13,7 @@ from noticeboard.models import Board
 from scheduler.models import Eventday
 from .forms import ServicereportForm, ServiceformForm
 
-from .functions import date_list, month_list, overtime, str_to_timedelta_hour, dayreport_query, dayreport_query2, link_callback
+from .functions import *
 import datetime
 from xhtml2pdf import pisa
 import json
@@ -75,6 +75,7 @@ def post_service(request, postdate):
                 post.empName = empName
                 post.empDeptName = empDeptName
                 post.serviceFinishDatetime = datetime.datetime.now()
+                post.coWorker = request.POST['coWorkerId']
                 for_status = request.POST['for']
 
                 # 기본등록
@@ -116,6 +117,7 @@ def post_service(request, postdate):
                             serviceRegHour=post.serviceRegHour,
                             serviceLocation=post.serviceLocation,
                             directgo=post.directgo,
+                            coWorker=post.coWorker,
                             serviceTitle=post.serviceTitle,
                             serviceDetails=post.serviceDetails,
                             serviceStatus=post.serviceStatus,
@@ -151,6 +153,7 @@ def post_service(request, postdate):
                                 serviceRegHour=post.serviceRegHour,
                                 serviceLocation=post.serviceLocation,
                                 directgo=post.directgo,
+                                coWorker=post.coWorker,
                                 serviceTitle=post.serviceTitle,
                                 serviceDetails=post.serviceDetails,
                                 serviceStatus=post.serviceStatus,
@@ -185,6 +188,7 @@ def post_service(request, postdate):
                             serviceRegHour=post.serviceRegHour,
                             serviceLocation=post.serviceLocation,
                             directgo=post.directgo,
+                            coWorker=post.coWorker,
                             serviceTitle=post.serviceTitle,
                             serviceDetails=post.serviceDetails,
                             serviceStatus=post.serviceStatus,
@@ -333,7 +337,6 @@ def show_services(request):
             empId = Employee(empId=request.user.employee.empId)
             services = Servicereport.objects.filter(empId=empId)
 
-
             context = {
                 'filter' : 'N',
                 'countServices': services.count() or 0,
@@ -353,6 +356,14 @@ def view_service(request, serviceId):
     if userId:
         service = Servicereport.objects.get(serviceId=serviceId)
 
+        if service.coWorker:
+            coWorker = []
+            for coWorkerId in service.coWorker.split(','):
+                coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
+                                ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
+        else:
+            coWorker = ''
+
         try:
             board = Board.objects.get(serviceId__serviceId=serviceId)
         except:
@@ -361,7 +372,9 @@ def view_service(request, serviceId):
         context = {
             'service': service,
             'board': board,
+            'coWorker': coWorker,
         }
+
         if service.serviceStatus == "N":
             return render(request, 'service/viewserviceN.html', context)
         elif service.serviceStatus == "Y":
@@ -423,6 +436,7 @@ def modify_service(request, serviceId):
                 post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
                 post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
                 post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.coWorker = request.POST['coWorkerId']
                 post.save()
                 return redirect('scheduler')
         else:
@@ -431,14 +445,19 @@ def modify_service(request, serviceId):
             form.fields['starttime'].initial = str(instance.serviceStartDatetime)[11:16]
             form.fields['enddate'].initial = str(instance.serviceEndDatetime)[:10]
             form.fields['endtime'].initial = str(instance.serviceEndDatetime)[11:16]
+
             empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
             empNames = []
             for emp in empList:
                 temp = {'id': emp.empId, 'value': emp.empName}
                 empNames.append(temp)
+
+            coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+
             context = {
                 'form': form,
                 'empNames': empNames,
+                'coWorkers': coWorkers,
             }
             return render(request, 'service/postservice.html', context)
 
@@ -614,18 +633,25 @@ def view_service_pdf(request, serviceId):
     if userId:
         service = Servicereport.objects.get(serviceId=serviceId)
 
-        template_path = 'service/viewservicepdf.html'
-        context = {'service': service}
-        # Create a Django response object, and specify content_type as pdf
+        if service.coWorker:
+            coWorker = []
+            for coWorkerId in service.coWorker.split(','):
+                coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
+                                ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
+        else:
+            coWorker = ''
+
+        context = {
+            'service': service,
+            'coWorker': coWorker
+        }
+
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="report.pdf"'
-        # find the template and render it.
-        template = get_template(template_path)
+        response['Content-Disposition'] = 'attachment; filename="SERVICE REPORT.pdf"'
+        template = get_template('service/viewservicepdf.html')
         html = template.render(context, request)
 
-        # create a pdf
         pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
-        # if error then show some funy view
         if pisaStatus.err:
             return HttpResponse('We had some errors <pre>' + html + '</pre>')
         return response
