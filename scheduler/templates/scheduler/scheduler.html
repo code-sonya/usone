@@ -65,10 +65,15 @@
 
       #calendar {
         font-size: 12px;
-        height : 600px;
         left: 0px;
         right: 0px;
-        margin-bottom: 100px;
+        height: 400px;
+      }
+      #calendar-container{
+        margin-bottom: 200px;
+      }
+      #footer{
+        visibility: hidden;
       }
     }
 
@@ -183,7 +188,7 @@
                   center: 'title',
                   right: 'month,basicWeek addEvent'
               }, defaultDate: new Date(),
-              height: 700,
+              contentHeight: "auto",
               locale: 'ko',
               selectable: false,
               navLinks: false,
