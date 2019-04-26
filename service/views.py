@@ -5,6 +5,7 @@ from django.db.models import Q, Sum
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import get_template
+from django.contrib.auth.decorators import login_required
 
 from .models import Servicereport, Serviceform, Vacation
 from client.models import Company, Customer
@@ -20,12 +21,16 @@ import json
 from django.http import HttpResponse
 from django.core import serializers
 
+
+@login_required
 def service_asjson(request):
     empId = Employee(empId=request.user.employee.empId)
     services = Servicereport.objects.filter(empId=empId)
     json = serializers.serialize('json', services)
     return HttpResponse(json, content_type='application/json')
 
+
+@login_required
 @csrf_exempt
 def filter_asjson(request):
 
@@ -57,6 +62,7 @@ def filter_asjson(request):
     return HttpResponse(json, content_type='application/json')
 
 
+@login_required
 def post_service(request, postdate):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -219,6 +225,7 @@ def post_service(request, postdate):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def post_vacation(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -259,6 +266,7 @@ def post_vacation(request):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def post_serviceform(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -287,6 +295,7 @@ def post_serviceform(request):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def show_services(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -350,6 +359,7 @@ def show_services(request):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def view_service(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -384,6 +394,7 @@ def view_service(request, serviceId):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def save_service(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -399,6 +410,7 @@ def save_service(request, serviceId):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def delete_service(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -411,6 +423,7 @@ def delete_service(request, serviceId):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def modify_service(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -465,6 +478,7 @@ def modify_service(request, serviceId):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def copy_service(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -499,6 +513,7 @@ def copy_service(request, serviceId):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def show_serviceforms(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -515,6 +530,7 @@ def show_serviceforms(request):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def modify_serviceform(request, serviceFormId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -543,6 +559,7 @@ def modify_serviceform(request, serviceFormId):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def delete_serviceform(request, serviceFormId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -555,6 +572,7 @@ def delete_serviceform(request, serviceFormId):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def show_vacations(request):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -571,6 +589,7 @@ def show_vacations(request):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def delete_vacation(request, vacationId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
@@ -583,6 +602,7 @@ def delete_vacation(request, vacationId):
         return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
 
 
+@login_required
 def day_report_bak(request, day):
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     beforeDate = Date - datetime.timedelta(days=1)
@@ -603,6 +623,7 @@ def day_report_bak(request, day):
     return render(request, 'service/dayreport_bak.html', context)
 
 
+@login_required
 def day_report(request, day=str(datetime.datetime.today())[:10]):
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     beforeDate = Date - datetime.timedelta(days=1)
@@ -627,6 +648,7 @@ def day_report(request, day=str(datetime.datetime.today())[:10]):
     return render(request, 'service/dayreport.html', context)
 
 
+@login_required
 def view_service_pdf(request, serviceId):
     userId = request.user.id  # 로그인 유무 판단 변수
 
