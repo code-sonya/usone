@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render
 
 # Create your views here.
@@ -32,6 +33,55 @@ def client_asjson(request):
     json = serializers.serialize('json', services)
     return HttpResponse(json, content_type='application/json')
 
+@csrf_exempt
+def list_asjson(request):
+    companylist = Company.objects.filter(companyStatus='Y')
+    companylist = companylist.values('companyName', 'saleEmpId__empName', 'dbMainEmpId__empName', 'dbSubEmpId__empName', 'solutionMainEmpId__empName',
+                                     'solutionSubEmpId__empName', 'dbContractEndDate','solutionContractEndDate')
+    structure = json.dumps(list(companylist), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+@csrf_exempt
+def filter_asjson(request):
+    companyName = request.POST["companyName"]
+    empName = request.POST["empName"]
+    chkbox = request.POST["chkbox"]
+
+    companylist = Company.objects.all()
+
+    if 'present' in chkbox:
+        companylist_present = companylist.filter(companyStatus='Y')
+    else:
+        companylist_present = companylist.filter(companyStatus='O')
+    if 'past' in chkbox:
+        companylist_past = companylist.filter(companyStatus='N')
+    else:
+        companylist_past = companylist.filter(companyStatus='O')
+    if 'wait' in chkbox:
+        companylist_wait = companylist.filter(companyStatus='X')
+    else:
+        companylist_wait = companylist.filter(companyStatus='O')
+
+    companylist = companylist_present | companylist_past | companylist_wait
+
+    if companyName:
+        companylist = companylist.filter(companyName__icontains=companyName)
+
+    if empName:
+        empId = Employee.objects.get(empName=empName).empId
+        companylist = companylist.filter(
+            Q(dbMainEmpId=empId) |
+            Q(dbSubEmpId=empId) |
+            Q(solutionMainEmpId=empId) |
+            Q(solutionSubEmpId=empId) |
+            Q(saleEmpId=empId)
+        )
+
+    companylist = companylist.values('companyName', 'saleEmpId__empName', 'dbMainEmpId__empName', 'dbSubEmpId__empName', 'solutionMainEmpId__empName',
+                                     'solutionSubEmpId__empName', 'dbContractEndDate','solutionContractEndDate')
+    structure = json.dumps(list(companylist), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
 def show_clientlist(request):
     if request.user.id:  # 로그인 유무
         template = loader.get_template('client/showclientlist.html')
@@ -41,45 +91,16 @@ def show_clientlist(request):
             empName = request.POST["empName"]
             chkbox = request.POST.getlist('chkbox')
 
-            companylist = Company.objects.all()
-
-            if 'present' in chkbox:
-                companylist_present = companylist.filter(companyStatus='Y')
-            else:
-                companylist_present = companylist.filter(companyStatus='O')
-            if 'past' in chkbox:
-                companylist_past = companylist.filter(companyStatus='N')
-            else:
-                companylist_past = companylist.filter(companyStatus='O')
-            if 'wait' in chkbox:
-                companylist_wait = companylist.filter(companyStatus='X')
-            else:
-                companylist_wait = companylist.filter(companyStatus='O')
-
-            companylist = companylist_present | companylist_past | companylist_wait
-
-            if companyName:
-                companylist = companylist.filter(companyName__icontains=companyName)
-
-            if empName:
-                empId = Employee.objects.get(empName=empName).empId
-                companylist = companylist.filter(
-                    Q(dbMainEmpId=empId) |
-                    Q(dbSubEmpId=empId) |
-                    Q(solutionMainEmpId=empId) |
-                    Q(solutionSubEmpId=empId) |
-                    Q(saleEmpId=empId)
-                )
-
             context = {
-                'companylist': companylist,
+                'filter': "Y",
+                'companyName':companyName,
+                'empName':empName,
+                'chkbox':chkbox
             }
 
         else:
-            companylist = Company.objects.filter(companyStatus='Y')
-
             context = {
-                'companylist': companylist,
+                'filter': 'N',
             }
 
         return HttpResponse(template.render(context, request))

@@ -49,7 +49,6 @@
                 <th>SYSTEM담당자</th>
                 <th>DB계약만료일</th>
                 <th>SYSTEM계약만료일</th>
-                <th class="d-none">companyName</th>
               </tr>
               </thead>
             </table>
@@ -124,55 +123,146 @@
 
       $(document).ready(function () {
 
-          const table = $('#showclientlist').DataTable({
-              data: [],
-              columns: [
-                  {data: "고객사"},
-                  {data: "영업대표"},
-                  {data: "DB담당자"},
-                  {data: "SYSTEM담당자"},
-                  {data: "DB계약만료일"},
-                  {data: "SYSTEM계약만료일"},
-                  {data: "companyName"},
-              ],
-              columnDefs: [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, visible: false}
-              ],
-              "searching": true,
-              "paging": true,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_ 개씩 보기",
-                  "search": "검색:",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "다음",
-                      "previous": "이전"
+
+          {% if filter == 'Y'%}
+              $('#showclientlist').DataTable({
+                  "processing": true,
+                  "ajax": {
+                      "processing": true,
+                      "type": 'POST',
+                      "data": {
+                          "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
+                          "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                          "chkbox": {% if chkbox %}"{{ chkbox }}",{% else %}"",{% endif %}
+                      },
+                      "url": "{% url 'client:filter_ajax_url' %}",
+                      "dataSrc": ""
                   },
-              }
-          });
-
-          {% for company in companylist %}
-              var rowNode = table.row.add({
-                  "고객사": "{{ company.companyName }}",
-                  "영업대표": "{{ company.saleEmpId.empName }}",
-                  "DB담당자": "{% if company.dbMainEmpId.empName %}{{ company.dbMainEmpId.empName }}{% else %}-{% endif %}/{% if company.dbSubEmpId.empName %}{{ company.dbSubEmpId.empName }}{% else %}-{% endif %}",
-                  "SYSTEM담당자": "{% if company.solutionMainEmpId.empName %}{{ company.solutionMainEmpId.empName }}{% else %}-{% endif %}/{% if company.solutionSubEmpId.empName %}{{ company.solutionSubEmpId.empName }}{% else %}-{% endif %}",
-                  "DB계약만료일": "{% if company.dbContractEndDate %}{{ company.dbContractEndDate }}{% else %}-{% endif %}",
-                  "SYSTEM계약만료일": "{% if company.solutionContractEndDate %}{{ company.solutionContractEndDate }}{% else %}-{% endif %}",
-                  "companyName": "{{ company.companyName }}",
-              }).draw().node();
-
-          {% endfor %}
+                  columns: [
+                      {data: "companyName"},
+                      {data: "saleEmpId__empName"},
+                      {
+                          data: "dbMainEmpId__empName",
+                          render: function (data, type, row) {
+                              var value = row["dbMainEmpId__empName"];
+                              var value2 = row["dbSubEmpId__empName"];
+                              if (value == null) {
+                                  value = '';
+                              }
+                              if (value2 == null) {
+                                  value2 = '';
+                              }
+                              return value + '/' + value2;
+                          }
+                      },
+                      {
+                          data: "solutionMainEmpId__empName",
+                          render: function (data, type, row) {
+                              var value = row["solutionMainEmpId__empName"];
+                              var value2 = row["solutionSubEmpId__empName"];
+                              if (value == null) {
+                                  value = '';
+                              }
+                              if (value2 == null) {
+                                  value2 = '';
+                              }
+                              return value + '/' + value2;
+                          }
+                      },
+                      {data: "dbContractEndDate"},
+                      {data: "solutionContractEndDate"},
+                  ],
+                  columnDefs: [
+                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  ],
+                  "searching": true,
+                  "paging": true,
+                  "info": false,
+                  "scrollY": "80vh",
+                  "scrollCollapse": true,
+                  "language": {
+                      "lengthMenu": "_MENU_ 개씩 보기",
+                      "search": "검색:",
+                      "paginate": {
+                          "first": "처음",
+                          "last": "끝",
+                          "next": "다음",
+                          "previous": "이전"
+                      },
+                  }
+              });
+          {% else %}
+              $('#showclientlist').DataTable({
+                  "processing": true,
+                  "ajax": {
+                      "processing": true,
+                      "url": "{% url 'client:list_ajax_url' %}",
+                      "dataSrc": ""
+                  },
+                  columns: [
+                      {data: "companyName"},
+                      {data: "saleEmpId__empName"},
+                      {
+                          data: "dbMainEmpId__empName",
+                          render: function (data, type, row) {
+                              var value = row["dbMainEmpId__empName"];
+                              var value2 = row["dbSubEmpId__empName"];
+                              if (value == null) {
+                                  value = '';
+                              }
+                              if (value2 == null) {
+                                  value2 = '';
+                              }
+                              return value + '/' + value2;
+                          }
+                      },
+                      {
+                          data: "solutionMainEmpId__empName",
+                          render: function (data, type, row) {
+                              var value = row["solutionMainEmpId__empName"];
+                              var value2 = row["solutionSubEmpId__empName"];
+                              if (value == null) {
+                                  value = '';
+                              }
+                              if (value2 == null) {
+                                  value2 = '';
+                              }
+                              return value + '/' + value2;
+                          }
+                      },
+                      {data: "dbContractEndDate"},
+                      {data: "solutionContractEndDate"},
+                  ],
+                  columnDefs: [
+                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  ],
+                  "searching": true,
+                  "paging": true,
+                  "info": false,
+                  "scrollY": "80vh",
+                  "scrollCollapse": true,
+                  "language": {
+                      "lengthMenu": "_MENU_ 개씩 보기",
+                      "search": "검색:",
+                      "paginate": {
+                          "first": "처음",
+                          "last": "끝",
+                          "next": "다음",
+                          "previous": "이전"
+                      },
+                  }
+              });
+          {% endif %}
 
           $("#showclientlist").on("click", 'tr', function () {
               const data = table.row(this).data();
