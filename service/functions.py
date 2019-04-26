@@ -346,3 +346,18 @@ def link_callback(uri, rel):
             'media URI must start with %s or %s' % (sUrl, mUrl)
         )
     return path
+
+
+def num_to_str_position(num):
+    if num == 1 or num == '1':
+        return '임원'
+    elif num == 2 or num == '2':
+        return '부장'
+    elif num == 3 or num == '3':
+        return '차장'
+    elif num == 4 or num == '4':
+        return '과장'
+    elif num == 5 or num == '5':
+        return '대리'
+    elif num == 6 or num == '6':
+        return '사원'

@@ -90,6 +90,19 @@
         <p>
           <div style="padding-left: 40px">{{ service.serviceDetails|linebreaksbr }}</div>
         </p>
+        {% if coWorker %}
+          <br><br>
+          <p><div style="padding-left: 40px">
+            # 서비스 지원 동행 : 유니원아이앤씨
+            {% for name in coWorker %}
+              {% if forloop.last %}
+                {{ name }}
+              {% else %}
+                {{ name }},
+              {% endif %}
+            {% endfor %}
+          </div></p>
+        {% endif %}
       </td>
     </tr>
     <tr style="height: 30px;">

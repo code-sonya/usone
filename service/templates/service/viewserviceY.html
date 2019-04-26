@@ -113,6 +113,19 @@
             <strong>내 용 :</strong>
             <p><div style="padding-left: 40px">{{ service.serviceTitle }}</div></p>
             <p><div style="padding-left: 40px">{{ service.serviceDetails|linebreaksbr }}</div></p>
+            {% if coWorker %}
+              <br><br>
+              <p><div style="padding-left: 40px">
+                # 서비스 지원 동행 : 유니원아이앤씨
+                {% for name in coWorker %}
+                  {% if forloop.last %}
+                    {{ name }}
+                  {% else %}
+                    {{ name }},
+                  {% endif %}
+                {% endfor %}
+              </div></p>
+            {% endif %}
           </td>
         </tr>
         <tr style="height: 20px;">
@@ -222,6 +235,12 @@
               <td style="width: 30%; border-top: 0px;"><b>성함</b></td>
               <td style="width: 70%; border-top: 0px;">{{ service.empName }} {% if service.directgo == "Y" %}<b>(직출)<b>{% endif %}</td>
             </tr>
+            {% if coWorker %}
+            <tr>
+              <td><b>동행자</b></td>
+              <td>{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}</td>
+            </tr>
+            {% endif %}
             <tr>
               <td><b>고객사</b></td>
               <td><b class="text-primary">{{ service.companyName }}</b> ({{ service.serviceLocation }})
