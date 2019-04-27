@@ -133,7 +133,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Auth settings
-LOGIN_REDIRECT_URL = '/service/dayreport/' + str(datetime.datetime.today())[:10]
+LOGIN_REDIRECT_URL = '/'
 
 # media files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
