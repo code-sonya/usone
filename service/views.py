@@ -33,7 +33,6 @@ def service_asjson(request):
 @login_required
 @csrf_exempt
 def filter_asjson(request):
-
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
     empDeptName = request.POST['empDeptName']
@@ -64,542 +63,453 @@ def filter_asjson(request):
 
 @login_required
 def post_service(request, postdate):
-    userId = request.user.id  # 로그인 유무 판단 변수
+    # 로그인 사용자 정보
+    empId = Employee(empId=request.user.employee.empId)
+    empName = request.user.employee.empName
+    empDeptName = request.user.employee.empDeptName
 
-    if userId:
-        # 로그인 사용자 정보
-        empId = Employee(empId=request.user.employee.empId)
-        empName = request.user.employee.empName
-        empDeptName = request.user.employee.empDeptName
+    if request.method == "POST":
+        form = ServicereportForm(request.POST)
 
-        if request.method == "POST":
-            form = ServicereportForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.empId = empId
+            post.empName = empName
+            post.empDeptName = empDeptName
+            post.serviceFinishDatetime = datetime.datetime.now()
+            post.coWorker = request.POST['coWorkerId']
+            for_status = request.POST['for']
 
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.empId = empId
-                post.empName = empName
-                post.empDeptName = empDeptName
-                post.serviceFinishDatetime = datetime.datetime.now()
-                post.coWorker = request.POST['coWorkerId']
-                for_status = request.POST['for']
-
-                # 기본등록
-                if for_status == 'for_n':
-                    post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-                    post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-                    post.serviceDate = str(post.serviceStartDatetime)[:10]
-                    post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
-                    post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
-                    post.serviceRegHour = post.serviceHour - post.serviceOverHour
-                    post.save()
-                    return redirect('scheduler')
-
-                # 매월반복
-                elif for_status == 'for_my':
-                    dateRange = month_list(form.clean()['startdate'], form.clean()['enddate'])
-                    timeCalculateFlag = True
-                    for date in dateRange:
-                        post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
-                        post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
-                        post.serviceDate = str(post.serviceStartDatetime)[:10]
-                        if timeCalculateFlag:
-                            post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
-                            post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
-                            post.serviceRegHour = post.serviceHour - post.serviceOverHour
-                            timeCalculateFlag = False
-                        Servicereport.objects.create(
-                            serviceDate=post.serviceDate,
-                            empId=post.empId,
-                            empName=post.empName,
-                            empDeptName=post.empDeptName,
-                            companyName=post.companyName,
-                            serviceType=post.serviceType,
-                            serviceStartDatetime=post.serviceStartDatetime,
-                            serviceEndDatetime=post.serviceEndDatetime,
-                            serviceFinishDatetime=post.serviceFinishDatetime,
-                            serviceHour=post.serviceHour,
-                            serviceOverHour=post.serviceOverHour,
-                            serviceRegHour=post.serviceRegHour,
-                            serviceLocation=post.serviceLocation,
-                            directgo=post.directgo,
-                            coWorker=post.coWorker,
-                            serviceTitle=post.serviceTitle,
-                            serviceDetails=post.serviceDetails,
-                            serviceStatus=post.serviceStatus,
-                        )
-                    return redirect('scheduler')
-
-                # 기간(휴일제외)
-                elif for_status == 'for_hn':
-                    dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
-                    timeCalculateFlag = True
-                    for date in dateRange:
-                        if not Eventday.objects.filter(eventDate=date) and date.weekday() != 5 and date.weekday() != 6:
-                            post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
-                            post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
-                            post.serviceDate = str(post.serviceStartDatetime)[:10]
-                            if timeCalculateFlag:
-                                post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
-                                post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
-                                post.serviceRegHour = post.serviceHour - post.serviceOverHour
-                                timeCalculateFlag = False
-                            Servicereport.objects.create(
-                                serviceDate=post.serviceDate,
-                                empId=post.empId,
-                                empName=post.empName,
-                                empDeptName=post.empDeptName,
-                                companyName=post.companyName,
-                                serviceType=post.serviceType,
-                                serviceStartDatetime=post.serviceStartDatetime,
-                                serviceEndDatetime=post.serviceEndDatetime,
-                                serviceFinishDatetime=post.serviceFinishDatetime,
-                                serviceHour=post.serviceHour,
-                                serviceOverHour=post.serviceOverHour,
-                                serviceRegHour=post.serviceRegHour,
-                                serviceLocation=post.serviceLocation,
-                                directgo=post.directgo,
-                                coWorker=post.coWorker,
-                                serviceTitle=post.serviceTitle,
-                                serviceDetails=post.serviceDetails,
-                                serviceStatus=post.serviceStatus,
-                            )
-                    return redirect('scheduler')
-
-                # 기간(휴일포함)
-                elif for_status == 'for_hy':
-                    dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
-                    timeCalculateFlag = True
-                    for date in dateRange:
-                        post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
-                        post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
-                        post.serviceDate = str(post.serviceStartDatetime)[:10]
-                        if timeCalculateFlag:
-                            post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
-                            post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
-                            post.serviceRegHour = post.serviceHour - post.serviceOverHour
-                            timeCalculateFlag = False
-                        Servicereport.objects.create(
-                            serviceDate=post.serviceDate,
-                            empId=post.empId,
-                            empName=post.empName,
-                            empDeptName=post.empDeptName,
-                            companyName=post.companyName,
-                            serviceType=post.serviceType,
-                            serviceStartDatetime=post.serviceStartDatetime,
-                            serviceEndDatetime=post.serviceEndDatetime,
-                            serviceFinishDatetime=post.serviceFinishDatetime,
-                            serviceHour=post.serviceHour,
-                            serviceOverHour=post.serviceOverHour,
-                            serviceRegHour=post.serviceRegHour,
-                            serviceLocation=post.serviceLocation,
-                            directgo=post.directgo,
-                            coWorker=post.coWorker,
-                            serviceTitle=post.serviceTitle,
-                            serviceDetails=post.serviceDetails,
-                            serviceStatus=post.serviceStatus,
-                        )
-                    return redirect('scheduler')
-
-        else:
-            form = ServicereportForm()
-            form.fields['startdate'].initial = postdate
-            form.fields['starttime'].initial = "09:00"
-            form.fields['enddate'].initial = postdate
-            form.fields['endtime'].initial = "18:00"
-            serviceforms = Serviceform.objects.filter(empId=empId)
-            empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
-            empNames = []
-            for emp in empList:
-                temp = {'id': emp.empId, 'value': emp.empName}
-                empNames.append(temp)
-            context = {
-                'form': form,
-                'postdate': postdate,
-                'serviceforms': serviceforms,
-                'empNames': empNames,
-            }
-            return render(request, 'service/postservice.html', context)
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
-
-
-@login_required
-def post_vacation(request):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        # 로그인 사용자 정보
-        empId = Employee(empId=request.user.employee.empId)
-        empName = request.user.employee.empName
-        empDeptName = request.user.employee.empDeptName
-
-        if request.method == "POST":
-            vacationTypeDict = request.POST
-            dateArray = list(request.POST.keys())[1:]
-
-            for vacationDate in dateArray:
-                if vacationTypeDict[vacationDate] == 'all':
-                    vacationType = "일차"
-                elif vacationTypeDict[vacationDate] == 'am':
-                    vacationType = "오전반차"
-                elif vacationTypeDict[vacationDate] == 'pm':
-                    vacationType = "오후반차"
-                else:
-                    vacationType = ""
-
-                Vacation.objects.create(
-                    empId=empId,
-                    empName=empName,
-                    empDeptName=empDeptName,
-                    vacationDate=vacationDate,
-                    vacationType=vacationType
-                )
-            return redirect('scheduler')
-
-        else:
-            context = {}
-            return render(request, 'service/postvacation.html', context)
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
-
-
-@login_required
-def post_serviceform(request):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        empId = Employee(empId=request.user.employee.empId)
-
-        if request.method == "POST":
-            form = ServiceformForm(request.POST)
-
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.empId = empId
-                post.save()
-                return redirect('service:postservice', str(datetime.date.today()))
-
-        else:
-            form = ServiceformForm()
-            form.fields['serviceStartTime'].initial = "09:00"
-            form.fields['serviceEndTime'].initial = "18:00"
-            context = {
-                'form': form,
-            }
-            return render(request, 'service/postserviceform.html', context)
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
-
-
-@login_required
-def show_services(request):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-
-        if request.method == "POST":
-            startdate = request.POST['startdate']
-            enddate = request.POST['enddate']
-            empDeptName = request.POST['empDeptName']
-            empName = request.POST['empName']
-            companyName = request.POST['companyName']
-            serviceType = request.POST['serviceType']
-            serviceTitle = request.POST['serviceTitle']
-
-            services = Servicereport.objects.all()
-            if startdate:
-                services = services.filter(serviceDate__gte=startdate)
-            if enddate:
-                services = services.filter(serviceDate__lte=enddate)
-            if empDeptName:
-                services = services.filter(empDeptName__icontains=empDeptName)
-            if empName:
-                services = services.filter(empName__icontains=empName)
-            if companyName:
-                services = services.filter(companyName__companyName__icontains=companyName)
-            if serviceType:
-                services = services.filter(serviceType__icontains=serviceType)
-            if serviceTitle:
-                services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
-
-            context = {
-                'filter': 'Y',
-                'countServices': services.count() or 0,
-                'today': datetime.datetime.today(),
-                'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'],
-                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0,
-                'startdate' : startdate,
-                'enddate' : enddate,
-                'empDeptName' : empDeptName,
-                'empName' : empName,
-                'companyName' : companyName,
-                'serviceType' : serviceType,
-                'serviceTitle' : serviceTitle,
-            }
-            return render(request, 'service/showservices.html', context)
-
-        else:
-            empId = Employee(empId=request.user.employee.empId)
-            services = Servicereport.objects.filter(empId=empId)
-
-            context = {
-                'filter' : 'N',
-                'countServices': services.count() or 0,
-                'today': datetime.datetime.today(),
-                'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'] or 0,
-                'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0
-            }
-            return render(request, 'service/showservices.html', context)
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
-
-
-@login_required
-def view_service(request, serviceId):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        service = Servicereport.objects.get(serviceId=serviceId)
-
-        if service.coWorker:
-            coWorker = []
-            for coWorkerId in service.coWorker.split(','):
-                coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
-                                ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
-        else:
-            coWorker = ''
-
-        try:
-            board = Board.objects.get(serviceId__serviceId=serviceId)
-        except:
-            board = None
-
-        context = {
-            'service': service,
-            'board': board,
-            'coWorker': coWorker,
-        }
-
-        if service.serviceStatus == "N":
-            return render(request, 'service/viewserviceN.html', context)
-        elif service.serviceStatus == "Y":
-            return render(request, 'service/viewserviceY.html', context)
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
-
-
-@login_required
-def save_service(request, serviceId):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        service = Servicereport.objects.get(serviceId=serviceId)
-        service.serviceStatus = 'Y'
-        service.serviceFinishDatetime = datetime.datetime.now()
-        service.save()
-        
-        return HttpResponse("일정 완료. 메일 연결")
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
-
-
-@login_required
-def delete_service(request, serviceId):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        Servicereport.objects.filter(serviceId=serviceId).delete()
-
-        return redirect('scheduler')
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
-
-
-@login_required
-def modify_service(request, serviceId):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        # 로그인 사용자 정보
-        instance = Servicereport.objects.get(serviceId=serviceId)
-        empId = Employee(empId=request.user.employee.empId)
-        empName = request.user.employee.empName
-        empDeptName = request.user.employee.empDeptName
-
-        if request.method == "POST":
-            form = ServicereportForm(request.POST, instance=instance)
-
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.empId = empId
-                post.empName = empName
-                post.empDeptName = empDeptName
-                post.serviceFinishDatetime = datetime.datetime.now()
+            # 기본등록
+            if for_status == 'for_n':
                 post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
                 post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
                 post.serviceDate = str(post.serviceStartDatetime)[:10]
                 post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
                 post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
                 post.serviceRegHour = post.serviceHour - post.serviceOverHour
-                post.coWorker = request.POST['coWorkerId']
                 post.save()
                 return redirect('scheduler')
-        else:
-            form = ServicereportForm(instance=instance)
-            form.fields['startdate'].initial = str(instance.serviceStartDatetime)[:10]
-            form.fields['starttime'].initial = str(instance.serviceStartDatetime)[11:16]
-            form.fields['enddate'].initial = str(instance.serviceEndDatetime)[:10]
-            form.fields['endtime'].initial = str(instance.serviceEndDatetime)[11:16]
 
-            empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
-            empNames = []
-            for emp in empList:
-                temp = {'id': emp.empId, 'value': emp.empName}
-                empNames.append(temp)
+            # 매월반복
+            elif for_status == 'for_my':
+                dateRange = month_list(form.clean()['startdate'], form.clean()['enddate'])
+                timeCalculateFlag = True
+                for date in dateRange:
+                    post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+                    post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+                    post.serviceDate = str(post.serviceStartDatetime)[:10]
+                    if timeCalculateFlag:
+                        post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                        post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                        post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                        timeCalculateFlag = False
+                    Servicereport.objects.create(
+                        serviceDate=post.serviceDate,
+                        empId=post.empId,
+                        empName=post.empName,
+                        empDeptName=post.empDeptName,
+                        companyName=post.companyName,
+                        serviceType=post.serviceType,
+                        serviceStartDatetime=post.serviceStartDatetime,
+                        serviceEndDatetime=post.serviceEndDatetime,
+                        serviceFinishDatetime=post.serviceFinishDatetime,
+                        serviceHour=post.serviceHour,
+                        serviceOverHour=post.serviceOverHour,
+                        serviceRegHour=post.serviceRegHour,
+                        serviceLocation=post.serviceLocation,
+                        directgo=post.directgo,
+                        coWorker=post.coWorker,
+                        serviceTitle=post.serviceTitle,
+                        serviceDetails=post.serviceDetails,
+                        serviceStatus=post.serviceStatus,
+                    )
+                return redirect('scheduler')
 
-            coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+            # 기간(휴일제외)
+            elif for_status == 'for_hn':
+                dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
+                timeCalculateFlag = True
+                for date in dateRange:
+                    if not Eventday.objects.filter(eventDate=date) and date.weekday() != 5 and date.weekday() != 6:
+                        post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+                        post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+                        post.serviceDate = str(post.serviceStartDatetime)[:10]
+                        if timeCalculateFlag:
+                            post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                            post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                            post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                            timeCalculateFlag = False
+                        Servicereport.objects.create(
+                            serviceDate=post.serviceDate,
+                            empId=post.empId,
+                            empName=post.empName,
+                            empDeptName=post.empDeptName,
+                            companyName=post.companyName,
+                            serviceType=post.serviceType,
+                            serviceStartDatetime=post.serviceStartDatetime,
+                            serviceEndDatetime=post.serviceEndDatetime,
+                            serviceFinishDatetime=post.serviceFinishDatetime,
+                            serviceHour=post.serviceHour,
+                            serviceOverHour=post.serviceOverHour,
+                            serviceRegHour=post.serviceRegHour,
+                            serviceLocation=post.serviceLocation,
+                            directgo=post.directgo,
+                            coWorker=post.coWorker,
+                            serviceTitle=post.serviceTitle,
+                            serviceDetails=post.serviceDetails,
+                            serviceStatus=post.serviceStatus,
+                        )
+                return redirect('scheduler')
 
-            context = {
-                'form': form,
-                'empNames': empNames,
-                'coWorkers': coWorkers,
-            }
-            return render(request, 'service/postservice.html', context)
+            # 기간(휴일포함)
+            elif for_status == 'for_hy':
+                dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
+                timeCalculateFlag = True
+                for date in dateRange:
+                    post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+                    post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+                    post.serviceDate = str(post.serviceStartDatetime)[:10]
+                    if timeCalculateFlag:
+                        post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+                        post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+                        post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                        timeCalculateFlag = False
+                    Servicereport.objects.create(
+                        serviceDate=post.serviceDate,
+                        empId=post.empId,
+                        empName=post.empName,
+                        empDeptName=post.empDeptName,
+                        companyName=post.companyName,
+                        serviceType=post.serviceType,
+                        serviceStartDatetime=post.serviceStartDatetime,
+                        serviceEndDatetime=post.serviceEndDatetime,
+                        serviceFinishDatetime=post.serviceFinishDatetime,
+                        serviceHour=post.serviceHour,
+                        serviceOverHour=post.serviceOverHour,
+                        serviceRegHour=post.serviceRegHour,
+                        serviceLocation=post.serviceLocation,
+                        directgo=post.directgo,
+                        coWorker=post.coWorker,
+                        serviceTitle=post.serviceTitle,
+                        serviceDetails=post.serviceDetails,
+                        serviceStatus=post.serviceStatus,
+                    )
+                return redirect('scheduler')
 
     else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+        form = ServicereportForm()
+        form.fields['startdate'].initial = postdate
+        form.fields['starttime'].initial = "09:00"
+        form.fields['enddate'].initial = postdate
+        form.fields['endtime'].initial = "18:00"
+        serviceforms = Serviceform.objects.filter(empId=empId)
+        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {'id': emp.empId, 'value': emp.empName}
+            empNames.append(temp)
+        context = {
+            'form': form,
+            'postdate': postdate,
+            'serviceforms': serviceforms,
+            'empNames': empNames,
+        }
+        return render(request, 'service/postservice.html', context)
+
+
+@login_required
+def post_vacation(request):
+    # 로그인 사용자 정보
+    empId = Employee(empId=request.user.employee.empId)
+    empName = request.user.employee.empName
+    empDeptName = request.user.employee.empDeptName
+
+    if request.method == "POST":
+        vacationTypeDict = request.POST
+        dateArray = list(request.POST.keys())[1:]
+
+        for vacationDate in dateArray:
+            if vacationTypeDict[vacationDate] == 'all':
+                vacationType = "일차"
+            elif vacationTypeDict[vacationDate] == 'am':
+                vacationType = "오전반차"
+            elif vacationTypeDict[vacationDate] == 'pm':
+                vacationType = "오후반차"
+            else:
+                vacationType = ""
+
+            Vacation.objects.create(
+                empId=empId,
+                empName=empName,
+                empDeptName=empDeptName,
+                vacationDate=vacationDate,
+                vacationType=vacationType
+            )
+        return redirect('scheduler')
+
+    else:
+        context = {}
+        return render(request, 'service/postvacation.html', context)
+
+
+@login_required
+def post_serviceform(request):
+    empId = Employee(empId=request.user.employee.empId)
+
+    if request.method == "POST":
+        form = ServiceformForm(request.POST)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.empId = empId
+            post.save()
+            return redirect('service:postservice', str(datetime.date.today()))
+
+    else:
+        form = ServiceformForm()
+        form.fields['serviceStartTime'].initial = "09:00"
+        form.fields['serviceEndTime'].initial = "18:00"
+        context = {
+            'form': form,
+        }
+        return render(request, 'service/postserviceform.html', context)
+
+
+@login_required
+def show_services(request):
+    if request.method == "POST":
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        companyName = request.POST['companyName']
+        serviceType = request.POST['serviceType']
+        serviceTitle = request.POST['serviceTitle']
+
+        services = Servicereport.objects.all()
+        if startdate:
+            services = services.filter(serviceDate__gte=startdate)
+        if enddate:
+            services = services.filter(serviceDate__lte=enddate)
+        if empDeptName:
+            services = services.filter(empDeptName__icontains=empDeptName)
+        if empName:
+            services = services.filter(empName__icontains=empName)
+        if companyName:
+            services = services.filter(companyName__companyName__icontains=companyName)
+        if serviceType:
+            services = services.filter(serviceType__icontains=serviceType)
+        if serviceTitle:
+            services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
+
+        context = {
+            'filter': 'Y',
+            'countServices': services.count() or 0,
+            'today': datetime.datetime.today(),
+            'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'],
+            'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0,
+            'startdate': startdate,
+            'enddate': enddate,
+            'empDeptName': empDeptName,
+            'empName': empName,
+            'companyName': companyName,
+            'serviceType': serviceType,
+            'serviceTitle': serviceTitle,
+        }
+        return render(request, 'service/showservices.html', context)
+
+    else:
+        empId = Employee(empId=request.user.employee.empId)
+        services = Servicereport.objects.filter(empId=empId)
+
+        context = {
+            'filter': 'N',
+            'countServices': services.count() or 0,
+            'today': datetime.datetime.today(),
+            'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'] or 0,
+            'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0
+        }
+        return render(request, 'service/showservices.html', context)
+
+
+@login_required
+def view_service(request, serviceId):
+    service = Servicereport.objects.get(serviceId=serviceId)
+
+    if service.coWorker:
+        coWorker = []
+        for coWorkerId in service.coWorker.split(','):
+            coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
+                            ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
+    else:
+        coWorker = ''
+
+    try:
+        board = Board.objects.get(serviceId__serviceId=serviceId)
+    except:
+        board = None
+
+    context = {
+        'service': service,
+        'board': board,
+        'coWorker': coWorker,
+    }
+
+    if service.serviceStatus == "N":
+        return render(request, 'service/viewserviceN.html', context)
+    elif service.serviceStatus == "Y":
+        return render(request, 'service/viewserviceY.html', context)
+
+
+@login_required
+def save_service(request, serviceId):
+    service = Servicereport.objects.get(serviceId=serviceId)
+    service.serviceStatus = 'Y'
+    service.serviceFinishDatetime = datetime.datetime.now()
+    service.save()
+
+    return HttpResponse("일정 완료. 메일 연결")
+
+
+@login_required
+def delete_service(request, serviceId):
+    Servicereport.objects.filter(serviceId=serviceId).delete()
+    return redirect('scheduler')
+
+
+@login_required
+def modify_service(request, serviceId):
+    # 로그인 사용자 정보
+    instance = Servicereport.objects.get(serviceId=serviceId)
+    empId = Employee(empId=request.user.employee.empId)
+    empName = request.user.employee.empName
+    empDeptName = request.user.employee.empDeptName
+
+    if request.method == "POST":
+        form = ServicereportForm(request.POST, instance=instance)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.empId = empId
+            post.empName = empName
+            post.empDeptName = empDeptName
+            post.serviceFinishDatetime = datetime.datetime.now()
+            post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+            post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            post.serviceDate = str(post.serviceStartDatetime)[:10]
+            post.serviceHour = str_to_timedelta_hour(post.serviceEndDatetime, post.serviceStartDatetime)
+            post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
+            post.serviceRegHour = post.serviceHour - post.serviceOverHour
+            post.coWorker = request.POST['coWorkerId']
+            post.save()
+            return redirect('scheduler')
+    else:
+        form = ServicereportForm(instance=instance)
+        form.fields['startdate'].initial = str(instance.serviceStartDatetime)[:10]
+        form.fields['starttime'].initial = str(instance.serviceStartDatetime)[11:16]
+        form.fields['enddate'].initial = str(instance.serviceEndDatetime)[:10]
+        form.fields['endtime'].initial = str(instance.serviceEndDatetime)[11:16]
+
+        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {'id': emp.empId, 'value': emp.empName}
+            empNames.append(temp)
+
+        coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+
+        context = {
+            'form': form,
+            'empNames': empNames,
+            'coWorkers': coWorkers,
+        }
+        return render(request, 'service/postservice.html', context)
 
 
 @login_required
 def copy_service(request, serviceId):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        # 로그인 사용자 정보
-        instance = Servicereport.objects.get(serviceId=serviceId)
-        empId = Employee(empId=request.user.employee.empId)
-        empName = request.user.employee.empName
-        empDeptName = request.user.employee.empDeptName
-        Servicereport.objects.create(
-            serviceDate=instance.serviceDate,
-            empId=empId,
-            empName=empName,
-            empDeptName=empDeptName,
-            companyName=instance.companyName,
-            serviceType=instance.serviceType,
-            serviceStartDatetime=instance.serviceStartDatetime,
-            serviceEndDatetime=instance.serviceEndDatetime,
-            serviceFinishDatetime=instance.serviceFinishDatetime,
-            serviceHour=instance.serviceHour,
-            serviceOverHour=instance.serviceOverHour,
-            serviceRegHour=instance.serviceRegHour,
-            serviceLocation=instance.serviceLocation,
-            directgo=instance.directgo,
-            serviceTitle=instance.serviceTitle,
-            serviceDetails=instance.serviceDetails,
-            serviceStatus=instance.serviceStatus,
-        )
-        return redirect('scheduler')
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+    # 로그인 사용자 정보
+    instance = Servicereport.objects.get(serviceId=serviceId)
+    empId = Employee(empId=request.user.employee.empId)
+    empName = request.user.employee.empName
+    empDeptName = request.user.employee.empDeptName
+    Servicereport.objects.create(
+        serviceDate=instance.serviceDate,
+        empId=empId,
+        empName=empName,
+        empDeptName=empDeptName,
+        companyName=instance.companyName,
+        serviceType=instance.serviceType,
+        serviceStartDatetime=instance.serviceStartDatetime,
+        serviceEndDatetime=instance.serviceEndDatetime,
+        serviceFinishDatetime=instance.serviceFinishDatetime,
+        serviceHour=instance.serviceHour,
+        serviceOverHour=instance.serviceOverHour,
+        serviceRegHour=instance.serviceRegHour,
+        serviceLocation=instance.serviceLocation,
+        directgo=instance.directgo,
+        serviceTitle=instance.serviceTitle,
+        serviceDetails=instance.serviceDetails,
+        serviceStatus=instance.serviceStatus,
+    )
+    return redirect('scheduler')
 
 
 @login_required
 def show_serviceforms(request):
-    userId = request.user.id  # 로그인 유무 판단 변수
+    empId = Employee(empId=request.user.employee.empId)
+    serviceforms = Serviceform.objects.filter(empId=empId)
 
-    if userId:
-        empId = Employee(empId=request.user.employee.empId)
-        serviceforms = Serviceform.objects.filter(empId=empId)
-
-        context = {
-            'serviceforms': serviceforms,
-        }
-        return render(request, 'service/showserviceforms.html', context)
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+    context = {
+        'serviceforms': serviceforms,
+    }
+    return render(request, 'service/showserviceforms.html', context)
 
 
 @login_required
 def modify_serviceform(request, serviceFormId):
-    userId = request.user.id  # 로그인 유무 판단 변수
+    instance = Serviceform.objects.get(serviceFormId=serviceFormId)
+    empId = Employee(empId=request.user.employee.empId)
 
-    if userId:
-        instance = Serviceform.objects.get(serviceFormId=serviceFormId)
-        empId = Employee(empId=request.user.employee.empId)
+    if request.method == "POST":
+        form = ServiceformForm(request.POST, instance=instance)
 
-        if request.method == "POST":
-            form = ServiceformForm(request.POST, instance=instance)
-
-            if form.is_valid():
-                post = form.save(commit=False)
-                post.empId = empId
-                post.save()
-                return redirect('service:postservice', str(datetime.date.today()))
-
-        else:
-            form = ServiceformForm(instance=instance)
-            context = {
-                'form': form,
-                'serviceFormId': serviceFormId,
-            }
-            return render(request, 'service/postserviceform.html', context)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.empId = empId
+            post.save()
+            return redirect('service:postservice', str(datetime.date.today()))
 
     else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+        form = ServiceformForm(instance=instance)
+        context = {
+            'form': form,
+            'serviceFormId': serviceFormId,
+        }
+        return render(request, 'service/postserviceform.html', context)
 
 
 @login_required
 def delete_serviceform(request, serviceFormId):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        Serviceform.objects.filter(serviceFormId=serviceFormId).delete()
-
-        return redirect('service:showserviceforms')
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+    Serviceform.objects.filter(serviceFormId=serviceFormId).delete()
+    return redirect('service:showserviceforms')
 
 
 @login_required
 def show_vacations(request):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        empId = Employee(empId=request.user.employee.empId)
-        vacations = Vacation.objects.filter(empId=empId)
-
-        context = {
-            'vacations': vacations,
-        }
-        return render(request, 'service/showvacations.html', context)
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+    empId = Employee(empId=request.user.employee.empId)
+    vacations = Vacation.objects.filter(empId=empId)
+    context = {
+        'vacations': vacations,
+    }
+    return render(request, 'service/showvacations.html', context)
 
 
 @login_required
 def delete_vacation(request, vacationId):
-    userId = request.user.id  # 로그인 유무 판단 변수
-
-    if userId:
-        Vacation.objects.filter(vacationId=vacationId).delete()
-
-        return redirect('service:showvacations')
-
-    else:
-        return HttpResponse("로그아웃 시 표시될 화면 또는 URL")
+    Vacation.objects.filter(vacationId=vacationId).delete()
+    return redirect('service:showvacations')
 
 
 @login_required
@@ -650,30 +560,27 @@ def day_report(request, day=str(datetime.datetime.today())[:10]):
 
 @login_required
 def view_service_pdf(request, serviceId):
-    userId = request.user.id  # 로그인 유무 판단 변수
+    service = Servicereport.objects.get(serviceId=serviceId)
 
-    if userId:
-        service = Servicereport.objects.get(serviceId=serviceId)
+    if service.coWorker:
+        coWorker = []
+        for coWorkerId in service.coWorker.split(','):
+            coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
+                            ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
+    else:
+        coWorker = ''
 
-        if service.coWorker:
-            coWorker = []
-            for coWorkerId in service.coWorker.split(','):
-                coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
-                                ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
-        else:
-            coWorker = ''
+    context = {
+        'service': service,
+        'coWorker': coWorker
+    }
 
-        context = {
-            'service': service,
-            'coWorker': coWorker
-        }
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="SERVICE REPORT.pdf"'
+    template = get_template('service/viewservicepdf.html')
+    html = template.render(context, request)
 
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="SERVICE REPORT.pdf"'
-        template = get_template('service/viewservicepdf.html')
-        html = template.render(context, request)
-
-        pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
-        if pisaStatus.err:
-            return HttpResponse('We had some errors <pre>' + html + '</pre>')
-        return response
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response

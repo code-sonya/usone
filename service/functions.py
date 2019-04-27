@@ -232,6 +232,10 @@ def dayreport_query2(empDeptName, day):
     Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     Date_min = datetime.combine(Date, datetime.min.time())
     Date_max = datetime.combine(Date, datetime.max.time())
+    if datetime.weekday(Date) >= 5 or Eventday.objects.filter(eventDate=Date):
+        holiday = True
+    else:
+        holiday = False
 
     serviceDept = Servicereport.objects.filter(
         Q(empDeptName=empDeptName) & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
@@ -280,29 +284,30 @@ def dayreport_query2(empDeptName, day):
                 'serviceTitle': service.serviceTitle,
             })
 
-    for emp in inDept:
-        if emp.employee.dispatchCompany == '내근':
-            flag = ''
-        else:
-            flag = '상주'
-        listService.append({
-            'serviceId': '',
-            'flag': flag,
-            'empName': emp.employee.empName,
-            'serviceStartDatetime': datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
-            'serviceEndDatetime': datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
-            'serviceStatus': '',
-            'companyName': emp.employee.dispatchCompany,
-            'serviceType': '',
-            'serviceTitle': emp.employee.message,
-        })
+    if not holiday:
+        for emp in inDept:
+            if emp.employee.dispatchCompany == '내근':
+                flag = ''
+            else:
+                flag = '상주'
+            listService.append({
+                'serviceId': '',
+                'flag': flag,
+                'empName': emp.employee.empName,
+                'serviceStartDatetime': datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
+                'serviceEndDatetime': datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
+                'serviceStatus': '',
+                'companyName': emp.employee.dispatchCompany,
+                'serviceType': '',
+                'serviceTitle': emp.employee.message,
+            })
 
-    for vacation in vacationDept:
-        listVacation.append({
-            'empName': vacation.empName,
-            'serviceStartDatetime': Date,
-            'vacationType': vacation.vacationType[:2],
-        })
+        for vacation in vacationDept:
+            listVacation.append({
+                'empName': vacation.empName,
+                'serviceStartDatetime': Date,
+                'vacationType': vacation.vacationType[:2],
+            })
 
     listService.sort(key=dayreport_sort)
     listEducation.sort(key=dayreport_sort)

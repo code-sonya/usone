@@ -1,80 +1,72 @@
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from django.template import loader
-from service.models import Servicereport
-import os
-from django.core.files.storage import default_storage
+from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
-from django.conf import settings
-from client.models import Company, Customer
+from django.core.files.storage import default_storage
+from django.http import HttpResponse
+from django.template import loader
+from django.views.decorators.csrf import csrf_exempt
 
+from client.models import Customer
+from service.models import Servicereport
+
+
+@login_required
 def signature(request, serviceId):
     template = loader.get_template('signature/sign-pad.html')
-    userId = request.user.id
     servicereport = Servicereport.objects.get(serviceId=serviceId)
 
-    if userId:
-        if request.method == "POST":
-            if request.POST["customer"] == "temp":
-                servicereport.customerName = request.POST["customerName"]
-                servicereport.customerDeptName = request.POST["customerDept"]
-                servicereport.customerEmail = request.POST["customerEmail"]
-                servicereport.customerPhone = request.POST["customerPhone"]
-                servicereport.save()
-
-            else:
-                customerInfo =Customer.objects.get(customerEmail=request.POST["customer"])
-                servicereport.customerName = customerInfo.customerName
-                servicereport.customerDeptName = customerInfo.customerDeptName
-                servicereport.customerEmail = customerInfo.customerEmail
-                servicereport.customerPhone = customerInfo.customerPhone
-                servicereport.save()
-
-            context = {
-                'serviceId': serviceId,
-            }
-            return HttpResponse(template.render(context, request))
+    if request.method == "POST":
+        if request.POST["customer"] == "temp":
+            servicereport.customerName = request.POST["customerName"]
+            servicereport.customerDeptName = request.POST["customerDept"]
+            servicereport.customerEmail = request.POST["customerEmail"]
+            servicereport.customerPhone = request.POST["customerPhone"]
+            servicereport.save()
 
         else:
-            context = {
-                'serviceId': serviceId,
-            }
-            return HttpResponse(template.render(context, request))
+            customerInfo = Customer.objects.get(customerEmail=request.POST["customer"])
+            servicereport.customerName = customerInfo.customerName
+            servicereport.customerDeptName = customerInfo.customerDeptName
+            servicereport.customerEmail = customerInfo.customerEmail
+            servicereport.customerPhone = customerInfo.customerPhone
+            servicereport.save()
 
-    else:
-        return render(request, 'accounts/login.html')
-
-def selectmanager(request, serviceId):
-    template = loader.get_template('signature/selectmanager.html')
-    userId = request.user.id
-
-    if userId:
-        servicereport = Servicereport.objects.get(serviceId=serviceId)
-        servicereport.serviceStatus = 'Y'
-        servicereport.save()
-        customers = Customer.objects.filter(companyName=servicereport.companyName)
         context = {
             'serviceId': serviceId,
-            'servicereport': servicereport,
-            'customers': customers,
         }
         return HttpResponse(template.render(context, request))
 
     else:
-        return render(request, 'accounts/login.html')
+        context = {
+            'serviceId': serviceId,
+        }
+        return HttpResponse(template.render(context, request))
 
 
+@login_required
+def selectmanager(request, serviceId):
+    template = loader.get_template('signature/selectmanager.html')
+    servicereport = Servicereport.objects.get(serviceId=serviceId)
+    servicereport.serviceStatus = 'Y'
+    servicereport.save()
+    customers = Customer.objects.filter(companyName=servicereport.companyName)
+    context = {
+        'serviceId': serviceId,
+        'servicereport': servicereport,
+        'customers': customers,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 @csrf_exempt
 def saveimg(request, serviceId):
-
     if request.method == 'POST':
         data = request.FILES.get('file')
-        default_storage.save('images/signature/'+serviceId+'.jpg', ContentFile(data.read()))
+        default_storage.save('images/signature/' + serviceId + '.jpg', ContentFile(data.read()))
         service = Servicereport.objects.get(serviceId=serviceId)
         service.serviceSignPath = service.serviceSignPath = '/media/images/signature/' + serviceId + '.jpg'
         service.save()
-        resp="이미지 저장"
+        resp = "이미지 저장"
         return HttpResponse(resp)
     else:
         resp = "잘못된 접근 방식"
