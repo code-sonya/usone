@@ -1,0 +1,97 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  담당자 등록
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8 ">
+      <div class="card shadow mb-4">
+        <!-- 카드 제목 : 게시물 제목 -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> {{ companyName }} 담당자 등록</h6>
+        </div>
+        <!-- 카드 본문 -->
+        <div class="card-body">
+          <form id="Customerform" method="POST">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-xl-12 col-sm-12">
+                <label for="customerName" class="font-weight-bold text-primary"> 담당자 명 </label> {{ form.customerName }}
+                <br>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-12 col-sm-12">
+                <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
+                <br>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-12 col-sm-12">
+                <label for="customerDeptName" class="font-weight-bold text-primary"> 담당자 부서 </label> {{ form.customerDeptName }}
+                <br>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-12 col-sm-10">
+                 <label for="customerPhone" class="font-weight-bold text-primary"> 담당자 연락처 </label> {{ form.customerPhone }}
+                <br>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-12 col-sm-10">
+                 <label for="customerEmail" class="font-weight-bold text-primary"> 담당자 이메일 </label> {{ form.customerEmail }}
+                <br>
+              </div>
+            </div>
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 등록 </span>
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2"></div>
+  </div>
+{% endblock %}
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              history.back();
+          } else {
+              return false;
+          }
+      }
+
+      function btn_save() {
+          document.getElementById("Customerform").submit();
+      }
+
+      $(document).ready(function () {
+          $("select option[value='{{ companyName }}']").attr("selected", true);
+      });
+
+
+  </script>
+
+{% endblock %}
