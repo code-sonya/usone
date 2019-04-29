@@ -32,7 +32,7 @@ def selectreceiver(request, serviceId):
     template = loader.get_template('mail/selectreceiver.html')
 
     servicereport = Servicereport.objects.get(serviceId=serviceId)
-    customers = Customer.objects.filter(companyName=servicereport.companyName)
+    customers = Customer.objects.filter(Q(companyName=servicereport.companyName)&Q(customerStatus='Y'))
     deptmanager = Employee.objects.filter(Q(empManager="Y") &
                                           Q(empDeptName=request.user.employee.empDeptName))
     company = Company.objects.get(companyName=servicereport.companyName)
