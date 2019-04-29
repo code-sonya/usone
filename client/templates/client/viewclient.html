@@ -97,7 +97,14 @@
               </td>
             </tr>
             <tr class="row">
-              <th class="col-2 a">담당자</th>
+              <th class="col-2 a">담당자<br>
+                <a href="#" class="btn btn-info btn-icon-split btn-sm" onclick="location.href='/client/postcustomer/{{ company.companyName }}'">
+                    <span class="icon text-white-50">
+                      <i class="fas fa-check"></i>
+                    </span>
+                  <span class="text">담당자 등록</span>
+                </a>
+              </th>
               <td class="col-10">
                 {% for customer in customers %}
                   <a href="/client/viewcustomer/{{ customer.pk }}">
@@ -223,28 +230,28 @@
           <table id="showclients" class="table mb-0" width="100%" style="color:black">
             <thead>
             <tr>
-                <th class="d-none" >No</th>
-                <th>날짜</th>
-                <th class="d-none">empId</th>
-                <th>엔지니어</th>
-                <th>부서</th>
-                <th class="d-none">companyName</th>
-                <th>지원타입</th>
-                <th class="d-none">serviceStartDatetime</th>
-                <th class="d-none">serviceEndDatetime</th>
-                <th class="d-none">serviceFinishDatetime</th>
-                <th class="d-none">serviceOverHour</th>
-                <th class="d-none">serviceRegHour</th>
-                <th class="d-none">serviceLocation</th>
-                <th class="d-none">directgo</th>
-                <th>지원내용</th>
-                <th class="d-none">serviceDetails</th>
-                <th class="d-none">customerName</th>
-                <th class="d-none">customerDeptName</th>
-                <th class="d-none">customerPhone</th>
-                <th class="d-none">customerEmail</th>
-                <th class="d-none">serviceSignPath</th>
-                <th class="d-none">serviceStatus</th>
+              <th class="d-none">No</th>
+              <th>날짜</th>
+              <th class="d-none">empId</th>
+              <th>엔지니어</th>
+              <th>부서</th>
+              <th class="d-none">companyName</th>
+              <th>지원타입</th>
+              <th class="d-none">serviceStartDatetime</th>
+              <th class="d-none">serviceEndDatetime</th>
+              <th class="d-none">serviceFinishDatetime</th>
+              <th class="d-none">serviceOverHour</th>
+              <th class="d-none">serviceRegHour</th>
+              <th class="d-none">serviceLocation</th>
+              <th class="d-none">directgo</th>
+              <th>지원내용</th>
+              <th class="d-none">serviceDetails</th>
+              <th class="d-none">customerName</th>
+              <th class="d-none">customerDeptName</th>
+              <th class="d-none">customerPhone</th>
+              <th class="d-none">customerEmail</th>
+              <th class="d-none">serviceSignPath</th>
+              <th class="d-none">serviceStatus</th>
             </tr>
             </thead>
           </table>
@@ -272,7 +279,7 @@
                   "dataSrc": ""
               },
               "columns": [
-                  {data : "pk"},
+                  {data: "pk"},
                   {data: "fields.serviceDate"},
                   {data: "fields.empId"},
                   {data: "fields.empName"},
@@ -301,7 +308,7 @@
                   {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 14, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: [0,2,5,7,8,9,10,11,12,13,15,16,17,18,19,20,21], visible: false},
+                  {targets: [0, 2, 5, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21], visible: false},
                   {"orderable": false, "targets": [6, 0]},
               ],
               "order": [[1, 'desc'], [3, 'asc']],

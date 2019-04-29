@@ -1,31 +1,20 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
-from django.shortcuts import render
-
-# Create your views here.
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 import json
-# Create your views here.
 from django.http import HttpResponse
 from django.template import loader
-import pandas as pd
-from datetime import datetime, timedelta
-import requests
 from django.db.models import Q
-from dateutil.relativedelta import relativedelta
 from django.views.decorators.csrf import csrf_exempt
-
-from scheduler.models import Eventday
-from service.models import Servicereport, Vacation
-from django.contrib.auth.models import User
-from django.http import QueryDict
-from django.db.models import FloatField
-from django.db.models import F, Sum, Count, Case, When
+from service.models import Servicereport
 from .models import Company, Customer
-from .forms import CompanyForm
+from .forms import CompanyForm, CustomerForm
 from hr.models import Employee
 from django.core import serializers
 
+
+@login_required
 @csrf_exempt
 def client_asjson(request):
     companyName = request.POST['companyName']
@@ -33,14 +22,18 @@ def client_asjson(request):
     json = serializers.serialize('json', services)
     return HttpResponse(json, content_type='application/json')
 
+
+@login_required
 @csrf_exempt
 def list_asjson(request):
     companylist = Company.objects.filter(companyStatus='Y')
     companylist = companylist.values('companyName', 'saleEmpId__empName', 'dbMainEmpId__empName', 'dbSubEmpId__empName', 'solutionMainEmpId__empName',
-                                     'solutionSubEmpId__empName', 'dbContractEndDate','solutionContractEndDate')
+                                     'solutionSubEmpId__empName', 'dbContractEndDate', 'solutionContractEndDate')
     structure = json.dumps(list(companylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
+@login_required
 @csrf_exempt
 def filter_asjson(request):
     companyName = request.POST["companyName"]
@@ -78,103 +71,118 @@ def filter_asjson(request):
         )
 
     companylist = companylist.values('companyName', 'saleEmpId__empName', 'dbMainEmpId__empName', 'dbSubEmpId__empName', 'solutionMainEmpId__empName',
-                                     'solutionSubEmpId__empName', 'dbContractEndDate','solutionContractEndDate')
+                                     'solutionSubEmpId__empName', 'dbContractEndDate', 'solutionContractEndDate')
     structure = json.dumps(list(companylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
+@login_required
 def show_clientlist(request):
-    if request.user.id:  # 로그인 유무
-        template = loader.get_template('client/showclientlist.html')
+    template = loader.get_template('client/showclientlist.html')
 
-        if request.method == "POST":
-            companyName = request.POST["companyName"]
-            empName = request.POST["empName"]
-            chkbox = request.POST.getlist('chkbox')
+    if request.method == "POST":
+        companyName = request.POST["companyName"]
+        empName = request.POST["empName"]
+        chkbox = request.POST.getlist('chkbox')
 
-            context = {
-                'filter': "Y",
-                'companyName':companyName,
-                'empName':empName,
-                'chkbox':chkbox
-            }
-
-        else:
-            context = {
-                'filter': 'N',
-            }
-
-        return HttpResponse(template.render(context, request))
+        context = {
+            'filter': "Y",
+            'companyName': companyName,
+            'empName': empName,
+            'chkbox': chkbox
+        }
 
     else:
-        return redirect('login')
+        context = {
+            'filter': 'N',
+        }
 
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
 def post_client(request):
-    userId = request.user.id  # 로그인 유무 판단 변수
     template = loader.get_template('client/postclient.html')
-
-    if userId:
-
-        if request.method == "POST":
-            form = CompanyForm(request.POST)
-            post = form.save(commit=False)
-            post.companyStatus = 'X'
-            post.save()
-            return redirect('client:show_clientlist')
-
-        else:
-            form = CompanyForm()
-            context = {
-                'form': form,
-            }
-            return HttpResponse(template.render(context, request))
+    if request.method == "POST":
+        form = CompanyForm(request.POST)
+        post = form.save(commit=False)
+        post.companyStatus = 'X'
+        post.save()
+        return redirect('client:show_clientlist')
 
     else:
-        return redirect('login')
+        form = CompanyForm()
+        context = {
+            'form': form,
+        }
+        return HttpResponse(template.render(context, request))
 
+
+@login_required
 def view_client(request, companyName):
-    userId = request.user.id  # 로그인 유무 판단 변수
     template = loader.get_template('client/viewclient.html')
-    if userId:
-        company = Company.objects.get(companyName=companyName)
-        customers = Customer.objects.filter(companyName=companyName)
+    company = Company.objects.get(companyName=companyName)
+    customers = Customer.objects.filter(companyName=companyName)
+    try:
+        dbms = json.loads(company.companyDbms)
+    except:
+        dbms = "{}"
+    if request.method == 'POST':
         try:
-            dbms = json.loads(company.companyDbms)
+            company.dbComment = request.POST["dbtextArea"]
+            company.save()
         except:
-            dbms = "{}"
-        if request.method == 'POST':
-            try:
-                company.dbComment = request.POST["dbtextArea"]
-                company.save()
-            except:
-                company.solutionComment = request.POST["soltextArea"]
-                company.save()
+            company.solutionComment = request.POST["soltextArea"]
+            company.save()
 
-        context = {
-            'company': company,
-            'customers':customers,
-            'dbms' : dbms,
-        }
-        return HttpResponse(template.render(context, request))
+    context = {
+        'company': company,
+        'customers': customers,
+        'dbms': dbms,
+    }
+    return HttpResponse(template.render(context, request))
 
-    else:
-        return redirect('login')
 
+@login_required
 def view_customer(request, customerId):
-    userId = request.user.id  # 로그인 유무 판단 변수
-    template = loader.get_template('client/viewcustomer.html')
-    if userId:
-        customer = Customer.objects.get(customerId=customerId)
-        if request.method == 'POST':
-            customer.customerName = request.POST["customerName"]
-            customer.customerDeptName = request.POST["customerDept"]
-            customer.customerEmail = request.POST["customerEmail"]
-            customer.customerPhone = request.POST["customerPhone"]
-            customer.save()
 
-        context = {
-            'customer': customer,
-        }
-        return HttpResponse(template.render(context, request))
+    template = loader.get_template('client/viewcustomer.html')
+    customer = Customer.objects.get(customerId=customerId)
+    if request.method == 'POST':
+        customer.customerName = request.POST["customerName"]
+        customer.customerDeptName = request.POST["customerDept"]
+        customer.customerEmail = request.POST["customerEmail"]
+        customer.customerPhone = request.POST["customerPhone"]
+        customer.save()
+        return redirect('client:view_client', customer.companyName)
+
+    context = {
+        'customer': customer,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def delete_customer(request, customerId):
+    customer = Customer.objects.filter(customerId=customerId).first()
+    companyName = customer.companyName
+    customer.delete()
+    return redirect('client:view_client', companyName)
+
+@login_required
+def post_customer(request, companyName):
+    if request.method == "POST":
+        form = CustomerForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('client:view_client', companyName)
 
     else:
-        return redirect('login')
+        form = CustomerForm()
+        context = {
+            'form': form,
+            'companyName':companyName
+        }
+        return render(request, 'client/postcustomer.html', context)
+

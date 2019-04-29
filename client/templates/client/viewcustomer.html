@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  담당 정보
+  담당자 정보
 {% endblock %}
 
 
@@ -27,34 +27,38 @@
           <form id="customerInfo" method="POST">
             {% csrf_token %}
             <div class="row">
-              <div class="col-xl-8 col-sm-10">
+              <div class="col-xl-12 col-sm-12">
                 <label for="customerName" class="text-primary font-weight-bold">담당자 명:</label>
                 <input id="customerName" name="customerName" type="text" class="form-control" value="{% if customer.customerName %}{{ customer.customerName }}{% else %}-{% endif %}">
                 <br>
               </div>
             </div>
             <div class="row">
-              <div class="col-xl-8 col-sm-10">
+              <div class="col-xl-12 col-sm-12">
                 <label for="customerDept" class="text-primary font-weight-bold">담당자 부서:</label>
                 <input id="customerDept" name="customerDept" type="text" class="form-control" value="{% if customer.customerDeptName %}{{ customer.customerDeptName }}{% else %}-{% endif %}">
                 <br>
               </div>
             </div>
             <div class="row">
-              <div class="col-xl-8 col-sm-10">
+              <div class="col-xl-12 col-sm-10">
                 <label for="customerPhone" class="text-primary font-weight-bold">담당자 연락처: </label>
                 <input id="customerPhone" name="customerPhone" type="text" class="form-control" value="{% if customer.customerPhone %}{{ customer.customerPhone }}{% else %}-{% endif %}">
                 <br>
               </div>
             </div>
             <div class="row">
-              <div class="col-xl-8 col-sm-10">
+              <div class="col-xl-12 col-sm-10">
                 <label for="customerEmail" class="text-primary font-weight-bold">담당자 이메일:</label>
                 <input id="customerEmail"name="customerEmail" type="text" class="form-control" value="{% if customer.customerEmail %}{{ customer.customerEmail }}{% else %}-{% endif %}">
                 <br>
               </div>
             </div>
             <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+                <span class="icon text-white-50"> <i class="fas fa-trash"> </i> </span>
+                <span class="text"> 삭제 </span>
+              </a>
               <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
                 <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
                 <span class="text"> 수정 </span>
@@ -75,6 +79,11 @@
       function btn_modify(){
           if (confirm("담당자 정보를 수정 하시겠습니까?") === true) {
               $("#customerInfo").submit();
+          }
+      }
+      function btn_delete(){
+          if (confirm("담당자 정보를 삭제 하시겠습니까?") === true) {
+              location.href = '/client/deletecustomer/' + {{ customer.customerId }} + '/';
           }
       }
 
