@@ -1,26 +1,27 @@
+import datetime
 import os
-from django.conf import settings
+
 import pandas as pd
-from datetime import datetime, timedelta
-from django.db.models import Q
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db.models import Q
+from django.http import QueryDict
 
 from scheduler.models import Eventday
 from .models import Servicereport, Vacation
-from django.contrib.auth.models import User
-from django.http import QueryDict
 
 
 def date_list(startDatetime, endDatetime):
-    startDate = datetime(year=int(startDatetime[:4]), month=int(startDatetime[5:7]), day=int(startDatetime[8:10]))
-    endDate = datetime(year=int(endDatetime[:4]), month=int(endDatetime[5:7]), day=int(endDatetime[8:10]))
-    dateRange = [(startDate + timedelta(days=x)).date() for x in range(0, (endDate - startDate).days + 1)]
+    startDate = datetime.datetime(year=int(startDatetime[:4]), month=int(startDatetime[5:7]), day=int(startDatetime[8:10]))
+    endDate = datetime.datetime(year=int(endDatetime[:4]), month=int(endDatetime[5:7]), day=int(endDatetime[8:10]))
+    dateRange = [(startDate + datetime.timedelta(days=x)).date() for x in range(0, (endDate - startDate).days + 1)]
     return dateRange
 
 
 def month_list(startDatetime, endDatetime):
-    startDatetime = datetime(year=int(startDatetime[:4]), month=int(startDatetime[5:7]), day=int(startDatetime[8:10]))
-    endDatetime = datetime(year=int(endDatetime[:4]), month=int(endDatetime[5:7]), day=int(endDatetime[8:10]))
+    startDatetime = datetime.datetime(year=int(startDatetime[:4]), month=int(startDatetime[5:7]), day=int(startDatetime[8:10]))
+    endDatetime = datetime.datetime(year=int(endDatetime[:4]), month=int(endDatetime[5:7]), day=int(endDatetime[8:10]))
 
     monthRange = []
     insertDate = startDatetime
@@ -31,10 +32,10 @@ def month_list(startDatetime, endDatetime):
 
 
 def str_to_timedelta_hour(str_endDatetime, str_startDatetime):
-    e = datetime(year=int(str(str_endDatetime)[:4]), month=int(str(str_endDatetime)[5:7]), day=int(str(str_endDatetime)[8:10]),
-                 hour=int(str(str_endDatetime)[11:13]), minute=int(str(str_endDatetime)[14:16]), second=0)
-    s = datetime(year=int(str(str_startDatetime)[:4]), month=int(str(str_startDatetime)[5:7]), day=int(str(str_startDatetime)[8:10]),
-                 hour=int(str(str_startDatetime)[11:13]), minute=int(str(str_startDatetime)[14:16]), second=0)
+    e = datetime.datetime(year=int(str(str_endDatetime)[:4]), month=int(str(str_endDatetime)[5:7]), day=int(str(str_endDatetime)[8:10]),
+                          hour=int(str(str_endDatetime)[11:13]), minute=int(str(str_endDatetime)[14:16]), second=0)
+    s = datetime.datetime(year=int(str(str_startDatetime)[:4]), month=int(str(str_startDatetime)[5:7]), day=int(str(str_startDatetime)[8:10]),
+                          hour=int(str(str_startDatetime)[11:13]), minute=int(str(str_startDatetime)[14:16]), second=0)
     return round((e-s).total_seconds() / 60 / 60, 1)
 
 
@@ -52,8 +53,8 @@ def work_hours(start, end):
 
 
 def overtime(str_start_datetime, str_end_datetime):
-    is_holiday_startdate = is_holiday(datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
-    is_holiday_enddate = is_holiday(datetime.strptime(str_end_datetime[:10], "%Y-%m-%d").date())
+    is_holiday_startdate = is_holiday(datetime.datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
+    is_holiday_enddate = is_holiday(datetime.datetime.strptime(str_end_datetime[:10], "%Y-%m-%d").date())
     d_start = pd.Timestamp(str_start_datetime)
     d_finish = pd.Timestamp(str_end_datetime)
 
@@ -65,31 +66,31 @@ def overtime(str_start_datetime, str_end_datetime):
     if s_week in [5, 6] or is_holiday_startdate != 0:  # 주말이거나 공휴일 일때
         if d_start.minute != 0:
             minute_sum += (60 - d_start.minute)
-            d_start = d_start + timedelta(minutes=(60 - d_start.minute))
+            d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
 
     else:  # 평일 일때
         if d_start.minute != 0:  # 정각 시작하지 않은 경우
             if d_start.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
                 minute_sum += (60 - d_start.minute)
-                d_start = d_start + timedelta(minutes=(60 - d_start.minute))
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
             else:  # 초과 근무에 해당 하지 않는 경우
-                d_start = d_start + timedelta(minutes=(60 - d_start.minute))
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
 
     if f_week in [5, 6] or is_holiday_enddate != 0:  # 주말이거나 공휴일 일때
         if d_finish.minute != 0:
             minute_sum += d_finish.minute
-            d_finish = d_finish - timedelta(minutes=d_finish.minute)
+            d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
 
     else:  # 평일 일때
         if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
             if d_finish.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
                 minute_sum += d_finish.minute
-                d_finish = d_finish - timedelta(minutes=d_finish.minute)
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
             else:
-                d_finish = d_finish - timedelta(minutes=d_finish.minute)
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
 
     for i in range(0, work_hours(d_start, d_finish), 1):
-        a = (d_start + timedelta(hours=i))
+        a = (d_start + datetime.timedelta(hours=i))
         event_a = is_holiday(a.date())
         a_week = a.weekday()
 
@@ -136,9 +137,9 @@ def dayreport_sort(x):
 
 
 def dayreport_query(empDeptName, day):
-    Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    Date_min = datetime.combine(Date, datetime.min.time())
-    Date_max = datetime.combine(Date, datetime.max.time())
+    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    Date_min = datetime.datetime.combine(Date, datetime.datetime.min.time())
+    Date_max = datetime.datetime.combine(Date, datetime.datetime.max.time())
 
     serviceDept = Servicereport.objects.filter(
         Q(empDeptName=empDeptName) & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
@@ -190,7 +191,7 @@ def dayreport_query(empDeptName, day):
             'serviceId': '',
             'flag': '휴가',
             'empName': vacation.empName,
-            'serviceStartDatetime': datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
+            'serviceStartDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
             'serviceEndDatetime': '',
             'serviceStatus': '',
             'companyName': '',
@@ -209,8 +210,8 @@ def dayreport_query(empDeptName, day):
             'serviceId': '',
             'flag': flag,
             'empName': emp.employee.empName,
-            'serviceStartDatetime': datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
-            'serviceEndDatetime': datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
+            'serviceStartDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
+            'serviceEndDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
             'serviceStatus': '',
             'companyName': emp.employee.dispatchCompany,
             'serviceType': serviceType,
@@ -229,10 +230,10 @@ def dayreport_query(empDeptName, day):
 
 
 def dayreport_query2(empDeptName, day):
-    Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    Date_min = datetime.combine(Date, datetime.min.time())
-    Date_max = datetime.combine(Date, datetime.max.time())
-    if datetime.weekday(Date) >= 5 or Eventday.objects.filter(eventDate=Date):
+    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    Date_min = datetime.datetime.combine(Date, datetime.datetime.min.time())
+    Date_max = datetime.datetime.combine(Date, datetime.datetime.max.time())
+    if datetime.datetime.weekday(Date) >= 5 or Eventday.objects.filter(eventDate=Date):
         holiday = True
     else:
         holiday = False
@@ -294,8 +295,8 @@ def dayreport_query2(empDeptName, day):
                 'serviceId': '',
                 'flag': flag,
                 'empName': emp.employee.empName,
-                'serviceStartDatetime': datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
-                'serviceEndDatetime': datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
+                'serviceStartDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
+                'serviceEndDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
                 'serviceStatus': '',
                 'companyName': emp.employee.dispatchCompany,
                 'serviceType': '',
