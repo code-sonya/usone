@@ -203,7 +203,7 @@ def over_hour(request):
 @csrf_exempt
 def over_asjson(request):
     overHour = Servicereport.objects.filter(serviceOverHour__gt=0)
-    overHourlist = overHour.values('serviceStartDatetime', 'serviceEndDatetime', 'empId__empName', 'empId__empDeptName', 'companyName','serviceOverHour')
+    overHourlist = overHour.values('serviceStartDatetime', 'serviceEndDatetime', 'empId__empName', 'empId__empDeptName', 'companyName','serviceOverHour','serviceId')
     structure = json.dumps(list(overHourlist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 

@@ -57,6 +57,15 @@
       <!-- Divider -->
       <hr class="sidebar-divider">
 
+      {% if user.employee.empDeptName == '경영지원본부' %}
+       <!-- Nav Item - Daily Report -->
+      <li class="nav-item">
+        <a class="nav-link" href="/dashboard/overhour/">
+          <i class="fas fa-fw fa-clock"></i>
+          <span>초과근무계산</span></a>
+      </li>
+      {% endif %}
+
       <!-- Nav Item - Daily Report -->
       <li class="nav-item">
         <a class="nav-link" href="#" onclick="btn_dayreport()">
