@@ -194,6 +194,12 @@
                           "next": "다음",
                           "previous": "이전"
                       },
+                  },
+                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                      if (aData.companyName != "") {
+                          $('td:eq(0)', nRow).css('color', '#4e73df');
+                          {#$('td:eq(0)', nRow).css('color', '#4e73df').css('font-weight','bold');#}
+                      }
                   }
               });
           {% else %}
@@ -271,7 +277,7 @@
           {% endif %}
 
           var table = $('#showclientlist').DataTable();
-      
+
           $("#showclientlist").on("click", 'tr', function () {
               const data = table.row(this).data();
               location.href = '/client/viewclient/' + data.companyName + '/'
