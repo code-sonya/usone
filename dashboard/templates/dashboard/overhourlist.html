@@ -1,0 +1,265 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  초과근무리스트
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+  .buttons-copy{
+    background-color: #4e73df;
+    color:white;
+  }
+
+  .buttons-csv{
+    background-color: #1cc88a;
+    color:white;
+  }
+
+  .buttons-excel{
+    background-color: #36b9cc;
+    color:white;
+  }
+
+  .buttons-print{
+    background-color: #f6c23e;
+    color:white;
+  }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-1"></div>
+
+    <div class="col-xl-10 d-xl-block">
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">초과 근무</h6>
+
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          {% csrf_token %}
+
+          <div class="table-responsive">
+            <table id="overhourlist" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>지원시작일자</th>
+                <th>지원종료일자</th>
+                <th>엔지니어명</th>
+                <th>엔지니어부서</th>
+                <th>고객사명</th>
+                <th>초과근무시간</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-xl-1"></div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
+                <input type="date" class="form-control" id="startdate" name="startdate">
+              </div>
+              <div class="col-6">
+                <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
+                <input type="date" class="form-control" id="enddate" name="enddate">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.flash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+  <script type="text/javascript">
+
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0,16);
+      }
+
+      $(document).ready(function () {
+
+
+          {% if filter == 'Y'%}
+              $('#overhourlist').DataTable({
+                  "processing": true,
+                  "ajax": {
+                      "processing": true,
+                      "type": 'POST',
+                      "data": {
+                          "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
+                          "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                      },
+                      "url": "{% url 'dashboard:filter_ajax_url' %}",
+                      "dataSrc": ""
+                  },
+                  dom: 'Bfrtip',
+                  buttons: [
+                      'copy', 'csv', 'excel','print'
+                  ],
+                  columns: [
+                      {data: "serviceStartDatetime"},
+                      {data: "serviceEndDatetime"},
+                      {data: "empId__empName"},
+                      {data: "empId__empDeptName"},
+                      {data: "companyName"},
+                      {data: "serviceOverHour"},
+                  ],
+                  columnDefs: [
+                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  ],
+                  "searching": true,
+                  "paging": true,
+                  "info": false,
+                  "scrollY": "80vh",
+                  "scrollCollapse": true,
+                  "order": [[0, 'asc']],
+                  "language": {
+                      "lengthMenu": "_MENU_ 개씩 보기",
+                      "search": "검색:",
+                      "paginate": {
+                          "first": "처음",
+                          "last": "끝",
+                          "next": "다음",
+                          "previous": "이전"
+                      },
+                  },
+                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                      if (aData.serviceStartDatetime != "") {
+                          $('td:eq(0)', nRow).text(replaceAll(aData.serviceStartDatetime,"-","."));
+                      }
+
+                      if (aData.serviceEndDatetime != "") {
+                          $('td:eq(1)', nRow).text(replaceAll(aData.serviceEndDatetime,"-","."));
+                      }
+                  }
+              });
+          {% else %}
+              $('#overhourlist').DataTable({
+                  "processing": true,
+                  "ajax": {
+                      "processing": true,
+                      "url": "{% url 'dashboard:over_ajax_url' %}",
+                      "dataSrc": ""
+                  },
+                  dom: 'Bfrtip',
+                  buttons: [
+                      'copy', 'csv', 'excel','print'
+                  ],
+                  columns: [
+                      {data: "serviceStartDatetime"},
+                      {data: "serviceEndDatetime"},
+                      {data: "empId__empName"},
+                      {data: "empId__empDeptName"},
+                      {data: "companyName"},
+                      {data: "serviceOverHour"},
+                  ],
+                  columnDefs: [
+                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  ],
+                  "searching": true,
+                  "paging": true,
+                  "info": false,
+                  "scrollY": "80vh",
+                  "order": [[0, 'desc']],
+                  "scrollCollapse": true,
+                  "language": {
+                      "search": "검색:",
+                      "paginate": {
+                          "first": "처음",
+                          "last": "끝",
+                          "next": "다음",
+                          "previous": "이전"
+                      },
+                  },
+                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                      if (aData.serviceStartDatetime != "") {
+                          $('td:eq(0)', nRow).text(replaceAll(aData.serviceStartDatetime,"-","."));
+                      }
+
+                      if (aData.serviceEndDatetime != "") {
+                          $('td:eq(1)', nRow).text(replaceAll(aData.serviceEndDatetime,"-","."));
+                      }
+                  }
+              });
+          {% endif %}
+
+          var table = $('#overhourlist').DataTable();
+
+          $("#overhourlist").on("click", 'tr', function () {
+              const data = table.row(this).data();
+              location.href = '/client/viewclient/' + data.companyName + '/'
+          });
+
+
+      });
+
+  </script>
+
+{% endblock %}
