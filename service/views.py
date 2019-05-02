@@ -1,25 +1,19 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, QueryDict
-from django.db.models import Q, Sum
-from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
-from django.template.loader import get_template
-from django.contrib.auth.decorators import login_required
 
-from .models import Servicereport, Serviceform, Vacation
-from client.models import Company, Customer
+from django.contrib.auth.decorators import login_required
+from django.core import serializers
+from django.db.models import Sum
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.template.loader import get_template
+from django.views.decorators.csrf import csrf_exempt
+from xhtml2pdf import pisa
+
 from hr.models import Employee
 from noticeboard.models import Board
-from scheduler.models import Eventday
 from .forms import ServicereportForm, ServiceformForm
-
 from .functions import *
-import datetime
-from xhtml2pdf import pisa
-import json
-from django.http import HttpResponse
-from django.core import serializers
+from .models import Serviceform
 
 
 @login_required
