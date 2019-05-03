@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'dashboard',
     'signature',
     'sales',
-    'django_mysql',
 ]
 
 MIDDLEWARE = [
