@@ -528,7 +528,9 @@ def day_report_bak(request, day):
 
 
 @login_required
-def day_report(request, day=str(datetime.datetime.today())[:10]):
+def day_report(request, day=None):
+    if day is None:
+        day = str(datetime.datetime.today())[:10]
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     beforeDate = Date - datetime.timedelta(days=1)
     afterDate = Date + datetime.timedelta(days=1)
