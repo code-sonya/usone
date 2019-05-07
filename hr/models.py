@@ -31,4 +31,4 @@ class Employee(models.Model):
     empStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     def __str__(self):
-        return 'Employee : {}'.format(self.empName)
+        return self.empName
