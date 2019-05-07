@@ -41,6 +41,7 @@
     <i class="fas fa-angle-right" onclick="location.href='/service/dayreport/{{ afterDate | date:'Y-m-d' }}/'"></i>
   </h3>
 
+  {% if user.employee.empDeptName != "DB지원팀" %}
   <div class="row">
 
     <div class="col-xl-6">
@@ -588,6 +589,555 @@
 
     </div>
   </div>
+  {% else %}
+    <div class="row">
+
+    <div class="col-xl-6">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> DB지원팀 </h6>
+
+        </div>
+
+        <div class="card-body">
+
+          <!-- 일정 -->
+          <h5 class="text-gray-700">
+            <i class="fas fa-briefcase"></i>
+            일정
+          </h5>
+
+          <!-- 일정: PC화면(1200px이상) -->
+          <table class="table mb-0 d-none d-xl-table" width="100%">
+
+            <thead>
+            <tr>
+              <td width="5%"><b>구분</b></td>
+              <td width="10%"><b>성함</b></td>
+              <td width="20%"><b>시간</b></td>
+              <td width="20%"><b>고객사</b></td>
+              <td width="45%"><b>업무내용</b></td>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for q in serviceDb %}
+              <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+
+                <!-- 구분: 직출, 상주-->
+                <td>
+                  {% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}
+                  {% if q.flag == '상주' %} <b style="color: #333333">상주</b> {% endif %}
+                </td>
+
+                <!-- 성함 -->
+                <td>
+                  {% ifchanged q.empName %}
+                    <b>{{ q.empName }}</b><br>
+                  {% endifchanged %}
+                </td>
+
+                <!-- 시간: 해당일 전후 표시, 완료 표시 -->
+                <td>
+                  {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+
+                  {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
+                    <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                  {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                    <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                  {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                    <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                  {% endif %}
+
+                  {% if q.serviceStatus == 'Y' %}
+                    <div style="color:red">(완료)</div>
+                  {% endif %}
+                </td>
+
+                <!-- 고객사: 내근, 상주는 업무 구분 표시x -->
+                <td>
+                  {{ q.companyName }}<br>
+                  {% if q.serviceType %}
+                    ({{ q.serviceType }})
+                  {% endif %}
+                </td>
+
+                <!-- 업무내용: 휴가 시 반차 종류 표시 -->
+                <td style="white-space: normal">{{ q.serviceTitle }}</td>
+
+              </tr>
+            {% endfor %}
+            </tbody>
+
+          </table>
+
+          <!-- 일정: 모바일화면(1200px미만) -->
+          <table class="table mb-0 d-xl-none" width="100%">
+
+            <thead>
+            <tr>
+              <td width="10%"><b>성함</b></td>
+              <td width="20%"><b>시간</b></td>
+              <td width="20%"><b>고객사</b></td>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for q in serviceDb %}
+              <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+
+                <!-- 성함: 직출, 상주 표시 -->
+                <td rowspan="2">
+                  {% ifchanged q.empName %}
+                    <b>{{ q.empName }}</b><br>
+                  {% endifchanged %}
+                  {% if q.flag == '직출' %} <b style="color: #4e73df">(직출)</b> {% endif %}
+                  {% if q.flag == '상주' %} <b style="color: #333333">(상주)</b> {% endif %}
+                </td>
+
+                <!-- 시간: 해당일 전후 표시, 완료 표시 -->
+                <td>
+                  {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+
+                  {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
+                    <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                  {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                    <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                  {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                    <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                  {% endif %}
+
+                  {% if q.serviceStatus == 'Y' %}
+                    <div style="color:red">(완료)</div>
+                  {% endif %}
+                </td>
+
+                <!-- 고객사: 내근, 상주는 업무 구분 표시x -->
+                <td>
+                  {{ q.companyName }}<br>
+                  {% if q.serviceType %}
+                    ({{ q.serviceType }})
+                  {% endif %}
+                </td>
+
+              </tr>
+
+              <!-- 업무내용: 다음줄로 변경 -->
+              <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+                <td colspan="2" style="white-space: normal">{{ q.serviceTitle }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+
+          </table>
+
+          <!-- 교육 -->
+          {% if educationDb %}
+            <br>
+            <h5 class="text-gray-700">
+              <i class="fas fa-book-open"></i>
+              교육
+            </h5>
+
+            <!-- 교육: PC화면(1200px이상) -->
+            <table class="table mb-0 d-none d-xl-table" width="100%">
+
+              <thead>
+              <tr>
+                <td width="5%"><b>구분</b></td>
+                <td width="10%"><b>성함</b></td>
+                <td width="20%"><b>시간</b></td>
+                <td width="65%"><b>교육내용</b></td>
+              </tr>
+              </thead>
+
+              <tbody>
+              {% for q in educationDb %}
+                <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+
+                  <!-- 구분: 직출 -->
+                  <td class="d-none d-xl-table-cell">
+                    {% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}
+                  </td>
+
+                  <!-- 성함 -->
+                  <td>
+                    {% ifchanged q.empName %}
+                      <b>{{ q.empName }}</b><br>
+                    {% endifchanged %}
+                  </td>
+
+                  <!-- 시간: 해당일 전후 표시, 완료 표시 -->
+                  <td>
+                    {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+
+                    {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% endif %}
+
+                    {% if q.serviceStatus == 'Y' %}
+                      <div style="color:red">(완료)</div>
+                    {% endif %}
+                  </td>
+
+                  <!-- 교육내용 -->
+                  <td style="white-space: normal">{{ q.serviceTitle }}</td>
+
+                </tr>
+              {% endfor %}
+              </tbody>
+
+            </table>
+
+            <!-- 교육: 모바일화면(1200px미만) -->
+           <table class="table mb-0 d-xl-none" width="100%">
+
+              <thead>
+              <tr>
+                <td width="10%"><b>성함</b></td>
+                <td width="90%"><b>시간</b></td>
+              </tr>
+              </thead>
+
+              <tbody>
+              {% for q in educationDb %}
+                <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+
+                  <!-- 성함 -->
+                  <td rowspan="2">
+                    {% ifchanged q.empName %}
+                      <b>{{ q.empName }}</b><br>
+                    {% endifchanged %}
+                    {% if q.flag == '직출' %} <b class="d-xl-none" style="color: #4e73df">(직출)</b> {% endif %}
+                  </td>
+
+                  <!-- 시간: 해당일 전후 표시, 완료 표시 -->
+                  <td>
+                    {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+
+                    {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% endif %}
+
+                    {% if q.serviceStatus == 'Y' %}
+                      <div style="color:red">(완료)</div>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <!-- 교육내용 -->
+                  <td style="white-space: normal">{{ q.serviceTitle }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+
+            </table>
+          {% endif %}
+
+          <!-- 휴가 -->
+          {% if vacationDb %}
+            <br>
+            <h5 class="text-gray-700">
+              <i class="fas fa-plane-departure"></i>
+              휴가
+            </h5>
+
+            {% for q in vacationDb %}
+              <li style="text-indent: 16px;"> ({{ q.vacationType }}) {{ q.empName }} </li>
+            {% endfor %}
+          {% endif %}
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-6">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 솔루션지원팀 </h6>
+
+        </div>
+
+        <div class="card-body">
+
+          <!-- 일정 -->
+          <h5 class="text-gray-700">
+            <i class="fas fa-briefcase"></i>
+            일정
+          </h5>
+
+          <!-- 일정: PC화면(1200px이상) -->
+          <table class="table mb-0 d-none d-xl-table" width="100%">
+
+            <thead>
+            <tr>
+              <td width="5%"><b>구분</b></td>
+              <td width="10%"><b>성함</b></td>
+              <td width="20%"><b>시간</b></td>
+              <td width="20%"><b>고객사</b></td>
+              <td width="45%"><b>업무내용</b></td>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for q in serviceSolution %}
+              <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+
+                <!-- 구분: 직출, 상주-->
+                <td>
+                  {% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}
+                  {% if q.flag == '상주' %} <b style="color: #333333">상주</b> {% endif %}
+                </td>
+
+                <!-- 성함 -->
+                <td>
+                  {% ifchanged q.empName %}
+                    <b>{{ q.empName }}</b><br>
+                  {% endifchanged %}
+                </td>
+
+                <!-- 시간: 해당일 전후 표시, 완료 표시 -->
+                <td>
+                  {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+
+                  {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
+                    <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                  {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                    <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                  {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                    <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                  {% endif %}
+
+                  {% if q.serviceStatus == 'Y' %}
+                    <div style="color:red">(완료)</div>
+                  {% endif %}
+                </td>
+
+                <!-- 고객사: 내근, 상주는 업무 구분 표시x -->
+                <td>
+                  {{ q.companyName }}<br>
+                  {% if q.serviceType %}
+                    ({{ q.serviceType }})
+                  {% endif %}
+                </td>
+
+                <!-- 업무내용: 휴가 시 반차 종류 표시 -->
+                <td style="white-space: normal">{{ q.serviceTitle }}</td>
+
+              </tr>
+            {% endfor %}
+            </tbody>
+
+          </table>
+
+          <!-- 일정: 모바일화면(1200px미만) -->
+          <table class="table mb-0 d-xl-none" width="100%">
+
+            <thead>
+            <tr>
+              <td width="10%"><b>성함</b></td>
+              <td width="20%"><b>시간</b></td>
+              <td width="20%"><b>고객사</b></td>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for q in serviceSolution %}
+              <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+
+                <!-- 성함: 직출, 상주 표시 -->
+                <td rowspan="2">
+                  {% ifchanged q.empName %}
+                    <b>{{ q.empName }}</b><br>
+                  {% endifchanged %}
+                  {% if q.flag == '직출' %} <b style="color: #4e73df">(직출)</b> {% endif %}
+                  {% if q.flag == '상주' %} <b style="color: #333333">(상주)</b> {% endif %}
+                </td>
+
+                <!-- 시간: 해당일 전후 표시, 완료 표시 -->
+                <td>
+                  {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+
+                  {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
+                    <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                  {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                    <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                  {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                    <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                  {% endif %}
+
+                  {% if q.serviceStatus == 'Y' %}
+                    <div style="color:red">(완료)</div>
+                  {% endif %}
+                </td>
+
+                <!-- 고객사: 내근, 상주는 업무 구분 표시x -->
+                <td>
+                  {{ q.companyName }}<br>
+                  {% if q.serviceType %}
+                    ({{ q.serviceType }})
+                  {% endif %}
+                </td>
+
+              </tr>
+
+              <!-- 업무내용: 다음줄로 변경 -->
+              <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+                <td colspan="2" style="white-space: normal">{{ q.serviceTitle }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+
+          </table>
+
+          <!-- 교육 -->
+          {% if educationSolution %}
+            <br>
+            <h5 class="text-gray-700">
+              <i class="fas fa-book-open"></i>
+              교육
+            </h5>
+
+            <!-- 교육: PC화면(1200px이상) -->
+            <table class="table mb-0 d-none d-xl-table" width="100%">
+
+              <thead>
+              <tr>
+                <td width="5%"><b>구분</b></td>
+                <td width="10%"><b>성함</b></td>
+                <td width="20%"><b>시간</b></td>
+                <td width="65%"><b>교육내용</b></td>
+              </tr>
+              </thead>
+
+              <tbody>
+              {% for q in educationSolution %}
+                <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+
+                  <!-- 구분: 직출 -->
+                  <td class="d-none d-xl-table-cell">
+                    {% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}
+                  </td>
+
+                  <!-- 성함 -->
+                  <td>
+                    {% ifchanged q.empName %}
+                      <b>{{ q.empName }}</b><br>
+                    {% endifchanged %}
+                  </td>
+
+                  <!-- 시간: 해당일 전후 표시, 완료 표시 -->
+                  <td>
+                    {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+
+                    {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% endif %}
+
+                    {% if q.serviceStatus == 'Y' %}
+                      <div style="color:red">(완료)</div>
+                    {% endif %}
+                  </td>
+
+                  <!-- 교육내용 -->
+                  <td style="white-space: normal">{{ q.serviceTitle }}</td>
+
+                </tr>
+              {% endfor %}
+              </tbody>
+
+            </table>
+
+            <!-- 교육: 모바일화면(1200px미만) -->
+           <table class="table mb-0 d-xl-none" width="100%">
+
+              <thead>
+              <tr>
+                <td width="10%"><b>성함</b></td>
+                <td width="90%"><b>시간</b></td>
+              </tr>
+              </thead>
+
+              <tbody>
+              {% for q in educationSolution %}
+                <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
+
+                  <!-- 성함 -->
+                  <td rowspan="2">
+                    {% ifchanged q.empName %}
+                      <b>{{ q.empName }}</b><br>
+                    {% endifchanged %}
+                    {% if q.flag == '직출' %} <b class="d-xl-none" style="color: #4e73df">(직출)</b> {% endif %}
+                  </td>
+
+                  <!-- 시간: 해당일 전후 표시, 완료 표시 -->
+                  <td>
+                    {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+
+                    {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
+                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% endif %}
+
+                    {% if q.serviceStatus == 'Y' %}
+                      <div style="color:red">(완료)</div>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr>
+                  <!-- 교육내용 -->
+                  <td style="white-space: normal">{{ q.serviceTitle }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+
+            </table>
+          {% endif %}
+
+          <!-- 휴가 -->
+          {% if vacationSolution %}
+            <br>
+            <h5 class="text-gray-700">
+              <i class="fas fa-plane-departure"></i>
+              휴가
+            </h5>
+
+            {% for q in vacationSolution %}
+
+              <li style="text-indent: 16px;"> ({{ q.vacationType }}) {{ q.empName }} </li>
+            {% endfor %}
+          {% endif %}
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+  {% endif %}
 
 {% endblock %}
 
