@@ -47,6 +47,8 @@ class Revenue(models.Model):
     contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
     salePrice = models.IntegerField()
     billingDate = models.DateField()
+    predictCollectDate = models.DateField()
+    collectPrice = models.IntegerField()
     collectDate = models.DateField()
     revenueStep = models.CharField(max_length=20, choices=revenueStepChoices, default='Opportunity')
 
