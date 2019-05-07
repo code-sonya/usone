@@ -77,8 +77,6 @@ def sendmail(request, serviceId):
 
         if servicereport.serviceSignPath:
             serviceSignPath = os.path.join(settings.MEDIA_ROOT, servicereport.serviceSignPath[7:])
-            print(settings.MEDIA_ROOT)
-            print(serviceSignPath)
         else:
             serviceSignPath = os.path.join(settings.MEDIA_ROOT, 'images/signature/nosign.jpg')
 
@@ -94,8 +92,7 @@ def sendmail(request, serviceId):
         if servicereport.coWorker:
             coWorker = []
             for coWorkerId in servicereport.coWorker.split(','):
-                coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
-                                ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
+                coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName))
         else:
             coWorker = ''
         template_path = 'service/viewservicepdf.html'
