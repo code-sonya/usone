@@ -31,14 +31,14 @@
                 <div class="dropdown-header" id="myForm"> 내 양식:</div>
                 {% for serviceform in serviceforms %}
                   <a class="dropdown-item" href="#" onclick="applyform(
-                          '{{ serviceform.companyName.companyName }}',
-                          '{{ serviceform.serviceType }}',
-                          '{{ serviceform.serviceStartTime | time:"H:i" }}',
-                          '{{ serviceform.serviceEndTime | time:"H:i" }}',
-                          '{{ serviceform.serviceLocation }}',
-                          '{{ serviceform.directgo }}',
-                          '{{ serviceform.serviceTitle }}',
-                          '{{ serviceform.serviceDetails }}')">
+                      '{{ serviceform.companyName.companyName }}',
+                      '{{ serviceform.serviceType }}',
+                      '{{ serviceform.serviceStartTime | time:"H:i"}}',
+                      '{{ serviceform.serviceEndTime | time:"H:i"}}',
+                      '{{ serviceform.serviceLocation }}',
+                      '{{ serviceform.directgo }}',
+                      '{{ serviceform.serviceTitle }}',
+                      '{{ serviceform.serviceDetails }}')">
                     {{ serviceform.serviceTitle | truncatechars:"15" }}
                   </a>
                 {% endfor %}
@@ -58,20 +58,6 @@
           <form id="ServicereportForm" method="POST">
 
             {% csrf_token %}
-            <button align="right" id="addRow" class="btn btn-outline-info">+ 항목 추가</button>
-
-            <table id="example" class="display" style="width:100%">
-              <thead>
-              <tr>
-                <th>idx</th>
-                <th>대분류</th>
-                <th>소분류</th>
-                <th>상세내용</th>
-                <th>가격</th>
-              </tr>
-              </thead>
-            </table>
-            <br>
             <div class="form-group row">
               <div class="col-6">
                 <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
@@ -183,53 +169,10 @@
           }
       }
 
-      function itemChange(main, sub) {
-
-          var Oracle = new Array();
-          var IBM = new Array();
-          var Lenovo = new Array();
-          var etc = new Array();
-          {% for c in category %}
-              {% if c.mainCategory == "상품_Oracle"%}
-                  Oracle.push("{{ c.subCategory }}");
-              {% elif c.mainCategory == "상품_IBM"%}
-                  IBM.push("{{ c.subCategory }}");
-              {% elif c.mainCategory == "상품_Lenovo"%}
-                  Lenovo.push("{{ c.subCategory }}");
-              {% else %}
-                  etc.push("{{ c.subCategory }}");
-              {% endif %}
-          {% endfor %}
-
-
-          var selectItem = $(main).val();
-
-          var changeItem = new Array;
-
-          if (selectItem == "상품_Oracle") {
-              changeItem = Oracle;
-          } else if (selectItem == "상품_IBM") {
-              changeItem = IBM;
-          } else if (selectItem == "상품_Lenovo") {
-              changeItem = Lenovo;
-          } else {
-              changeItem = etc;
-          }
-
-          $(sub).empty();
-
-          for (var count = 0; count < changeItem.length; count++) {
-              var option = $("<option>" + changeItem[count] + "</option>");
-              $(sub).append(option);
-          }
-
-      }
-
-
       function btn_save() {
-          const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g, '/') + ' ' + document.getElementById("starttime").value);
-          const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g, '/') + ' ' + document.getElementById("endtime").value);
-          const diff = ((serviceEndDatetime - serviceStartDatetime) / 3600000).toFixed(1);
+          const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g,'/') + ' ' + document.getElementById("starttime").value);
+          const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g,'/') + ' ' + document.getElementById("endtime").value);
+          const diff = ((serviceEndDatetime - serviceStartDatetime)/3600000).toFixed(1);
 
           let Form = document.getElementById("ServicereportForm");
           const coWorkers = document.getElementById('coWorkers').getAttribute('data-id');
@@ -238,32 +181,6 @@
           coWorkerInput.setAttribute("name", "coWorkerId");
           coWorkerInput.setAttribute("value", coWorkers);
           Form.appendChild(coWorkerInput);
-
-          var Main = $('[name="mainCategory"]');
-          var testList = new Array();
-
-          for (var i = 0; i <= Main.length - 1; i++) {
-
-              // 객체 생성
-              var data = new Object();
-
-              data.idx = i + 1;
-              data.main = $('select[name="mainCategory"]').eq(i).val();
-              data.sub = $('select[name="subCategory"]').eq(i).val();
-              data.detail = $('input[name="detail"]').eq(i).val();
-              data.price = $('input[name="price"]').eq(i).val();
-              console.log(data.sub);
-
-
-              // 리스트에 생성된 객체 삽입
-              testList.push(data);
-          }
-
-          // String 형태로 변환
-          var jsonData = JSON.stringify(testList);
-
-          alert(jsonData);
-
 
           if (document.getElementById("companyName").value === '') {
               alert("고객사 명을 입력해주세요.");
@@ -320,31 +237,6 @@
       }
 
       $(document).ready(function () {
-          $(document).ready(function () {
-              var t = $('#example').DataTable({
-                  "searching": false,
-                  "paging": false,
-                  "info": false,
-                  "scrollY": "60vh",
-                  "scrollCollapse": true,
-              });
-              var counter = 1;
-
-              $('#addRow').on('click', function () {
-                  t.row.add([
-                      counter,
-                      '<select size="1" id="item1' + counter + '" name="mainCategory" onchange="itemChange( item1' + counter + ",item2" + counter + ')"> <option value="init" selected="selected">--대분류--</option> <option value="상품_Oracle">상품_Oracle</option> <option value="상품_IBM">상품_IBM</option> <option value="상품_Lenovo">상품_Lenovo</option> <option value="상품_기타">상품_기타</option> </select>',
-                      '<select size="1" id="item2' + counter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option> ',
-                      '<input type="text" name="detail" id="item3-' + counter + '">',
-                      '<input type="text" name="price" id="item4-' + counter + '">',
-                  ]).draw(false);
-
-                  counter++;
-              });
-
-              // Automatically add a first row of data
-              $('#addRow').click();
-          });
           const coWorkers = document.getElementById('coWorkers');
           {% if coWorkers %}
               coWorkers.setAttribute("data-id", "{{ coWorkers }}");
