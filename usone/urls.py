@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^scheduler/', include('scheduler.urls')),
     url(r'^service/', include('service.urls')),
     url(r'^signature/', include('signature.urls')),
+    url(r'^sales/', include('sales.urls')),
 ]
 
 urlpatterns += static(
