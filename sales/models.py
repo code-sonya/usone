@@ -54,3 +54,12 @@ class Revenue(models.Model):
 
     def __str__(self):
         return self.revenueName
+
+
+class Category(models.Model):
+    categoryId = models.AutoField(primary_key=True)
+    category1 = models.CharField(max_length=50)
+    category2 = models.CharField(max_length=50)
+
+    def __str__(self):
+        return '{} {}'.format(self.category1, self.category2)
