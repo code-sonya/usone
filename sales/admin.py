@@ -18,6 +18,6 @@ class RevenueAdmin(admin.ModelAdmin):
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('categoryId', 'category1', 'category2')
-    list_filter = ('category1', 'category2')
-    list_display_links = ['categoryId', 'category1', 'category2']
+    list_display = ('categoryId', 'mainCategory', 'subCategory')
+    list_filter = ('mainCategory', 'subCategory')
+    list_display_links = ['categoryId', 'mainCategory', 'subCategory']
