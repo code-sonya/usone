@@ -233,7 +233,7 @@ def dayreport_query2(empDeptName, day):
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     Date_min = datetime.datetime.combine(Date, datetime.datetime.min.time())
     Date_max = datetime.datetime.combine(Date, datetime.datetime.max.time())
-    if datetime.datetime.weekday(Date) >= 5 or Eventday.objects.filter(eventDate=Date):
+    if datetime.datetime.weekday(Date) >= 5 or Eventday.objects.filter(Q(eventDate=Date) & Q(eventType='휴일')):
         holiday = True
     else:
         holiday = False
