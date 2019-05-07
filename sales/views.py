@@ -16,13 +16,16 @@ from .models import Contract
 
 @login_required
 def post_opportunity(request):
-    empId = Employee(empId=request.user.employee.empId)
 
     if request.method == "POST":
         form = OpportunityForm(request.POST)
 
         if form.is_valid():
             post = form.save(commit=False)
+            post.empName = form.clean()['empId'].empName
+            post.empDeptName = form.clean()['empId'].empDeptName
+            post.saleCustomerName = form.clean()['saleCustomerId'].customerName
+            post.endCustomerName = form.clean()['endCustomerId'].customerName
             post.save()
             return redirect('service:showservices')
 
