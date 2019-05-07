@@ -14,7 +14,7 @@ def profile(request):
     if request.method == "POST":
         postMessage = request.POST['message']
         user.employee.message = postMessage
-        user.save()
+        user.employee.save()
         context = {
             'user': user,
         }
