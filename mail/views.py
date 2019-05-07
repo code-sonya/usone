@@ -57,8 +57,7 @@ def sendmail(request, serviceId):
         if servicereport.coWorker:
             coWorker = ''
             for coWorkerId in servicereport.coWorker.split(','):
-                coWorker = coWorker + (str(Employee.objects.get(empId=coWorkerId).empName) +
-                                       ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition)) + ', '
+                coWorker = coWorker + str(Employee.objects.get(empId=coWorkerId).empName) + ', '
             coWorker = coWorker[:-2]
         else:
             coWorker = ''

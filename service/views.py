@@ -334,8 +334,7 @@ def view_service(request, serviceId):
     if service.coWorker:
         coWorker = []
         for coWorkerId in service.coWorker.split(','):
-            coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
-                            ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
+            coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName))
     else:
         coWorker = ''
 
@@ -561,8 +560,7 @@ def view_service_pdf(request, serviceId):
     if service.coWorker:
         coWorker = []
         for coWorkerId in service.coWorker.split(','):
-            coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName) +
-                            ' ' + num_to_str_position(Employee.objects.get(empId=coWorkerId).empPosition))
+            coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName))
     else:
         coWorker = ''
 
