@@ -1,9 +1,7 @@
 from django import forms
 
+from client.models import Company
 from .models import Servicereport, Serviceform
-from client.models import Company, Customer
-
-import datetime
 
 
 class ServicereportForm(forms.ModelForm):
