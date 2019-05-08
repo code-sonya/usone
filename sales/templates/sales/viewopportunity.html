@@ -172,7 +172,7 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">예상이익금액</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceOverHour">{{ contract.predictProfitPrice | intcomma }} 원 ({{ contract.predictProfitRatio }})</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceOverHour">{{ contract.predictProfitPrice | intcomma }} 원 ({{ contract.predictProfitRatio }}%)</div>
                     </div>
                   </div>
                 </div>
@@ -180,31 +180,20 @@
             </div>
           </div>
 
-
-          {% if service.empId.empId == user.employee.empId and service.serviceStatus == 'N' %}
-            <div class="text-center">
-              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
-                <span class="text"> 삭제 </span>
-              </a>
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-                <span class="text"> 수정 </span>
-              </a>
-              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
-                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-                <span class="text"> 완료 </span>
-              </a>
-            </div>
-          {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
-            <div class="text-center">
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_copy()">
-                <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
-                <span class="text"> 복사 </span>
-              </a>
-            </div>
-          {% endif %}
-
+          <div class="text-center">
+            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+              <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+              <span class="text"> 삭제 </span>
+            </a>
+            <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+              <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+              <span class="text"> 수정 </span>
+            </a>
+            <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+              <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+              <span class="text"> 계약 </span>
+            </a>
+          </div>
         </div>
 
       </div>
@@ -258,37 +247,25 @@
             </tr>
             <tr>
               <td><b>예상이익금액</b></td>
-              <td>{{ contract.predictProfitPrice | intcomma }} 원 ({{ contract.predictProfitRatio }})</td>
+              <td>{{ contract.predictProfitPrice | intcomma }} 원 ({{ contract.predictProfitRatio }}%)</td>
             </tr>
             </tbody>
           </table>
-
-          {% if service.empId.empId == user.employee.empId and service.serviceStatus == 'N' %}
-            <div class="text-center">
-              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
-                <span class="text p-2"> 삭제 </span>
-              </a>
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-                <span class="text p-2"> 수정 </span>
-              </a>
-              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
-                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-                <span class="text p-2"> 완료 </span>
-              </a>
-            </div>
-          {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
-            <div class="text-center">
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_copy()">
-                <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
-                <span class="text"> 복사 </span>
-              </a>
-            </div>
-          {% endif %}
-
+          <div class="text-center">
+            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+              <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+              <span class="text p-2"> 삭제 </span>
+            </a>
+            <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+              <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+              <span class="text p-2"> 수정 </span>
+            </a>
+            <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+              <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+              <span class="text p-2"> 계약 </span>
+            </a>
+          </div>
         </div>
-
       </div>
     </div>
 
@@ -303,15 +280,11 @@
   <script type="text/javascript">
 
       function btn_save(){
-          if (confirm("일정을 완료 하시겠습니까?") === true) {
-              location.href = '/signature/selectmanager/' + {{ service.serviceId }} + '/';
-          }
+          location.href = '/sales/postfirm/' + {{ contract.contractId }} + '/';
       }
 
       function btn_modify(){
-          if (confirm("일정을 수정 하시겠습니까?") === true) {
-              location.href = '/service/modifyservice/' + {{ service.serviceId }} + '/';
-          }
+          location.href = '/sales/modifyopportunity/' + {{ contract.contractId }} + '/';
       }
 
       function btn_delete(){

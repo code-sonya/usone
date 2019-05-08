@@ -48,4 +48,4 @@ class Customer(models.Model):
         unique_together = (('customerName', 'companyName'),)
 
     def __str__(self):
-        return 'Customer : {}'.format(self.customerName)
+        return self.customerName

@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^viewcontract/(?P<contractId>.+)/$', views.view_contract, name='viewcontract'),
     url(r'^empdeptjson/$', views.empdept_asjson, name='empdept_ajax_url'),
     url(r'^filterjson/$', views.filter_asjson, name='filter_ajax_url'),
+    url(r'^postfirm/(?P<contractId>.+)/$', views.post_firm, name='postfirm'),
 ]
