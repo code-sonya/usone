@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^showcontracts/', views.show_contracts, name='showcontracts'),
     url(r'^contractasjson/$', views.contract_asjson, name='contractasjson'),
     url(r'^salemanagerjson/$', views.salemanager_asjson, name='salemanager_ajax_url'),
+    url(r'^viewcontract/(?P<contractId>.+)/$', views.view_contract, name='viewcontract'),
 ]

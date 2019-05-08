@@ -70,3 +70,17 @@ def salemanager_asjson(request):
     customer = Customer.objects.filter(companyName=companyName)
     json = serializers.serialize('json', customer)
     return HttpResponse(json, content_type='application/json')
+
+
+@login_required
+def view_contract(request, contractId):
+    contract = Contract.objects.get(contractId=contractId)
+
+    context = {
+        'contract': contract,
+    }
+
+    if contract.contractStep == "Opportunity":
+        return render(request, 'sales/viewopportunity.html', context)
+    elif contract.serviceStatus == "Firm":
+        return render(request, 'sales/viewfirm.html', context)

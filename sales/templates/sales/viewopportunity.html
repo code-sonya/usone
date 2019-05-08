@@ -1,0 +1,331 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+{% block title %}
+  영업관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+    .mobile-table{
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th{
+      padding: 4px;
+      vertical-align: middle;
+      font-size: 16px;
+      border-top: 1px dotted #858796a3;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+
+    <!-- PC화면-->
+    <div class="col-xl-8 d-none d-xl-block">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> {{ contract.contractName }} </h6>
+        </div>
+
+        <div class="card-body">
+          {% csrf_token %}
+
+          <div class="form-group row">
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">영업담당</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="empName">{{ contract.empName }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">예상계약일</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="coWorker">{{ contract.predictContractDate }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">판매유형</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="companyName">{{ contract.saleType }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">산업군</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceType">{{ contract.saleIndustry }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">거래처</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceStartDatetime">{{ contract.saleCompanyName }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">거래처 담당자</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceEndDatetime">{{ contract.saleCustomerName }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">최종고객사</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceHour">{{ contract.endCompanyName }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">최종고객사 담당자</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceOverHour">{{ contract.endCustomerName }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group row">
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">예상계약금액</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceHour">{{ contract.predictSalePrice | intcomma }} 원</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6 mb-3 mb-sm-0">
+              <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">예상이익금액</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceOverHour">{{ contract.predictProfitPrice | intcomma }} 원 ({{ contract.predictProfitRatio }})</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          {% if service.empId.empId == user.employee.empId and service.serviceStatus == 'N' %}
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+                <span class="text"> 삭제 </span>
+              </a>
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+                <span class="text"> 수정 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 완료 </span>
+              </a>
+            </div>
+          {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
+            <div class="text-center">
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_copy()">
+                <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
+                <span class="text"> 복사 </span>
+              </a>
+            </div>
+          {% endif %}
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 모바일 화면 -->
+    <div class="col-xl-8 d-block d-xl-none">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> {{ contract.contractName }} </h6>
+        </div>
+        <div class="card-body ">
+          <table class="mobile-table">
+            <tbody>
+            <tr>
+              <td style="width: 40%; border-top: 0px;"><b>영업담당</b></td>
+              <td style="width: 60%; border-top: 0px;">{{ contract.empName }}</td>
+            </tr>
+            <tr>
+              <td><b>예상계약일</b></td>
+              <td>{{ contract.predictContractDate }}</td>
+            </tr>
+            <tr>
+              <td><b>판매유형</b></td>
+              <td>{{ contract.saleType }}</td>
+            </tr>
+            <tr>
+              <td><b>산업군</b></td>
+              <td>{{ contract.saleIndustry }}</td>
+            </tr>
+            <tr>
+              <td><b>거래처</b></td>
+              <td>{{ contract.saleCompanyName }}</td>
+            </tr>
+            <tr>
+              <td><b>거래처 담당자</b></td>
+              <td>{{ contract.saleCustomerName }}</td>
+            </tr>
+            <tr>
+              <td><b>고객사</b></td>
+              <td>{{ contract.endCompanyName }}</td>
+            </tr>
+            <tr>
+              <td><b>고객사 담당자</b></td>
+              <td>{{ contract.endCustomerName }}</td>
+            </tr>
+            <tr>
+              <td><b>예상계약금액</b></td>
+              <td>{{ contract.predictSalePrice | intcomma }} 원</td>
+            </tr>
+            <tr>
+              <td><b>예상이익금액</b></td>
+              <td>{{ contract.predictProfitPrice | intcomma }} 원 ({{ contract.predictProfitRatio }})</td>
+            </tr>
+            </tbody>
+          </table>
+
+          {% if service.empId.empId == user.employee.empId and service.serviceStatus == 'N' %}
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+                <span class="text p-2"> 삭제 </span>
+              </a>
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+                <span class="text p-2"> 수정 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text p-2"> 완료 </span>
+              </a>
+            </div>
+          {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
+            <div class="text-center">
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_copy()">
+                <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
+                <span class="text"> 복사 </span>
+              </a>
+            </div>
+          {% endif %}
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_save(){
+          if (confirm("일정을 완료 하시겠습니까?") === true) {
+              location.href = '/signature/selectmanager/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_modify(){
+          if (confirm("일정을 수정 하시겠습니까?") === true) {
+              location.href = '/service/modifyservice/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_delete(){
+          if (confirm("일정을 삭제 하시겠습니까?") === true) {
+              location.href = '/service/deleteservice/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_copy(){
+          if (confirm("일정을 복사 하시겠습니까?") === true) {
+              location.href = '/service/copyservice/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+  </script>
+
+{% endblock %}
