@@ -12,6 +12,7 @@ from xhtml2pdf import pisa
 from hr.models import Employee
 from .forms import OpportunityForm
 from .models import Contract
+from service.models import Company ,Customer
 
 
 @login_required
@@ -35,3 +36,11 @@ def post_opportunity(request):
             'form': form,
         }
         return render(request, 'sales/postopportunity.html', context)
+
+@login_required
+@csrf_exempt
+def salemanager_asjson(request):
+    companyName = request.POST['saleCompanyName']
+    customer = Customer.objects.filter(companyName=companyName)
+    json = serializers.serialize('json', customer)
+    return HttpResponse(json, content_type='application/json')
