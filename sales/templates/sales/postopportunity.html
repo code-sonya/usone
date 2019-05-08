@@ -124,7 +124,7 @@
                   $('#'+selectId).empty();
 
                   for (var count = 0; count < salecompany.length; count++) {
-                      var option = $("<option>" + salecompany[count].fields.customerName + "</option>");
+                      var option = $("<option value="+salecompany[count].pk+">" + salecompany[count].fields.customerName + "</option>");
                       $('#'+selectId).append(option);
                   }
               }
