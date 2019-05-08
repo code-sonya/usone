@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'mail',
     'dashboard',
     'signature',
+    'sales',
 ]
 
 MIDDLEWARE = [
