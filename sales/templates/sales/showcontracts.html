@@ -246,6 +246,15 @@
                       if (aData.predictContractDate != "") {
                           $('td:eq(1)', nRow).text(replaceAll(aData.predictContractDate, "-", "."));
                       }
+                      if (aData.contractStep == 'Firm'){
+                          $('td:eq(0)', nRow).css('color', '#4e73df');
+                      }else if(aData.contractStep == 'Opportunity'){
+                          $('td:eq(0)', nRow).css('color', '#1cc88a');
+                      }
+                      if (aData.contractDate != ""){
+                          $('td:eq(2)', nRow).css('color', '#e74a3b');
+
+                      }
                   }
 
               });
@@ -298,6 +307,15 @@
                   "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                       if (aData.predictContractDate != "") {
                           $('td:eq(1)', nRow).text(replaceAll(aData.predictContractDate, "-", "."));
+                      }
+                      if (aData.contractStep == 'Firm'){
+                          $('td:eq(0)', nRow).css('color', '#4e73df');
+                      }else if(aData.contractStep == 'Opportunity'){
+                          $('td:eq(0)', nRow).css('color', '#1cc88a');
+                      }
+                      if (aData.contractDate != ""){
+                          $('td:eq(2)', nRow).css('color', '#e74a3b');
+
                       }
                   }
 
