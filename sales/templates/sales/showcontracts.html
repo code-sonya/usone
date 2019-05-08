@@ -46,6 +46,7 @@
               <tr>
                 <th>구분</th>
                 <th>(예상)계약일</th>
+                <th>최종계약일</th>
                 <th>계약명</th>
                 <th>거래처</th>
                 <th>고객사</th>
@@ -208,6 +209,7 @@
                   "columns": [
                       {data: "contractStep"},
                       {data: "predictContractDate"},
+                      {data: "contractDate"},
                       {data: "contractName"},
                       {data: "saleCompanyName"},
                       {data: "endCompanyName"},
@@ -216,12 +218,13 @@
                   ],
                   "columnDefs": [
                       {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 2, width: "45%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 3, width: "25%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                       {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 6, visible: false}
+                      {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 7, visible: false}
                   ],
                   "order": [[1, 'desc']],
                   "searching": true,
@@ -259,6 +262,7 @@
                   "columns": [
                       {data: "contractStep"},
                       {data: "predictContractDate"},
+                      {data: "contractDate"},
                       {data: "contractName"},
                       {data: "saleCompanyName"},
                       {data: "endCompanyName"},
@@ -267,12 +271,13 @@
                   ],
                   "columnDefs": [
                       {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 2, width: "45%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 3, width: "25%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                       {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 6, visible: false}
+                      {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 7, visible: false}
                   ],
                   "order": [[1, 'desc']],
                   "searching": true,

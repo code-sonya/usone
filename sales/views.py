@@ -79,14 +79,9 @@ def show_contracts(request):
 
 @login_required
 def contract_asjson(request):
-    Ocontracts = Contract.objects.filter(contractStep='Opportunity')\
-        .values('contractStep', 'predictContractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
-    Fcontracts = Contract.objects.filter(contractStep='Firm') \
-        .values('contractStep', 'contractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
-    contracts = []
-    contracts.extend(list(Ocontracts))
-    contracts.extend(list(Fcontracts))
-    structure = json.dumps(contracts, cls=DjangoJSONEncoder)
+    contracts = Contract.objects.all()
+    contracts = contracts.values('contractStep', 'predictContractDate', 'contractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
+    structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
 
@@ -102,14 +97,12 @@ def salemanager_asjson(request):
 @login_required
 def view_contract(request, contractId):
     contract = Contract.objects.get(contractId=contractId)
-
     context = {
         'contract': contract,
     }
-
     if contract.contractStep == "Opportunity":
         return render(request, 'sales/viewopportunity.html', context)
-    elif contract.serviceStatus == "Firm":
+    elif contract.contractStep == "Firm":
         return render(request, 'sales/viewfirm.html', context)
 
 @csrf_exempt
@@ -135,46 +128,26 @@ def filter_asjson(request):
     endCompanyName = request.POST['endCompanyName']
     contractName = request.POST['contractName']
 
-    print(startdate,enddate,contractStep,empDeptName,empName,saleCompanyName,endCompanyName,contractName)
-
-
-    Ocontracts = Contract.objects.filter(contractStep='Opportunity')
-    Fcontracts = Contract.objects.filter(contractStep='Firm')
+    contracts = Contract.objects.all()
 
     if startdate:
-        Ocontracts.filter(predictContractDate__gte=startdate)
-        Fcontracts.filter(contractDate__gte=startdate)
+        contracts = contracts.filter(Q(predictContractDate__gte = startdate)|Q(contractDate__gte=startdate))
     if enddate:
-        Ocontracts.filter(predictContractDate__lte=enddate)
-        Fcontracts.filter(contractDate__lte=enddate)
+        contracts = contracts.filter(Q(predictContractDate__lte=enddate)|Q(contractDate__lte=enddate))
     if contractStep != '전체':
-        Ocontracts.filter(contractStep=contractStep)
-        Fcontracts.filter(contractStep=contractStep)
+        contracts = contracts.filter(contractStep=contractStep)
     if empDeptName != '전체':
-        Ocontracts.filter(empDeptName=empDeptName)
-        Fcontracts.filter(empDeptName=empDeptName)
+        contracts = contracts.filter(empDeptName=empDeptName)
     if empName != '전체':
-        Ocontracts.filter(empName=empName)
-        Fcontracts.filter(empName=empName)
+        contracts = contracts.filter(empName=empName)
     if saleCompanyName:
-        Ocontracts.filter(saleCompanyName__in=saleCompanyName)
-        Fcontracts.filter(saleCompanyName__in=saleCompanyName)
+        contracts = contracts.filter(saleCompanyName__in=saleCompanyName)
     if endCompanyName:
-        Ocontracts.filter(endCompanyName__in=endCompanyName)
-        Fcontracts.filter(endCompanyName__in=endCompanyName)
+        contracts = contracts.filter(endCompanyName__in=endCompanyName)
     if contractName:
-        Ocontracts.filter(contractName__in=contractName)
-        Fcontracts.filter(contractName__in=contractName)
+        contracts = contracts.filter(contractName__in=contractName)
 
-
-    Ocontracts.values('contractStep', 'predictContractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
-    Fcontracts.values('contractStep', 'contractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
-
-
-    contracts = []
-    contracts.extend(list(Ocontracts))
-    contracts.extend(list(Fcontracts))
-    print(contracts)
-    structure = json.dumps(contracts, cls=DjangoJSONEncoder)
+    contracts = contracts.values('contractStep', 'predictContractDate', 'contractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
+    structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
