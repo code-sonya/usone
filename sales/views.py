@@ -60,7 +60,6 @@ def contract_asjson(request):
     contracts.extend(list(Ocontracts))
     contracts.extend(list(Fcontracts))
     structure = json.dumps(contracts, cls=DjangoJSONEncoder)
-    print(structure)
     return HttpResponse(structure, content_type='application/json')
 
 
