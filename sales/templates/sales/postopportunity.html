@@ -111,6 +111,25 @@
           }
       }
       
+      function changeCompany(saleCompanyName,selectId) {
+
+          $.ajax({
+              url: "{% url 'sales:salemanager_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"saleCompanyName": saleCompanyName},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var salecompany = returnData;
+                  $('#'+selectId).empty();
+
+                  for (var count = 0; count < salecompany.length; count++) {
+                      var option = $("<option>" + salecompany[count].fields.customerName + "</option>");
+                      $('#'+selectId).append(option);
+                  }
+              }
+          })
+      }
 
   </script>
 
