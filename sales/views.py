@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
@@ -8,6 +9,7 @@ from django.shortcuts import render, redirect
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
+from django.core.serializers.json import DjangoJSONEncoder
 
 from hr.models import Employee
 from .forms import OpportunityForm
@@ -35,3 +37,27 @@ def post_opportunity(request):
             'form': form,
         }
         return render(request, 'sales/postopportunity.html', context)
+
+
+@login_required
+def show_contracts(request):
+    contracts = Contract.objects.all()
+
+    context = {
+        'contarcts': contracts
+    }
+    return render(request, 'sales/showcontracts.html', context)
+
+
+@login_required
+def contract_asjson(request):
+    Ocontracts = Contract.objects.filter(contractStep='Opportunity')\
+        .values('contractStep', 'predictContractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
+    Fcontracts = Contract.objects.filter(contractStep='Firm') \
+        .values('contractStep', 'contractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
+    contracts = []
+    contracts.extend(list(Ocontracts))
+    contracts.extend(list(Fcontracts))
+    structure = json.dumps(contracts, cls=DjangoJSONEncoder)
+    print(structure)
+    return HttpResponse(structure, content_type='application/json')
