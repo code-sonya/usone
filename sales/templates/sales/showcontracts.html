@@ -24,7 +24,7 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 영업기회 및 매출 </h6>
+          <h6 class="m-0 h3 text-gray-800"> 영업기회 & 계약 </h6>
 
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
@@ -81,38 +81,57 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
+                <label for="startdate" class="font-weight-light text-primary">시작일자</label>
                 <input type="date" class="form-control" id="startdate" name="startdate">
               </div>
-              <div class="col-6">
-                <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
+               <div class="col-6 mb-3 mb-sm-0">
+                <label for="enddate" class="font-weight-light text-primary">종료일자</label>
                 <input type="date" class="form-control" id="enddate" name="enddate">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="empDeptName" class="font-weight-light text-primary">부서</label>
-                <input class="form-control" id="empDeptName" name="empDeptName">
+                <label for="empDeptName" class="font-weight-light text-primary">영업부서</label>
+                <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
+                  <option value="전체">전체</option>
+                  <option value="영업1팀">영업1팀</option>
+                  <option value="영업2팀">영업2팀</option>
+                  <option value="영업3팀">영업3팀</option>
+                </select>
               </div>
               <div class="col-6">
-                <label for="empName" class="font-weight-light text-primary">성함</label>
-                <input class="form-control" id="empName" name="empName">
+                <label for="empName" class="font-weight-light text-primary">영업담당자</label>
+                <select class="form-control" id="empName" name="empName">
+                  <option value='전체'>전체</option>
+                  {% for i in employees %}
+                    <option value="{{ i.pk }}">{{ i.empName }}</option>
+                  {% endfor %}
+                </select>
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="companyName" class="font-weight-light text-primary">고객사</label>
-                <input class="form-control" id="companyName" name="companyName">
+                <label for="companyName" class="font-weight-light text-primary">거래처</label>
+                <input class="form-control" id="saleCompanyName" name="saleCompanyName">
               </div>
               <div class="col-6">
-                <label for="serviceType" class="font-weight-light text-primary">일정구분</label>
-                <input class="form-control" id="serviceType" name="serviceType">
+                <label for="serviceType" class="font-weight-light text-primary">최종고객사</label>
+                <input class="form-control" id="endCompanyName" name="endCompanyName">
               </div>
             </div>
             <div class="row mb-1">
-              <div class="col-12">
-                <label for="boardTitle" class="font-weight-light text-primary">제목 & 내용</label>
-                <input class="form-control" id="boardTitle" name="boardTitle">
+              <div class="col-6">
+                <label for="boardTitle" class="font-weight-light text-primary">계약명</label>
+                <input class="form-control" id="contractName" name="contractName">
+              </div>
+              <div class="col-6">
+                <label for="enddate" class="font-weight-light text-primary">구분</label>
+                <select class="form-control" id="contractStep" name="contractStep">
+                  <option value="전체">전체</option>
+                  <option value="Opportunity">Opportunity</option>
+                  <option value="Firm">Firm</option>
+                  <option value="Drop">Drop</option>
+                </select>
               </div>
             </div>
           </form>
@@ -136,9 +155,32 @@
           document.getElementById("filterForm").submit();
       }
 
-       function replaceAll(str, searchStr, replaceStr) {
+      function replaceAll(str, searchStr, replaceStr) {
           var new_str = str.split(searchStr).join(replaceStr);
-          return new_str.split("T").join(" ").slice(0,10);
+          return new_str.split("T").join(" ").slice(0, 10);
+      }
+
+      function changeDeptName(empDeptName, selectId) {
+          console.log(empDeptName);
+
+          $.ajax({
+              url: "{% url 'sales:empdept_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empDeptName": empDeptName},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var empName = returnData;
+                  console.log(empName);
+                  $('#' + selectId).empty();
+
+                  $('#' + selectId).append("<option value='전체'>전체</option>");
+                  for (var count = 0; count < empName.length; count++) {
+                      var option = $("<option value=" + empName[count].pk + ">" + empName[count].fields.empName + "</option>");
+                      $('#' + selectId).append(option);
+                  }
+              }
+          })
       }
 
       $(document).ready(function () {
@@ -153,34 +195,35 @@
                       "data": {
                           "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
                           "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                          "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
                           "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
                           "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                          "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
-                          "serviceType": {% if serviceType %}"{{ serviceType }}",{% else %}"",{% endif %}
-                          "boardTitle": {% if boardTitle %}"{{ boardTitle }}",{% else %}"",{% endif %}
+                          "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
+                          "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
+                          "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                       },
-                      "url": "{% url 'noticeboard:filter_ajax_url' %}",
+                      "url": "{% url 'sales:filter_ajax_url' %}",
                       "dataSrc": ""
                   },
                   "columns": [
-                      {data: "boardWriteDatetime"},
-                      {data: "serviceId__serviceType"},
-                      {data: "boardWriter__empName"},
-                      {data: "serviceId__companyName"},
-                      {data: "boardTitle"},
-                      {data: "boardDetails"},
-                      {data: "boardId"},
-
+                      {data: "contractStep"},
+                      {data: "predictContractDate"},
+                      {data: "contractName"},
+                      {data: "saleCompanyName"},
+                      {data: "endCompanyName"},
+                      {data: "empName"},
+                      {data: "contractId"},
                   ],
                   "columnDefs": [
-                      {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
-                      {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
-                      {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 2, width: "45%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                       {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: [5,6], visible: false}
+                      {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      {targets: 6, visible: false}
                   ],
-                  "order": [[0, 'desc']],
+                  "order": [[1, 'desc']],
                   "searching": true,
                   "paging": true,
                   "info": false,
@@ -197,12 +240,13 @@
                       },
                   },
                   "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      if (aData.boardWriteDatetime != "") {
-                          $('td:eq(0)', nRow).text(replaceAll(aData.boardWriteDatetime,"-","."));
+                      if (aData.predictContractDate != "") {
+                          $('td:eq(1)', nRow).text(replaceAll(aData.predictContractDate, "-", "."));
                       }
                   }
 
               });
+
 
           {% else %}
               $('#showcontracts').dataTable({
@@ -248,7 +292,7 @@
                   },
                   "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                       if (aData.predictContractDate != "") {
-                          $('td:eq(1)', nRow).text(replaceAll(aData.predictContractDate,"-","."));
+                          $('td:eq(1)', nRow).text(replaceAll(aData.predictContractDate, "-", "."));
                       }
                   }
 
