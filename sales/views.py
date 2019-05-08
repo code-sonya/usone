@@ -30,8 +30,9 @@ def post_opportunity(request):
             post.empDeptName = form.clean()['empId'].empDeptName
             post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             post.endCustomerName = form.clean()['endCustomerId'].customerName
+            post.predictProfitRatio = (round(int(form.clean()['predictProfitPrice']) / int(form.clean()['predictSalePrice']), 1)) * 100
             post.save()
-            return redirect('service:showservices')
+            return redirect('sales:showcontracts')
 
     else:
         form = OpportunityForm()
@@ -151,3 +152,25 @@ def filter_asjson(request):
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
+@login_required
+def post_firm(request, contractId):
+
+    if request.method == "POST":
+        form = OpportunityForm(request.POST)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.empName = form.clean()['empId'].empName
+            post.empDeptName = form.clean()['empId'].empDeptName
+            post.saleCustomerName = form.clean()['saleCustomerId'].customerName
+            post.endCustomerName = form.clean()['endCustomerId'].customerName
+            post.save()
+            return redirect('service:showservices')
+
+    else:
+        form = OpportunityForm()
+        context = {
+            'form': form,
+        }
+        return render(request, 'sales/postopportunity.html', context)
