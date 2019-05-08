@@ -14,9 +14,9 @@ class OpportunityForm(forms.ModelForm):
         widgets = {
             'contractName': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractName'}),
             'empId': forms.Select(attrs={'class': 'form-control', 'id': 'empId'}),
-            'saleCompanyName': forms.Select(attrs={'class': 'form-control', 'id': 'saleCompanyName'}),
+            'saleCompanyName': forms.Select(attrs={'class': 'form-control', 'id': 'saleCompanyName', 'onchange': "changeCompany(this.value,'saleCustomerId')"}),
             'saleCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleCustomerId'}),
-            'endCompanyName': forms.Select(attrs={'class': 'form-control', 'id': 'endCompanyName'}),
+            'endCompanyName': forms.Select(attrs={'class': 'form-control', 'id': 'endCompanyName', 'onchange': "changeCompany(this.value,'endCustomerId')"}),
             'endCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'endCustomerId'}),
             'saleType': forms.Select(attrs={'class': 'form-control', 'id': "saleType"}),
             'saleIndustry': forms.Select(attrs={'class': 'form-control', 'id': "saleIndustry"}),
