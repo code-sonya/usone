@@ -14,6 +14,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from hr.models import Employee
 from .forms import OpportunityForm
 from .models import Contract
+from service.models import Company ,Customer
 
 
 @login_required
@@ -61,3 +62,12 @@ def contract_asjson(request):
     structure = json.dumps(contracts, cls=DjangoJSONEncoder)
     print(structure)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def salemanager_asjson(request):
+    companyName = request.POST['saleCompanyName']
+    customer = Customer.objects.filter(companyName=companyName)
+    json = serializers.serialize('json', customer)
+    return HttpResponse(json, content_type='application/json')
