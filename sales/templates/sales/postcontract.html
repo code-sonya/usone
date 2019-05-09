@@ -133,20 +133,32 @@
                 </div>
               </div>
               <div class="form-group row">
-                여기에 category Datatable
+                <div class="col-xl-12">
+                  <button id="addRow" class="btn btn-outline-info">+ 항목 추가</button>
+                  <table id="example" class="display" style="width:100%">
+                    <thead style="width:100%">
+                    <tr>
+                      <th>idx</th>
+                      <th>대분류</th>
+                      <th>소분류</th>
+                      <th>상세내용</th>
+                      <th>가격</th>
+                    </tr>
+                    </thead>
+                  </table>
+                </div>
               </div>
-            </div>
 
-            <div class="text-center">
-              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
-                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
-                <span class="text"> 취소 </span>
-              </a>
-              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
-                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-                <span class="text"> 저장 </span>
-              </a>
-            </div>
+              <div class="text-center">
+                <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                  <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                  <span class="text"> 취소 </span>
+                </a>
+                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                  <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                  <span class="text"> 저장 </span>
+                </a>
+              </div>
           </form>
         </div>
 
@@ -172,12 +184,32 @@
       }
 
       function btn_save() {
+          const Main = $('[name="mainCategory"]');
+          const testList = new Array();
+
+          for (var i = 0; i <= Main.length - 1; i++) {
+              // 객체 생성
+              const data = new Object();
+              data.idx = i + 1;
+              data.main = $('select[name="mainCategory"]').eq(i).val();
+              data.sub = $('select[name="subCategory"]').eq(i).val();
+              data.detail = $('input[name="detail"]').eq(i).val();
+              data.price = $('input[name="price"]').eq(i).val();
+              console.log(data.sub);
+              testList.push(data);
+          }
+          const jsonData = JSON.stringify(testList);
+          const jsoninput= document.createElement("input");
+          $(jsoninput).attr('type','text');
+          $(jsoninput).attr('value',jsonData);
+
+          console.log(jsonData);
           if (confirm("저장 하시겠습니까?") === true) {
               document.getElementById("ContractForm").submit();
           }
       }
 
-      function changeCompany(saleCompanyName,selectId) {
+      function changeCompany(saleCompanyName, selectId) {
           $.ajax({
               url: "{% url 'sales:salemanager_ajax_url' %}",
               method: 'POST',
@@ -186,17 +218,61 @@
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var salecompany = returnData;
-                  $('#'+selectId).empty();
+                  $('#' + selectId).empty();
 
                   for (var count = 0; count < salecompany.length; count++) {
-                      var option = $("<option value="+salecompany[count].pk+">" + salecompany[count].fields.customerName + "</option>");
-                      $('#'+selectId).append(option);
+                      var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
+                      $('#' + selectId).append(option);
                   }
               }
           })
       }
 
+      function itemChange(main, sub) {
+          var selectItem = $(main).val();
+
+          $.ajax({
+              url: "{% url 'sales:category_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"mainCategory": selectItem},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var mainCategory = returnData;
+                  $(sub).empty();
+
+                  for (var count = 0; count < mainCategory.length; count++) {
+                      var option = $("<option value=" + mainCategory[count].pk + ">" + mainCategory[count].fields.subCategory + "</option>");
+                      $(sub).append(option);
+                  }
+              }
+          });
+      }
+
       $(document).ready(function () {
+          var t = $('#example').DataTable({
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollCollapse": true,
+          });
+          var counter = 1;
+
+          $('#addRow').on('click', function () {
+              t.row.add([
+                  counter,
+                  '<select size="1" id="item1' + counter + '" name="mainCategory" onchange="itemChange( item1' + counter + ",item2" + counter + ')"> <option value="init" selected="selected">--대분류--</option> <option value="상품_Oracle">상품_Oracle</option> <option value="상품_IBM">상품_IBM</option> <option value="상품_Lenovo">상품_Lenovo</option> <option value="상품_기타">상품_기타</option> </select>',
+                  '<select size="1" id="item2' + counter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option> ',
+                  '<input type="text" name="detail" id="item3-' + counter + '">',
+                  '<input type="text" name="price" id="item4-' + counter + '">',
+              ]).draw(false);
+
+              counter++;
+          });
+
+          // Automatically add a first row of data
+          $('#addRow').click();
           $('#predictSalePrice').on("propertychange change keyup paste input", function () {
               const predictSalePrice = $('#predictSalePrice').val();
               const predictProfitPrice = $('#predictProfitPrice').val();
@@ -225,8 +301,7 @@
               const contractStep = $('#contractStep').val();
               if (contractStep === 'Firm') {
                   $('#Firm').removeClass('d-none');
-              }
-              else {
+              } else {
                   $('#Firm').addClass('d-none');
                   $('#salePrice').val('');
                   $('#profitPrice').val('');

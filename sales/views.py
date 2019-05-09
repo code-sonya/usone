@@ -13,7 +13,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from hr.models import Employee
 from .forms import ContractForm
-from .models import Contract
+from .models import Contract ,Category
 from service.models import Company ,Customer
 from django.db.models import Q
 
@@ -95,6 +95,7 @@ def salemanager_asjson(request):
 
 
 @login_required
+@csrf_exempt
 def view_contract(request, contractId):
     contract = Contract.objects.get(contractId=contractId)
     context = {
@@ -105,6 +106,7 @@ def view_contract(request, contractId):
     elif contract.contractStep == "Firm":
         return render(request, 'sales/viewfirm.html', context)
 
+@login_required
 @csrf_exempt
 def empdept_asjson(request):
     empDeptName = request.POST['empDeptName']
@@ -151,25 +153,11 @@ def filter_asjson(request):
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
-
 @login_required
-def post_firm(request, contractId):
+@csrf_exempt
+def category_asjson(request):
+    mainCategory = request.POST['mainCategory']
+    subcategory = Category.objects.filter(mainCategory=mainCategory)
+    json = serializers.serialize('json', subcategory)
+    return HttpResponse(json, content_type='application/json')
 
-    if request.method == "POST":
-        form = OpportunityForm(request.POST)
-
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.empName = form.clean()['empId'].empName
-            post.empDeptName = form.clean()['empId'].empDeptName
-            post.saleCustomerName = form.clean()['saleCustomerId'].customerName
-            post.endCustomerName = form.clean()['endCustomerId'].customerName
-            post.save()
-            return redirect('service:showservices')
-
-    else:
-        form = OpportunityForm()
-        context = {
-            'form': form,
-        }
-        return render(request, 'sales/postcontract.html', context)
