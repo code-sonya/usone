@@ -12,17 +12,17 @@ from xhtml2pdf import pisa
 from django.core.serializers.json import DjangoJSONEncoder
 
 from hr.models import Employee
-from .forms import OpportunityForm
+from .forms import ContractForm
 from .models import Contract
 from service.models import Company ,Customer
 from django.db.models import Q
 
 
 @login_required
-def post_opportunity(request):
+def post_contract(request):
 
     if request.method == "POST":
-        form = OpportunityForm(request.POST)
+        form = ContractForm(request.POST)
 
         if form.is_valid():
             post = form.save(commit=False)
@@ -30,16 +30,15 @@ def post_opportunity(request):
             post.empDeptName = form.clean()['empId'].empDeptName
             post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             post.endCustomerName = form.clean()['endCustomerId'].customerName
-            post.predictProfitRatio = (round(int(form.clean()['predictProfitPrice']) / int(form.clean()['predictSalePrice']), 1)) * 100
             post.save()
             return redirect('sales:showcontracts')
 
     else:
-        form = OpportunityForm()
+        form = ContractForm()
         context = {
             'form': form,
         }
-        return render(request, 'sales/postopportunity.html', context)
+        return render(request, 'sales/postcontract.html', context)
 
 
 @login_required
@@ -173,4 +172,4 @@ def post_firm(request, contractId):
         context = {
             'form': form,
         }
-        return render(request, 'sales/postopportunity.html', context)
+        return render(request, 'sales/postcontract.html', context)
