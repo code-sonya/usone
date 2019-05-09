@@ -142,7 +142,7 @@
                   <table id="categoryItem" class="display" style="width:100%">
                     <thead style="width:100%">
                     <tr>
-                      <th>idx</th>
+                      <th>구분</th>
                       <th>대분류</th>
                       <th>소분류</th>
                       <th>상세내용</th>
@@ -190,27 +190,32 @@
 
       function btn_save() {
           const Main = $('[name="mainCategory"]');
-          const testList = new Array();
+          const listItem = new Array();
 
           for (var i = 0; i <= Main.length - 1; i++) {
               // 객체 생성
-              const data = new Object();
-              data.idx = i + 1;
+              var data = new Object();
+              if ($('div[name="idx"]').eq(i).text() === '추가') {
+                  data.idx = 0
+              }
               data.main = $('select[name="mainCategory"]').eq(i).val();
               data.sub = $('select[name="subCategory"]').eq(i).val();
               data.detail = $('input[name="detail"]').eq(i).val();
               data.price = $('input[name="price"]').eq(i).val();
               console.log(data.sub);
-              testList.push(data);
+              listItem.push(data);
           }
-          const jsonData = JSON.stringify(testList);
-          const jsoninput = document.createElement("input");
-          $(jsoninput).attr('type', 'text');
-          $(jsoninput).attr('value', jsonData);
+
+          const jsonData = JSON.stringify(listItem);
+          const jsonItem = document.createElement("input");
+          jsonItem.setAttribute("type", "hidden"); jsonItem.setAttribute("name", "jsonItem"); jsonItem.setAttribute("value", jsonData);
+
+          const ContractForm = document.getElementById("ContractForm");
+          ContractForm.appendChild(jsonItem);
 
           console.log(jsonData);
           if (confirm("저장 하시겠습니까?") === true) {
-              document.getElementById("ContractForm").submit();
+              ContractForm.submit();
           }
       }
 
@@ -247,7 +252,7 @@
                   $(sub).empty();
 
                   for (var count = 0; count < mainCategory.length; count++) {
-                      var option = $("<option value=" + mainCategory[count].pk + ">" + mainCategory[count].fields.subCategory + "</option>");
+                      var option = $("<option value=" + mainCategory[count].fields.subCategory + ">" + mainCategory[count].fields.subCategory + "</option>");
                       $(sub).append(option);
                   }
               }
@@ -274,7 +279,7 @@
           var table = $('#categoryItem').DataTable();
           $('#addRow').on('click', function () {
               table.row.add([
-                  counter,
+                  '<div class="text-center" value="0" name="idx" id="item0' + counter + '">추가</div>',
                   '<select size="1" id="item1' + counter + '" name="mainCategory" onchange="itemChange( item1' + counter + ",item2" + counter + ')"> <option value="init" selected="selected">--대분류--</option> <option value="상품_Oracle">상품_Oracle</option> <option value="상품_IBM">상품_IBM</option> <option value="상품_Lenovo">상품_Lenovo</option> <option value="상품_기타">상품_기타</option> </select>',
                   '<select size="1" id="item2' + counter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option> ',
                   '<input type="text" name="detail" id="item3' + counter + '">',
