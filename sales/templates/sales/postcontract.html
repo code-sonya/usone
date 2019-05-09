@@ -200,7 +200,6 @@
               data.sub = $('select[name="subCategory"]').eq(i).val();
               data.detail = $('input[name="detail"]').eq(i).val();
               data.price = $('input[name="price"]').eq(i).val();
-              console.log(data.sub);
               testList.push(data);
           }
           const jsonData = JSON.stringify(testList);
@@ -254,11 +253,6 @@
           });
       }
 
-      function removerow(counter) {
-          console.log(counter);
-          $('#row' + counter).remove();
-      }
-
       $(document).ready(function () {
           var t = $('#categoryItem').DataTable({
               "searching": false,
@@ -271,21 +265,27 @@
               },
           });
           var counter = 0;
-          var table = $('#categoryItem').DataTable();
           $('#addRow').on('click', function () {
-              table.row.add([
+              t.row.add([
                   counter,
                   '<select size="1" id="item1' + counter + '" name="mainCategory" onchange="itemChange( item1' + counter + ",item2" + counter + ')"> <option value="init" selected="selected">--대분류--</option> <option value="상품_Oracle">상품_Oracle</option> <option value="상품_IBM">상품_IBM</option> <option value="상품_Lenovo">상품_Lenovo</option> <option value="상품_기타">상품_기타</option> </select>',
                   '<select size="1" id="item2' + counter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option> ',
                   '<input type="text" name="detail" id="item3' + counter + '">',
                   '<input type="text" name="price" id="item4' + counter + '">',
-                  '<div><i class="fas fa-times-circle" onclick="removerow(' + counter + ')"></div>'
+                  '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
-
               counter++;
           });
 
           $('#addRow').click();
+
+          $('#categoryItem').on('click', 'i', function () {
+              t
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
           $('#predictSalePrice').on("propertychange change keyup paste input", function () {
               const predictSalePrice = $('#predictSalePrice').val();
               const predictProfitPrice = $('#predictProfitPrice').val();
