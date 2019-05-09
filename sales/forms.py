@@ -12,7 +12,7 @@ class ContractForm(forms.ModelForm):
         model = Contract
         fields = ('contractName', 'contractStep', 'empId', 'saleCompanyName', 'saleCustomerId', 'endCompanyName', 'endCustomerId', 'saleType', 'saleIndustry',
                   'predictSalePrice', 'predictProfitPrice', 'predictProfitRatio', 'predictContractDate', 'salePrice', 'profitPrice', 'profitRatio', 'contractDate',
-                  'contractStartDate', 'contractEndDate')
+                  'contractStartDate', 'contractEndDate', 'comment')
 
         widgets = {
             'contractName': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractName'}),
@@ -34,6 +34,7 @@ class ContractForm(forms.ModelForm):
             'contractDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'contractDate'}),
             'contractStartDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'contractStartDate'}),
             'contractEndDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'contractEndDate'}),
+            'comment': forms.TextInput(attrs={'class': 'form-control', 'id': 'comment'}),
         }
 
     def __init__(self, *args, **kwargs):

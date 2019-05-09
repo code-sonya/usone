@@ -20,7 +20,7 @@ class Contract(models.Model):
     endCompanyName = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='endCompanyName')
     endCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='endCustomerId', null=True, blank=True)
     endCustomerName = models.CharField(max_length=10, null=True, blank=True)
-    category = models.TextField(null=True, blank=True)
+    comment = models.CharField(max_length=200, null=True, blank=True)
     saleType = models.CharField(max_length=10, choices=saleTypeChoices, default='직판')
     saleIndustry = models.CharField(max_length=10, choices=saleIndustryChoices, default='금융')
     predictSalePrice = models.IntegerField()
@@ -63,3 +63,15 @@ class Category(models.Model):
 
     def __str__(self):
         return '{} {}'.format(self.mainCategory, self.subCategory)
+
+
+class Contractitem(models.Model):
+    contractItemId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    mainCategory = models.CharField(max_length=50)
+    subCategory = models.CharField(max_length=50)
+    itemName = models.CharField(max_length=50)
+    itemPrice = models.IntegerField()
+
+    def __str__(self):
+        return '{} : {}'.format(self.contractId.contractName, self.itemName)
