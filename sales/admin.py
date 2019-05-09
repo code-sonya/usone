@@ -21,3 +21,9 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('categoryId', 'mainCategory', 'subCategory')
     list_filter = ('mainCategory', 'subCategory')
     list_display_links = ['categoryId', 'mainCategory', 'subCategory']
+
+
+class ContractitemAdmin(admin.ModelAdmin):
+    list_display = ('contractItemId', 'contractId', 'mainCategory', 'subCategory', 'itemName', 'itemPrice')
+    list_filter = ('contractId', 'itemName')
+    list_display_links = ['contractItemId', 'contractId', 'mainCategory', 'subCategory', 'itemName', 'itemPrice']

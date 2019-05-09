@@ -129,13 +129,17 @@
                   </div>
                 </div>
                 <div class="col-xl-6">
-                  여기에 안내문구 같은 것 작성<br>단계변경시 값 초기화 로직에 Datatable 추가해야 됨.
+                  <div class="form-group row mb-0">
+                    <div class="col-12 mb-3">
+                      <label for="predictSalePrice" class="font-weight-bold text-primary"> 참고사항 </label> {{ form.comment }}
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="form-group row">
                 <div class="col-xl-12">
-                  <button id="addRow" class="btn btn-outline-info">+ 항목 추가</button>
-                  <table id="example" class="display" style="width:100%">
+                  <span id="addRow" class="btn btn-outline-info">+ 항목 추가</span>
+                  <table id="contractItem" class="display" style="width:100%">
                     <thead style="width:100%">
                     <tr>
                       <th>idx</th>
@@ -250,7 +254,7 @@
       }
 
       $(document).ready(function () {
-          var t = $('#example').DataTable({
+          var t = $('#contractItem').DataTable({
               "searching": false,
               "paging": false,
               "info": false,
@@ -273,6 +277,7 @@
 
           // Automatically add a first row of data
           $('#addRow').click();
+
           $('#predictSalePrice').on("propertychange change keyup paste input", function () {
               const predictSalePrice = $('#predictSalePrice').val();
               const predictProfitPrice = $('#predictProfitPrice').val();
