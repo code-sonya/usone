@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contract, Revenue, Category
+from .models import Contract, Revenue, Category, Contractitem
 
 
 @admin.register(Contract)
@@ -23,6 +23,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display_links = ['categoryId', 'mainCategory', 'subCategory']
 
 
+@admin.register(Contractitem)
 class ContractitemAdmin(admin.ModelAdmin):
     list_display = ('contractItemId', 'contractId', 'mainCategory', 'subCategory', 'itemName', 'itemPrice')
     list_filter = ('contractId', 'itemName')

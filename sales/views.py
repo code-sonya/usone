@@ -13,14 +13,13 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from hr.models import Employee
 from .forms import ContractForm
-from .models import Contract ,Category
-from service.models import Company ,Customer
+from .models import Contract, Category, Revenue, Contractitem
+from service.models import Company, Customer
 from django.db.models import Q
 
 
 @login_required
 def post_contract(request):
-
     if request.method == "POST":
         form = ContractForm(request.POST)
 
@@ -31,6 +30,16 @@ def post_contract(request):
             post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             post.endCustomerName = form.clean()['endCustomerId'].customerName
             post.save()
+
+            jsonItem = json.loads(request.POST['jsonItem'])
+            for item in jsonItem:
+                Contractitem.objects.create(
+                    contractId=post,
+                    mainCategory=item["main"],
+                    subCategory=item["sub"],
+                    itemName=item["detail"],
+                    itemPrice=int(item["price"])
+                )
             return redirect('sales:showcontracts')
 
     else:
@@ -56,15 +65,15 @@ def show_contracts(request):
 
         context = {
             'employees': employees,
-            'startdate' : startdate,
+            'startdate': startdate,
             'enddate': enddate,
-            'contractStep':contractStep,
-            'empDeptName':empDeptName,
-            'empName' :empName,
-            'saleCompanyName':saleCompanyName,
-            'endCompanyName':endCompanyName,
-            'contractName':contractName,
-            'filter':'Y'
+            'contractStep': contractStep,
+            'empDeptName': empDeptName,
+            'empName': empName,
+            'saleCompanyName': saleCompanyName,
+            'endCompanyName': endCompanyName,
+            'contractName': contractName,
+            'filter': 'Y'
         }
 
 
@@ -106,14 +115,15 @@ def view_contract(request, contractId):
     elif contract.contractStep == "Firm":
         return render(request, 'sales/viewfirm.html', context)
 
+
 @login_required
 @csrf_exempt
 def empdept_asjson(request):
     empDeptName = request.POST['empDeptName']
-    if empDeptName =='전체':
-        employees = Employee.objects.filter(Q(empDeptName='영업1팀')|Q(empDeptName='영업2팀')|Q(empDeptName='영업3팀')&Q(empStatus='Y'))
+    if empDeptName == '전체':
+        employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
     else:
-        employees = Employee.objects.filter(Q(empDeptName=empDeptName)&Q(empStatus='Y'))
+        employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
     json = serializers.serialize('json', employees)
     return HttpResponse(json, content_type='application/json')
 
@@ -133,9 +143,9 @@ def filter_asjson(request):
     contracts = Contract.objects.all()
 
     if startdate:
-        contracts = contracts.filter(Q(predictContractDate__gte = startdate)|Q(contractDate__gte=startdate))
+        contracts = contracts.filter(Q(predictContractDate__gte=startdate) | Q(contractDate__gte=startdate))
     if enddate:
-        contracts = contracts.filter(Q(predictContractDate__lte=enddate)|Q(contractDate__lte=enddate))
+        contracts = contracts.filter(Q(predictContractDate__lte=enddate) | Q(contractDate__lte=enddate))
     if contractStep != '전체':
         contracts = contracts.filter(contractStep=contractStep)
     if empDeptName != '전체':
@@ -153,6 +163,7 @@ def filter_asjson(request):
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
 @login_required
 @csrf_exempt
 def category_asjson(request):
@@ -160,4 +171,3 @@ def category_asjson(request):
     subcategory = Category.objects.filter(mainCategory=mainCategory)
     json = serializers.serialize('json', subcategory)
     return HttpResponse(json, content_type='application/json')
-
