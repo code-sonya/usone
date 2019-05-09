@@ -1,6 +1,6 @@
 {% extends "dashboard/layout.html" %}
 {% block title %}
-  엔지니어 지원 통계
+  대시보드
 {% endblock %}
 
 {% block content %}
@@ -9,14 +9,12 @@
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <span>
-    <h1 class="h3 mb-0 text-gray-800">엔지니어 지원 통계 {% if user.employee.empDeptName == "임원" %}(SOLUTION&DB){% endif %}</h1>
-    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate}}~{{ enddate }} )</h6>
+    <h1 class="h3 mb-0 text-gray-800">영업기회&계약 분석(Opportunity&Firm)</h1>
+    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate }}~{{ enddate }} )</h6>
     </span>
     <span>
       <a href="#" class="d-sm-inline-block btn btn-sm btn-info shadow-sm" id="filterLink" data-toggle="modal" data-target="#filterModal"><i class="fas fa-filter fa-sm text-white-50"></i> 날짜 검색 </a>
-{#      <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="pdf"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>#}
     </span>
-
   </div>
 
   <!-- Content Row -->
@@ -99,12 +97,12 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원 시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">단계별 분석</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-area">
-            <div id="SupportTimeTreemap" style="height: 100%"></div>
+            <canvas id="bar-chart-horizontal" height="50px"></canvas>
           </div>
         </div>
       </div>
@@ -316,6 +314,56 @@
       function btn_filter() {
           document.getElementById("filterForm").submit();
       }
+
+      function handleClick(evt) {
+          const activeElement = stepChart.getElementAtEvent(evt);
+          {#const a = stepChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index];#}
+          const idx = activeElement[0]._index;
+          const stepLabels = stepChart.data.labels[idx];
+          console.log(stepLabels);
+          update_caption(stepLabels);
+          original.call(this, e, stepLabels);
+
+      }
+
+
+      var original = Chart.defaults.global.legend.onClick;
+      Chart.defaults.global.legend.onClick = function (e, legendItem) {
+          update_caption(legendItem);
+          original.call(this, e, legendItem);
+      };
+
+      var update_caption = function (legend) {
+          labels[legend] = legend.hidden;
+
+          var selected = Object.keys(labels).filter(function (key) {
+              return labels[key];
+          });
+
+          var text = selected.length ? selected.join(" & ") : "nothing";
+
+          caption.innerHTML = "The chart is displaying " + text;
+      };
+  </script>
+  <script>
+      var stepChart = new Chart(document.getElementById("bar-chart-horizontal"), {
+          type: 'horizontalBar',
+          data: {
+              labels: ["Opportunity", "Firm"],
+              datasets: [
+                  {
+                      label: "금액 (원)",
+                      backgroundColor: ["#1cc88a", "#4e73df"],
+                      data: [2478, 5267]
+                  }
+              ]
+          },
+          options: {
+              legend: {display: false},
+              onClick: handleClick
+          }
+      });
+
   </script>
 
   <script>
@@ -333,11 +381,9 @@
                   ctx.textAlign = 'center';
                   ctx.textBaseline = 'bottom';
 
-                  this.data.datasets.forEach(function (dataset)
-                  {
+                  this.data.datasets.forEach(function (dataset) {
                       for (var i = 0; i < dataset.data.length; i++) {
-                          for(var key in dataset._meta)
-                          {
+                          for (var key in dataset._meta) {
                               var model = dataset._meta[key].data[i]._model;
                               ctx.fillText(dataset.data[i], model.x, model.y - 5);
                           }
@@ -588,7 +634,7 @@
       });
   </script>
   <script>
-  $(document).ready(function () {
+      $(document).ready(function () {
 
           const table = $('#showservice').DataTable({
               data: [],
@@ -610,7 +656,7 @@
                   {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible:false}
+                  {targets: 7, visible: false}
               ],
               "searching": false,
               "paging": false,
@@ -620,8 +666,8 @@
           });
 
           {% for service in all_support_data %}
-              var rowNode = table.row.add( {
-                  "성함":  "{{ service.empName }}",
+              var rowNode = table.row.add({
+                  "성함": "{{ service.empName }}",
                   "고객사": "{{ service.companyName.companyName }}",
                   "구분": "{{ service.serviceType }}",
                   "날짜": "{{ service.serviceDate | date:"Y-m-d" }}",
@@ -629,13 +675,13 @@
                   "초과근무시간": "{{ service.serviceOverHour }}",
                   "제목": "{{ service.serviceTitle }}",
                   "serviceId": "{{ service.serviceId }}",
-              } ).draw().node();
+              }).draw().node();
 
           {% endfor %}
 
-          $("#showservice").on("click", 'tr', function(){
+          $("#showservice").on("click", 'tr', function () {
               const data = table.row(this).data();
-              location.href='/service/viewservice/' + data.serviceId + '/'
+              location.href = '/service/viewservice/' + data.serviceId + '/'
           });
 
       });
