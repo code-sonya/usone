@@ -40,6 +40,15 @@ def post_contract(request):
                     itemName=item["detail"],
                     itemPrice=int(item["price"])
                 )
+
+            jsonRevenue = json.loads(request.POST['jsonRevenue'])
+            for revenue in jsonRevenue:
+                Revenue.objects.create(
+                    revenueName=revenue["revenueName"],
+                    contractId=post,
+                    salePrice=revenue["revenuePrice"],
+                    billingDate=revenue["billingDate"]
+                )
             return redirect('sales:showcontracts')
 
     else:
@@ -107,13 +116,15 @@ def salemanager_asjson(request):
 @csrf_exempt
 def view_contract(request, contractId):
     contract = Contract.objects.get(contractId=contractId)
+    items = Contractitem.objects.filter(contractId=contractId)
+    revenues = Revenue.objects.filter(contractId=contractId)
+    print(revenues)
     context = {
         'contract': contract,
+        'items': items,
+        'revenues': revenues,
     }
-    if contract.contractStep == "Opportunity":
-        return render(request, 'sales/viewopportunity.html', context)
-    elif contract.contractStep == "Firm":
-        return render(request, 'sales/viewfirm.html', context)
+    return render(request, 'sales/viewcontract.html', context)
 
 
 @login_required
