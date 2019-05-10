@@ -40,17 +40,17 @@ class Contract(models.Model):
 
 
 class Revenue(models.Model):
-    revenueStepChoices = (('Complete', 'Complete'), ('분납', '분납'), ('수금완료', '수금완료'))
+    revenueStepChoices = (('Firm', 'Firm'), ('Complete', 'Complete'), ('분납', '분납'), ('수금완료', '수금완료'))
 
     revenueId = models.AutoField(primary_key=True)
     revenueName = models.CharField(max_length=200)
     contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
     salePrice = models.IntegerField()
-    billingDate = models.DateField()
-    predictCollectDate = models.DateField()
-    collectPrice = models.IntegerField()
-    collectDate = models.DateField()
-    revenueStep = models.CharField(max_length=20, choices=revenueStepChoices, default='Opportunity')
+    billingDate = models.DateField(null=True, blank=True)
+    predictCollectDate = models.DateField(null=True, blank=True)
+    collectPrice = models.IntegerField(null=True, blank=True)
+    collectDate = models.DateField(null=True, blank=True)
+    revenueStep = models.CharField(max_length=20, choices=revenueStepChoices, default='Firm')
 
     def __str__(self):
         return self.revenueName

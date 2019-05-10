@@ -153,6 +153,23 @@
                   </table>
                 </div>
               </div>
+              <hr class="divider">
+              <div class="form-group row">
+                <div class="col-xl-12">
+                  <span id="addRevenue" class="btn btn-outline-info">+ 항목 추가</span>
+                  <table id="revenue" class="display" style="width:100%">
+                    <thead style="width:100%">
+                    <tr>
+                      <th>구분</th>
+                      <th>제목</th>
+                      <th>매출금액</th>
+                      <th>빌링일자</th>
+                      <th></th>
+                    </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
             </div>
             <div class="text-center">
               <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
@@ -268,10 +285,13 @@
               'fnCreatedRow': function (nRow, aData, iDataIndex) {
                   $(nRow).attr('id', 'row' + iDataIndex); // or whatever you choose to set as the id
               },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: [0, 1, 2, 3, 4], className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
           });
           var counter = 0;
           $('#addRow').on('click', function () {
-              console.log('click');
               t.row.add([
                   '<div class="text-center" value="0" name="idx" id="item0' + counter + '">추가</div>',
                   '<select size="1" id="item1' + counter + '" name="mainCategory" onchange="itemChange( item1' + counter + ",item2" + counter + ')"> <option value="init" selected="selected">--대분류--</option> <option value="상품_Oracle">상품_Oracle</option> <option value="상품_IBM">상품_IBM</option> <option value="상품_Lenovo">상품_Lenovo</option> <option value="상품_기타">상품_기타</option> </select>',
@@ -332,7 +352,7 @@
                   $('#contractStartDate').val('');
                   $('#contractEndDate').val('');
                   t.clear().draw();
-                  counter = 0
+                  counter = 0;
                   $('#addRow').click();
 
               }
