@@ -182,3 +182,32 @@ def category_asjson(request):
     subcategory = Category.objects.filter(mainCategory=mainCategory)
     json = serializers.serialize('json', subcategory)
     return HttpResponse(json, content_type='application/json')
+
+
+@login_required
+def modify_contract(request, contractId):
+    contractInstance = Contract.objects.get(contractId=contractId)
+
+    if request.method == "POST":
+        form = ContractForm(request.POST, instance=contractInstance)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.empName = form.clean()['empId'].empName
+            post.empDeptName = form.clean()['empId'].empDeptName
+            post.saleCustomerName = form.clean()['saleCustomerId'].customerName
+            post.endCustomerName = form.clean()['endCustomerId'].customerName
+            post.save()
+            return redirect('sales:showcontracts')
+
+    else:
+        form = ContractForm(instance=contractInstance)
+        items = Contractitem.objects.filter(contractId=contractId)
+        revenues = Revenue.objects.filter(contractId=contractId)
+
+        context = {
+            'form': form,
+            'items': items,
+            'revenues': revenues,
+        }
+        return render(request, 'sales/postcontract.html', context)

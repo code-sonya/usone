@@ -320,7 +320,12 @@
           $('#addItem').on('click', function () {
               t1.row.add([
                   '<div class="text-center" value="0" name="idx" id="item0' + itemCounter + '">추가</div>',
-                  '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')"> <option value="init" selected="selected">--대분류--</option> <option value="상품_Oracle">상품_Oracle</option> <option value="상품_IBM">상품_IBM</option> <option value="상품_Lenovo">상품_Lenovo</option> <option value="상품_기타">상품_기타</option> </select>',
+                  '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
+                      '<option value="init" selected="selected">--대분류--</option>' +
+                      '<option value="상품_Oracle">상품_Oracle</option>' +
+                      '<option value="상품_IBM">상품_IBM</option>' +
+                      '<option value="상품_Lenovo">상품_Lenovo</option>' +
+                      '<option value="상품_기타">상품_기타</option> </select>',
                   '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option> ',
                   '<input type="text" name="detail" id="item3' + itemCounter + '">',
                   '<input type="text" name="price" id="item4' + itemCounter + '">',
@@ -417,6 +422,24 @@
                   $('#addRevenue').click();
               }
           });
+
+          {% if items %}
+              {% for item in items %}
+                  t1.row.add([
+                          '<div class="text-center" value="0" name="idx" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
+                          '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
+                              '<option value="init" selected="selected">--대분류--</option>' +
+                              '<option value="상품_Oracle">상품_Oracle</option>' +
+                              '<option value="상품_IBM">상품_IBM</option>' +
+                              '<option value="상품_Lenovo">상품_Lenovo</option>' +
+                              '<option value="상품_기타">상품_기타</option> </select>',
+                          '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option> ',
+                          '<input type="text" name="detail" id="item3' + itemCounter + '" value="{{ item.itemName }}">',
+                          '<input type="text" name="price" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
+                          '<i class="fas fa-times-circle" name="remove" >'
+                      ]).draw(false);
+              {% endfor %}
+          {% endif %}
       })
 
   </script>
