@@ -102,7 +102,7 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-area">
-            <canvas id="bar-chart-horizontal" height="50px"></canvas>
+            <canvas id="step-barchart" height="50px"></canvas>
           </div>
         </div>
       </div>
@@ -110,131 +110,45 @@
   </div>
 
   <!-- Content Row -->
-
   <div class="row">
-    <div class="col-xl-12 col-lg-12">
-      <div class="card shadow mb-4">
-        <!-- Card Header-->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원 시간</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="CustomerSupportTime"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-
-    <!-- Area Chart -->
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 시간</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="empSupportTime"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pie Chart -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">서비스타입별 지원 시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">상품별 분석</h6>
 
         </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-pie pt-4 pb-2">
-            <canvas id="typeSupportTime"></canvas>
+            <canvas id="category-piechart"></canvas>
           </div>
           <div class="mt-4 text-center small">
-            {% for i,j in multi_type %}
-              {% if j == 0 %}
-                <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> {{ i.serviceType }}
-                    </span>
-              {% elif j == 1 %}
-                <span class="mr-2">
-                      <i class="fas fa-circle text-success"></i> {{ i.serviceType }}
-                    </span>
-              {% elif j == 2 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle text-info"></i> {{ i.serviceType }}
-                  </span>
-              {% elif j == 3 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle text-warning"></i> {{ i.serviceType }}
-                  </span>
-              {% elif j == 4 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle text-danger"></i> {{ i.serviceType }}
-                  </span>
-              {% elif j == 5 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle text-secondary"></i> {{ i.serviceType }}
-                  </span>
-              {% elif j == 6 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle" style="color:#e83e8c"></i> {{ i.serviceType }}
-                  </span>
-              {% else %}
-                <span class="mr-2">
-                    <i class="fas fa-circle"></i> {{ i.serviceType }}
-                  </span>
-              {% endif %}
-            {% endfor %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">상품별 분석</h6>
+
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-pie pt-4 pb-2">
+            <canvas id="category-piechart"></canvas>
+          </div>
+          <div class="mt-4 text-center small">
+
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="row">
-
-    <!-- Bar Chart -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 횟수</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="empSupportCount"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bar Chart -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 초과근무 시간</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="empSupportOver"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- data table -->
   <div class="row">
@@ -309,44 +223,23 @@
   <script src="/static/hr/js/demo/chart-bar-demo.js"></script>
   <script src="/static/hr/js/demo/chart-area-demo.js"></script>
   <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
-
   <script>
+
       function btn_filter() {
           document.getElementById("filterForm").submit();
       }
 
-      function handleClick(evt) {
-          const activeElement = stepChart.getElementAtEvent(evt);
-          {#const a = stepChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index];#}
-          const idx = activeElement[0]._index;
-          const stepLabels = stepChart.data.labels[idx];
-          console.log(stepLabels);
-          update_caption(stepLabels);
-          original.call(this, e, stepLabels);
+      const filterArray = new Array();
+      filterArray['step'] = '';
+      filterArray['type'] = '';
+      filterArray['emp'] = '';
 
-      }
+      $(document).ready(function () {
 
+      });
 
-      var original = Chart.defaults.global.legend.onClick;
-      Chart.defaults.global.legend.onClick = function (e, legendItem) {
-          update_caption(legendItem);
-          original.call(this, e, legendItem);
-      };
-
-      var update_caption = function (legend) {
-          labels[legend] = legend.hidden;
-
-          var selected = Object.keys(labels).filter(function (key) {
-              return labels[key];
-          });
-
-          var text = selected.length ? selected.join(" & ") : "nothing";
-
-          caption.innerHTML = "The chart is displaying " + text;
-      };
-  </script>
-  <script>
-      var stepChart = new Chart(document.getElementById("bar-chart-horizontal"), {
+      {# 1.step chart #}
+      var stepChart = new Chart(document.getElementById("step-barchart"), {
           type: 'horizontalBar',
           data: {
               labels: ["Opportunity", "Firm"],
@@ -363,6 +256,38 @@
               onClick: handleClick
           }
       });
+
+      function handleClick(evt) {
+          const activeElement = stepChart.getElementAtEvent(evt);
+          {#const a = stepChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index];#}
+          const idx = activeElement[0]._index;
+          const stepLabels = stepChart.data.labels[idx];
+          filterArray['step'] = stepLabels;
+          console.log(filterArray);
+          {#  기존 차트 데이터 다 지우고 다시 채우는 로  #}
+
+      }
+
+      {# 2. category type chart   #}
+
+      new Chart(document.getElementById("category-piechart"), {
+          type: 'pie',
+          data: {
+              labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+              datasets: [{
+                  label: "Population (millions)",
+                  backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
+                  data: [2478, 5267, 734, 784, 433]
+              }]
+          },
+          options: {
+              title: {
+                  display: true,
+                  text: 'Predicted world population (millions) in 2050'
+              }
+          }
+      });
+
 
   </script>
 
@@ -633,57 +558,5 @@
           chart.draw();
       });
   </script>
-  <script>
-      $(document).ready(function () {
 
-          const table = $('#showservice').DataTable({
-              data: [],
-              columns: [
-                  {data: "성함"},
-                  {data: "고객사"},
-                  {data: "구분"},
-                  {data: "날짜"},
-                  {data: "지원시간"},
-                  {data: "초과근무시간"},
-                  {data: "제목"},
-                  {data: "serviceId"}
-              ],
-              columnDefs: [
-                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
-              ],
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollCollapse": true,
-          });
-
-          {% for service in all_support_data %}
-              var rowNode = table.row.add({
-                  "성함": "{{ service.empName }}",
-                  "고객사": "{{ service.companyName.companyName }}",
-                  "구분": "{{ service.serviceType }}",
-                  "날짜": "{{ service.serviceDate | date:"Y-m-d" }}",
-                  "지원시간": "{{ service.serviceHour }}",
-                  "초과근무시간": "{{ service.serviceOverHour }}",
-                  "제목": "{{ service.serviceTitle }}",
-                  "serviceId": "{{ service.serviceId }}",
-              }).draw().node();
-
-          {% endfor %}
-
-          $("#showservice").on("click", 'tr', function () {
-              const data = table.row(this).data();
-              location.href = '/service/viewservice/' + data.serviceId + '/'
-          });
-
-      });
-  </script>
 {% endblock %}

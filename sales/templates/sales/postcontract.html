@@ -271,7 +271,8 @@
           });
           var counter = 0;
           $('#addRow').on('click', function () {
-              table.row.add([
+              console.log('click');
+              t.row.add([
                   '<div class="text-center" value="0" name="idx" id="item0' + counter + '">추가</div>',
                   '<select size="1" id="item1' + counter + '" name="mainCategory" onchange="itemChange( item1' + counter + ",item2" + counter + ')"> <option value="init" selected="selected">--대분류--</option> <option value="상품_Oracle">상품_Oracle</option> <option value="상품_IBM">상품_IBM</option> <option value="상품_Lenovo">상품_Lenovo</option> <option value="상품_기타">상품_기타</option> </select>',
                   '<select size="1" id="item2' + counter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option> ',
@@ -279,10 +280,9 @@
                   '<input type="text" name="price" id="item4' + counter + '">',
                   '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
+              console.log(counter);
               counter++;
           });
-
-          $('#addRow').click();
 
           $('#categoryItem').on('click', 'i', function () {
               t
@@ -318,7 +318,11 @@
           $('#contractStep').on("propertychange change keyup paste input", function () {
               const contractStep = $('#contractStep').val();
               if (contractStep === 'Firm') {
+                  console.log('Firm');
                   $('#Firm').removeClass('d-none');
+                  t.clear().draw();
+                  counter = 0;
+                  $('#addRow').click();
               } else {
                   $('#Firm').addClass('d-none');
                   $('#salePrice').val('');
