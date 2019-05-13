@@ -46,7 +46,7 @@ def post_contract(request):
                 Revenue.objects.create(
                     revenueName=revenue["revenueName"],
                     contractId=post,
-                    salePrice=revenue["revenuePrice"],
+                    salePrice=int(revenue["revenuePrice"]),
                     billingDate=revenue["billingDate"]
                 )
             return redirect('sales:showcontracts')
@@ -198,7 +198,6 @@ def modify_contract(request, contractId):
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
-            jsonRevenue = json.loads(request.POST['jsonRevenue'])
 
             itemId = list(i[0] for i in Contractitem.objects.filter(contractId=contractId).values_list('contractItemId'))
             jsonItemId = []
@@ -221,11 +220,38 @@ def modify_contract(request, contractId):
                     itemInstance.save()
                     jsonItemId.append(int(item['itemId']))
 
-            delId = list(set(itemId) - set(jsonItemId))
+            delItemId = list(set(itemId) - set(jsonItemId))
 
-            if delId:
-                for Id in delId:
+            if delItemId:
+                for Id in delItemId:
                     Contractitem.objects.filter(contractItemId=Id).delete()
+
+            jsonRevenue = json.loads(request.POST['jsonRevenue'])
+
+            revenueId = list(i[0] for i in Revenue.objects.filter(contractId=contractId).values_list('revenueId'))
+            jsonRevenueId = []
+            for revenue in jsonRevenue:
+                if revenue['revenueId'] == '추가':
+                    Revenue.objects.create(
+                        revenueName=revenue["revenueName"],
+                        contractId=post,
+                        salePrice=int(revenue["revenuePrice"]),
+                        billingDate=revenue["billingDate"]
+                    )
+                else:
+                    revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
+                    revenueInstance.revenueName = revenue["revenueName"]
+                    revenueInstance.contractId = post
+                    revenueInstance.salePrice = int(revenue["revenuePrice"])
+                    revenueInstance.billingDate = revenue["billingDate"]
+                    revenueInstance.save()
+                    jsonRevenueId.append(int(revenue["revenueId"]))
+
+            delRevenueId = list(set(revenueId) - set(jsonRevenueId))
+
+            if delRevenueId:
+                for Id in delRevenueId:
+                    Revenue.objects.filter(revenueId=Id).delete()
 
             return redirect('sales:showcontracts')
 

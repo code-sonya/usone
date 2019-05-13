@@ -233,8 +233,7 @@
           for (var i = 0; i <= lengthRevenue - 1; i++) {
               // 객체 생성
               var data = new Object();
-              data.revenueId = 0
-              data.revenueId = $('div[name="revenueId"]').eq(i).text()
+              data.revenueId = $('div[name="revenueId"]').eq(i).text();
               data.revenueName = $('input[name="revenueName"]').eq(i).val();
               data.revenuePrice = $('input[name="revenuePrice"]').eq(i).val();
               data.billingDate = $('input[name="billingDate"]').eq(i).val();
