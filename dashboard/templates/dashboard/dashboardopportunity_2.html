@@ -109,14 +109,18 @@
     </div>
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
-        <!-- Card Header-->
+        <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 font-weight-bold text-primary">영업팀별 분석</h6>
+
         </div>
         <!-- Card Body -->
         <div class="card-body">
-          <div class="chart-area">
+          <div class="chart-pie pt-4 pb-2">
             <canvas id="emp-groupedbarchart"></canvas>
+          </div>
+          <div class="mt-4 text-center small">
+
           </div>
         </div>
       </div>
@@ -239,8 +243,6 @@
   <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
   <script>
 
-      var chart_options = {};
-
       function btn_filter() {
           document.getElementById("filterForm").submit();
       }
@@ -250,19 +252,19 @@
       filterArray['category'] = '';
       filterArray['emp'] = '';
 
-
       $(document).ready(function () {
-          pushData();
+
       });
 
+      {# 1.step chart #}
       var stepChart = new Chart(document.getElementById("step-barchart"), {
           type: 'bar',
           data: {
-              labels: [],
+              labels: ["Opportunity", "Firm"],
               datasets: [{
                   label: "금액 (원)",
                   backgroundColor: ["#1cc88a", "#4e73df"],
-                  data: []
+                  data: [2478, 5267]
               }]
           },
           options: {
@@ -349,14 +351,33 @@
           }
       });
 
+      function barClick(evt) {
+          const activeElement = stepChart.getElementAtEvent(evt);
+          {#const a = stepChart.data.datasets[activeElement[0]._datasetIndex].data[activeElement[0]._index];#}
+          const idx = activeElement[0]._index;
+          const stepLabel = stepChart.data.labels[idx];
+          filterArray['step'] = stepLabel;
+          console.log(filterArray);
+          stepChart.destroy();
+          categoryChart.destroy();
+          empChart.destroy();
+
+          redraw();
+
+          {#  기존 차트 데이터 다 지우고 다시 채우는 로  #}
+
+      }
+
+      {# 2. category type chart   #}
+
       var categoryChart = new Chart(document.getElementById("category-piechart"), {
           type: 'pie',
           data: {
-              labels: [],
+              labels: ["Oracle", "IBM", "Lenovo", "유지보수", "용역"],
               datasets: [{
                   label: "상품별 (건)",
-                  backgroundColor: ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"],
-                  data: []
+                  backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
+                  data: [2478, 5267, 734, 784, 433]
               }]
           },
           options: {
@@ -371,23 +392,47 @@
                   displayColors: false,
                   caretPadding: 10,
               },
+              title: {
+                  display: true,
+                  text: '2019년 영업 통합 분석'
+              },
               onClick: pieClick
           }
       });
 
+      function pieClick(evt) {
+          const activeElement = categoryChart.getElementAtEvent(evt);
+          const idx = activeElement[0]._index;
+          const categoryLabel = categoryChart.data.labels[idx];
+          filterArray['category'] = categoryLabel;
+          console.log(filterArray);
+          {#  기존 차트 데이터 다 지우고 다시 채우는 로  #}
+      }
+
+      function pieClick2(evt) {
+          const activeElement = categoryChart.getElementAtEvent(evt);
+          const idx = activeElement[0]._index;
+          const categoryLabel = categoryChart.data.labels[idx];
+          filterArray['category'] = categoryLabel;
+          console.log(filterArray);
+          {#  기존 차트 데이터 다 지우고 다시 채우는 로  #}
+      }
+
+      {# 2. sales emp chart   #}
+
       var empChart = new Chart(document.getElementById("emp-groupedbarchart"), {
           type: 'bar',
           data: {
-              labels: [],
+              labels: ["영업1팀", "영업2팀", "영업3팀", "영업4팀"],
               datasets: [
                   {
                       label: "계약예상금액",
                       backgroundColor: "#3e95cd",
-                      data: []
+                      data: [133, 221, 783, 2478]
                   }, {
                       label: "이익예상금액",
                       backgroundColor: "#8e5ea2",
-                      data: []
+                      data: [408, 547, 675, 734]
                   }
               ]
           },
@@ -409,6 +454,18 @@
                           }
                       });
                   }
+              },
+              layout: {
+                  padding: {
+                      left: 10,
+                      right: 25,
+                      top: 25,
+                      bottom: 0
+                  }
+              },
+              title: {
+                  display: true,
+                  text: '2019년 영업 통합 분석'
               },
               maintainAspectRatio: false,
               layout: {
@@ -474,78 +531,112 @@
           }
       });
 
-      function removeData() {
-          console.log(stepChart.data);
-          stepChart.data = {
-              labels: [],
-              datasets: [{
-                  label: "금액 (원)",
-                  backgroundColor: ["#1cc8a", "#4e73df"],
-                  data: []
-              }]
-          };
-          stepChart.update();
-          console.log(stepChart.data);
-          categoryChart.data = {
-              labels: [],
-              datasets: [{
-                  label: "상품별 (건)",
-                  backgroundColor: ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"],
-                  data: []
-              }]
-          };
-          categoryChart.update();
-          empChart.data = {
-              labels: [],
-              datasets: [
-                  {
-                      label: "계약예상금액",
-                      backgroundColor: "#3e95cd",
-                      data: []
-                  }, {
-                      label: "이익예상금액",
-                      backgroundColor: "#8e5ea2",
-                      data: []
-                  }
-              ]
-          };
-          empChart.update()
-      }
-
-      function barClick(evt) {
-          const activeElement = stepChart.getElementAtEvent(evt);
-          const idx = activeElement[0]._index;
-          const stepLabel = stepChart.data.labels[idx];
-          filterArray['step'] = stepLabel;
-          removeData();
-          pushData();
-      }
-
-      {# 2. category type chart   #}
-
-      function pieClick(evt) {
-          const activeElement = categoryChart.getElementAtEvent(evt);
-          const idx = activeElement[0]._index;
-          const categoryLabel = categoryChart.data.labels[idx];
-          filterArray['category'] = categoryLabel;
-          console.log(filterArray);
-          removeData();
-          pushData();
-      }
-
-
-      {# 3. sales emp chart   #}
-
       function groupedbarClick(evt) {
           const activeElement = empChart.getElementAtEvent(evt);
           const idx = activeElement[0]._index;
           const empLabel = empChart.data.labels[idx];
           filterArray['emp'] = empLabel;
-          removeData();
-          pushData();
+          console.log(filterArray);
+          {#  기존 차트 데이터 다 지우고 다시 채우는 로  #}
+
       }
 
-      function pushData() {
+      function redraw() {
+          console.log(filterArray['step']);
+          var stepChart = new Chart(document.getElementById("step-barchart"), {
+              type: 'bar',
+              data: {
+                  labels: [],
+                  datasets: [{
+                      label: "금액 (원)",
+                      backgroundColor: ["#1cc88a", "#4e73df"],
+                      data: []
+                  }]
+              },
+              options: {
+                  animation: {
+                      onComplete: function () {
+                          var ctx = this.chart.ctx;
+                          ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart.defaults.global.defaultFontFamily);
+                          ctx.fillStyle = "black";
+                          ctx.textAlign = 'center';
+                          ctx.textBaseline = 'bottom';
+
+                          this.data.datasets.forEach(function (dataset) {
+                              for (var i = 0; i < dataset.data.length; i++) {
+                                  for (var key in dataset._meta) {
+                                      var model = dataset._meta[key].data[i]._model;
+                                      ctx.fillText(dataset.data[i], model.x, model.y - 5);
+                                  }
+                              }
+                          });
+                      }
+                  },
+                  legend: {display: false},
+                  maintainAspectRatio: false,
+                  layout: {
+                      padding: {
+                          left: 10,
+                          right: 25,
+                          top: 25,
+                          bottom: 0
+                      }
+                  },
+                  scales: {
+                      xAxes: [{
+                          time: {
+                              unit: 'week'
+                          },
+                          gridLines: {
+                              display: false,
+                              drawBorder: false
+                          },
+                          ticks: {
+                              maxTicksLimit: 6
+                          },
+                          maxBarThickness: 50,
+                      }],
+                      yAxes: [{
+                          ticks: {
+                              min: 0,
+                              maxTicksLimit: 5,
+                              padding: 10,
+                              // Include a dollar sign in the ticks
+                              callback: function (value, index, values) {
+                                  return number_format(value);
+                              }
+                          },
+                          gridLines: {
+                              color: "rgb(234, 236, 244)",
+                              zeroLineColor: "rgb(234, 236, 244)",
+                              drawBorder: false,
+                              borderDash: [2],
+                              zeroLineBorderDash: [2]
+                          }
+                      }],
+                  },
+                  tooltips: {
+                      titleMarginBottom: 10,
+                      titleFontColor: '#6e707e',
+                      titleFontSize: 14,
+                      backgroundColor: "rgb(255,255,255)",
+                      bodyFontColor: "#858796",
+                      borderColor: '#dddfeb',
+                      borderWidth: 1,
+                      xPadding: 15,
+                      yPadding: 15,
+                      displayColors: false,
+                      caretPadding: 10,
+                      callbacks: {
+                          label: function (tooltipItem, chart) {
+                              return '총 ' + number_format(tooltipItem.yLabel);
+                          }
+                      }
+                  },
+                  onClick: barClick
+              }
+
+          });
 
           $.ajax({
               url: "{% url 'dashboard:opportunity_ajax_url' %}",
@@ -592,6 +683,51 @@
 
               }
           });
+
+
+          var categoryChart = new Chart(document.getElementById("category-piechart"), {
+              type: 'pie',
+              data: {
+                  labels: [],
+                  datasets: [{
+                      label: "상품별 (건)",
+                      backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f", "#e8c3b9", "#c45850"],
+                      data: []
+                  }]
+              },
+              options: {
+                  title: {
+                      display: true,
+                      text: '2019년 영업 통합 분석'
+                  },
+                  onClick: pieClick
+              }
+          });
+          var empChart = new Chart(document.getElementById("emp-groupedbarchart"), {
+              type: 'bar',
+              data: {
+                  labels: [],
+                  datasets: [
+                      {
+                          label: "계약예상금액",
+                          backgroundColor: "#3e95cd",
+                          data: []
+                      }, {
+                          label: "이익예상금액",
+                          backgroundColor: "#8e5ea2",
+                          data: []
+                      }
+                  ]
+              },
+              options: {
+                  title: {
+                      display: true,
+                      text: '2019년 영업 통합 분석'
+                  },
+                  onClick: groupedbarClick
+              }
+          });
+
       }
 
 

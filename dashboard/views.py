@@ -12,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from service.models import Servicereport
+from sales.models import Contract, Category, Contractitem
 
 
 
@@ -128,7 +129,6 @@ def over_hour(request):
     return HttpResponse(template.render(context, request))
 
 
-
 @login_required
 @csrf_exempt
 def over_asjson(request):
@@ -136,6 +136,7 @@ def over_asjson(request):
     overHourlist = overHour.values('serviceStartDatetime', 'serviceEndDatetime', 'empId__empName', 'empId__empDeptName', 'companyName','serviceOverHour','serviceId')
     structure = json.dumps(list(overHourlist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
 
 @login_required
 @csrf_exempt
@@ -147,12 +148,14 @@ def filter_asjson(request):
     structure = json.dumps(list(overHourlist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
 @login_required
 def dashboard_opportunity(request):
     template = loader.get_template('dashboard/dashboardopportunity.html')
     context = {
     }
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 def dashboard_sales(request):
@@ -161,6 +164,7 @@ def dashboard_sales(request):
     }
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 def dashboard_contract(request):
     template = loader.get_template('dashboard/dashboardcontract.html')
@@ -168,3 +172,58 @@ def dashboard_contract(request):
     }
     return HttpResponse(template.render(context, request))
 
+
+@login_required
+@csrf_exempt
+def opportunity_asjson(request):
+    step = request.POST['step']
+    category = request.POST['category']
+    emp = request.POST['emp']
+    print (step,category,emp)
+
+    dataStep = Contract.objects.all()
+    dataCategory = Contractitem.objects.all()
+    dataEmp = Contract.objects.all()
+
+    if step:
+        dataStep = dataStep.filter(contractStep=step)
+        dataCategory = dataCategory.filter(contractId__contractStep=step)
+        dataEmp = dataEmp.filter(contractStep=step)
+
+    if category:
+        dataStep = dataStep.filter(contractitem__mainCategory=category)
+        dataCategory = dataCategory.filter(mainCategory=category)
+        dataEmp = dataEmp.filter(contractitem__mainCategory=category)
+
+    if emp:
+        dataStep = dataStep.filter(empDeptName=emp)
+        dataCategory = dataCategory.filter(contractId__empDeptName=emp)
+        dataEmp = dataStep.filter(empDeptName=emp)
+
+    dataStep_opp = dataStep.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice'))
+    dataStep_firm = dataStep.values('contractStep').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice'))
+    dataCategory_main = dataCategory.values('mainCategory').annotate(count_main=Count('mainCategory'))
+    dataCategory_sub = dataCategory.values('subCategory').annotate(sub_category=Count('subCategory'))
+    dataEmp_opp = dataEmp.values('empDeptName').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice')).annotate(sum_=Sum('predictProfitPrice')).order_by('empDeptName')
+    dataEmp_firm = dataEmp.values('empDeptName').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
+
+    # dataStep = list(dataStep_opp)
+    # dataStep.extend(list(dataStep_firm))
+    # dataCategory = list(dataCategory_main)
+    # dataCategory.extend(list(dataCategory_sub))
+    # dataEmp = list(dataEmp_opp)
+    # dataEmp.extend(list(dataEmp_firm))
+    dataStep = list(dataStep_opp)
+    dataStep.extend(list(dataStep_firm))
+    dataStep.extend(list(dataCategory_main))
+    dataStep.extend(list(dataCategory_sub))
+    dataStep.extend(list(dataEmp_opp))
+    dataStep.extend(list(dataEmp_firm))
+
+    structureStep = json.dumps(dataStep, cls=DjangoJSONEncoder)
+    # structureCategory = json.dumps(dataCategory, cls=DjangoJSONEncoder)
+    # structureEmp = json.dumps(dataEmp, cls=DjangoJSONEncoder)
+    print(structureStep)
+    # print(structureCategory)
+    # print(structureEmp)
+    return HttpResponse(structureStep, content_type='application/json')
