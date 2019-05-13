@@ -35,10 +35,10 @@ def post_contract(request):
             for item in jsonItem:
                 Contractitem.objects.create(
                     contractId=post,
-                    mainCategory=item["main"],
-                    subCategory=item["sub"],
-                    itemName=item["detail"],
-                    itemPrice=int(item["price"])
+                    mainCategory=item["mainCategory"],
+                    subCategory=item["subCategory"],
+                    itemName=item["itemName"],
+                    itemPrice=int(item["itemPrice"])
                 )
 
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
@@ -85,7 +85,6 @@ def show_contracts(request):
             'filter': 'Y'
         }
 
-
     else:
         context = {
             'employees': employees,
@@ -118,7 +117,6 @@ def view_contract(request, contractId):
     contract = Contract.objects.get(contractId=contractId)
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
-    print(revenues)
     context = {
         'contract': contract,
         'items': items,
@@ -198,6 +196,37 @@ def modify_contract(request, contractId):
             post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             post.endCustomerName = form.clean()['endCustomerId'].customerName
             post.save()
+
+            jsonItem = json.loads(request.POST['jsonItem'])
+            jsonRevenue = json.loads(request.POST['jsonRevenue'])
+
+            itemId = list(i[0] for i in Contractitem.objects.filter(contractId=contractId).values_list('contractItemId'))
+            jsonItemId = []
+            for item in jsonItem:
+                if item['itemId'] == '추가':
+                    Contractitem.objects.create(
+                        contractId=post,
+                        mainCategory=item["mainCategory"],
+                        subCategory=item["subCategory"],
+                        itemName=item["itemName"],
+                        itemPrice=int(item["itemPrice"])
+                    )
+                else:
+                    itemInstance = Contractitem.objects.get(contractItemId=int(item["itemId"]))
+                    itemInstance.contractId = post
+                    itemInstance.mainCategory = item["mainCategory"]
+                    itemInstance.subCategory = item["subCategory"]
+                    itemInstance.itemName = item["itemName"]
+                    itemInstance.itemPrice = int(item["itemPrice"])
+                    itemInstance.save()
+                    jsonItemId.append(int(item['itemId']))
+
+            delId = list(set(itemId) - set(jsonItemId))
+
+            if delId:
+                for Id in delId:
+                    Contractitem.objects.filter(contractItemId=Id).delete()
+
             return redirect('sales:showcontracts')
 
     else:
