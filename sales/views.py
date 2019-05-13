@@ -266,3 +266,32 @@ def modify_contract(request, contractId):
             'revenues': revenues,
         }
         return render(request, 'sales/postcontract.html', context)
+
+
+@login_required
+def show_revenues(request):
+    context = {
+    }
+
+    return render(request, 'sales/showrevenues.html', context)
+
+
+@login_required
+def revenue_asjson(request):
+    revenues = Revenue.objects.all()
+    revenues = revenues.values('revenueStep', 'billingDate', 'revenueName', 'contractId__saleCompanyName', 'contractId__endCompanyName', 'revenueId')
+    structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def view_revenue(request, revenueId):
+    revenue = Revenue.objects.get(revenueId=revenueId)
+    contract = Contract.objects.get(contractId=revenue.contractId.contractId)
+
+    context = {
+        'revenue': revenue,
+        'contract': contract,
+    }
+    return render(request, 'sales/viewrevenue.html', context)

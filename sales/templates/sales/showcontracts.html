@@ -45,7 +45,7 @@
               <thead>
               <tr>
                 <th>구분</th>
-                <th>(예상)계약일</th>
+                <th>예상계약일</th>
                 <th>최종계약일</th>
                 <th>계약명</th>
                 <th>거래처</th>
@@ -162,8 +162,6 @@
       }
 
       function changeDeptName(empDeptName, selectId) {
-          console.log(empDeptName);
-
           $.ajax({
               url: "{% url 'sales:empdept_ajax_url' %}",
               method: 'POST',
