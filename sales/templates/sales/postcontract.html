@@ -154,7 +154,7 @@
                   </div>
                 </div>
               </div>
-              <hr class="divider">
+              <br><hr class="divider"><br>
               <div class="form-group row">
                 <div class="col-xl-12">
                   <span id="addRevenue" class="btn btn-outline-info">+ 항목 추가</span>
@@ -250,7 +250,7 @@
           }
       }
 
-      function changeCompany(saleCompanyName, selectId) {
+      function companyChange(saleCompanyName, selectId) {
           $.ajax({
               url: "{% url 'sales:salemanager_ajax_url' %}",
               method: 'POST',
@@ -270,6 +270,27 @@
       }
 
       function itemChange(main, sub) {
+          var selectItem = $(main).val();
+
+          $.ajax({
+              url: "{% url 'sales:category_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"mainCategory": selectItem},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var mainCategory = returnData;
+                  $(sub).empty();
+
+                  for (var count = 0; count < mainCategory.length; count++) {
+                      var option = $("<option value=" + mainCategory[count].fields.subCategory + ">" + mainCategory[count].fields.subCategory + "</option>");
+                      $(sub).append(option);
+                  }
+              }
+          });
+      }
+
+      function itemChangeAdd(main, sub, subCategory, itemCounter) {
           if ($.type(main) === 'string') {
               main = '#' + main
           }
@@ -291,7 +312,10 @@
                   for (var count = 0; count < mainCategory.length; count++) {
                       var option = $("<option value=" + mainCategory[count].fields.subCategory + ">" + mainCategory[count].fields.subCategory + "</option>");
                       $(sub).append(option);
+                      $('#item2' + itemCounter).val(subCategory).prop("selected", true);
                   }
+
+
               }
           });
       }
@@ -312,7 +336,7 @@
               },
               "ordering": false,
               "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
                   {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
@@ -325,7 +349,7 @@
 
           $('#addItem').on('click', function () {
               t1.row.add([
-                  '<div class="text-center" value="0" name="itemId" id="item0' + itemCounter + '">추가</div>',
+                  '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">추가</div>',
                   '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
                       '<option value="init" selected="selected">--대분류--</option>' +
                       '<option value="상품_Oracle">상품_Oracle</option>' +
@@ -343,7 +367,7 @@
           {% if items %}
               {% for item in items %}
                   t1.row.add([
-                      '<div class="text-center" value="0" name="itemId" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
+                      '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
                       '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
                           '<option value="init" selected="selected">--대분류--</option>' +
                           '<option value="상품_Oracle">상품_Oracle</option>' +
@@ -356,8 +380,7 @@
                       '<i class="fas fa-times-circle" name="remove" >'
                   ]).draw(false);
                   $('#item1' + itemCounter).val("{{ item.mainCategory }}").prop("selected", true);
-                  itemChange("item1" + itemCounter, "item2" + itemCounter);
-                  $('#item2' + itemCounter).val("{{ item.subCategory }}").prop("selected", true); // 여기 문제임. 반영 안됨.
+                  itemChangeAdd("item1" + itemCounter, "item2" + itemCounter, "{{ item.subCategory }}", itemCounter);
                   itemCounter++;
               {% endfor %}
           {% else %}
@@ -383,7 +406,7 @@
               },
               "ordering": false,
               "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
                   {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
@@ -395,7 +418,7 @@
 
           $('#addRevenue').on('click', function () {
               t2.row.add([
-                  '<div class="text-center" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
+                  '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
                   '<input type="text" name="revenueName" id="revenue1' + revenueCounter + '">',
                   '<input type="number" name="revenuePrice" id="revenue2' + revenueCounter + '">',
                   '<input type="date" name="billingDate" id="revenue3' + revenueCounter + '">',
@@ -407,7 +430,7 @@
           {% if revenues %}
               {% for revenue in revenues %}
                   t2.row.add([
-                      '<div class="text-center" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
+                      '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
                       '<input type="text" name="revenueName" id="revenue1' + revenueCounter + '" value="{{ revenue.revenueName }}">',
                       '<input type="number" name="revenuePrice" id="revenue2' + revenueCounter + '" value="{{ revenue.salePrice }}">',
                       '<input type="date" name="billingDate" id="revenue3' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
@@ -416,7 +439,6 @@
                   revenueCounter++;
               {% endfor %}
           {% endif %}
-
 
           $('#revenue').on('click', 'i', function () {
               t2
@@ -452,7 +474,6 @@
           $('#contractStep').on("propertychange change keyup paste input", function () {
               const contractStep = $('#contractStep').val();
               if (contractStep === 'Firm') {
-                  console.log('Firm');
                   $('#Firm').removeClass('d-none');
                   t2.clear().draw();
                   revenueCounter = 0;
@@ -472,6 +493,5 @@
           });
       })
   </script>
-
 
 {% endblock %}
