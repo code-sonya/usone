@@ -35,10 +35,19 @@ def post_contract(request):
             for item in jsonItem:
                 Contractitem.objects.create(
                     contractId=post,
-                    mainCategory=item["main"],
-                    subCategory=item["sub"],
-                    itemName=item["detail"],
-                    itemPrice=int(item["price"])
+                    mainCategory=item["mainCategory"],
+                    subCategory=item["subCategory"],
+                    itemName=item["itemName"],
+                    itemPrice=int(item["itemPrice"])
+                )
+
+            jsonRevenue = json.loads(request.POST['jsonRevenue'])
+            for revenue in jsonRevenue:
+                Revenue.objects.create(
+                    revenueName=revenue["revenueName"],
+                    contractId=post,
+                    salePrice=revenue["revenuePrice"],
+                    billingDate=revenue["billingDate"]
                 )
             return redirect('sales:showcontracts')
 
@@ -76,7 +85,6 @@ def show_contracts(request):
             'filter': 'Y'
         }
 
-
     else:
         context = {
             'employees': employees,
@@ -107,13 +115,14 @@ def salemanager_asjson(request):
 @csrf_exempt
 def view_contract(request, contractId):
     contract = Contract.objects.get(contractId=contractId)
+    items = Contractitem.objects.filter(contractId=contractId)
+    revenues = Revenue.objects.filter(contractId=contractId)
     context = {
         'contract': contract,
+        'items': items,
+        'revenues': revenues,
     }
-    if contract.contractStep == "Opportunity":
-        return render(request, 'sales/viewopportunity.html', context)
-    elif contract.contractStep == "Firm":
-        return render(request, 'sales/viewfirm.html', context)
+    return render(request, 'sales/viewcontract.html', context)
 
 
 @login_required
@@ -171,3 +180,63 @@ def category_asjson(request):
     subcategory = Category.objects.filter(mainCategory=mainCategory)
     json = serializers.serialize('json', subcategory)
     return HttpResponse(json, content_type='application/json')
+
+
+@login_required
+def modify_contract(request, contractId):
+    contractInstance = Contract.objects.get(contractId=contractId)
+
+    if request.method == "POST":
+        form = ContractForm(request.POST, instance=contractInstance)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.empName = form.clean()['empId'].empName
+            post.empDeptName = form.clean()['empId'].empDeptName
+            post.saleCustomerName = form.clean()['saleCustomerId'].customerName
+            post.endCustomerName = form.clean()['endCustomerId'].customerName
+            post.save()
+
+            jsonItem = json.loads(request.POST['jsonItem'])
+            jsonRevenue = json.loads(request.POST['jsonRevenue'])
+
+            itemId = list(i[0] for i in Contractitem.objects.filter(contractId=contractId).values_list('contractItemId'))
+            jsonItemId = []
+            for item in jsonItem:
+                if item['itemId'] == '추가':
+                    Contractitem.objects.create(
+                        contractId=post,
+                        mainCategory=item["mainCategory"],
+                        subCategory=item["subCategory"],
+                        itemName=item["itemName"],
+                        itemPrice=int(item["itemPrice"])
+                    )
+                else:
+                    itemInstance = Contractitem.objects.get(contractItemId=int(item["itemId"]))
+                    itemInstance.contractId = post
+                    itemInstance.mainCategory = item["mainCategory"]
+                    itemInstance.subCategory = item["subCategory"]
+                    itemInstance.itemName = item["itemName"]
+                    itemInstance.itemPrice = int(item["itemPrice"])
+                    itemInstance.save()
+                    jsonItemId.append(int(item['itemId']))
+
+            delId = list(set(itemId) - set(jsonItemId))
+
+            if delId:
+                for Id in delId:
+                    Contractitem.objects.filter(contractItemId=Id).delete()
+
+            return redirect('sales:showcontracts')
+
+    else:
+        form = ContractForm(instance=contractInstance)
+        items = Contractitem.objects.filter(contractId=contractId)
+        revenues = Revenue.objects.filter(contractId=contractId)
+
+        context = {
+            'form': form,
+            'items': items,
+            'revenues': revenues,
+        }
+        return render(request, 'sales/postcontract.html', context)

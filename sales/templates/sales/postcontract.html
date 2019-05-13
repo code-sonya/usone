@@ -91,10 +91,28 @@
                   </div>
                 </div>
               </div>
+
+              <div class="form-group row">
+                <div class="col-xl-12">
+                  <span id="addItem" class="btn btn-outline-info">+ 항목 추가</span>
+                  <table id="categoryItem" class="display" style="width:100%">
+                    <thead style="width:100%">
+                    <tr>
+                      <th>구분</th>
+                      <th>대분류</th>
+                      <th>소분류</th>
+                      <th>상세내용</th>
+                      <th>가격</th>
+                      <th></th>
+                    </tr>
+                    </thead>
+                  </table>
+                </div>
+              </div>
             </div>
 
             <div id="Firm" class="d-none">
-              <hr class="divider">
+              <br><hr class="divider"><br>
               <div class="form-group row">
                 <div class="col-xl-6">
                   <div class="form-group row mb-0">
@@ -136,17 +154,17 @@
                   </div>
                 </div>
               </div>
+              <hr class="divider">
               <div class="form-group row">
                 <div class="col-xl-12">
-                  <span id="addRow" class="btn btn-outline-info">+ 항목 추가</span>
-                  <table id="categoryItem" class="display" style="width:100%">
+                  <span id="addRevenue" class="btn btn-outline-info">+ 항목 추가</span>
+                  <table id="revenue" class="display" style="width:100%">
                     <thead style="width:100%">
                     <tr>
                       <th>구분</th>
-                      <th>대분류</th>
-                      <th>소분류</th>
-                      <th>상세내용</th>
-                      <th>가격</th>
+                      <th>제목</th>
+                      <th>매출금액</th>
+                      <th>빌링일자</th>
                       <th></th>
                     </tr>
                     </thead>
@@ -189,30 +207,45 @@
       }
 
       function btn_save() {
-          const Main = $('[name="mainCategory"]');
+          const ContractForm = document.getElementById("ContractForm");
+
+          const lengthItem = $('[name="mainCategory"]').length;
           const listItem = new Array();
 
-          for (var i = 0; i <= Main.length - 1; i++) {
-              // 객체 생성
+          for (var i = 0; i <= lengthItem - 1; i++) {
               var data = new Object();
-              if ($('div[name="idx"]').eq(i).text() === '추가') {
-                  data.idx = 0
-              }
-              data.main = $('select[name="mainCategory"]').eq(i).val();
-              data.sub = $('select[name="subCategory"]').eq(i).val();
-              data.detail = $('input[name="detail"]').eq(i).val();
-              data.price = $('input[name="price"]').eq(i).val();
+              data.itemId = $('div[name="itemId"]').eq(i).text()
+              data.mainCategory = $('select[name="mainCategory"]').eq(i).val();
+              data.subCategory = $('select[name="subCategory"]').eq(i).val();
+              data.itemName = $('input[name="itemName"]').eq(i).val();
+              data.itemPrice = $('input[name="itemPrice"]').eq(i).val();
               listItem.push(data);
           }
 
-          const jsonData = JSON.stringify(listItem);
-          const jsonItem = document.createElement("input");
-          jsonItem.setAttribute("type", "hidden"); jsonItem.setAttribute("name", "jsonItem"); jsonItem.setAttribute("value", jsonData);
+          const jsonItem = JSON.stringify(listItem);
+          const item = document.createElement("input");
+          item.setAttribute("type", "hidden"); item.setAttribute("name", "jsonItem"); item.setAttribute("value", jsonItem);
+          ContractForm.appendChild(item);
 
-          const ContractForm = document.getElementById("ContractForm");
-          ContractForm.appendChild(jsonItem);
+          const lengthRevenue = $('[name="revenueName"]').length;
+          const listRevenue = new Array();
 
-          console.log(jsonData);
+          for (var i = 0; i <= lengthRevenue - 1; i++) {
+              // 객체 생성
+              var data = new Object();
+              data.revenueId = 0
+              data.revenueId = $('div[name="revenueId"]').eq(i).text()
+              data.revenueName = $('input[name="revenueName"]').eq(i).val();
+              data.revenuePrice = $('input[name="revenuePrice"]').eq(i).val();
+              data.billingDate = $('input[name="billingDate"]').eq(i).val();
+              listRevenue.push(data);
+          }
+
+          const jsonRevenue = JSON.stringify(listRevenue);
+          const revenue = document.createElement("input");
+          revenue.setAttribute("type", "hidden"); revenue.setAttribute("name", "jsonRevenue"); revenue.setAttribute("value", jsonRevenue);
+          ContractForm.appendChild(revenue);
+
           if (confirm("저장 하시겠습니까?") === true) {
               ContractForm.submit();
           }
@@ -238,6 +271,12 @@
       }
 
       function itemChange(main, sub) {
+          if ($.type(main) === 'string') {
+              main = '#' + main
+          }
+          if ($.type(sub) === 'string') {
+              sub = '#' + sub
+          }
           var selectItem = $(main).val();
 
           $.ajax({
@@ -259,33 +298,129 @@
       }
 
       $(document).ready(function () {
-          var t = $('#categoryItem').DataTable({
+          if ($('#contractStep').val() === 'Firm') {
+              $('#Firm').removeClass('d-none');
+          }
+
+          var t1 = $('#categoryItem').DataTable({
               "searching": false,
               "paging": false,
               "info": false,
               "scrollY": "60vh",
               "scrollCollapse": true,
               'fnCreatedRow': function (nRow, aData, iDataIndex) {
-                  $(nRow).attr('id', 'row' + iDataIndex); // or whatever you choose to set as the id
+                  $(nRow).attr('id', 'row' + iDataIndex);
               },
-          });
-          var counter = 0;
-          $('#addRow').on('click', function () {
-              console.log('click');
-              t.row.add([
-                  '<div class="text-center" value="0" name="idx" id="item0' + counter + '">추가</div>',
-                  '<select size="1" id="item1' + counter + '" name="mainCategory" onchange="itemChange( item1' + counter + ",item2" + counter + ')"> <option value="init" selected="selected">--대분류--</option> <option value="상품_Oracle">상품_Oracle</option> <option value="상품_IBM">상품_IBM</option> <option value="상품_Lenovo">상품_Lenovo</option> <option value="상품_기타">상품_기타</option> </select>',
-                  '<select size="1" id="item2' + counter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option> ',
-                  '<input type="text" name="detail" id="item3' + counter + '">',
-                  '<input type="text" name="price" id="item4' + counter + '">',
-                  '<i class="fas fa-times-circle" name="remove" >'
-              ]).draw(false);
-              console.log(counter);
-              counter++;
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
           });
 
+          var itemCounter = 0;
+
+          $('#addItem').on('click', function () {
+              t1.row.add([
+                  '<div class="text-center" value="0" name="itemId" id="item0' + itemCounter + '">추가</div>',
+                  '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
+                      '<option value="init" selected="selected">--대분류--</option>' +
+                      '<option value="상품_Oracle">상품_Oracle</option>' +
+                      '<option value="상품_IBM">상품_IBM</option>' +
+                      '<option value="상품_Lenovo">상품_Lenovo</option>' +
+                      '<option value="상품_기타">상품_기타</option> </select>',
+                  '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
+                  '<input type="text" name="itemName" id="item3' + itemCounter + '">',
+                  '<input type="text" name="itemPrice" id="item4' + itemCounter + '">',
+                  '<i class="fas fa-times-circle" name="remove" >'
+              ]).draw(false);
+              itemCounter++;
+          });
+
+          {% if items %}
+              {% for item in items %}
+                  t1.row.add([
+                      '<div class="text-center" value="0" name="itemId" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
+                      '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
+                          '<option value="init" selected="selected">--대분류--</option>' +
+                          '<option value="상품_Oracle">상품_Oracle</option>' +
+                          '<option value="상품_IBM">상품_IBM</option>' +
+                          '<option value="상품_Lenovo">상품_Lenovo</option>' +
+                          '<option value="상품_기타">상품_기타</option> </select>',
+                      '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
+                      '<input type="text" name="itemName" id="item3' + itemCounter + '" value="{{ item.itemName }}">',
+                      '<input type="text" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
+                      '<i class="fas fa-times-circle" name="remove" >'
+                  ]).draw(false);
+                  $('#item1' + itemCounter).val("{{ item.mainCategory }}").prop("selected", true);
+                  itemChange("item1" + itemCounter, "item2" + itemCounter);
+                  $('#item2' + itemCounter).val("{{ item.subCategory }}").prop("selected", true); // 여기 문제임. 반영 안됨.
+                  itemCounter++;
+              {% endfor %}
+          {% else %}
+              $('#addItem').click();
+          {% endif %}
+
           $('#categoryItem').on('click', 'i', function () {
-              t
+              t1
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
+
+          var t2 = $('#revenue').DataTable({
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+
+          var revenueCounter = 0;
+
+          $('#addRevenue').on('click', function () {
+              t2.row.add([
+                  '<div class="text-center" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
+                  '<input type="text" name="revenueName" id="revenue1' + revenueCounter + '">',
+                  '<input type="number" name="revenuePrice" id="revenue2' + revenueCounter + '">',
+                  '<input type="date" name="billingDate" id="revenue3' + revenueCounter + '">',
+                  '<i class="fas fa-times-circle" name="remove" >'
+              ]).draw(false);
+              revenueCounter++;
+          });
+
+          {% if revenues %}
+              {% for revenue in revenues %}
+                  t2.row.add([
+                      '<div class="text-center" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
+                      '<input type="text" name="revenueName" id="revenue1' + revenueCounter + '" value="{{ revenue.revenueName }}">',
+                      '<input type="number" name="revenuePrice" id="revenue2' + revenueCounter + '" value="{{ revenue.salePrice }}">',
+                      '<input type="date" name="billingDate" id="revenue3' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
+                      '<i class="fas fa-times-circle" name="remove" >'
+                  ]).draw(false);
+                  revenueCounter++;
+              {% endfor %}
+          {% endif %}
+
+
+          $('#revenue').on('click', 'i', function () {
+              t2
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
@@ -320,9 +455,9 @@
               if (contractStep === 'Firm') {
                   console.log('Firm');
                   $('#Firm').removeClass('d-none');
-                  t.clear().draw();
-                  counter = 0;
-                  $('#addRow').click();
+                  t2.clear().draw();
+                  revenueCounter = 0;
+                  $('#addRevenue').click();
               } else {
                   $('#Firm').addClass('d-none');
                   $('#salePrice').val('');
@@ -331,14 +466,13 @@
                   $('#contractDate').val('');
                   $('#contractStartDate').val('');
                   $('#contractEndDate').val('');
-                  t.clear().draw();
-                  counter = 0;
-                  $('#addRow').click();
-
+                  t2.clear().draw();
+                  revenueCounter = 0;
+                  $('#addRevenue').click();
               }
           });
       })
-
   </script>
+
 
 {% endblock %}
