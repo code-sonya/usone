@@ -152,8 +152,42 @@ def filter_asjson(request):
 @login_required
 def dashboard_opportunity(request):
     template = loader.get_template('dashboard/dashboardopportunity.html')
-    context = {
-    }
+    if request.method == "POST":
+        startdate = "{}-01-01".format(datetime.today().year)
+        enddate = "{}-12-31".format(datetime.today().year)
+        contract = Contract.objects.filter(Q(contractDate__gte=startdate) & Q(contractDate__lte=enddate))
+        context = {
+            "startdate": startdate,
+            "enddate": enddate,
+            "contract": contract,
+            'filter': 'Y',
+        }
+    else:
+        startdate = "{}-01-01".format(datetime.today().year)
+        enddate = "{}-12-31".format(datetime.today().year)
+        # contract = Contract.objects.filter(Q(contractDate__gte=startdate) & Q(contractDate__lte=enddate))
+        contract = Contract.objects.all()
+        contract_opp = contract.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice')).annotate(sum_profit=Sum('predictProfitPrice'))
+        contract_firm = contract.values('contractStep').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
+        contract_company = contract.values('endCompanyName').distinct()
+        allsalePrice = 0
+        allprofitPrice = 0
+        print(contract_firm)
+        for i in contract_firm:
+            allsalePrice+=i['sum_price']
+            allprofitPrice+=i['sum_profit']
+        for i in contract_opp:
+            allsalePrice+=i['sum_price']
+            allprofitPrice+=i['sum_profit']
+        context = {
+            "startdate": startdate,
+            "enddate": enddate,
+            "contract_company": contract_company,
+            "contract_count": contract.count(),
+            "allsalePrice" :allsalePrice/100000000,
+            "allprofitPrice":allprofitPrice/100000000,
+            'filter': 'N',
+        }
     return HttpResponse(template.render(context, request))
 
 
@@ -177,9 +211,11 @@ def dashboard_contract(request):
 @csrf_exempt
 def opportunity_asjson(request):
     step = request.POST['step']
-    category = request.POST['category']
+    maincategory = request.POST['maincategory']
+    subcategory = request.POST['subcategory']
     emp = request.POST['emp']
-    print (step,category,emp)
+    customer = request.POST['customer']
+    print (step,maincategory,emp,customer)
 
     dataStep = Contract.objects.all()
     dataCategory = Contractitem.objects.all()
@@ -190,40 +226,44 @@ def opportunity_asjson(request):
         dataCategory = dataCategory.filter(contractId__contractStep=step)
         dataEmp = dataEmp.filter(contractStep=step)
 
-    if category:
-        dataStep = dataStep.filter(contractitem__mainCategory=category)
-        dataCategory = dataCategory.filter(mainCategory=category)
-        dataEmp = dataEmp.filter(contractitem__mainCategory=category)
+    if maincategory:
+        dataStep = dataStep.filter(contractitem__mainCategory=maincategory)
+        dataCategory = dataCategory.filter(mainCategory=maincategory)
+        dataEmp = dataEmp.filter(contractitem__mainCategory=maincategory)
+
+    if subcategory:
+        dataStep = dataStep.filter(contractitem__subCategory=subcategory)
+        dataCategory = dataCategory.filter(subCategory=subcategory)
+        dataEmp = dataEmp.filter(contractitem__subCategory=subcategory)
 
     if emp:
         dataStep = dataStep.filter(empDeptName=emp)
         dataCategory = dataCategory.filter(contractId__empDeptName=emp)
         dataEmp = dataStep.filter(empDeptName=emp)
 
+    if customer:
+        dataStep = dataStep.filter(endCompanyName=customer)
+        dataCategory = dataCategory.filter(contractId__endCompanyName=customer)
+        dataEmp = dataStep.filter(endCompanyName=customer)
+
     dataStep_opp = dataStep.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice'))
     dataStep_firm = dataStep.values('contractStep').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice'))
-    dataCategory_main = dataCategory.values('mainCategory').annotate(count_main=Count('mainCategory'))
-    dataCategory_sub = dataCategory.values('subCategory').annotate(sub_category=Count('subCategory'))
-    dataEmp_opp = dataEmp.values('empDeptName').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice')).annotate(sum_=Sum('predictProfitPrice')).order_by('empDeptName')
+    dataCategory_main = dataCategory.values('mainCategory').annotate(sum_main=Sum('itemPrice'))
+    dataCategory_sub = dataCategory.values('subCategory').annotate(sum_sub=Sum('itemPrice'))
+    dataEmp_opp = dataEmp.values('empDeptName').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice')).annotate(sum_profit=Sum('predictProfitPrice')).order_by('empDeptName')
     dataEmp_firm = dataEmp.values('empDeptName').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
+    dataCompany_opp = dataEmp.values('endCompanyName').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice')).annotate(sum_profit=Sum('predictProfitPrice'))
+    dataCompany_firm = dataEmp.values('endCompanyName').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
 
-    # dataStep = list(dataStep_opp)
-    # dataStep.extend(list(dataStep_firm))
-    # dataCategory = list(dataCategory_main)
-    # dataCategory.extend(list(dataCategory_sub))
-    # dataEmp = list(dataEmp_opp)
-    # dataEmp.extend(list(dataEmp_firm))
     dataStep = list(dataStep_opp)
     dataStep.extend(list(dataStep_firm))
     dataStep.extend(list(dataCategory_main))
     dataStep.extend(list(dataCategory_sub))
     dataStep.extend(list(dataEmp_opp))
     dataStep.extend(list(dataEmp_firm))
+    dataStep.extend(list(dataCompany_opp))
+    dataStep.extend(list(dataCompany_firm))
 
     structureStep = json.dumps(dataStep, cls=DjangoJSONEncoder)
-    # structureCategory = json.dumps(dataCategory, cls=DjangoJSONEncoder)
-    # structureEmp = json.dumps(dataEmp, cls=DjangoJSONEncoder)
-    print(structureStep)
-    # print(structureCategory)
-    # print(structureEmp)
+
     return HttpResponse(structureStep, content_type='application/json')
