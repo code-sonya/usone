@@ -194,7 +194,19 @@ def dashboard_opportunity(request):
 @login_required
 def dashboard_quarter(request):
     template = loader.get_template('dashboard/dashboardquarter.html')
+    today_month = datetime.today().month
+    print(today_month)
+    if today_month in [1,2,3]:
+        quarter = 1
+    elif today_month in [4,5,6]:
+        quarter = 2
+    elif today_month in [7,8,9]:
+        quarter = 3
+    elif today_month in [10,11,12]:
+        quarter = 4
+
     context = {
+        "quarter" : quarter,
     }
     return HttpResponse(template.render(context, request))
 

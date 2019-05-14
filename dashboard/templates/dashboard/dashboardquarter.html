@@ -100,7 +100,7 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">2분기 누적 매출 금액</div>
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 매출 금액</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__sum %}{{ all_support_time.serviceHour__sum }}{% else %}0.0{% endif %}억 원</div>
             </div>
             <div class="col-auto">
@@ -117,8 +117,8 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">2분기 누적 이익 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__sum %}{{ all_support_time.serviceHour__sum }}{% else %}0.0{% endif %}억 원 </div>
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 이익 금액</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__sum %}{{ all_support_time.serviceHour__sum }}{% else %}0.0{% endif %}억 원</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
@@ -134,7 +134,7 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">2분기 매출 금액</div>
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 매출 금액</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_Overtime.serviceOverHour__sum %}{{ all_support_Overtime.serviceOverHour__sum }}{% else %}0.0{% endif %} 억 원</div>
             </div>
             <div class="col-auto">
@@ -152,7 +152,7 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">2분기 이익 금액</div>
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 이익 금액</div>
               <div class="h5 b-0 font-weight-bold text-gray-800">0.0억 원</div>
             </div>
             <div class="col-auto">
@@ -167,16 +167,30 @@
   <!-- Content Row -->
 
   <div class="row">
-    <div class="col-xl-12 col-lg-12">
+    <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원 시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">{{ quarter }}분기 매출/이익</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-area">
-            <div id="SupportTimeTreemap" style="height: 100%"></div>
+            <canvas id="todayquarterBarchart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">{{ quarter }}분기 누적 매출/이익</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="todayquarterCumulativechart"></canvas>
           </div>
         </div>
       </div>
@@ -186,16 +200,17 @@
   <!-- Content Row -->
 
   <div class="row">
+    <!-- Area Chart -->
     <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
-        <!-- Card Header-->
+        <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원 시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">분기별 opportunity&Firm</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-area">
-            <canvas id="CustomerSupportTime"></canvas>
+            <canvas id="quarterBarchart"></canvas>
           </div>
         </div>
       </div>
@@ -203,107 +218,17 @@
   </div>
 
   <div class="row">
-
     <!-- Area Chart -->
-    <div class="col-xl-6 col-lg-6">
+    <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">월별 매출액</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-area">
-            <canvas id="empSupportTime"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pie Chart -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">서비스타입별 지원 시간</h6>
-
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-pie pt-4 pb-2">
-            <canvas id="typeSupportTime"></canvas>
-          </div>
-          <div class="mt-4 text-center small">
-            {% for i,j in multi_type %}
-              {% if j == 0 %}
-                <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> {{ i.serviceType }}
-                    </span>
-              {% elif j == 1 %}
-                <span class="mr-2">
-                      <i class="fas fa-circle text-success"></i> {{ i.serviceType }}
-                    </span>
-              {% elif j == 2 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle text-info"></i> {{ i.serviceType }}
-                  </span>
-              {% elif j == 3 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle text-warning"></i> {{ i.serviceType }}
-                  </span>
-              {% elif j == 4 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle text-danger"></i> {{ i.serviceType }}
-                  </span>
-              {% elif j == 5 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle text-secondary"></i> {{ i.serviceType }}
-                  </span>
-              {% elif j == 6 %}
-                <span class="mr-2">
-                    <i class="fas fa-circle" style="color:#e83e8c"></i> {{ i.serviceType }}
-                  </span>
-              {% else %}
-                <span class="mr-2">
-                    <i class="fas fa-circle"></i> {{ i.serviceType }}
-                  </span>
-              {% endif %}
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-
-    <!-- Bar Chart -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 횟수</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="empSupportCount"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bar Chart -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 초과근무 시간</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="empSupportOver"></canvas>
+            <canvas id="contractMonthlychart"></canvas>
           </div>
         </div>
       </div>
@@ -480,143 +405,92 @@
           },
       };
       // Bar Chart 1
-      var ctx = document.getElementById("CustomerSupportTime");
-      var myBarChart = new Chart(ctx, {
+      var ctx = document.getElementById("todayquarterBarchart");
+      var todayquarterBarchart = new Chart(ctx, {
           type: 'bar',
           data: {
-              labels: [
-                  {% for i in customer_support_time %}
-                      "{{ i.companyName }}",
-                  {% endfor %}
-              ],
+              labels: ["{{ quarter }}분기"],
               datasets: [{
-                  label: "지원 시간",
-                  backgroundColor: colors,
-                  hoverBackgroundColor: "#2e59d9",
-                  borderColor: "#4e73df",
-                  data: [
-                      {% for i in customer_support_time %}
-                          "{{ i.sum_supportTime }}",
-                      {% endfor %}
-                  ],
+                  label: "매출금액",
+                  backgroundColor: "#4365B0",
+                  borderColor: "#4365B0",
+                  data: [500000000]
+              }, {
+                  label: "이익금액",
+                  backgroundColor: "#F29220",
+                  borderColor: "#F29220",
+                  data: [100000000]
               }],
           },
           options: options
       });
       // Bar Chart 2
-      var ctx = document.getElementById("empSupportTime");
-      var myBarChart = new Chart(ctx, {
+      var ctx = document.getElementById("todayquarterCumulativechart");
+      var todayquarterCumulativechart = new Chart(ctx, {
           type: 'bar',
           data: {
-              labels: [
-                  {% for i in emp_support_time %}
-                      "{{ i.empName }}",
-                  {% endfor %}
-              ],
+              labels: ["{{ quarter }}분기"],
               datasets: [{
-                  label: "지원 시간",
-                  hoverBackgroundColor: "#2e59d9",
-                  borderColor: "#4e73df",
-                  backgroundColor: colors,
-                  data: [
-                      {% for i in emp_support_time %}
-                          "{{ i.sum_supportTime }}",
-                      {% endfor %}
-                  ],
+                  label: "매출금액",
+                  backgroundColor: "#4365B0",
+                  borderColor: "#4365B0",
+                  data: [500000000]
+              }, {
+                  label: "이익금액",
+                  backgroundColor: "#F29220",
+                  borderColor: "#F29220",
+                  data: [100000000]
               }],
           },
           options: options
       });
       // Bar Chart 3
-      var ctx = document.getElementById("empSupportCount");
-      var myBarChart = new Chart(ctx, {
+      var ctx = document.getElementById("quarterBarchart");
+      var quarterBarchart = new Chart(ctx, {
           type: 'bar',
           data: {
-              labels: [
-                  {% for i in emp_support_time %}
-                      "{{ i.empName }}",
-                  {% endfor %}
-              ],
+              labels: ["1분기","2분기","3분기","4분기"],
               datasets: [{
-                  label: "지원 횟수",
-                  hoverBackgroundColor: "#2e59d9",
+                  label: "opportunity",
+                  backgroundColor: "#4e73df",
                   borderColor: "#4e73df",
-                  backgroundColor: colors,
-                  data: [
-                      {% for i in emp_support_time %}
-                          "{{ i.sum_supportCount }}",
-                      {% endfor %}
-                  ],
+                  data: [100000000,200000000,300000000,400000000,]
+              }, {
+                  label: "Firm",
+                  backgroundColor: "#1cc88a",
+                  borderColor: "#1cc88a",
+                  data: [10000000,10000000,10000000,10000000]
               }],
           },
           options: options
       });
       // Bar Chart 4
-      var ctx = document.getElementById("empSupportOver");
+      var ctx = document.getElementById("contractMonthlychart");
       var myBarChart = new Chart(ctx, {
           type: 'bar',
           data: {
-              labels: [
-                  {% for i in emp_support_time %}
-                      "{{ i.empName }}",
-                  {% endfor %}
-              ],
+              labels: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
               datasets: [{
-                  label: "초과 근무 시간",
-                  hoverBackgroundColor: "#2e59d9",
+                  label: "1팀",
+                  backgroundColor: "#4e73df",
                   borderColor: "#4e73df",
-                  backgroundColor: colors,
-                  data: [
-                      {% for i in emp_support_time %}
-                          "{{ i.sum_overTime }}",
-                      {% endfor %}
-                  ],
+                  data: [100000000,200000000,300000000,400000000,100000000,200000000,300000000,400000000,100000000,200000000,300000000,400000000,]
+              }, {
+                  label: "2팀",
+                  backgroundColor: "#36b9cc",
+                  borderColor: "#36b9cc",
+                  data: [10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000,10000000]
+              },{
+                  label: "합계",
+                  backgroundColor: "#1cc88a",
+                  borderColor: "#1cc88a",
+                  data: [110000000,210000000,310000000,410000000,110000000,210000000,310000000,410000000,110000000,210000000,310000000,410000000,]
               }],
           },
           options: options
       });
   </script>
-  <script>
-      // Pie Chart 1
-      var ctx = document.getElementById("typeSupportTime");
-      var myPieChart = new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-              labels: [
-                  {% for i in type_support_time %}
-                      "{{ i.serviceType }}".replace('&amp;', '&') ,
-                  {% endfor %}
-              ],
-              datasets: [{
-                  data: [
-                      {% for i in type_support_time %}
-                          "{{ i.sum_supportTime }}",
-                      {% endfor %}
-                  ],
-                  backgroundColor: colors,
-                  hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
-                  hoverBorderColor: "rgba(234, 236, 244, 1)",
-              }],
-          },
-          options: {
-              maintainAspectRatio: false,
-              tooltips: {
-                  backgroundColor: "rgb(255,255,255)",
-                  bodyFontColor: "#858796",
-                  borderColor: '#dddfeb',
-                  borderWidth: 1,
-                  xPadding: 15,
-                  yPadding: 15,
-                  displayColors: false,
-                  caretPadding: 10,
-              },
-              legend: {
-                  display: false
-              },
-              cutoutPercentage: 80,
-          },
-      });
-  </script>
+
   <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
   <script src="https://cdn.anychart.com/releases/v8/js/anychart-ui.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
   <script src="https://cdn.anychart.com/releases/v8/js/anychart-exports.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
@@ -624,39 +498,6 @@
   <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
   <link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
   <link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
-  <script>
-      anychart.onDocumentReady(function () {
-
-          // create data
-          var data = [
-              {
-                  name: "고객사", children: [
-                      {% for i in customer_support_time %}
-                          {name: "{{ i.companyName }}", value: {{ i.sum_supportTime }}},
-                      {% endfor %}
-                  ]
-              }
-          ];
-
-          var chart = anychart.treeMap(data, "as-tree");
-
-          chart.container("SupportTimeTreemap");
-
-          var customColorScale = anychart.scales.ordinalColor();
-          customColorScale.ranges([
-              {less: 10},
-              {from: 11, to: 18},
-              {from: 19, to: 28},
-              {greater: 29}
-          ]);
-          customColorScale.colors(["lightgray", "#00ccff", "#ffcc00", "pink"]);
-
-          // set the color scale as the color scale of the chart
-          chart.colorScale(customColorScale);
-
-          chart.draw();
-      });
-  </script>
   <script>
       $(document).ready(function () {
 
