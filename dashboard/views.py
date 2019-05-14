@@ -192,8 +192,8 @@ def dashboard_opportunity(request):
 
 
 @login_required
-def dashboard_sales(request):
-    template = loader.get_template('dashboard/dashboardsales.html')
+def dashboard_quarter(request):
+    template = loader.get_template('dashboard/dashboardquarter.html')
     context = {
     }
     return HttpResponse(template.render(context, request))
@@ -209,7 +209,7 @@ def dashboard_contract(request):
 
 @login_required
 @csrf_exempt
-def opportunity_asjson(request):
+def opportunity_graph(request):
     step = request.POST['step']
     maincategory = request.POST['maincategory']
     subcategory = request.POST['subcategory']
@@ -267,3 +267,45 @@ def opportunity_asjson(request):
     structureStep = json.dumps(dataStep, cls=DjangoJSONEncoder)
 
     return HttpResponse(structureStep, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def opportunity_asjson(request):
+
+    step = request.POST['step']
+    maincategory = request.POST['maincategory']
+    subcategory = request.POST['subcategory']
+    emp = request.POST['emp']
+    customer = request.POST['customer']
+
+
+    contract = Contract.objects.all()
+    contractitem = Contractitem.objects.all()
+
+    if step:
+        contract = contract.filter(contractStep=step)
+        contractitem = contractitem.filter(contractId__contractStep=step)
+
+    if maincategory:
+        contract = contract.filter(contractitem__mainCategory=maincategory)
+        contractitem = contractitem.filter(mainCategory=maincategory)
+
+    if subcategory:
+        contract = contract.filter(contractitem__subCategory=subcategory)
+        contractitem = contractitem.filter(subCategory=subcategory)
+
+    if emp:
+        contract = contract.filter(empDeptName=emp)
+        contractitem = contractitem.filter(contractId__empDeptName=emp)
+
+    if customer:
+        contract = contract.filter(endCompanyName=customer)
+        contractitem = contractitem.filter(contractId__endCompanyName=customer)
+
+
+    json = serializers.serialize('json', contract)
+    print("json:",json)
+    return HttpResponse(json, content_type='application/json')
+
+
