@@ -10,24 +10,18 @@ class ContractForm(forms.ModelForm):
 
     class Meta:
         model = Contract
-        fields = ('contractName', 'contractStep', 'empId', 'saleCompanyName', 'saleCustomerId', 'endCompanyName', 'endCustomerId', 'saleType', 'saleIndustry',
-                  'predictSalePrice', 'predictProfitPrice', 'predictProfitRatio', 'predictContractDate', 'salePrice', 'profitPrice', 'profitRatio', 'contractDate',
-                  'contractStartDate', 'contractEndDate', 'comment')
+        fields = ('contractName', 'contractStep', 'empId', 'saleCompanyName', 'saleCustomerId', 'endCompanyName', 'saleType', 'saleIndustry',
+                  'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate', 'comment')
 
         widgets = {
             'contractName': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractName'}),
             'contractStep': forms.Select(attrs={'class': 'form-control', 'id': 'contractStep'}),
             'empId': forms.Select(attrs={'class': 'form-control', 'id': 'empId'}),
             'saleCompanyName': forms.Select(attrs={'class': 'form-control', 'id': 'saleCompanyName', 'onchange': "companyChange(this.value,'saleCustomerId')"}),
-            'saleCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleCustomerId'}),
+            'saleCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'endCustomerId'}),
             'endCompanyName': forms.Select(attrs={'class': 'form-control', 'id': 'endCompanyName', 'onchange': "companyChange(this.value,'endCustomerId')"}),
-            'endCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'endCustomerId'}),
             'saleType': forms.Select(attrs={'class': 'form-control', 'id': "saleType"}),
             'saleIndustry': forms.Select(attrs={'class': 'form-control', 'id': "saleIndustry"}),
-            'predictSalePrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'predictSalePrice'}),
-            'predictProfitPrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'predictProfitPrice'}),
-            'predictProfitRatio': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'predictProfitRatio', 'readonly': ''}),
-            'predictContractDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'predictContractDate'}),
             'salePrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'salePrice'}),
             'profitPrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'profitPrice'}),
             'profitRatio': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'profitRatio', 'readonly': ''}),

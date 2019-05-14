@@ -11,9 +11,9 @@ class ContractAdmin(admin.ModelAdmin):
 
 @admin.register(Revenue)
 class RevenueAdmin(admin.ModelAdmin):
-    list_display = ('revenueName', 'billingDate', 'collectDate', 'revenueStep')
-    list_filter = ('revenueName', 'billingDate', 'collectDate')
-    list_display_links = ['revenueName', 'billingDate', 'collectDate', 'revenueStep']
+    list_display = ('contractId', 'revenuePrice', 'billingDate')
+    list_filter = ('contractId', 'revenuePrice', 'billingDate')
+    list_display_links = ['contractId', 'revenuePrice', 'billingDate']
 
 
 @admin.register(Category)
