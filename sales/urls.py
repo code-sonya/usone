@@ -16,4 +16,6 @@ urlpatterns = [
     url(r'^showrevenues/', views.show_revenues, name='showrevenues'),
     url(r'^revenueasjson/$', views.revenue_asjson, name='revenueasjson'),
     url(r'^viewrevenue/(?P<revenueId>.+)/$', views.view_revenue, name='viewrevenue'),
+    url(r'^deletecontract/(?P<contractId>.+)/$', views.delete_contract, name='deletecontract'),
+    url(r'^deleterevenue/(?P<contractId>.+)/$', views.delete_revenue, name='deleterevenue'),
 ]
