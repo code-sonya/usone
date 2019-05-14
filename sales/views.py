@@ -295,3 +295,15 @@ def view_revenue(request, revenueId):
         'contract': contract,
     }
     return render(request, 'sales/viewrevenue.html', context)
+
+
+@login_required
+def delete_contract(request, contractId):
+    Contract.objects.filter(contractId=contractId).delete()
+    return redirect('sales:showcontracts')
+
+
+@login_required
+def delete_revenue(request, revenueId):
+    Revenue.objects.filter(revenueId=revenueId).delete()
+    return redirect('sales:showrevenues')

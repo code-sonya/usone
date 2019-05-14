@@ -271,14 +271,8 @@
       }
 
       function btn_delete(){
-          if (confirm("일정을 삭제 하시겠습니까?") === true) {
-              location.href = '/service/deleteservice/' + {{ service.serviceId }} + '/';
-          }
-      }
-
-      function btn_copy(){
-          if (confirm("일정을 복사 하시겠습니까?") === true) {
-              location.href = '/service/copyservice/' + {{ service.serviceId }} + '/';
+          if (confirm("삭제 하시겠습니까?") === true) {
+              location.href = '/sales/deletecontract/' + {{ contract.contractId }} + '/';
           }
       }
 
