@@ -38,8 +38,9 @@ class Revenue(models.Model):
     revenueId = models.AutoField(primary_key=True)
     contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
     revenuePrice = models.IntegerField()
+    revenueProfitPrice = models.IntegerField()
     billingDate = models.DateField(null=True, blank=True)
-    comment = models.CharField(max_length=200)
+    comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.contractId.contractName
