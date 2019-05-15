@@ -10,10 +10,11 @@ class ContractForm(forms.ModelForm):
 
     class Meta:
         model = Contract
-        fields = ('contractName', 'contractStep', 'empId', 'saleCompanyName', 'saleCustomerId', 'endCompanyName', 'saleType', 'saleIndustry',
+        fields = ('contractCode', 'contractName', 'contractStep', 'empId', 'saleCompanyName', 'saleCustomerId', 'endCompanyName', 'saleType', 'saleIndustry',
                   'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate', 'comment')
 
         widgets = {
+            'contractCode': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractName'}),
             'contractName': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractName'}),
             'contractStep': forms.Select(attrs={'class': 'form-control', 'id': 'contractStep'}),
             'empId': forms.Select(attrs={'class': 'form-control', 'id': 'empId'}),
