@@ -9,9 +9,9 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-2"></div>
+    <div class="col-xl-1"></div>
 
-    <div class="col-xl-8">
+    <div class="col-xl-10">
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -52,49 +52,51 @@
               </div>
 
               <div class="form-group row">
-                <div class="col-6 mb-3">
+                <div class="col-4 mb-3">
                   <label for="saleCompanyName" class="font-weight-bold text-primary"> 거래처 </label> {{ form.saleCompanyName }}
                 </div>
-                <div class="col-6 mb-3">
+                <div class="col-4 mb-3">
                   <label for="saleCustomerId" class="font-weight-bold text-primary"> 거래처 담당자 </label> {{ form.saleCustomerId }}
                 </div>
-              </div>
-
-              <div class="form-group row">
-                <div class="col-6  mb-3">
+                <div class="col-4  mb-3">
                   <label for="endCompanyName" class="font-weight-bold text-primary"> 최종고객사 </label> {{ form.endCompanyName }}
                 </div>
-                <div class="col-6 mb-3">
-                  <label for="endCustomerId" class="font-weight-bold text-primary"> 최종고객사 담당자 </label> {{ form.endCustomerId }}
+              </div>
+
+              <div class="form-group row">
+                <div class="col-4 mb-3">
+                  <label for="salePrice" class="font-weight-bold text-primary"> <span name="predict">예상</span>계약금액 (원) </label> {{ form.salePrice }}
+                </div>
+                <div class="col-4 mb-3">
+                  <label for="profitPrice" class="font-weight-bold text-primary"> <span name="predict">예상</span>이익금액 (원) </label> {{ form.profitPrice }}
+                </div>
+                <div class="col-4 mb-3">
+                  <label for="profitRatio" class="font-weight-bold text-primary"> <span name="predict">예상</span>이익율 (%) </label> {{ form.profitRatio }}
                 </div>
               </div>
 
               <div class="form-group row">
-                <div class="col-xl-6">
-                  <div class="form-group row mb-0">
-                    <div class="col-6 mb-3">
-                      <label for="predictSalePrice" class="font-weight-bold text-primary"> 예상계약금액(원) </label> {{ form.predictSalePrice }}
-                    </div>
-                    <div class="col-6 mb-3">
-                      <label for="predictProfitPrice" class="font-weight-bold text-primary"> 예상이익금액(원) </label> {{ form.predictProfitPrice }}
-                    </div>
-                  </div>
+                <div class="col-4 mb-3">
+                  <label for="contractDate" class="font-weight-bold text-primary"> <span name="predict">예상</span>계약일 </label> {{ form.contractDate }}
                 </div>
-                <div class="col-xl-6">
-                  <div class="form-group row mb-0">
-                    <div class="col-6 mb-3">
-                      <label for="predictProfitRatio" class="font-weight-bold text-primary"> 예상이익율(%) </label> {{ form.predictProfitRatio }}
-                    </div>
-                    <div class="col-6 mb-3">
-                      <label for="predictContractDate" class="font-weight-bold text-primary"> 예상계약일 </label> {{ form.predictContractDate }}
-                    </div>
-                  </div>
+                <div class="col-4">
+                  <label for="predictSalePrice" class="font-weight-bold text-primary"> 계약시작일 </label> {{ form.contractStartDate }}
+                </div>
+                <div class="col-4">
+                  <label for="predictProfitPrice" class="font-weight-bold text-primary"> 계약종료일 </label> {{ form.contractEndDate }}
                 </div>
               </div>
 
               <div class="form-group row">
                 <div class="col-xl-12">
-                  <span id="addItem" class="btn btn-outline-info">+ 항목 추가</span>
+                  <label for="predictSalePrice" class="font-weight-bold text-primary"> 참고사항 </label> {{ form.comment }}
+                </div>
+              </div>
+
+              <br><hr class="divider"><br>
+              <div class="form-group row">
+                <div class="col-xl-12">
+                  <h4 class="text-primary mb-0"><b>세부사항</b></h4>
                   <table id="categoryItem" class="display" style="width:100%">
                     <thead style="width:100%">
                     <tr>
@@ -103,7 +105,7 @@
                       <th>소분류</th>
                       <th>상세내용</th>
                       <th>가격</th>
-                      <th></th>
+                      <th><i id="addItem" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                     </tr>
                     </thead>
                   </table>
@@ -114,58 +116,17 @@
             <div id="Firm" class="d-none">
               <br><hr class="divider"><br>
               <div class="form-group row">
-                <div class="col-xl-6">
-                  <div class="form-group row mb-0">
-                    <div class="col-6 mb-3">
-                      <label for="salePrice" class="font-weight-bold text-primary"> 계약금액(원) </label> {{ form.salePrice }}
-                    </div>
-                    <div class="col-6 mb-3">
-                      <label for="profitPrice" class="font-weight-bold text-primary"> 이익금액(원) </label> {{ form.profitPrice }}
-                    </div>
-                  </div>
-                </div>
-                <div class="col-xl-6">
-                  <div class="form-group row mb-0">
-                    <div class="col-6 mb-3">
-                      <label for="profitRatio" class="font-weight-bold text-primary"> 이익율(%) </label> {{ form.profitRatio }}
-                    </div>
-                    <div class="col-6 mb-3">
-                      <label for="contractDate" class="font-weight-bold text-primary"> 계약일 </label> {{ form.contractDate }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group row">
-                <div class="col-xl-6">
-                  <div class="form-group row mb-0">
-                    <div class="col-6">
-                      <label for="predictSalePrice" class="font-weight-bold text-primary"> 계약시작일 </label> {{ form.contractStartDate }}
-                    </div>
-                    <div class="col-6">
-                      <label for="predictProfitPrice" class="font-weight-bold text-primary"> 계약종료일 </label> {{ form.contractEndDate }}
-                    </div>
-                  </div>
-                </div>
-                <div class="col-xl-6">
-                  <div class="form-group row mb-0">
-                    <div class="col-12">
-                      <label for="predictSalePrice" class="font-weight-bold text-primary"> 참고사항 </label> {{ form.comment }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <br><hr class="divider"><br>
-              <div class="form-group row">
                 <div class="col-xl-12">
-                  <span id="addRevenue" class="btn btn-outline-info">+ 항목 추가</span>
+                  <h4 class="text-primary mb-0"><b>매출정보</b></h4>
                   <table id="revenue" class="display" style="width:100%">
                     <thead style="width:100%">
                     <tr>
                       <th>구분</th>
-                      <th>제목</th>
-                      <th>매출금액</th>
                       <th>빌링일자</th>
-                      <th></th>
+                      <th>매출금액</th>
+                      <th>이익금액</th>
+                      <th>비고</th>
+                      <th><i id="addRevenue" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                     </tr>
                     </thead>
                   </table>
@@ -188,7 +149,7 @@
       </div>
     </div>
 
-    <div class="col-xl-2"></div>
+    <div class="col-xl-1"></div>
   </div>
 
 {% endblock %}
@@ -209,9 +170,8 @@
       function btn_save() {
           const ContractForm = document.getElementById("ContractForm");
 
-          const lengthItem = $('[name="mainCategory"]').length;
+          const lengthItem = $('[name="itemId"]').length;
           const listItem = new Array();
-
           for (var i = 0; i <= lengthItem - 1; i++) {
               var data = new Object();
               data.itemId = $('div[name="itemId"]').eq(i).text()
@@ -221,29 +181,54 @@
               data.itemPrice = $('input[name="itemPrice"]').eq(i).val();
               listItem.push(data);
           }
-
           const jsonItem = JSON.stringify(listItem);
           const item = document.createElement("input");
           item.setAttribute("type", "hidden"); item.setAttribute("name", "jsonItem"); item.setAttribute("value", jsonItem);
           ContractForm.appendChild(item);
 
-          const lengthRevenue = $('[name="revenueName"]').length;
+          const lengthRevenue = $('[name="revenueId"]').length;
           const listRevenue = new Array();
-
           for (var i = 0; i <= lengthRevenue - 1; i++) {
               // 객체 생성
               var data = new Object();
               data.revenueId = $('div[name="revenueId"]').eq(i).text();
-              data.revenueName = $('input[name="revenueName"]').eq(i).val();
-              data.revenuePrice = $('input[name="revenuePrice"]').eq(i).val();
               data.billingDate = $('input[name="billingDate"]').eq(i).val();
+              data.revenuePrice = $('input[name="revenuePrice"]').eq(i).val();
+              data.revenueProfitPrice = $('input[name="revenueProfitPrice"]').eq(i).val();
+              data.revenueComment = $('input[name="revenueComment"]').eq(i).val();
               listRevenue.push(data);
           }
-
           const jsonRevenue = JSON.stringify(listRevenue);
           const revenue = document.createElement("input");
           revenue.setAttribute("type", "hidden"); revenue.setAttribute("name", "jsonRevenue"); revenue.setAttribute("value", jsonRevenue);
           ContractForm.appendChild(revenue);
+
+          let sumItemPrice = 0;
+          for(i=0; i<$('input[name="itemPrice"]').length; i++){
+             sumItemPrice += Number($('input[name="itemPrice"]').eq(i).val());
+          }
+          if (sumItemPrice != $('#salePrice').val()) {
+              alert("계약금액과 세부항목 가격의 합이 일치하지 않습니다.");
+              return false;
+          }
+
+          let sumRevenuePrice = 0;
+          for(i=0; i<$('input[name="revenuePrice"]').length; i++){
+             sumRevenuePrice += Number($('input[name="revenuePrice"]').eq(i).val());
+          }
+          if (sumRevenuePrice != $('#salePrice').val()) {
+              alert("계약금액과 매출금액의 합이 일치하지 않습니다.");
+              return false;
+          }
+
+          let sumRevenueProfitPrice = 0;
+          for(i=0; i<$('input[name="revenueProfitPrice"]').length; i++){
+             sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val());
+          }
+          if (sumRevenuePrice != $('#profitPrice').val()) {
+              alert("이익금액과 매출이익의 합이 일치하지 않습니다.");
+              return false;
+          }
 
           if (confirm("저장 하시겠습니까?") === true) {
               ContractForm.submit();
@@ -321,6 +306,9 @@
       $(document).ready(function () {
           if ($('#contractStep').val() === 'Firm') {
               $('#Firm').removeClass('d-none');
+              $('span[name=predict]').addClass('d-none');
+              $('#contractStartDate').removeAttr('readonly');
+              $('#contractEndDate').removeAttr('readonly');
           }
 
           var t1 = $('#categoryItem').DataTable({
@@ -409,6 +397,7 @@
                   {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
@@ -417,9 +406,10 @@
           $('#addRevenue').on('click', function () {
               t2.row.add([
                   '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
-                  '<input type="text" name="revenueName" id="revenue1' + revenueCounter + '">',
+                  '<input type="date" name="billingDate" id="revenue1' + revenueCounter + '">',
                   '<input type="number" name="revenuePrice" id="revenue2' + revenueCounter + '">',
-                  '<input type="date" name="billingDate" id="revenue3' + revenueCounter + '">',
+                  '<input type="number" name="revenueProfitPrice" id="revenue3' + revenueCounter + '">',
+                  '<input type="text" name="revenueComment" id="revenue4' + revenueCounter + '">',
                   '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
               revenueCounter++;
@@ -429,9 +419,10 @@
               {% for revenue in revenues %}
                   t2.row.add([
                       '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
-                      '<input type="text" name="revenueName" id="revenue1' + revenueCounter + '" value="{{ revenue.revenueName }}">',
-                      '<input type="number" name="revenuePrice" id="revenue2' + revenueCounter + '" value="{{ revenue.salePrice }}">',
-                      '<input type="date" name="billingDate" id="revenue3' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
+                      '<input type="date" name="billingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
+                      '<input type="number" name="revenuePrice" id="revenue2' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
+                      '<input type="number" name="revenueProfitPrice" id="revenue3' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
+                      '<input type="text" name="revenueComment" id="revenue4' + revenueCounter + '" value="{{ revenue.comment }}">',
                       '<i class="fas fa-times-circle" name="remove" >'
                   ]).draw(false);
                   revenueCounter++;
@@ -476,17 +467,19 @@
                   t2.clear().draw();
                   revenueCounter = 0;
                   $('#addRevenue').click();
+                  $('span[name=predict]').addClass('d-none');
+                  $('#contractStartDate').removeAttr('readonly');
+                  $('#contractEndDate').removeAttr('readonly');
               } else {
                   $('#Firm').addClass('d-none');
-                  $('#salePrice').val('');
-                  $('#profitPrice').val('');
-                  $('#profitRatio').val('');
-                  $('#contractDate').val('');
                   $('#contractStartDate').val('');
                   $('#contractEndDate').val('');
                   t2.clear().draw();
                   revenueCounter = 0;
                   $('#addRevenue').click();
+                  $('span[name=predict]').removeClass('d-none');
+                  $('#contractStartDate').attr('readonly', '');
+                  $('#contractEndDate').attr('readonly', '');
               }
           });
       })

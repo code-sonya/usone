@@ -28,7 +28,6 @@ def post_contract(request):
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
             post.saleCustomerName = form.clean()['saleCustomerId'].customerName
-            post.endCustomerName = form.clean()['endCustomerId'].customerName
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
@@ -44,10 +43,11 @@ def post_contract(request):
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
             for revenue in jsonRevenue:
                 Revenue.objects.create(
-                    revenueName=revenue["revenueName"],
                     contractId=post,
-                    salePrice=int(revenue["revenuePrice"]),
-                    billingDate=revenue["billingDate"]
+                    billingDate=revenue["billingDate"],
+                    revenuePrice=int(revenue["revenuePrice"]),
+                    revenueProfitPrice=int(revenue["revenueProfitPrice"]),
+                    comment=revenue["revenueComment"],
                 )
             return redirect('sales:showcontracts')
 
@@ -194,11 +194,9 @@ def modify_contract(request, contractId):
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
             post.saleCustomerName = form.clean()['saleCustomerId'].customerName
-            post.endCustomerName = form.clean()['endCustomerId'].customerName
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
-
             itemId = list(i[0] for i in Contractitem.objects.filter(contractId=contractId).values_list('contractItemId'))
             jsonItemId = []
             for item in jsonItem:
@@ -227,23 +225,27 @@ def modify_contract(request, contractId):
                     Contractitem.objects.filter(contractItemId=Id).delete()
 
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
-
+            print(jsonRevenue)
             revenueId = list(i[0] for i in Revenue.objects.filter(contractId=contractId).values_list('revenueId'))
             jsonRevenueId = []
             for revenue in jsonRevenue:
                 if revenue['revenueId'] == '추가':
+                    print('추가')
+                    print(revenue)
                     Revenue.objects.create(
-                        revenueName=revenue["revenueName"],
                         contractId=post,
-                        salePrice=int(revenue["revenuePrice"]),
-                        billingDate=revenue["billingDate"]
+                        billingDate=revenue["billingDate"],
+                        revenuePrice=int(revenue["revenuePrice"]),
+                        revenueProfitPrice=int(revenue["revenueProfitPrice"]),
+                        comment=revenue["revenueComment"],
                     )
                 else:
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
-                    revenueInstance.revenueName = revenue["revenueName"]
                     revenueInstance.contractId = post
-                    revenueInstance.salePrice = int(revenue["revenuePrice"])
                     revenueInstance.billingDate = revenue["billingDate"]
+                    revenueInstance.salePrice = int(revenue["revenuePrice"])
+                    revenueInstance.revenueProfitPrice = int(revenue["revenueProfitPrice"])
+                    revenueInstance.comment = revenue["revenueComment"]
                     revenueInstance.save()
                     jsonRevenueId.append(int(revenue["revenueId"]))
 
