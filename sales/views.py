@@ -62,6 +62,7 @@ def post_contract(request):
 @login_required
 def show_contracts(request):
     employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+
     if request.method == "POST":
         startdate = request.POST["startdate"]
         enddate = request.POST["enddate"]
@@ -72,34 +73,29 @@ def show_contracts(request):
         endCompanyName = request.POST['endCompanyName']
         contractName = request.POST['contractName']
 
-        context = {
-            'employees': employees,
-            'startdate': startdate,
-            'enddate': enddate,
-            'contractStep': contractStep,
-            'empDeptName': empDeptName,
-            'empName': empName,
-            'saleCompanyName': saleCompanyName,
-            'endCompanyName': endCompanyName,
-            'contractName': contractName,
-            'filter': 'Y'
-        }
-
     else:
-        context = {
-            'employees': employees,
-            'filter': 'N'
-        }
+        startdate = ''
+        enddate = ''
+        contractStep = ''
+        empDeptName = ''
+        empName = ''
+        saleCompanyName = ''
+        endCompanyName = ''
+        contractName = ''
+
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'contractStep': contractStep,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'endCompanyName': endCompanyName,
+        'contractName': contractName,
+    }
 
     return render(request, 'sales/showcontracts.html', context)
-
-
-@login_required
-def contract_asjson(request):
-    contracts = Contract.objects.all()
-    contracts = contracts.values('contractStep', 'predictContractDate', 'contractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
-    structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
@@ -139,7 +135,7 @@ def empdept_asjson(request):
 
 @login_required
 @csrf_exempt
-def filter_asjson(request):
+def contracts_asjson(request):
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     contractStep = request.POST["contractStep"]
@@ -152,14 +148,14 @@ def filter_asjson(request):
     contracts = Contract.objects.all()
 
     if startdate:
-        contracts = contracts.filter(Q(predictContractDate__gte=startdate) | Q(contractDate__gte=startdate))
+        contracts = contracts.filter(contractDate__gte=startdate)
     if enddate:
-        contracts = contracts.filter(Q(predictContractDate__lte=enddate) | Q(contractDate__lte=enddate))
-    if contractStep != '전체':
+        contracts = contracts.filter(contractDate__lte=enddate)
+    if contractStep != '전체' and contractStep != '':
         contracts = contracts.filter(contractStep=contractStep)
-    if empDeptName != '전체':
+    if empDeptName != '전체' and empDeptName != '':
         contracts = contracts.filter(empDeptName=empDeptName)
-    if empName != '전체':
+    if empName != '전체' and empName != '':
         contracts = contracts.filter(empName=empName)
     if saleCompanyName:
         contracts = contracts.filter(saleCompanyName__in=saleCompanyName)
@@ -168,7 +164,7 @@ def filter_asjson(request):
     if contractName:
         contracts = contracts.filter(contractName__in=contractName)
 
-    contracts = contracts.values('contractStep', 'predictContractDate', 'contractDate', 'contractName', 'saleCompanyName', 'endCompanyName', 'empName', 'contractId')
+    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractName', 'saleCompanyName', 'contractDate', 'contractId')
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -225,13 +221,11 @@ def modify_contract(request, contractId):
                     Contractitem.objects.filter(contractItemId=Id).delete()
 
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
-            print(jsonRevenue)
+            print('jsonRevenue :', jsonRevenue)
             revenueId = list(i[0] for i in Revenue.objects.filter(contractId=contractId).values_list('revenueId'))
             jsonRevenueId = []
             for revenue in jsonRevenue:
                 if revenue['revenueId'] == '추가':
-                    print('추가')
-                    print(revenue)
                     Revenue.objects.create(
                         contractId=post,
                         billingDate=revenue["billingDate"],

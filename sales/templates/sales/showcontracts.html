@@ -45,12 +45,11 @@
               <thead>
               <tr>
                 <th>구분</th>
-                <th>예상계약일</th>
-                <th>최종계약일</th>
+                <th>영업부서</th>
+                <th>영업담당</th>
                 <th>계약명</th>
                 <th>거래처</th>
-                <th>고객사</th>
-                <th>영업담당</th>
+                <th>계약일</th>
                 <th class="d-none">contractId</th>
               </tr>
               </thead>
@@ -184,142 +183,67 @@
 
       $(document).ready(function () {
 
-          {% if filter == "Y" %}
-
-              $('#showcontracts').dataTable({
+          $('#showcontracts').dataTable({
+              "processing": true,
+              "ajax": {
                   "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "type": 'POST',
-                      "data": {
-                          "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
-                          "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
-                          "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
-                          "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
-                          "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                          "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
-                          "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
-                          "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
-                      },
-                      "url": "{% url 'sales:filter_ajax_url' %}",
-                      "dataSrc": ""
+                  "type": 'POST',
+                  "data": {
+                      "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
+                      "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                      "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
+                      "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
+                      "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                      "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
+                      "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
+                      "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                   },
-                  "columns": [
-                      {data: "contractStep"},
-                      {data: "predictContractDate"},
-                      {data: "contractDate"},
-                      {data: "contractName"},
-                      {data: "saleCompanyName"},
-                      {data: "endCompanyName"},
-                      {data: "empName"},
-                      {data: "contractId"},
-                  ],
-                  "columnDefs": [
-                      {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "25%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 7, visible: false}
-                  ],
-                  "order": [[1, 'desc']],
-                  "searching": true,
-                  "paging": true,
-                  "info": false,
-                  "scrollY": "80vh",
-                  "scrollCollapse": true,
-                  "language": {
-                      "lengthMenu": "_MENU_ 개씩 보기",
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
+                  "url": "{% url 'sales:contracts_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: "contractStep"},
+                  {data: "empDeptName"},
+                  {data: "empName"},
+                  {data: "contractName"},
+                  {data: "saleCompanyName"},
+                  {data: "contractDate"},
+                  {data: "contractId"},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, visible: false}
+              ],
+              "order": [[5, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
                   },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      if (aData.predictContractDate != "") {
-                          $('td:eq(1)', nRow).text(replaceAll(aData.predictContractDate, "-", "."));
-                      }
-                      if (aData.contractStep == 'Firm'){
-                          $('td:eq(0)', nRow).css('color', '#4e73df');
-                      }else if(aData.contractStep == 'Opportunity'){
-                          $('td:eq(0)', nRow).css('color', '#1cc88a');
-                      }
-                      if (aData.contractDate != ""){
-                          $('td:eq(2)', nRow).css('color', '#e74a3b');
-
-                      }
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(5)', nRow).text(replaceAll(aData.contractDate, "-", "."));
+                  if (aData.contractStep == 'Firm'){
+                      $('td:eq(0)', nRow).css('color', '#4e73df');
+                  } else if(aData.contractStep == 'Opportunity'){
+                      $('td:eq(0)', nRow).css('color', '#1cc88a');
                   }
-
-              });
-
-
-          {% else %}
-              $('#showcontracts').dataTable({
-                  "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "url": "{% url 'sales:contractasjson' %}",
-                      "dataSrc": ""
-                  },
-                  "columns": [
-                      {data: "contractStep"},
-                      {data: "predictContractDate"},
-                      {data: "contractDate"},
-                      {data: "contractName"},
-                      {data: "saleCompanyName"},
-                      {data: "endCompanyName"},
-                      {data: "empName"},
-                      {data: "contractId"},
-                  ],
-                  "columnDefs": [
-                      {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "25%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 7, visible: false}
-                  ],
-                  "order": [[1, 'desc']],
-                  "searching": true,
-                  "paging": true,
-                  "info": false,
-                  "scrollY": "80vh",
-                  "scrollCollapse": true,
-                  "language": {
-                      "lengthMenu": "_MENU_ 개씩 보기",
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
-                  },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      if (aData.predictContractDate != "") {
-                          $('td:eq(1)', nRow).text(replaceAll(aData.predictContractDate, "-", "."));
-                      }
-                      if (aData.contractStep == 'Firm'){
-                          $('td:eq(0)', nRow).css('color', '#4e73df');
-                      }else if(aData.contractStep == 'Opportunity'){
-                          $('td:eq(0)', nRow).css('color', '#1cc88a');
-                      }
-                      if (aData.contractDate != ""){
-                          $('td:eq(2)', nRow).css('color', '#e74a3b');
-
-                      }
-                  }
-
-              });
-
-          {% endif %}
+              }
+          });
 
           var table = $('#showcontracts').DataTable();
 
