@@ -161,7 +161,7 @@
 
       function btn_cancel() {
           if (confirm("취소 하시겠습니까?") === true) {
-              history.back();
+              location.href = "/sales/showcontracts"
           } else {
               return false;
           }
@@ -228,7 +228,7 @@
                   alert("계약금액과 매출금액의 합이 일치하지 않습니다.");
                   return false;
               }
-              if (sumRevenuePrice != $('#profitPrice').val()) {
+              if (sumRevenueProfitPrice != $('#profitPrice').val()) {
                   alert("이익금액과 매출이익의 합이 일치하지 않습니다.");
                   return false;
               }
