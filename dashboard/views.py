@@ -241,7 +241,7 @@ def dashboard_quarter(request):
     ###누적매출금액 & 이익 금액
     cumulative_sales_amount = total_sales.aggregate(cumulative_sales_amount = Sum('revenuePrice'))
     cumulative_profit_amount = total_sales.aggregate(cumulative_profit_amount=Sum('revenueProfitPrice'))
-
+    print(cumulative_sales_amount['cumulative_sales_amount'],Target_sales,cumulative_sales_amount['cumulative_sales_amount']/Target_sales,)
     ###현재 분기까지 누적매출금액 & 이익 금액
     quarterly_cumulative_sales = revenues_accumulate.aggregate(quarterly_cumulative_sales=Sum('revenuePrice'))
     quarterly_cumulative_profit = revenues_accumulate.aggregate(quarterly_cumulative_profit=Sum('revenueProfitPrice'))
