@@ -48,13 +48,13 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-2"></div>
+    <div class="col-xl-1"></div>
 
     <!-- PC화면-->
-    <div class="col-xl-8 d-none d-xl-block">
+    <div class="col-xl-10">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> {{ contract.contractName }} </h6>
+          <h3 class="m-0 text-gray-800"> [{{ contract.contractCode }}] {{ contract.contractName }} </h3>
         </div>
 
         <div class="card-body">
@@ -74,48 +74,22 @@
             </tr>
             <tr>
               <td><b>거래처</b></td>
-              <td>{{ contract.saleCompanyName.companyName }}</td>
-              <td><b>거래처 담당자</b></td>
-              <td>{{ contract.saleCustomerName }}</td>
+              <td>{{ contract.saleCompanyName.companyName }}{% if contract.saleCustomerName %} ({{ contract.saleCustomerName }}){% endif %}</td>
+              <td><b>최종고객사</b></td>
+              <td>{{ contract.endCompanyName.companyName }}</td>
             </tr>
             <tr>
-              <td><b>고객사</b></td>
-              <td>{{ contract.endCompanyName.companyName }}</td>
-              <td><b>고객사 담당자</b></td>
-              <td>{{ contract.endCustomerName }}</td>
+              <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}계약금액</b></td>
+              <td>{{ contract.salePrice | intcomma }} 원</td>
+              <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}이익금액</b></td>
+              <td>{{ contract.profitPrice | intcomma }} 원 ({{ contract.profitRatio }} %)</td>
             </tr>
-            <tr {% if contract.contractStep == 'Firm' %}class="text-gray-500"{% endif %}>
-              <td><b>예상계약금액</b></td>
-              <td>{{ contract.predictSalePrice | intcomma }} 원</td>
-              <td><b>예상이익금액</b></td>
-              <td>{{ contract.predictProfitPrice | intcomma }} 원</td>
+            <tr>
+              <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}계약일</b></td>
+              <td>{{ contract.contractDate }}</td>
+              <td><b>계약기간</b></td>
+              <td>{% if contract.contractStep == 'Firm' %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
             </tr>
-            <tr {% if contract.contractStep == 'Firm' %}class="text-gray-500"{% endif %}>
-              <td><b>예상이익율</b></td>
-              <td>{{ contract.predictProfitRatio }} %</td>
-              <td><b>예상계약일</b></td>
-              <td>{{ contract.predictContractDate }}</td>
-            </tr>
-            {% if contract.contractStep == 'Firm' %}
-              <tr>
-                <td><b>계약금액</b></td>
-                <td>{{ contract.salePrice | intcomma }} 원</td>
-                <td><b>이익금액</b></td>
-                <td>{{ contract.profitPrice | intcomma }} 원</td>
-              </tr>
-              <tr>
-                <td><b>이익율</b></td>
-                <td>{{ contract.profitRatio }} %</td>
-                <td><b>계약일</b></td>
-                <td>{{ contract.contractDate }}</td>
-              </tr>
-              <tr>
-                <td><b>계약시작일</b></td>
-                <td>{{ contract.contractStartDate }}</td>
-                <td><b>계약종료일</b></td>
-                <td>{{ contract.contractEndDate }}</td>
-              </tr>
-            {% endif %}
             <tr>
               <td><b>참고사항</b></td>
               <td colspan="3">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
@@ -129,10 +103,10 @@
             <table class="pc-table">
               <thead>
               <tr>
-                <td style="width: 20%; border-top: 0px;"><b>대분류</b></td>
-                <td style="width: 20%; border-top: 0px;"><b>소분류</b></td>
-                <td style="width: 30%; border-top: 0px;"><b>상세내용</b></td>
-                <td style="width: 30%; border-top: 0px;"><b>가격</b></td>
+                <td style="width: 25%; border-top: 0px;"><b>대분류</b></td>
+                <td style="width: 25%; border-top: 0px;"><b>소분류</b></td>
+                <td style="width: 25%; border-top: 0px;"><b>상세내용</b></td>
+                <td style="width: 25%; border-top: 0px;"><b>가격</b></td>
               </tr>
               </thead>
               <tbody>
@@ -154,17 +128,19 @@
             <table class="pc-table">
               <thead>
               <tr>
-                <td style="width: 40%; border-top: 0px;"><b>제목</b></td>
-                <td style="width: 30%; border-top: 0px;"><b>매출금액</b></td>
-                <td style="width: 30%; border-top: 0px;"><b>빌링일자</b></td>
+                <td style="width: 25%; border-top: 0px;"><b>빌링일자</b></td>
+                <td style="width: 25%; border-top: 0px;"><b>매출금액</b></td>
+                <td style="width: 25%; border-top: 0px;"><b>이익금액</b></td>
+                <td style="width: 25%; border-top: 0px;"><b>비고</b></td>
               </tr>
               </thead>
               <tbody>
               {% for revenue in revenues %}
                 <tr>
-                  <td>{{ revenue.revenueName }}</td>
-                  <td>{{ revenue.salePrice | intcomma }} 원</td>
                   <td>{{ revenue.billingDate }}</td>
+                  <td>{{ revenue.revenuePrice | intcomma }} 원</td>
+                  <td>{{ revenue.revenueProfitPrice | intcomma }} 원</td>
+                  <td>{{ revenue.comment }}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -187,72 +163,7 @@
 
     </div>
 
-    <!-- 모바일 화면 -->
-    <div class="col-xl-8 d-block d-xl-none">
-      <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> {{ contract.contractName }} </h6>
-        </div>
-        <div class="card-body ">
-          <table class="mobile-table">
-            <tbody>
-            <tr>
-              <td style="width: 40%; border-top: 0px;"><b>영업담당</b></td>
-              <td style="width: 60%; border-top: 0px;">{{ contract.empName }}</td>
-            </tr>
-            <tr>
-              <td><b>예상계약일</b></td>
-              <td>{{ contract.predictContractDate }}</td>
-            </tr>
-            <tr>
-              <td><b>판매유형</b></td>
-              <td>{{ contract.saleType }}</td>
-            </tr>
-            <tr>
-              <td><b>산업군</b></td>
-              <td>{{ contract.saleIndustry }}</td>
-            </tr>
-            <tr>
-              <td><b>거래처</b></td>
-              <td>{{ contract.saleCompanyName.companyName }}</td>
-            </tr>
-            <tr>
-              <td><b>거래처 담당자</b></td>
-              <td>{{ contract.saleCustomerName }}</td>
-            </tr>
-            <tr>
-              <td><b>고객사</b></td>
-              <td>{{ contract.endCompanyName.companyName }}</td>
-            </tr>
-            <tr>
-              <td><b>고객사 담당자</b></td>
-              <td>{{ contract.endCustomerName }}</td>
-            </tr>
-            <tr>
-              <td><b>예상계약금액</b></td>
-              <td>{{ contract.predictSalePrice | intcomma }} 원</td>
-            </tr>
-            <tr>
-              <td><b>예상이익금액</b></td>
-              <td>{{ contract.predictProfitPrice | intcomma }} 원 ({{ contract.predictProfitRatio }}%)</td>
-            </tr>
-            </tbody>
-          </table>
-          <div class="text-center">
-            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-              <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
-              <span class="text p-2"> 삭제 </span>
-            </a>
-            <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-              <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-              <span class="text p-2"> 수정 </span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-xl-2"></div>
+    <div class="col-xl-1"></div>
   </div>
 
 {% endblock %}
@@ -262,16 +173,12 @@
 
   <script type="text/javascript">
 
-      function btn_save(){
-          location.href = '/sales/postfirm/' + {{ contract.contractId }} + '/';
-      }
-
       function btn_modify(){
           location.href = '/sales/modifycontract/' + {{ contract.contractId }} + '/';
       }
 
       function btn_delete(){
-          if (confirm("삭제 하시겠습니까?") === true) {
+          if (confirm("계약 삭제시, 매출 정보까지 함께 삭제됩니다.\n삭제 하시겠습니까?") === true) {
               location.href = '/sales/deletecontract/' + {{ contract.contractId }} + '/';
           }
       }

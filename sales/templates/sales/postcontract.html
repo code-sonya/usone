@@ -23,8 +23,11 @@
             {% csrf_token %}
             <div id="Opportunity">
               <div class="form-group row">
-                <div class="col-12 mb-3">
-                  <label for="contractName" class="font-weight-bold text-primary"> 제목 </label> {{ form.contractName }}
+                <div class="col-3 mb-3">
+                  <label for="contractCode" class="font-weight-bold text-primary"> 관리번호 </label> {{ form.contractCode }}
+                </div>
+                <div class="col-9 mb-3">
+                  <label for="contractName" class="font-weight-bold text-primary"> 계약명 </label> {{ form.contractName }}
                 </div>
               </div>
 
@@ -217,7 +220,6 @@
           for(i=0; i<$('input[name="revenueProfitPrice"]').length; i++){
              sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val());
           }
-
 
           if (sumItemPrice != $('#salePrice').val()) {
               alert("계약금액과 세부사항 가격의 합이 일치하지 않습니다.");
