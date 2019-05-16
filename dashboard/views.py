@@ -12,9 +12,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from service.models import Servicereport
-from sales.models import Contract, Category, Contractitem
-
-
+from sales.models import Contract, Category, Contractitem, Revenue
+from hr.models import Employee
+from django.db.models import functions
 
 @login_required
 def dashboard_service(request):
@@ -169,7 +169,7 @@ def dashboard_opportunity(request):
         contract = Contract.objects.all()
         contract_opp = contract.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice')).annotate(sum_profit=Sum('predictProfitPrice'))
         contract_firm = contract.values('contractStep').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
-        contract_company = contract.values('endCompanyName').distinct()
+        contract_company = contract.values('endCompanyName')
         allsalePrice = 0
         allprofitPrice = 0
         print(contract_firm)
@@ -194,8 +194,11 @@ def dashboard_opportunity(request):
 @login_required
 def dashboard_quarter(request):
     template = loader.get_template('dashboard/dashboardquarter.html')
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+
+    #년도,월,분기
+    today_year = datetime.today().year
     today_month = datetime.today().month
-    print(today_month)
     if today_month in [1,2,3]:
         quarter = 1
     elif today_month in [4,5,6]:
@@ -205,8 +208,134 @@ def dashboard_quarter(request):
     elif today_month in [10,11,12]:
         quarter = 4
 
+    revenues = Revenue.objects.all()
+    contract = Contract.objects.all()
+
+    dict_quarter = {"q1_start":"{}-01-01".format(today_year),
+                    "q1_end":"{}-04-01".format(today_year),
+                    "q2_end":"{}-07-01".format(today_year),
+                    "q3_end":"{}-10-01".format(today_year),
+                    "q4_end":"{}-01-01".format(today_year+1)}
+
+
+    total_sales = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q4_end']))
+
+    if quarter == 1:
+        revenues_accumulate = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start'])&Q(billingDate__lt=dict_quarter['q1_end']))
+        revenues_quarter = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start'])&Q(billingDate__lt=dict_quarter['q1_end']))
+    elif quarter == 2:
+        revenues_accumulate = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start'])&Q(billingDate__lt=dict_quarter['q2_end']))
+        revenues_quarter = revenues.filter(Q(billingDate__gte=dict_quarter['q1_end']) & Q(billingDate__lt=dict_quarter['q2_end']))
+    elif quarter == 3:
+        revenues_accumulate = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start'])&Q(billingDate__lt=dict_quarter['q3_end']))
+        revenues_quarter = revenues.filter(Q(billingDate__gte=dict_quarter['q2_end']) & Q(billingDate__lt=dict_quarter['q3_end']))
+    elif quarter == 4:
+        revenues_accumulate = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start'])&Q(billingDate__lt=dict_quarter['q4_end']))
+        revenues_quarter = revenues.filter(Q(billingDate__gte=dict_quarter['q3_end']) & Q(billingDate__lt=dict_quarter['q4_end']))
+
+    ###목표매출금액 & 이익 금액
+    ## 목표테이블 생성후 수정 필요
+    Target_sales = 30000000000
+    Target_profit = 4500000000
+
+    ###누적매출금액 & 이익 금액
+    cumulative_sales_amount = total_sales.aggregate(cumulative_sales_amount = Sum('revenuePrice'))
+    cumulative_profit_amount = total_sales.aggregate(cumulative_profit_amount=Sum('revenueProfitPrice'))
+
+    ###현재 분기까지 누적매출금액 & 이익 금액
+    quarterly_cumulative_sales = revenues_accumulate.aggregate(quarterly_cumulative_sales=Sum('revenuePrice'))
+    quarterly_cumulative_profit = revenues_accumulate.aggregate(quarterly_cumulative_profit=Sum('revenueProfitPrice'))
+
+    ###현재 분기 매출금액 & 이익 금액
+    quarterly_sales = revenues_quarter.aggregate(quarterly_sales=Sum('revenuePrice'))
+    quarterly_profit = revenues_quarter.aggregate(quarterly_profit=Sum('revenueProfitPrice'))
+
+    ###분기별 opportunity&Firm
+    #분기 opp
+    quarter1_opp = contract.filter(Q(contractDate__gte=dict_quarter['q1_start'])&Q(contractDate__lt=dict_quarter['q1_end'])).aggregate(sum=Sum('salePrice'))
+    quarter2_opp = contract.filter(Q(contractDate__gte=dict_quarter['q1_end']) & Q(contractDate__lt=dict_quarter['q2_end'])).aggregate(sum=Sum('salePrice'))
+    quarter3_opp = contract.filter(Q(contractDate__gte=dict_quarter['q2_end']) & Q(contractDate__lt=dict_quarter['q3_end'])).aggregate(sum=Sum('salePrice'))
+    quarter4_opp = contract.filter(Q(contractDate__gte=dict_quarter['q3_end']) & Q(contractDate__lt=dict_quarter['q4_end'])).aggregate(sum=Sum('salePrice'))
+    quarter_opp = [quarter1_opp['sum'],quarter2_opp['sum'],quarter3_opp['sum'],quarter4_opp['sum']]
+    for i in range(len(quarter_opp)):
+        if quarter_opp[i] == None:
+            quarter_opp[i] = 0
+    # 분기 Firm
+    quarter1_revenues = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end'])).aggregate(sum=Sum('revenuePrice'))
+    quarter2_revenues = revenues.filter(Q(billingDate__gte=dict_quarter['q1_end']) & Q(billingDate__lt=dict_quarter['q2_end'])).aggregate(sum=Sum('revenuePrice'))
+    quarter3_revenues = revenues.filter(Q(billingDate__gte=dict_quarter['q2_end']) & Q(billingDate__lt=dict_quarter['q3_end'])).aggregate(sum=Sum('revenuePrice'))
+    quarter4_revenues = revenues.filter(Q(billingDate__gte=dict_quarter['q3_end']) & Q(billingDate__lt=dict_quarter['q4_end'])).aggregate(sum=Sum('revenuePrice'))
+    quarter_firm = [quarter1_revenues['sum'],quarter2_revenues['sum'],quarter3_revenues['sum'],quarter4_revenues['sum']]
+    for i in range(len(quarter_firm)):
+        if quarter_firm[i] == None:
+            quarter_firm[i] = 0
+
+    ###월별 팀 매출 금액
+    salesteam_lst = Employee.objects.values('empDeptName').filter(Q(empStatus='Y')).distinct()
+    salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" in x['empDeptName'] ]
+    ###월별 팀 매출 금액
+    team_revenues = total_sales.values('billingDate__month', 'contractId__empDeptName'
+                                       ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'billingDate__month')
+
+    team_revenues = list(team_revenues)
+    for i in salesteam_lst:
+        month_lst = [i for i in range(1,13)]
+        for j in team_revenues:
+            if j['contractId__empDeptName']==i:
+                month_lst.remove(j['billingDate__month'] )
+        for m in month_lst:
+            team_revenues.append({'billingDate__month': m, 'contractId__empDeptName': i, 'revenuePrice__sum': 0})
+
+    team_revenues.sort(key=lambda x: x['contractId__empDeptName'], reverse=False)
+    team_revenues.sort(key=lambda x: x['billingDate__month'], reverse=False)
+
+    quarter_opp_Firm = [quarter_opp[quarter-1],quarter_firm[quarter-1]]
+
+    if request.method == "POST":
+        startdate = request.POST["startdate"]
+        enddate = request.POST["enddate"]
+        contractStep = request.POST["contractStep"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        saleCompanyName = request.POST['saleCompanyName']
+        endCompanyName = request.POST['endCompanyName']
+        contractName = request.POST['contractName']
+
+    else:
+        startdate = dict_quarter['q1_start']
+        enddate = dict_quarter['q4_end']
+        contractStep = ''
+        empDeptName = ''
+        empName = ''
+        saleCompanyName = ''
+        endCompanyName = ''
+        contractName = ''
+
     context = {
         "quarter" : quarter,
+        "Target_sales" : Target_sales,
+        "Target_profit": Target_profit,
+        "Sales_rate": round(cumulative_sales_amount['cumulative_sales_amount']/Target_sales*100,2),
+        "Profit_rate": round(cumulative_profit_amount['cumulative_profit_amount']/Target_profit*100,2),
+        "cumulative_sales_amount" :cumulative_sales_amount['cumulative_sales_amount'],
+        "cumulative_profit_amount":cumulative_profit_amount['cumulative_profit_amount'],
+        "quarterly_cumulative_sales":quarterly_cumulative_sales['quarterly_cumulative_sales'],
+        "quarterly_cumulative_profit":quarterly_cumulative_profit['quarterly_cumulative_profit'],
+        "quarterly_sales":quarterly_sales['quarterly_sales'],
+        "quarterly_profit":quarterly_profit['quarterly_profit'],
+        "quarter_opp":quarter_opp,
+        "quarter_firm":quarter_firm,
+        "team_revenues":team_revenues,
+        "quarter_opp_Firm":quarter_opp_Firm,
+        "employees":employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'contractStep': contractStep,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'endCompanyName': endCompanyName,
+        'contractName': contractName,
     }
     return HttpResponse(template.render(context, request))
 
