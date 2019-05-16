@@ -2,7 +2,7 @@
 {% block title %}
   대시보드
 {% endblock %}
-
+{% load humanize %}
 {% block content %}
 
 
@@ -27,7 +27,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">전체 계약예상 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if allsalePrice %}{{ allsalePrice }}{% else %}0{% endif %} 억원</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if allsalePrice %}{{ allsalePrice|intcomma }}{% else %}0{% endif %} 원</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-won-sign fa-2x text-gray-300"></i>
@@ -44,7 +44,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-success text-uppercase mb-1">전체 이익예상 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if allprofitPrice %}{{ allprofitPrice }}{% else %}0{% endif %} 억원</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if allprofitPrice %}{{ allprofitPrice|intcomma }}{% else %}0{% endif %} 원</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -251,6 +251,7 @@
   <script src="/static/hr/js/demo/chart-bar-demo.js"></script>
   <script src="/static/hr/js/demo/chart-area-demo.js"></script>
   <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
   <script>
 
       var chart_options = {};
@@ -355,22 +356,23 @@
               }]
           },
           options: {
-              animation: {
-                  onComplete: function () {
-                      var ctx = this.chart.ctx;
-                      ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart.defaults.global.defaultFontFamily);
-                      ctx.fillStyle = "black";
-                      ctx.textAlign = 'center';
-                      ctx.textBaseline = 'bottom';
+              plugins: {
+                  datalabels: {
+                      align: 'end',
+                      anchor: 'end',
+                      color: function (context) {
+                          return context.dataset.backgroundColor;
+                      },
+                      font: function (context) {
+                          var w = context.chart.width;
+                          return {
+                              size: w < 512 ? 12 : 14
+                          };
+                      },
+                      formatter: function (value, context) {
+                          return number_format(value);
+                      }
 
-                      this.data.datasets.forEach(function (dataset) {
-                          for (var i = 0; i < dataset.data.length; i++) {
-                              for (var key in dataset._meta) {
-                                  var model = dataset._meta[key].data[i]._model;
-                                  ctx.fillText(dataset.data[i], model.x, model.y - 5);
-                              }
-                          }
-                      });
                   }
               },
               legend: {display: false},
@@ -450,15 +452,22 @@
           },
           options: {
               maintainAspectRatio: false,
-              tooltips: {
-                  backgroundColor: "rgb(255,255,255)",
-                  bodyFontColor: "#858796",
-                  borderColor: '#dddfeb',
-                  borderWidth: 1,
-                  xPadding: 15,
-                  yPadding: 15,
-                  displayColors: false,
-                  caretPadding: 10,
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let percentage = (value * 100 / sum).toFixed(2) + "%";
+                          return percentage;
+
+
+                      },
+                      color: '#fff',
+                  }
               },
               onClick: piemainClick
           }
@@ -475,6 +484,23 @@
               }]
           },
           options: {
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let percentage = (value * 100 / sum).toFixed(2) + "%";
+                          return percentage;
+
+
+                      },
+                      color: '#fff',
+                  }
+              },
               maintainAspectRatio: false,
               tooltips: {
                   backgroundColor: "rgb(255,255,255)",
@@ -507,22 +533,23 @@
               ]
           },
           options: {
-              animation: {
-                  onComplete: function () {
-                      var ctx = this.chart.ctx;
-                      ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart.defaults.global.defaultFontFamily);
-                      ctx.fillStyle = "black";
-                      ctx.textAlign = 'center';
-                      ctx.textBaseline = 'bottom';
+              plugins: {
+                  datalabels: {
+                      align: 'end',
+                      anchor: 'end',
+                      color: function (context) {
+                          return context.dataset.backgroundColor;
+                      },
+                      font: function (context) {
+                          var w = context.chart.width;
+                          return {
+                              size: w < 512 ? 12 : 14
+                          };
+                      },
+                      formatter: function (value, context) {
+                          return number_format(value);
+                      }
 
-                      this.data.datasets.forEach(function (dataset) {
-                          for (var i = 0; i < dataset.data.length; i++) {
-                              for (var key in dataset._meta) {
-                                  var model = dataset._meta[key].data[i]._model;
-                                  ctx.fillText(dataset.data[i], model.x, model.y - 5);
-                              }
-                          }
-                      });
                   }
               },
               maintainAspectRatio: false,
@@ -606,22 +633,23 @@
               }],
           },
           options: {
-              animation: {
-                  onComplete: function () {
-                      var ctx = this.chart.ctx;
-                      ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart.defaults.global.defaultFontFamily);
-                      ctx.fillStyle = "black";
-                      ctx.textAlign = 'center';
-                      ctx.textBaseline = 'bottom';
+              plugins: {
+                  datalabels: {
+                      align: 'end',
+                      anchor: 'end',
+                      color: function (context) {
+                          return context.dataset.backgroundColor;
+                      },
+                      font: function (context) {
+                          var w = context.chart.width;
+                          return {
+                              size: w < 512 ? 12 : 14
+                          };
+                      },
+                      formatter: function (value, context) {
+                          return number_format(value);
+                      }
 
-                      this.data.datasets.forEach(function (dataset) {
-                          for (var i = 0; i < dataset.data.length; i++) {
-                              for (var key in dataset._meta) {
-                                  var model = dataset._meta[key].data[i]._model;
-                                  ctx.fillText(dataset.data[i], model.x, model.y - 5);
-                              }
-                          }
-                      });
                   }
               },
               maintainAspectRatio: false,

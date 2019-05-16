@@ -25,7 +25,6 @@ def dashboard_service(request):
 
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
-        print(startdate, enddate)
 
     # default : 주 단위 (월~일)
     else:
@@ -167,12 +166,12 @@ def dashboard_opportunity(request):
         enddate = "{}-12-31".format(datetime.today().year)
         # contract = Contract.objects.filter(Q(contractDate__gte=startdate) & Q(contractDate__lte=enddate))
         contract = Contract.objects.all()
-        contract_opp = contract.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice')).annotate(sum_profit=Sum('predictProfitPrice'))
+        contract_opp = contract.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
         contract_firm = contract.values('contractStep').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
         contract_company = contract.values('endCompanyName')
         allsalePrice = 0
         allprofitPrice = 0
-        print(contract_firm)
+
         for i in contract_firm:
             allsalePrice+=i['sum_price']
             allprofitPrice+=i['sum_profit']
@@ -184,8 +183,8 @@ def dashboard_opportunity(request):
             "enddate": enddate,
             "contract_company": contract_company,
             "contract_count": contract.count(),
-            "allsalePrice" :allsalePrice/100000000,
-            "allprofitPrice":allprofitPrice/100000000,
+            "allsalePrice" :allsalePrice,
+            "allprofitPrice":allprofitPrice,
             'filter': 'N',
         }
     return HttpResponse(template.render(context, request))
@@ -241,7 +240,7 @@ def dashboard_quarter(request):
     ###누적매출금액 & 이익 금액
     cumulative_sales_amount = total_sales.aggregate(cumulative_sales_amount = Sum('revenuePrice'))
     cumulative_profit_amount = total_sales.aggregate(cumulative_profit_amount=Sum('revenueProfitPrice'))
-    print(cumulative_sales_amount['cumulative_sales_amount'],Target_sales,cumulative_sales_amount['cumulative_sales_amount']/Target_sales,)
+
     ###현재 분기까지 누적매출금액 & 이익 금액
     quarterly_cumulative_sales = revenues_accumulate.aggregate(quarterly_cumulative_sales=Sum('revenuePrice'))
     quarterly_cumulative_profit = revenues_accumulate.aggregate(quarterly_cumulative_profit=Sum('revenueProfitPrice'))
@@ -356,7 +355,6 @@ def opportunity_graph(request):
     subcategory = request.POST['subcategory']
     emp = request.POST['emp']
     customer = request.POST['customer']
-    print (step,maincategory,emp,customer)
 
     dataStep = Contract.objects.all()
     dataCategory = Contractitem.objects.all()
@@ -387,13 +385,13 @@ def opportunity_graph(request):
         dataCategory = dataCategory.filter(contractId__endCompanyName=customer)
         dataEmp = dataStep.filter(endCompanyName=customer)
 
-    dataStep_opp = dataStep.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice'))
+    dataStep_opp = dataStep.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice'))
     dataStep_firm = dataStep.values('contractStep').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice'))
     dataCategory_main = dataCategory.values('mainCategory').annotate(sum_main=Sum('itemPrice'))
     dataCategory_sub = dataCategory.values('subCategory').annotate(sum_sub=Sum('itemPrice'))
-    dataEmp_opp = dataEmp.values('empDeptName').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice')).annotate(sum_profit=Sum('predictProfitPrice')).order_by('empDeptName')
+    dataEmp_opp = dataEmp.values('empDeptName').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
     dataEmp_firm = dataEmp.values('empDeptName').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
-    dataCompany_opp = dataEmp.values('endCompanyName').filter(contractStep='Opportunity').annotate(sum_price=Sum('predictSalePrice')).annotate(sum_profit=Sum('predictProfitPrice'))
+    dataCompany_opp = dataEmp.values('endCompanyName').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
     dataCompany_firm = dataEmp.values('endCompanyName').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
 
     dataStep = list(dataStep_opp)
@@ -446,7 +444,7 @@ def opportunity_asjson(request):
 
 
     json = serializers.serialize('json', contract)
-    print("json:",json)
+
     return HttpResponse(json, content_type='application/json')
 
 
