@@ -65,3 +65,29 @@ class Contractitem(models.Model):
 
     def __str__(self):
         return '{} : {}'.format(self.contractId.contractName, self.itemName)
+
+
+class Goal(models.Model):
+    goalId = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30)
+    year = models.IntegerField()
+    jan = models.IntegerField()
+    feb = models.IntegerField()
+    mar = models.IntegerField()
+    apr = models.IntegerField()
+    may = models.IntegerField()
+    jun = models.IntegerField()
+    jul = models.IntegerField()
+    aug = models.IntegerField()
+    sep = models.IntegerField()
+    oct = models.IntegerField()
+    nov = models.IntegerField()
+    dec = models.IntegerField()
+    q1 = models.IntegerField()
+    q2 = models.IntegerField()
+    q3 = models.IntegerField()
+    q4 = models.IntegerField()
+    yearSum = models.IntegerField()
+
+    def __str__(self):
+        return '{}년 {} 목표'.format(self.year, self.name)
