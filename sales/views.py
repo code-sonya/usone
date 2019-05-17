@@ -27,7 +27,10 @@ def post_contract(request):
             post = form.save(commit=False)
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
-            post.saleCustomerName = form.clean()['saleCustomerId'].customerName
+            if form.clean()['saleCustomerId']:
+                post.saleCustomerName = form.clean()['saleCustomerId'].customerName
+            else:
+                post.saleCustomerName = ''
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
@@ -100,15 +103,6 @@ def show_contracts(request):
 
 @login_required
 @csrf_exempt
-def salemanager_asjson(request):
-    companyName = request.POST['saleCompanyName']
-    customer = Customer.objects.filter(companyName=companyName)
-    json = serializers.serialize('json', customer)
-    return HttpResponse(json, content_type='application/json')
-
-
-@login_required
-@csrf_exempt
 def view_contract(request, contractId):
     contract = Contract.objects.get(contractId=contractId)
     items = Contractitem.objects.filter(contractId=contractId)
@@ -122,63 +116,6 @@ def view_contract(request, contractId):
 
 
 @login_required
-@csrf_exempt
-def empdept_asjson(request):
-    empDeptName = request.POST['empDeptName']
-    if empDeptName == '전체':
-        employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
-    else:
-        employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
-    json = serializers.serialize('json', employees)
-    return HttpResponse(json, content_type='application/json')
-
-
-@login_required
-@csrf_exempt
-def contracts_asjson(request):
-    startdate = request.POST["startdate"]
-    enddate = request.POST["enddate"]
-    contractStep = request.POST["contractStep"]
-    empDeptName = request.POST['empDeptName']
-    empName = request.POST['empName']
-    saleCompanyName = request.POST['saleCompanyName']
-    endCompanyName = request.POST['endCompanyName']
-    contractName = request.POST['contractName']
-
-    contracts = Contract.objects.all()
-
-    if startdate:
-        contracts = contracts.filter(contractDate__gte=startdate)
-    if enddate:
-        contracts = contracts.filter(contractDate__lte=enddate)
-    if contractStep != '전체' and contractStep != '':
-        contracts = contracts.filter(contractStep=contractStep)
-    if empDeptName != '전체' and empDeptName != '':
-        contracts = contracts.filter(empDeptName=empDeptName)
-    if empName != '전체' and empName != '':
-        contracts = contracts.filter(empName=empName)
-    if saleCompanyName:
-        contracts = contracts.filter(saleCompanyName__in=saleCompanyName)
-    if endCompanyName:
-        contracts = contracts.filter(endCompanyName__in=endCompanyName)
-    if contractName:
-        contracts = contracts.filter(contractName__in=contractName)
-
-    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractName', 'saleCompanyName', 'contractDate', 'contractId')
-    structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
-
-
-@login_required
-@csrf_exempt
-def category_asjson(request):
-    mainCategory = request.POST['mainCategory']
-    subcategory = Category.objects.filter(mainCategory=mainCategory)
-    json = serializers.serialize('json', subcategory)
-    return HttpResponse(json, content_type='application/json')
-
-
-@login_required
 def modify_contract(request, contractId):
     contractInstance = Contract.objects.get(contractId=contractId)
 
@@ -189,7 +126,10 @@ def modify_contract(request, contractId):
             post = form.save(commit=False)
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
-            post.saleCustomerName = form.clean()['saleCustomerId'].customerName
+            if form.clean()['saleCustomerId']:
+                post.saleCustomerName = form.clean()['saleCustomerId'].customerName
+            else:
+                post.saleCustomerName = ''
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
@@ -273,14 +213,6 @@ def show_revenues(request):
 
 
 @login_required
-def revenue_asjson(request):
-    revenues = Revenue.objects.all()
-    revenues = revenues.values('revenueStep', 'billingDate', 'revenueName', 'contractId__saleCompanyName', 'contractId__endCompanyName', 'revenueId')
-    structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
-
-
-@login_required
 @csrf_exempt
 def view_revenue(request, revenueId):
     revenue = Revenue.objects.get(revenueId=revenueId)
@@ -303,3 +235,77 @@ def delete_contract(request, contractId):
 def delete_revenue(request, revenueId):
     Revenue.objects.filter(revenueId=revenueId).delete()
     return redirect('sales:showrevenues')
+
+
+@login_required
+@csrf_exempt
+def salemanager_asjson(request):
+    companyName = request.POST['saleCompanyName']
+    customer = Customer.objects.filter(companyName=companyName)
+    json = serializers.serialize('json', customer)
+    return HttpResponse(json, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def empdept_asjson(request):
+    empDeptName = request.POST['empDeptName']
+    if empDeptName == '전체':
+        employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    else:
+        employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+    json = serializers.serialize('json', employees)
+    return HttpResponse(json, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def category_asjson(request):
+    mainCategory = request.POST['mainCategory']
+    subcategory = Category.objects.filter(mainCategory=mainCategory)
+    json = serializers.serialize('json', subcategory)
+    return HttpResponse(json, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def contracts_asjson(request):
+    startdate = request.POST["startdate"]
+    enddate = request.POST["enddate"]
+    contractStep = request.POST["contractStep"]
+    empDeptName = request.POST['empDeptName']
+    empName = request.POST['empName']
+    saleCompanyName = request.POST['saleCompanyName']
+    endCompanyName = request.POST['endCompanyName']
+    contractName = request.POST['contractName']
+
+    contracts = Contract.objects.all()
+
+    if startdate:
+        contracts = contracts.filter(contractDate__gte=startdate)
+    if enddate:
+        contracts = contracts.filter(contractDate__lte=enddate)
+    if contractStep != '전체' and contractStep != '':
+        contracts = contracts.filter(contractStep=contractStep)
+    if empDeptName != '전체' and empDeptName != '':
+        contracts = contracts.filter(empDeptName=empDeptName)
+    if empName != '전체' and empName != '':
+        contracts = contracts.filter(empName=empName)
+    if saleCompanyName:
+        contracts = contracts.filter(saleCompanyName__in=saleCompanyName)
+    if endCompanyName:
+        contracts = contracts.filter(endCompanyName__in=endCompanyName)
+    if contractName:
+        contracts = contracts.filter(contractName__in=contractName)
+
+    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName', 'contractDate', 'contractId')
+    structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def revenues_asjson(request):
+    revenues = Revenue.objects.all()
+    revenues = revenues.values('billingDate', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractName', 'revenueId')
+    structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
