@@ -205,7 +205,10 @@
                   {data: "contractStep"},
                   {data: "empDeptName"},
                   {data: "empName"},
-                  {data: "contractName"},
+                  {
+                      data: "contractName",
+                      render: function (data, type, row) {return '[' + row["contractCode"] + '] ' + row["contractName"];}
+                  },
                   {data: "saleCompanyName"},
                   {data: "contractDate"},
                   {data: "contractId"},
