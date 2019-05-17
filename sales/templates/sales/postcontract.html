@@ -172,16 +172,18 @@
 
       function btn_save() {
           const ContractForm = document.getElementById("ContractForm");
+          ContractForm.salePrice.value = ContractForm.salePrice.value.replace(/,/g, '');
+          ContractForm.profitPrice.value = ContractForm.profitPrice.value.replace(/,/g, '');
 
           const lengthItem = $('[name="itemId"]').length;
           const listItem = new Array();
           for (var i = 0; i <= lengthItem - 1; i++) {
               var data = new Object();
-              data.itemId = $('div[name="itemId"]').eq(i).text()
+              data.itemId = $('div[name="itemId"]').eq(i).text();
               data.mainCategory = $('select[name="mainCategory"]').eq(i).val();
               data.subCategory = $('select[name="subCategory"]').eq(i).val();
               data.itemName = $('input[name="itemName"]').eq(i).val();
-              data.itemPrice = $('input[name="itemPrice"]').eq(i).val();
+              data.itemPrice = $('input[name="itemPrice"]').eq(i).val().replace(/,/g, '');
               listItem.push(data);
           }
           const jsonItem = JSON.stringify(listItem);
@@ -198,8 +200,8 @@
               var data = new Object();
               data.revenueId = $('div[name="revenueId"]').eq(i).text();
               data.billingDate = $('input[name="billingDate"]').eq(i).val();
-              data.revenuePrice = $('input[name="revenuePrice"]').eq(i).val();
-              data.revenueProfitPrice = $('input[name="revenueProfitPrice"]').eq(i).val();
+              data.revenuePrice = $('input[name="revenuePrice"]').eq(i).val().replace(/,/g, '');
+              data.revenueProfitPrice = $('input[name="revenueProfitPrice"]').eq(i).val().replace(/,/g, '');
               data.revenueComment = $('input[name="revenueComment"]').eq(i).val();
               listRevenue.push(data);
           }
@@ -212,29 +214,29 @@
 
           let sumItemPrice = 0;
           for (i = 0; i < $('input[name="itemPrice"]').length; i++) {
-              sumItemPrice += Number($('input[name="itemPrice"]').eq(i).val());
+              sumItemPrice += Number($('input[name="itemPrice"]').eq(i).val().replace(/,/g, ''));
           }
 
           let sumRevenuePrice = 0;
           for (i = 0; i < $('input[name="revenuePrice"]').length; i++) {
-              sumRevenuePrice += Number($('input[name="revenuePrice"]').eq(i).val());
+              sumRevenuePrice += Number($('input[name="revenuePrice"]').eq(i).val().replace(/,/g, ''));
           }
 
           let sumRevenueProfitPrice = 0;
           for (i = 0; i < $('input[name="revenueProfitPrice"]').length; i++) {
-              sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val());
+              sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val().replace(/,/g, ''));
           }
 
-          if (sumItemPrice != $('#salePrice').val()) {
+          if (sumItemPrice != $('#salePrice').val().replace(/,/g, '')) {
               alert("계약금액과 세부사항 가격의 합이 일치하지 않습니다.");
               return false;
           }
           if ($('#contractStep').val() === 'Firm') {
-              if (sumRevenuePrice != $('#salePrice').val()) {
+              if (sumRevenuePrice != $('#salePrice').val().replace(/,/g, '')) {
                   alert("계약금액과 매출금액의 합이 일치하지 않습니다.");
                   return false;
               }
-              if (sumRevenueProfitPrice != $('#profitPrice').val()) {
+              if (sumRevenueProfitPrice != $('#profitPrice').val().replace(/,/g, '')) {
                   alert("이익금액과 매출이익의 합이 일치하지 않습니다.");
                   return false;
               }
@@ -357,10 +359,11 @@
                   '<option value="용역_기술지원">용역_기술지원</option></select>',
                   '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
                   '<input type="text" name="itemName" id="item3' + itemCounter + '">',
-                  '<input type="text" name="itemPrice" id="item4' + itemCounter + '">',
+                  '<input class="money" name="itemPrice" id="item4' + itemCounter + '">',
                   '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
               itemCounter++;
+              $('.money').simpleMoneyFormat();
           });
 
           {% if items %}
@@ -377,12 +380,13 @@
                       '<option value="용역_기술지원">용역_기술지원</option></select>',
                       '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
                       '<input type="text" name="itemName" id="item3' + itemCounter + '" value="{{ item.itemName }}">',
-                      '<input type="text" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
+                      '<input class="money" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
                       '<i class="fas fa-times-circle" name="remove" >'
                   ]).draw(false);
                   $('#item1' + itemCounter).val("{{ item.mainCategory }}").prop("selected", true);
                   itemChangeAdd("item1" + itemCounter, "item2" + itemCounter, "{{ item.subCategory }}", itemCounter);
                   itemCounter++;
+                  $('.money').simpleMoneyFormat();
               {% endfor %}
           {% else %}
               $('#addItem').click();
@@ -423,12 +427,13 @@
               t2.row.add([
                   '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
                   '<input type="date" name="billingDate" id="revenue1' + revenueCounter + '">',
-                  '<input type="number" name="revenuePrice" id="revenue2' + revenueCounter + '">',
-                  '<input type="number" name="revenueProfitPrice" id="revenue3' + revenueCounter + '">',
+                  '<input class="money" name="revenuePrice" id="revenue2' + revenueCounter + '">',
+                  '<input class="money" name="revenueProfitPrice" id="revenue3' + revenueCounter + '">',
                   '<input type="text" name="revenueComment" id="revenue4' + revenueCounter + '">',
                   '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
               revenueCounter++;
+              $('.money').simpleMoneyFormat();
           });
 
           {% if revenues %}
@@ -436,12 +441,13 @@
                   t2.row.add([
                       '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
                       '<input type="date" name="billingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
-                      '<input type="number" name="revenuePrice" id="revenue2' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
-                      '<input type="number" name="revenueProfitPrice" id="revenue3' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
+                      '<input class="money" name="revenuePrice" id="revenue2' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
+                      '<input class="money" name="revenueProfitPrice" id="revenue3' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
                       '<input type="text" name="revenueComment" id="revenue4' + revenueCounter + '" value="{{ revenue.comment }}">',
                       '<i class="fas fa-times-circle" name="remove" >'
                   ]).draw(false);
                   revenueCounter++;
+                  $('.money').simpleMoneyFormat();
               {% endfor %}
           {% endif %}
 
@@ -452,27 +458,15 @@
                   .draw();
           });
 
-          $('#predictSalePrice').on("propertychange change keyup paste input", function () {
-              const predictSalePrice = $('#predictSalePrice').val();
-              const predictProfitPrice = $('#predictProfitPrice').val();
-              $('#predictProfitRatio').val(((predictProfitPrice / predictSalePrice) * 100).toFixed(1));
-          });
-
-          $('#predictProfitPrice').on("propertychange change keyup paste input", function () {
-              const predictSalePrice = $('#predictSalePrice').val();
-              const predictProfitPrice = $('#predictProfitPrice').val();
-              $('#predictProfitRatio').val(((predictProfitPrice / predictSalePrice) * 100).toFixed(1));
-          });
-
           $('#salePrice').on("propertychange change keyup paste input", function () {
-              const salePrice = $('#salePrice').val();
-              const profitPrice = $('#profitPrice').val();
-              $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(1));
+             const salePrice = $('#salePrice').val().replace(/,/g, '');
+             const profitPrice = $('#profitPrice').val().replace(/,/g, '');
+             $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(1));
           });
 
           $('#profitPrice').on("propertychange change keyup paste input", function () {
-              const salePrice = $('#salePrice').val();
-              const profitPrice = $('#profitPrice').val();
+              const salePrice = $('#salePrice').val().replace(/,/g, '');
+              const profitPrice = $('#profitPrice').val().replace(/,/g, '');
               $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(1));
           });
 
