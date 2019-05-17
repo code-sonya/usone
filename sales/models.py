@@ -69,7 +69,8 @@ class Contractitem(models.Model):
 
 class Goal(models.Model):
     goalId = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30)
+    empDeptName = models.CharField(max_length=30)
+    empName = models.CharField(max_length=30)
     year = models.IntegerField()
     jan = models.IntegerField()
     feb = models.IntegerField()

@@ -12,11 +12,11 @@ from xhtml2pdf import pisa
 from django.core.serializers.json import DjangoJSONEncoder
 
 from hr.models import Employee
-from .forms import ContractForm
+from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem
 from service.models import Company, Customer
 from django.db.models import Q
-
+from datetime import datetime, timedelta
 
 @login_required
 def post_contract(request):
@@ -314,3 +314,39 @@ def revenues_asjson(request):
                                'revenuePrice', 'revenueProfitPrice', 'contractId__empName', 'contractId__empDeptName', 'revenueId')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def post_goal(request):
+    salesteam_lst = Employee.objects.values('empDeptName').filter(Q(empStatus='Y')).distinct()
+    salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" in x['empDeptName']]
+    today_year = datetime.today().year
+
+    if request.method == "POST":
+        form = GoalForm(request.POST)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            print(post)
+            if request.POST['empName'] == "전체":
+                post.name = request.POST['empDeptName']
+            else:
+                post.name = request.POST['empName']
+
+            post.q1 = post.jan + post.feb + post.mar
+            post.q2 = post.apr + post.may + post.jun
+            post.q3 = post.jul + post.aug + post.sep
+            post.q4 = post.oct + post.nov + post.dec
+            post.yearSum = post.q1 + post.q2 + post.q3 + post.q4
+            post.save()
+
+            return redirect('sales:showcontracts')
+
+    else:
+        form = GoalForm()
+        context = {
+            'form': form,
+            'salesteam_lst':salesteam_lst,
+            'today_year':today_year,
+        }
+        return render(request, 'sales/postgoal.html', context)

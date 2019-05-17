@@ -32,6 +32,6 @@ class ContractitemAdmin(admin.ModelAdmin):
 
 @admin.register(Goal)
 class GoalAdmin(admin.ModelAdmin):
-    list_display = ('year', 'name', 'yearSum')
-    list_filter = ('year', 'name')
-    list_display_links = ['year', 'name', 'yearSum']
+    list_display = ('year', 'empName', 'yearSum')
+    list_filter = ('year', 'empName')
+    list_display_links = ['year', 'empName', 'yearSum']

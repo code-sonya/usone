@@ -1,0 +1,165 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  목표등록
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 목표 등록 </h6>
+
+        </div>
+
+        <div class="card-body">
+
+          <form id="GoalForm" method="POST">
+
+            {% csrf_token %}
+            <div class="form-group row">
+              <div class="col-4">
+                <label for="year" class="font-weight-bold text-primary"> 목표 년도 </label> {{ form.year }}
+              </div>
+              <div class="col-4">
+                <label for="empDeptName" class="font-weight-bold text-primary"> 부서 명 </label> {{ form.empDeptName }}
+              </div>
+              <div class="col-4">
+                <label for="empName" class="font-weight-bold text-primary"> 영업 담당자 </label> {{ form.empName }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-4">
+                <label for="jan" class="font-weight-bold text-primary"> 1월 </label> {{ form.jan }}
+              </div>
+              <div class="col-4">
+                <label for="feb" class="font-weight-bold text-primary"> 2월 </label> {{ form.feb }}
+              </div>
+              <div class="col-4">
+                <label for="mar" class="font-weight-bold text-primary"> 3월 </label> {{ form.mar }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-4">
+                <label for="apr" class="font-weight-bold text-primary"> 4월 </label> {{ form.apr }}
+              </div>
+              <div class="col-4">
+                <label for="may" class="font-weight-bold text-primary"> 5월 </label> {{ form.may }}
+              </div>
+              <div class="col-4">
+                <label for="jun" class="font-weight-bold text-primary"> 6월 </label> {{ form.jun }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-4">
+                <label for="jul" class="font-weight-bold text-primary"> 7월 </label> {{ form.jul }}
+              </div>
+              <div class="col-4">
+                <label for="aug" class="font-weight-bold text-primary"> 8월 </label> {{ form.aug }}
+              </div>
+              <div class="col-4">
+                <label for="sep" class="font-weight-bold text-primary"> 9월 </label> {{ form.sep }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-4">
+                <label for="oct" class="font-weight-bold text-primary"> 10월 </label> {{ form.oct }}
+              </div>
+              <div class="col-4">
+                <label for="nov" class="font-weight-bold text-primary"> 11월 </label> {{ form.nov }}
+              </div>
+              <div class="col-4">
+                <label for="dec" class="font-weight-bold text-primary"> 12월 </label> {{ form.dec }}
+              </div>
+            </div>
+
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <button href="#" class="btn btn-success btn-icon-split">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_cancel() {
+          if (confirm("취소 하시겠습니까?") === true) {
+              location.href = "/sales/showgoals"
+          } else {
+              return false;
+          }
+      }
+
+      function changeDeptName(empDeptName) {
+          $.ajax({
+              url: "{% url 'sales:empdept_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empDeptName": empDeptName},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var empName = returnData;
+                  console.log(empName);
+                  $('#empName').empty();
+
+                  $('#empName').append("<option value='전체'>전체</option>");
+                  for (var count = 0; count < empName.length; count++) {
+                      var option = $("<option value=" + empName[count].pk + ">" + empName[count].fields.empName + "</option>");
+                      $('#empName').append(option);
+                  }
+              }
+          })
+      }
+
+      function btn_save() {
+          const GoalForm = document.getElementById("GoalForm");
+          if (confirm("저장 하시겠습니까?") === true) {
+              GoalForm.submit();
+          }
+      }
+
+
+      $(document).ready(function () {
+          {# 영업 부서 - 영업 사원 선택 #}
+          var sales_lst = new Array();
+          sales_lst = ['영업1팀', '영업2팀'];
+          $('#empDeptName').append("<option value='선택'>---부서 선택---</option>");
+          for (var count = 0; count < sales_lst.length; count++) {
+              var option = $("<option value=" + sales_lst[count] + ">" + sales_lst[count] + "</option>");
+              $('#empDeptName').append(option);
+          }
+          {# 목표 년도 설정 #}
+          $('#year').val('{{ today_year }}');
+
+      })
+  </script>
+
+{% endblock %}
