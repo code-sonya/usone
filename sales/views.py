@@ -217,10 +217,14 @@ def show_revenues(request):
 def view_revenue(request, revenueId):
     revenue = Revenue.objects.get(revenueId=revenueId)
     contract = Contract.objects.get(contractId=revenue.contractId.contractId)
+    items = Contractitem.objects.filter(contractId=revenue.contractId.contractId)
+    revenues = Revenue.objects.filter(contractId=revenue.contractId.contractId)
 
     context = {
         'revenue': revenue,
         'contract': contract,
+        'items': items,
+        'revenues': revenues,
     }
     return render(request, 'sales/viewrevenue.html', context)
 
@@ -306,6 +310,7 @@ def contracts_asjson(request):
 @login_required
 def revenues_asjson(request):
     revenues = Revenue.objects.all()
-    revenues = revenues.values('billingDate', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractName', 'revenueId')
+    revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName',
+                               'revenuePrice', 'revenueProfitPrice', 'contractId__empName', 'contractId__empDeptName', 'revenueId')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
