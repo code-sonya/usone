@@ -164,7 +164,6 @@ def dashboard_opportunity(request):
     else:
         startdate = "{}-01-01".format(datetime.today().year)
         enddate = "{}-12-31".format(datetime.today().year)
-        # contract = Contract.objects.filter(Q(contractDate__gte=startdate) & Q(contractDate__lte=enddate))
         contract = Contract.objects.all()
         contract_opp = contract.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
         contract_firm = contract.values('contractStep').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
@@ -358,50 +357,47 @@ def opportunity_graph(request):
 
     dataStep = Contract.objects.all()
     dataCategory = Contractitem.objects.all()
-    dataEmp = Contract.objects.all()
 
     if step:
         dataStep = dataStep.filter(contractStep=step)
         dataCategory = dataCategory.filter(contractId__contractStep=step)
-        dataEmp = dataEmp.filter(contractStep=step)
 
     if maincategory:
         dataStep = dataStep.filter(contractitem__mainCategory=maincategory)
         dataCategory = dataCategory.filter(mainCategory=maincategory)
-        dataEmp = dataEmp.filter(contractitem__mainCategory=maincategory)
 
     if subcategory:
         dataStep = dataStep.filter(contractitem__subCategory=subcategory)
         dataCategory = dataCategory.filter(subCategory=subcategory)
-        dataEmp = dataEmp.filter(contractitem__subCategory=subcategory)
 
     if emp:
         dataStep = dataStep.filter(empDeptName=emp)
         dataCategory = dataCategory.filter(contractId__empDeptName=emp)
-        dataEmp = dataStep.filter(empDeptName=emp)
 
     if customer:
         dataStep = dataStep.filter(endCompanyName=customer)
         dataCategory = dataCategory.filter(contractId__endCompanyName=customer)
-        dataEmp = dataStep.filter(endCompanyName=customer)
 
-    dataStep_opp = dataStep.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice'))
-    dataStep_firm = dataStep.values('contractStep').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice'))
-    dataCategory_main = dataCategory.values('mainCategory').annotate(sum_main=Sum('itemPrice'))
-    dataCategory_sub = dataCategory.values('subCategory').annotate(sum_sub=Sum('itemPrice'))
-    dataEmp_opp = dataEmp.values('empDeptName').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
-    dataEmp_firm = dataEmp.values('empDeptName').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
-    dataCompany_opp = dataEmp.values('endCompanyName').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
-    dataCompany_firm = dataEmp.values('endCompanyName').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
+    # dataStep_opp = dataStep.values('contractStep').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice'))
+    # dataStep_firm = dataStep.values('contractStep').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice'))
+    # dataCategory_main = dataCategory.values('mainCategory').annotate(sum_main=Sum('itemPrice'))
+    # dataCategory_sub = dataCategory.values('subCategory').annotate(sum_sub=Sum('itemPrice'))
+    # dataEmp_opp = dataEmp.values('empDeptName').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
+    # dataEmp_firm = dataEmp.values('empDeptName').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
+    # dataCompany_opp = dataEmp.values('endCompanyName').filter(contractStep='Opportunity').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
+    # dataCompany_firm = dataEmp.values('endCompanyName').filter(contractStep='Firm').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
 
-    dataStep = list(dataStep_opp)
-    dataStep.extend(list(dataStep_firm))
-    dataStep.extend(list(dataCategory_main))
-    dataStep.extend(list(dataCategory_sub))
-    dataStep.extend(list(dataEmp_opp))
-    dataStep.extend(list(dataEmp_firm))
-    dataStep.extend(list(dataCompany_opp))
-    dataStep.extend(list(dataCompany_firm))
+    Step = dataStep.values('contractStep').annotate(sum_price=Sum('salePrice'))
+    Category_main = dataCategory.values('mainCategory').annotate(sum_main=Sum('itemPrice'))
+    Category_sub = dataCategory.values('subCategory').annotate(sum_sub=Sum('itemPrice'))
+    Emp = dataStep.values('empDeptName').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
+    Company = dataStep.values('endCompanyName').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
+
+    dataStep = list(Step)
+    dataStep.extend(list(Category_main))
+    dataStep.extend(list(Category_sub))
+    dataStep.extend(list(Emp))
+    dataStep.extend(list(Company))
 
     structureStep = json.dumps(dataStep, cls=DjangoJSONEncoder)
 
