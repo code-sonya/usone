@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from hr.models import Employee
 from client.models import Company, Customer
-from .models import Contract
+from .models import Contract, Goal
 
 
 class ContractForm(forms.ModelForm):
@@ -37,3 +37,36 @@ class ContractForm(forms.ModelForm):
         self.fields["empId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
         self.fields["saleCompanyName"].queryset = Company.objects.all().order_by('companyName')
         self.fields["endCompanyName"].queryset = Company.objects.all().order_by('companyName')
+
+
+class GoalForm(forms.ModelForm):
+
+    # empDeptName = forms.CharField(widget=forms.Select(attrs={'class': 'form-control', 'id': 'empDeptName', 'onchange': "changeDeptName(this.value)"}))
+    # empName = forms.CharField(widget=forms.Select(attrs={'class': 'form-control', 'id': 'empName'}))
+
+    class Meta:
+        model = Goal
+        fields = ('empDeptName','empName', 'year', 'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+                  'jul', 'aug', 'sep', 'oct', 'nov', 'dec')
+
+        widgets = {
+            'empDeptName': forms.Select(attrs={'class': 'form-control', 'id': 'empDeptName', 'onchange': "changeDeptName(this.value)"}),
+            'empName': forms.TextInput(attrs={'class': 'form-control', 'id': 'empName'}),
+            'year': forms.TextInput(attrs={"type":"number" ,"min":"1900" ,"max":"2099", "step":"1", 'class': 'form-control', 'id': 'year'}),
+            'jan': forms.TextInput(attrs={'class': 'form-control', 'id': 'jan'}),
+            'feb': forms.TextInput(attrs={'class': 'form-control', 'id': 'feb'}),
+            'mar': forms.TextInput(attrs={'class': 'form-control', 'id': 'mar'}),
+            'apr': forms.TextInput(attrs={'class': 'form-control', 'id': 'apr'}),
+            'may': forms.TextInput(attrs={'class': 'form-control', 'id': 'may'}),
+            'jun': forms.TextInput(attrs={'class': 'form-control', 'id': 'jun'}),
+            'jul': forms.TextInput(attrs={'class': 'form-control', 'id': 'jul'}),
+            'aug': forms.TextInput(attrs={'class': 'form-control', 'id': 'aug'}),
+            'sep': forms.TextInput(attrs={'class': 'form-control', 'id': 'sep'}),
+            'oct': forms.TextInput(attrs={'class': 'form-control', 'id': 'oct'}),
+            'nov': forms.TextInput(attrs={'class': 'form-control', 'id': 'nov'}),
+            'dec': forms.TextInput(attrs={'class': 'form-control', 'id': 'dec'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(GoalForm, self).__init__(*args, **kwargs)
+        self.fields["empDeptName"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y')).distinct()

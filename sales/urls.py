@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^viewrevenue/(?P<revenueId>.+)/$', views.view_revenue, name='viewrevenue'),
     url(r'^deletecontract/(?P<contractId>.+)/$', views.delete_contract, name='deletecontract'),
     url(r'^deleterevenue/(?P<contractId>.+)/$', views.delete_revenue, name='deleterevenue'),
+    url(r'^postgoal/$', views.post_goal, name='postgoal'),
 ]
