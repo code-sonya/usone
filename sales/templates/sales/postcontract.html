@@ -99,7 +99,7 @@
               <hr class="divider">
               <div class="form-group row">
                 <div class="col-xl-12">
-                  <h4 class="text-primary mb-0"><b>세부사항</b></h4>
+                  <h5 class="text-dark mb-3"><b> ▼ 세부사항</b></h5>
                   <table id="categoryItem" class="display" style="width:100%">
                     <thead style="width:100%">
                     <tr>
@@ -120,7 +120,7 @@
               <hr class="divider">
               <div class="form-group row">
                 <div class="col-xl-12">
-                  <h4 class="text-primary mb-0"><b>매출정보</b></h4>
+                  <h5 class="text-dark mb-3"><b> ▼ 매출정보</b></h5>
                   <table id="revenue" class="display" style="width:100%">
                     <thead style="width:100%">
                     <tr>
@@ -186,7 +186,9 @@
           }
           const jsonItem = JSON.stringify(listItem);
           const item = document.createElement("input");
-          item.setAttribute("type", "hidden"); item.setAttribute("name", "jsonItem"); item.setAttribute("value", jsonItem);
+          item.setAttribute("type", "hidden");
+          item.setAttribute("name", "jsonItem");
+          item.setAttribute("value", jsonItem);
           ContractForm.appendChild(item);
 
           const lengthRevenue = $('[name="revenueId"]').length;
@@ -203,29 +205,31 @@
           }
           const jsonRevenue = JSON.stringify(listRevenue);
           const revenue = document.createElement("input");
-          revenue.setAttribute("type", "hidden"); revenue.setAttribute("name", "jsonRevenue"); revenue.setAttribute("value", jsonRevenue);
+          revenue.setAttribute("type", "hidden");
+          revenue.setAttribute("name", "jsonRevenue");
+          revenue.setAttribute("value", jsonRevenue);
           ContractForm.appendChild(revenue);
 
           let sumItemPrice = 0;
-          for(i=0; i<$('input[name="itemPrice"]').length; i++){
-             sumItemPrice += Number($('input[name="itemPrice"]').eq(i).val());
+          for (i = 0; i < $('input[name="itemPrice"]').length; i++) {
+              sumItemPrice += Number($('input[name="itemPrice"]').eq(i).val());
           }
 
           let sumRevenuePrice = 0;
-          for(i=0; i<$('input[name="revenuePrice"]').length; i++){
-             sumRevenuePrice += Number($('input[name="revenuePrice"]').eq(i).val());
+          for (i = 0; i < $('input[name="revenuePrice"]').length; i++) {
+              sumRevenuePrice += Number($('input[name="revenuePrice"]').eq(i).val());
           }
 
           let sumRevenueProfitPrice = 0;
-          for(i=0; i<$('input[name="revenueProfitPrice"]').length; i++){
-             sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val());
+          for (i = 0; i < $('input[name="revenueProfitPrice"]').length; i++) {
+              sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val());
           }
 
           if (sumItemPrice != $('#salePrice').val()) {
               alert("계약금액과 세부사항 가격의 합이 일치하지 않습니다.");
               return false;
           }
-          if($('#contractStep').val() === 'Firm'){
+          if ($('#contractStep').val() === 'Firm') {
               if (sumRevenuePrice != $('#salePrice').val()) {
                   alert("계약금액과 매출금액의 합이 일치하지 않습니다.");
                   return false;
@@ -318,6 +322,7 @@
           }
 
           var t1 = $('#categoryItem').DataTable({
+              "autoWidth":false,
               "searching": false,
               "paging": false,
               "info": false,
@@ -329,11 +334,11 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width:"8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
@@ -343,11 +348,13 @@
               t1.row.add([
                   '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">추가</div>',
                   '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
-                      '<option value="init" selected="selected">--대분류--</option>' +
-                      '<option value="상품_Oracle">상품_Oracle</option>' +
-                      '<option value="상품_IBM">상품_IBM</option>' +
-                      '<option value="상품_Lenovo">상품_Lenovo</option>' +
-                      '<option value="상품_기타">상품_기타</option> </select>',
+                  '<option value="init" selected="selected">--대분류--</option>' +
+                  '<option value="상품_Oracle">상품_Oracle</option>' +
+                  '<option value="상품_IBM">상품_IBM</option>' +
+                  '<option value="상품_Lenovo">상품_Lenovo</option>' +
+                  '<option value="상품_기타">상품_기타</option>' +
+                  '<option value="용역_유지보수">용역_유지보수</option>' +
+                  '<option value="용역_기술지원">용역_기술지원</option></select>',
                   '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
                   '<input type="text" name="itemName" id="item3' + itemCounter + '">',
                   '<input type="text" name="itemPrice" id="item4' + itemCounter + '">',
@@ -361,11 +368,13 @@
                   t1.row.add([
                       '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
                       '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
-                          '<option value="init" selected="selected">--대분류--</option>' +
-                          '<option value="상품_Oracle">상품_Oracle</option>' +
-                          '<option value="상품_IBM">상품_IBM</option>' +
-                          '<option value="상품_Lenovo">상품_Lenovo</option>' +
-                          '<option value="상품_기타">상품_기타</option> </select>',
+                      '<option value="init" selected="selected">--대분류--</option>' +
+                      '<option value="상품_Oracle">상품_Oracle</option>' +
+                      '<option value="상품_IBM">상품_IBM</option>' +
+                      '<option value="상품_Lenovo">상품_Lenovo</option>' +
+                      '<option value="상품_기타">상품_기타</option>' +
+                      '<option value="용역_유지보수">용역_유지보수</option>' +
+                      '<option value="용역_기술지원">용역_기술지원</option></select>',
                       '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
                       '<input type="text" name="itemName" id="item3' + itemCounter + '" value="{{ item.itemName }}">',
                       '<input type="text" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
@@ -388,6 +397,7 @@
 
 
           var t2 = $('#revenue').DataTable({
+              "autoWidth":false,
               "searching": false,
               "paging": false,
               "info": false,
@@ -399,11 +409,11 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width:"8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 

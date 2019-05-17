@@ -10,7 +10,7 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <span>
     <h1 class="h3 mb-0 text-gray-800">엔지니어 지원 통계 {% if user.employee.empDeptName == "임원" %}(SOLUTION&DB){% endif %}</h1>
-    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate}}~{{ enddate }} )</h6>
+    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate }}~{{ enddate }} )</h6>
     </span>
     <span>
       <a href="#" class="d-sm-inline-block btn btn-sm btn-info shadow-sm" id="filterLink" data-toggle="modal" data-target="#filterModal"><i class="fas fa-filter fa-sm text-white-50"></i> 날짜 검색 </a>
@@ -311,6 +311,7 @@
   <script src="/static/hr/js/demo/chart-bar-demo.js"></script>
   <script src="/static/hr/js/demo/chart-area-demo.js"></script>
   <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
   <script>
       function btn_filter() {
@@ -325,24 +326,23 @@
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
       const options = {
-          animation: {
-              onComplete: function () {
-                  var ctx = this.chart.ctx;
-                  ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart.defaults.global.defaultFontFamily);
-                  ctx.fillStyle = "black";
-                  ctx.textAlign = 'center';
-                  ctx.textBaseline = 'bottom';
+          plugins: {
+              datalabels: {
+                  align: 'end',
+                  anchor: 'end',
+                  color: function (context) {
+                      return context.dataset.backgroundColor;
+                  },
+                  font: function (context) {
+                      var w = context.chart.width;
+                      return {
+                          size: w < 512 ? 12 : 14
+                      };
+                  },
+                  formatter: function (value, context) {
+                      return number_format(value);
+                  }
 
-                  this.data.datasets.forEach(function (dataset)
-                  {
-                      for (var i = 0; i < dataset.data.length; i++) {
-                          for(var key in dataset._meta)
-                          {
-                              var model = dataset._meta[key].data[i]._model;
-                              ctx.fillText(dataset.data[i], model.x, model.y - 5);
-                          }
-                      }
-                  });
               }
           },
           maintainAspectRatio: false,
@@ -530,20 +530,25 @@
           },
           options: {
               maintainAspectRatio: false,
-              tooltips: {
-                  backgroundColor: "rgb(255,255,255)",
-                  bodyFontColor: "#858796",
-                  borderColor: '#dddfeb',
-                  borderWidth: 1,
-                  xPadding: 15,
-                  yPadding: 15,
-                  displayColors: false,
-                  caretPadding: 10,
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let percentage = (value * 100 / sum).toFixed(2) + "%";
+                          return percentage;
+                      },
+                      color: '#fff',
+                  }
               },
               legend: {
                   display: false
               },
-              cutoutPercentage: 80,
+              cutoutPercentage: 20,
           },
       });
   </script>
@@ -588,7 +593,7 @@
       });
   </script>
   <script>
-  $(document).ready(function () {
+      $(document).ready(function () {
 
           const table = $('#showservice').DataTable({
               data: [],
@@ -610,7 +615,7 @@
                   {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible:false}
+                  {targets: 7, visible: false}
               ],
               "searching": false,
               "paging": false,
@@ -620,8 +625,8 @@
           });
 
           {% for service in all_support_data %}
-              var rowNode = table.row.add( {
-                  "성함":  "{{ service.empName }}",
+              var rowNode = table.row.add({
+                  "성함": "{{ service.empName }}",
                   "고객사": "{{ service.companyName.companyName }}",
                   "구분": "{{ service.serviceType }}",
                   "날짜": "{{ service.serviceDate | date:"Y-m-d" }}",
@@ -629,13 +634,13 @@
                   "초과근무시간": "{{ service.serviceOverHour }}",
                   "제목": "{{ service.serviceTitle }}",
                   "serviceId": "{{ service.serviceId }}",
-              } ).draw().node();
+              }).draw().node();
 
           {% endfor %}
 
-          $("#showservice").on("click", 'tr', function(){
+          $("#showservice").on("click", 'tr', function () {
               const data = table.row(this).data();
-              location.href='/service/viewservice/' + data.serviceId + '/'
+              location.href = '/service/viewservice/' + data.serviceId + '/'
           });
 
       });
