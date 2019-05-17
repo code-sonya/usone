@@ -48,10 +48,9 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-2"></div>
+    <div class="col-xl-1"></div>
 
-    <!-- PC화면-->
-    <div class="col-xl-8 d-none d-xl-block">
+    <div class="col-xl-10 d-none d-xl-block">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> {{ revenue.revenueName }} </h6>
@@ -177,62 +176,7 @@
       </div>
     </div>
 
-    <!-- 모바일 화면 수정해야 됨. -->
-    <div class="col-xl-8 d-block d-xl-none">
-      <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> {{ contract.contractName }} </h6>
-        </div>
-        <div class="card-body ">
-          <table class="mobile-table">
-            <tbody>
-            <tr>
-              <td style="width: 40%; border-top: 0px;"><b>영업담당</b></td>
-              <td style="width: 60%; border-top: 0px;">{{ contract.empName }}</td>
-            </tr>
-            <tr>
-              <td><b>예상계약일</b></td>
-              <td>{{ contract.predictContractDate }}</td>
-            </tr>
-            <tr>
-              <td><b>판매유형</b></td>
-              <td>{{ contract.saleType }}</td>
-            </tr>
-            <tr>
-              <td><b>산업군</b></td>
-              <td>{{ contract.saleIndustry }}</td>
-            </tr>
-            <tr>
-              <td><b>거래처</b></td>
-              <td>{{ contract.saleCompanyName.companyName }}</td>
-            </tr>
-            <tr>
-              <td><b>거래처 담당자</b></td>
-              <td>{{ contract.saleCustomerName }}</td>
-            </tr>
-            <tr>
-              <td><b>고객사</b></td>
-              <td>{{ contract.endCompanyName.companyName }}</td>
-            </tr>
-            <tr>
-              <td><b>고객사 담당자</b></td>
-              <td>{{ contract.endCustomerName }}</td>
-            </tr>
-            <tr>
-              <td><b>예상계약금액</b></td>
-              <td>{{ contract.predictSalePrice | intcomma }} 원</td>
-            </tr>
-            <tr>
-              <td><b>예상이익금액</b></td>
-              <td>{{ contract.predictProfitPrice | intcomma }} 원 ({{ contract.predictProfitRatio }}%)</td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-xl-2"></div>
+    <div class="col-xl-1"></div>
   </div>
 
 {% endblock %}
