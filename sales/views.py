@@ -13,10 +13,11 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from hr.models import Employee
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem
+from .models import Contract, Category, Revenue, Contractitem, Goal
 from service.models import Company, Customer
 from django.db.models import Q
 from datetime import datetime, timedelta
+
 
 @login_required
 def post_contract(request):
@@ -65,6 +66,8 @@ def post_contract(request):
 @login_required
 def show_contracts(request):
     employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    salesteam_lst = Employee.objects.values('empDeptName').distinct()
+    salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" in x['empDeptName']]
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -96,6 +99,7 @@ def show_contracts(request):
         'saleCompanyName': saleCompanyName,
         'endCompanyName': endCompanyName,
         'contractName': contractName,
+        'salesteam_lst': salesteam_lst,
     }
 
     return render(request, 'sales/showcontracts.html', context)
@@ -282,8 +286,10 @@ def empdept_asjson(request):
     empDeptName = request.POST['empDeptName']
     if empDeptName == '전체':
         employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+        # employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀'))
     else:
         employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+        # employees = Employee.objects.filter(Q(empDeptName=empDeptName))
     json = serializers.serialize('json', employees)
     return HttpResponse(json, content_type='application/json')
 
@@ -375,12 +381,8 @@ def post_goal(request):
 
         if form.is_valid():
             post = form.save(commit=False)
-            print(post)
-            if request.POST['empName'] == "전체":
-                post.name = request.POST['empDeptName']
-            else:
-                post.name = request.POST['empName']
-
+            if request.POST["empName"] != '전체':
+                post.empName = Employee.objects.filter(pk=request.POST["empName"]).first().empName
             post.q1 = post.jan + post.feb + post.mar
             post.q2 = post.apr + post.may + post.jun
             post.q3 = post.jul + post.aug + post.sep
@@ -388,13 +390,113 @@ def post_goal(request):
             post.yearSum = post.q1 + post.q2 + post.q3 + post.q4
             post.save()
 
-            return redirect('sales:showcontracts')
+            return redirect('sales:showgoals')
 
     else:
         form = GoalForm()
         context = {
             'form': form,
-            'salesteam_lst':salesteam_lst,
-            'today_year':today_year,
+            'salesteam_lst': salesteam_lst,
+            'today_year': today_year,
         }
         return render(request, 'sales/postgoal.html', context)
+
+
+@login_required
+def show_goals(request):
+    salesteam_lst = Employee.objects.values('empDeptName').filter(Q(empStatus='Y')).distinct()
+    salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" in x['empDeptName']]
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    today_year = datetime.today().year
+
+    if request.method == "POST":
+        year = request.POST["year"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+
+    else:
+        year = ''
+        empDeptName = ''
+        empName = ''
+
+    context = {
+        'employees': employees,
+        'year': year,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'today_year': today_year,
+        'salesteam_lst': salesteam_lst,
+    }
+
+    return render(request, 'sales/showgoals.html', context)
+
+
+@login_required
+@csrf_exempt
+def goals_asjson(request):
+    year = request.POST["year"]
+    empDeptName = request.POST['empDeptName']
+    empName = request.POST['empName']
+
+    goal = Goal.objects.all()
+
+    if year:
+        goal = goal.filter(year=year)
+    if empDeptName:
+        goal = goal.filter(empDeptName=empDeptName)
+    if empName:
+        goal = goal.filter(empName=empName)
+
+    goal = goal.values('year', 'empDeptName', 'empName', 'q1', 'q2', 'q3', 'q4', 'yearSum', 'goalId')
+    structure = json.dumps(list(goal), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def view_goal(request, goalId):
+    goal = Goal.objects.get(goalId=goalId)
+
+    context = {
+        'goalId': int(goalId),
+        'goal': goal,
+    }
+    return render(request, 'sales/viewgoal.html', context)
+
+@login_required
+def modify_goal(request, goalId):
+    goalinstance = Goal.objects.get(goalId=goalId)
+    salesteam_lst = Employee.objects.values('empDeptName').filter(Q(empStatus='Y')).distinct()
+    salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" in x['empDeptName']]
+
+    if request.method == "POST":
+        form = GoalForm(request.POST, instance=goalinstance)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            if request.POST["empName"] != '전체':
+                post.empName = Employee.objects.filter(pk=request.POST["empName"]).first().empName
+            post.q1 = post.jan + post.feb + post.mar
+            post.q2 = post.apr + post.may + post.jun
+            post.q3 = post.jul + post.aug + post.sep
+            post.q4 = post.oct + post.nov + post.dec
+            post.yearSum = post.q1 + post.q2 + post.q3 + post.q4
+            post.save()
+            return redirect('sales:showgoals')
+
+    else:
+        form = GoalForm(instance=goalinstance)
+
+        context = {
+            'form': form,
+            'today_year': goalinstance.year,
+            'salesteam_lst':salesteam_lst,
+            'empDeptName': goalinstance.empDeptName,
+            'empName': goalinstance.empName,
+        }
+        return render(request, 'sales/postgoal.html', context)
+
+@login_required
+def delete_goal(request, goalId):
+    Goal.objects.filter(goalId=goalId).delete()
+    return redirect('sales:showgoals')

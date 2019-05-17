@@ -91,4 +91,4 @@ class Goal(models.Model):
     yearSum = models.IntegerField()
 
     def __str__(self):
-        return '{}년 {} 목표'.format(self.year, self.name)
+        return '{}년 {} 목표'.format(self.year, self.empName)

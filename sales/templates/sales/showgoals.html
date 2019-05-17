@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  영업관리
+  목표관리
 {% endblock %}
 
 
@@ -24,7 +24,7 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 영업기회 & 계약 </h6>
+          <h6 class="m-0 h3 text-gray-800"> 영업 목표 </h6>
 
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
@@ -41,16 +41,18 @@
           {% csrf_token %}
 
           <div class="table-responsive">
-            <table id="showcontracts" class="hover row-border" width="100%" style="width: 100%;">
+            <table id="showgoals" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>구분</th>
+                <th>목표년도</th>
                 <th>영업부서</th>
                 <th>영업담당</th>
-                <th>계약명</th>
-                <th>거래처</th>
-                <th>계약일</th>
-                <th class="d-none">contractId</th>
+                <th>Q1 목표금액</th>
+                <th>Q2 목표금액</th>
+                <th>Q3 목표금액</th>
+                <th>Q4 목표금액</th>
+                <th>전체 목표금액</th>
+                <th class="d-none">goalId</th>
               </tr>
               </thead>
             </table>
@@ -80,13 +82,9 @@
           <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
             <div class="row mb-1">
-              <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="font-weight-light text-primary">시작일자</label>
-                <input type="date" class="form-control" id="startdate" name="startdate">
-              </div>
-               <div class="col-6 mb-3 mb-sm-0">
-                <label for="enddate" class="font-weight-light text-primary">종료일자</label>
-                <input type="date" class="form-control" id="enddate" name="enddate">
+              <div class="col-12 mb-6 mb-sm-0">
+                <label for="year" class="font-weight-light text-primary">목표 년도</label>
+                <input type=number min="1900" max="2099" step="1" value="{{ today_year }}" class="form-control" id="year" name="year">
               </div>
             </div>
             <div class="row mb-1">
@@ -94,9 +92,6 @@
                 <label for="empDeptName" class="font-weight-light text-primary">영업부서</label>
                 <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
                   <option value="전체">전체</option>
-{#                  <option value="영업1팀">영업1팀</option>#}
-{#                  <option value="영업2팀">영업2팀</option>#}
-{#                  <option value="영업3팀">영업3팀</option>#}
                 </select>
               </div>
               <div class="col-6">
@@ -106,31 +101,6 @@
                   {% for i in employees %}
                     <option value="{{ i.empName }}">{{ i.empName }}</option>
                   {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="companyName" class="font-weight-light text-primary">거래처</label>
-                <input class="form-control" id="saleCompanyName" name="saleCompanyName">
-              </div>
-              <div class="col-6">
-                <label for="serviceType" class="font-weight-light text-primary">최종고객사</label>
-                <input class="form-control" id="endCompanyName" name="endCompanyName">
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="boardTitle" class="font-weight-light text-primary">계약명</label>
-                <input class="form-control" id="contractName" name="contractName">
-              </div>
-              <div class="col-6">
-                <label for="enddate" class="font-weight-light text-primary">단계</label>
-                <select class="form-control" id="contractStep" name="contractStep">
-                  <option value="전체">전체</option>
-                  <option value="Opportunity">Opportunity</option>
-                  <option value="Firm">Firm</option>
-                  <option value="Drop">Drop</option>
                 </select>
               </div>
             </div>
@@ -192,46 +162,42 @@
               $('#empDeptName').append(option);
           }
 
-          $('#showcontracts').dataTable({
+          $('#showgoals').dataTable({
               "processing": true,
               "ajax": {
                   "processing": true,
                   "type": 'POST',
                   "data": {
-                      "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
-                      "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
-                      "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
+                      "year": {% if year %}"{{ year }}",{% else %}"",{% endif %}
                       "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
                       "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                      "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
-                      "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
-                      "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                   },
-                  "url": "{% url 'sales:contracts_ajax_url' %}",
+                  "url": "{% url 'sales:goals_ajax_url' %}",
                   "dataSrc": ""
               },
               "columns": [
-                  {data: "contractStep"},
+                  {data: "year"},
                   {data: "empDeptName"},
                   {data: "empName"},
-                  {
-                      data: "contractName",
-                      render: function (data, type, row) {return '[' + row["contractCode"] + '] ' + row["contractName"];}
-                  },
-                  {data: "saleCompanyName"},
-                  {data: "contractDate"},
-                  {data: "contractId"},
+                  {data: "q1"},
+                  {data: "q2"},
+                  {data: "q3"},
+                  {data: "q4"},
+                  {data: "yearSum"},
+                  {data: "goalId"},
               ],
               "columnDefs": [
-                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, visible: false}
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, visible: false}
               ],
-              "order": [[5, 'desc']],
+              "order": [[0, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -247,21 +213,20 @@
                       "previous": "이전"
                   },
               },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(5)', nRow).text(replaceAll(aData.contractDate, "-", "."));
-                  if (aData.contractStep == 'Firm'){
-                      $('td:eq(0)', nRow).css('color', '#4e73df');
-                  } else if(aData.contractStep == 'Opportunity'){
-                      $('td:eq(0)', nRow).css('color', '#1cc88a');
-                  }
-              }
+               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(3)', nRow).text(aData.q1.toLocaleString() + '원');
+                  $('td:eq(4)', nRow).text(aData.q2.toLocaleString() + '원');
+                  $('td:eq(5)', nRow).text(aData.q3.toLocaleString() + '원');
+                  $('td:eq(6)', nRow).text(aData.q4.toLocaleString() + '원');
+                  $('td:eq(7)', nRow).text(aData.yearSum.toLocaleString() + '원');
+              },
           });
 
-          var table = $('#showcontracts').DataTable();
+          var table = $('#showgoals').DataTable();
 
-          $("#showcontracts").on("click", 'tr', function () {
+          $("#showgoals").on("click", 'tr', function () {
               const data = table.row(this).data();
-              location.href = '/sales/viewcontract/' + data.contractId + '/'
+              location.href = '/sales/viewgoal/' + data.goalId + '/'
           });
       });
 

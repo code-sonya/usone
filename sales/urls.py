@@ -18,4 +18,9 @@ urlpatterns = [
     url(r'^deletecontract/(?P<contractId>.+)/$', views.delete_contract, name='deletecontract'),
     url(r'^deleterevenue/(?P<contractId>.+)/$', views.delete_revenue, name='deleterevenue'),
     url(r'^postgoal/$', views.post_goal, name='postgoal'),
+    url(r'^showgoals/$', views.show_goals, name='showgoals'),
+    url(r'^goalsjson/$', views.goals_asjson, name='goals_ajax_url'),
+    url(r'^viewgoal/(?P<goalId>.+)/$', views.view_goal, name='viewrgoal'),
+    url(r'^modifygoal/(?P<goalId>.+)/$', views.modify_goal, name='modifygoal'),
+    url(r'^deletegoal/(?P<goalId>.+)/$', views.delete_goal, name='deletegoal'),
 ]

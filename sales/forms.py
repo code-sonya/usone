@@ -51,7 +51,7 @@ class GoalForm(forms.ModelForm):
 
         widgets = {
             'empDeptName': forms.Select(attrs={'class': 'form-control', 'id': 'empDeptName', 'onchange': "changeDeptName(this.value)"}),
-            'empName': forms.TextInput(attrs={'class': 'form-control', 'id': 'empName'}),
+            'empName': forms.Select(attrs={'class': 'form-control', 'id': 'empName'}),
             'year': forms.TextInput(attrs={"type":"number" ,"min":"1900" ,"max":"2099", "step":"1", 'class': 'form-control', 'id': 'year'}),
             'jan': forms.TextInput(attrs={'class': 'form-control', 'id': 'jan'}),
             'feb': forms.TextInput(attrs={'class': 'form-control', 'id': 'feb'}),
@@ -69,4 +69,3 @@ class GoalForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(GoalForm, self).__init__(*args, **kwargs)
-        self.fields["empDeptName"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y')).distinct()

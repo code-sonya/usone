@@ -146,18 +146,33 @@
           }
       }
 
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 16);
+      }
+
 
       $(document).ready(function () {
           {# 영업 부서 - 영업 사원 선택 #}
           var sales_lst = new Array();
-          sales_lst = ['영업1팀', '영업2팀'];
-          $('#empDeptName').append("<option value='선택'>---부서 선택---</option>");
+          var new_str = '{{ salesteam_lst }}'.split('&#39;').join('');
+          new_str = new_str.split('[').join('');
+          new_str = new_str.split(']').join('');
+          sales_lst = new_str.split(',');
+          $('#empDeptName').append("<option value='선택'>-----------------</option>");
           for (var count = 0; count < sales_lst.length; count++) {
               var option = $("<option value=" + sales_lst[count] + ">" + sales_lst[count] + "</option>");
               $('#empDeptName').append(option);
           }
+          $('#empName').append("<option value='선택'>-----------------</option>");
+
           {# 목표 년도 설정 #}
           $('#year').val('{{ today_year }}');
+
+          {# 목표 수정 시 #}
+          $('#empDeptName').val('{{ empDeptName }}');
+          changeDeptName('{{ empDeptName }}');
+          $('#empName').val('{{ empName }}');
 
       })
   </script>
