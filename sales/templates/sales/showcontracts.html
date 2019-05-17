@@ -104,7 +104,7 @@
                 <select class="form-control" id="empName" name="empName">
                   <option value='전체'>전체</option>
                   {% for i in employees %}
-                    <option value="{{ i.pk }}">{{ i.empName }}</option>
+                    <option value="{{ i.empName }}">{{ i.empName }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -125,7 +125,7 @@
                 <input class="form-control" id="contractName" name="contractName">
               </div>
               <div class="col-6">
-                <label for="enddate" class="font-weight-light text-primary">구분</label>
+                <label for="enddate" class="font-weight-light text-primary">단계</label>
                 <select class="form-control" id="contractStep" name="contractStep">
                   <option value="전체">전체</option>
                   <option value="Opportunity">Opportunity</option>
@@ -174,7 +174,7 @@
 
                   $('#' + selectId).append("<option value='전체'>전체</option>");
                   for (var count = 0; count < empName.length; count++) {
-                      var option = $("<option value=" + empName[count].pk + ">" + empName[count].fields.empName + "</option>");
+                      var option = $("<option value=" + empName[count].empName + ">" + empName[count].fields.empName + "</option>");
                       $('#' + selectId).append(option);
                   }
               }

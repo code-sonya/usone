@@ -108,6 +108,7 @@ def view_contract(request, contractId):
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
     context = {
+        'revenueId': '',
         'contract': contract,
         'items': items,
         'revenues': revenues,
@@ -206,7 +207,32 @@ def modify_contract(request, contractId):
 
 @login_required
 def show_revenues(request):
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+
+    if request.method == "POST":
+        startdate = request.POST["startdate"]
+        enddate = request.POST["enddate"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        saleCompanyName = request.POST['saleCompanyName']
+        contractName = request.POST['contractName']
+
+    else:
+        startdate = ''
+        enddate = ''
+        empDeptName = ''
+        empName = ''
+        saleCompanyName = ''
+        contractName = ''
+
     context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
     }
 
     return render(request, 'sales/showrevenues.html', context)
@@ -221,12 +247,12 @@ def view_revenue(request, revenueId):
     revenues = Revenue.objects.filter(contractId=revenue.contractId.contractId)
 
     context = {
-        'revenue': revenue,
+        'revenueId': int(revenueId),
         'contract': contract,
         'items': items,
         'revenues': revenues,
     }
-    return render(request, 'sales/viewrevenue.html', context)
+    return render(request, 'sales/viewcontract.html', context)
 
 
 @login_required
@@ -296,11 +322,11 @@ def contracts_asjson(request):
     if empName != '전체' and empName != '':
         contracts = contracts.filter(empName=empName)
     if saleCompanyName:
-        contracts = contracts.filter(saleCompanyName__in=saleCompanyName)
+        contracts = contracts.filter(saleCompanyName__companyName__icontains=saleCompanyName)
     if endCompanyName:
-        contracts = contracts.filter(endCompanyName__in=endCompanyName)
+        contracts = contracts.filter(endCompanyName__companyName__icontains=endCompanyName)
     if contractName:
-        contracts = contracts.filter(contractName__in=contractName)
+        contracts = contracts.filter(contractName__contains=contractName)
 
     contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName', 'contractDate', 'contractId')
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
@@ -308,8 +334,30 @@ def contracts_asjson(request):
 
 
 @login_required
+@csrf_exempt
 def revenues_asjson(request):
+    startdate = request.POST["startdate"]
+    enddate = request.POST["enddate"]
+    empDeptName = request.POST['empDeptName']
+    empName = request.POST['empName']
+    saleCompanyName = request.POST['saleCompanyName']
+    contractName = request.POST['contractName']
+
     revenues = Revenue.objects.all()
+
+    if startdate:
+        revenues = revenues.filter(billingDate__gte=startdate)
+    if enddate:
+        revenues = revenues.filter(billingDate__lte=enddate)
+    if empDeptName != '전체' and empDeptName != '':
+        revenues = revenues.filter(contractId__empDeptName=empDeptName)
+    if empName != '전체' and empName != '':
+        revenues = revenues.filter(contractId__empName=empName)
+    if saleCompanyName:
+        revenues = revenues.filter(contractId__saleCompanyName__companyName__icontains=saleCompanyName)
+    if contractName:
+        revenues = revenues.filter(contractId__contractName__contains=contractName)
+
     revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName',
                                'revenuePrice', 'revenueProfitPrice', 'contractId__empName', 'contractId__empDeptName', 'revenueId')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)

@@ -156,7 +156,7 @@
               </thead>
               <tbody>
               {% for revenue in revenues %}
-                <tr>
+                <tr {% if revenue.revenueId == revenueId %}style="background-color: #ffffe8"{% endif %}>
                   <td>{{ revenue.billingDate }}</td>
                   <td>{{ revenue.revenuePrice | intcomma }} 원</td>
                   <td>{{ revenue.revenueProfitPrice | intcomma }} 원</td>
