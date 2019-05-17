@@ -283,7 +283,7 @@
                   events: [
                       {% for i in myVacation %}
                           {
-                              title: '[휴가] {{ i.empName }}',
+                              title: '[{{ i.vacationType }}] {{ i.empName }}',
                               start: '{{ i.vacationDate|date:"Y-m-d" }}',
                               end: '{{ i.vacationDate|date:"Y-m-d" }}',
                               service_id: '{{ i.vacationId }}',
@@ -294,7 +294,7 @@
                       {% endfor %}
                       {% for i in teamVacation %}
                           {
-                              title: '[휴가] {{ i.empName }}',
+                              title: '[{{ i.vacationType }}] {{ i.empName }}',
                               start: '{{ i.vacationDate|date:"Y-m-d" }}',
                               end: '{{ i.vacationDate|date:"Y-m-d" }}',
                               service_id: '{{ i.vacationId }}',

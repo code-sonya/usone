@@ -95,6 +95,7 @@ def changeDate(request):
     # 일정인 경우
     if serviceType == "N":
         post = get_object_or_404(Servicereport, serviceId=serviceId)
+        post.serviceDate = str(startDate)[:10]
         post.serviceStartDatetime = str(startDate)[:10] + ' ' + str(post.serviceStartDatetime)[11:]
         post.serviceEndDatetime = str(endDate)[:10] + ' ' + str(post.serviceEndDatetime)[11:]
         post.save()
@@ -102,8 +103,7 @@ def changeDate(request):
     # 휴가인 경우
     else:
         vacation = get_object_or_404(Vacation, vacationId=serviceId)
-        vacation.vacationStartDate = startDate
-        vacation.vacationEndDate = endDate
+        vacation.vacationDate = str(startDate)[:10]
         vacation.save()
 
     context = {'service_id': serviceId}
