@@ -46,7 +46,7 @@
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">누적 매출 금액</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">{% if cumulative_sales_amount %}{{ cumulative_sales_amount|intcomma }}{% else %}0{% endif %}원 /
-                {% if Sales_rate %}{{ Sales_rate }}{{ else }}{% endif %}%(달성률)
+                {% if Sales_rate %}{{ Sales_rate }}{% else %}-{% endif %}%(달성률)
               </div>
             </div>
             <div class="col-auto">
@@ -83,7 +83,7 @@
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-info text-uppercase mb-1">누적 이익 금액</div>
               <div class="h5 b-0 font-weight-bold text-gray-800">{% if cumulative_profit_amount %}{{ cumulative_profit_amount|intcomma }}{% else %}0{% endif %}원 /
-                {% if Profit_rate %}{{ Profit_rate }}{{ else }}{% endif %}%(달성률)
+                {% if Profit_rate %}{{ Profit_rate }}{% else %}-{% endif %}%(달성률)
               </div>
             </div>
             <div class="col-auto">
@@ -105,7 +105,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 목표 매출 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_sales %}{{ quarterly_cumulative_sales|intcomma }}{% else %}0{% endif %}원</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if Target_quatersales %}{{ Target_quatersales|intcomma }}{% else %}0{% endif %}원</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-won-sign fa-2x text-gray-300"></i>
@@ -122,7 +122,9 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 매출 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_sales %}{{ quarterly_cumulative_sales|intcomma }}{% else %}0{% endif %}원</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_sales %}{{ quarterly_cumulative_sales|intcomma }}{% else %}0{% endif %}원/
+                {% if Salesquater_rate %}{{ Salesquater_rate }}{% else %}-{% endif %}%(달성률)
+              </div>
             </div>
             <div class="col-auto">
               <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
@@ -138,7 +140,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 누적 목표 이익 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_sales %}{{ quarterly_sales|intcomma }}{% else %}0{% endif %}원</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if Target_quaterprofit %}{{ Target_quaterprofit|intcomma }}{% else %}0{% endif %}원</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -156,7 +158,9 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 누적 이익 금액</div>
-              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_profit %}{{ quarterly_cumulative_profit|intcomma }}{% else %}0{% endif %}원</div>
+              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_profit %}{{ quarterly_cumulative_profit|intcomma }}{% else %}0{% endif %}원/
+                {% if Profitquater_rate %}{{ Profitquater_rate }}{% else %}-{% endif %}%(달성률)
+              </div>
             </div>
             <div class="col-auto">
               <i class="fas fa-search-dollar fa-2x text-gray-300"></i>
@@ -214,7 +218,7 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-area">
-            <canvas id="todayquarterBarchart"></canvas>
+            <canvas id="todayquarterPiechart"></canvas>
           </div>
         </div>
       </div>
@@ -279,17 +283,50 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">상세 내용</h6>
+          <h6 class="m-0 font-weight-bold text-primary">Firm 상세 내용</h6>
           <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterDatatable">
-              <i class="fas fa-filter fa-fw text-gray-400"></i>
-            </a>
+{#            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterDatatable">#}
+{#              <i class="fas fa-filter fa-fw text-gray-400"></i>#}
+{#            </a>#}
           </div>
         </div>
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
-            <table id="showcontracts" class="hover row-border" width="100%" style="width: 100%;">
+            <table id="showFirms" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>구분</th>
+                <th>영업부서</th>
+                <th>영업담당</th>
+                <th>계약명</th>
+                <th>거래처</th>
+                <th>계약일</th>
+                <th class="d-none">contractId</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-success">Opportunity 상세 내용</h6>
+          <div class="dropdown no-arrow">
+{#            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterDatatable">#}
+{#              <i class="fas fa-filter fa-fw text-gray-400"></i>#}
+{#            </a>#}
+          </div>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showOpportunitys" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
                 <th>구분</th>
@@ -431,6 +468,7 @@
   <script src="/static/hr/js/demo/chart-area-demo.js"></script>
   <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
 
   <script>
       function btn_filter() {
@@ -470,6 +508,14 @@
   </script>
 
   <script>
+
+      const filterArray = new Array();
+      filterArray['quarter'] = '';
+      filterArray['step'] = '';
+      filterArray['team'] = '';
+      filterArray['cumulative'] = '';
+      filterArray['month'] = '';
+
       const colors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
@@ -491,7 +537,6 @@
                   formatter: function (value, context) {
                       return number_format(value);
                   }
-
               }
           },
           layout: {
@@ -552,18 +597,18 @@
                       return '총 ' + number_format(tooltipItem.yLabel);
                   }
               }
-          },
+          }
       };
-      // Bar Chart 1
-      const ctx1 = document.getElementById("todayquarterBarchart");
-      const todayquarterBarchart = new Chart(ctx1, {
+      // Pie Chart 1
+      const ctx1 = document.getElementById("todayquarterPiechart");
+      const todayquarterPiechart = new Chart(ctx1, {
           type: 'pie',
           data: {
               labels: ["opportunity", 'Firm'],
               datasets: [{
                   data: {{ quarter_opp_Firm }},
-                  backgroundColor: ['#e74a3b', '#858796'],
-                  hoverBackgroundColor: ['#e74a3b', '#858796'],
+                  backgroundColor: ['#1cc88a', '#4e73df'],
+                  hoverBackgroundColor: ['#1cc88a', '#4e73df'],
                   hoverBorderColor: "rgba(234, 236, 244, 1)",
               }],
           },
@@ -581,16 +626,46 @@
                           dataArr.map(data => {
                               sum += data;
                           });
-                          let percentage = (value * 100 / sum).toFixed(2) + "%";
-                          return percentage;
+                          let dataSum = number_format(value) + "";
+                          return dataSum;
 
 
                       },
                       color: '#fff',
+                  },
+                  outlabels: {
+                      text: '%l %p',
+                      color: 'white',
+                      stretch: 45,
+                      font: {
+                          resizable: true,
+                          minSize: 12,
+                          maxSize: 18
+                      }
                   }
               }
           },
       });
+
+      $("#todayquarterPiechart").click(
+          function (evt) {
+              const activeElement =  todayquarterPiechart.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const stepLabel = todayquarterPiechart.data.labels[idx];
+              filterArray['quarter'] = '{{ quarter }}분기';
+              filterArray['step'] = stepLabel;
+              filterArray['cumulative'] = 'N';
+              filterArray['team'] = "";
+              filterArray['month'] = "";
+              console.log(filterArray);
+              if(stepLabel=="Firm"){
+                  pushFirmData();
+              }else{
+                  pushOppData();
+              }
+          }
+      );
+
       // Bar Chart 2
       const ctx2 = document.getElementById("todayquarterCumulativechart");
       const todayquarterCumulativechart = new Chart(ctx2, {
@@ -611,6 +686,23 @@
           },
           options: options
       });
+
+      $("#todayquarterCumulativechart").click(
+          function (evt) {
+              const activeElement =  todayquarterCumulativechart.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const stepLabel = todayquarterCumulativechart.data.labels[idx];
+              filterArray['quarter'] = '{{ quarter }}분기';
+              filterArray['cumulative'] = 'Y';
+              filterArray['step'] = "";
+              filterArray['team'] = "";
+              filterArray['month'] = "";
+              console.log(filterArray);
+              pushFirmData();
+              pushOppData();
+          }
+      );
+
       // Bar Chart 3
       const ctx3 = document.getElementById("quarterBarchart");
       const quarterBarchart = new Chart(ctx3, {
@@ -639,6 +731,27 @@
           },
           options: options
       });
+
+      $("#quarterBarchart").click(
+          function (evt) {
+              const activeElement =  quarterBarchart.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const datasetIndex = activeElement[0]._datasetIndex;
+              const quarterLabel = quarterBarchart.data.labels[idx];
+              const stepLabel = quarterBarchart.data.datasets[datasetIndex].label;
+              filterArray['step'] = stepLabel;
+              filterArray['team'] = "";
+              filterArray['quarter'] = quarterLabel;
+              filterArray['cumulative'] = 'N';
+              filterArray['month'] = "";
+              console.log(filterArray);
+              if(stepLabel=="Firm"){
+                  pushFirmData();
+              }else{
+                  pushOppData();
+              }
+          }
+      );
 
       const team1 = new Array();
       const team2 = new Array();
@@ -678,29 +791,32 @@
           },
           options: options
       });
+
+      $("#contractMonthlychart").click(
+          function (evt) {
+              const activeElement =  contractMonthlychart.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const datasetIndex = activeElement[0]._datasetIndex;
+              console.log(datasetIndex);
+              const monthLabel = contractMonthlychart.data.labels[idx];
+              const teamLabel = contractMonthlychart.data.datasets[datasetIndex].label;
+              filterArray['month'] = monthLabel;
+              filterArray['team'] = teamLabel;
+              filterArray['quarter'] = "";
+              filterArray['cumulative'] = "";
+              filterArray['step'] = "";
+              console.log(filterArray);
+              pushOppData();
+              pushFirmData();
+          }
+      );
   </script>
 
   <script>
       $(document).ready(function () {
 
-          $('#showcontracts').dataTable({
+          $('#showFirms').dataTable({
               "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
-                      "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
-                      "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
-                      "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
-                      "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                      "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
-                      "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
-                      "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
-                  },
-                  "url": "{% url 'sales:contracts_ajax_url' %}",
-                  "dataSrc": ""
-              },
               "columns": [
                   {data: "contractStep"},
                   {data: "empDeptName"},
@@ -745,13 +861,104 @@
               }
           });
 
-          var table = $('#showcontracts').DataTable();
+          var table = $('#showFirms').DataTable();
 
-          $("#showcontracts").on("click", 'tr', function () {
+          $("#showFirms").on("click", 'tr', function () {
               const data = table.row(this).data();
               location.href = '/sales/viewcontract/' + data.contractId + '/'
           });
 
+          $('#showOpportunitys').dataTable({
+              "processing": true,
+              "columns": [
+                  {data: "contractStep"},
+                  {data: "empDeptName"},
+                  {data: "empName"},
+                  {data: "contractName"},
+                  {data: "saleCompanyName"},
+                  {data: "contractDate"},
+                  {data: "contractId"},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, visible: false}
+              ],
+              "order": [[5, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(5)', nRow).text(replaceAll(aData.contractDate, "-", "."));
+                  if (aData.contractStep == 'Firm') {
+                      $('td:eq(0)', nRow).css('color', '#4e73df');
+                  } else if (aData.contractStep == 'Opportunity') {
+                      $('td:eq(0)', nRow).css('color', '#1cc88a');
+                  }
+              }
+          });
+
+          var table = $('#showOpportunitys').DataTable();
+
+          $("#showOpportunitys").on("click", 'tr', function () {
+              const data = table.row(this).data();
+              location.href = '/sales/viewcontract/' + data.contractId + '/'
+          });
+
+
       });
+
+      function pushOppData() {
+          $('#showOpportunitys').dataTable({
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      "step": filterArray['step'],
+                      "team": filterArray['team'],
+                      "cumulative": filterArray['cumulative'],
+                      "quarter": filterArray['quarter'],
+                      "month" :filterArray['month'],
+
+                  },
+                  "url": "{% url 'dashboard:quarter_opp_ajax_url' %}",
+                  "dataSrc": ""
+              },
+          });
+
+      }
+      function pushFirmData(){
+           $('#showFirms').dataTable({
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      "step": filterArray['step'],
+                      "team": filterArray['team'],
+                      "cumulative": filterArray['cumulative'],
+                      "quarter": filterArray['quarter'],
+                      "month" :filterArray['month'],
+                  },
+                  "url": "{% url 'dashboard:quarter_opp_ajax_url' %}",
+                  "dataSrc": ""
+              },
+          });
+      }
   </script>
 {% endblock %}
