@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from service.models import Servicereport
-from sales.models import Contract, Category, Contractitem, Revenue
+from sales.models import Contract, Category, Contractitem, Revenue, Goal
 from hr.models import Employee
 from django.db.models import functions
 
@@ -232,9 +232,31 @@ def dashboard_quarter(request):
         revenues_quarter = revenues.filter(Q(billingDate__gte=dict_quarter['q3_end']) & Q(billingDate__lt=dict_quarter['q4_end']))
 
     ###목표매출금액 & 이익 금액
-    ## 목표테이블 생성후 수정 필요
-    Target_sales = 30000000000
-    Target_profit = 4500000000
+    goal = Goal.objects.filter(year=today_year)
+    Target_sales = goal.aggregate(sum=Sum('yearSalesSum'))
+    Target_profit = goal.aggregate(sum=Sum('yearProfitSum'))
+    Target_sales = Target_sales['sum']
+    Target_profit = Target_profit['sum']
+    Target_salesq1 = goal.aggregate(sum=Sum('salesq1'))
+    Target_profitq1 = goal.aggregate(sum=Sum('profitq1'))
+    Target_salesq2 = goal.aggregate(sum=Sum('salesq2'))
+    Target_profitq2 = goal.aggregate(sum=Sum('profitq2'))
+    Target_salesq3 = goal.aggregate(sum=Sum('salesq3'))
+    Target_profitq3 = goal.aggregate(sum=Sum('profitq3'))
+    if quarter==1:
+        Target_quatersales = Target_salesq1['sum']
+        Target_quaterprofit = Target_profitq1['sum']
+    elif quarter==2:
+        Target_quatersales = Target_salesq1['sum']+Target_salesq2['sum']
+        Target_quaterprofit = Target_profitq1['sum']+Target_profitq2['sum']
+    elif quarter==3:
+        Target_quatersales = Target_salesq1['sum']+Target_salesq2['sum']+Target_salesq3['sum']
+        Target_quaterprofit = Target_profitq1['sum']+Target_profitq2['sum']+Target_profitq3['sum']
+    elif quarter==4:
+        Target_quatersales = Target_sales
+        Target_quaterprofit = Target_profit
+
+
 
     ###누적매출금액 & 이익 금액
     cumulative_sales_amount = total_sales.aggregate(cumulative_sales_amount = Sum('revenuePrice'))
@@ -289,7 +311,6 @@ def dashboard_quarter(request):
 
     quarter_opp_Firm = [quarter_opp[quarter-1],quarter_firm[quarter-1]]
 
-    ### 연간 목표 금액
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -315,8 +336,12 @@ def dashboard_quarter(request):
         "quarter" : quarter,
         "Target_sales" : Target_sales,
         "Target_profit": Target_profit,
+        "Target_quatersales":Target_quatersales,
+        "Target_quaterprofit":Target_quaterprofit,
         "Sales_rate": round(cumulative_sales_amount['cumulative_sales_amount']/Target_sales*100,2),
         "Profit_rate": round(cumulative_profit_amount['cumulative_profit_amount']/Target_profit*100,2),
+        "Salesquater_rate": round(quarterly_cumulative_sales['quarterly_cumulative_sales'] / Target_quatersales * 100, 2),
+        "Profitquater_rate": round(quarterly_cumulative_profit['quarterly_cumulative_profit'] / Target_quaterprofit * 100, 2),
         "cumulative_sales_amount" :cumulative_sales_amount['cumulative_sales_amount'],
         "cumulative_profit_amount":cumulative_profit_amount['cumulative_profit_amount'],
         "quarterly_cumulative_sales":quarterly_cumulative_sales['quarterly_cumulative_sales'],
@@ -444,5 +469,49 @@ def opportunity_asjson(request):
     json = serializers.serialize('json', contract)
 
     return HttpResponse(json, content_type='application/json')
+
+def quarter_opp_asjson(request):
+    step = request.POST['step']
+    team = request.POST['team']
+    month = request.POST['month']
+    cumulative = request.POST['cumulative']
+    quarter = request.POST['quarter']
+
+    dataStep = Contract.objects.all()
+    dataCategory = Contractitem.objects.all()
+
+    if quarter:
+        pass
+        if cumulative == 'Y':
+            pass
+        elif cumulative == 'N':
+            pass
+
+    if step:
+        dataStep = dataStep.filter(contractStep=step)
+        dataCategory = dataCategory.filter(contractId__contractStep=step)
+
+    if team:
+        pass
+
+    if month:
+        pass
+
+    Step = dataStep.values('contractStep').annotate(sum_price=Sum('salePrice'))
+    Category_main = dataCategory.values('mainCategory').annotate(sum_main=Sum('itemPrice'))
+    Category_sub = dataCategory.values('subCategory').annotate(sum_sub=Sum('itemPrice'))
+    Emp = dataStep.values('empDeptName').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
+    Company = dataStep.values('endCompanyName').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
+
+    dataStep = list(Step)
+    dataStep.extend(list(Category_main))
+    dataStep.extend(list(Category_sub))
+    dataStep.extend(list(Emp))
+    dataStep.extend(list(Company))
+
+    structureStep = json.dumps(dataStep, cls=DjangoJSONEncoder)
+
+    return HttpResponse(structureStep, content_type='application/json')
+
 
 
