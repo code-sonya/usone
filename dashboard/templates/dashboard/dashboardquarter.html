@@ -9,7 +9,7 @@
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <span>
-    <h1 class="h3 mb-0 text-gray-800">분기별 영업 실적</h1>
+    <h1 class="h3 mb-0 text-gray-800">연간 예상 영업 실적(Firm기준)</h1>
 {#    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate}}~{{ enddate }} )</h6>#}
     </span>
     <span>
@@ -104,7 +104,7 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 매출 금액</div>
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 목표 매출 금액</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_sales %}{{ quarterly_cumulative_sales|intcomma }}{% else %}0{% endif %}원</div>
             </div>
             <div class="col-auto">
@@ -121,8 +121,8 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 이익 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_profit %}{{ quarterly_cumulative_profit|intcomma }}{% else %}0{% endif %}원</div>
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 매출 금액</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_sales %}{{ quarterly_cumulative_sales|intcomma }}{% else %}0{% endif %}원</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
@@ -131,14 +131,13 @@
         </div>
       </div>
     </div>
-
     <!-- Earnings (Monthly) Card Example -->
     <div class="col-xl-3 col-md-6 mb-4">
       <div class="card border-left-success shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 매출 금액</div>
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 누적 목표 이익 금액</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_sales %}{{ quarterly_sales|intcomma }}{% else %}0{% endif %}원</div>
             </div>
             <div class="col-auto">
@@ -156,8 +155,8 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 이익 금액</div>
-              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarterly_profit %}{{ quarterly_profit|intcomma }}{% else %}0{% endif %}원</div>
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 누적 이익 금액</div>
+              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_profit %}{{ quarterly_cumulative_profit|intcomma }}{% else %}0{% endif %}원</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-search-dollar fa-2x text-gray-300"></i>
@@ -166,6 +165,41 @@
         </div>
       </div>
     </div>
+    {#    <!-- Earnings (Monthly) Card Example -->#}
+    {#    <div class="col-xl-3 col-md-6 mb-4">#}
+    {#      <div class="card border-left-success shadow h-100 py-2">#}
+    {#        <div class="card-body">#}
+    {#          <div class="row no-gutters align-items-center">#}
+    {#            <div class="col mr-2">#}
+    {#              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 매출 금액</div>#}
+    {#              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_sales %}{{ quarterly_sales|intcomma }}{% else %}0{% endif %}원</div>#}
+    {#            </div>#}
+    {#            <div class="col-auto">#}
+    {#              <i class="fas fa-coins fa-2x text-gray-300"></i>#}
+    {#            </div>#}
+    {#          </div>#}
+    {#        </div>#}
+    {#      </div>#}
+    {#    </div>#}
+    {##}
+    {##}
+    {#    <!-- Pending Requests Card Example -->#}
+    {#    <div class="col-xl-3 col-md-6 mb-4">#}
+    {#      <div class="card border-left-success shadow h-100 py-2">#}
+    {#        <div class="card-body">#}
+    {#          <div class="row no-gutters align-items-center">#}
+    {#            <div class="col mr-2">#}
+    {#              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 이익 금액</div>#}
+    {#              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarterly_profit %}{{ quarterly_profit|intcomma }}{% else %}0{% endif %}원</div>#}
+    {#            </div>#}
+    {#            <div class="col-auto">#}
+    {#              <i class="fas fa-search-dollar fa-2x text-gray-300"></i>#}
+    {#            </div>#}
+    {#          </div>#}
+    {#        </div>#}
+    {#      </div>#}
+    {#    </div>#}
+
   </div>
 
   <!-- Content Row -->

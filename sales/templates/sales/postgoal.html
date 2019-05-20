@@ -27,57 +27,93 @@
             {% csrf_token %}
             <div class="form-group row">
               <div class="col-4">
-                <label for="year" class="font-weight-bold text-primary"> 목표 년도 </label> {{ form.year }}
+                <label for="year" class="font-weight-bold text-dark"> 목표 년도 </label> {{ form.year }}
               </div>
               <div class="col-4">
-                <label for="empDeptName" class="font-weight-bold text-primary"> 부서 명 </label> {{ form.empDeptName }}
+                <label for="empDeptName" class="font-weight-bold text-dark"> 부서 명 </label> {{ form.empDeptName }}
               </div>
               <div class="col-4">
-                <label for="empName" class="font-weight-bold text-primary"> 영업 담당자 </label> {{ form.empName }}
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-4">
-                <label for="jan" class="font-weight-bold text-primary"> 1월 </label> {{ form.jan }}
-              </div>
-              <div class="col-4">
-                <label for="feb" class="font-weight-bold text-primary"> 2월 </label> {{ form.feb }}
-              </div>
-              <div class="col-4">
-                <label for="mar" class="font-weight-bold text-primary"> 3월 </label> {{ form.mar }}
+                <label for="empName" class="font-weight-bold text-dark"> 영업 담당자 </label> {{ form.empName }}
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-4">
-                <label for="apr" class="font-weight-bold text-primary"> 4월 </label> {{ form.apr }}
+              <div class="col-2">
+                <label for="sales1" class="font-weight-bold text-primary"> 1월 목표 매출 </label> {{ form.sales1 }}
               </div>
-              <div class="col-4">
-                <label for="may" class="font-weight-bold text-primary"> 5월 </label> {{ form.may }}
+              <div class="col-2">
+                <label for="profit1" class="font-weight-bold text-success"> 1월 목표 이익 </label> {{ form.profit1 }}
               </div>
-              <div class="col-4">
-                <label for="jun" class="font-weight-bold text-primary"> 6월 </label> {{ form.jun }}
+              <div class="col-2">
+                <label for="sales2" class="font-weight-bold text-primary"> 2월 목표 매출 </label> {{ form.sales2 }}
               </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-4">
-                <label for="jul" class="font-weight-bold text-primary"> 7월 </label> {{ form.jul }}
+               <div class="col-2">
+                <label for="profit2" class="font-weight-bold text-success"> 2월 목표 이익 </label> {{ form.profit2 }}
               </div>
-              <div class="col-4">
-                <label for="aug" class="font-weight-bold text-primary"> 8월 </label> {{ form.aug }}
+             <div class="col-2">
+                <label for="sales3" class="font-weight-bold text-primary"> 3월 목표 매출 </label> {{ form.sales3 }}
               </div>
-              <div class="col-4">
-                <label for="sep" class="font-weight-bold text-primary"> 9월 </label> {{ form.sep }}
+               <div class="col-2">
+                <label for="profit3" class="font-weight-bold text-success"> 3월 목표 이익 </label> {{ form.profit3 }}
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-4">
-                <label for="oct" class="font-weight-bold text-primary"> 10월 </label> {{ form.oct }}
+              <div class="col-2">
+                <label for="sales4" class="font-weight-bold text-primary"> 4월 목표 매출 </label> {{ form.sales4 }}
               </div>
-              <div class="col-4">
-                <label for="nov" class="font-weight-bold text-primary"> 11월 </label> {{ form.nov }}
+               <div class="col-2">
+                <label for="profit4" class="font-weight-bold text-success"> 4월 목표 이익 </label> {{ form.profit4 }}
               </div>
-              <div class="col-4">
-                <label for="dec" class="font-weight-bold text-primary"> 12월 </label> {{ form.dec }}
+              <div class="col-2">
+                <label for="sales5" class="font-weight-bold text-primary"> 5월 목표 매출 </label> {{ form.sales5 }}
+              </div>
+               <div class="col-2">
+                <label for="profit5" class="font-weight-bold text-success"> 5월 목표 이익 </label> {{ form.profit5 }}
+              </div>
+              <div class="col-2">
+                <label for="sales6" class="font-weight-bold text-primary"> 6월 목표 매출 </label> {{ form.sales6 }}
+              </div>
+               <div class="col-2">
+                <label for="profit6" class="font-weight-bold text-success"> 6월 목표 이익 </label> {{ form.profit6 }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-2">
+                <label for="sales7" class="font-weight-bold text-primary"> 7월 목표 매출 </label> {{ form.sales7 }}
+              </div>
+               <div class="col-2">
+                <label for="profit7" class="font-weight-bold text-success"> 7월 목표 이익 </label> {{ form.profit7 }}
+              </div>
+              <div class="col-2">
+                <label for="sales8" class="font-weight-bold text-primary"> 8월 목표 매출 </label> {{ form.sales8 }}
+              </div>
+               <div class="col-2">
+                <label for="profit8" class="font-weight-bold text-success"> 8월 목표 이익 </label> {{ form.profit8 }}
+              </div>
+              <div class="col-2">
+                <label for="sales9" class="font-weight-bold text-primary"> 9월 목표 매출 </label> {{ form.sales9 }}
+              </div>
+               <div class="col-2">
+                <label for="profit9" class="font-weight-bold text-success"> 9월 목표 이익 </label> {{ form.profit9 }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-2">
+                <label for="sales10" class="font-weight-bold text-primary"> 10월 목표 매출 </label> {{ form.sales10 }}
+              </div>
+               <div class="col-2">
+                <label for="profit10" class="font-weight-bold text-success"> 10월 목표 이익 </label> {{ form.profit10 }}
+              </div>
+             <div class="col-2">
+                <label for="sales11" class="font-weight-bold text-primary"> 11월 목표 매출 </label> {{ form.sales11 }}
+              </div>
+               <div class="col-2">
+                <label for="profit11" class="font-weight-bold text-success"> 11월 목표 이익 </label> {{ form.profit11 }}
+              </div>
+              <div class="col-2">
+                <label for="sales12" class="font-weight-bold text-primary"> 12월 목표 매출 </label> {{ form.sales12 }}
+              </div>
+               <div class="col-2">
+                <label for="profit12" class="font-weight-bold text-success"> 12월 목표 이익 </label> {{ form.profit12 }}
               </div>
             </div>
 

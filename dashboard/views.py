@@ -289,6 +289,8 @@ def dashboard_quarter(request):
 
     quarter_opp_Firm = [quarter_opp[quarter-1],quarter_firm[quarter-1]]
 
+    ### 연간 목표 금액
+
     if request.method == "POST":
         startdate = request.POST["startdate"]
         enddate = request.POST["enddate"]

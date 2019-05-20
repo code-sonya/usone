@@ -41,30 +41,39 @@ class ContractForm(forms.ModelForm):
 
 class GoalForm(forms.ModelForm):
 
-    # empDeptName = forms.CharField(widget=forms.Select(attrs={'class': 'form-control', 'id': 'empDeptName', 'onchange': "changeDeptName(this.value)"}))
-    # empName = forms.CharField(widget=forms.Select(attrs={'class': 'form-control', 'id': 'empName'}))
-
     class Meta:
         model = Goal
-        fields = ('empDeptName','empName', 'year', 'jan', 'feb', 'mar', 'apr', 'may', 'jun',
-                  'jul', 'aug', 'sep', 'oct', 'nov', 'dec')
+        fields = ('empDeptName','empName', 'year', 'sales1', 'sales2', 'sales3', 'sales4', 'sales5', 'sales6', 'sales7', 'sales8', 'sales9', 'sales10', 'sales11', 'sales12',
+                  'profit1', 'profit2', 'profit3', 'profit4', 'profit5', 'profit6', 'profit7', 'profit8', 'profit9', 'profit10', 'profit11', 'profit12')
 
         widgets = {
             'empDeptName': forms.Select(attrs={'class': 'form-control', 'id': 'empDeptName', 'onchange': "changeDeptName(this.value)"}),
             'empName': forms.Select(attrs={'class': 'form-control', 'id': 'empName'}),
             'year': forms.TextInput(attrs={"type":"number" ,"min":"1900" ,"max":"2099", "step":"1", 'class': 'form-control', 'id': 'year'}),
-            'jan': forms.TextInput(attrs={'class': 'form-control', 'id': 'jan'}),
-            'feb': forms.TextInput(attrs={'class': 'form-control', 'id': 'feb'}),
-            'mar': forms.TextInput(attrs={'class': 'form-control', 'id': 'mar'}),
-            'apr': forms.TextInput(attrs={'class': 'form-control', 'id': 'apr'}),
-            'may': forms.TextInput(attrs={'class': 'form-control', 'id': 'may'}),
-            'jun': forms.TextInput(attrs={'class': 'form-control', 'id': 'jun'}),
-            'jul': forms.TextInput(attrs={'class': 'form-control', 'id': 'jul'}),
-            'aug': forms.TextInput(attrs={'class': 'form-control', 'id': 'aug'}),
-            'sep': forms.TextInput(attrs={'class': 'form-control', 'id': 'sep'}),
-            'oct': forms.TextInput(attrs={'class': 'form-control', 'id': 'oct'}),
-            'nov': forms.TextInput(attrs={'class': 'form-control', 'id': 'nov'}),
-            'dec': forms.TextInput(attrs={'class': 'form-control', 'id': 'dec'}),
+            'sales1': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales1'}),
+            'sales2': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales2'}),
+            'sales3': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales3'}),
+            'sales4': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales4'}),
+            'sales5': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales5'}),
+            'sales6': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales6'}),
+            'sales7': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales7'}),
+            'sales8': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales8'}),
+            'sales9': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales9'}),
+            'sales10': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales10'}),
+            'sales11': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales11'}),
+            'sales12': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales12'}),
+            'profit1': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit1'}),
+            'profit2': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit2'}),
+            'profit3': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit3'}),
+            'profit4': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit4'}),
+            'profit5': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit5'}),
+            'profit6': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit6'}),
+            'profit7': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit7'}),
+            'profit8': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit8'}),
+            'profit9': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit9'}),
+            'profit10': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit10'}),
+            'profit11': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit11'}),
+            'profit12': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profit12'}),
         }
 
     def __init__(self, *args, **kwargs):
