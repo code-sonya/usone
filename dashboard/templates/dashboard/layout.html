@@ -381,6 +381,15 @@
     }(jQuery));
     $('.money').simpleMoneyFormat();
 
+    function moneyChange() {
+        var money = $('.money');
+        for (var count=0; count < money.length; count++) {
+            console.log(money[count].id);
+            console.log(money[count].value);
+            $('#' + money[count].id).val(money[count].value.replace(/,/g, ''));
+        }
+    }
+
 </script>
 </body>
 

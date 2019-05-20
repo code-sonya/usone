@@ -176,7 +176,9 @@
       }
 
       function btn_save() {
+          moneyChange();
           const GoalForm = document.getElementById("GoalForm");
+
           if (confirm("저장 하시겠습니까?") === true) {
               GoalForm.submit();
           }
