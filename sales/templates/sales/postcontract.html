@@ -227,11 +227,11 @@
               sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val().replace(/,/g, ''));
           }
 
-          if (sumItemPrice != $('#salePrice').val().replace(/,/g, '')) {
-              alert("계약금액과 세부사항 가격의 합이 일치하지 않습니다.");
-              return false;
-          }
           if ($('#contractStep').val() === 'Firm') {
+              if (sumItemPrice != $('#salePrice').val().replace(/,/g, '')) {
+                  alert("계약금액과 세부사항 가격의 합이 일치하지 않습니다.");
+                  return false;
+              }
               if (sumRevenuePrice != $('#salePrice').val().replace(/,/g, '')) {
                   alert("계약금액과 매출금액의 합이 일치하지 않습니다.");
                   return false;
@@ -389,8 +389,6 @@
                   itemCounter++;
                   $('.money').simpleMoneyFormat();
               {% endfor %}
-          {% else %}
-              $('#addItem').click();
           {% endif %}
 
           $('#categoryItem').on('click', 'i', function () {
@@ -477,9 +475,11 @@
                   $('#Firm').removeClass('d-none');
                   $('#contractStartDate').removeAttr('readonly');
                   $('#contractEndDate').removeAttr('readonly');
+                  t1.clear().draw();
                   t2.clear().draw();
                   revenueCounter = 0;
                   $('#addRevenue').click();
+                  $('#addItem').click();
                   $('span[name=predict]').addClass('d-none');
               } else {
                   $('#Firm').addClass('d-none');
@@ -487,6 +487,7 @@
                   $('#contractStartDate').attr('readonly', '');
                   $('#contractEndDate').val('');
                   $('#contractEndDate').attr('readonly', '');
+                  t1.clear().draw();
                   t2.clear().draw();
                   $('span[name=predict]').removeClass('d-none');
               }

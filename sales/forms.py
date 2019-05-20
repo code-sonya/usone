@@ -34,7 +34,7 @@ class ContractForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ContractForm, self).__init__(*args, **kwargs)
-        self.fields["empId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
+        self.fields["empId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업'))
         self.fields["saleCompanyName"].queryset = Company.objects.all().order_by('companyName')
         self.fields["endCompanyName"].queryset = Company.objects.all().order_by('companyName')
 
