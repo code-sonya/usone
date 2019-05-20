@@ -5,7 +5,7 @@ from client.models import Company, Customer
 
 
 class Contract(models.Model):
-    saleTypeChoices = (('직판', '직판'), ('T1', 'T1'), ('T2', 'T2'))
+    saleTypeChoices = (('직판', '직판'), ('T1', 'T1'), ('T2', 'T2'), ('기타', '기타'))
     saleIndustryChoices = (('금융', '금융'), ('공공', '공공'), ('제조', '제조'), ('통신', '통신'), ('기타', '기타'))
     contractStepChoices = (('Opportunity', 'Opportunity'), ('Firm', 'Firm'), ('Drop', 'Drop'))
 
