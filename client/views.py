@@ -106,7 +106,7 @@ def post_client(request):
     if request.method == "POST":
         form = CompanyForm(request.POST)
         post = form.save(commit=False)
-        post.companyStatus = 'X'
+        post.companyStatus = 'Y'
         post.save()
         return redirect('client:show_clientlist')
 
