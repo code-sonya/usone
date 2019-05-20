@@ -95,7 +95,9 @@
                   <label for="predictSalePrice" class="font-weight-bold text-primary"> 참고사항 </label> {{ form.comment }}
                 </div>
               </div>
+            </div>
 
+            <div id="Firm" class="d-none">
               <hr class="divider">
               <div class="form-group row">
                 <div class="col-xl-12">
@@ -114,9 +116,7 @@
                   </table>
                 </div>
               </div>
-            </div>
 
-            <div id="Firm" class="d-none">
               <hr class="divider">
               <div class="form-group row">
                 <div class="col-xl-12">
@@ -257,6 +257,7 @@
               success: function (returnData) {
                   var salecompany = returnData;
                   $('#' + selectId).empty();
+                  $('#' + selectId).append('<option value="" selected="">---------</option>');
 
                   for (var count = 0; count < salecompany.length; count++) {
                       var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
@@ -489,6 +490,10 @@
                   t2.clear().draw();
                   $('span[name=predict]').removeClass('d-none');
               }
+          });
+
+          $('#contractStartDate').on("propertychange change keyup paste input", function () {
+              $('#contractEndDate').val($('#contractStartDate').val())
           });
       })
   </script>

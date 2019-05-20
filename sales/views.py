@@ -334,7 +334,7 @@ def contracts_asjson(request):
     if contractName:
         contracts = contracts.filter(contractName__contains=contractName)
 
-    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName', 'contractDate', 'contractId')
+    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName', 'contractDate', 'contractId', 'salePrice', 'profitPrice')
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 

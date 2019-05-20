@@ -229,6 +229,42 @@
         </div>
         <!--card body end -->
       </div>
+
+      <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 h3 text-gray-800"> 계약 이력 </h6>
+          </div>
+          <div class="card-body">
+            <table id="showcontracts" class="table mb-0" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>단계</th>
+                <th>영업부서</th>
+                <th>영업담당</th>
+                <th>계약명</th>
+                <th>거래처</th>
+                <th>매출금액</th>
+                <th>이익금액</th>
+                <th>계약일</th>
+                <th class="d-none">contractId</th>
+              </tr>
+              </thead>
+              <tfoot>
+                <tr>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;">TOTAL : </th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+
       <div class="card shadow mb-4">
         <!-- 카드 제목 : 게시물 제목 -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -275,6 +311,31 @@
 {% block script %}
 
   <script type="text/javascript">
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 10);
+      }
+
+      function db_comment() {
+          $('#dbcommentSave').css("display", "inline");
+          $('#dbtextArea').css("display", "inline");
+          $('#dbcomment').css("display", "none");
+      }
+
+      function sol_comment() {
+          $('#solcommentSave').css("display", "inline");
+          $('#soltextArea').css("display", "inline");
+          $('#solcomment').css("display", "none");
+      }
+
+      function dbcommentSubmit() {
+          $("#dbsaveComment").submit();
+      }
+
+      function solcommentSubmit() {
+          $("#solsaveComment").submit();
+      }
+
       $(document).ready(function () {
           $('#showclients').dataTable({
               "processing": true,
@@ -345,31 +406,100 @@
               location.href = '/service/viewservice/' + data.pk + '/'
           });
 
+          $('#showcontracts').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      "startdate": "",
+                      "enddate": "",
+                      "contractStep": "",
+                      "empDeptName": "",
+                      "empName": "",
+                      "saleCompanyName": "{{ company.companyName }}",
+                      "endCompanyName": "{{ company.companyName }}",
+                      "contractName": "",
+                  },
+                  "url": "{% url 'sales:contracts_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'contractStep'},
+                  {data: 'empDeptName'},
+                  {data: 'empName'},
+                  {
+                      data: 'contractName',
+                      render: function (data, type, row) {return '[' + row["contractCode"] + '] ' + row["contractName"];}
+                  },
+                  {data: 'saleCompanyName'},
+                  {data: 'salePrice'},
+                  {data: 'profitPrice'},
+                  {data: 'contractDate'},
+                  {data: 'contractId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 1, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 2, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 3, width: "39%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 8, visible: false}
+              ],
+              "order": [[7, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(5)', nRow).text(aData.salePrice.toLocaleString() + '원');
+                  $('td:eq(6)', nRow).text(aData.profitPrice.toLocaleString() + '원');
+                  $('td:eq(7)', nRow).text(replaceAll(aData.contractDate, "-", "."));
+                  if (aData.contractStep == 'Firm'){
+                      $('td:eq(0)', nRow).css('color', '#4e73df');
+                  } else if(aData.contractStep == 'Opportunity'){
+                      $('td:eq(0)', nRow).css('color', '#1cc88a');
+                  }
+              },
+              "footerCallback":function(){
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(5, {search:'applied'}).data().each(function(data,index){
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(revenueResult.toLocaleString() +'원');
+
+                  var profitResult = 0;
+                  api.column(6, {search:'applied'}).data().each(function(data,index){
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(profitResult.toLocaleString() +'원');
+              },
+          });
+
+          const contractstable = $('#showcontracts').DataTable();
+
+          $("#showcontracts").on("click", 'tr', function () {
+              const data = contractstable.row(this).data();
+              location.href = '/sales/viewcontract/' + data.contractId + '/'
+          });
 
       });
-
-
-      function db_comment() {
-          $('#dbcommentSave').css("display", "inline");
-          $('#dbtextArea').css("display", "inline");
-          $('#dbcomment').css("display", "none");
-      }
-
-      function sol_comment() {
-          $('#solcommentSave').css("display", "inline");
-          $('#soltextArea').css("display", "inline");
-          $('#solcomment').css("display", "none");
-      }
-
-      function dbcommentSubmit() {
-          $("#dbsaveComment").submit();
-      }
-
-
-      function solcommentSubmit() {
-          $("#solsaveComment").submit();
-      }
-
 
   </script>
 
