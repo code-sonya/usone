@@ -453,7 +453,7 @@ def goals_asjson(request):
     if empName:
         goal = goal.filter(empName=empName)
 
-    goal = goal.values('year', 'empDeptName', 'empName', 'q1', 'q2', 'q3', 'q4', 'yearSum', 'goalId')
+    goal = goal.values('year', 'empDeptName', 'empName', 'salesq1', 'salesq2', 'salesq3', 'salesq4', 'yearSalesSum', 'goalId')
     structure = json.dumps(list(goal), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -482,11 +482,16 @@ def modify_goal(request, goalId):
             post = form.save(commit=False)
             if request.POST["empName"] != '전체':
                 post.empName = Employee.objects.filter(pk=request.POST["empName"]).first().empName
-            post.q1 = post.jan + post.feb + post.mar
-            post.q2 = post.apr + post.may + post.jun
-            post.q3 = post.jul + post.aug + post.sep
-            post.q4 = post.oct + post.nov + post.dec
-            post.yearSum = post.q1 + post.q2 + post.q3 + post.q4
+            post.salesq1 = post.sales1 + post.sales2 + post.sales3
+            post.salesq2 = post.sales4 + post.sales5 + post.sales6
+            post.salesq3 = post.sales7 + post.sales8 + post.sales9
+            post.salesq4 = post.sales10 + post.sales11 + post.sales12
+            post.yearSalesSum = post.salesq1 + post.salesq2 + post.salesq3 + post.salesq4
+            post.profitq1 = post.profit1 + post.profit2 + post.profit3
+            post.profitq2 = post.profit4 + post.profit5 + post.profit6
+            post.profitq3 = post.profit7 + post.profit8 + post.profit9
+            post.profitq4 = post.profit10 + post.profit11 + post.profit12
+            post.yearProfitSum = post.profitq1 + post.profitq2 + post.profitq3 + post.profitq4
             post.save()
             return redirect('sales:showgoals')
 
