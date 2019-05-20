@@ -383,6 +383,7 @@ def post_goal(request):
             post = form.save(commit=False)
             if request.POST["empName"] != '전체':
                 post.empName = Employee.objects.filter(pk=request.POST["empName"]).first().empName
+
             post.salesq1 = post.sales1 + post.sales2 + post.sales3
             post.salesq2 = post.sales4 + post.sales5 + post.sales6
             post.salesq3 = post.sales7 + post.sales8 + post.sales9
