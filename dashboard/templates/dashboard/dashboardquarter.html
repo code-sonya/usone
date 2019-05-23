@@ -306,23 +306,28 @@
                 <th class="d-none">revenueId</th>
               </tr>
               </thead>
+              <tfoot>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>TOTAL : </th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tfoot>
             </table>
           </div>
         </div>
       </div>
     </div>
   </div>
+
   <div class="row">
     <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 font-weight-bold text-success">Opportunity 상세 내용</h6>
-          <div class="dropdown no-arrow">
-            {#            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterDatatable">#}
-            {#              <i class="fas fa-filter fa-fw text-gray-400"></i>#}
-            {#            </a>#}
-          </div>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -330,15 +335,25 @@
             <table id="showOpportunitys" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>구분</th>
                 <th>영업부서</th>
                 <th>영업담당</th>
                 <th>계약명</th>
                 <th>거래처</th>
-                <th>계약일</th>
+                <th>예상매출금액</th>
+                <th>예상이익금액</th>
+                <th>예상계약일</th>
                 <th class="d-none">contractId</th>
               </tr>
               </thead>
+              <tfoot>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>TOTAL : </th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -832,24 +847,31 @@
           oppTable = $('#showOpportunitys').DataTable({
               "processing": true,
               "columns": [
-                  {data: "contractStep"},
                   {data: "empDeptName"},
                   {data: "empName"},
-                  {data: "contractName"},
+                  {
+                      data: 'contractName',
+                      render: function (data, type, row) {
+                          return '[' + row["contractCode"] + '] ' + row["contractName"];
+                      }
+                  },
                   {data: "saleCompanyName"},
+                  {data: "salePrice"},
+                  {data: "profitPrice"},
                   {data: "contractDate"},
                   {data: "contractId"},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, visible: false}
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, visible: false}
               ],
-              "order": [[5, 'desc']],
+              "order": [[6, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -866,13 +888,25 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(5)', nRow).text(replaceAll(aData.contractDate, "-", "."));
-                  if (aData.contractStep == 'Firm') {
-                      $('td:eq(0)', nRow).css('color', '#4e73df');
-                  } else if (aData.contractStep == 'Opportunity') {
-                      $('td:eq(0)', nRow).css('color', '#1cc88a');
-                  }
-              }
+                  $('td:eq(4)', nRow).text(aData.salePrice.toLocaleString() + '원');
+                  $('td:eq(5)', nRow).text(aData.profitPrice.toLocaleString() + '원');
+                  $('td:eq(6)', nRow).text(replaceAll(aData.contractDate, "-", "."));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var saleResult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      saleResult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(saleResult.toLocaleString() + '원');
+
+                  var profitResult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(profitResult.toLocaleString() + '원');
+              },
           });
 
           $("#showOpportunitys").on("click", 'tr', function () {
