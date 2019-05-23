@@ -48,9 +48,9 @@
         </div>
         <!-- Card Body -->
         <div class="card-body">
-          <div class="chart-area">
-            <p>표 넣어 주세염</p>
-          </div>
+          {#          <div class="chart-area">#}
+          <p>표 넣어 주세염</p>
+          {#          </div>#}
         </div>
       </div>
     </div>
@@ -66,11 +66,12 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-area">
-            <canvas id="todayquarterPiechart"></canvas>
+            <canvas id="team1Piechart"></canvas>
           </div>
         </div>
       </div>
     </div>
+
     <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header-->
@@ -80,7 +81,7 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="chart-area">
-            <canvas id="todayquarterPiechart"></canvas>
+            <canvas id="team2Piechart"></canvas>
           </div>
         </div>
       </div>
@@ -93,44 +94,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">분기별 매출 금액</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="todayquarterPiechart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-xl-12 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header-->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">분기별 이익 금액</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="todayquarterPiechart"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Content Row -->
-
-  <div class="row">
-    <!-- Area Chart -->
-    <div class="col-xl-12 col-lg-12">
-      <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">월별 매출 금액</h6>
+          <h6 class="m-0 font-weight-bold text-primary">분기별 매출 현황</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -142,13 +106,14 @@
     </div>
   </div>
 
+
   <div class="row">
     <!-- Area Chart -->
     <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">월별 이익 금액</h6>
+          <h6 class="m-0 font-weight-bold text-primary">월별 매출 현황</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -499,23 +464,52 @@
           }
       };
       // Pie Chart 1
-      const ctx1 = document.getElementById("todayquarterPiechart");
-      const todayquarterPiechart = new Chart(ctx1, {
+
+      {% for j in data_team_sales %}
+          {% for i in data_team_goals %}
+              {% if i.empDeptName == '영업1팀' %}
+                  {% if j.영업1팀 %}
+                      const team1_goal = '{{ i.yearSalesSum }}';
+                      const team1_q1 = '{{ i.salesq1 }}';
+                      const team1_q2 = '{{ i.salesq2 }}';
+                      const team1_q3 = '{{ i.salesq3 }}';
+                      const team1_q4 = '{{ i.salesq4 }}';
+                      const team1_revenue = '{{ j.영업1팀.sum_sales }}';
+                      const team1_deficit = Number(team1_goal) - Number(team1_revenue);
+                  {% endif %}
+              {% elif i.empDeptName == '영업2팀' %}
+                  {% if j.영업2팀 %}
+                      const team2_goal = '{{ i.yearSalesSum }}';
+                      const team2_q1 = '{{ i.salesq1 }}';
+                      const team2_q2 = '{{ i.salesq2 }}';
+                      const team2_q3 = '{{ i.salesq3 }}';
+                      const team2_q4 = '{{ i.salesq4 }}';
+                      const team2_revenue = '{{ j.영업2팀.sum_sales }}';
+                      const team2_deficit = Number(team2_goal) - Number(team2_revenue);
+                  {% endif %}
+              {% endif %}
+          {% endfor %}
+      {% endfor %}
+      const ctx1 = document.getElementById("team1Piechart");
+      const team1Piechart = new Chart(ctx1, {
           type: 'pie',
           data: {
-              labels: ["Opportunity", 'Firm'],
+              labels: ["달성금액", '부족금액'],
               datasets: [{
-                  data: {{ quarter_opp_Firm }},
-                  backgroundColor: ['#1cc88a', '#4e73df'],
-                  hoverBackgroundColor: ['#1cc88a', '#4e73df'],
+                  data: [team1_revenue, team1_deficit],
+                  backgroundColor: ['#858796', '#E74A3B'],
+                  hoverBackgroundColor: ['#858796', '#E74A3B'],
                   hoverBorderColor: "rgba(234, 236, 244, 1)",
-              }],
+              }
+              ],
           },
           options: {
               maintainAspectRatio: false,
-              tooltips: {
-                  enabled: false
-              },
+              tooltips:
+                  {
+                      enabled: false
+                  }
+              ,
               plugins: {
                   datalabels: {
                       formatter: (value, ctx) => {
@@ -525,9 +519,8 @@
                           dataArr.map(data => {
                               sum += data;
                           });
-                          let dataSum = number_format(value) + "";
+                          let dataSum = number_format(value) + "원";
                           return dataSum;
-
 
                       },
                       color: '#fff',
@@ -538,67 +531,22 @@
                       stretch: 45,
                       font: {
                           resizable: true,
-                          minSize: 12,
-                          maxSize: 18
+                          minSize:
+                              12,
+                          maxSize:
+                              18
                       }
                   }
               }
           },
       });
 
-      $("#todayquarterPiechart").click(
+      $("#team1Piechart").click(
           function (evt) {
-              const activeElement = todayquarterPiechart.getElementAtEvent(evt);
-              const idx = activeElement[0]._index;
-              const stepLabel = todayquarterPiechart.data.labels[idx];
-              filterArray['quarter'] = '{{ quarter }}분기';
-              filterArray['step'] = stepLabel;
-              filterArray['cumulative'] = 'Y';
-              filterArray['team'] = "";
-              filterArray['month'] = "";
-              console.log(filterArray);
-              if (stepLabel == "Firm") {
-                  oppTable.clear().draw();
-                  firmTable.clear().draw();
-                  pushFirmData();
-              } else {
-                  oppTable.clear().draw();
-                  firmTable.clear().draw();
-                  pushOppData();
-              }
-          }
-      );
-
-      // Bar Chart 2
-      const ctx2 = document.getElementById("todayquarterCumulativechart");
-      const todayquarterCumulativechart = new Chart(ctx2, {
-          type: 'bar',
-          data: {
-              labels: ["{{ quarter }}분기"],
-              datasets: [{
-                  label: "매출금액",
-                  backgroundColor: "#4365B0",
-                  borderColor: "#4365B0",
-                  data: [{{ quarterly_cumulative_sales }}]
-              }, {
-                  label: "이익금액",
-                  backgroundColor: "#F29220",
-                  borderColor: "#F29220",
-                  data: [{{ quarterly_cumulative_profit }}]
-              }],
-          },
-          options: options
-      });
-
-      $("#todayquarterCumulativechart").click(
-          function (evt) {
-              const activeElement = todayquarterCumulativechart.getElementAtEvent(evt);
-              const idx = activeElement[0]._index;
-              const stepLabel = todayquarterCumulativechart.data.labels[idx];
-              filterArray['quarter'] = '{{ quarter }}분기';
-              filterArray['cumulative'] = 'Y';
-              filterArray['step'] = "";
-              filterArray['team'] = "";
+              filterArray['quarter'] = '';
+              filterArray['step'] = '';
+              filterArray['cumulative'] = '';
+              filterArray['team'] = "영업1팀";
               filterArray['month'] = "";
               console.log(filterArray);
               oppTable.clear().draw();
@@ -608,30 +556,104 @@
           }
       );
 
-      // Bar Chart 3
+      const ctx2 = document.getElementById("team2Piechart");
+      const team2Piechart = new Chart(ctx2, {
+          type: 'pie',
+          data: {
+              labels: ["달성금액", '부족금액'],
+              datasets: [{
+                  data: [team2_revenue, team2_deficit],
+                  backgroundColor: ['#858796', '#E74A3B'],
+                  hoverBackgroundColor: ['#858796', '#E74A3B'],
+                  hoverBorderColor: "rgba(234, 236, 244, 1)",
+              }
+              ],
+          },
+          options: {
+              maintainAspectRatio: false,
+              tooltips:
+                  {
+                      enabled: false
+                  }
+              ,
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let dataSum = number_format(value) + "원";
+                          return dataSum;
+
+                      },
+                      color: '#fff',
+                  },
+                  outlabels: {
+                      text: '%l %p',
+                      color: 'white',
+                      stretch: 45,
+                      font: {
+                          resizable: true,
+                          minSize:
+                              12,
+                          maxSize:
+                              18
+                      }
+                  }
+              }
+          },
+      });
+      $("#team2Piechart").click(
+          function (evt) {
+              filterArray['quarter'] = '';
+              filterArray['step'] = '';
+              filterArray['cumulative'] = '';
+              filterArray['team'] = "영업2팀";
+              filterArray['month'] = "";
+              console.log(filterArray);
+              oppTable.clear().draw();
+              firmTable.clear().draw();
+              pushFirmData();
+              pushOppData();
+          }
+      );
+
+      // Bar Chart 2
       const ctx3 = document.getElementById("quarterBarchart");
       const quarterBarchart = new Chart(ctx3, {
           type: 'bar',
           data: {
               labels: ["1분기", "2분기", "3분기", "4분기"],
               datasets: [{
-                  label: "Opportunity",
-                  backgroundColor: "#1cc88a",
-                  borderColor: "#1cc88a",
-                  data: [
-                      {% for i in quarter_opp %}
-                          {{ i }},
-                      {% endfor %}
-                  ]
+                  type: 'line',
+                  label: '영업1팀 목표매출',
+                  borderColor: "pink",
+                  borderWidth: 2,
+                  fill: false,
+                  data: [team1_q1, team1_q2, team1_q3, team1_q4],
+
               }, {
-                  label: "Firm",
-                  backgroundColor: "#4e73df",
-                  borderColor: "#4e73df",
-                  data: [
-                      {% for i in quarter_firm %}
-                          {{ i }},
-                      {% endfor %}
-                  ]
+                  type: 'line',
+                  label: '영업2팀 목표매출',
+                  borderColor: "skyblue",
+                  borderWidth: 2,
+                  fill: false,
+                  data: [team2_q1, team2_q2, team2_q3, team2_q4],
+              }, {
+                  type: 'bar',
+                  label: '영업1팀 누적매출',
+                  backgroundColor: "#ff5879",
+                  data: {{ quarter_firm_team1_sales }},
+                  borderColor: 'white',
+                  borderWidth: 2
+              }, {
+                  type: 'bar',
+                  label: '영업2팀 누적매출',
+                  backgroundColor: "#42b8b8",
+                  data: {{ quarter_firm_team2_sales }},
               }],
           },
           options: options
@@ -641,76 +663,169 @@
           function (evt) {
               const activeElement = quarterBarchart.getElementAtEvent(evt);
               const idx = activeElement[0]._index;
-              const datasetIndex = activeElement[0]._datasetIndex;
               const quarterLabel = quarterBarchart.data.labels[idx];
-              const stepLabel = quarterBarchart.data.datasets[datasetIndex].label;
-              filterArray['step'] = stepLabel;
-              filterArray['team'] = "";
+              const datasetIndex = activeElement[0]._datasetIndex;
+              const teamLabel = quarterBarchart.data.datasets[datasetIndex].label;
+              const teamName = teamLabel.split(' ');
               filterArray['quarter'] = quarterLabel;
               filterArray['cumulative'] = 'N';
+              filterArray['step'] = "";
+              filterArray['team'] = teamName[0];
               filterArray['month'] = "";
               console.log(filterArray);
-              if (stepLabel == "Firm") {
-                  oppTable.clear().draw();
-                  firmTable.clear().draw();
-                  pushFirmData();
-              } else {
-                  oppTable.clear().draw();
-                  firmTable.clear().draw();
-                  pushOppData();
-              }
+              oppTable.clear().draw();
+              firmTable.clear().draw();
+              pushFirmData();
+              pushOppData();
           }
       );
 
-      const team1 = new Array();
-      const team2 = new Array();
-      const teamSum = new Array();
-      {% for i in team_revenues %}
-          {% if i.contractId__empDeptName == '영업1팀' %}
-              team1.push({{ i.revenuePrice__sum }});
-          {% elif i.contractId__empDeptName == '영업2팀'%}
-              team2.push({{ i.revenuePrice__sum }});
-          {% endif %}
-      {% endfor %}
-      for (var x = 0; x < 12; x++) {
-          teamSum[x] = team1[x] + team2[x]
-      }
       // Bar Chart 4
       const ctx4 = document.getElementById("contractMonthlychart");
       const contractMonthlychart = new Chart(ctx4, {
-          type: 'bar',
-          data: {
-              labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-              datasets: [{
-                  label: "영업1팀",
-                  backgroundColor: "grey",
-                  borderColor: "grey",
-                  data: team1
-              }, {
-                  label: "영업2팀",
-                  backgroundColor: "#f6c23e",
-                  borderColor: "#f6c23e",
-                  data: team2
-              }, {
-                  label: "합계",
-                  backgroundColor: "#e83e8c",
-                  borderColor: "#e83e8c",
-                  data: teamSum
-              }],
-          },
-          options: options
-      });
+              type: 'bar',
+              data: {
+                  labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+                  datasets: [{
+                      type: 'line',
+                      label: '영업1팀 목표매출',
+                      borderColor: "pink",
+                      borderWidth: 2,
+                      fill: false,
+                      data: [{% for i in data_team_goals %}
+                          {% if i.empDeptName == "영업1팀" %}
+                              {{ i.sales1 }},{{ i.sales2 }},{{ i.sales3 }},{{ i.sales4 }},{{ i.sales5 }},{{ i.sales6 }},
+                              {{ i.sales7 }},{{ i.sales8 }},{{ i.sales9 }},{{ i.sales10 }},{{ i.sales11 }},{{ i.sales12 }}
+                          {% endif %}
+                      {% endfor %}],
+
+                  }, {
+                      type: 'line',
+                      label: '영업2팀 목표매출',
+                      borderColor: "skyblue",
+                      borderWidth: 2,
+                      fill: false,
+                      data: [{% for i in data_team_goals %}
+                          {% if i.empDeptName == "영업2팀" %}
+                              {{ i.sales1 }},{{ i.sales2 }},{{ i.sales3 }},{{ i.sales4 }},{{ i.sales5 }},{{ i.sales6 }},
+                              {{ i.sales7 }},{{ i.sales8 }},{{ i.sales9 }},{{ i.sales10 }},{{ i.sales11 }},{{ i.sales12 }}
+                          {% endif %}
+                      {% endfor %}],
+                  }, {
+                      type: 'bar',
+                      label: '영업1팀 매출금액',
+                      backgroundColor: "#ff5879",
+                      data: [{% for i in team1_revenues %}
+                          {{ i.revenuePrice__sum }} ,
+                      {% endfor %}],
+                      borderColor: 'white',
+                      borderWidth: 2
+                  },
+                      {
+                          type: 'bar',
+                          label:
+                              '영업2팀 매출금액',
+                          backgroundColor:
+                              "#42b8b8",
+                          data: [{% for i in team2_revenues %}
+                              {{ i.revenuePrice__sum }} ,
+                          {% endfor %}],
+                      }
+                  ],
+              },
+              options: {
+                  maintainAspectRatio: false,
+                  plugins: {
+                      datalabels: {
+                          align: 'end',
+                          anchor: 'end',
+                          color: function (context) {
+                              return context.dataset.backgroundColor;
+                          },
+                          font: function (context) {
+                              var w = context.chart.width;
+                              return {
+                                  size: w < 512 ? 12 : 14
+                              };
+                          },
+                          formatter: function (value, context) {
+                              return "";
+                          }
+                      }
+                  },
+                  layout: {
+                      padding: {
+                          left: 0,
+                          right: 0,
+                          top: 0,
+                          bottom: 0
+                      }
+                  },
+                  scales: {
+                      xAxes: [{
+                          time: {
+                              unit: 'week'
+                          },
+                          gridLines: {
+                              display: false,
+                              drawBorder: false
+                          },
+                          ticks: {
+                              maxTicksLimit: 8
+                          },
+                          maxBarThickness: 30,
+                      }],
+                      yAxes: [{
+                          ticks: {
+                              min: 0,
+                              maxTicksLimit: 5,
+                              padding: 5,
+                              // Include a dollar sign in the ticks
+                              callback: function (value, index, values) {
+                                  return number_format(value);
+                              }
+                          },
+                          gridLines: {
+                              color: "rgb(234, 236, 244)",
+                              zeroLineColor: "rgb(234, 236, 244)",
+                              drawBorder: false,
+                              borderDash: [2],
+                              zeroLineBorderDash: [2]
+                          }
+                      }],
+                  },
+                  tooltips: {
+                      titleMarginBottom: 10,
+                      titleFontColor: '#6e707e',
+                      titleFontSize: 14,
+                      backgroundColor: "rgb(255,255,255)",
+                      bodyFontColor: "#858796",
+                      borderColor: '#dddfeb',
+                      borderWidth: 1,
+                      xPadding: 15,
+                      yPadding: 15,
+                      displayColors: false,
+                      caretPadding: 10,
+                      callbacks: {
+                          label: function (tooltipItem, chart) {
+                              return '총 ' + number_format(tooltipItem.yLabel);
+                          }
+                      }
+                  }
+              }
+          })
+      ;
 
       $("#contractMonthlychart").click(
           function (evt) {
               const activeElement = contractMonthlychart.getElementAtEvent(evt);
               const idx = activeElement[0]._index;
               const datasetIndex = activeElement[0]._datasetIndex;
-              console.log(datasetIndex);
               const monthLabel = contractMonthlychart.data.labels[idx];
               const teamLabel = contractMonthlychart.data.datasets[datasetIndex].label;
+              const teamName = teamLabel.split(' ');
               filterArray['month'] = monthLabel;
-              filterArray['team'] = teamLabel;
+              filterArray['team'] = teamName[0];
               filterArray['quarter'] = "";
               filterArray['cumulative'] = "";
               filterArray['step'] = "";
