@@ -512,7 +512,7 @@ def quarter_opp_asjson(request):
     if month:
         dataOpp = dataOpp.filter(Q(contractDate__month=month))
 
-    dataOpp = dataOpp.values('contractStep','empDeptName','empName','contractName','saleCompanyName','contractDate','contractId')
+    dataOpp = dataOpp.values('contractStep','empDeptName','empName','contractCode','contractName','saleCompanyName','salePrice','profitPrice','contractDate','contractId')
     structureStep = json.dumps(list(dataOpp), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')
 
