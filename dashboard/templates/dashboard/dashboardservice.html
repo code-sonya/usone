@@ -14,7 +14,6 @@
     </span>
     <span>
       <a href="#" class="d-sm-inline-block btn btn-sm btn-info shadow-sm" id="filterLink" data-toggle="modal" data-target="#filterModal"><i class="fas fa-filter fa-sm text-white-50"></i> 날짜 검색 </a>
-{#      <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="pdf"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>#}
     </span>
 
   </div>
@@ -91,26 +90,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Content Row -->
-
-  <div class="row">
-    <div class="col-xl-12 col-lg-12">
-      <div class="card shadow mb-4">
-        <!-- Card Header-->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원 시간</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <div id="SupportTimeTreemap" style="height: 100%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Content Row -->
 
   <div class="row">
@@ -312,6 +291,7 @@
   <script src="/static/hr/js/demo/chart-area-demo.js"></script>
   <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
 
   <script>
       function btn_filter() {
@@ -530,6 +510,10 @@
           },
           options: {
               maintainAspectRatio: false,
+              legend: {
+                  display: false
+              },
+              cutoutPercentage: 50,
               plugins: {
                   datalabels: {
                       formatter: (value, ctx) => {
@@ -539,16 +523,24 @@
                           dataArr.map(data => {
                               sum += data;
                           });
-                          let percentage = (value * 100 / sum).toFixed(2) + "%";
-                          return percentage;
+                          let dataSum = value + "시간";
+                          return dataSum;
+
+
                       },
                       color: '#fff',
+                  },
+                  outlabels: {
+                      text: '%l %p',
+                      color: 'white',
+                      stretch: 45,
+                      font: {
+                          resizable: true,
+                          minSize: 12,
+                          maxSize: 18
+                      }
                   }
-              },
-              legend: {
-                  display: false
-              },
-              cutoutPercentage: 20,
+              }
           },
       });
   </script>
@@ -559,39 +551,7 @@
   <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
   <link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
   <link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
-  <script>
-      anychart.onDocumentReady(function () {
 
-          // create data
-          var data = [
-              {
-                  name: "고객사", children: [
-                      {% for i in customer_support_time %}
-                          {name: "{{ i.companyName }}", value: {{ i.sum_supportTime }}},
-                      {% endfor %}
-                  ]
-              }
-          ];
-
-          var chart = anychart.treeMap(data, "as-tree");
-
-          chart.container("SupportTimeTreemap");
-
-          var customColorScale = anychart.scales.ordinalColor();
-          customColorScale.ranges([
-              {less: 10},
-              {from: 11, to: 18},
-              {from: 19, to: 28},
-              {greater: 29}
-          ]);
-          customColorScale.colors(["lightgray", "#00ccff", "#ffcc00", "pink"]);
-
-          // set the color scale as the color scale of the chart
-          chart.colorScale(customColorScale);
-
-          chart.draw();
-      });
-  </script>
   <script>
       $(document).ready(function () {
 
