@@ -385,7 +385,14 @@ def dashboard_quarter(request):
 @login_required
 def dashboard_goal(request):
     template = loader.get_template('dashboard/dashboardgoal.html')
+    today_year = datetime.today().year
+    dict_quarter = {"q1_start": "{}-01-01".format(today_year),
+                    "q1_end": "{}-04-01".format(today_year),
+                    "q2_end": "{}-07-01".format(today_year),
+                    "q3_end": "{}-10-01".format(today_year),
+                    "q4_end": "{}-01-01".format(today_year + 1)}
     context = {
+        "year" : today_year
     }
     return HttpResponse(template.render(context, request))
 
