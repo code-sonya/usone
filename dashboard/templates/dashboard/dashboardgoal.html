@@ -24,6 +24,18 @@
       color: white;
       margin-bottom: 1rem;
     }
+
+    .goalTalble {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    .goalthtd {
+      padding: 5px;
+      text-align: center;
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
   </style>
 
 {% endblock %}
@@ -48,9 +60,60 @@
         </div>
         <!-- Card Body -->
         <div class="card-body">
-          {#          <div class="chart-area">#}
-          <p>표 넣어 주세염</p>
-          {#          </div>#}
+          <table class="goalTalble" style="width:100%;" class="hover row-border" width="100%">
+            <tr class="goalTalble" style="background-color: #4bacc6;color:#fff;">
+              <th colspan="2" class="goalthtd">구분</th>
+              <th colspan="2" class="goalthtd">1Y(100%)</th>
+              <th colspan="2" class="goalthtd">1Q(20%)</th>
+              <th colspan="2" class="goalthtd">2Q(25%)</th>
+              <th colspan="2" class="goalthtd">3Q(25%)</th>
+              <th colspan="2" class="goalthtd">4Q(30%)</th>
+            </tr>
+            <tr class="goalTalble" style="background-color: #4bacc6;color:#fff;">
+              <td class="goalthtd">부서명</td>
+              <td class="goalthtd">담당자</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+            </tr>
+            {% for i in data_team_goals %}
+              <tr class="goalTalble">
+                <td class="goalthtd">{{ i.empDeptName }}</td>
+                <td class="goalthtd">{{ i.empName }}</td>
+                <td class="goalthtd">{{ i.yearSalesSum|intcomma }}</td>
+                <td class="goalthtd">{{ i.yearProfitSum|intcomma }}</td>
+                <td class="goalthtd">{{ i.salesq1|intcomma }}</td>
+                <td class="goalthtd">{{ i.profitq1|intcomma }}</td>
+                <td class="goalthtd">{{ i.salesq2|intcomma }}</td>
+                <td class="goalthtd">{{ i.profitq2|intcomma }}</td>
+                <td class="goalthtd">{{ i.salesq3|intcomma }}</td>
+                <td class="goalthtd">{{ i.profitq3|intcomma }}</td>
+                <td class="goalthtd">{{ i.salesq4|intcomma }}</td>
+                <td class="goalthtd">{{ i.profitq4|intcomma }}</td>
+              </tr>
+            {% endfor %}
+
+            <tr class="goalTalble">
+              <td class="goalthtd" colspan="2">합계</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_yearSales|intcomma }}</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_yearProfit|intcomma }}</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_salesq1|intcomma }}</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_profitq1|intcomma }}</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_salesq2|intcomma }}</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_profitq2|intcomma }}</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_salesq3|intcomma }}</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_profitq3|intcomma }}</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_salesq4|intcomma }}</td>
+              <td class="goalthtd">{{ data_team_goals_sum.sum_profitq4|intcomma }}</td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>

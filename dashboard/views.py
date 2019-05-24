@@ -398,6 +398,9 @@ def dashboard_goal(request):
 
     ## 팀별 목표 & 전체 매출 금액
     data_team_goals = Goal.objects.filter(Q(empDeptName__icontains='영업') & Q(year=today_year))
+    data_team_goals_sum = data_team_goals.aggregate(sum_yearSales=Sum('yearSalesSum'),sum_yearProfit=Sum('yearProfitSum'),sum_salesq1=Sum('salesq1'),sum_salesq2=Sum('salesq2'),
+                                                    sum_salesq3=Sum('salesq3'),sum_salesq4=Sum('salesq3'),sum_profitq1=Sum('profitq1'),sum_profitq2=Sum('profitq2'),
+                                                    sum_profitq3=Sum('profitq4'),sum_profitq4=Sum('profitq4'))
     data_team_sales = []
     for i in salesteam_lst:
         sales = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__year=today_year)).values('contractId__empDeptName').aggregate(sum_sales=Sum('revenuePrice'),
@@ -460,7 +463,6 @@ def dashboard_goal(request):
 
     team1_revenues.sort(key=lambda x: x['billingDate__month'], reverse=False)
     team2_revenues.sort(key=lambda x: x['billingDate__month'], reverse=False)
-
     context = {
         "year": today_year,
         "data_team_goals": data_team_goals,
@@ -470,8 +472,8 @@ def dashboard_goal(request):
         "quarter_firm_team2_sales": quarter_firm_team2_sales,
         "quarter_firm_team2_profits": quarter_firm_team2_profits,
         "team1_revenues":team1_revenues,
-        "team2_revenues":team2_revenues
-
+        "team2_revenues":team2_revenues,
+        "data_team_goals_sum":data_team_goals_sum
     }
     return HttpResponse(template.render(context, request))
 
