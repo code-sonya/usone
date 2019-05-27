@@ -282,7 +282,6 @@ def dashboard_quarter(request):
     quarter_opp_profitsum = [quarter1_opp['sum_profit'], quarter2_opp['sum_profit'], quarter3_opp['sum_profit'], quarter4_opp['sum_profit']]
     quarter_opp = [0 if quarter_opp_sum[i] == None else quarter_opp_sum[i] for i in range(len(quarter_opp_sum))]
     quarter_oppprofit = [0 if quarter_opp_profitsum[i] == None else quarter_opp_profitsum[i] for i in range(len(quarter_opp_profitsum))]
-    print("quarter_oppprofit:", quarter_oppprofit)
 
     # 분기 Firm
     quarter1_revenues = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end'])).aggregate(sum=Sum('revenuePrice'))
@@ -398,9 +397,9 @@ def dashboard_goal(request):
 
     ## 팀별 목표 & 전체 매출 금액
     data_team_goals = Goal.objects.filter(Q(empDeptName__icontains='영업') & Q(year=today_year))
-    data_team_goals_sum = data_team_goals.aggregate(sum_yearSales=Sum('yearSalesSum'),sum_yearProfit=Sum('yearProfitSum'),sum_salesq1=Sum('salesq1'),sum_salesq2=Sum('salesq2'),
-                                                    sum_salesq3=Sum('salesq3'),sum_salesq4=Sum('salesq3'),sum_profitq1=Sum('profitq1'),sum_profitq2=Sum('profitq2'),
-                                                    sum_profitq3=Sum('profitq4'),sum_profitq4=Sum('profitq4'))
+    data_team_goals_sum = data_team_goals.aggregate(sum_yearSales=Sum('yearSalesSum'), sum_yearProfit=Sum('yearProfitSum'), sum_salesq1=Sum('salesq1'), sum_salesq2=Sum('salesq2'),
+                                                    sum_salesq3=Sum('salesq3'), sum_salesq4=Sum('salesq3'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'),
+                                                    sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'))
     data_team_sales = []
     for i in salesteam_lst:
         sales = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__year=today_year)).values('contractId__empDeptName').aggregate(sum_sales=Sum('revenuePrice'),
@@ -411,7 +410,7 @@ def dashboard_goal(request):
         # 분기 Firm
         if i == '영업1팀':
             team1_revenues = revenues.filter(Q(contractId__empDeptName=i)).values('billingDate__month', 'contractId__empDeptName'
-                                             ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'billingDate__month')
+                                                                                  ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'billingDate__month')
             quarter1_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end'])) \
                 .aggregate(sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
             quarter2_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q1_end']) & Q(billingDate__lt=dict_quarter['q2_end'])) \
@@ -471,9 +470,9 @@ def dashboard_goal(request):
         "quarter_firm_team1_profits": quarter_firm_team1_profits,
         "quarter_firm_team2_sales": quarter_firm_team2_sales,
         "quarter_firm_team2_profits": quarter_firm_team2_profits,
-        "team1_revenues":team1_revenues,
-        "team2_revenues":team2_revenues,
-        "data_team_goals_sum":data_team_goals_sum
+        "team1_revenues": team1_revenues,
+        "team2_revenues": team2_revenues,
+        "data_team_goals_sum": data_team_goals_sum
     }
     return HttpResponse(template.render(context, request))
 
@@ -583,7 +582,7 @@ def quarter_opp_asjson(request):
     cumulative = request.POST['cumulative']
     quarter = request.POST['quarter']
 
-    dataOpp = Contract.objects.filter(Q(contractStep='Opportunity')&Q(contractDate__year=today_year))
+    dataOpp = Contract.objects.filter(Q(contractStep='Opportunity') & Q(contractDate__year=today_year))
 
     if quarter:
         if cumulative == 'Y':

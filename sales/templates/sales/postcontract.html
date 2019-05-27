@@ -247,26 +247,6 @@
           }
       }
 
-      function companyChange(saleCompanyName, selectId) {
-          $.ajax({
-              url: "{% url 'sales:salemanager_ajax_url' %}",
-              method: 'POST',
-              cache: false,
-              data: {"saleCompanyName": saleCompanyName},
-              headers: {'X-CSRFToken': '{{ csrf_token }}'},
-              success: function (returnData) {
-                  var salecompany = returnData;
-                  $('#' + selectId).empty();
-                  $('#' + selectId).append('<option value="" selected="">---------</option>');
-
-                  for (var count = 0; count < salecompany.length; count++) {
-                      var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
-                      $('#' + selectId).append(option);
-                  }
-              }
-          })
-      }
-
       function itemChange(main, sub) {
           var selectItem = $(main).val();
 
@@ -316,7 +296,67 @@
           });
       }
 
+      $("#saleCompanyName").on("propertychange change keyup paste input", function () {
+          console.log('변경')
+      });
+
       $(document).ready(function () {
+          const saleCompanyName = document.getElementById('saleCompanyName');
+          {% if saleCompanyName %}
+              saleCompanyName.setAttribute("data-id", "{{ saleCompanyName }}");
+          {% endif %}
+          $('#saleCompanyName').magicsearch({
+              dataSource: {{ companyNames|safe }},
+              fields: 'value',
+              id: 'id',
+              multiple: false,
+              multiField: 'value',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+              success: function ($input, data) {
+                  $.ajax({
+                      url: "{% url 'sales:salemanager_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      data: {"saleCompanyName": data.id},
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var salecompany = returnData;
+                          $('#saleCustomerId').empty();
+                          $('#saleCustomerId').append('<option value="" selected="">---------</option>');
+
+                          for (var count = 0; count < salecompany.length; count++) {
+                              var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
+                              $('#saleCustomerId').append(option);
+                          }
+                      }
+                  });
+              }
+          });
+          saleCompanyName.removeAttribute("style");
+          saleCompanyName.parentElement.removeAttribute("style");
+
+          const endCompanyName = document.getElementById('endCompanyName');
+          {% if endCompanyName %}
+              endCompanyName.setAttribute("data-id", "{{ endCompanyName }}");
+          {% endif %}
+          $('#endCompanyName').magicsearch({
+              dataSource: {{ companyNames|safe }},
+              fields: 'value',
+              id: 'id',
+              multiple: false,
+              multiField: 'value',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+          });
+          endCompanyName.removeAttribute("style");
+          endCompanyName.parentElement.removeAttribute("style");
+
+
           if ($('#contractStep').val() === 'Firm') {
               $('#Firm').removeClass('d-none');
               $('#contractStartDate').removeAttr('readonly');
@@ -325,7 +365,7 @@
           }
 
           var t1 = $('#categoryItem').DataTable({
-              "autoWidth":false,
+              "autoWidth": false,
               "searching": false,
               "paging": false,
               "info": false,
@@ -337,11 +377,11 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width:"8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
@@ -400,7 +440,7 @@
 
 
           var t2 = $('#revenue').DataTable({
-              "autoWidth":false,
+              "autoWidth": false,
               "searching": false,
               "paging": false,
               "info": false,
@@ -412,11 +452,11 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width:"23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width:"8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
@@ -458,9 +498,9 @@
           });
 
           $('#salePrice').on("propertychange change keyup paste input", function () {
-             const salePrice = $('#salePrice').val().replace(/,/g, '');
-             const profitPrice = $('#profitPrice').val().replace(/,/g, '');
-             $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(1));
+              const salePrice = $('#salePrice').val().replace(/,/g, '');
+              const profitPrice = $('#profitPrice').val().replace(/,/g, '');
+              $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(1));
           });
 
           $('#profitPrice').on("propertychange change keyup paste input", function () {

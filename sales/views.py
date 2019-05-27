@@ -57,8 +57,14 @@ def post_contract(request):
 
     else:
         form = ContractForm()
+        companyList = Company.objects.filter(Q(companyStatus='Y'))
+        companyNames = []
+        for company in companyList:
+            temp = {'id': company.pk, 'value': company.companyName}
+            companyNames.append(temp)
         context = {
             'form': form,
+            'companyNames':companyNames,
         }
         return render(request, 'sales/postcontract.html', context)
 
