@@ -395,7 +395,7 @@ def revenues_asjson(request):
 @login_required
 def post_goal(request):
     salesteam_lst = Employee.objects.values('empDeptName').filter(Q(empStatus='Y')).distinct()
-    salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" in x['empDeptName']]
+    salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" or "경영" in x['empDeptName']]
     today_year = datetime.today().year
 
     if request.method == "POST":

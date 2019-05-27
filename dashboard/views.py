@@ -396,7 +396,8 @@ def dashboard_goal(request):
     revenues = Revenue.objects.filter(Q(billingDate__year=today_year))
 
     ## 팀별 목표 & 전체 매출 금액
-    data_team_goals = Goal.objects.filter(Q(empDeptName__icontains='영업') & Q(year=today_year))
+    # data_team_goals = Goal.objects.filter(Q(empDeptName__icontains='영업') & Q(year=today_year))
+    data_team_goals = Goal.objects.filter(Q(year=today_year))
     data_team_goals_sum = data_team_goals.aggregate(sum_yearSales=Sum('yearSalesSum'), sum_yearProfit=Sum('yearProfitSum'), sum_salesq1=Sum('salesq1'), sum_salesq2=Sum('salesq2'),
                                                     sum_salesq3=Sum('salesq3'), sum_salesq4=Sum('salesq3'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'),
                                                     sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'))
