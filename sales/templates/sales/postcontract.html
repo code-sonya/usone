@@ -56,13 +56,13 @@
 
               <div class="form-group row">
                 <div class="col-4 mb-3">
-                  <label for="saleCompanyName" class="font-weight-bold text-primary"> 거래처 </label> {{ form.saleCompanyName }}
+                  <label for="saleCompanyNames" class="font-weight-bold text-primary"> 거래처 </label> {{ form.saleCompanyNames }}
                 </div>
                 <div class="col-4 mb-3">
                   <label for="saleCustomerId" class="font-weight-bold text-primary"> 거래처 담당자 </label> {{ form.saleCustomerId }}
                 </div>
                 <div class="col-4  mb-3">
-                  <label for="endCompanyName" class="font-weight-bold text-primary"> 최종고객사 </label> {{ form.endCompanyName }}
+                  <label for="endCompanyNames" class="font-weight-bold text-primary"> 최종고객사 </label> {{ form.endCompanyNames }}
                 </div>
               </div>
 
@@ -296,16 +296,13 @@
           });
       }
 
-      $("#saleCompanyName").on("propertychange change keyup paste input", function () {
-          console.log('변경')
-      });
 
       $(document).ready(function () {
-          const saleCompanyName = document.getElementById('saleCompanyName');
-          {% if saleCompanyName %}
-              saleCompanyName.setAttribute("data-id", "{{ saleCompanyName }}");
+          const saleCompanyNames = document.getElementById('saleCompanyNames');
+          {% if saleCompanyNames %}
+              saleCompanyNames.setAttribute("data-id", "{{ saleCompanyNames }}");
           {% endif %}
-          $('#saleCompanyName').magicsearch({
+          $('#saleCompanyNames').magicsearch({
               dataSource: {{ companyNames|safe }},
               fields: 'value',
               id: 'id',
@@ -335,14 +332,14 @@
                   });
               }
           });
-          saleCompanyName.removeAttribute("style");
-          saleCompanyName.parentElement.removeAttribute("style");
+          saleCompanyNames.removeAttribute("style");
+          saleCompanyNames.parentElement.removeAttribute("style");
 
-          const endCompanyName = document.getElementById('endCompanyName');
-          {% if endCompanyName %}
-              endCompanyName.setAttribute("data-id", "{{ endCompanyName }}");
+          const endCompanyNames = document.getElementById('endCompanyNames');
+          {% if endCompanyNames %}
+              endCompanyNames.setAttribute("data-id", "{{ endCompanyNames }}");
           {% endif %}
-          $('#endCompanyName').magicsearch({
+          $('#endCompanyNames').magicsearch({
               dataSource: {{ companyNames|safe }},
               fields: 'value',
               id: 'id',
@@ -353,8 +350,8 @@
               noResult: '검색결과없음',
               focusShow: true,
           });
-          endCompanyName.removeAttribute("style");
-          endCompanyName.parentElement.removeAttribute("style");
+          endCompanyNames.removeAttribute("style");
+          endCompanyNames.parentElement.removeAttribute("style");
 
 
           if ($('#contractStep').val() === 'Firm') {

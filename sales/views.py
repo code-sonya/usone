@@ -22,12 +22,16 @@ from datetime import datetime, timedelta
 @login_required
 def post_contract(request):
     if request.method == "POST":
+        print(request.POST)
         form = ContractForm(request.POST)
 
         if form.is_valid():
             post = form.save(commit=False)
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
+            post.saleCompanyName = Company.objects.filter(companyName=form.clean()['saleCompanyNames']).first()
+            post.endCompanyName = Company.objects.filter(companyName=form.clean()['endCompanyNames']).first()
+
             if form.clean()['saleCustomerId']:
                 post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             else:
@@ -137,6 +141,8 @@ def modify_contract(request, contractId):
             post = form.save(commit=False)
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
+            post.saleCompanyName = Company.objects.filter(companyName=form.clean()['saleCompanyNames']).first()
+            post.endCompanyName = Company.objects.filter(companyName=form.clean()['endCompanyNames']).first()
             if form.clean()['saleCustomerId']:
                 post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             else:
@@ -206,11 +212,21 @@ def modify_contract(request, contractId):
         form = ContractForm(instance=contractInstance)
         items = Contractitem.objects.filter(contractId=contractId)
         revenues = Revenue.objects.filter(contractId=contractId)
+        saleCompanyNames = Contract.objects.get(contractId=contractId).saleCompanyName
+        endCompanyNames = Contract.objects.get(contractId=contractId).endCompanyName
+        companyList = Company.objects.filter(Q(companyStatus='Y'))
+        companyNames = []
+        for company in companyList:
+            temp = {'id': company.pk, 'value': company.companyName}
+            companyNames.append(temp)
 
         context = {
             'form': form,
             'items': items,
             'revenues': revenues,
+            'saleCompanyNames':saleCompanyNames,
+            'endCompanyNames':endCompanyNames,
+            'companyNames':companyNames
         }
         return render(request, 'sales/postcontract.html', context)
 

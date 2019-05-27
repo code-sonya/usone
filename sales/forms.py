@@ -7,12 +7,12 @@ from .models import Contract, Goal
 
 
 class ContractForm(forms.ModelForm):
-    saleCompanyName = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'saleCompanyName','autocomplete': 'off'}))
-    endCompanyName = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'endCompanyName', 'autocomplete': 'off'}))
+    saleCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'saleCompanyNames','autocomplete': 'off'}))
+    endCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'endCompanyNames', 'autocomplete': 'off'}))
 
     class Meta:
         model = Contract
-        fields = ('contractCode', 'contractName', 'contractStep', 'empId', 'saleCompanyName', 'saleCustomerId', 'endCompanyName', 'saleType', 'saleIndustry',
+        fields = ('contractCode', 'contractName', 'contractStep', 'empId', 'saleCompanyNames', 'saleCustomerId', 'endCompanyNames', 'saleType', 'saleIndustry',
                   'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate', 'comment')
 
         widgets = {
@@ -35,8 +35,6 @@ class ContractForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ContractForm, self).__init__(*args, **kwargs)
         self.fields["empId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업'))
-        self.fields["saleCompanyName"].queryset = Company.objects.all().order_by('companyName')
-        self.fields["endCompanyName"].queryset = Company.objects.all().order_by('companyName')
 
 
 class GoalForm(forms.ModelForm):
