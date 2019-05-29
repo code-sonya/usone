@@ -4,18 +4,16 @@ from hr.models import Employee
 
 
 class Company(models.Model):
-    statusChoices = (('Y', 'Y'), ('N', 'N'),('X', 'X'))
+    statusChoices = (('Y', 'Y'), ('N', 'N'), ('X', 'X'))
 
     companyName = models.CharField(max_length=100, primary_key=True)
+    companyNameKo = models.CharField(max_length=100)
+    companyNumber = models.CharField(max_length=30, null=True, blank=True)
     saleEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='saleEmpID')
-    solutionMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True,
-                                          related_name='solutionMainEmpID')
-    solutionSubEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True,
-                                         related_name='solutionSubEmpId')
-    dbMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True,
-                                    related_name='dbMainEmpId')
-    dbSubEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True,
-                                   related_name='dbSubEmpId')
+    solutionMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='solutionMainEmpID')
+    solutionSubEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='solutionSubEmpId')
+    dbMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='dbMainEmpId')
+    dbSubEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='dbSubEmpId')
     companyAddress = models.CharField(max_length=200)
     companyLatitude = models.FloatField(null=True, blank=True)
     companyLongitude = models.FloatField(null=True, blank=True)
