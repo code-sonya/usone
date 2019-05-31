@@ -45,6 +45,7 @@ class Revenue(models.Model):
     predictBillingDate = models.DateField(null=True, blank=True)
     depositDate = models.DateField(null=True, blank=True)
     billingTime = models.CharField(max_length=10, null=True, blank=True)
+    purchasePrice = models.BigIntegerField(null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
