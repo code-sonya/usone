@@ -37,13 +37,28 @@ class Contract(models.Model):
 class Revenue(models.Model):
     revenueId = models.AutoField(primary_key=True)
     contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    revenueCompany = models.ForeignKey(Company, on_delete=models.CASCADE)
     revenuePrice = models.BigIntegerField()
     revenueProfitPrice = models.BigIntegerField()
+    revenueProfitRatio = models.FloatField()
     billingDate = models.DateField(null=True, blank=True)
+    predictBillingDate = models.DateField(null=True, blank=True)
+    depositDate = models.DateField(null=True, blank=True)
+    billingTime = models.CharField(max_length=10, null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
-        return self.contractId.contractName
+        return '{} {}'.format(self.billingTime, self.contractId.contractName)
+
+
+class Purchase(models.Model):
+    purchaseId = models.AutoField(primary_key=True)
+    revenueId = models.ForeignKey(Revenue, on_delete=models.CASCADE)
+    purchaseCompany = models.CharField(max_length=100)
+    purchasePrice = models.BigIntegerField()
+    purchaseDate = models.DateField(null=True, blank=True)
+    withdrawDate = models.DateField(null=True, blank=True)
+    comment = models.CharField(max_length=200, null=True, blank=True)
 
 
 class Category(models.Model):

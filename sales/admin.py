@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contract, Revenue, Category, Contractitem, Goal
+from .models import Contract, Revenue, Category, Contractitem, Goal, Purchase
 
 
 @admin.register(Contract)
@@ -11,9 +11,16 @@ class ContractAdmin(admin.ModelAdmin):
 
 @admin.register(Revenue)
 class RevenueAdmin(admin.ModelAdmin):
-    list_display = ('contractId', 'revenuePrice', 'billingDate')
-    list_filter = ('contractId', 'revenuePrice', 'billingDate')
-    list_display_links = ['contractId', 'revenuePrice', 'billingDate']
+    list_display = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate')
+    list_filter = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate')
+    list_display_links = ['contractId', 'revenueCompany', 'revenuePrice', 'billingDate']
+
+
+@admin.register(Purchase)
+class PurchaseAdmin(admin.ModelAdmin):
+    list_display = ('purchaseId', 'purchaseCompany', 'purchasePrice', 'purchaseDate')
+    list_filter = ('purchaseId', 'purchaseCompany', 'purchasePrice', 'purchaseDate')
+    list_display_links = ['purchaseId', 'purchaseCompany', 'purchasePrice', 'purchaseDate']
 
 
 @admin.register(Category)
