@@ -3,9 +3,9 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
-from django.db.models import Sum
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.db.models import Sum, FloatField, F
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect, reverse
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
@@ -13,10 +13,11 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 from hr.models import Employee
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase
 from service.models import Company, Customer
 from django.db.models import Q
 from datetime import datetime, timedelta
+import pandas as pd
 
 
 @login_required
@@ -68,7 +69,7 @@ def post_contract(request):
             companyNames.append(temp)
         context = {
             'form': form,
-            'companyNames':companyNames,
+            'companyNames': companyNames,
         }
         return render(request, 'sales/postcontract.html', context)
 
@@ -118,14 +119,70 @@ def show_contracts(request):
 @login_required
 @csrf_exempt
 def view_contract(request, contractId):
+    todayYear = datetime.today().year
     contract = Contract.objects.get(contractId=contractId)
+    print(contract.contractStartDate.year)
+    print(contract.contractEndDate)
+    yearList = [i for i in range(int(contract.contractStartDate.year), int(contract.contractEndDate.year) + 1)]
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
+    purchases = Purchase.objects.filter(revenueId__contractId=contractId)
+    totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Sum('revenuePrice'))
+    totalWithdraw = purchases.filter(withdrawDate__isnull=False).values('purchaseCompany').aggregate(sum_purchase=Sum('purchasePrice'))
+    totalRatio = round(totalWithdraw['sum_purchase'] / totalDeposit['sum_deposit'] * 100, 2)
+    ##### 입출금정보-매출
+    companyDeposit = revenues.values('revenueCompany').annotate(
+        filter_deposit=Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
+    ).annotate(
+        sum_deposit=Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
+    ).annotate(
+        ratio_deposit=(Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))) * 100 /
+                        Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))))
+    )
+
+    companyTotalDeposit = revenues.annotate(
+        filter_deposit=Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
+    ).annotate(
+        sum_deposit=Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
+    ).aggregate(
+        a_filter_deposit=Sum('filter_deposit'),
+        a_sum_deposit=Sum('sum_deposit')
+    )
+    companyTotalDeposit['a_ratio_deposit'] = round(companyTotalDeposit['a_filter_deposit'] / companyTotalDeposit['a_sum_deposit'] * 100)
+
+    ##### 입출금정보-매입
+    companyWithdraw = purchases.values('purchaseCompany').annotate(
+        filter_withdraw=Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
+    ).annotate(
+        sum_withdraw=Sum('purchasePrice', filter=(Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
+    ).annotate(
+        ratio_withdraw=(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear))) * 100 /
+                        Sum('purchasePrice', filter=(Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear))))
+    )
+
+    companyTotalWithdraw = purchases.annotate(
+        filter_withdraw=Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
+    ).annotate(
+        sum_withdraw=Sum('purchasePrice', filter=(Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
+    ).aggregate(
+        a_filter_withdraw=Sum('filter_withdraw'),
+        a_sum_withdraw=Sum('sum_withdraw')
+    )
+    companyTotalWithdraw['a_ratio_withdraw'] = round(companyTotalWithdraw['a_filter_withdraw'] / companyTotalWithdraw['a_sum_withdraw'] * 100)
+
     context = {
         'revenueId': '',
         'contract': contract,
         'items': items,
         'revenues': revenues,
+        'purchases': purchases,
+        'companyWithdraw': companyWithdraw,
+        'totalWithdraw': totalWithdraw,
+        'totalDeposit': totalDeposit,
+        'totalRatio': totalRatio,
+        'companyDeposit':companyDeposit,
+        'companyTotalDeposit':companyTotalDeposit,
+        'companyTotalWithdraw':companyTotalWithdraw,
     }
     return render(request, 'sales/viewcontract.html', context)
 
@@ -224,9 +281,9 @@ def modify_contract(request, contractId):
             'form': form,
             'items': items,
             'revenues': revenues,
-            'saleCompanyNames':saleCompanyNames,
-            'endCompanyNames':endCompanyNames,
-            'companyNames':companyNames
+            'saleCompanyNames': saleCompanyNames,
+            'endCompanyNames': endCompanyNames,
+            'companyNames': companyNames
         }
         return render(request, 'sales/postcontract.html', context)
 
@@ -491,6 +548,7 @@ def view_goal(request, goalId):
     }
     return render(request, 'sales/viewgoal.html', context)
 
+
 @login_required
 def modify_goal(request, goalId):
     goalinstance = Goal.objects.get(goalId=goalId)
@@ -523,13 +581,43 @@ def modify_goal(request, goalId):
         context = {
             'form': form,
             'today_year': goalinstance.year,
-            'salesteam_lst':salesteam_lst,
+            'salesteam_lst': salesteam_lst,
             'empDeptName': goalinstance.empDeptName,
             'empName': goalinstance.empName,
         }
         return render(request, 'sales/postgoal.html', context)
 
+
 @login_required
 def delete_goal(request, goalId):
     Goal.objects.filter(goalId=goalId).delete()
     return redirect('sales:showgoals')
+
+
+@login_required
+def upload_purchase(request):
+    context = {
+    }
+    return render(request, 'sales/uploadpurchase.html', context)
+
+
+@login_required
+def upload_csv(request):
+    data = {}
+    if "GET" == request.method:
+        pass
+
+    try:
+        csv_file = request.FILES["csv_file"]
+        xl_file = pd.ExcelFile(csv_file)
+        dfs = pd.read_excel(xl_file, sheet_name='매출현황자료', skiprows=[0, 1, 2])
+        print(dfs)
+
+    except Exception as e:
+        print(e)
+
+    context = {
+        "dfs": dfs
+    }
+
+    return render(request, 'sales/uploadpurchase.html', context)

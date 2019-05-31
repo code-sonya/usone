@@ -23,4 +23,6 @@ urlpatterns = [
     url(r'^viewgoal/(?P<goalId>.+)/$', views.view_goal, name='viewrgoal'),
     url(r'^modifygoal/(?P<goalId>.+)/$', views.modify_goal, name='modifygoal'),
     url(r'^deletegoal/(?P<goalId>.+)/$', views.delete_goal, name='deletegoal'),
+    url(r'^uploadpurchase/', views.upload_purchase, name='uploadpurchase'),
+    url(r'^uploadcsv/', views.upload_csv, name='uploadcsv'),
 ]
