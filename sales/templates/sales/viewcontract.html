@@ -167,6 +167,43 @@
             </table>
           {% endif %}
 
+
+          <br>
+          <h5 class="text-dark mb-3"><b> ▼ 년도별 매출·이익 기여도</b></h5>
+          <div class="row">
+            <div class="col-xl-12">
+              <table class="pc-table" width="50%" style="float:left;" colspan="6">
+                <thead>
+                <tr class="btn-secondary">
+                  <td colspan="1" style="border-top: 0px;">해당년도</td>
+                  <td colspan="1" style="border-top: 0px;">매출금액</td>
+                  <td colspan="1" style="border-top: 0px;">이익금액</td>
+                  <td colspan="1" style="border-top: 0px;">이익율</td>
+                </tr>
+                </thead>
+                <tr class="thtd">
+                  <td colspan="1" style="border-top: 0px;">2019년</td>
+                  <td colspan="1" style="border-top: 0px;">134,522,617 원</td>
+                  <td colspan="1" style="border-top: 0px;">36,786,617 원</td>
+                  <td colspan="1" style="border-top: 0px;">27.3%</td>
+                </tr>
+                <tr class="thtd">
+                  <td colspan="1" style="border-top: 0px;">2020년</td>
+                  <td colspan="1" style="border-top: 0px;">28,883,203 원</td>
+                  <td colspan="1" style="border-top: 0px;">12,349,203 원</td>
+                  <td colspan="1" style="border-top: 0px;">42.8%</td>
+                </tr>
+                <tr class="thtd btn-light">
+                  <td colspan="1" style="border-top: 0px;">합계</td>
+                  <td colspan="1" style="border-top: 0px;" class="text-danger">163,405,820 원</td>
+                  <td colspan="1" style="border-top: 0px;" class="text-primary">49,135,820 원</td>
+                  <td colspan="1" style="border-top: 0px;" class="text-success">30.1%</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <br>
           <h5 class="text-dark mb-3"><b> ▼ 입출금정보</b></h5>
           <table style="margin-left:20px">
@@ -206,12 +243,12 @@
                     <td colspan="1" style="border-top: 0px;">{% if deposit.ratio_deposit == None %}0{% else %}{{ deposit.ratio_deposit }}{% endif %}%</td>
                   </tr>
                 {% endfor %}
-                <tr class="thtd btn-light" >
-                    <td colspan="1" style="border-top: 0px;">합계</td>
-                    <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_sum_deposit == None %}0{% else %}{{ companyTotalDeposit.a_sum_deposit | intcomma }} {% endif %} 원</td>
-                    <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_filter_deposit == None %}0{% else %}{{ companyTotalDeposit.a_filter_deposit | intcomma }} {% endif %}원</td>
-                    <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_ratio_deposit == None %}0{% else %}{{ companyTotalDeposit.a_ratio_deposit }}{% endif %}%</td>
-                  </tr>
+                <tr class="thtd btn-light">
+                  <td colspan="1" style="border-top: 0px;">합계</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_sum_deposit == None %}0{% else %}{{ companyTotalDeposit.a_sum_deposit | intcomma }} {% endif %} 원</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_filter_deposit == None %}0{% else %}{{ companyTotalDeposit.a_filter_deposit | intcomma }} {% endif %}원</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_ratio_deposit == None %}0{% else %}{{ companyTotalDeposit.a_ratio_deposit }}{% endif %}%</td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -234,12 +271,12 @@
                     <td colspan="1" style="border-top: 0px;">{% if Withdraw.ratio_withdraw == None %}0{% else %}{{ Withdraw.ratio_withdraw }}{% endif %}%</td>
                   </tr>
                 {% endfor %}
-                 <tr class="thtd btn-light" >
-                    <td colspan="1" style="border-top: 0px;">합계</td>
-                    <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_sum_withdraw | intcomma }} {% endif %} 원</td>
-                    <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_filter_withdraw | intcomma }} {% endif %}원</td>
-                    <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_ratio_withdraw}}{% endif %}%</td>
-                  </tr>
+                <tr class="thtd btn-light">
+                  <td colspan="1" style="border-top: 0px;">합계</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_sum_withdraw | intcomma }} {% endif %} 원</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_filter_withdraw | intcomma }} {% endif %}원</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_ratio_withdraw }}{% endif %}%</td>
+                </tr>
                 </tbody>
               </table>
             </div>
@@ -338,9 +375,6 @@
 
       function trClick(trId) {
           const con = $("tr[name=" + trId + "]");
-
-          console.log(trId);
-          console.log(con);
           if (con.hasClass('d-none')) {
               con.removeClass('d-none');
           } else {
