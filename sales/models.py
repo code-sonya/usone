@@ -55,7 +55,7 @@ class Revenue(models.Model):
 class Purchase(models.Model):
     purchaseId = models.AutoField(primary_key=True)
     revenueId = models.ForeignKey(Revenue, on_delete=models.CASCADE)
-    purchaseCompany = models.CharField(max_length=100)
+    purchaseCompany = models.ForeignKey(Company, on_delete=models.CASCADE)
     purchasePrice = models.BigIntegerField()
     purchaseDate = models.DateField(null=True, blank=True)
     withdrawDate = models.DateField(null=True, blank=True)
