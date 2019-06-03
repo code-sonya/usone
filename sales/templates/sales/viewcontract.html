@@ -145,9 +145,9 @@
           {% if items %}
             <br>
             <h5 class="text-dark mb-3"><b> ▼ 분류</b></h5>
-            <table class="pc-table-main">
+            <table class="pc-table">
               <thead>
-              <tr class="">
+              <tr class="btn-secondary">
                 <td style="width: 25%; border-top: 0px;">대분류</td>
                 <td style="width: 25%; border-top: 0px;">소분류</td>
                 <td style="width: 25%; border-top: 0px;">상세내용</td>
@@ -156,7 +156,7 @@
               </thead>
               <tbody>
               {% for item in items %}
-                <tr>
+                <tr class="thtd">
                   <td>{{ item.mainCategory }}</td>
                   <td>{{ item.subCategory }}</td>
                   <td>{{ item.itemName }}</td>
@@ -208,6 +208,10 @@
           <h5 class="text-dark mb-3"><b> ▼ 입출금정보</b></h5>
           <table style="margin-left:20px">
             <thead>
+            <tr>
+              <td style="width: 25%; border-top: 0px;"><b>연도</b></td>
+              <td style="width: 25%; border-top: 0px;" class='text-primary'><b>2019년</b></td>
+            </tr>
             <tr>
               <td style="width: 25%; border-top: 0px;">총 수금액</td>
               <td style="width: 25%; border-top: 0px;">{{ totalDeposit.sum_deposit | intcomma }} 원</td>
