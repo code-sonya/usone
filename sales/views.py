@@ -10,7 +10,7 @@ from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
 from django.core.serializers.json import DjangoJSONEncoder
-
+from django.db.models.functions import Coalesce
 from hr.models import Employee
 from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase
@@ -127,17 +127,22 @@ def view_contract(request, contractId):
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(revenueId__contractId=contractId)
-    totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Sum('revenuePrice'))
-    totalWithdraw = purchases.filter(withdrawDate__isnull=False).values('purchaseCompany').aggregate(sum_purchase=Sum('purchasePrice'))
-    totalRatio = round(totalWithdraw['sum_purchase'] / totalDeposit['sum_deposit'] * 100, 2)
+    totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'),0))
+    totalWithdraw = purchases.filter(withdrawDate__isnull=False).values('purchaseCompany').aggregate(sum_purchase=Coalesce(Sum('purchasePrice'),0))
+
+    if totalDeposit['sum_deposit'] == 0:
+        totalRatio = '-'
+    else:
+        totalRatio = round(totalWithdraw['sum_purchase'] / totalDeposit['sum_deposit'] * 100, 2)
+
     ##### 입출금정보-매출
     companyDeposit = revenues.values('revenueCompany').annotate(
         filter_deposit=Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
     ).annotate(
         sum_deposit=Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
     ).annotate(
-        ratio_deposit=(Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))) * 100 /
-                        Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))))
+        ratio_deposit=(Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))),0) * 100 /
+                        Coalesce(Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))),0))
     )
 
     companyTotalDeposit = revenues.annotate(
@@ -145,10 +150,14 @@ def view_contract(request, contractId):
     ).annotate(
         sum_deposit=Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
     ).aggregate(
-        a_filter_deposit=Sum('filter_deposit'),
-        a_sum_deposit=Sum('sum_deposit')
+        a_filter_deposit=Coalesce(Sum('filter_deposit'),0),
+        a_sum_deposit=Coalesce(Sum('sum_deposit'),0)
     )
-    companyTotalDeposit['a_ratio_deposit'] = round(companyTotalDeposit['a_filter_deposit'] / companyTotalDeposit['a_sum_deposit'] * 100)
+
+    if companyTotalDeposit['a_sum_deposit'] == 0:
+        companyTotalDeposit['a_ratio_deposit'] = '-'
+    else:
+        companyTotalDeposit['a_ratio_deposit'] = round(companyTotalDeposit['a_filter_deposit'] / companyTotalDeposit['a_sum_deposit'] * 100)
 
     ##### 입출금정보-매입
     companyWithdraw = purchases.values('purchaseCompany').annotate(
@@ -165,10 +174,13 @@ def view_contract(request, contractId):
     ).annotate(
         sum_withdraw=Sum('purchasePrice', filter=(Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
     ).aggregate(
-        a_filter_withdraw=Sum('filter_withdraw'),
-        a_sum_withdraw=Sum('sum_withdraw')
+        a_filter_withdraw=Coalesce(Sum('filter_withdraw'),0),
+        a_sum_withdraw=Coalesce(Sum('sum_withdraw'),0)
     )
-    companyTotalWithdraw['a_ratio_withdraw'] = round(companyTotalWithdraw['a_filter_withdraw'] / companyTotalWithdraw['a_sum_withdraw'] * 100)
+    if (companyTotalWithdraw['a_sum_withdraw']) == 0:
+        companyTotalWithdraw['a_sum_withdraw'] = '-'
+    else:
+        companyTotalWithdraw['a_ratio_withdraw'] = round(companyTotalWithdraw['a_filter_withdraw'] / companyTotalWithdraw['a_sum_withdraw'] * 100)
 
     context = {
         'revenueId': '',
