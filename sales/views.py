@@ -23,7 +23,6 @@ import pandas as pd
 @login_required
 def post_contract(request):
     if request.method == "POST":
-        print(request.POST)
         form = ContractForm(request.POST)
 
         if form.is_valid():

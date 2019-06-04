@@ -7,7 +7,7 @@ from .models import Contract, Goal
 
 
 class ContractForm(forms.ModelForm):
-    saleCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'saleCompanyNames','autocomplete': 'off'}))
+    saleCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off'}))
     endCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'endCompanyNames', 'autocomplete': 'off'}))
 
     class Meta:
@@ -38,16 +38,15 @@ class ContractForm(forms.ModelForm):
 
 
 class GoalForm(forms.ModelForm):
-
     class Meta:
         model = Goal
-        fields = ('empDeptName','empName', 'year', 'sales1', 'sales2', 'sales3', 'sales4', 'sales5', 'sales6', 'sales7', 'sales8', 'sales9', 'sales10', 'sales11', 'sales12',
+        fields = ('empDeptName', 'empName', 'year', 'sales1', 'sales2', 'sales3', 'sales4', 'sales5', 'sales6', 'sales7', 'sales8', 'sales9', 'sales10', 'sales11', 'sales12',
                   'profit1', 'profit2', 'profit3', 'profit4', 'profit5', 'profit6', 'profit7', 'profit8', 'profit9', 'profit10', 'profit11', 'profit12')
 
         widgets = {
             'empDeptName': forms.Select(attrs={'class': 'form-control', 'id': 'empDeptName', 'onchange': "changeDeptName(this.value)"}),
             'empName': forms.Select(attrs={'class': 'form-control', 'id': 'empName'}),
-            'year': forms.TextInput(attrs={"type":"number" ,"min":"1900" ,"max":"2099", "step":"1", 'class': 'form-control', 'id': 'year'}),
+            'year': forms.TextInput(attrs={"type": "number", "min": "1900", "max": "2099", "step": "1", 'class': 'form-control', 'id': 'year'}),
             'sales1': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales1'}),
             'sales2': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales2'}),
             'sales3': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales3'}),
