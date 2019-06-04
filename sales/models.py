@@ -48,6 +48,9 @@ class Revenue(models.Model):
     depositDate = models.DateField(null=True, blank=True)
     billingTime = models.CharField(max_length=10, null=True, blank=True)
     purchasePrice = models.BigIntegerField(null=True, blank=True)
+    accountingPurchasePrice = models.BigIntegerField(null=True, blank=True)
+    accountingProfitPrice = models.BigIntegerField(null=True, blank=True)
+    accountingProfitRatio = models.FloatField(null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
@@ -129,7 +132,7 @@ class Goal(models.Model):
         return '{}년 {} 목표'.format(self.year, self.empName)
 
 
-class Cashflow:
+class Cashflow(models.Model):
     flagChoices = (('매입', '매입'), ('매출', '매출'))
 
     cashflowId = models.AutoField(primary_key=True)
@@ -142,7 +145,7 @@ class Cashflow:
     comment = models.CharField(max_length=200, null=True, blank=True)
 
 
-class Execution:
+class Execution(models.Model):
     executionId = models.AutoField(primary_key=True)
     cashflowId = models.ForeignKey(Cashflow, on_delete=models.CASCADE)
     executionPrice = models.BigIntegerField()
