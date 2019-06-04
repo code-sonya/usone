@@ -11,9 +11,9 @@ class ContractAdmin(admin.ModelAdmin):
 
 @admin.register(Revenue)
 class RevenueAdmin(admin.ModelAdmin):
-    list_display = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate')
-    list_filter = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate')
-    list_display_links = ['contractId', 'revenueCompany', 'revenuePrice', 'billingDate']
+    list_display = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio')
+    list_filter = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio')
+    list_display_links = ['contractId', 'revenueCompany', 'revenuePrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio']
 
 
 @admin.register(Purchase)

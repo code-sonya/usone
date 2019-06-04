@@ -22,6 +22,8 @@ class Contract(models.Model):
     comment = models.CharField(max_length=200, null=True, blank=True)
     saleType = models.CharField(max_length=10, choices=saleTypeChoices, default='직판')
     saleIndustry = models.CharField(max_length=10, choices=saleIndustryChoices, default='금융')
+    mainCategory = models.CharField(max_length=50)
+    subCategory = models.CharField(max_length=50)
     salePrice = models.BigIntegerField()
     profitPrice = models.BigIntegerField()
     profitRatio = models.FloatField()
@@ -125,3 +127,24 @@ class Goal(models.Model):
 
     def __str__(self):
         return '{}년 {} 목표'.format(self.year, self.empName)
+
+
+class Cashflow:
+    flagChoices = (('매입', '매입'), ('매출', '매출'))
+
+    cashflowId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    price = models.BigIntegerField()
+    executionPrice = models.BigIntegerField()
+    executionRatio = models.FloatField()
+    flag = models.CharField(max_length=20, choices=flagChoices)
+    comment = models.CharField(max_length=200, null=True, blank=True)
+
+
+class Execution:
+    executionId = models.AutoField(primary_key=True)
+    cashflowId = models.ForeignKey(Cashflow, on_delete=models.CASCADE)
+    executionPrice = models.BigIntegerField()
+    executionDate = models.DateField(null=True, blank=True)
+    comment = models.CharField(max_length=200, null=True, blank=True)
