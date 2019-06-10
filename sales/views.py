@@ -12,7 +12,7 @@ from xhtml2pdf import pisa
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from hr.models import Employee
-from .forms import ContractForm, GoalForm
+from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase
 from service.models import Company, Customer
 from django.db.models import Q
@@ -632,7 +632,7 @@ def upload_csv(request):
         df = df[df.col1 != '-']
         df = df[df.col0 != '-']
         companylst = list(Company.objects.all().values('companyNameKo'))
-        df['check'] = df.apply(lambda x : 'Y' if {'companyNameKo':x.col5} in companylst else 'N', axis=1)
+        df['check'] = df.apply(lambda x: 'Y' if {'companyNameKo': x.col5} in companylst else 'N', axis=1)
         dfTrue = df[df.check == 'Y']
         dfFalse = df[df.check == 'N']
 
@@ -652,8 +652,8 @@ def upload_csv(request):
     context = {
         "dfhead": dfhead,
         "dfbody": dfbody,
-        "dfbodyFalse":dfbodyFalse,
-        "datalen":datalen-1
+        "dfbodyFalse": dfbodyFalse,
+        "datalen": datalen - 1
     }
 
     return render(request, 'sales/uploadpurchase.html', context)
@@ -672,17 +672,119 @@ def save_purchase(request):
         purchaseAmount = request.POST.getlist('purchaseAmount')
         paymentDate = request.POST.getlist('paymentDate')
 
-        for a, b, c, d, e, f, g, h in zip(controlNumber, batch, salesAmount, collectionDate, purchaseDate, companyName, purchaseAmount, paymentDate ):
-            print ( a, b, c, d, e, f, g, h)
+        for a, b, c, d, e, f, g, h in zip(controlNumber, batch, salesAmount, collectionDate, purchaseDate, companyName, purchaseAmount, paymentDate):
+            print(a, b, c, d, e, f, g, h)
 
     context = {
-        "message" : "등록이 완료 되었습니다."
+        "message": "등록이 완료 되었습니다."
     }
     return render(request, 'sales/uploadpurchase.html', context)
 
 
 def show_purchases(request):
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+
+    if request.method == "POST":
+        startdate = request.POST["startdate"]
+        enddate = request.POST["enddate"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        saleCompanyName = request.POST['saleCompanyName']
+        contractName = request.POST['contractName']
+        modifyMode = request.POST['modifyMode']
+
+
+    else:
+        startdate = ''
+        enddate = ''
+        empDeptName = ''
+        empName = ''
+        saleCompanyName = ''
+        contractName = ''
+        modifyMode = 'N'
+
     context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
+        'modifyMode': modifyMode,
+    }
+
+    return render(request, 'sales/showpurchases.html', context)
+
+
+@login_required
+@csrf_exempt
+def save_purchasetable(request):
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    predictBillingDate = request.GET.getlist('predictBillingDate')
+    billingDate = request.GET.getlist('billingDate')
+    purchasePrice = request.GET.getlist('purchasePrice')
+    predictWithdrawDate = request.GET.getlist('predictWithdrawDate')
+    withdrawDate = request.GET.getlist('withdrawDate')
+    purchaseId = request.GET.getlist('purchaseId')
+
+    for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, purchasePrice, predictWithdrawDate, withdrawDate):
+        purchase = Purchase.objects.get(purchaseId = a)
+        purchase.predictBillingDate = b or None
+        purchase.billingDate = c or None
+        purchase.purchasePrice = d
+        purchase.predictWithdrawDate = e or None
+        purchase.withdrawDate = f or None
+        purchase.save()
+
+    ### 초기화
+    startdate = ''
+    enddate = ''
+    empDeptName = ''
+    empName = ''
+    saleCompanyName = ''
+    contractName = ''
+    modifyMode = 'N'
+
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
+        'modifyMode': modifyMode,
     }
     return render(request, 'sales/showpurchases.html', context)
 
+
+@login_required
+@csrf_exempt
+def purchases_asjson(request):
+    startdate = request.POST["startdate"]
+    enddate = request.POST["enddate"]
+    empDeptName = request.POST['empDeptName']
+    empName = request.POST['empName']
+    saleCompanyName = request.POST['saleCompanyName']
+    contractName = request.POST['contractName']
+
+    purchase = Purchase.objects.all()
+
+    if startdate:
+        purchase = purchase.filter(predictBillingDate__gte=startdate)
+    if enddate:
+        purchase = purchase.filter(predictBillingDate__lte=enddate)
+    if empDeptName != '전체' and empDeptName != '':
+        purchase = purchase.filter(contractId__empDeptName=empDeptName)
+    if empName != '전체' and empName != '':
+        purchase = purchase.filter(contractId__empName=empName)
+    if saleCompanyName:
+        purchase = purchase.filter(contractId__saleCompanyName__companyName__icontains=saleCompanyName)
+    if contractName:
+        purchase = purchase.filter(contractId__contractName__contains=contractName)
+
+    purchase = purchase.values('contractId__contractName', 'purchaseCompany', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
+                               'predictWithdrawDate', 'withdrawDate', 'purchaseId')
+    structure = json.dumps(list(purchase), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

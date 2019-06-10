@@ -48,33 +48,45 @@
         </div>
         <div class="card-body">
           {% csrf_token %}
-
+          {% if modifyMode == 'N' %}
+            <div class="float-right">
+              <div class="btn btn-success" id="modifyMode" onclick="btn_modifyMode()">수정하기<i class="fas fa-table fa-fw text-white"></i></div>
+            </div>
+          {% endif %}
+          {% if modifyMode == 'Y' %}
+            <div class="float-right">
+              <button class="btn btn-danger" id="savePurchaseTable">저장하기<i class="fas fa-save fa-fw text-white"></i></button>
+            </div>
+          {% endif %}
           <div class="table-responsive">
-            <table id="showrevenues" class="hover row-border" width="100%" style="width: 100%;">
-              <thead>
-              <tr>
-                <th>계약명</th>
-                <th>업체명</th>
-                <th>매입예정일</th>
-                <th>매입일</th>
-                <th>매입금액</th>
-                <th>지급예정일</th>
-                <th>지급일</th>
-                <th class="d-none">purchaseId</th>
-              </tr>
-              </thead>
-              <tfoot>
-              <tr>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-              </tr>
-              </tfoot>
-            </table>
+            <form id="purchaseForm" action="/sales/savepurchasetable/">
+              <table id="showrevenues" class="hover row-border" width="100%" style="width: 100%;">
+                <thead>
+                <tr>
+                  <th>업체명</th>
+                  <th>계약명</th>
+                  <th>매입예정일</th>
+                  <th>매입일</th>
+                  <th>매입금액</th>
+                  <th>지급예정일</th>
+                  <th>지급일</th>
+                  <th class="d-none">purchaseId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                </tr>
+                </tfoot>
+              </table>
+            </form>
           </div>
         </div>
       </div>
@@ -96,7 +108,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+          <form id="filterForm" action="/sales/showpurchases/"  method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
@@ -156,7 +168,31 @@
 
   <script type="text/javascript">
       function btn_filter() {
+          const filterForm = document.getElementById("filterForm");
+          let modifyMode = document.createElement("input");
+          modifyMode.setAttribute("type", "hidden");
+          modifyMode.setAttribute("name", "modifyMode");
+          modifyMode.setAttribute("value", '{{ modifyMode }}');
+          filterForm.appendChild(modifyMode);
           document.getElementById("filterForm").submit();
+      }
+
+      function btn_modifyMode() {
+          const filterForm = document.getElementById("filterForm");
+          let modifyMode = document.createElement("input");
+          modifyMode.setAttribute("type", "hidden");
+          modifyMode.setAttribute("name", "modifyMode");
+          modifyMode.setAttribute("value", 'Y');
+          filterForm.appendChild(modifyMode);
+          filterForm.submit();
+      }
+
+      function btn_savePurchaseTable2() {
+          const purchaseForm = document.getElementById("purchaseForm");
+          console.log(purchaseForm);
+          if (confirm("변경된 매입 정보를 모두 저장하시겠습니까?") === true) {
+              purchaseForm.submit();
+          }
       }
 
       function changeDeptName(empDeptName, selectId) {
@@ -164,7 +200,15 @@
               url: "{% url 'sales:empdept_ajax_url' %}",
               method: 'POST',
               cache: false,
-              data: {"empDeptName": empDeptName},
+              data: {
+                  "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
+                  "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                  "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
+                  "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                  "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
+                  "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
+                  "modifyMode": "{{ modifyMode }}"
+              },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var empName = returnData;
@@ -184,13 +228,15 @@
           if (str != null) {
               var new_str = str.split(searchStr).join(replaceStr);
               return new_str.split("T").join(" ").slice(0, 10);
-          }else{
-              return str
+          } else {
+              return '-'
           }
       }
 
       $(document).ready(function () {
           $('#showrevenues').dataTable({
+              "scrollX": true,
+              "autoWidth": false,
               "processing": true,
               "ajax": {
                   "processing": true,
@@ -202,34 +248,65 @@
                       "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
+                      "modifyMode": "{{ modifyMode }}"
                   },
-                  "url": "{% url 'sales:revenues_ajax_url' %}",
+                  "url": "{% url 'sales:purchases_ajax_url' %}",
                   "dataSrc": ""
               },
               "columns": [
-                  {data: 'contractId__empDeptName'},
-                  {data: 'contractId__empName'},
+                  {data: 'purchaseCompany'},
                   {
                       data: 'contractId__contractName',
                       render: function (data, type, row) {
                           return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
                       }
                   },
-                  {data: 'contractId__saleCompanyName__companyName'},
-                  {data: 'revenuePrice'},
-                  {data: 'revenueProfitPrice'},
+                  {data: 'predictBillingDate'},
                   {data: 'billingDate'},
-                  {data: 'revenueId'},
+                  {data: 'purchasePrice'},
+                  {data: 'predictWithdrawDate'},
+                  {data: 'withdrawDate'},
+                  {data: 'purchaseId'},
               ],
               "columnDefs": [
-                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
+                  {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="date" name="predictBillingDate" value="' + data + '" />'
+                      },
+                      targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="date" name="billingDate" value="' + data + '" />'
+                      },
+                      targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  },
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="text" name="purchasePrice" value="' + data + '" />'
+                      },
+                      targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="date" name="predictWithdrawDate" value="' + data + '" />'
+                      },
+                      targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="date" name="withdrawDate" value="' + data + '" />'
+                      },
+                      targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
+                  {
+                      "render": function (data, type, row) {
+                          return '<div name="purchaseId" >' + data + '</div>'
+                      },
+                      targets: 7 ,  className: "d-none"
+                  }
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -266,33 +343,51 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString() + '원');
-                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString() + '원');
-                  $('td:eq(6)', nRow).text(replaceAll(aData.billingDate, "-", "."));
+                  {% if modifyMode == 'N' %}
+                      $('td:eq(2)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+                      $('td:eq(3)', nRow).text(replaceAll(aData.billingDate, "-", "."));
+                      $('td:eq(4)', nRow).text(aData.purchasePrice.toLocaleString() + '원');
+                      $('td:eq(5)', nRow).text(replaceAll(aData.predictWithdrawDate, "-", "."));
+                      $('td:eq(6)', nRow).text(replaceAll(aData.withdrawDate, "-", "."));
+                  {% endif %}
               },
               "footerCallback": function () {
                   var api = this.api(), data;
 
-                  var revenueResult = 0;
+                  var purchaseResult = 0;
                   api.column(4, {search: 'applied'}).data().each(function (data, index) {
-                      revenueResult += parseFloat(data);
+                      purchaseResult += parseFloat(data);
                   });
-                  $(api.column(4).footer()).html(revenueResult.toLocaleString() + '원');
+                  $(api.column(4).footer()).html(purchaseResult.toLocaleString() + '원');
 
-                  var profitResult = 0;
-                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
-                      profitResult += parseFloat(data);
-                  });
-                  $(api.column(5).footer()).html(profitResult.toLocaleString() + '원');
               },
           });
 
           var table = $('#showrevenues').DataTable();
 
-          $("#showrevenues").on("click", 'tr', function () {
-              const data = table.row(this).data();
-              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
-          });
+          {% if modifyMode == 'N' %}
+              $("#showrevenues").on("click", 'tr', function () {
+                  const data = table.row(this).data();
+                  location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+              });
+          {% endif %}
+
+          {% if modifyMode == 'Y' %}
+              $('#savePurchaseTable').click(function () {
+                  const purchaseForm = document.getElementById("purchaseForm");
+
+                  const lengthPurchase = $('[name="purchaseId"]').length;
+                  for (var i = 0; i <= lengthPurchase - 1; i++) {
+                      const purchase = document.createElement("input");
+                      const data = $('div[name="purchaseId"]').eq(i).text();
+                      purchase.setAttribute("type", "hidden");
+                      purchase.setAttribute("name", "purchaseId");
+                      purchase.setAttribute("value", data);
+                      purchaseForm.appendChild(purchase);
+                  }
+                  purchaseForm.submit()
+              });
+          {% endif %}
       });
 
   </script>

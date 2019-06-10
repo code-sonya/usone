@@ -24,7 +24,9 @@ urlpatterns = [
     url(r'^modifygoal/(?P<goalId>.+)/$', views.modify_goal, name='modifygoal'),
     url(r'^deletegoal/(?P<goalId>.+)/$', views.delete_goal, name='deletegoal'),
     url(r'^showpurchases/', views.show_purchases, name='showpurchases'),
+    url(r'^purchasesasjson/$', views.purchases_asjson, name='purchases_ajax_url'),
     url(r'^uploadpurchase/', views.upload_purchase, name='uploadpurchase'),
     url(r'^uploadcsv/', views.upload_csv, name='uploadcsv'),
     url(r'^savepurchase/', views.save_purchase, name='savepurchase'),
+    url(r'^savepurchasetable/', views.save_purchasetable, name='savepurchasetable'),
 ]

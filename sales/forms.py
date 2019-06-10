@@ -3,7 +3,7 @@ from django.db.models import Q
 
 from hr.models import Employee
 from client.models import Company, Customer
-from .models import Contract, Goal
+from .models import Contract, Goal, Purchase
 
 
 class ContractForm(forms.ModelForm):
@@ -75,3 +75,21 @@ class GoalForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(GoalForm, self).__init__(*args, **kwargs)
+
+
+class PurchaseForm(forms.ModelForm):
+    class Meta:
+        model = Purchase
+        fields = ('purchaseId', 'predictBillingDate', 'billingDate', 'purchasePrice', 'predictWithdrawDate', 'withdrawDate')
+
+        widgets = {
+            'purchaseId': forms.TextInput(attrs={'class': 'form-control', 'id': 'purchaseId'}),
+            'predictBillingDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'predictBillingDate'}),
+            'billingDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'billingDate'}),
+            'purchasePrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'purchasePrice'}),
+            'predictWithdrawDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'predictWithdrawDate'}),
+            'withdrawDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'withdrawDate'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PurchaseForm, self).__init__(*args, **kwargs)
