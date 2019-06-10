@@ -368,7 +368,7 @@
           {% if modifyMode == 'N' %}
               $("#showrevenues").on("click", 'tr', function () {
                   const data = table.row(this).data();
-                  location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+                  location.href = '/sales/viewpurchase/' + data.purchaseId + '/'
               });
           {% endif %}
 

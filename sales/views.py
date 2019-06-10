@@ -811,3 +811,22 @@ def purchases_asjson(request):
                                'predictWithdrawDate', 'withdrawDate', 'purchaseId')
     structure = json.dumps(list(purchase), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def view_purchase(request, purchaseId):
+    purchase = Purchase.objects.get(purchaseId=purchaseId)
+    contract = Contract.objects.get(contractId=purchase.contractId.contractId)
+    items = Contractitem.objects.filter(contractId=purchase.contractId.contractId)
+    revenues = Revenue.objects.filter(contractId=purchase.contractId.contractId)
+
+    context = {
+        'purchase': int(purchaseId),
+        'contract': contract,
+        'items': items,
+        'revenues': revenues,
+        'purchase' : purchase,
+    }
+
+    return render(request, 'sales/viewcontract.html', context)

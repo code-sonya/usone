@@ -29,4 +29,5 @@ urlpatterns = [
     url(r'^uploadcsv/', views.upload_csv, name='uploadcsv'),
     url(r'^savepurchase/', views.save_purchase, name='savepurchase'),
     url(r'^savepurchasetable/', views.save_purchasetable, name='savepurchasetable'),
+    url(r'^viewpurchase/(?P<purchaseId>.+)/$', views.view_purchase, name='viewpurchase'),
 ]
