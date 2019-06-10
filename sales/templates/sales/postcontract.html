@@ -97,45 +97,49 @@
               </div>
             </div>
 
-            <div id="Firm" class="d-none">
-              <hr class="divider">
-              <div class="form-group row">
-                <div class="col-xl-12">
-                  <h5 class="text-dark mb-3"><b> ▼ 세부사항</b></h5>
-                  <table id="categoryItem" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>구분</th>
-                      <th>대분류</th>
-                      <th>소분류</th>
-                      <th>상세내용</th>
-                      <th>가격</th>
-                      <th><i id="addItem" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                  </table>
-                </div>
-              </div>
-
-              <hr class="divider">
-              <div class="form-group row">
-                <div class="col-xl-12">
-                  <h5 class="text-dark mb-3"><b> ▼ 매출정보</b></h5>
-                  <table id="revenue" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>구분</th>
-                      <th>빌링일자</th>
-                      <th>매출금액</th>
-                      <th>이익금액</th>
-                      <th>비고</th>
-                      <th><i id="addRevenue" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                  </table>
-                </div>
+            <hr class="divider">
+            <div class="form-group row">
+              <div class="col-xl-12">
+                <h5 class="text-dark mb-3"><b> ▼ 세부사항</b></h5>
+                <table id="categoryItem" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>구분</th>
+                    <th>대분류</th>
+                    <th>소분류</th>
+                    <th>상세내용</th>
+                    <th>가격</th>
+                    <th><i id="addItem" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                </table>
               </div>
             </div>
+
+            <hr class="divider">
+            <div class="form-group row">
+              <div class="col-xl-12">
+                <h5 class="text-dark mb-3"><b>▼ 매출세부정보</b></h5>
+                <table id="revenue" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>구분</th>
+                    <th>회차</th>
+                    <th>매출예정일</th>
+                    <th>매출발행일</th>
+                    <th>수금일</th>
+                    <th>매출처</th>
+                    <th>매출금액</th>
+                    <th>GP</th>
+                    <th>비고</th>
+                    <th>매입</th>
+                    <th><i id="addRevenue" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
+
             <div class="text-center">
               <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
                 <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
@@ -171,9 +175,9 @@
       }
 
       function btn_save() {
+          moneyChange();
+
           const ContractForm = document.getElementById("ContractForm");
-          ContractForm.salePrice.value = ContractForm.salePrice.value.replace(/,/g, '');
-          ContractForm.profitPrice.value = ContractForm.profitPrice.value.replace(/,/g, '');
 
           const lengthItem = $('[name="itemId"]').length;
           const listItem = new Array();
@@ -183,7 +187,7 @@
               data.mainCategory = $('select[name="mainCategory"]').eq(i).val();
               data.subCategory = $('select[name="subCategory"]').eq(i).val();
               data.itemName = $('input[name="itemName"]').eq(i).val();
-              data.itemPrice = $('input[name="itemPrice"]').eq(i).val().replace(/,/g, '');
+              data.itemPrice = $('input[name="itemPrice"]').eq(i).val();
               listItem.push(data);
           }
           const jsonItem = JSON.stringify(listItem);
@@ -196,12 +200,11 @@
           const lengthRevenue = $('[name="revenueId"]').length;
           const listRevenue = new Array();
           for (var i = 0; i <= lengthRevenue - 1; i++) {
-              // 객체 생성
               var data = new Object();
               data.revenueId = $('div[name="revenueId"]').eq(i).text();
               data.billingDate = $('input[name="billingDate"]').eq(i).val();
               data.revenuePrice = $('input[name="revenuePrice"]').eq(i).val().replace(/,/g, '');
-              data.revenueProfitPrice = $('input[name="revenueProfitPrice"]').eq(i).val().replace(/,/g, '');
+              data.revenueProfitPrice = $('input[name="revenueProfitPrice"]').eq(i).val();
               data.revenueComment = $('input[name="revenueComment"]').eq(i).val();
               listRevenue.push(data);
           }
@@ -355,7 +358,6 @@
 
 
           if ($('#contractStep').val() === 'Firm') {
-              $('#Firm').removeClass('d-none');
               $('#contractStartDate').removeAttr('readonly');
               $('#contractEndDate').removeAttr('readonly');
               $('span[name=predict]').addClass('d-none');
@@ -426,6 +428,8 @@
                   itemCounter++;
                   $('.money').simpleMoneyFormat();
               {% endfor %}
+          {% else %}
+              $('#addItem').click();
           {% endif %}
 
           $('#categoryItem').on('click', 'i', function () {
@@ -437,11 +441,12 @@
 
 
           var t2 = $('#revenue').DataTable({
-              "autoWidth": false,
+              "autoWidth": true,
               "searching": false,
               "paging": false,
               "info": false,
               "scrollY": "60vh",
+              "scrollX": true,
               "scrollCollapse": true,
               'fnCreatedRow': function (nRow, aData, iDataIndex) {
                   $(nRow).attr('id', 'row' + iDataIndex);
@@ -449,11 +454,16 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%",  className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 10, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
@@ -462,11 +472,16 @@
           $('#addRevenue').on('click', function () {
               t2.row.add([
                   '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
-                  '<input type="date" name="billingDate" id="revenue1' + revenueCounter + '">',
-                  '<input class="money" name="revenuePrice" id="revenue2' + revenueCounter + '">',
-                  '<input class="money" name="revenueProfitPrice" id="revenue3' + revenueCounter + '">',
-                  '<input type="text" name="revenueComment" id="revenue4' + revenueCounter + '">',
-                  '<i class="fas fa-times-circle" name="remove" >'
+                  '<input type="text" style="width: 50px;" name="billingTime" id="revenue1' + revenueCounter + '">',
+                  '<input type="date" style="width: 150px;" name="predictBillingDate" id="revenue2' + revenueCounter + '">',
+                  '<input type="date" style="width: 150px;" name="billingDate" id="revenue3' + revenueCounter + '">',
+                  '<input type="date" style="width: 150px;" name="DepositDate" id="revenue4' + revenueCounter + '">',
+                  '<input type="text" style="width: 150px;" name="revenueCompany" id="revenue5' + revenueCounter + '">',
+                  '<input class="money" style="width: 150px;" name="revenuePrice" id="revenue6' + revenueCounter + '">',
+                  '<input class="money" style="width: 150px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
+                  '<input type="text" style="width: 150px;" name="revenueComment" id="revenue8' + revenueCounter + '">',
+                  '<i class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem; width: 70px;"></i>',
+                  '<i class="fas fa-times-circle" style="width: 70px;" name="remove">'
               ]).draw(false);
               revenueCounter++;
               $('.money').simpleMoneyFormat();
@@ -485,6 +500,8 @@
                   revenueCounter++;
                   $('.money').simpleMoneyFormat();
               {% endfor %}
+          {% else %}
+              $('#addRevenue').click();
           {% endif %}
 
           $('#revenue').on('click', 'i', function () {
@@ -509,23 +526,23 @@
           $('#contractStep').on("propertychange change keyup paste input", function () {
               const contractStep = $('#contractStep').val();
               if (contractStep === 'Firm') {
-                  $('#Firm').removeClass('d-none');
+                  {#$('#Firm').removeClass('d-none');#}
                   $('#contractStartDate').removeAttr('readonly');
                   $('#contractEndDate').removeAttr('readonly');
-                  t1.clear().draw();
-                  t2.clear().draw();
-                  revenueCounter = 0;
-                  $('#addRevenue').click();
-                  $('#addItem').click();
+                  {#t1.clear().draw();#}
+                  {#t2.clear().draw();#}
+                  {#revenueCounter = 0;#}
+                  {#$('#addRevenue').click();#}
+                  {#$('#addItem').click();#}
                   $('span[name=predict]').addClass('d-none');
               } else {
-                  $('#Firm').addClass('d-none');
+                  {#$('#Firm').addClass('d-none');#}
                   $('#contractStartDate').val('');
                   $('#contractStartDate').attr('readonly', '');
                   $('#contractEndDate').val('');
                   $('#contractEndDate').attr('readonly', '');
-                  t1.clear().draw();
-                  t2.clear().draw();
+                  {#t1.clear().draw();#}
+                  {#t2.clear().draw();#}
                   $('span[name=predict]').removeClass('d-none');
               }
           });

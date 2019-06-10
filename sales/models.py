@@ -43,14 +43,11 @@ class Revenue(models.Model):
     revenuePrice = models.BigIntegerField()
     revenueProfitPrice = models.BigIntegerField()
     revenueProfitRatio = models.FloatField()
-    billingDate = models.DateField(null=True, blank=True)
     predictBillingDate = models.DateField(null=True, blank=True)
+    billingDate = models.DateField(null=True, blank=True)
+    predictDepositDate = models.DateField(null=True, blank=True)
     depositDate = models.DateField(null=True, blank=True)
     billingTime = models.CharField(max_length=10, null=True, blank=True)
-    purchasePrice = models.BigIntegerField(null=True, blank=True)
-    accountingPurchasePrice = models.BigIntegerField(null=True, blank=True)
-    accountingProfitPrice = models.BigIntegerField(null=True, blank=True)
-    accountingProfitRatio = models.FloatField(null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
@@ -59,11 +56,14 @@ class Revenue(models.Model):
 
 class Purchase(models.Model):
     purchaseId = models.AutoField(primary_key=True)
-    revenueId = models.ForeignKey(Revenue, on_delete=models.CASCADE)
+    contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
     purchaseCompany = models.ForeignKey(Company, on_delete=models.CASCADE)
     purchasePrice = models.BigIntegerField()
-    purchaseDate = models.DateField(null=True, blank=True)
+    predictBillingDate = models.DateField(null=True, blank=True)
+    billingDate = models.DateField(null=True, blank=True)
+    predictWithdrawDate = models.DateField(null=True, blank=True)
     withdrawDate = models.DateField(null=True, blank=True)
+    billingTime = models.CharField(max_length=10, null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
 
@@ -130,24 +130,3 @@ class Goal(models.Model):
 
     def __str__(self):
         return '{}년 {} 목표'.format(self.year, self.empName)
-
-
-class Cashflow(models.Model):
-    flagChoices = (('매입', '매입'), ('매출', '매출'))
-
-    cashflowId = models.AutoField(primary_key=True)
-    contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
-    price = models.BigIntegerField()
-    executionPrice = models.BigIntegerField()
-    executionRatio = models.FloatField()
-    flag = models.CharField(max_length=20, choices=flagChoices)
-    comment = models.CharField(max_length=200, null=True, blank=True)
-
-
-class Execution(models.Model):
-    executionId = models.AutoField(primary_key=True)
-    cashflowId = models.ForeignKey(Cashflow, on_delete=models.CASCADE)
-    executionPrice = models.BigIntegerField()
-    executionDate = models.DateField(null=True, blank=True)
-    comment = models.CharField(max_length=200, null=True, blank=True)

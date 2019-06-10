@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contract, Revenue, Category, Contractitem, Goal, Purchase
+from .models import Contract, Revenue, Purchase, Category, Contractitem, Goal
 
 
 @admin.register(Contract)
@@ -11,16 +11,16 @@ class ContractAdmin(admin.ModelAdmin):
 
 @admin.register(Revenue)
 class RevenueAdmin(admin.ModelAdmin):
-    list_display = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio')
-    list_filter = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio')
-    list_display_links = ['contractId', 'revenueCompany', 'revenuePrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio']
+    list_display = ('revenueId', 'contractId', 'revenueCompany', 'revenuePrice', 'predictBillingDate', 'billingDate', 'predictDepositDate', 'depositDate', 'billingTime')
+    list_filter = ('revenueId', 'contractId', 'revenueCompany', 'revenuePrice', 'predictBillingDate', 'billingDate', 'predictDepositDate', 'depositDate', 'billingTime')
+    list_display_links = ['revenueId', 'contractId', 'revenueCompany', 'revenuePrice', 'predictBillingDate', 'billingDate', 'predictDepositDate', 'depositDate', 'billingTime']
 
 
 @admin.register(Purchase)
 class PurchaseAdmin(admin.ModelAdmin):
-    list_display = ('purchaseId', 'purchaseCompany', 'purchasePrice', 'purchaseDate')
-    list_filter = ('purchaseId', 'purchaseCompany', 'purchasePrice', 'purchaseDate')
-    list_display_links = ['purchaseId', 'purchaseCompany', 'purchasePrice', 'purchaseDate']
+    list_display = ('purchaseId', 'contractId', 'purchaseCompany', 'purchasePrice', 'predictBillingDate', 'billingDate', 'predictWithdrawDate', 'withdrawDate', 'billingTime')
+    list_filter = ('purchaseId', 'contractId', 'purchaseCompany', 'purchasePrice', 'predictBillingDate', 'billingDate', 'predictWithdrawDate', 'withdrawDate', 'billingTime')
+    list_display_links = ['purchaseId', 'contractId', 'purchaseCompany', 'purchasePrice', 'predictBillingDate', 'billingDate', 'predictWithdrawDate', 'withdrawDate', 'billingTime']
 
 
 @admin.register(Category)

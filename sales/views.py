@@ -120,9 +120,9 @@ def show_contracts(request):
 def view_contract(request, contractId):
     todayYear = datetime.today().year
     contract = Contract.objects.get(contractId=contractId)
-    print(contract.contractStartDate.year)
-    print(contract.contractEndDate)
-    yearList = [i for i in range(int(contract.contractStartDate.year), int(contract.contractEndDate.year) + 1)]
+    # print(contract.contractStartDate.year)
+    # print(contract.contractEndDate)
+    # yearList = [i for i in range(int(contract.contractStartDate.year), int(contract.contractEndDate.year) + 1)]
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(revenueId__contractId=contractId)
