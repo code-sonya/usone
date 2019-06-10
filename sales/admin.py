@@ -4,16 +4,16 @@ from .models import Contract, Revenue, Category, Contractitem, Goal, Purchase
 
 @admin.register(Contract)
 class ContractAdmin(admin.ModelAdmin):
-    list_display = ('contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep')
-    list_filter = ('saleCompanyName', 'endCompanyName')
-    list_display_links = ['contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep']
+    list_display = ('contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep','contractCode')
+    list_filter = ('saleCompanyName', 'endCompanyName','contractCode')
+    list_display_links = ['contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep','contractCode']
 
 
 @admin.register(Revenue)
 class RevenueAdmin(admin.ModelAdmin):
-    list_display = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio')
-    list_filter = ('contractId', 'revenueCompany', 'revenuePrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio')
-    list_display_links = ['contractId', 'revenueCompany', 'revenuePrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio']
+    list_display = ('contractId', 'revenueCompany', 'revenuePrice', 'revenueProfitPrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio','purchasePrice')
+    list_filter = ('contractId', 'revenueCompany', 'revenuePrice', 'revenueProfitPrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio')
+    list_display_links = ['contractId', 'revenueCompany', 'revenuePrice', 'revenueProfitPrice', 'billingDate', 'billingTime', 'predictBillingDate', 'revenueProfitRatio','purchasePrice']
 
 
 @admin.register(Purchase)

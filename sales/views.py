@@ -18,6 +18,7 @@ from service.models import Company, Customer
 from django.db.models import Q
 from datetime import datetime, timedelta
 import pandas as pd
+import time
 
 
 @login_required
@@ -121,14 +122,12 @@ def show_contracts(request):
 def view_contract(request, contractId):
     todayYear = datetime.today().year
     contract = Contract.objects.get(contractId=contractId)
-    print(contract.contractStartDate.year)
-    print(contract.contractEndDate)
     yearList = [i for i in range(int(contract.contractStartDate.year), int(contract.contractEndDate.year) + 1)]
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(revenueId__contractId=contractId)
-    totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'),0))
-    totalWithdraw = purchases.filter(withdrawDate__isnull=False).values('purchaseCompany').aggregate(sum_purchase=Coalesce(Sum('purchasePrice'),0))
+    totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))
+    totalWithdraw = purchases.filter(withdrawDate__isnull=False).values('purchaseCompany').aggregate(sum_purchase=Coalesce(Sum('purchasePrice'), 0))
 
     if totalDeposit['sum_deposit'] == 0:
         totalRatio = '-'
@@ -141,8 +140,8 @@ def view_contract(request, contractId):
     ).annotate(
         sum_deposit=Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
     ).annotate(
-        ratio_deposit=(Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))),0) * 100 /
-                        Coalesce(Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))),0))
+        ratio_deposit=(Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))), 0) * 100 /
+                       Coalesce(Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))), 0))
     )
 
     companyTotalDeposit = revenues.annotate(
@@ -150,8 +149,8 @@ def view_contract(request, contractId):
     ).annotate(
         sum_deposit=Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
     ).aggregate(
-        a_filter_deposit=Coalesce(Sum('filter_deposit'),0),
-        a_sum_deposit=Coalesce(Sum('sum_deposit'),0)
+        a_filter_deposit=Coalesce(Sum('filter_deposit'), 0),
+        a_sum_deposit=Coalesce(Sum('sum_deposit'), 0)
     )
 
     if companyTotalDeposit['a_sum_deposit'] == 0:
@@ -174,8 +173,8 @@ def view_contract(request, contractId):
     ).annotate(
         sum_withdraw=Sum('purchasePrice', filter=(Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
     ).aggregate(
-        a_filter_withdraw=Coalesce(Sum('filter_withdraw'),0),
-        a_sum_withdraw=Coalesce(Sum('sum_withdraw'),0)
+        a_filter_withdraw=Coalesce(Sum('filter_withdraw'), 0),
+        a_sum_withdraw=Coalesce(Sum('sum_withdraw'), 0)
     )
     if (companyTotalWithdraw['a_sum_withdraw']) == 0:
         companyTotalWithdraw['a_sum_withdraw'] = '-'
@@ -192,9 +191,9 @@ def view_contract(request, contractId):
         'totalWithdraw': totalWithdraw,
         'totalDeposit': totalDeposit,
         'totalRatio': totalRatio,
-        'companyDeposit':companyDeposit,
-        'companyTotalDeposit':companyTotalDeposit,
-        'companyTotalWithdraw':companyTotalWithdraw,
+        'companyDeposit': companyDeposit,
+        'companyTotalDeposit': companyTotalDeposit,
+        'companyTotalWithdraw': companyTotalWithdraw,
     }
     return render(request, 'sales/viewcontract.html', context)
 
@@ -615,21 +614,74 @@ def upload_purchase(request):
 
 @login_required
 def upload_csv(request):
-    data = {}
     if "GET" == request.method:
         pass
-
     try:
         csv_file = request.FILES["csv_file"]
         xl_file = pd.ExcelFile(csv_file)
-        dfs = pd.read_excel(xl_file, sheet_name='매출현황자료', skiprows=[0, 1, 2])
-        print(dfs)
+        data = pd.read_excel(xl_file, skiprows=[0, 1, 2])
+        datalen = len(data)
+        col = data.columns
+        col_lst = [col[1], col[5], col[7], col[8], col[9], col[10], col[11], col[12]]
+        df = data[col_lst]
+        dfhead = df[:1]
+        df = df.rename(columns={'관리\n번호': 'col0', '회차': 'col1', '총매출액': 'col2', '수금일': 'col3', '매입일': 'col4', '업체명': 'col5', '매입금액': 'col6', '지급일': 'col7'})
+        ### 전처리
+        df = df.fillna('-')
+        df = df[df.col1 != '-']
+        df = df[df.col0 != '-']
+        companylst = list(Company.objects.all().values('companyNameKo'))
+        df['check'] = df.apply(lambda x : 'Y' if {'companyNameKo':x.col5} in companylst else 'N', axis=1)
+        dfTrue = df[df.check == 'Y']
+        dfFalse = df[df.check == 'N']
+
+        dfbody = []
+        for index, rows in dfTrue.iterrows():
+            my_dict = {"col0": rows[0], "col1": rows[1], "col2": rows[2], "col3": rows[3], "col4": rows[4], "col5": rows[5], "col6": rows[6], "col7": rows[7]}
+            dfbody.append(my_dict)
+
+        dfbodyFalse = []
+        for index, rows in dfFalse.iterrows():
+            my_dict = {"col0": rows[0], "col1": rows[1], "col2": rows[2], "col3": rows[3], "col4": rows[4], "col5": rows[5], "col6": rows[6], "col7": rows[7]}
+            dfbodyFalse.append(my_dict)
 
     except Exception as e:
         print(e)
 
     context = {
-        "dfs": dfs
+        "dfhead": dfhead,
+        "dfbody": dfbody,
+        "dfbodyFalse":dfbodyFalse,
+        "datalen":datalen-1
     }
 
     return render(request, 'sales/uploadpurchase.html', context)
+
+
+@login_required
+@csrf_exempt
+def save_purchase(request):
+    if "POST" == request.method:
+        controlNumber = request.POST.getlist('controlNumber')
+        batch = request.POST.getlist('batch')
+        salesAmount = request.POST.getlist('salesAmount')
+        collectionDate = request.POST.getlist('collectionDate')
+        purchaseDate = request.POST.getlist('purchaseDate')
+        companyName = request.POST.getlist('companyName')
+        purchaseAmount = request.POST.getlist('purchaseAmount')
+        paymentDate = request.POST.getlist('paymentDate')
+
+        for a, b, c, d, e, f, g, h in zip(controlNumber, batch, salesAmount, collectionDate, purchaseDate, companyName, purchaseAmount, paymentDate ):
+            print ( a, b, c, d, e, f, g, h)
+
+    context = {
+        "message" : "등록이 완료 되었습니다."
+    }
+    return render(request, 'sales/uploadpurchase.html', context)
+
+
+def show_purchases(request):
+    context = {
+    }
+    return render(request, 'sales/showpurchases.html', context)
+

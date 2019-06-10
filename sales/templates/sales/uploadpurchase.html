@@ -9,6 +9,38 @@
 {% block css %}
 
   <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 15px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .pc-table-main {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table-main td, .pc-table-main th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 18px;
+      border-top: 1px dotted #858796a3;
+    }
+
 
   </style>
 
@@ -32,21 +64,114 @@
             <form action="{% url "sales:uploadcsv" %}" method="POST" enctype="multipart/form-data" class="form-horizontal center">
               {% csrf_token %}
               <div class="form-group">
-                <label for="name" class="col-md-3 col-sm-3 col-xs-12 control-label">File : </label>
-                <div class="col-md-8">
-                  <input type="file" name="csv_file" id="csv_file" required="True" class="form-control">
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="col-md-3 col-sm-3 col-xs-12 col-md-offset-3" style="margin-bottom:10px;">
-                  <button class="btn btn-primary"><span class="glyphicon glyphicon-upload" style="margin-right:5px;"></span>Upload</button>
+                <div class="row">
+                  <label for="name" class="col-md-12 control-label">파일 첨부 : </label>
+                  <div class="col-md-10">
+                    <input type="file" name="csv_file" id="csv_file" required="True" class="form-control">
+                  </div>
+                  <div class="col-md-2 right">
+                    <button class="btn btn-primary"><span class="glyphicon glyphicon-upload" style="margin-right:5px;"></span>upload</button>
+                  </div>
                 </div>
               </div>
             </form>
           </div>
+          <hr>
+          <div>
+            <h6>전체 {{ datalen }} 중 {{ dfbodyFalse | length }} 건 실패</h6>
+            <table class="pc-table">
+              <thead>
+              <tr class="btn-danger">
+                {% for i in dfhead %}
+                  <td colspan="1">{{ i }}</td>
+                {% endfor %}
+              </tr>
+              </thead>
+              <tbody>
+              {% for i in dfbodyFalse %}
+                <tr>
+                  <td colspan="1"><input name="controlNumber" value="{{ i.col0 }}"></td>
+                  <td colspan="1"><input name="batch" value="{{ i.col1 }}"></td>
+                  <td colspan="1"><input name="salesAmount" value="{{ i.col2 |intcomma }}"></td>
+                  <td colspan="1">
+                    {% if i.col3 == '-' %}
+                      <input name="collectionDate" value="{{ i.col3 }}">
+                    {% else %}
+                      <input name="collectionDate" value="{{ i.col3 | date }}">
+                    {% endif %}
+                  </td>
+                  <td colspan="1">
+                    {% if i.col4 == '-' %}
+                      <input name="purchaseDate" value="{{ i.col4 }}">
+                    {% else %}
+                      <input name="purchaseDate" value="{{ i.col4 | date }}">
+                    {% endif %}
+                  </td>
+                  <td colspan="1"><input name="companyName" value="{{ i.col5 }}"></td>
+                  <td colspan="1"><input name="purchaseAmount" value="{{ i.col6 | intcomma }}"></td>
+                  <td colspan="1">
+                    {% if i.col7 == '-' %}
+                      <input name="paymentDate" value="{{ i.col7 }}">
+                    {% else %}
+                      <input name="paymentDate" value="{{ i.col7 | date }}">
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h5 class="text-secondary"> ▼ 업로드 결과</h5>
+            <h6>전체 {{ datalen }} 중 {{ dfbody | length }} 건 성공</h6>
+            <form id="purchaseForm" action="{% url "sales:savepurchase" %}" method="POST" enctype="multipart/form-data" class="form-horizontal center">
+              <button class="btn btn-warning" style="float: right;margin-bottom:10px;" onclick="data_save()">확인</button>
+              <h5 class="text-primary text-center"> {{ message }}</h5>
+              <table class="pc-table">
+                <thead>
+                <tr class="btn-secondary">
+                  {% for i in dfhead %}
+                    <td colspan="1">{{ i }}</td>
+                  {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in dfbody %}
+                  <tr>
+                    <td colspan="1"><input name="controlNumber" value="{{ i.col0 }}"></td>
+                    <td colspan="1"><input name="batch" value="{{ i.col1 }}"></td>
+                    <td colspan="1"><input name="salesAmount" value="{{ i.col2 |intcomma }}"></td>
+                    <td colspan="1">
+                      {% if i.col3 == '-' %}
+                        <input name="collectionDate" value="{{ i.col3 }}">
+                      {% else %}
+                        <input name="collectionDate" value="{{ i.col3 | date }}">
+                      {% endif %}
+                    </td>
+                    <td colspan="1">
+                      {% if i.col4 == '-' %}
+                        <input name="purchaseDate" value="{{ i.col4 }}">
+                      {% else %}
+                        <input name="purchaseDate" value="{{ i.col4 | date }}">
+                      {% endif %}
+                    </td>
+                    <td colspan="1"><input name="companyName" value="{{ i.col5 }}"></td>
+                    <td colspan="1"><input name="purchaseAmount" value="{{ i.col6 | intcomma }}"></td>
+                    <td colspan="1">
+                      {% if i.col7 == '-' %}
+                        <input name="paymentDate" value="{{ i.col7 }}">
+                      {% else %}
+                        <input name="paymentDate" value="{{ i.col7 | date }}">
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </form>
+          </div>
         </div>
       </div>
-  <div>{{ dfs }}</div>
     </div>
 
     <div class="col-xl-1"></div>
@@ -66,6 +191,17 @@
       function btn_delete() {
           if (confirm("계약 삭제시, 매출 정보까지 함께 삭제됩니다.\n삭제 하시겠습니까?") === true) {
               location.href = '/sales/deletecontract/' + {{ contract.contractId }} +'/';
+          }
+      }
+
+      function data_save() {
+          const purchaseForm = document.getElementById("purchaseForm");
+
+
+          if (confirm("전체 매입 정보를 업로드 하시겠습니까?") === true) {
+              purchaseForm.submit()
+
+
           }
       }
 
