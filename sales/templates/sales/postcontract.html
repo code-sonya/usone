@@ -318,7 +318,7 @@
       }
 
       function changeRevenueCompany() {
-          $('input[name=revenueCompany]').trigger('set', {id: $('#saleCompanyNames').data("id")});
+          $('input[name=revenueCompany]').trigger('set', {id: $('#saleCompanyNames').val()});
       }
 
       $(document).ready(function () {
@@ -504,7 +504,7 @@
                   '<i class="fas fa-times-circle" name="remove">'
               ]).draw(false);
               $('.money').simpleMoneyFormat();
-              document.getElementById("revenue5" + revenueCounter).setAttribute("data-id", $('#saleCompanyNames').data("id"));
+              document.getElementById("revenue5" + revenueCounter).setAttribute("data-id", $('#saleCompanyNames').val());
               $('#revenue5' + revenueCounter).magicsearch({
                   dataSource: {{ companyNames|safe }},
                   fields: 'value',
