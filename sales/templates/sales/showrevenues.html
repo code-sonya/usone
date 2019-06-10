@@ -9,23 +9,23 @@
 {% block css %}
 
   <style type="text/css">
-      .buttons-copy{
-        background-color: #4e73df;
-        color:white;
-        margin-bottom: 1rem;
-      }
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
 
-      .buttons-excel{
-        background-color: #36b9cc;
-        color:white;
-        margin-bottom: 1rem;
-      }
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
 
-      .buttons-print{
-        background-color: #f6c23e;
-        color:white;
-        margin-bottom: 1rem;
-      }
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
   </style>
 
 {% endblock %}
@@ -64,15 +64,15 @@
               </tr>
               </thead>
               <tfoot>
-                <tr>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;">TOTAL : </th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                </tr>
+              <tr>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+              </tr>
               </tfoot>
             </table>
           </div>
@@ -103,7 +103,7 @@
                 <label for="startdate" class="font-weight-light text-primary">시작일자</label>
                 <input type="date" class="form-control" id="startdate" name="startdate">
               </div>
-               <div class="col-6 mb-3 mb-sm-0">
+              <div class="col-6 mb-3 mb-sm-0">
                 <label for="enddate" class="font-weight-light text-primary">종료일자</label>
                 <input type="date" class="form-control" id="enddate" name="enddate">
               </div>
@@ -181,8 +181,12 @@
       }
 
       function replaceAll(str, searchStr, replaceStr) {
-          var new_str = str.split(searchStr).join(replaceStr);
-          return new_str.split("T").join(" ").slice(0, 10);
+          if (str != null) {
+              var new_str = str.split(searchStr).join(replaceStr);
+              return new_str.split("T").join(" ").slice(0, 10);
+          } else {
+              return str
+          }
       }
 
       $(document).ready(function () {
@@ -207,7 +211,9 @@
                   {data: 'contractId__empName'},
                   {
                       data: 'contractId__contractName',
-                      render: function (data, type, row) {return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];}
+                      render: function (data, type, row) {
+                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
+                      }
                   },
                   {data: 'contractId__saleCompanyName__companyName'},
                   {data: 'revenuePrice'},
@@ -264,20 +270,20 @@
                   $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString() + '원');
                   $('td:eq(6)', nRow).text(replaceAll(aData.billingDate, "-", "."));
               },
-              "footerCallback":function(){
+              "footerCallback": function () {
                   var api = this.api(), data;
 
                   var revenueResult = 0;
-                  api.column(4, {search:'applied'}).data().each(function(data,index){
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(4).footer()).html(revenueResult.toLocaleString() +'원');
+                  $(api.column(4).footer()).html(revenueResult.toLocaleString() + '원');
 
                   var profitResult = 0;
-                  api.column(5, {search:'applied'}).data().each(function(data,index){
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(5).footer()).html(profitResult.toLocaleString() +'원');
+                  $(api.column(5).footer()).html(profitResult.toLocaleString() + '원');
               },
           });
 
