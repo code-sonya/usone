@@ -124,10 +124,10 @@
             <tr>
               <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}계약금액</b></td>
               <td>
-                <div class="text-danger">{{ contract.salePrice | intcomma }} 원</div>
+                <div class="text-danger">{{ contract.salePrice | intcomma }}</div>
               </td>
               <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}이익금액</b></td>
-              <td>{{ contract.profitPrice | intcomma }} 원 ({{ contract.profitRatio }} %)</td>
+              <td>{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio }} %)</td>
             </tr>
             <tr>
               <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}계약일</b></td>
@@ -160,7 +160,7 @@
                   <td>{{ item.mainCategory }}</td>
                   <td>{{ item.subCategory }}</td>
                   <td>{{ item.itemName }}</td>
-                  <td>{{ item.itemPrice | intcomma }} 원</td>
+                  <td>{{ item.itemPrice | intcomma }}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -183,20 +183,20 @@
                 </thead>
                 <tr class="thtd">
                   <td colspan="1" style="border-top: 0px;">2019년</td>
-                  <td colspan="1" style="border-top: 0px;">134,522,617 원</td>
-                  <td colspan="1" style="border-top: 0px;">36,786,617 원</td>
+                  <td colspan="1" style="border-top: 0px;">134,522,617</td>
+                  <td colspan="1" style="border-top: 0px;">36,786,617</td>
                   <td colspan="1" style="border-top: 0px;">27.3%</td>
                 </tr>
                 <tr class="thtd">
                   <td colspan="1" style="border-top: 0px;">2020년</td>
-                  <td colspan="1" style="border-top: 0px;">28,883,203 원</td>
-                  <td colspan="1" style="border-top: 0px;">12,349,203 원</td>
+                  <td colspan="1" style="border-top: 0px;">28,883,203</td>
+                  <td colspan="1" style="border-top: 0px;">12,349,203</td>
                   <td colspan="1" style="border-top: 0px;">42.8%</td>
                 </tr>
                 <tr class="thtd btn-light">
                   <td colspan="1" style="border-top: 0px;">합계</td>
-                  <td colspan="1" style="border-top: 0px;" class="text-danger">163,405,820 원</td>
-                  <td colspan="1" style="border-top: 0px;" class="text-primary">49,135,820 원</td>
+                  <td colspan="1" style="border-top: 0px;" class="text-danger">163,405,820</td>
+                  <td colspan="1" style="border-top: 0px;" class="text-primary">49,135,820</td>
                   <td colspan="1" style="border-top: 0px;" class="text-success">30.1%</td>
                 </tr>
                 </tbody>
@@ -214,11 +214,11 @@
             </tr>
             <tr>
               <td style="width: 25%; border-top: 0px;">총 수금액</td>
-              <td style="width: 25%; border-top: 0px;">{{ totalDeposit.sum_deposit | intcomma }} 원</td>
+              <td style="width: 25%; border-top: 0px;">{{ totalDeposit.sum_deposit | intcomma }}</td>
             </tr>
             <tr>
               <td style="width: 25%; border-top: 0px;">총 지급액</td>
-              <td style="width: 25%; border-top: 0px;">{{ totalWithdraw.sum_purchase | intcomma }} 원</td>
+              <td style="width: 25%; border-top: 0px;">{{ totalWithdraw.sum_purchase | intcomma }}</td>
             </tr>
             <tr>
               <td style="width: 25%; border-top: 0px;">집행률</td>
@@ -242,15 +242,15 @@
                 {% for deposit in companyDeposit %}
                   <tr class="thtd">
                     <td colspan="1" style="border-top: 0px;">{% if deposit.revenueCompany == None %}-{% else %}{{ deposit.revenueCompany }}{% endif %}</td>
-                    <td colspan="1" style="border-top: 0px;">{% if deposit.sum_deposit == None %}0{% else %}{{ deposit.sum_deposit | intcomma }} {% endif %} 원</td>
-                    <td colspan="1" style="border-top: 0px;">{% if deposit.filter_deposit == None %}0{% else %}{{ deposit.filter_deposit | intcomma }} {% endif %}원</td>
+                    <td colspan="1" style="border-top: 0px;">{% if deposit.sum_deposit == None %}0{% else %}{{ deposit.sum_deposit | intcomma }} {% endif %}</td>
+                    <td colspan="1" style="border-top: 0px;">{% if deposit.filter_deposit == None %}0{% else %}{{ deposit.filter_deposit | intcomma }} {% endif %}</td>
                     <td colspan="1" style="border-top: 0px;">{% if deposit.ratio_deposit == None %}0{% else %}{{ deposit.ratio_deposit }}{% endif %}%</td>
                   </tr>
                 {% endfor %}
                 <tr class="thtd btn-light">
                   <td colspan="1" style="border-top: 0px;">합계</td>
-                  <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_sum_deposit == None %}0{% else %}{{ companyTotalDeposit.a_sum_deposit | intcomma }} {% endif %} 원</td>
-                  <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_filter_deposit == None %}0{% else %}{{ companyTotalDeposit.a_filter_deposit | intcomma }} {% endif %}원</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_sum_deposit == None %}0{% else %}{{ companyTotalDeposit.a_sum_deposit | intcomma }} {% endif %}</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_filter_deposit == None %}0{% else %}{{ companyTotalDeposit.a_filter_deposit | intcomma }} {% endif %}</td>
                   <td colspan="1" style="border-top: 0px;">{% if companyTotalDeposit.a_ratio_deposit == None %}0{% else %}{{ companyTotalDeposit.a_ratio_deposit }}{% endif %}%</td>
                 </tr>
                 </tbody>
@@ -270,15 +270,15 @@
                 {% for Withdraw in companyWithdraw %}
                   <tr class="thtd">
                     <td colspan="1" style="border-top: 0px;">{% if Withdraw.purchaseCompany == None %}-{% else %}{{ Withdraw.purchaseCompany }}{% endif %}</td>
-                    <td colspan="1" style="border-top: 0px;">{% if Withdraw.sum_withdraw == None %}0{% else %}{{ Withdraw.sum_withdraw | intcomma }} {% endif %} 원</td>
-                    <td colspan="1" style="border-top: 0px;">{% if Withdraw.filter_withdraw == None %}0{% else %}{{ Withdraw.filter_withdraw | intcomma }} {% endif %}원</td>
+                    <td colspan="1" style="border-top: 0px;">{% if Withdraw.sum_withdraw == None %}0{% else %}{{ Withdraw.sum_withdraw | intcomma }} {% endif %}</td>
+                    <td colspan="1" style="border-top: 0px;">{% if Withdraw.filter_withdraw == None %}0{% else %}{{ Withdraw.filter_withdraw | intcomma }} {% endif %}</td>
                     <td colspan="1" style="border-top: 0px;">{% if Withdraw.ratio_withdraw == None %}0{% else %}{{ Withdraw.ratio_withdraw }}{% endif %}%</td>
                   </tr>
                 {% endfor %}
                 <tr class="thtd btn-light">
                   <td colspan="1" style="border-top: 0px;">합계</td>
-                  <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_sum_withdraw | intcomma }} {% endif %} 원</td>
-                  <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_filter_withdraw | intcomma }} {% endif %}원</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_sum_withdraw | intcomma }} {% endif %}</td>
+                  <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_filter_withdraw | intcomma }} {% endif %}</td>
                   <td colspan="1" style="border-top: 0px;">{% if companyTotalWithdraw.a_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.a_ratio_withdraw }}{% endif %}%</td>
                 </tr>
                 </tbody>
@@ -292,50 +292,30 @@
             <table class="pc-table">
               <thead>
               <tr class="btn-primary">
-                <td colspan="2" style="border-top: 0px;">매출예정일</td>
-                <td colspan="2" style="border-top: 0px;">매출발행일</td>
-                <td colspan="1" style="border-top: 0px;">회차</td>
-                <td colspan="2" style="border-top: 0px;">매출처</td>
-                <td colspan="2" style="border-top: 0px;">매출액</td>
-                <td colspan="2" style="border-top: 0px;">입금일</td>
-                <td colspan="2" style="border-top: 0px;">매입금액</td>
-                <td colspan="3" style="border-top: 0px;">GP(이익률)</td>
-                <td colspan="2" style="border-top: 0px;">비고</td>
+                <td width="5%">회차</td>
+                <td width="10%">매출예정일</td>
+                <td width="10%">매출일</td>
+                <td width="10%">수금예정일</td>
+                <td width="10%">수금일</td>
+                <td width="15%">매출처</td>
+                <td width="12%">매출액</td>
+                <td width="13%">GP</td>
+                <td width="15%">비고</td>
               </tr>
               </thead>
               <tbody>
               {% for revenue in revenues %}
                 <tr {% if revenue.revenueId == revenueId %}style="background-color: #ffffc8"{% endif %} class="thtd">
-                  <td colspan="2" class="thtd">{% if revenue.predictBillingDate == None %}-{% else %}{{ revenue.predictBillingDate }}{% endif %}</td>
-                  <td colspan="2" class="thtd">{% if revenue.billingDate == None %}-{% else %}{{ revenue.billingDate }}{% endif %}</td>
-                  <td colspan="1" class="thtd">{% if revenue.billingTime == None %}-{% else %}{{ revenue.billingTime }}{% endif %}</td>
-                  <td colspan="2" class="thtd">{% if revenue.revenueCompany == None %}-{% else %}{{ revenue.revenueCompany }}{% endif %}</td>
-                  <td colspan="2" class="thtd">{% if revenue.revenuePrice == None %}-{% else %}{{ revenue.revenuePrice | intcomma }} 원{% endif %} </td>
-                  <td colspan="2" class="thtd">{% if revenue.depositDate == None %}-{% else %}{{ revenue.depositDate }}{% endif %}</td>
-                  <td colspan="2" class="thtd"><a onclick="trClick('tr{{ revenue.pk }}')" class="text-primary">{% if revenue.purchasePrice == None %}-{% else %}{{ revenue.purchasePrice | intcomma }}
-                    원{% endif %}</a></td>
-                  <td colspan="3" class="thtd">{% if revenue.revenueProfitPrice == None %}-{% else %}{{ revenue.revenueProfitPrice | intcomma }} 원 ({{ revenue.revenueProfitRatio }}%){% endif %} </td>
-                  <td colspan="2" class="thtd">{% if revenue.comment == None %}-{% else %}{{ revenue.comment }}{% endif %} </td>
+                  <td class="thtd">{% if revenue.billingTime == None %}-{% else %}{{ revenue.billingTime }}{% endif %}</td>
+                  <td class="thtd">{% if revenue.predictBillingDate == None %}-{% else %}{{ revenue.predictBillingDate }}{% endif %}</td>
+                  <td class="thtd">{% if revenue.billingDate == None %}-{% else %}{{ revenue.billingDate }}{% endif %}</td>
+                  <td class="thtd">{% if revenue.predictDepositDate == None %}-{% else %}{{ revenue.predictDepositDate }}{% endif %}</td>
+                  <td class="thtd">{% if revenue.depositDate == None %}-{% else %}{{ revenue.depositDate }}{% endif %}</td>
+                  <td class="thtd">{% if revenue.revenueCompany == None %}-{% else %}{{ revenue.revenueCompany }}{% endif %}</td>
+                  <td class="thtd">{% if revenue.revenuePrice == None %}-{% else %}{{ revenue.revenuePrice | intcomma }}{% endif %} </td>
+                  <td class="thtd">{% if revenue.revenueProfitPrice == None %}-{% else %}{{ revenue.revenueProfitPrice | intcomma }} ({{ revenue.revenueProfitRatio }}%){% endif %} </td>
+                  <td class="thtd">{% if revenue.comment == None %}-{% else %}{{ revenue.comment }}{% endif %} </td>
                 </tr>
-                <tr class="btn-light d-none" name="tr{{ revenue.pk }}">
-                  <td colspan="3">매입접수일</td>
-                  <td colspan="5">매입처</td>
-                  <td colspan="3">매입금액</td>
-                  <td colspan="3">출금일</td>
-                  <td colspan="4">비고</td>
-                </tr>
-
-                {% for purchase in purchases %}
-                  {% if purchase.revenueId_id == revenue.revenueId %}
-                    <tr name="tr{{ revenue.pk }}" class="d-none">
-                      <td colspan="3">{% if purchase.purchaseDate == None %}-{% else %}{{ purchase.purchaseDate }}{% endif %}</td>
-                      <td colspan="5">{% if purchase.purchaseCompany == None %}-{% else %}{{ purchase.purchaseCompany }}{% endif %}</td>
-                      <td colspan="3">{% if purchase.purchasePrice == None %}-{% else %}{{ purchase.purchasePrice | intcomma }}{% endif %}</td>
-                      <td colspan="3">{% if purchase.withdrawDate == None %}-{% else %}{{ purchase.withdrawDate }}{% endif %}</td>
-                      <td colspan="4">{% if purchase.comment == None %}-{% else %}{{ purchase.comment }}{% endif %}</td>
-                    </tr>
-                  {% endif %}
-                {% endfor %}
               {% endfor %}
               </tbody>
             </table>

@@ -6,6 +6,15 @@
 {% endblock %}
 
 
+{% block css %}
+
+  <style type="text/css">
+
+  </style>
+
+{% endblock %}
+
+
 {% block content %}
 
   <div class="row">
@@ -83,16 +92,16 @@
                   <label for="contractDate" class="font-weight-bold text-primary"> <span name="predict">예상</span>계약일 </label> {{ form.contractDate }}
                 </div>
                 <div class="col-4">
-                  <label for="predictSalePrice" class="font-weight-bold text-primary"> 계약시작일 </label> {{ form.contractStartDate }}
+                  <label for="contractStartDate" class="font-weight-bold text-primary"> 계약시작일 </label> {{ form.contractStartDate }}
                 </div>
                 <div class="col-4">
-                  <label for="predictProfitPrice" class="font-weight-bold text-primary"> 계약종료일 </label> {{ form.contractEndDate }}
+                  <label for="contractEndDate" class="font-weight-bold text-primary"> 계약종료일 </label> {{ form.contractEndDate }}
                 </div>
               </div>
 
               <div class="form-group row">
                 <div class="col-xl-12">
-                  <label for="predictSalePrice" class="font-weight-bold text-primary"> 참고사항 </label> {{ form.comment }}
+                  <label for="comment" class="font-weight-bold text-primary"> 참고사항 </label> {{ form.comment }}
                 </div>
               </div>
             </div>
@@ -108,7 +117,7 @@
                     <th>대분류</th>
                     <th>소분류</th>
                     <th>상세내용</th>
-                    <th>가격</th>
+                    <th>금액</th>
                     <th><i id="addItem" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
                   </thead>
@@ -124,15 +133,14 @@
                   <thead style="width:100%">
                   <tr>
                     <th>구분</th>
-                    <th>회차</th>
                     <th>매출예정일</th>
-                    <th>매출발행일</th>
+                    <th>매출일</th>
+                    <th>수금예정일</th>
                     <th>수금일</th>
-                    <th>매출처</th>
+                    <th onclick="changeRevenueCompany()">매출처</th>
                     <th>매출금액</th>
                     <th>GP</th>
                     <th>비고</th>
-                    <th>매입</th>
                     <th><i id="addRevenue" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
                   </thead>
@@ -202,8 +210,12 @@
           for (var i = 0; i <= lengthRevenue - 1; i++) {
               var data = new Object();
               data.revenueId = $('div[name="revenueId"]').eq(i).text();
+              data.predictBillingDate = $('input[name="predictBillingDate"]').eq(i).val();
               data.billingDate = $('input[name="billingDate"]').eq(i).val();
-              data.revenuePrice = $('input[name="revenuePrice"]').eq(i).val().replace(/,/g, '');
+              data.predictDepositDate = $('input[name="predictDepositDate"]').eq(i).val();
+              data.depositDate = $('input[name="depositDate"]').eq(i).val();
+              data.revenueCompany = $('input[name="revenueCompany"]').eq(i).val();
+              data.revenuePrice = $('input[name="revenuePrice"]').eq(i).val();
               data.revenueProfitPrice = $('input[name="revenueProfitPrice"]').eq(i).val();
               data.revenueComment = $('input[name="revenueComment"]').eq(i).val();
               listRevenue.push(data);
@@ -232,15 +244,21 @@
 
           if ($('#contractStep').val() === 'Firm') {
               if (sumItemPrice != $('#salePrice').val().replace(/,/g, '')) {
-                  alert("계약금액과 세부사항 가격의 합이 일치하지 않습니다.");
+                  alert("계약금액 : " + $('#salePrice').val() + "\n" +
+                      "세부금액 : " + sumItemPrice + "\n" +
+                      "계약금액과 세부사항 금액의 합이 일치하지 않습니다.");
                   return false;
               }
               if (sumRevenuePrice != $('#salePrice').val().replace(/,/g, '')) {
-                  alert("계약금액과 매출금액의 합이 일치하지 않습니다.");
+                  alert("계약금액 : " + $('#salePrice').val() + "\n" +
+                      "매출금액 : " + sumRevenuePrice + "\n" +
+                      "계약금액과 매출금액의 합이 일치하지 않습니다.");
                   return false;
               }
               if (sumRevenueProfitPrice != $('#profitPrice').val().replace(/,/g, '')) {
-                  alert("이익금액과 매출이익의 합이 일치하지 않습니다.");
+                  alert("이익금액 : " + $('#profitPrice').val() + "\n" +
+                      "GP : " + sumRevenueProfitPrice + "\n" +
+                      "이익금액과 GP의 합이 일치하지 않습니다.");
                   return false;
               }
           }
@@ -299,6 +317,9 @@
           });
       }
 
+      function changeRevenueCompany() {
+          $('input[name=revenueCompany]').trigger('set', {id: $('#saleCompanyNames').data("id")});
+      }
 
       $(document).ready(function () {
           const saleCompanyNames = document.getElementById('saleCompanyNames');
@@ -364,11 +385,12 @@
           }
 
           var t1 = $('#categoryItem').DataTable({
-              "autoWidth": false,
+              "autoWidth": true,
               "searching": false,
               "paging": false,
               "info": false,
               "scrollY": "60vh",
+              "scrollX": true,
               "scrollCollapse": true,
               'fnCreatedRow': function (nRow, aData, iDataIndex) {
                   $(nRow).attr('id', 'row' + iDataIndex);
@@ -454,16 +476,15 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "5%",  className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 9, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 10, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
@@ -472,33 +493,60 @@
           $('#addRevenue').on('click', function () {
               t2.row.add([
                   '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
-                  '<input type="text" style="width: 50px;" name="billingTime" id="revenue1' + revenueCounter + '">',
-                  '<input type="date" style="width: 150px;" name="predictBillingDate" id="revenue2' + revenueCounter + '">',
-                  '<input type="date" style="width: 150px;" name="billingDate" id="revenue3' + revenueCounter + '">',
-                  '<input type="date" style="width: 150px;" name="DepositDate" id="revenue4' + revenueCounter + '">',
-                  '<input type="text" style="width: 150px;" name="revenueCompany" id="revenue5' + revenueCounter + '">',
-                  '<input class="money" style="width: 150px;" name="revenuePrice" id="revenue6' + revenueCounter + '">',
-                  '<input class="money" style="width: 150px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
+                  '<input type="date" style="width: 150px;" name="predictBillingDate" id="revenue1' + revenueCounter + '">',
+                  '<input type="date" style="width: 150px;" name="billingDate" id="revenue2' + revenueCounter + '">',
+                  '<input type="date" style="width: 150px;" name="predictDepositDate" id="revenue3' + revenueCounter + '">',
+                  '<input type="date" style="width: 150px;" name="depositDate" id="revenue4' + revenueCounter + '">',
+                  '<input class="magicsearch" autocomplete="off" type="text" style="width: 150px;" name="revenueCompany" id="revenue5' + revenueCounter + '">',
+                  '<input class="money" style="width: 140px;" name="revenuePrice" id="revenue6' + revenueCounter + '">',
+                  '<input class="money" style="width: 140px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
                   '<input type="text" style="width: 150px;" name="revenueComment" id="revenue8' + revenueCounter + '">',
-                  '<i class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem; width: 70px;"></i>',
-                  '<i class="fas fa-times-circle" style="width: 70px;" name="remove">'
+                  '<i class="fas fa-times-circle" name="remove">'
               ]).draw(false);
-              revenueCounter++;
               $('.money').simpleMoneyFormat();
+              document.getElementById("revenue5" + revenueCounter).setAttribute("data-id", $('#saleCompanyNames').data("id"));
+              $('#revenue5' + revenueCounter).magicsearch({
+                  dataSource: {{ companyNames|safe }},
+                  fields: 'value',
+                  id: 'id',
+                  multiple: false,
+                  multiField: 'value',
+                  format: '%value%',
+                  multiStyle: {space: 5, width: 80},
+                  noResult: '검색결과없음',
+                  focusShow: true,
+              });
+
+              revenueCounter++;
           });
 
           {% if revenues %}
               {% for revenue in revenues %}
                   t2.row.add([
                       '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
-                      '<input type="date" name="billingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
-                      '<input class="money" name="revenuePrice" id="revenue2' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
-                      '<input class="money" name="revenueProfitPrice" id="revenue3' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
-                      '<input type="text" name="revenueComment" id="revenue4' + revenueCounter + '" value="{{ revenue.comment }}">',
-                      '<i class="fas fa-times-circle" name="remove" >'
+                      '<input type="date" style="width: 150px;" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m-d" }}">',
+                      '<input type="date" style="width: 150px;" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
+                      '<input type="date" style="width: 150px;" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
+                      '<input type="date" style="width: 150px;" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}">',
+                      '<input class="magicsearch" autocomplete="off" type="text" style="width: 150px;" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}">',
+                      '<input class="money" style="width: 140px;" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
+                      '<input class="money" style="width: 140px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
+                      '<input type="text" style="width: 150px;" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.revenueComment }}">',
+                      '<i class="fas fa-times-circle" name="remove">'
                   ]).draw(false);
-                  revenueCounter++;
                   $('.money').simpleMoneyFormat();
+                  $('#revenue5' + revenueCounter).magicsearch({
+                      dataSource: {{ companyNames|safe }},
+                      fields: 'value',
+                      id: 'id',
+                      multiple: false,
+                      multiField: 'value',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                  });
+                  revenueCounter++;
               {% endfor %}
           {% else %}
               $('#addRevenue').click();
@@ -526,23 +574,14 @@
           $('#contractStep').on("propertychange change keyup paste input", function () {
               const contractStep = $('#contractStep').val();
               if (contractStep === 'Firm') {
-                  {#$('#Firm').removeClass('d-none');#}
                   $('#contractStartDate').removeAttr('readonly');
                   $('#contractEndDate').removeAttr('readonly');
-                  {#t1.clear().draw();#}
-                  {#t2.clear().draw();#}
-                  {#revenueCounter = 0;#}
-                  {#$('#addRevenue').click();#}
-                  {#$('#addItem').click();#}
                   $('span[name=predict]').addClass('d-none');
               } else {
-                  {#$('#Firm').addClass('d-none');#}
                   $('#contractStartDate').val('');
                   $('#contractStartDate').attr('readonly', '');
                   $('#contractEndDate').val('');
                   $('#contractEndDate').attr('readonly', '');
-                  {#t1.clear().draw();#}
-                  {#t2.clear().draw();#}
                   $('span[name=predict]').removeClass('d-none');
               }
           });
@@ -550,6 +589,7 @@
           $('#contractStartDate').on("propertychange change keyup paste input", function () {
               $('#contractEndDate').val($('#contractStartDate').val())
           });
+
       })
   </script>
 

@@ -50,12 +50,21 @@ def post_contract(request):
                 )
 
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
+            jsonRevenue = sorted(jsonRevenue, key=lambda x: x['predictBillingDate'])
+            time = 0
             for revenue in jsonRevenue:
+                time += 1
                 Revenue.objects.create(
                     contractId=post,
-                    billingDate=revenue["billingDate"],
+                    billingTime=str(time) + '/' + str(len(jsonRevenue)),
+                    predictBillingDate=revenue["predictBillingDate"] or None,
+                    billingDate=revenue["billingDate"] or None,
+                    predictDepositDate=revenue["predictDepositDate"] or None,
+                    depositDate=revenue["depositDate"] or None,
+                    revenueCompany=Company.objects.filter(companyName=revenue["revenueCompany"]).first(),
                     revenuePrice=int(revenue["revenuePrice"]),
                     revenueProfitPrice=int(revenue["revenueProfitPrice"]),
+                    revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100), 1),
                     comment=revenue["revenueComment"],
                 )
             return redirect('sales:showcontracts')
@@ -126,7 +135,7 @@ def view_contract(request, contractId):
     # yearList = [i for i in range(int(contract.contractStartDate.year), int(contract.contractEndDate.year) + 1)]
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
-    purchases = Purchase.objects.filter(revenueId__contractId=contractId)
+    purchases = Purchase.objects.filter(contractId=contractId)
     totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))
     totalWithdraw = purchases.filter(withdrawDate__isnull=False).values('purchaseCompany').aggregate(sum_purchase=Coalesce(Sum('purchasePrice'), 0))
 
@@ -161,18 +170,18 @@ def view_contract(request, contractId):
 
     ##### 입출금정보-매입
     companyWithdraw = purchases.values('purchaseCompany').annotate(
-        filter_withdraw=Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
+        filter_withdraw=Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
     ).annotate(
-        sum_withdraw=Sum('purchasePrice', filter=(Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
+        sum_withdraw=Sum('purchasePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
     ).annotate(
-        ratio_withdraw=(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear))) * 100 /
-                        Sum('purchasePrice', filter=(Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear))))
+        ratio_withdraw=(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))) * 100 /
+                        Sum('purchasePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))))
     )
 
     companyTotalWithdraw = purchases.annotate(
-        filter_withdraw=Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
+        filter_withdraw=Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
     ).annotate(
-        sum_withdraw=Sum('purchasePrice', filter=(Q(revenueId__predictBillingDate__year=todayYear) | Q(revenueId__billingDate__year=todayYear)))
+        sum_withdraw=Sum('purchasePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
     ).aggregate(
         a_filter_withdraw=Coalesce(Sum('filter_withdraw'), 0),
         a_sum_withdraw=Coalesce(Sum('sum_withdraw'), 0)
@@ -186,7 +195,7 @@ def view_contract(request, contractId):
         'revenueId': '',
         'contract': contract,
         'items': items,
-        'revenues': revenues,
+        'revenues': revenues.order_by('predictBillingDate'),
         'purchases': purchases,
         'companyWithdraw': companyWithdraw,
         'totalWithdraw': totalWithdraw,
@@ -247,24 +256,38 @@ def modify_contract(request, contractId):
                     Contractitem.objects.filter(contractItemId=Id).delete()
 
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
-            print('jsonRevenue :', jsonRevenue)
+            jsonRevenue = sorted(jsonRevenue, key=lambda x: x['predictBillingDate'])
+            time = 0
             revenueId = list(i[0] for i in Revenue.objects.filter(contractId=contractId).values_list('revenueId'))
             jsonRevenueId = []
             for revenue in jsonRevenue:
+                time += 1
                 if revenue['revenueId'] == '추가':
                     Revenue.objects.create(
                         contractId=post,
-                        billingDate=revenue["billingDate"],
+                        billingTime=str(time) + '/' + str(len(jsonRevenue)),
+                        predictBillingDate=revenue["predictBillingDate"] or None,
+                        billingDate=revenue["billingDate"] or None,
+                        predictDepositDate=revenue["predictDepositDate"] or None,
+                        depositDate=revenue["depositDate"] or None,
+                        revenueCompany=Company.objects.filter(companyName=revenue["revenueCompany"]).first(),
                         revenuePrice=int(revenue["revenuePrice"]),
                         revenueProfitPrice=int(revenue["revenueProfitPrice"]),
+                        revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100), 1),
                         comment=revenue["revenueComment"],
                     )
                 else:
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
                     revenueInstance.contractId = post
-                    revenueInstance.billingDate = revenue["billingDate"]
-                    revenueInstance.salePrice = int(revenue["revenuePrice"])
+                    revenueInstance.billingTime = str(time) + '/' + str(len(jsonRevenue))
+                    revenueInstance.predictBillingDate = revenue["predictBillingDate"] or None
+                    revenueInstance.billingDate = revenue["billingDate"] or None
+                    revenueInstance.predictDepositDate = revenue["predictDepositDate"] or None
+                    revenueInstance.depositDate = revenue["depositDate"] or None
+                    revenueInstance.revenueCompany = Company.objects.filter(companyName=revenue["revenueCompany"]).first()
+                    revenueInstance.revenuePrice = int(revenue["revenuePrice"])
                     revenueInstance.revenueProfitPrice = int(revenue["revenueProfitPrice"])
+                    revenueInstance.revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100), 1)
                     revenueInstance.comment = revenue["revenueComment"]
                     revenueInstance.save()
                     jsonRevenueId.append(int(revenue["revenueId"]))
@@ -292,7 +315,7 @@ def modify_contract(request, contractId):
         context = {
             'form': form,
             'items': items,
-            'revenues': revenues,
+            'revenues': revenues.order_by('predictBillingDate'),
             'saleCompanyNames': saleCompanyNames,
             'endCompanyNames': endCompanyNames,
             'companyNames': companyNames

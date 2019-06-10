@@ -16,7 +16,7 @@ class ContractForm(forms.ModelForm):
                   'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate', 'comment')
 
         widgets = {
-            'contractCode': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractName'}),
+            'contractCode': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractCode'}),
             'contractName': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractName'}),
             'contractStep': forms.Select(attrs={'class': 'form-control', 'id': 'contractStep'}),
             'empId': forms.Select(attrs={'class': 'form-control', 'id': 'empId'}),
