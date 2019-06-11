@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  영업관리
+  영업-매출관리
 {% endblock %}
 
 
@@ -37,7 +37,7 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 매출 </h6>
+          <h6 class="m-0 h3 text-gray-800"> 매출 관리 </h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
@@ -61,15 +61,15 @@
               <table id="showrevenues" class="hover row-border" width="100%" style="width: 100%;">
                 <thead>
                 <tr>
+                  <th>구분</th>
                   <th>영업담당자</th>
                   <th>계약명</th>
-                  <th>거래처</th>
-                  <th>매출예정일</th>
-                  <th>매출일</th>
+                  <th>매출처</th>
+                  <th>매출예정일 / 매출일</th>
+                  <th>수금예정일 / 수금일</th>
                   <th>매출금액</th>
                   <th>이익금액</th>
-                  <th>수금예정일</th>
-                  <th>수금일</th>
+                  <th>비고</th>
                   <th class="d-none">revenueId</th>
                 </tr>
                 </thead>
@@ -79,8 +79,8 @@
                   <th style="text-align:center; white-space:nowrap;"></th>
                   <th style="text-align:center; white-space:nowrap;"></th>
                   <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
                   <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
                   <th style="text-align:center; white-space:nowrap;"></th>
                   <th style="text-align:center; white-space:nowrap;"></th>
                   <th style="text-align:center; white-space:nowrap;"></th>
@@ -112,17 +112,17 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="font-weight-light text-primary">시작일자</label>
+                <label for="startdate" class="text-primary">시작일자<div class="text-secondary" style="font-size:13px">(매출예정일 or 수금예정일)</div></label>
                 <input type="date" class="form-control" id="startdate" name="startdate">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="enddate" class="font-weight-light text-primary">종료일자</label>
+                <label for="enddate" class="text-primary">종료일자<div class="text-secondary" style="font-size:13px">(매출예정일 or 수금예정일)</div></label>
                 <input type="date" class="form-control" id="enddate" name="enddate">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="empDeptName" class="font-weight-light text-primary">영업부서</label>
+                <label for="empDeptName" class="text-primary">영업부서</label>
                 <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
                   <option value="전체">전체</option>
                   <option value="영업1팀">영업1팀</option>
@@ -131,7 +131,7 @@
                 </select>
               </div>
               <div class="col-6">
-                <label for="empName" class="font-weight-light text-primary">영업담당자</label>
+                <label for="empName" class="text-primary">영업담당자</label>
                 <select class="form-control" id="empName" name="empName">
                   <option value='전체'>전체</option>
                   {% for i in employees %}
@@ -142,12 +142,23 @@
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="companyName" class="font-weight-light text-primary">거래처</label>
+                <label for="companyName" class="text-primary">거래처</label>
                 <input class="form-control" id="saleCompanyName" name="saleCompanyName">
               </div>
               <div class="col-6">
-                <label for="boardTitle" class="font-weight-light text-primary">계약명</label>
+                <label for="boardTitle" class="text-primary">계약명</label>
                 <input class="form-control" id="contractName" name="contractName">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="step" class="text-primary">단계</label>
+                <select class="form-control" id="contractStep" name="contractStep">
+                  <option value="전체">전체</option>
+                  <option value="Opportunity">Opportunity</option>
+                  <option value="Firm">Firm</option>
+                  <option value="Firm">Drop</option>
+                </select>
               </div>
             </div>
           </form>
@@ -219,6 +230,8 @@
 
       $(document).ready(function () {
           $('#showrevenues').dataTable({
+              "scrollX": true,
+              "autoWidth": false,
               "processing": true,
               "ajax": {
                   "processing": true,
@@ -226,6 +239,7 @@
                   "data": {
                       "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
                       "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                      "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
                       "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
                       "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
@@ -236,6 +250,7 @@
                   "dataSrc": ""
               },
               "columns": [
+                  {data: 'contractId__contractStep'},
                   {
                       data: 'contractId__empDeptName',
                       render: function (data, type, row) {
@@ -249,53 +264,47 @@
                       }
                   },
                   {data: 'contractId__saleCompanyName__companyName'},
-                  {data: 'predictBillingDate'},
-                  {data: 'billingDate'},
+                  {
+                      data: 'predictBillingDate',
+                  },
+                  {
+                      data: 'predictDepositDate',
+                  },
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
-                  {data: 'predictDepositDate'},
-                  {data: 'depositDate'},
+                  {data: 'comment'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
-                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" name="predictBillingDate" value="' + data + '" />'
+                          return '<input type="date" name="predictBillingDate" value="' + row["predictBillingDate"] + '" /> / <input type="date" name="billingDate" value="' + row["billingDate"] + '" />'
                       },
-                      targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {
-                       "render": function (data, type, row) {
-                          return '<input type="date" name="billingDate" value="' + data + '" />'
-                      },
-                      targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
                   {
                       "render": function (data, type, row) {
-                          return '<input type="text" name="revenuePrice" value="' + data + '" />'
+                          return '<input type="date" name="predictDepositDate" value="' + row["predictDepositDate"] + '" /> / <input type="date" name="depositDate" value="' + row["depositDate"] + '" />'
                       },
-                      targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
-                          return '<input type="text" name="revenueProfitPrice" value="' + data + '" />'
-                      },
-                      targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {
-                      "render": function (data, type, row) {
-                          return '<input type="date" name="predictDepositDate" value="' + data + '" />'
-                      },
-                      targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {
-                      "render": function (data, type, row) {
-                          return '<input type="date" name="depositDate" value="' + data + '" />'
-                      },
-                      targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                          return '<input type="text" name="comment" value="' + data + '" />'
+                      }, targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
                   {
                       "render": function (data, type, row) {
                           return '<div name="revenueId" >' + data + '</div>'
                       },
-                      targets: 9, className: "d-none"}
+                      targets: 9, className: "d-none"
+                  }
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -332,29 +341,36 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.contractId__contractStep == 'Firm') {
+                      $('td:eq(0)', nRow).css('color', '#4e73df');
+                  } else if (aData.contractId__contractStep == 'Opportunity') {
+                      $('td:eq(0)', nRow).css('color', '#1cc88a');
+                  }
+                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+
                   {% if modifyMode == 'N' %}
-                      $('td:eq(3)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
-                      $('td:eq(4)', nRow).text(replaceAll(aData.billingDate, "-", "."));
-                      $('td:eq(5)', nRow).text(aData.revenuePrice.toLocaleString() + '원');
-                      $('td:eq(6)', nRow).text(aData.revenueProfitPrice.toLocaleString() + '원');
-                      $('td:eq(7)', nRow).text(replaceAll(aData.predictDepositDate, "-", "."));
-                      $('td:eq(8)', nRow).text(replaceAll(aData.depositDate, "-", "."));
+                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, "-", ".") + " / " + replaceAll(aData.billingDate, "-", "."));
+                      $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, "-", ".") + " / " + replaceAll(aData.depositDate, "-", "."));
+                      $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
+
               },
               "footerCallback": function () {
                   var api = this.api(), data;
 
                   var revenueResult = 0;
-                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(5).footer()).html(revenueResult.toLocaleString() + '원');
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString() + '원');
 
                   var profitResult = 0;
-                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(6).footer()).html(profitResult.toLocaleString() + '원');
+                  $(api.column(7).footer()).html(profitResult.toLocaleString() + '원');
+
               },
           });
 

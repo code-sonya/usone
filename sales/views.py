@@ -348,6 +348,7 @@ def show_revenues(request):
         empName = request.POST['empName']
         saleCompanyName = request.POST['saleCompanyName']
         contractName = request.POST['contractName']
+        contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
 
     else:
@@ -357,6 +358,7 @@ def show_revenues(request):
         empName = ''
         saleCompanyName = ''
         contractName = ''
+        contractStep = ''
         modifyMode = 'N'
 
     context = {
@@ -367,7 +369,8 @@ def show_revenues(request):
         'empName': empName,
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
-        'modifyMode':modifyMode,
+        'contractStep': contractStep,
+        'modifyMode': modifyMode,
     }
 
     return render(request, 'sales/showrevenues.html', context)
@@ -465,7 +468,8 @@ def contracts_asjson(request):
     if contractName:
         contracts = contracts.filter(contractName__contains=contractName)
 
-    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName', 'contractDate', 'contractId', 'salePrice', 'profitPrice')
+    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName', 'endCompanyName', 'contractDate', 'contractId', 'salePrice',
+                                 'profitPrice')
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -479,13 +483,14 @@ def revenues_asjson(request):
     empName = request.POST['empName']
     saleCompanyName = request.POST['saleCompanyName']
     contractName = request.POST['contractName']
+    contractStep = request.POST['contractStep']
 
     revenues = Revenue.objects.all()
 
     if startdate:
-        revenues = revenues.filter(billingDate__gte=startdate)
+        revenues = revenues.filter(Q(predictBillingDate__gte=startdate) or Q(predictDepositDate__gte=startdate))
     if enddate:
-        revenues = revenues.filter(billingDate__lte=enddate)
+        revenues = revenues.filter(Q(predictBillingDate__lte=enddate) or Q(predictDepositDate__lte=enddate))
     if empDeptName != '전체' and empDeptName != '':
         revenues = revenues.filter(contractId__empDeptName=empDeptName)
     if empName != '전체' and empName != '':
@@ -494,9 +499,11 @@ def revenues_asjson(request):
         revenues = revenues.filter(contractId__saleCompanyName__companyName__icontains=saleCompanyName)
     if contractName:
         revenues = revenues.filter(contractId__contractName__contains=contractName)
+    if contractStep != '전체' and contractStep != '':
+        revenues = revenues.filter(contractId__contractStep=contractStep)
 
-    revenues = revenues.values('billingDate','contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
-                               'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate','predictDepositDate', 'depositDate')
+    revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
+                               'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep', 'comment')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -731,6 +738,7 @@ def show_purchases(request):
         empName = request.POST['empName']
         saleCompanyName = request.POST['saleCompanyName']
         contractName = request.POST['contractName']
+        contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
 
 
@@ -741,6 +749,7 @@ def show_purchases(request):
         empName = ''
         saleCompanyName = ''
         contractName = ''
+        contractStep = ''
         modifyMode = 'N'
 
     context = {
@@ -751,6 +760,7 @@ def show_purchases(request):
         'empName': empName,
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
+        'contractStep': contractStep,
         'modifyMode': modifyMode,
     }
 
@@ -763,18 +773,18 @@ def save_purchasetable(request):
     employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
     predictBillingDate = request.GET.getlist('predictBillingDate')
     billingDate = request.GET.getlist('billingDate')
-    purchasePrice = request.GET.getlist('purchasePrice')
     predictWithdrawDate = request.GET.getlist('predictWithdrawDate')
     withdrawDate = request.GET.getlist('withdrawDate')
+    comment = request.GET.getlist('comment')
     purchaseId = request.GET.getlist('purchaseId')
 
-    for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, purchasePrice, predictWithdrawDate, withdrawDate):
-        purchase = Purchase.objects.get(purchaseId = a)
+    for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, predictWithdrawDate, withdrawDate, comment, ):
+        purchase = Purchase.objects.get(purchaseId=a)
         purchase.predictBillingDate = b or None
         purchase.billingDate = c or None
-        purchase.purchasePrice = d
-        purchase.predictWithdrawDate = e or None
-        purchase.withdrawDate = f or None
+        purchase.predictWithdrawDate = d or None
+        purchase.withdrawDate = e or None
+        purchase.comment = f
         purchase.save()
 
     ### 초기화
@@ -784,6 +794,7 @@ def save_purchasetable(request):
     empName = ''
     saleCompanyName = ''
     contractName = ''
+    contractStep = ''
     modifyMode = 'N'
 
     context = {
@@ -794,6 +805,7 @@ def save_purchasetable(request):
         'empName': empName,
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
+        'contractStep':contractStep,
         'modifyMode': modifyMode,
     }
     return render(request, 'sales/showpurchases.html', context)
@@ -808,13 +820,14 @@ def purchases_asjson(request):
     empName = request.POST['empName']
     saleCompanyName = request.POST['saleCompanyName']
     contractName = request.POST['contractName']
+    contractStep = request.POST['contractStep']
 
     purchase = Purchase.objects.all()
 
     if startdate:
-        purchase = purchase.filter(predictBillingDate__gte=startdate)
+        purchase = purchase.filter(Q(predictBillingDate__gte=startdate) or Q(predictWithdrawDate__gte=startdate))
     if enddate:
-        purchase = purchase.filter(predictBillingDate__lte=enddate)
+        purchase = purchase.filter(Q(predictBillingDate__lte=enddate) or Q(predictWithdrawDate__lte=enddate))
     if empDeptName != '전체' and empDeptName != '':
         purchase = purchase.filter(contractId__empDeptName=empDeptName)
     if empName != '전체' and empName != '':
@@ -823,9 +836,11 @@ def purchases_asjson(request):
         purchase = purchase.filter(contractId__saleCompanyName__companyName__icontains=saleCompanyName)
     if contractName:
         purchase = purchase.filter(contractId__contractName__contains=contractName)
+    if contractStep != '전체' and contractStep != '':
+        purchase = purchase.filter(contractId__contractStep=contractStep)
 
     purchase = purchase.values('contractId__contractName', 'purchaseCompany', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
-                               'predictWithdrawDate', 'withdrawDate', 'purchaseId')
+                               'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
     structure = json.dumps(list(purchase), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -843,7 +858,7 @@ def view_purchase(request, purchaseId):
         'contract': contract,
         'items': items,
         'revenues': revenues,
-        'purchase' : purchase,
+        'purchase': purchase,
     }
     return render(request, 'sales/viewcontract.html', context)
 
@@ -854,21 +869,23 @@ def save_revenuetable(request):
     employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
     predictBillingDate = request.GET.getlist('predictBillingDate')
     billingDate = request.GET.getlist('billingDate')
-    revenuePrice = request.GET.getlist('revenuePrice')
-    revenueProfitPrice = request.GET.getlist('revenueProfitPrice')
+    # revenuePrice = request.GET.getlist('revenuePrice')
+    # revenueProfitPrice = request.GET.getlist('revenueProfitPrice')
     predictDepositDate = request.GET.getlist('predictDepositDate')
     depositDate = request.GET.getlist('depositDate')
+    comment = request.GET.getlist('comment')
     revenueId = request.GET.getlist('revenueId')
 
-    for a, b, c, d, e, f, g in zip(revenueId, predictBillingDate, billingDate, revenuePrice, revenueProfitPrice, predictDepositDate, depositDate):
-        revenue = Revenue.objects.get(revenueId = a)
+    for a, b, c, d, e, f in zip(revenueId, predictBillingDate, billingDate, predictDepositDate, depositDate, comment):
+        revenue = Revenue.objects.get(revenueId=a)
         revenue.predictBillingDate = b or None
         revenue.billingDate = c or None
-        revenue.revenuePrice = d
-        revenue.revenueProfitPrice = e
-        revenue.predictDepositDate = f or None
-        revenue.depositDate = g or None
-        revenue.revenueProfitRatio = round(int(e)/int(d)*100,1)
+        # revenue.revenuePrice = d
+        # revenue.revenueProfitPrice = e
+        revenue.predictDepositDate = d or None
+        revenue.depositDate = e or None
+        # revenue.revenueProfitRatio = round(int(e) / int(d) * 100, 1)
+        revenue.comment = f
         revenue.save()
 
     ### 초기화
@@ -878,6 +895,7 @@ def save_revenuetable(request):
     empName = ''
     saleCompanyName = ''
     contractName = ''
+    contractStep = ''
     modifyMode = 'N'
 
     context = {
@@ -888,6 +906,7 @@ def save_revenuetable(request):
         'empName': empName,
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
+        'contractStep': contractStep,
         'modifyMode': modifyMode,
     }
     return render(request, 'sales/showrevenues.html', context)
