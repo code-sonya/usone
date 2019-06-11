@@ -18,9 +18,7 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-1"></div>
-
-    <div class="col-xl-10">
+    <div class="col-xl-12">
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -32,69 +30,55 @@
             {% csrf_token %}
             <div id="Opportunity">
               <div class="form-group row">
-                <div class="col-3 mb-3">
+                <div class="col-2 mb-3">
+                  <label for="contractStep" class="font-weight-bold text-primary"> 단계 </label> {{ form.contractStep }}
+                </div>
+                <div class="col-2 mb-3">
                   <label for="contractCode" class="font-weight-bold text-primary"> 관리번호 </label> {{ form.contractCode }}
                 </div>
-                <div class="col-9 mb-3">
+                <div class="col-8 mb-3">
                   <label for="contractName" class="font-weight-bold text-primary"> 계약명 </label> {{ form.contractName }}
                 </div>
               </div>
 
               <div class="form-group row">
-                <div class="col-xl-6">
-                  <div class="form-group row mb-0">
-                    <div class="col-6 mb-3">
-                      <label for="contractStep" class="font-weight-bold text-primary"> 단계 </label> {{ form.contractStep }}
-                    </div>
-                    <div class="col-6 mb-3">
-                      <label for="empId" class="font-weight-bold text-primary"> 영업담당 </label> {{ form.empId }}
-                    </div>
-                  </div>
+                <div class="col-2 mb-3">
+                  <label for="saleType" class="font-weight-bold text-primary"> 판매유형 </label> {{ form.saleType }}
                 </div>
-                <div class="col-xl-6">
-                  <div class="form-group row mb-0">
-                    <div class="col-6 mb-3">
-                      <label for="saleType" class="font-weight-bold text-primary"> 판매유형 </label> {{ form.saleType }}
-                    </div>
-                    <div class="col-6 mb-3">
-                      <label for="saleIndustry" class="font-weight-bold text-primary"> 산업군 </label> {{ form.saleIndustry }}
-                    </div>
-                  </div>
+                <div class="col-2 mb-3">
+                  <label for="saleIndustry" class="font-weight-bold text-primary"> 산업군 </label> {{ form.saleIndustry }}
                 </div>
-              </div>
-
-              <div class="form-group row">
-                <div class="col-4 mb-3">
+                <div class="col-2 mb-3">
+                  <label for="empId" class="font-weight-bold text-primary"> 영업담당 </label> {{ form.empId }}
+                </div>
+                <div class="col-2 mb-3">
                   <label for="saleCompanyNames" class="font-weight-bold text-primary"> 거래처 </label> {{ form.saleCompanyNames }}
                 </div>
-                <div class="col-4 mb-3">
+                <div class="col-2 mb-3">
                   <label for="saleCustomerId" class="font-weight-bold text-primary"> 거래처 담당자 </label> {{ form.saleCustomerId }}
                 </div>
-                <div class="col-4  mb-3">
+                <div class="col-2 mb-3">
                   <label for="endCompanyNames" class="font-weight-bold text-primary"> 최종고객사 </label> {{ form.endCompanyNames }}
                 </div>
               </div>
 
               <div class="form-group row">
-                <div class="col-4 mb-3">
+                <div class="col-2 mb-3">
                   <label for="salePrice" class="font-weight-bold text-primary"> <span name="predict">예상</span>계약금액 (원) </label> {{ form.salePrice }}
                 </div>
-                <div class="col-4 mb-3">
+                <div class="col-2 mb-3">
                   <label for="profitPrice" class="font-weight-bold text-primary"> <span name="predict">예상</span>이익금액 (원) </label> {{ form.profitPrice }}
                 </div>
-                <div class="col-4 mb-3">
+                <div class="col-2 mb-3">
                   <label for="profitRatio" class="font-weight-bold text-primary"> <span name="predict">예상</span>이익율 (%) </label> {{ form.profitRatio }}
                 </div>
-              </div>
-
-              <div class="form-group row">
-                <div class="col-4 mb-3">
+                <div class="col-2 mb-3">
                   <label for="contractDate" class="font-weight-bold text-primary"> <span name="predict">예상</span>계약일 </label> {{ form.contractDate }}
                 </div>
-                <div class="col-4">
+                <div class="col-2 mb-3">
                   <label for="contractStartDate" class="font-weight-bold text-primary"> 계약시작일 </label> {{ form.contractStartDate }}
                 </div>
-                <div class="col-4">
+                <div class="col-2 mb-3">
                   <label for="contractEndDate" class="font-weight-bold text-primary"> 계약종료일 </label> {{ form.contractEndDate }}
                 </div>
               </div>
@@ -137,9 +121,9 @@
                     <th>매출일</th>
                     <th>수금예정일</th>
                     <th>수금일</th>
-                    <th onclick="changeRevenueCompany()">매출처</th>
+                    <th>매출처 <i class="fas fa-angle-double-down" onclick="changeRevenueCompany()"></i></th>
                     <th>매출금액</th>
-                    <th>GP</th>
+                    <th>이익금액</th>
                     <th>비고</th>
                     <th><i id="addRevenue" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
@@ -185,8 +169,6 @@
 
       </div>
     </div>
-
-    <div class="col-xl-1"></div>
   </div>
 
 {% endblock %}
@@ -462,11 +444,11 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "23%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "24%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "24%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "24%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "24%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
@@ -475,7 +457,7 @@
           $('#addItem').on('click', function () {
               t1.row.add([
                   '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">추가</div>',
-                  '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
+                  '<select style="width:180px" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
                   '<option value="init" selected="selected">--대분류--</option>' +
                   '<option value="상품_Oracle">상품_Oracle</option>' +
                   '<option value="상품_IBM">상품_IBM</option>' +
@@ -483,9 +465,9 @@
                   '<option value="상품_기타">상품_기타</option>' +
                   '<option value="용역_유지보수">용역_유지보수</option>' +
                   '<option value="용역_기술지원">용역_기술지원</option></select>',
-                  '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
-                  '<input type="text" name="itemName" id="item3' + itemCounter + '">',
-                  '<input class="money" name="itemPrice" id="item4' + itemCounter + '">',
+                  '<select style="width:180px" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
+                  '<input style="width:180px" type="text" name="itemName" id="item3' + itemCounter + '">',
+                  '<input style="width:180px" class="money" name="itemPrice" id="item4' + itemCounter + '">',
                   '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
               itemCounter++;
@@ -496,7 +478,7 @@
               {% for item in items %}
                   t1.row.add([
                       '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
-                      '<select size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
+                      '<select style="width:180px" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
                       '<option value="init" selected="selected">--대분류--</option>' +
                       '<option value="상품_Oracle">상품_Oracle</option>' +
                       '<option value="상품_IBM">상품_IBM</option>' +
@@ -504,9 +486,9 @@
                       '<option value="상품_기타">상품_기타</option>' +
                       '<option value="용역_유지보수">용역_유지보수</option>' +
                       '<option value="용역_기술지원">용역_기술지원</option></select>',
-                      '<select size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
-                      '<input type="text" name="itemName" id="item3' + itemCounter + '" value="{{ item.itemName }}">',
-                      '<input class="money" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
+                      '<select style="width:180px" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
+                      '<input style="width:180px" type="text" name="itemName" id="item3' + itemCounter + '" value="{{ item.itemName }}">',
+                      '<input style="width:180px" class="money" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
                       '<i class="fas fa-times-circle" name="remove" >'
                   ]).draw(false);
                   $('#item1' + itemCounter).val("{{ item.mainCategory }}").prop("selected", true);
@@ -539,16 +521,16 @@
               },
               "ordering": false,
               "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 9, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
@@ -557,14 +539,14 @@
           $('#addRevenue').on('click', function () {
               t2.row.add([
                   '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
-                  '<input type="date" style="width: 150px;" name="predictBillingDate" id="revenue1' + revenueCounter + '">',
-                  '<input type="date" style="width: 150px;" name="billingDate" id="revenue2' + revenueCounter + '">',
-                  '<input type="date" style="width: 150px;" name="predictDepositDate" id="revenue3' + revenueCounter + '">',
-                  '<input type="date" style="width: 150px;" name="depositDate" id="revenue4' + revenueCounter + '">',
-                  '<input class="magicsearch" autocomplete="off" type="text" style="width: 150px;" name="revenueCompany" id="revenue5' + revenueCounter + '">',
-                  '<input class="money" style="width: 140px;" name="revenuePrice" id="revenue6' + revenueCounter + '">',
-                  '<input class="money" style="width: 140px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
-                  '<input type="text" style="width: 150px;" name="revenueComment" id="revenue8' + revenueCounter + '">',
+                  '<input type="date" style="width: 160px;" name="predictBillingDate" id="revenue1' + revenueCounter + '">',
+                  '<input type="date" style="width: 160px;" name="billingDate" id="revenue2' + revenueCounter + '">',
+                  '<input type="date" style="width: 160px;" name="predictDepositDate" id="revenue3' + revenueCounter + '">',
+                  '<input type="date" style="width: 160px;" name="depositDate" id="revenue4' + revenueCounter + '">',
+                  '<input class="magicsearch" autocomplete="off" type="text" style="width: 160px;" name="revenueCompany" id="revenue5' + revenueCounter + '">',
+                  '<input class="money" style="width: 160px;" name="revenuePrice" id="revenue6' + revenueCounter + '">',
+                  '<input class="money" style="width: 160px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
+                  '<input type="text" style="width: 160px;" name="revenueComment" id="revenue8' + revenueCounter + '">',
                   '<i class="fas fa-times-circle" name="remove">'
               ]).draw(false);
               $('.money').simpleMoneyFormat();
@@ -588,14 +570,14 @@
               {% for revenue in revenues %}
                   t2.row.add([
                       '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
-                      '<input type="date" style="width: 150px;" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 150px;" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 150px;" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 150px;" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}">',
-                      '<input class="magicsearch" autocomplete="off" type="text" style="width: 150px;" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}">',
-                      '<input class="money" style="width: 140px;" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
-                      '<input class="money" style="width: 140px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
-                      '<input type="text" style="width: 150px;" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.comment }}">',
+                      '<input type="date" style="width: 160px;" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m-d" }}">',
+                      '<input type="date" style="width: 160px;" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
+                      '<input type="date" style="width: 160px;" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
+                      '<input type="date" style="width: 160px;" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}">',
+                      '<input class="magicsearch" autocomplete="off" type="text" style="width: 160px;" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}">',
+                      '<input class="money" style="width: 160px;" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
+                      '<input class="money" style="width: 160px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
+                      '<input type="text" style="width: 160px;" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
                   ]).draw(false);
                   $('.money').simpleMoneyFormat();
@@ -637,15 +619,15 @@
               },
               "ordering": false,
               "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "18%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "18%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
@@ -654,13 +636,13 @@
           $('#addPurchase').on('click', function () {
               t3.row.add([
                   '<div class="text-center d-none" value="0" name="purchaseId" id="purchase0' + purchaseCounter + '">추가</div>',
-                  '<input type="date" style="width: 150px;" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '">',
-                  '<input type="date" style="width: 150px;" name="purchaseDate" id="purchase2' + purchaseCounter + '">',
-                  '<input type="date" style="width: 150px;" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '">',
-                  '<input type="date" style="width: 150px;" name="withdrawDate" id="purchase4' + purchaseCounter + '">',
-                  '<input class="magicsearch" autocomplete="off" type="text" style="width: 290px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '">',
-                  '<input class="money" style="width: 140px;" name="purchasePrice" id="purchase6' + purchaseCounter + '">',
-                  '<input type="text" style="width: 150px;" name="purchaseComment" id="purchase7' + purchaseCounter + '">',
+                  '<input type="date" style="width: 160px;" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '">',
+                  '<input type="date" style="width: 160px;" name="purchaseDate" id="purchase2' + purchaseCounter + '">',
+                  '<input type="date" style="width: 160px;" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '">',
+                  '<input type="date" style="width: 160px;" name="withdrawDate" id="purchase4' + purchaseCounter + '">',
+                  '<input class="magicsearch" autocomplete="off" type="text" style="width: 160px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '">',
+                  '<input class="money" style="width: 160px;" name="purchasePrice" id="purchase6' + purchaseCounter + '">',
+                  '<input type="text" style="width: 160px;" name="purchaseComment" id="purchase7' + purchaseCounter + '">',
                   '<i class="fas fa-times-circle" name="remove">'
               ]).draw(false);
               $('.money').simpleMoneyFormat();
@@ -683,13 +665,13 @@
               {% for purchase in purchases %}
                   t3.row.add([
                       '<div class="text-center d-none" value="0" name="purchaseId" id="purchase0' + purchaseCounter + '">{{ purchase.purchaseId }}</div>',
-                      '<input type="date" style="width: 150px;" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '" value="{{ purchase.predictBillingDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 150px;" name="purchaseDate" id="purchase2' + purchaseCounter + '" value="{{ purchase.billingDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 150px;" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '" value="{{ purchase.predictWithdrawDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 150px;" name="withdrawDate" id="purchase4' + purchaseCounter + '" value="{{ purchase.withdrawDate | date:"Y-m-d" }}">',
-                      '<input class="magicsearch" autocomplete="off" type="text" style="width: 290px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}">',
-                      '<input class="money" style="width: 140px;" name="purchasePrice" id="purchase6' + purchaseCounter + '" value="{{ purchase.purchasePrice }}">',
-                      '<input type="text" style="width: 150px;" name="purchaseComment" id="purchase7' + purchaseCounter + '" value="{{ purchase.comment }}">',
+                      '<input type="date" style="width: 160px;" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '" value="{{ purchase.predictBillingDate | date:"Y-m-d" }}">',
+                      '<input type="date" style="width: 160px;" name="purchaseDate" id="purchase2' + purchaseCounter + '" value="{{ purchase.billingDate | date:"Y-m-d" }}">',
+                      '<input type="date" style="width: 160px;" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '" value="{{ purchase.predictWithdrawDate | date:"Y-m-d" }}">',
+                      '<input type="date" style="width: 160px;" name="withdrawDate" id="purchase4' + purchaseCounter + '" value="{{ purchase.withdrawDate | date:"Y-m-d" }}">',
+                      '<input class="magicsearch" autocomplete="off" type="text" style="width: 240px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}">',
+                      '<input class="money" style="width: 240px;" name="purchasePrice" id="purchase6' + purchaseCounter + '" value="{{ purchase.purchasePrice }}">',
+                      '<input type="text" style="width: 160px;" name="purchaseComment" id="purchase7' + purchaseCounter + '" value="{{ purchase.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
                   ]).draw(false);
                   $('.money').simpleMoneyFormat();

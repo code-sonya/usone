@@ -32,14 +32,16 @@ def post_contract(request):
             post.empDeptName = form.clean()['empId'].empDeptName
             post.saleCompanyName = Company.objects.filter(companyName=form.clean()['saleCompanyNames']).first()
             post.endCompanyName = Company.objects.filter(companyName=form.clean()['endCompanyNames']).first()
-
             if form.clean()['saleCustomerId']:
                 post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             else:
                 post.saleCustomerName = ''
+            post.mainCategory = json.loads(request.POST['jsonItem'])[0]['mainCategory']
+            post.subCategory = json.loads(request.POST['jsonItem'])[0]['subCategory']
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
+            print(jsonItem)
             for item in jsonItem:
                 Contractitem.objects.create(
                     contractId=post,
@@ -142,81 +144,90 @@ def show_contracts(request):
 @login_required
 @csrf_exempt
 def view_contract(request, contractId):
-    todayYear = datetime.today().year
+    # 계약, 세부정보, 매출, 매입
     contract = Contract.objects.get(contractId=contractId)
-    # print(contract.contractStartDate.year)
-    # print(contract.contractEndDate)
-    # yearList = [i for i in range(int(contract.contractStartDate.year), int(contract.contractEndDate.year) + 1)]
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
-    totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))
-    totalWithdraw = purchases.filter(withdrawDate__isnull=False).values('purchaseCompany').aggregate(sum_purchase=Coalesce(Sum('purchasePrice'), 0))
 
-    if totalDeposit['sum_deposit'] == 0:
+    # 연도 별 매출·이익 기여도
+    yearList = list(set([i['predictBillingDate'].year for i in list(revenues.values('predictBillingDate'))]))
+    yearSummary = []
+    for year in yearList:
+        temp = {
+            'year': str(year),
+            'revenuePrice': revenues.aggregate(revenuePrice=Sum('revenuePrice', filter=Q(predictBillingDate__year=year)))['revenuePrice'],
+            'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Sum('revenueProfitPrice', filter=Q(predictBillingDate__year=year)))['revenueProfitPrice'],
+        }
+        temp['revenueProfitRatio'] = round(temp['revenueProfitPrice'] / temp['revenuePrice'] * 100, 1)
+        yearSummary.append(temp)
+
+    yearSum = {
+        'year': '합계',
+        'revenuePrice': revenues.aggregate(revenuePrice=Sum('revenuePrice'))['revenuePrice'],
+        'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Sum('revenueProfitPrice'))['revenueProfitPrice'],
+    }
+    yearSum['revenueProfitRatio'] = round(yearSum['revenueProfitPrice'] / yearSum['revenuePrice'] * 100, 1)
+
+    # 입출금정보 - 총 금액
+    totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))["sum_deposit"]
+    totalWithdraw = purchases.filter(withdrawDate__isnull=False).aggregate(sum_withdraw=Coalesce(Sum('purchasePrice'), 0))["sum_withdraw"]
+    if totalDeposit == 0:
         totalRatio = '-'
     else:
-        totalRatio = round(totalWithdraw['sum_purchase'] / totalDeposit['sum_deposit'] * 100, 2)
+        totalRatio = round(totalWithdraw / totalDeposit * 100, 1)
 
-    ##### 입출금정보-매출
-    companyDeposit = revenues.values('revenueCompany').annotate(
-        filter_deposit=Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
-    ).annotate(
-        sum_deposit=Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
-    ).annotate(
-        ratio_deposit=(Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))), 0) * 100 /
-                       Coalesce(Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))), 0))
+    # 입출금정보 - 매출
+    companyDeposit = revenues\
+        .values('revenueCompany')\
+        .annotate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))\
+        .annotate(filter_deposit=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0))\
+        .annotate(ratio_deposit=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0) * 100 / Coalesce(Sum('revenuePrice'), 0))
+
+    companyTotalDeposit = revenues.aggregate(
+        total_sum_deposit=Coalesce(Sum('revenuePrice'), 0),
+        total_filter_deposit=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0),
     )
 
-    companyTotalDeposit = revenues.annotate(
-        filter_deposit=Sum('revenuePrice', filter=Q(depositDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
-    ).annotate(
-        sum_deposit=Sum('revenuePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
-    ).aggregate(
-        a_filter_deposit=Coalesce(Sum('filter_deposit'), 0),
-        a_sum_deposit=Coalesce(Sum('sum_deposit'), 0)
-    )
-
-    if companyTotalDeposit['a_sum_deposit'] == 0:
-        companyTotalDeposit['a_ratio_deposit'] = '-'
+    if companyTotalDeposit['total_sum_deposit'] == 0:
+        companyTotalDeposit['total_ratio_deposit'] = '-'
     else:
-        companyTotalDeposit['a_ratio_deposit'] = round(companyTotalDeposit['a_filter_deposit'] / companyTotalDeposit['a_sum_deposit'] * 100)
+        companyTotalDeposit['total_ratio_deposit'] = round(companyTotalDeposit['total_filter_deposit'] / companyTotalDeposit['total_sum_deposit'] * 100)
 
-    ##### 입출금정보-매입
-    companyWithdraw = purchases.values('purchaseCompany').annotate(
-        filter_withdraw=Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
-    ).annotate(
-        sum_withdraw=Sum('purchasePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
-    ).annotate(
-        ratio_withdraw=(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))) * 100 /
-                        Sum('purchasePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear))))
+    # 입출금정보 - 매입
+    companyWithdraw = purchases\
+        .values('purchaseCompany') \
+        .annotate(sum_withdraw=Coalesce(Sum('purchasePrice'), 0)) \
+        .annotate(filter_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0))\
+        .annotate(ratio_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0) * 100 / Coalesce(Sum('purchasePrice'), 0))
+
+    companyTotalWithdraw = purchases.aggregate(
+        total_sum_withdraw=Coalesce(Sum('purchasePrice'), 0),
+        total_filter_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0),
     )
 
-    companyTotalWithdraw = purchases.annotate(
-        filter_withdraw=Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & (Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
-    ).annotate(
-        sum_withdraw=Sum('purchasePrice', filter=(Q(predictBillingDate__year=todayYear) | Q(billingDate__year=todayYear)))
-    ).aggregate(
-        a_filter_withdraw=Coalesce(Sum('filter_withdraw'), 0),
-        a_sum_withdraw=Coalesce(Sum('sum_withdraw'), 0)
-    )
-    if (companyTotalWithdraw['a_sum_withdraw']) == 0:
-        companyTotalWithdraw['a_sum_withdraw'] = '-'
+    if (companyTotalWithdraw['total_sum_withdraw']) == 0:
+        companyTotalWithdraw['total_sum_withdraw'] = '-'
     else:
-        companyTotalWithdraw['a_ratio_withdraw'] = round(companyTotalWithdraw['a_filter_withdraw'] / companyTotalWithdraw['a_sum_withdraw'] * 100)
+        companyTotalWithdraw['total_ratio_withdraw'] = round(companyTotalWithdraw['total_filter_withdraw'] / companyTotalWithdraw['total_sum_withdraw'] * 100)
 
     context = {
         'revenueId': '',
+        # 계약, 세부사항, 매출, 매입
         'contract': contract,
         'items': items,
         'revenues': revenues.order_by('predictBillingDate'),
-        'purchases': purchases,
-        'companyWithdraw': companyWithdraw,
-        'totalWithdraw': totalWithdraw,
+        'purchases': purchases.order_by('predictBillingDate'),
+        # 연도 별 매출·이익 기여도
+        'yearSummary': yearSummary,
+        'yearSum': yearSum,
+        # 입출금정보
         'totalDeposit': totalDeposit,
+        'totalWithdraw': totalWithdraw,
         'totalRatio': totalRatio,
         'companyDeposit': companyDeposit,
         'companyTotalDeposit': companyTotalDeposit,
+        'companyWithdraw': companyWithdraw,
         'companyTotalWithdraw': companyTotalWithdraw,
     }
     return render(request, 'sales/viewcontract.html', context)
@@ -239,6 +250,8 @@ def modify_contract(request, contractId):
                 post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             else:
                 post.saleCustomerName = ''
+            post.mainCategory = json.loads(request.POST['jsonItem'])[0]['mainCategory']
+            post.subCategory = json.loads(request.POST['jsonItem'])[0]['subCategory']
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
@@ -367,7 +380,7 @@ def modify_contract(request, contractId):
             'form': form,
             'items': items,
             'revenues': revenues.order_by('predictBillingDate'),
-            'purchases': purchases,
+            'purchases': purchases.order_by('predictBillingDate'),
             'saleCompanyNames': saleCompanyNames,
             'endCompanyNames': endCompanyNames,
             'companyNames': companyNames
