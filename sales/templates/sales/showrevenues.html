@@ -354,14 +354,8 @@
                   $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
 
                   {% if modifyMode == 'N' %}
-                      var spanBillingDate = document.createElement("span");
-                      $(spanBillingDate).text(replaceAll(aData.billingDate, "-", ".")).css('color', '#FFFFFF');
-                      var spanDepositDate = document.createElement("span");
-                      $(spanDepositDate).text(replaceAll(aData.withdrawDate, "-", ".")).css('color', '#FFFFFF');
-                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, "-", ".") + " / ");
-                      $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, "-", ".") + " / ");
-                      $('td:eq(4)', nRow).append(spanBillingDate);
-                      $('td:eq(5)', nRow).append(spanDepositDate);
+                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, "-", ".") + " / " + replaceAll(aData.billingDate, "-", "."));
+                      $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, "-", ".") + " / " + replaceAll(aData.depositDate, "-", "."));
                       $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
 

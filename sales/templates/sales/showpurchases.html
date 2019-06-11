@@ -354,14 +354,8 @@
                   $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
 
                   {% if modifyMode == 'N' %}
-                      var spanBillingDate = document.createElement("span");
-                      $(spanBillingDate).text(replaceAll(aData.billingDate, "-", ".")).css('color', '#FFFFFF');
-                      var spanWithdrawDate = document.createElement("span");
-                      $(spanWithdrawDate).text(replaceAll(aData.withdrawDate, "-", ".")).css('color', '#FFFFFF');
-                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, "-", ".") + " / ");
-                      $('td:eq(5)', nRow).text(replaceAll(aData.predictWithdrawDate, "-", ".") + " / ");
-                      $('td:eq(4)', nRow).append(spanBillingDate);
-                      $('td:eq(5)', nRow).append(spanWithdrawDate);
+                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, "-", ".") + " / " + replaceAll(aData.billingDate, "-", "."));
+                      $('td:eq(5)', nRow).text(replaceAll(aData.predictWithdrawDate, "-", ".") + " / " + replaceAll(aData.withdrawDate, "-", "."));
                       $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
               },
