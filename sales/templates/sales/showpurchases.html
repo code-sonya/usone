@@ -34,9 +34,7 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-1"></div>
-
-    <div class="col-xl-10">
+    <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> 매입 </h6>
@@ -91,8 +89,6 @@
         </div>
       </div>
     </div>
-
-    <div class="col-xl-1"></div>
   </div>
 
   <!-- Filter Modal -->
@@ -185,14 +181,6 @@
           modifyMode.setAttribute("value", 'Y');
           filterForm.appendChild(modifyMode);
           filterForm.submit();
-      }
-
-      function btn_savePurchaseTable2() {
-          const purchaseForm = document.getElementById("purchaseForm");
-          console.log(purchaseForm);
-          if (confirm("변경된 매입 정보를 모두 저장하시겠습니까?") === true) {
-              purchaseForm.submit();
-          }
       }
 
       function changeDeptName(empDeptName, selectId) {

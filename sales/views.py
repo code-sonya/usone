@@ -334,6 +334,7 @@ def show_revenues(request):
         empName = request.POST['empName']
         saleCompanyName = request.POST['saleCompanyName']
         contractName = request.POST['contractName']
+        modifyMode = request.POST['modifyMode']
 
     else:
         startdate = ''
@@ -342,6 +343,7 @@ def show_revenues(request):
         empName = ''
         saleCompanyName = ''
         contractName = ''
+        modifyMode = 'N'
 
     context = {
         'employees': employees,
@@ -351,6 +353,7 @@ def show_revenues(request):
         'empName': empName,
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
+        'modifyMode':modifyMode,
     }
 
     return render(request, 'sales/showrevenues.html', context)
@@ -478,8 +481,8 @@ def revenues_asjson(request):
     if contractName:
         revenues = revenues.filter(contractId__contractName__contains=contractName)
 
-    revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName',
-                               'revenuePrice', 'revenueProfitPrice', 'contractId__empName', 'contractId__empDeptName', 'revenueId')
+    revenues = revenues.values('billingDate','contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
+                               'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate','predictDepositDate', 'depositDate')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -828,5 +831,49 @@ def view_purchase(request, purchaseId):
         'revenues': revenues,
         'purchase' : purchase,
     }
-
     return render(request, 'sales/viewcontract.html', context)
+
+
+@login_required
+@csrf_exempt
+def save_revenuetable(request):
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    predictBillingDate = request.GET.getlist('predictBillingDate')
+    billingDate = request.GET.getlist('billingDate')
+    revenuePrice = request.GET.getlist('revenuePrice')
+    revenueProfitPrice = request.GET.getlist('revenueProfitPrice')
+    predictDepositDate = request.GET.getlist('predictDepositDate')
+    depositDate = request.GET.getlist('depositDate')
+    revenueId = request.GET.getlist('revenueId')
+
+    for a, b, c, d, e, f, g in zip(revenueId, predictBillingDate, billingDate, revenuePrice, revenueProfitPrice, predictDepositDate, depositDate):
+        revenue = Revenue.objects.get(revenueId = a)
+        revenue.predictBillingDate = b or None
+        revenue.billingDate = c or None
+        revenue.revenuePrice = d
+        revenue.revenueProfitPrice = e
+        revenue.predictDepositDate = f or None
+        revenue.depositDate = g or None
+        revenue.revenueProfitRatio = round(int(e)/int(d)*100,1)
+        revenue.save()
+
+    ### 초기화
+    startdate = ''
+    enddate = ''
+    empDeptName = ''
+    empName = ''
+    saleCompanyName = ''
+    contractName = ''
+    modifyMode = 'N'
+
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
+        'modifyMode': modifyMode,
+    }
+    return render(request, 'sales/showrevenues.html', context)

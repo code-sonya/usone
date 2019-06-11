@@ -34,9 +34,7 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-1"></div>
-
-    <div class="col-xl-10">
+    <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> 매출 </h6>
@@ -48,39 +46,53 @@
         </div>
         <div class="card-body">
           {% csrf_token %}
-
+          {% if modifyMode == 'N' %}
+            <div class="float-right">
+              <div class="btn btn-success" id="modifyMode" onclick="btn_modifyMode()">수정하기<i class="fas fa-table fa-fw text-white"></i></div>
+            </div>
+          {% endif %}
+          {% if modifyMode == 'Y' %}
+            <div class="float-right">
+              <button class="btn btn-danger" id="saveRevenueTable">저장하기<i class="fas fa-save fa-fw text-white"></i></button>
+            </div>
+          {% endif %}
           <div class="table-responsive">
-            <table id="showrevenues" class="hover row-border" width="100%" style="width: 100%;">
-              <thead>
-              <tr>
-                <th>영업부서</th>
-                <th>영업담당</th>
-                <th>계약명</th>
-                <th>거래처</th>
-                <th>매출금액</th>
-                <th>이익금액</th>
-                <th>빌링일자</th>
-                <th class="d-none">revenueId</th>
-              </tr>
-              </thead>
-              <tfoot>
-              <tr>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-              </tr>
-              </tfoot>
-            </table>
+            <form id="revenueForm" action="/sales/saverevenuetable/">
+              <table id="showrevenues" class="hover row-border" width="100%" style="width: 100%;">
+                <thead>
+                <tr>
+                  <th>영업담당자</th>
+                  <th>계약명</th>
+                  <th>거래처</th>
+                  <th>매출예정일</th>
+                  <th>매출일</th>
+                  <th>매출금액</th>
+                  <th>이익금액</th>
+                  <th>수금예정일</th>
+                  <th>수금일</th>
+                  <th class="d-none">revenueId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:center; white-space:nowrap;"></th>
+                </tr>
+                </tfoot>
+              </table>
+            </form>
           </div>
         </div>
       </div>
     </div>
-
-    <div class="col-xl-1"></div>
   </div>
 
   <!-- Filter Modal -->
@@ -96,7 +108,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+          <form id="filterForm" action="/sales/showrevenues/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
@@ -156,7 +168,23 @@
 
   <script type="text/javascript">
       function btn_filter() {
-          document.getElementById("filterForm").submit();
+          const filterForm = document.getElementById("filterForm");
+          let modifyMode = document.createElement("input");
+          modifyMode.setAttribute("type", "hidden");
+          modifyMode.setAttribute("name", "modifyMode");
+          modifyMode.setAttribute("value", '{{ modifyMode }}');
+          filterForm.appendChild(modifyMode);
+          filterForm.submit();
+      }
+
+      function btn_modifyMode() {
+          const filterForm = document.getElementById("filterForm");
+          let modifyMode = document.createElement("input");
+          modifyMode.setAttribute("type", "hidden");
+          modifyMode.setAttribute("name", "modifyMode");
+          modifyMode.setAttribute("value", 'Y');
+          filterForm.appendChild(modifyMode);
+          filterForm.submit();
       }
 
       function changeDeptName(empDeptName, selectId) {
@@ -185,7 +213,7 @@
               var new_str = str.split(searchStr).join(replaceStr);
               return new_str.split("T").join(" ").slice(0, 10);
           } else {
-              return str
+              return '-'
           }
       }
 
@@ -202,13 +230,18 @@
                       "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
+                      "modifyMode": "{{ modifyMode }}",
                   },
                   "url": "{% url 'sales:revenues_ajax_url' %}",
                   "dataSrc": ""
               },
               "columns": [
-                  {data: 'contractId__empDeptName'},
-                  {data: 'contractId__empName'},
+                  {
+                      data: 'contractId__empDeptName',
+                      render: function (data, type, row) {
+                          return row["contractId__empName"] + ' (' + row["contractId__empDeptName"] + ')';
+                      }
+                  },
                   {
                       data: 'contractId__contractName',
                       render: function (data, type, row) {
@@ -216,20 +249,53 @@
                       }
                   },
                   {data: 'contractId__saleCompanyName__companyName'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
-                  {data: 'billingDate'},
+                  {data: 'predictDepositDate'},
+                  {data: 'depositDate'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="date" name="predictBillingDate" value="' + data + '" />'
+                      },
+                      targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                       "render": function (data, type, row) {
+                          return '<input type="date" name="billingDate" value="' + data + '" />'
+                      },
+                      targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="text" name="revenuePrice" value="' + data + '" />'
+                      },
+                      targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="text" name="revenueProfitPrice" value="' + data + '" />'
+                      },
+                      targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="date" name="predictDepositDate" value="' + data + '" />'
+                      },
+                      targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<input type="date" name="depositDate" value="' + data + '" />'
+                      },
+                      targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<div name="revenueId" >' + data + '</div>'
+                      },
+                      targets: 9, className: "d-none"}
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -266,33 +332,56 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString() + '원');
-                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString() + '원');
-                  $('td:eq(6)', nRow).text(replaceAll(aData.billingDate, "-", "."));
+                  {% if modifyMode == 'N' %}
+                      $('td:eq(3)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+                      $('td:eq(4)', nRow).text(replaceAll(aData.billingDate, "-", "."));
+                      $('td:eq(5)', nRow).text(aData.revenuePrice.toLocaleString() + '원');
+                      $('td:eq(6)', nRow).text(aData.revenueProfitPrice.toLocaleString() + '원');
+                      $('td:eq(7)', nRow).text(replaceAll(aData.predictDepositDate, "-", "."));
+                      $('td:eq(8)', nRow).text(replaceAll(aData.depositDate, "-", "."));
+                  {% endif %}
               },
               "footerCallback": function () {
                   var api = this.api(), data;
 
                   var revenueResult = 0;
-                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(4).footer()).html(revenueResult.toLocaleString() + '원');
+                  $(api.column(5).footer()).html(revenueResult.toLocaleString() + '원');
 
                   var profitResult = 0;
-                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(5).footer()).html(profitResult.toLocaleString() + '원');
+                  $(api.column(6).footer()).html(profitResult.toLocaleString() + '원');
               },
           });
 
           var table = $('#showrevenues').DataTable();
+          {% if modifyMode == 'N' %}
+              $("#showrevenues").on("click", 'tr', function () {
+                  const data = table.row(this).data();
+                  location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+              });
+          {% endif %}
 
-          $("#showrevenues").on("click", 'tr', function () {
-              const data = table.row(this).data();
-              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
-          });
+          {% if modifyMode == 'Y' %}
+              $('#saveRevenueTable').click(function () {
+                  const revenueForm = document.getElementById("revenueForm");
+
+                  const lengthRevenue = $('[name="revenueId"]').length;
+                  for (var i = 0; i <= lengthRevenue - 1; i++) {
+                      const revenue = document.createElement("input");
+                      const data = $('div[name="revenueId"]').eq(i).text();
+                      revenue.setAttribute("type", "hidden");
+                      revenue.setAttribute("name", "revenueId");
+                      revenue.setAttribute("value", data);
+                      revenueForm.appendChild(revenue);
+                  }
+                  revenueForm.submit()
+              });
+          {% endif %}
       });
 
   </script>
