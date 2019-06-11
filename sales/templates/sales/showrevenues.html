@@ -112,11 +112,15 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="text-primary">시작일자<div class="text-secondary" style="font-size:13px">(매출예정일 or 수금예정일)</div></label>
+                <label for="startdate" class="text-primary">시작일자
+                  <div class="text-secondary" style="font-size:13px">(매출예정일 or 수금예정일)</div>
+                </label>
                 <input type="date" class="form-control" id="startdate" name="startdate">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="enddate" class="text-primary">종료일자<div class="text-secondary" style="font-size:13px">(매출예정일 or 수금예정일)</div></label>
+                <label for="enddate" class="text-primary">종료일자
+                  <div class="text-secondary" style="font-size:13px">(매출예정일 or 수금예정일)</div>
+                </label>
                 <input type="date" class="form-control" id="enddate" name="enddate">
               </div>
             </div>
@@ -224,7 +228,7 @@
               var new_str = str.split(searchStr).join(replaceStr);
               return new_str.split("T").join(" ").slice(0, 10);
           } else {
-              return '-'
+              return '------------'
           }
       }
 
@@ -350,8 +354,14 @@
                   $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
 
                   {% if modifyMode == 'N' %}
-                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, "-", ".") + " / " + replaceAll(aData.billingDate, "-", "."));
-                      $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, "-", ".") + " / " + replaceAll(aData.depositDate, "-", "."));
+                      var spanBillingDate = document.createElement("span");
+                      $(spanBillingDate).text(replaceAll(aData.billingDate, "-", ".")).css('color', '#FFFFFF');
+                      var spanDepositDate = document.createElement("span");
+                      $(spanDepositDate).text(replaceAll(aData.withdrawDate, "-", ".")).css('color', '#FFFFFF');
+                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, "-", ".") + " / ");
+                      $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, "-", ".") + " / ");
+                      $('td:eq(4)', nRow).append(spanBillingDate);
+                      $('td:eq(5)', nRow).append(spanDepositDate);
                       $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
 
