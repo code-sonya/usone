@@ -51,12 +51,12 @@ def post_contract(request):
 
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
             jsonRevenue = sorted(jsonRevenue, key=lambda x: x['predictBillingDate'])
-            time = 0
+            idx = 0
             for revenue in jsonRevenue:
-                time += 1
+                idx += 1
                 Revenue.objects.create(
                     contractId=post,
-                    billingTime=str(time) + '/' + str(len(jsonRevenue)),
+                    billingTime=str(idx) + '/' + str(len(jsonRevenue)),
                     predictBillingDate=revenue["predictBillingDate"] or None,
                     billingDate=revenue["billingDate"] or None,
                     predictDepositDate=revenue["predictDepositDate"] or None,
@@ -271,15 +271,15 @@ def modify_contract(request, contractId):
 
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
             jsonRevenue = sorted(jsonRevenue, key=lambda x: x['predictBillingDate'])
-            time = 0
+            idx = 0
             revenueId = list(i[0] for i in Revenue.objects.filter(contractId=contractId).values_list('revenueId'))
             jsonRevenueId = []
             for revenue in jsonRevenue:
-                time += 1
+                idx += 1
                 if revenue['revenueId'] == '추가':
                     Revenue.objects.create(
                         contractId=post,
-                        billingTime=str(time) + '/' + str(len(jsonRevenue)),
+                        billingTime=str(idx) + '/' + str(len(jsonRevenue)),
                         predictBillingDate=revenue["predictBillingDate"] or None,
                         billingDate=revenue["billingDate"] or None,
                         predictDepositDate=revenue["predictDepositDate"] or None,
@@ -293,7 +293,7 @@ def modify_contract(request, contractId):
                 else:
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
                     revenueInstance.contractId = post
-                    revenueInstance.billingTime = str(time) + '/' + str(len(jsonRevenue))
+                    revenueInstance.billingTime = str(idx) + '/' + str(len(jsonRevenue))
                     revenueInstance.predictBillingDate = revenue["predictBillingDate"] or None
                     revenueInstance.billingDate = revenue["billingDate"] or None
                     revenueInstance.predictDepositDate = revenue["predictDepositDate"] or None
@@ -312,12 +312,49 @@ def modify_contract(request, contractId):
                 for Id in delRevenueId:
                     Revenue.objects.filter(revenueId=Id).delete()
 
+            jsonPurchase = json.loads(request.POST['jsonPurchase'])
+            purchaseId = list(i[0] for i in Purchase.objects.filter(contractId=contractId).values_list('purchaseId'))
+            jsonPurchaseId = []
+            for purchase in jsonPurchase:
+                if purchase['purchaseId'] == '추가':
+                    Purchase.objects.create(
+                        contractId=post,
+                        billingTime=None,
+                        predictBillingDate=purchase["predictPurchaseDate"] or None,
+                        billingDate=purchase["purchaseDate"] or None,
+                        predictWithdrawDate=purchase["predictWithdrawDate"] or None,
+                        withdrawDate=purchase["withdrawDate"] or None,
+                        purchaseCompany=Company.objects.filter(companyName=purchase["purchaseCompany"]).first(),
+                        purchasePrice=int(purchase["purchasePrice"]),
+                        comment=purchase["purchaseComment"],
+                    )
+                else:
+                    purchaseInstance = Purchase.objects.get(purchaseId=int(purchase["purchaseId"]))
+                    purchaseInstance.contractId = post
+                    purchaseInstance.billingTime = None
+                    purchaseInstance.predictBillingDate = purchase["predictPurchaseDate"] or None
+                    purchaseInstance.billingDate = purchase["purchaseDate"] or None
+                    purchaseInstance.predictWithdrawDate = purchase["predictWithdrawDate"] or None
+                    purchaseInstance.withdrawDate = purchase["withdrawDate"] or None
+                    purchaseInstance.purchaseCompany = Company.objects.filter(companyName=purchase["purchaseCompany"]).first()
+                    purchaseInstance.purchasePrice = int(purchase["purchasePrice"])
+                    purchaseInstance.comment = purchase["purchaseComment"]
+                    purchaseInstance.save()
+                    jsonPurchaseId.append(int(purchase["purchaseId"]))
+
+            delPurchaseId = list(set(purchaseId) - set(jsonPurchaseId))
+
+            if delPurchaseId:
+                for Id in delPurchaseId:
+                    Purchase.objects.filter(purchaseId=Id).delete()
+
             return redirect('sales:showcontracts')
 
     else:
         form = ContractForm(instance=contractInstance)
         items = Contractitem.objects.filter(contractId=contractId)
         revenues = Revenue.objects.filter(contractId=contractId)
+        purchases = Purchase.objects.filter(contractId=contractId)
         saleCompanyNames = Contract.objects.get(contractId=contractId).saleCompanyName
         endCompanyNames = Contract.objects.get(contractId=contractId).endCompanyName
         companyList = Company.objects.filter(Q(companyStatus='Y'))
@@ -330,6 +367,7 @@ def modify_contract(request, contractId):
             'form': form,
             'items': items,
             'revenues': revenues.order_by('predictBillingDate'),
+            'purchases': purchases,
             'saleCompanyNames': saleCompanyNames,
             'endCompanyNames': endCompanyNames,
             'companyNames': companyNames
