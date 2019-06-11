@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  목표관리
+  영업-목표관리
 {% endblock %}
 
 
@@ -18,13 +18,11 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-1"></div>
-
-    <div class="col-xl-10">
+    <div class="col-xl-12">
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 영업 목표 </h6>
+          <h6 class="m-0 h3 text-gray-800"> 목표 관리 </h6>
 
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
@@ -55,6 +53,18 @@
                 <th class="d-none">goalId</th>
               </tr>
               </thead>
+              <tfoot>
+              <tr>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+              </tr>
+              </tfoot>
             </table>
           </div>
 
@@ -62,8 +72,6 @@
 
       </div>
     </div>
-
-    <div class="col-xl-1"></div>
   </div>
 
   <!-- Filter Modal -->
@@ -213,12 +221,47 @@
                       "previous": "이전"
                   },
               },
-               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   $('td:eq(3)', nRow).text(aData.salesq1.toLocaleString() + '원');
                   $('td:eq(4)', nRow).text(aData.salesq2.toLocaleString() + '원');
                   $('td:eq(5)', nRow).text(aData.salesq3.toLocaleString() + '원');
                   $('td:eq(6)', nRow).text(aData.salesq4.toLocaleString() + '원');
-                  $('td:eq(7)', nRow).text(aData.yearSalesSum.toLocaleString() + '원');
+                  $('td:eq(7)', nRow).text(aData.yearSalesSum.toLocaleString() + '원').css('color', '#4e73df');
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var q1Result = 0;
+                  api.column(3, {search: 'applied'}).data().each(function (data, index) {
+                      q1Result += parseFloat(data);
+                  });
+                  $(api.column(3).footer()).html(q1Result.toLocaleString() + '원');
+
+                  var q2Result = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      q2Result += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(q2Result.toLocaleString() + '원');
+
+                  var q3Result = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      q3Result += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(q3Result.toLocaleString() + '원');
+
+                  var q4Result = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      q4Result += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(q4Result.toLocaleString() + '원');
+
+                  var totalResult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      totalResult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(totalResult.toLocaleString() + '원');
+
+
               },
           });
 
