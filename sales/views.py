@@ -67,6 +67,20 @@ def post_contract(request):
                     revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100), 1),
                     comment=revenue["revenueComment"],
                 )
+
+            jsonPurchase = json.loads(request.POST['jsonPurchase'])
+            for purchase in jsonPurchase:
+                Purchase.objects.create(
+                    contractId=post,
+                    billingTime=None,
+                    predictBillingDate=purchase["predictPurchaseDate"] or None,
+                    billingDate=purchase["purchaseDate"] or None,
+                    predictWithdrawDate=purchase["predictWithdrawDate"] or None,
+                    withdrawDate=purchase["withdrawDate"] or None,
+                    purchaseCompany=Company.objects.filter(companyName=purchase["purchaseCompany"]).first(),
+                    purchasePrice=int(purchase["purchasePrice"]),
+                    comment=purchase["purchaseComment"],
+                )
             return redirect('sales:showcontracts')
 
     else:
