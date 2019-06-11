@@ -83,9 +83,9 @@
           <h5 class="text-dark mb-3"><b>▼ 계약내용</b></h5>
           <table class="pc-table">
             <tbody>
-            <tr>
-              <td style="width: 20%; border-top: 0px;"><b>단계</b></td>
-              <td style="width: 30%; border-top: 0px;">
+            <tr class="thtd">
+              <td class="thtd bg-light" style="width: 20%; border-top: 0px;">단&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;계</td>
+              <td class="thtd " style="width: 30%; border-top: 0px;">
                 {% if contract.contractStep == "Firm" %}
                   <div class="text-primary"> {{ contract.contractStep }}</div>
                 {% elif contract.contractStep == "Drop" %}
@@ -94,24 +94,24 @@
                   <div class="text-success"> {{ contract.contractStep }}</div>
                 {% endif %}
               </td>
-              <td style="width: 20%; border-top: 0px;"><b>영업담당</b></td>
-              <td style="width: 30%; border-top: 0px;">{{ contract.empName }} ({{ contract.empDeptName }})</td>
+              <td class="thtd bg-light" style="width: 20%; border-top: 0px;">영&nbsp; 업&nbsp; &nbsp;담&nbsp; 당</td>
+              <td class="thtd" style="width: 30%; border-top: 0px;">{{ contract.empName }} ({{ contract.empDeptName }})</td>
             </tr>
-            <tr>
-              <td><b>판매유형</b></td>
-              <td>{{ contract.saleType }}</td>
-              <td><b>산업군</b></td>
-              <td>{{ contract.saleIndustry }}</td>
+            <tr class="thtd">
+              <td class="thtd bg-light">판&nbsp; 매&nbsp; &nbsp;유&nbsp; 형</td>
+              <td class="thtd">{{ contract.saleType }}</td>
+              <td class="thtd bg-light">산&nbsp; &nbsp; &nbsp;업&nbsp; &nbsp; &nbsp;군</td>
+              <td class="thtd">{{ contract.saleIndustry }}</td>
             </tr>
-            <tr>
-              <td><b>대분류</b></td>
-              <td>{{ contract.mainCategory }}</td>
-              <td><b>소분류</b></td>
-              <td>{{ contract.subCategory }}</td>
+            <tr class="thtd">
+              <td class="thtd bg-light">대&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
+              <td class="thtd">{{ contract.mainCategory }}</td>
+              <td class="thtd bg-light">소&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
+              <td class="thtd">{{ contract.subCategory }}</td>
             </tr>
-            <tr>
-              <td><b>거래처</b></td>
-              <td>
+            <tr class="thtd">
+              <td class="thtd bg-light">거&nbsp; &nbsp; &nbsp;래&nbsp; &nbsp; &nbsp;처</td>
+              <td class="thtd">
                 <a href="/client/viewclient/{{ contract.saleCompanyName.companyName }}" class="text-dark">
                   {{ contract.saleCompanyName.companyName }}
                 </a>
@@ -119,89 +119,37 @@
                   {% if contract.saleCustomerName %} ({{ contract.saleCustomerName }}){% endif %}
                 </a>
               </td>
-              <td><b>최종고객사</b></td>
-              <td>
+              <td class="thtd bg-light">최 종 고 객 사</td>
+              <td class="thtd">
                 <a href="/client/viewclient/{{ contract.endCompanyName.companyName }}">
                   {{ contract.endCompanyName.companyName }}
                 </a>
               </td>
             </tr>
-            <tr>
-              <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}계약금액</b></td>
-              <td>
+            <tr class="thtd">
+              <td class="thtd bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}계&nbsp; 약&nbsp; &nbsp;금&nbsp; 액</td>
+              <td class="thtd">
                 <div class="text-danger">{{ contract.salePrice | intcomma }}</div>
               </td>
-              <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}이익금액</b></td>
-              <td>{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio }} %)</td>
+              <td class="thtd bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}이&nbsp; 익&nbsp; &nbsp;금&nbsp; 액</td>
+              <td class="thtd">{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio }} %)</td>
             </tr>
-            <tr>
-              <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}계약일</b></td>
-              <td>{{ contract.contractDate }}</td>
-              <td><b>계약기간</b></td>
-              <td>{% if contract.contractStep == 'Firm' and contract.contractStartDate %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
+            <tr class="thtd">
+              <td class="thtd bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}계&nbsp; &nbsp; &nbsp;약&nbsp; &nbsp; &nbsp;일</td>
+              <td class="thtd">{{ contract.contractDate }}</td>
+              <td class="thtd bg-light">계&nbsp; 약&nbsp; &nbsp;기&nbsp; 간</td>
+              <td class="thtd">{% if contract.contractStep == 'Firm' and contract.contractStartDate %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
             </tr>
-            <tr>
-              <td><b>참고사항</b></td>
-              <td colspan="3">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
+            <tr class="thtd">
+              <td class="thtd bg-light">참&nbsp; 고&nbsp; &nbsp;사&nbsp; 항</td>
+              <td class="thtd" colspan="3">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
             </tr>
             </tbody>
           </table>
 
 
 
-          <table class="pc-table-main">
-            <tbody>
-              <tr>
-                <td style="width: 25%; border-top: 0px;"><b>단계</b></td>
-                <td style="width: 25%; border-top: 0px;"><b>영업담당</b></td>
-                <td style="width: 25%; border-top: 0px;"><b>거래처</b></td>
-                <td style="width: 25%; border-top: 0px;"><b>최종고객사</b></td>
-              </tr>
-              <tr>
-                <td>
-                  {% if contract.contractStep == "Firm" %}
-                    <div class="text-primary"> {{ contract.contractStep }}</div>
-                  {% elif contract.contractStep == "Drop" %}
-                    <div class="text-danger"> {{ contract.contractStep }}</div>
-                  {% else %}
-                    <div class="text-success"> {{ contract.contractStep }}</div>
-                  {% endif %}
-                </td>
-                <td>{{ contract.empName }} ({{ contract.empDeptName }})</td>
-                <td>
-                  <a href="/client/viewclient/{{ contract.saleCompanyName.companyName }}" class="text-dark">{{ contract.saleCompanyName.companyName }}</a>
-                  <a href="/client/viewcustomer/{{ contract.saleCustomerId.customerId }}" class="text-dark">{% if contract.saleCustomerName %} ({{ contract.saleCustomerName }}){% endif %}</a>
-                </td>
-                <td><a href="/client/viewclient/{{ contract.endCompanyName.companyName }}" class="text-dark">{{ contract.endCompanyName.companyName }}</a></td>
-              </tr>
 
-              <tr>
-                <td><b>판매유형</b></td>
-                <td><b>산업군</b></td>
-                <td><b>대분류</b></td>
-                <td><b>소분류</b></td>
-              </tr>
-              <tr>
-                <td>{{ contract.saleType }}</td>
-                <td>{{ contract.saleIndustry }}</td>
-                <td>{{ contract.mainCategory }}</td>
-                <td>{{ contract.subCategory }}</td>
-              </tr>
-
-              <tr>
-                <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}계약금액</b></td>
-                <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}이익금액</b></td>
-                <td><b>{% if contract.contractStep != 'Firm' %}예상{% endif %}계약일</b></td>
-                <td><b>계약기간</b></td>
-              </tr>
-              <tr>
-                <td>{{ contract.salePrice | intcomma }}</td>
-                <td>{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio }} %)</td>
-                <td>{{ contract.contractDate }}</td>
-                <td>{% if contract.contractStep == 'Firm' and contract.contractStartDate %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
-              </tr>
-            </tbody>
-          </table>
 
 
 
