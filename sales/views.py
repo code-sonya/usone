@@ -931,14 +931,13 @@ def save_purchasetable(request):
         purchase.comment = f
         purchase.save()
 
-    ### 초기화
-    startdate = ''
-    enddate = ''
-    empDeptName = ''
-    empName = ''
-    saleCompanyName = ''
-    contractName = ''
-    contractStep = ''
+    startdate = request.GET["startdate"]
+    enddate = request.GET["enddate"]
+    empDeptName = request.GET['empDeptName']
+    empName = request.GET['empName']
+    saleCompanyName = request.GET['saleCompanyName']
+    contractName = request.GET['contractName']
+    contractStep = request.GET['contractStep']
     modifyMode = 'N'
 
     context = {
@@ -965,6 +964,7 @@ def purchases_asjson(request):
     saleCompanyName = request.POST['saleCompanyName']
     contractName = request.POST['contractName']
     contractStep = request.POST['contractStep']
+    # print(startdate,enddate,empDeptName,empName,saleCompanyName,contractName,contractStep,contractStep)
 
     purchase = Purchase.objects.all()
 
@@ -1117,14 +1117,13 @@ def save_revenuetable(request):
         revenue.comment = f
         revenue.save()
 
-    ### 초기화
-    startdate = ''
-    enddate = ''
-    empDeptName = ''
-    empName = ''
-    saleCompanyName = ''
-    contractName = ''
-    contractStep = ''
+    startdate = request.GET["startdate"]
+    enddate = request.GET["enddate"]
+    empDeptName = request.GET['empDeptName']
+    empName = request.GET['empName']
+    saleCompanyName = request.GET['saleCompanyName']
+    contractName = request.GET['contractName']
+    contractStep = request.GET['contractStep']
     modifyMode = 'N'
 
     context = {

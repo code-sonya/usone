@@ -26,6 +26,15 @@
       color: white;
       margin-bottom: 1rem;
     }
+
+    .input-form {
+      border: 1px solid #d1d3e2;
+      border-radius: .35rem;
+      padding: .375rem .75rem;
+      font-size: 0.9em;
+      color: #6e707e;
+      width: 170px;
+    }
   </style>
 
 {% endblock %}
@@ -79,9 +88,9 @@
                   <th style="text-align:center; white-space:nowrap;"></th>
                   <th style="text-align:center; white-space:nowrap;"></th>
                   <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:right; white-space:nowrap;">TOTAL :</th>
+                  <th style="text-align:right; white-space:nowrap;"></th>
+                  <th style="text-align:right; white-space:nowrap;"></th>
                   <th style="text-align:center; white-space:nowrap;"></th>
                 </tr>
                 </tfoot>
@@ -197,6 +206,41 @@
           modifyMode.setAttribute("name", "modifyMode");
           modifyMode.setAttribute("value", 'Y');
           filterForm.appendChild(modifyMode);
+          let startdate = document.createElement("input");
+          startdate.setAttribute("type", "hidden");
+          startdate.setAttribute("name", "startdate");
+          startdate.setAttribute("value", '{{ startdate }}');
+          filterForm.appendChild(startdate);
+          let enddate = document.createElement("input");
+          enddate.setAttribute("type", "hidden");
+          enddate.setAttribute("name", "enddate");
+          enddate.setAttribute("value", '{{ enddate }}');
+          filterForm.appendChild(enddate);
+          let contractStep = document.createElement("input");
+          contractStep.setAttribute("type", "hidden");
+          contractStep.setAttribute("name", "contractStep");
+          contractStep.setAttribute("value", '{{ contractStep }}');
+          filterForm.appendChild(contractStep);
+          let empDeptName = document.createElement("input");
+          empDeptName.setAttribute("type", "hidden");
+          empDeptName.setAttribute("name", "empDeptName");
+          empDeptName.setAttribute("value", '{{ empDeptName }}');
+          filterForm.appendChild(empDeptName);
+          let empName = document.createElement("input");
+          empName.setAttribute("type", "hidden");
+          empName.setAttribute("name", "empName");
+          empName.setAttribute("value", '{{ empName }}');
+          filterForm.appendChild(empName);
+          let saleCompanyName = document.createElement("input");
+          saleCompanyName.setAttribute("type", "hidden");
+          saleCompanyName.setAttribute("name", "saleCompanyName");
+          saleCompanyName.setAttribute("value", '{{ saleCompanyName }}');
+          filterForm.appendChild(saleCompanyName);
+          let contractName = document.createElement("input");
+          contractName.setAttribute("type", "hidden");
+          contractName.setAttribute("name", "contractName");
+          contractName.setAttribute("value", '{{ contractName }}');
+          filterForm.appendChild(contractName);
           filterForm.submit();
       }
 
@@ -288,20 +332,22 @@
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" name="predictBillingDate" value="' + row["predictBillingDate"] + '" /> / <input type="date" name="billingDate" value="' + row["billingDate"] + '" />'
+                          return '<input type="date" name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"] + '" /> / ' +
+                              '<input type="date" name="billingDate" class="input-form" value="' + row["billingDate"] + '" />'
                       },
                       targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" name="predictWithdrawDate" value="' + row["predictWithdrawDate"] + '" /> / <input type="date" name="withdrawDate" value="' + row["withdrawDate"] + '" />'
+                          return '<input type="date" name="predictWithdrawDate" class="input-form" value="' + row["predictWithdrawDate"] + '" /> /' +
+                              ' <input type="date" name="withdrawDate" class="input-form" value="' + row["withdrawDate"] + '" />'
                       },
                       targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                   },
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
                   {
                       "render": function (data, type, row) {
-                          return '<input type="text" name="comment" value="' + data + '" />'
+                          return '<input type="text" name="comment" class="input-form" value="' + data + '" />'
                       }, targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
@@ -329,7 +375,7 @@
                       footer: true
                   }
               ],
-              "order": [[6, 'desc']],
+              "order": [[4, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -366,7 +412,7 @@
                   api.column(6, {search: 'applied'}).data().each(function (data, index) {
                       purchaseResult += parseFloat(data);
                   });
-                  $(api.column(6).footer()).html(purchaseResult.toLocaleString() + '원');
+                  $(api.column(6).footer()).html(purchaseResult.toLocaleString());
 
               },
           });
@@ -383,6 +429,41 @@
           {% if modifyMode == 'Y' %}
               $('#savePurchaseTable').click(function () {
                   const purchaseForm = document.getElementById("purchaseForm");
+                  let startdate = document.createElement("input");
+                  startdate.setAttribute("type", "hidden");
+                  startdate.setAttribute("name", "startdate");
+                  startdate.setAttribute("value", '{{ startdate }}');
+                  purchaseForm.appendChild(startdate);
+                  let enddate = document.createElement("input");
+                  enddate.setAttribute("type", "hidden");
+                  enddate.setAttribute("name", "enddate");
+                  enddate.setAttribute("value", '{{ enddate }}');
+                  purchaseForm.appendChild(enddate);
+                  let contractStep = document.createElement("input");
+                  contractStep.setAttribute("type", "hidden");
+                  contractStep.setAttribute("name", "contractStep");
+                  contractStep.setAttribute("value", '{{ contractStep }}');
+                  purchaseForm.appendChild(contractStep);
+                  let empDeptName = document.createElement("input");
+                  empDeptName.setAttribute("type", "hidden");
+                  empDeptName.setAttribute("name", "empDeptName");
+                  empDeptName.setAttribute("value", '{{ empDeptName }}');
+                  purchaseForm.appendChild(empDeptName);
+                  let empName = document.createElement("input");
+                  empName.setAttribute("type", "hidden");
+                  empName.setAttribute("name", "empName");
+                  empName.setAttribute("value", '{{ empName }}');
+                  purchaseForm.appendChild(empName);
+                  let saleCompanyName = document.createElement("input");
+                  saleCompanyName.setAttribute("type", "hidden");
+                  saleCompanyName.setAttribute("name", "saleCompanyName");
+                  saleCompanyName.setAttribute("value", '{{ saleCompanyName }}');
+                  purchaseForm.appendChild(saleCompanyName);
+                  let contractName = document.createElement("input");
+                  contractName.setAttribute("type", "hidden");
+                  contractName.setAttribute("name", "contractName");
+                  contractName.setAttribute("value", '{{ contractName }}');
+                  purchaseForm.appendChild(contractName);
 
                   const lengthPurchase = $('[name="purchaseId"]').length;
                   for (var i = 0; i <= lengthPurchase - 1; i++) {
