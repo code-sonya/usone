@@ -9,7 +9,13 @@
 {% block css %}
 
   <style type="text/css">
-
+    .input-form{
+      border: 1px solid #d1d3e2;
+      border-radius: .35rem;padding: .375rem .75rem;
+      font-size:0.9em;
+      color: #6e707e;
+      width: 170px;
+    }
   </style>
 
 {% endblock %}
@@ -55,10 +61,10 @@
                   <label for="saleCompanyNames" class="font-weight-bold text-primary"> 거래처 </label> {{ form.saleCompanyNames }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="saleCustomerId" class="font-weight-bold text-primary"> 거래처 담당자 </label> {{ form.saleCustomerId }}
+                  <label for="saleCustomerId" class="font-weight-bold"> 거래처 담당자 </label> {{ form.saleCustomerId }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="endCompanyNames" class="font-weight-bold text-primary"> 최종고객사 </label> {{ form.endCompanyNames }}
+                  <label for="endCompanyNames" class="font-weight-bold"> 최종고객사 </label> {{ form.endCompanyNames }}
                 </div>
               </div>
 
@@ -70,22 +76,22 @@
                   <label for="profitPrice" class="font-weight-bold text-primary"> <span name="predict">예상</span>이익금액 (원) </label> {{ form.profitPrice }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="profitRatio" class="font-weight-bold text-primary"> <span name="predict">예상</span>이익율 (%) </label> {{ form.profitRatio }}
+                  <label for="profitRatio" class="font-weight-bold"> <span name="predict">예상</span>이익율 (%) </label> {{ form.profitRatio }}
                 </div>
                 <div class="col-2 mb-3">
                   <label for="contractDate" class="font-weight-bold text-primary"> <span name="predict">예상</span>계약일 </label> {{ form.contractDate }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="contractStartDate" class="font-weight-bold text-primary"> 계약시작일 </label> {{ form.contractStartDate }}
+                  <label for="contractStartDate" class="font-weight-bold"> 계약시작일 </label> {{ form.contractStartDate }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="contractEndDate" class="font-weight-bold text-primary"> 계약종료일 </label> {{ form.contractEndDate }}
+                  <label for="contractEndDate" class="font-weight-bold"> 계약종료일 </label> {{ form.contractEndDate }}
                 </div>
               </div>
 
               <div class="form-group row">
                 <div class="col-xl-12">
-                  <label for="comment" class="font-weight-bold text-primary"> 참고사항 </label> {{ form.comment }}
+                  <label for="comment" class="font-weight-bold"> 참고사항 </label> {{ form.comment }}
                 </div>
               </div>
             </div>
@@ -98,10 +104,10 @@
                   <thead style="width:100%">
                   <tr>
                     <th>구분</th>
-                    <th>대분류</th>
-                    <th>소분류</th>
+                    <th class="font-weight-bold text-primary">대분류</th>
+                    <th class="font-weight-bold text-primary">소분류</th>
                     <th>상세내용</th>
-                    <th>금액</th>
+                    <th class="font-weight-bold text-primary">금액</th>
                     <th><i id="addItem" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
                   </thead>
@@ -117,13 +123,13 @@
                   <thead style="width:100%">
                   <tr>
                     <th>구분</th>
-                    <th>매출예정일</th>
+                    <th class="font-weight-bold text-primary">매출예정일</th>
                     <th>매출일</th>
                     <th>수금예정일</th>
                     <th>수금일</th>
-                    <th>매출처 <i class="fas fa-angle-double-down" onclick="changeRevenueCompany()"></i></th>
-                    <th>매출금액</th>
-                    <th>이익금액</th>
+                    <th class="font-weight-bold text-primary">매출처 <i class="fas fa-angle-double-down" onclick="changeRevenueCompany()"></i></th>
+                    <th class="font-weight-bold text-primary">매출금액</th>
+                    <th class="font-weight-bold text-primary">이익금액</th>
                     <th>비고</th>
                     <th><i id="addRevenue" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
@@ -140,12 +146,12 @@
                   <thead style="width:100%">
                   <tr>
                     <th>구분</th>
-                    <th>매입예정일</th>
+                    <th class="font-weight-bold text-primary">매입예정일</th>
                     <th>매입일</th>
                     <th>지급예정일</th>
                     <th>지급일</th>
-                    <th onclick="changeRevenueCompany()">매입처</th>
-                    <th>매입금액</th>
+                    <th class="font-weight-bold text-primary">매입처</th>
+                    <th class="font-weight-bold text-primary">매입금액</th>
                     <th>비고</th>
                     <th><i id="addPurchase" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
@@ -187,6 +193,35 @@
       }
 
       function btn_save() {
+          if (document.getElementById("contractCode").value === '') {
+              alert("관리번호를 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("contractName").value === '') {
+              alert("계약명을 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("empId").value === '') {
+              alert("영업담당을 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("saleCompanyNames").value === '') {
+              alert("거래처를 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("salePrice").value === '') {
+              alert("계약금액을 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("profitPrice").value === '') {
+              alert("이익금액을 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("contractDate").value === '') {
+              alert("계약일을 입력해주세요.");
+              return false;
+          }
+
           moneyChange();
 
           const ContractForm = document.getElementById("ContractForm");
@@ -195,6 +230,18 @@
           const lengthItem = $('[name="itemId"]').length;
           const listItem = new Array();
           for (var i = 0; i <= lengthItem - 1; i++) {
+              if ($('select[name="mainCategory"]').eq(i).val() == '') {
+                  alert("세부사항의 대분류를 입력해주세요.");
+                  return false;
+              }
+              if ($('select[name="subCategory"]').eq(i).val() == '') {
+                  alert("세부사항의 소분류를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="itemPrice"]').eq(i).val() == '') {
+                  alert("세부사항의 금액을 입력해주세요.");
+                  return false;
+              }
               var data = new Object();
               data.itemId = $('div[name="itemId"]').eq(i).text();
               data.mainCategory = $('select[name="mainCategory"]').eq(i).val();
@@ -214,6 +261,22 @@
           const lengthRevenue = $('[name="revenueId"]').length;
           const listRevenue = new Array();
           for (var i = 0; i <= lengthRevenue - 1; i++) {
+              if ($('input[name="predictBillingDate"]').eq(i).val() == '') {
+                  alert("매출세부정보의 매출예정일을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="revenueCompany"]').eq(i).val() == '') {
+                  alert("매출세부정보의 매출처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="revenuePrice"]').eq(i).val() == '') {
+                  alert("매출세부정보의 매출금액을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="revenueProfitPrice"]').eq(i).val() == '') {
+                  alert("매출세부정보의 이익금액을 입력해주세요.");
+                  return false;
+              }
               var data = new Object();
               data.revenueId = $('div[name="revenueId"]').eq(i).text();
               data.predictBillingDate = $('input[name="predictBillingDate"]').eq(i).val();
@@ -237,6 +300,18 @@
           const lengthPurchase = $('[name="purchaseId"]').length;
           const listPurchase = new Array();
           for (var i = 0; i <= lengthPurchase - 1; i++) {
+              if ($('input[name="predictPurchaseDate"]').eq(i).val() == '') {
+                  alert("매입세부정보의 매입예정일 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="purchaseCompany"]').eq(i).val() == '') {
+                  alert("매입세부정보의 매입처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="purchasePrice"]').eq(i).val() == '') {
+                  alert("매입세부정보의 매입금액을 입력해주세요.");
+                  return false;
+              }
               var data = new Object();
               data.purchaseId = $('div[name="purchaseId"]').eq(i).text();
               data.predictPurchaseDate = $('input[name="predictPurchaseDate"]').eq(i).val();
@@ -270,25 +345,23 @@
               sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val().replace(/,/g, ''));
           }
 
-          if ($('#contractStep').val() === 'Firm') {
-              if (sumItemPrice != $('#salePrice').val().replace(/,/g, '')) {
-                  alert("계약금액 : " + $('#salePrice').val() + "\n" +
-                      "세부금액 : " + sumItemPrice + "\n" +
-                      "계약금액과 세부사항 금액의 합이 일치하지 않습니다.");
-                  return false;
-              }
-              if (sumRevenuePrice != $('#salePrice').val().replace(/,/g, '')) {
-                  alert("계약금액 : " + $('#salePrice').val() + "\n" +
-                      "매출금액 : " + sumRevenuePrice + "\n" +
-                      "계약금액과 매출금액의 합이 일치하지 않습니다.");
-                  return false;
-              }
-              if (sumRevenueProfitPrice != $('#profitPrice').val().replace(/,/g, '')) {
-                  alert("이익금액 : " + $('#profitPrice').val() + "\n" +
-                      "GP : " + sumRevenueProfitPrice + "\n" +
-                      "이익금액과 GP의 합이 일치하지 않습니다.");
-                  return false;
-              }
+          if (sumItemPrice != $('#salePrice').val().replace(/,/g, '')) {
+              alert("계약금액 : " + $('#salePrice').val() + "\n" +
+                  "세부금액 : " + sumItemPrice + "\n" +
+                  "계약금액과 세부사항 금액의 합이 일치하지 않습니다.");
+              return false;
+          }
+          if (sumRevenuePrice != $('#salePrice').val().replace(/,/g, '')) {
+              alert("계약금액 : " + $('#salePrice').val() + "\n" +
+                  "매출금액 : " + sumRevenuePrice + "\n" +
+                  "계약금액과 매출금액의 합이 일치하지 않습니다.");
+              return false;
+          }
+          if (sumRevenueProfitPrice != $('#profitPrice').val().replace(/,/g, '')) {
+              alert("이익금액 : " + $('#profitPrice').val() + "\n" +
+                  "GP : " + sumRevenueProfitPrice + "\n" +
+                  "이익금액과 GP의 합이 일치하지 않습니다.");
+              return false;
           }
 
           if (confirm("저장 하시겠습니까?") === true) {
@@ -457,17 +530,17 @@
           $('#addItem').on('click', function () {
               t1.row.add([
                   '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">추가</div>',
-                  '<select style="width:180px" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
-                  '<option value="init" selected="selected">--대분류--</option>' +
+                  '<select style="width:200px" class="input-form" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
+                  '<option value="" selected="selected">--대분류--</option>' +
                   '<option value="상품_Oracle">상품_Oracle</option>' +
                   '<option value="상품_IBM">상품_IBM</option>' +
                   '<option value="상품_Lenovo">상품_Lenovo</option>' +
                   '<option value="상품_기타">상품_기타</option>' +
                   '<option value="용역_유지보수">용역_유지보수</option>' +
                   '<option value="용역_기술지원">용역_기술지원</option></select>',
-                  '<select style="width:180px" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
-                  '<input style="width:180px" type="text" name="itemName" id="item3' + itemCounter + '">',
-                  '<input style="width:180px" class="money" name="itemPrice" id="item4' + itemCounter + '">',
+                  '<select style="width:200px" class="input-form" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
+                  '<input style="width:200px" class="input-form" type="text" name="itemName" id="item3' + itemCounter + '">',
+                  '<input style="width:200px" class="money input-form" name="itemPrice" id="item4' + itemCounter + '">',
                   '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
               itemCounter++;
@@ -478,17 +551,17 @@
               {% for item in items %}
                   t1.row.add([
                       '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
-                      '<select style="width:180px" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
-                      '<option value="init" selected="selected">--대분류--</option>' +
+                      '<select style="width:200px" class="input-form" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
+                      '<option value="" selected="selected">--대분류--</option>' +
                       '<option value="상품_Oracle">상품_Oracle</option>' +
                       '<option value="상품_IBM">상품_IBM</option>' +
                       '<option value="상품_Lenovo">상품_Lenovo</option>' +
                       '<option value="상품_기타">상품_기타</option>' +
                       '<option value="용역_유지보수">용역_유지보수</option>' +
                       '<option value="용역_기술지원">용역_기술지원</option></select>',
-                      '<select style="width:180px" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
-                      '<input style="width:180px" type="text" name="itemName" id="item3' + itemCounter + '" value="{{ item.itemName }}">',
-                      '<input style="width:180px" class="money" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
+                      '<select style="width:200px" class="input-form" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
+                      '<input style="width:200px" class="input-form" type="text" name="itemName" id="item3' + itemCounter + '" value="{{ item.itemName }}">',
+                      '<input style="width:200px" class="money input-form" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
                       '<i class="fas fa-times-circle" name="remove" >'
                   ]).draw(false);
                   $('#item1' + itemCounter).val("{{ item.mainCategory }}").prop("selected", true);
@@ -539,14 +612,14 @@
           $('#addRevenue').on('click', function () {
               t2.row.add([
                   '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
-                  '<input type="date" style="width: 160px;" name="predictBillingDate" id="revenue1' + revenueCounter + '">',
-                  '<input type="date" style="width: 160px;" name="billingDate" id="revenue2' + revenueCounter + '">',
-                  '<input type="date" style="width: 160px;" name="predictDepositDate" id="revenue3' + revenueCounter + '">',
-                  '<input type="date" style="width: 160px;" name="depositDate" id="revenue4' + revenueCounter + '">',
-                  '<input class="magicsearch" autocomplete="off" type="text" style="width: 160px;" name="revenueCompany" id="revenue5' + revenueCounter + '">',
-                  '<input class="money" style="width: 160px;" name="revenuePrice" id="revenue6' + revenueCounter + '">',
-                  '<input class="money" style="width: 160px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
-                  '<input type="text" style="width: 160px;" name="revenueComment" id="revenue8' + revenueCounter + '">',
+                  '<input class="input-form" type="date" name="predictBillingDate" id="revenue1' + revenueCounter + '">',
+                  '<input class="input-form" type="date" name="billingDate" id="revenue2' + revenueCounter + '">',
+                  '<input class="input-form" type="date" name="predictDepositDate" id="revenue3' + revenueCounter + '">',
+                  '<input class="input-form" type="date" name="depositDate" id="revenue4' + revenueCounter + '">',
+                  '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '">',
+                  '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '">',
+                  '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
+                  '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '">',
                   '<i class="fas fa-times-circle" name="remove">'
               ]).draw(false);
               $('.money').simpleMoneyFormat();
@@ -570,14 +643,14 @@
               {% for revenue in revenues %}
                   t2.row.add([
                       '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
-                      '<input type="date" style="width: 160px;" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 160px;" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 160px;" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 160px;" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}">',
-                      '<input class="magicsearch" autocomplete="off" type="text" style="width: 160px;" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}">',
-                      '<input class="money" style="width: 160px;" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
-                      '<input class="money" style="width: 160px;" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
-                      '<input type="text" style="width: 160px;" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.comment }}">',
+                      '<input class="input-form" type="date" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m-d" }}">',
+                      '<input class="input-form" type="date" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}">',
+                      '<input class="input-form" type="date" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
+                      '<input class="input-form" type="date" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}">',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}">',
+                      '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
+                      '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
+                      '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
                   ]).draw(false);
                   $('.money').simpleMoneyFormat();
@@ -636,13 +709,13 @@
           $('#addPurchase').on('click', function () {
               t3.row.add([
                   '<div class="text-center d-none" value="0" name="purchaseId" id="purchase0' + purchaseCounter + '">추가</div>',
-                  '<input type="date" style="width: 160px;" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '">',
-                  '<input type="date" style="width: 160px;" name="purchaseDate" id="purchase2' + purchaseCounter + '">',
-                  '<input type="date" style="width: 160px;" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '">',
-                  '<input type="date" style="width: 160px;" name="withdrawDate" id="purchase4' + purchaseCounter + '">',
-                  '<input class="magicsearch" autocomplete="off" type="text" style="width: 160px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '">',
-                  '<input class="money" style="width: 160px;" name="purchasePrice" id="purchase6' + purchaseCounter + '">',
-                  '<input type="text" style="width: 160px;" name="purchaseComment" id="purchase7' + purchaseCounter + '">',
+                  '<input class="input-form" type="date" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '">',
+                  '<input class="input-form" type="date" name="purchaseDate" id="purchase2' + purchaseCounter + '">',
+                  '<input class="input-form" type="date" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '">',
+                  '<input class="input-form" type="date" name="withdrawDate" id="purchase4' + purchaseCounter + '">',
+                  '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '">',
+                  '<input class="money input-form" style="width: 255px;"  name="purchasePrice" id="purchase6' + purchaseCounter + '">',
+                  '<input class="input-form" type="text" name="purchaseComment" id="purchase7' + purchaseCounter + '">',
                   '<i class="fas fa-times-circle" name="remove">'
               ]).draw(false);
               $('.money').simpleMoneyFormat();
@@ -665,13 +738,13 @@
               {% for purchase in purchases %}
                   t3.row.add([
                       '<div class="text-center d-none" value="0" name="purchaseId" id="purchase0' + purchaseCounter + '">{{ purchase.purchaseId }}</div>',
-                      '<input type="date" style="width: 160px;" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '" value="{{ purchase.predictBillingDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 160px;" name="purchaseDate" id="purchase2' + purchaseCounter + '" value="{{ purchase.billingDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 160px;" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '" value="{{ purchase.predictWithdrawDate | date:"Y-m-d" }}">',
-                      '<input type="date" style="width: 160px;" name="withdrawDate" id="purchase4' + purchaseCounter + '" value="{{ purchase.withdrawDate | date:"Y-m-d" }}">',
-                      '<input class="magicsearch" autocomplete="off" type="text" style="width: 240px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}">',
-                      '<input class="money" style="width: 240px;" name="purchasePrice" id="purchase6' + purchaseCounter + '" value="{{ purchase.purchasePrice }}">',
-                      '<input type="text" style="width: 160px;" name="purchaseComment" id="purchase7' + purchaseCounter + '" value="{{ purchase.comment }}">',
+                      '<input class="input-form" type="date" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '" value="{{ purchase.predictBillingDate | date:"Y-m-d" }}">',
+                      '<input class="input-form" type="date" name="purchaseDate" id="purchase2' + purchaseCounter + '" value="{{ purchase.billingDate | date:"Y-m-d" }}">',
+                      '<input class="input-form" type="date" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '" value="{{ purchase.predictWithdrawDate | date:"Y-m-d" }}">',
+                      '<input class="input-form" type="date" name="withdrawDate" id="purchase4' + purchaseCounter + '" value="{{ purchase.withdrawDate | date:"Y-m-d" }}">',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}">',
+                      '<input class="money input-form" style="width: 255px;" name="purchasePrice" id="purchase6' + purchaseCounter + '" value="{{ purchase.purchasePrice }}">',
+                      '<input class="input-form" type="text" name="purchaseComment" id="purchase7' + purchaseCounter + '" value="{{ purchase.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
                   ]).draw(false);
                   $('.money').simpleMoneyFormat();
@@ -703,13 +776,13 @@
           $('#salePrice').on("propertychange change keyup paste input", function () {
               const salePrice = $('#salePrice').val().replace(/,/g, '');
               const profitPrice = $('#profitPrice').val().replace(/,/g, '');
-              $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(1));
+              $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(0));
           });
 
           $('#profitPrice').on("propertychange change keyup paste input", function () {
               const salePrice = $('#salePrice').val().replace(/,/g, '');
               const profitPrice = $('#profitPrice').val().replace(/,/g, '');
-              $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(1));
+              $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(0));
           });
 
           // 계약종료일 자동입력

@@ -65,7 +65,7 @@ def post_contract(request):
                     revenueCompany=Company.objects.filter(companyName=revenue["revenueCompany"]).first(),
                     revenuePrice=int(revenue["revenuePrice"]),
                     revenueProfitPrice=int(revenue["revenueProfitPrice"]),
-                    revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100), 1),
+                    revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100)),
                     comment=revenue["revenueComment"],
                 )
 
@@ -158,22 +158,28 @@ def view_contract(request, contractId):
             'year': str(year),
             'revenuePrice': revenues.aggregate(revenuePrice=Coalesce(Sum('revenuePrice', filter=Q(predictBillingDate__year=year)), 0))['revenuePrice'],
             'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Coalesce(Sum('revenueProfitPrice', filter=Q(predictBillingDate__year=year)), 0))['revenueProfitPrice'],
+            'depositPrice': revenues.aggregate(depositPrice=Coalesce(Sum('revenuePrice', filter=Q(predictBillingDate__year=year) & Q(depositDate__isnull=False)), 0))['depositPrice'],
         }
         if temp['revenuePrice'] == 0:
             temp['revenueProfitRatio'] = '-'
+            temp['depositRatio'] = '-'
         else:
-            temp['revenueProfitRatio'] = round(temp['revenueProfitPrice'] / temp['revenuePrice'] * 100, 1)
+            temp['revenueProfitRatio'] = round(temp['revenueProfitPrice'] / temp['revenuePrice'] * 100)
+            temp['depositRatio'] = round(temp['depositPrice'] / temp['revenuePrice'] * 100)
         yearSummary.append(temp)
 
     yearSum = {
         'year': '합계',
         'revenuePrice': revenues.aggregate(revenuePrice=Coalesce(Sum('revenuePrice'), 0))['revenuePrice'],
         'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Coalesce(Sum('revenueProfitPrice'), 0))['revenueProfitPrice'],
+        'depositPrice': revenues.aggregate(depositPrice=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0))['depositPrice'],
     }
     if yearSum['revenuePrice'] == 0:
         yearSum['revenueProfitRatio'] = '-'
+        yearSum['depositRatio'] = '-'
     else:
-        yearSum['revenueProfitRatio'] = round(yearSum['revenueProfitPrice'] / yearSum['revenuePrice'] * 100, 1)
+        yearSum['revenueProfitRatio'] = round(yearSum['revenueProfitPrice'] / yearSum['revenuePrice'] * 100)
+        yearSum['depositRatio'] = round(temp['depositPrice'] / temp['revenuePrice'] * 100)
 
     # 입출금정보 - 총 금액
     totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))["sum_deposit"]
@@ -181,7 +187,7 @@ def view_contract(request, contractId):
     if totalDeposit == 0:
         totalRatio = '-'
     else:
-        totalRatio = round(totalWithdraw / totalDeposit * 100, 1)
+        totalRatio = round(totalWithdraw / totalDeposit * 100)
 
     # 입출금정보 - 매출
     companyDeposit = revenues \
@@ -307,7 +313,7 @@ def modify_contract(request, contractId):
                         revenueCompany=Company.objects.filter(companyName=revenue["revenueCompany"]).first(),
                         revenuePrice=int(revenue["revenuePrice"]),
                         revenueProfitPrice=int(revenue["revenueProfitPrice"]),
-                        revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100), 1),
+                        revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100)),
                         comment=revenue["revenueComment"],
                     )
                 else:
@@ -321,7 +327,7 @@ def modify_contract(request, contractId):
                     revenueInstance.revenueCompany = Company.objects.filter(companyName=revenue["revenueCompany"]).first()
                     revenueInstance.revenuePrice = int(revenue["revenuePrice"])
                     revenueInstance.revenueProfitPrice = int(revenue["revenueProfitPrice"])
-                    revenueInstance.revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100), 1)
+                    revenueInstance.revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
                     revenueInstance.comment = revenue["revenueComment"]
                     revenueInstance.save()
                     jsonRevenueId.append(int(revenue["revenueId"]))
@@ -368,7 +374,7 @@ def modify_contract(request, contractId):
                 for Id in delPurchaseId:
                     Purchase.objects.filter(purchaseId=Id).delete()
 
-            return redirect('sales:showcontracts')
+            return redirect('sales:viewcontract', str(contractId))
 
     else:
         form = ContractForm(instance=contractInstance)
@@ -459,7 +465,7 @@ def view_revenue(request, revenueId):
         if temp['revenuePrice'] == 0:
             temp['revenueProfitRatio'] = '-'
         else:
-            temp['revenueProfitRatio'] = round(temp['revenueProfitPrice'] / temp['revenuePrice'] * 100, 1)
+            temp['revenueProfitRatio'] = round(temp['revenueProfitPrice'] / temp['revenuePrice'] * 100)
         yearSummary.append(temp)
 
     yearSum = {
@@ -470,7 +476,7 @@ def view_revenue(request, revenueId):
     if yearSum['revenuePrice'] == 0:
         yearSum['revenueProfitRatio'] = '-'
     else:
-        yearSum['revenueProfitRatio'] = round(yearSum['revenueProfitPrice'] / yearSum['revenuePrice'] * 100, 1)
+        yearSum['revenueProfitRatio'] = round(yearSum['revenueProfitPrice'] / yearSum['revenuePrice'] * 100)
 
     # 입출금정보 - 총 금액
     totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))["sum_deposit"]
@@ -478,7 +484,7 @@ def view_revenue(request, revenueId):
     if totalDeposit == 0:
         totalRatio = '-'
     else:
-        totalRatio = round(totalWithdraw / totalDeposit * 100, 1)
+        totalRatio = round(totalWithdraw / totalDeposit * 100)
 
     # 입출금정보 - 매출
     companyDeposit = revenues \
@@ -1014,7 +1020,7 @@ def view_purchase(request, purchaseId):
         if temp['revenuePrice'] == 0:
             temp['revenueProfitRatio'] = '-'
         else:
-            temp['revenueProfitRatio'] = round(temp['revenueProfitPrice'] / temp['revenuePrice'] * 100, 1)
+            temp['revenueProfitRatio'] = round(temp['revenueProfitPrice'] / temp['revenuePrice'] * 100)
         yearSummary.append(temp)
 
     yearSum = {
@@ -1025,7 +1031,7 @@ def view_purchase(request, purchaseId):
     if yearSum['revenuePrice'] == 0:
         yearSum['revenueProfitRatio'] = '-'
     else:
-        yearSum['revenueProfitRatio'] = round(yearSum['revenueProfitPrice'] / yearSum['revenuePrice'] * 100, 1)
+        yearSum['revenueProfitRatio'] = round(yearSum['revenueProfitPrice'] / yearSum['revenuePrice'] * 100)
 
     # 입출금정보 - 총 금액
     totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))["sum_deposit"]
@@ -1033,7 +1039,7 @@ def view_purchase(request, purchaseId):
     if totalDeposit == 0:
         totalRatio = '-'
     else:
-        totalRatio = round(totalWithdraw / totalDeposit * 100, 1)
+        totalRatio = round(totalWithdraw / totalDeposit * 100)
 
     # 입출금정보 - 매출
     companyDeposit = revenues \
@@ -1109,11 +1115,8 @@ def save_revenuetable(request):
         revenue = Revenue.objects.get(revenueId=a)
         revenue.predictBillingDate = b or None
         revenue.billingDate = c or None
-        # revenue.revenuePrice = d
-        # revenue.revenueProfitPrice = e
         revenue.predictDepositDate = d or None
         revenue.depositDate = e or None
-        # revenue.revenueProfitRatio = round(int(e) / int(d) * 100, 1)
         revenue.comment = f
         revenue.save()
 
