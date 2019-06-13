@@ -637,10 +637,9 @@ def revenues_asjson(request):
     contractName = request.POST['contractName']
     contractStep = request.POST['contractStep']
     outstandingcollection = request.POST['outstandingcollection']
-    print('outstandingcollection:', outstandingcollection)
 
     if outstandingcollection == 'Y':
-        revenues = Revenue.objects.filter(Q(billingDate__isnull=False)&Q(depositDate__isnull=True))
+        revenues = Revenue.objects.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
     elif outstandingcollection == 'N':
         revenues = Revenue.objects.all()
 
@@ -972,7 +971,10 @@ def save_purchasetable(request):
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
     }
-    return render(request, 'sales/showpurchases.html', context)
+    if accountspayable == 'Y':
+        return render(request, 'sales/showaccountspayables.html', context)
+    elif accountspayable == 'N':
+        return render(request, 'sales/showpurchases.html', context)
 
 
 @login_required
@@ -990,7 +992,7 @@ def purchases_asjson(request):
     # print(startdate,enddate,empDeptName,empName,saleCompanyName,contractName,contractStep,contractStep)
 
     if accountspayable == 'Y':
-        purchase = Purchase.objects.filter(Q(billingDate__isnull=False)&Q(withdrawDate__isnull=True))
+        purchase = Purchase.objects.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
     elif accountspayable == 'N':
         purchase = Purchase.objects.all()
 

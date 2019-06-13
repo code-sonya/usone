@@ -46,7 +46,7 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 매입 관리 {{ accountspayable }}</h6>
+          <h6 class="m-0 h3 text-gray-800"> 매입 관리</h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
@@ -275,6 +275,7 @@
                   "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                   "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                   "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
+                  "accountspayable": '{{ accountspayable }}',
                   "modifyMode": "{{ modifyMode }}"
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -318,6 +319,7 @@
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                       "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
+                      "accountspayable": '{{ accountspayable }}',
                       "modifyMode": "{{ modifyMode }}"
                   },
                   "url": "{% url 'sales:purchases_ajax_url' %}",
@@ -447,63 +449,78 @@
 
           {% if modifyMode == 'Y' %}
               $('#savePurchaseTable').click(function () {
-                  const purchaseForm = document.getElementById("purchaseForm");
-                  let startdate = document.createElement("input");
-                  startdate.setAttribute("type", "hidden");
-                  startdate.setAttribute("name", "startdate");
-                  startdate.setAttribute("value", '{{ startdate }}');
-                  purchaseForm.appendChild(startdate);
-                  let enddate = document.createElement("input");
-                  enddate.setAttribute("type", "hidden");
-                  enddate.setAttribute("name", "enddate");
-                  enddate.setAttribute("value", '{{ enddate }}');
-                  purchaseForm.appendChild(enddate);
-                  let contractStep = document.createElement("input");
-                  contractStep.setAttribute("type", "hidden");
-                  contractStep.setAttribute("name", "contractStep");
-                  contractStep.setAttribute("value", '{{ contractStep }}');
-                  purchaseForm.appendChild(contractStep);
-                  let empDeptName = document.createElement("input");
-                  empDeptName.setAttribute("type", "hidden");
-                  empDeptName.setAttribute("name", "empDeptName");
-                  empDeptName.setAttribute("value", '{{ empDeptName }}');
-                  purchaseForm.appendChild(empDeptName);
-                  let empName = document.createElement("input");
-                  empName.setAttribute("type", "hidden");
-                  empName.setAttribute("name", "empName");
-                  empName.setAttribute("value", '{{ empName }}');
-                  purchaseForm.appendChild(empName);
-                  let saleCompanyName = document.createElement("input");
-                  saleCompanyName.setAttribute("type", "hidden");
-                  saleCompanyName.setAttribute("name", "saleCompanyName");
-                  saleCompanyName.setAttribute("value", '{{ saleCompanyName }}');
-                  purchaseForm.appendChild(saleCompanyName);
-                  let contractName = document.createElement("input");
-                  contractName.setAttribute("type", "hidden");
-                  contractName.setAttribute("name", "contractName");
-                  contractName.setAttribute("value", '{{ contractName }}');
-                  purchaseForm.appendChild(contractName);
-                  let purchaseInAdvance = document.createElement("input");
-                  purchaseInAdvance.setAttribute("type", "hidden");
-                  purchaseInAdvance.setAttribute("name", "purchaseInAdvance");
-                  purchaseInAdvance.setAttribute("value", '{{ purchaseInAdvance }}');
-                  purchaseForm.appendChild(purchaseInAdvance);
-                  let accountspayable = document.createElement("input");
-                  accountspayable.setAttribute("type", "hidden");
-                  accountspayable.setAttribute("name", "accountspayable");
-                  accountspayable.setAttribute("value", '{{ accountspayable }}');
-                  purchaseForm.appendChild(accountspayable);
-
-                  const lengthPurchase = $('[name="purchaseId"]').length;
-                  for (var i = 0; i <= lengthPurchase - 1; i++) {
-                      const purchase = document.createElement("input");
-                      const data = $('div[name="purchaseId"]').eq(i).text();
-                      purchase.setAttribute("type", "hidden");
-                      purchase.setAttribute("name", "purchaseId");
-                      purchase.setAttribute("value", data);
-                      purchaseForm.appendChild(purchase);
+                  var size = $("input[name='predictBillingDate']").length;
+                  var nullcheck = true;
+                  for (i = 0; i < size; i++) {
+                      var inputValue  = $("input[name='predictBillingDate']").eq(i).val();
+                      if (!inputValue) {
+                          nullcheck = false;
+                          break
+                      }
                   }
-                  purchaseForm.submit()
+
+                  if (nullcheck == true) {
+                      const purchaseForm = document.getElementById("purchaseForm");
+                      let startdate = document.createElement("input");
+                      startdate.setAttribute("type", "hidden");
+                      startdate.setAttribute("name", "startdate");
+                      startdate.setAttribute("value", '{{ startdate }}');
+                      purchaseForm.appendChild(startdate);
+                      let enddate = document.createElement("input");
+                      enddate.setAttribute("type", "hidden");
+                      enddate.setAttribute("name", "enddate");
+                      enddate.setAttribute("value", '{{ enddate }}');
+                      purchaseForm.appendChild(enddate);
+                      let contractStep = document.createElement("input");
+                      contractStep.setAttribute("type", "hidden");
+                      contractStep.setAttribute("name", "contractStep");
+                      contractStep.setAttribute("value", '{{ contractStep }}');
+                      purchaseForm.appendChild(contractStep);
+                      let empDeptName = document.createElement("input");
+                      empDeptName.setAttribute("type", "hidden");
+                      empDeptName.setAttribute("name", "empDeptName");
+                      empDeptName.setAttribute("value", '{{ empDeptName }}');
+                      purchaseForm.appendChild(empDeptName);
+                      let empName = document.createElement("input");
+                      empName.setAttribute("type", "hidden");
+                      empName.setAttribute("name", "empName");
+                      empName.setAttribute("value", '{{ empName }}');
+                      purchaseForm.appendChild(empName);
+                      let saleCompanyName = document.createElement("input");
+                      saleCompanyName.setAttribute("type", "hidden");
+                      saleCompanyName.setAttribute("name", "saleCompanyName");
+                      saleCompanyName.setAttribute("value", '{{ saleCompanyName }}');
+                      purchaseForm.appendChild(saleCompanyName);
+                      let contractName = document.createElement("input");
+                      contractName.setAttribute("type", "hidden");
+                      contractName.setAttribute("name", "contractName");
+                      contractName.setAttribute("value", '{{ contractName }}');
+                      purchaseForm.appendChild(contractName);
+                      let purchaseInAdvance = document.createElement("input");
+                      purchaseInAdvance.setAttribute("type", "hidden");
+                      purchaseInAdvance.setAttribute("name", "purchaseInAdvance");
+                      purchaseInAdvance.setAttribute("value", '{{ purchaseInAdvance }}');
+                      purchaseForm.appendChild(purchaseInAdvance);
+                      let accountspayable = document.createElement("input");
+                      accountspayable.setAttribute("type", "hidden");
+                      accountspayable.setAttribute("name", "accountspayable");
+                      accountspayable.setAttribute("value", '{{ accountspayable }}');
+                      purchaseForm.appendChild(accountspayable);
+
+                      const lengthPurchase = $('[name="purchaseId"]').length;
+                      for (var i = 0; i <= lengthPurchase - 1; i++) {
+                          const purchase = document.createElement("input");
+                          const data = $('div[name="purchaseId"]').eq(i).text();
+                          purchase.setAttribute("type", "hidden");
+                          purchase.setAttribute("name", "purchaseId");
+                          purchase.setAttribute("value", data);
+                          purchaseForm.appendChild(purchase);
+                      }
+                      purchaseForm.submit()
+                  } else if (nullcheck == false) (
+                      alert('매입예정일은 필수값입니다. 매입예상일을 기입해주세요.')
+                  )
+
               });
           {% endif %}
       });
