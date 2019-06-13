@@ -889,9 +889,8 @@ def show_purchases(request):
         saleCompanyName = request.POST['saleCompanyName']
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
+        purchaseInAdvance = request.POST['purchaseInAdvance']
         modifyMode = request.POST['modifyMode']
-
-
     else:
         startdate = ''
         enddate = ''
@@ -900,6 +899,7 @@ def show_purchases(request):
         saleCompanyName = ''
         contractName = ''
         contractStep = ''
+        purchaseInAdvance = ''
         modifyMode = 'N'
 
     context = {
@@ -911,6 +911,7 @@ def show_purchases(request):
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
         'contractStep': contractStep,
+        'purchaseInAdvance':purchaseInAdvance,
         'modifyMode': modifyMode,
     }
 
@@ -970,6 +971,7 @@ def purchases_asjson(request):
     saleCompanyName = request.POST['saleCompanyName']
     contractName = request.POST['contractName']
     contractStep = request.POST['contractStep']
+    purchaseInAdvance = request.POST['purchaseInAdvance']
     # print(startdate,enddate,empDeptName,empName,saleCompanyName,contractName,contractStep,contractStep)
 
     purchase = Purchase.objects.all()
@@ -988,6 +990,18 @@ def purchases_asjson(request):
         purchase = purchase.filter(contractId__contractName__contains=contractName)
     if contractStep != '전체' and contractStep != '':
         purchase = purchase.filter(contractId__contractStep=contractStep)
+    if purchaseInAdvance != 'N' and purchaseInAdvance != '':
+        # 매입일이 있는 계약
+        purchaseContract = Purchase.objects.values('contractId').filter(billingDate__isnull=False).distinct()
+        # 매출일이 있는 계약
+        revenueContract = Revenue.objects.values('contractId').filter(billingDate__isnull=False).distinct()
+        purchaseContract = list(purchaseContract)
+        revenueContract = list(revenueContract)
+        for i in revenueContract:
+            if i in purchaseContract:
+                purchaseContract.remove(i)
+        contractId = [i['contractId'] for i in purchaseContract]
+        purchase = purchase.filter(Q(contractId__in=contractId) & Q(billingDate__isnull=False))
 
     purchase = purchase.values('contractId__contractName', 'purchaseCompany', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
                                'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
@@ -1111,6 +1125,7 @@ def save_revenuetable(request):
     comment = request.GET.getlist('comment')
     revenueId = request.GET.getlist('revenueId')
 
+
     for a, b, c, d, e, f in zip(revenueId, predictBillingDate, billingDate, predictDepositDate, depositDate, comment):
         revenue = Revenue.objects.get(revenueId=a)
         revenue.predictBillingDate = b or None
@@ -1127,6 +1142,7 @@ def save_revenuetable(request):
     saleCompanyName = request.GET['saleCompanyName']
     contractName = request.GET['contractName']
     contractStep = request.GET['contractStep']
+    purchaseInAdvance = request.GET['purchaseInAdvance']
     modifyMode = 'N'
 
     context = {
@@ -1138,6 +1154,7 @@ def save_revenuetable(request):
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
         'contractStep': contractStep,
+        'purchaseInAdvance':purchaseInAdvance,
         'modifyMode': modifyMode,
     }
     return render(request, 'sales/showrevenues.html', context)

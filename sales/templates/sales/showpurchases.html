@@ -157,18 +157,25 @@
                 <input class="form-control" id="saleCompanyName" name="saleCompanyName">
               </div>
               <div class="col-6">
-                <label for="boardTitle" class="text-primary">계약명</label>
+                <label for="contractName" class="text-primary">계약명</label>
                 <input class="form-control" id="contractName" name="contractName">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="step" class="text-primary">단계</label>
+                <label for="contractStep" class="text-primary">단계</label>
                 <select class="form-control" id="contractStep" name="contractStep">
                   <option value="전체">전체</option>
                   <option value="Opportunity">Opportunity</option>
                   <option value="Firm">Firm</option>
                   <option value="Firm">Drop</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="purchaseInAdvance" class="text-primary">선매입만 보기</label>
+                <select class="form-control" id="purchaseInAdvance" name="purchaseInAdvance">
+                  <option value="N">N</option>
+                  <option value="Y">Y</option>
                 </select>
               </div>
             </div>
@@ -241,6 +248,11 @@
           contractName.setAttribute("name", "contractName");
           contractName.setAttribute("value", '{{ contractName }}');
           filterForm.appendChild(contractName);
+          let purchaseInAdvance = document.createElement("input");
+          purchaseInAdvance.setAttribute("type", "hidden");
+          purchaseInAdvance.setAttribute("name", "purchaseInAdvance");
+          purchaseInAdvance.setAttribute("value", '{{ purchaseInAdvance }}');
+          filterForm.appendChild(purchaseInAdvance);
           filterForm.submit();
       }
 
@@ -257,6 +269,7 @@
                   "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
                   "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                   "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
+                  "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
                   "modifyMode": "{{ modifyMode }}"
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -299,6 +312,7 @@
                       "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
+                      "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
                       "modifyMode": "{{ modifyMode }}"
                   },
                   "url": "{% url 'sales:purchases_ajax_url' %}",
@@ -464,6 +478,11 @@
                   contractName.setAttribute("name", "contractName");
                   contractName.setAttribute("value", '{{ contractName }}');
                   purchaseForm.appendChild(contractName);
+                  let purchaseInAdvance = document.createElement("input");
+                  purchaseInAdvance.setAttribute("type", "hidden");
+                  purchaseInAdvance.setAttribute("name", "purchaseInAdvance");
+                  purchaseInAdvance.setAttribute("value", '{{ purchaseInAdvance }}');
+                  purchaseForm.appendChild(purchaseInAdvance);
 
                   const lengthPurchase = $('[name="purchaseId"]').length;
                   for (var i = 0; i <= lengthPurchase - 1; i++) {
