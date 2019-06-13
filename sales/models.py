@@ -8,6 +8,7 @@ class Contract(models.Model):
     saleTypeChoices = (('직판', '직판'), ('T1', 'T1'), ('T2', 'T2'), ('기타', '기타'))
     saleIndustryChoices = (('금융', '금융'), ('공공', '공공'), ('제조', '제조'), ('통신', '통신'), ('기타', '기타'))
     contractStepChoices = (('Opportunity', 'Opportunity'), ('Firm', 'Firm'), ('Drop', 'Drop'))
+    depositConditionChoices = (('계산서 발행 후', '계산서 발행 후'), ('당월 말', '당월 말'), ('익월 초', '익월 초'), ('익월 말', '익월 말'))
 
     contractId = models.AutoField(primary_key=True)
     contractCode = models.CharField(max_length=30)
@@ -19,7 +20,6 @@ class Contract(models.Model):
     saleCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleCustomerId', null=True, blank=True)
     saleCustomerName = models.CharField(max_length=10, null=True, blank=True)
     endCompanyName = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='endCompanyName', null=True, blank=True)
-    comment = models.CharField(max_length=200, null=True, blank=True)
     saleType = models.CharField(max_length=10, choices=saleTypeChoices, default='직판')
     saleIndustry = models.CharField(max_length=10, choices=saleIndustryChoices, default='금융')
     mainCategory = models.CharField(max_length=50)
@@ -31,6 +31,11 @@ class Contract(models.Model):
     contractStep = models.CharField(max_length=20, choices=contractStepChoices, default='Opportunity')
     contractStartDate = models.DateField(null=True, blank=True)
     contractEndDate = models.DateField(null=True, blank=True)
+    depositCondition = models.CharField(max_length=20, choices=depositConditionChoices, default='계산서 발행 후', null=True, blank=True)
+    depositConditionDay = models.IntegerField(default=0, null=True, blank=True)
+    contractPaper = models.FileField(null=True, blank=True, upload_to="contractPaper/%Y_%m")
+    orderPaper = models.FileField(null=True, blank=True, upload_to="orderPaper/%Y_%m")
+    comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.contractName

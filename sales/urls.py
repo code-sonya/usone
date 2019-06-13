@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^savepurchasetable/', views.save_purchasetable, name='savepurchasetable'),
     url(r'^viewpurchase/(?P<purchaseId>.+)/$', views.view_purchase, name='viewpurchase'),
     url(r'^saverevenuetable/', views.save_revenuetable, name='saverevenuetable'),
+    url(r'^pdfdownload/(?P<html>.+)/$', views.pdf_download, name='pdfdownload'),
 ]

@@ -4,9 +4,9 @@ from .models import Contract, Revenue, Purchase, Category, Contractitem, Goal
 
 @admin.register(Contract)
 class ContractAdmin(admin.ModelAdmin):
-    list_display = ('contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep','contractCode')
-    list_filter = ('saleCompanyName', 'endCompanyName','contractCode')
-    list_display_links = ['contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep','contractCode']
+    list_display = ('contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep', 'contractCode')
+    list_filter = ('saleCompanyName', 'endCompanyName', 'contractCode')
+    list_display_links = ['contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep', 'contractCode']
 
 
 @admin.register(Revenue)
@@ -39,6 +39,6 @@ class ContractitemAdmin(admin.ModelAdmin):
 
 @admin.register(Goal)
 class GoalAdmin(admin.ModelAdmin):
-    list_display = ('year', 'empDeptName', 'empName', 'yearSalesSum' ,'yearProfitSum')
+    list_display = ('year', 'empDeptName', 'empName', 'yearSalesSum', 'yearProfitSum')
     list_filter = ('year', 'empDeptName', 'empName')
     list_display_links = ['year', 'empDeptName', 'empName', 'yearSalesSum', 'yearProfitSum']

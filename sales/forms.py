@@ -13,7 +13,8 @@ class ContractForm(forms.ModelForm):
     class Meta:
         model = Contract
         fields = ('contractCode', 'contractName', 'contractStep', 'empId', 'saleCompanyNames', 'saleCustomerId', 'endCompanyNames', 'saleType', 'saleIndustry',
-                  'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate', 'comment')
+                  'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate', 'depositCondition', 'depositConditionDay',
+                  'contractPaper', 'orderPaper', 'comment')
 
         widgets = {
             'contractCode': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractCode'}),
@@ -29,6 +30,12 @@ class ContractForm(forms.ModelForm):
             'contractDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'contractDate'}),
             'contractStartDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'contractStartDate', 'readonly': ''}),
             'contractEndDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'contractEndDate', 'readonly': ''}),
+            'depositCondition': forms.Select(attrs={'class': 'form-control', 'id': 'depositCondition'}),
+            'depositConditionDay': forms.TextInput(attrs={'class': 'form-control', 'id': 'depositConditionDay'}),
+            'contractPaper': forms.FileInput(attrs={'class': 'd-none', 'id': 'contractPaper',
+                                                    'onchange': "javascript:document.getElementById('contractPaper_route').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
+            'orderPaper': forms.FileInput(attrs={'class': 'd-none', 'id': 'orderPaper',
+                                                 'onchange': "javascript:document.getElementById('orderPaper_route').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
             'comment': forms.TextInput(attrs={'class': 'form-control', 'id': 'comment'}),
         }
 
