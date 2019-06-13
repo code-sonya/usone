@@ -430,6 +430,7 @@ def show_revenues(request):
         contractStep = ''
         modifyMode = 'N'
 
+    outstandingcollection = 'N'
     context = {
         'employees': employees,
         'startdate': startdate,
@@ -439,6 +440,7 @@ def show_revenues(request):
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
         'contractStep': contractStep,
+        'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
     }
 
@@ -639,8 +641,12 @@ def revenues_asjson(request):
     saleCompanyName = request.POST['saleCompanyName']
     contractName = request.POST['contractName']
     contractStep = request.POST['contractStep']
+    outstandingcollection = request.POST['outstandingcollection']
 
-    revenues = Revenue.objects.all()
+    if outstandingcollection == 'Y':
+        revenues = Revenue.objects.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
+    elif outstandingcollection == 'N':
+        revenues = Revenue.objects.all()
 
     if startdate:
         revenues = revenues.filter(Q(predictBillingDate__gte=startdate) or Q(predictDepositDate__gte=startdate))
@@ -894,9 +900,8 @@ def show_purchases(request):
         saleCompanyName = request.POST['saleCompanyName']
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
+        purchaseInAdvance = request.POST['purchaseInAdvance']
         modifyMode = request.POST['modifyMode']
-
-
     else:
         startdate = ''
         enddate = ''
@@ -905,7 +910,58 @@ def show_purchases(request):
         saleCompanyName = ''
         contractName = ''
         contractStep = ''
+        purchaseInAdvance = ''
         modifyMode = 'N'
+
+    accountspayable = 'N'
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
+        'contractStep': contractStep,
+        'purchaseInAdvance': purchaseInAdvance,
+        'accountspayable': accountspayable,
+        'modifyMode': modifyMode,
+    }
+
+    return render(request, 'sales/showpurchases.html', context)
+
+
+@login_required
+@csrf_exempt
+def save_purchasetable(request):
+    # datatable Data
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    predictBillingDate = request.GET.getlist('predictBillingDate')
+    billingDate = request.GET.getlist('billingDate')
+    predictWithdrawDate = request.GET.getlist('predictWithdrawDate')
+    withdrawDate = request.GET.getlist('withdrawDate')
+    comment = request.GET.getlist('comment')
+    purchaseId = request.GET.getlist('purchaseId')
+    # filter Data
+    startdate = request.GET["startdate"]
+    enddate = request.GET["enddate"]
+    empDeptName = request.GET['empDeptName']
+    empName = request.GET['empName']
+    saleCompanyName = request.GET['saleCompanyName']
+    contractName = request.GET['contractName']
+    contractStep = request.GET['contractStep']
+    purchaseInAdvance = request.GET['purchaseInAdvance']
+    accountspayable = request.GET['accountspayable']
+    modifyMode = 'N'
+
+    for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, predictWithdrawDate, withdrawDate, comment):
+        purchase = Purchase.objects.get(purchaseId=a)
+        purchase.predictBillingDate = b or None
+        purchase.billingDate = c or None
+        purchase.predictWithdrawDate = d or None
+        purchase.withdrawDate = e or None
+        purchase.comment = f
+        purchase.save()
 
     context = {
         'employees': employees,
@@ -916,53 +972,14 @@ def show_purchases(request):
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
         'contractStep': contractStep,
+        'purchaseInAdvance': purchaseInAdvance,
+        'accountspayable': accountspayable,
         'modifyMode': modifyMode,
     }
-
-    return render(request, 'sales/showpurchases.html', context)
-
-
-@login_required
-@csrf_exempt
-def save_purchasetable(request):
-    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
-    predictBillingDate = request.GET.getlist('predictBillingDate')
-    billingDate = request.GET.getlist('billingDate')
-    predictWithdrawDate = request.GET.getlist('predictWithdrawDate')
-    withdrawDate = request.GET.getlist('withdrawDate')
-    comment = request.GET.getlist('comment')
-    purchaseId = request.GET.getlist('purchaseId')
-
-    for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, predictWithdrawDate, withdrawDate, comment, ):
-        purchase = Purchase.objects.get(purchaseId=a)
-        purchase.predictBillingDate = b or None
-        purchase.billingDate = c or None
-        purchase.predictWithdrawDate = d or None
-        purchase.withdrawDate = e or None
-        purchase.comment = f
-        purchase.save()
-
-    startdate = request.GET["startdate"]
-    enddate = request.GET["enddate"]
-    empDeptName = request.GET['empDeptName']
-    empName = request.GET['empName']
-    saleCompanyName = request.GET['saleCompanyName']
-    contractName = request.GET['contractName']
-    contractStep = request.GET['contractStep']
-    modifyMode = 'N'
-
-    context = {
-        'employees': employees,
-        'startdate': startdate,
-        'enddate': enddate,
-        'empDeptName': empDeptName,
-        'empName': empName,
-        'saleCompanyName': saleCompanyName,
-        'contractName': contractName,
-        'contractStep':contractStep,
-        'modifyMode': modifyMode,
-    }
-    return render(request, 'sales/showpurchases.html', context)
+    if accountspayable == 'Y':
+        return render(request, 'sales/showaccountspayables.html', context)
+    elif accountspayable == 'N':
+        return render(request, 'sales/showpurchases.html', context)
 
 
 @login_required
@@ -975,9 +992,14 @@ def purchases_asjson(request):
     saleCompanyName = request.POST['saleCompanyName']
     contractName = request.POST['contractName']
     contractStep = request.POST['contractStep']
+    purchaseInAdvance = request.POST['purchaseInAdvance']
+    accountspayable = request.POST['accountspayable']
     # print(startdate,enddate,empDeptName,empName,saleCompanyName,contractName,contractStep,contractStep)
 
-    purchase = Purchase.objects.all()
+    if accountspayable == 'Y':
+        purchase = Purchase.objects.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
+    elif accountspayable == 'N':
+        purchase = Purchase.objects.all()
 
     if startdate:
         purchase = purchase.filter(Q(predictBillingDate__gte=startdate) or Q(predictWithdrawDate__gte=startdate))
@@ -993,6 +1015,18 @@ def purchases_asjson(request):
         purchase = purchase.filter(contractId__contractName__contains=contractName)
     if contractStep != '전체' and contractStep != '':
         purchase = purchase.filter(contractId__contractStep=contractStep)
+    if purchaseInAdvance != 'N' and purchaseInAdvance != '':
+        # 매입일이 있는 계약
+        purchaseContract = Purchase.objects.values('contractId').filter(billingDate__isnull=False).distinct()
+        # 매출일이 있는 계약
+        revenueContract = Revenue.objects.values('contractId').filter(billingDate__isnull=False).distinct()
+        purchaseContract = list(purchaseContract)
+        revenueContract = list(revenueContract)
+        for i in revenueContract:
+            if i in purchaseContract:
+                purchaseContract.remove(i)
+        contractId = [i['contractId'] for i in purchaseContract]
+        purchase = purchase.filter(Q(contractId__in=contractId) & Q(billingDate__isnull=False))
 
     purchase = purchase.values('contractId__contractName', 'purchaseCompany', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
                                'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
@@ -1107,14 +1141,23 @@ def view_purchase(request, purchaseId):
 @csrf_exempt
 def save_revenuetable(request):
     employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    # dataTable Data
     predictBillingDate = request.GET.getlist('predictBillingDate')
     billingDate = request.GET.getlist('billingDate')
-    # revenuePrice = request.GET.getlist('revenuePrice')
-    # revenueProfitPrice = request.GET.getlist('revenueProfitPrice')
     predictDepositDate = request.GET.getlist('predictDepositDate')
     depositDate = request.GET.getlist('depositDate')
     comment = request.GET.getlist('comment')
     revenueId = request.GET.getlist('revenueId')
+    # filter Data
+    startdate = request.GET["startdate"]
+    enddate = request.GET["enddate"]
+    empDeptName = request.GET['empDeptName']
+    empName = request.GET['empName']
+    saleCompanyName = request.GET['saleCompanyName']
+    contractName = request.GET['contractName']
+    contractStep = request.GET['contractStep']
+    outstandingcollection = request.GET['outstandingcollection']
+    modifyMode = 'N'
 
     for a, b, c, d, e, f in zip(revenueId, predictBillingDate, billingDate, predictDepositDate, depositDate, comment):
         revenue = Revenue.objects.get(revenueId=a)
@@ -1125,15 +1168,6 @@ def save_revenuetable(request):
         revenue.comment = f
         revenue.save()
 
-    startdate = request.GET["startdate"]
-    enddate = request.GET["enddate"]
-    empDeptName = request.GET['empDeptName']
-    empName = request.GET['empName']
-    saleCompanyName = request.GET['saleCompanyName']
-    contractName = request.GET['contractName']
-    contractStep = request.GET['contractStep']
-    modifyMode = 'N'
-
     context = {
         'employees': employees,
         'startdate': startdate,
@@ -1143,9 +1177,55 @@ def save_revenuetable(request):
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
         'contractStep': contractStep,
+        'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
     }
-    return render(request, 'sales/showrevenues.html', context)
+    if outstandingcollection == 'Y':
+        return render(request, 'sales/showoutstandingcollections.html', context)
+    elif outstandingcollection == 'N':
+        return render(request, 'sales/showrevenues.html', context)
+
+
+@login_required
+@csrf_exempt
+def show_outstandingcollections(request):
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+
+    if request.method == "POST":
+        startdate = request.POST["startdate"]
+        enddate = request.POST["enddate"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        saleCompanyName = request.POST['saleCompanyName']
+        contractName = request.POST['contractName']
+        contractStep = request.POST['contractStep']
+        modifyMode = request.POST['modifyMode']
+
+    else:
+        startdate = ''
+        enddate = ''
+        empDeptName = ''
+        empName = ''
+        saleCompanyName = ''
+        contractName = ''
+        contractStep = ''
+        modifyMode = 'N'
+
+    outstandingcollection = 'Y'
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
+        'contractStep': contractStep,
+        'outstandingcollection': outstandingcollection,
+        'modifyMode': modifyMode,
+    }
+
+    return render(request, 'sales/showoutstandingcollections.html', context)
 
 
 @login_required
@@ -1160,3 +1240,47 @@ def pdf_download(request, html):
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
 
     return response
+
+
+@login_required
+@csrf_exempt
+def show_accountspayables(request):
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+
+    if request.method == "POST":
+        startdate = request.POST["startdate"]
+        enddate = request.POST["enddate"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        saleCompanyName = request.POST['saleCompanyName']
+        contractName = request.POST['contractName']
+        contractStep = request.POST['contractStep']
+        purchaseInAdvance = request.POST['purchaseInAdvance']
+        modifyMode = request.POST['modifyMode']
+    else:
+        startdate = ''
+        enddate = ''
+        empDeptName = ''
+        empName = ''
+        saleCompanyName = ''
+        contractName = ''
+        contractStep = ''
+        purchaseInAdvance = ''
+        modifyMode = 'N'
+
+    accountspayable = 'Y'
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
+        'contractStep': contractStep,
+        'purchaseInAdvance': purchaseInAdvance,
+        'accountspayable': accountspayable,
+        'modifyMode': modifyMode,
+    }
+
+    return render(request, 'sales/showaccountspayables.html', context)

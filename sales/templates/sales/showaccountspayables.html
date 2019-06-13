@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  영업-매입관리
+  영업-외상매입금관리
 {% endblock %}
 
 
@@ -46,7 +46,7 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 매입 관리</h6>
+          <h6 class="m-0 h3 text-gray-800"> 외상매입금 관리 </h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
@@ -115,7 +115,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="filterForm" action="/sales/showpurchases/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+          <form id="filterForm" action="/sales/showaccountspayables/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
@@ -275,7 +275,7 @@
                   "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                   "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                   "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
-                  "accountspayable": '{{ accountspayable }}',
+                  "accountspayable": "{{ accountspayable }}",
                   "modifyMode": "{{ modifyMode }}"
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -452,13 +452,12 @@
                   var size = $("input[name='predictBillingDate']").length;
                   var nullcheck = true;
                   for (i = 0; i < size; i++) {
-                      var inputValue  = $("input[name='predictBillingDate']").eq(i).val();
+                      var inputValue = $("input[name='predictBillingDate']").eq(i).val();
                       if (!inputValue) {
                           nullcheck = false;
                           break
                       }
                   }
-
                   if (nullcheck == true) {
                       const purchaseForm = document.getElementById("purchaseForm");
                       let startdate = document.createElement("input");
@@ -516,11 +515,10 @@
                           purchase.setAttribute("value", data);
                           purchaseForm.appendChild(purchase);
                       }
-                      purchaseForm.submit()
+                      purchaseForm.submit();
                   } else if (nullcheck == false) (
                       alert('매입예정일은 필수값입니다. 매입예상일을 기입해주세요.')
                   )
-
               });
           {% endif %}
       });
