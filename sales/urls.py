@@ -31,4 +31,6 @@ urlpatterns = [
     url(r'^savepurchasetable/', views.save_purchasetable, name='savepurchasetable'),
     url(r'^viewpurchase/(?P<purchaseId>.+)/$', views.view_purchase, name='viewpurchase'),
     url(r'^saverevenuetable/', views.save_revenuetable, name='saverevenuetable'),
+    url(r'^showoutstandingcollections/', views.show_outstandingcollections, name='showoutstandingcollections'),
+    url(r'^showaccountspayables/', views.show_accountspayables, name='showaccountspayables'),
 ]

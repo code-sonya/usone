@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  영업-매출관리
+  영업-미수금관리
 {% endblock %}
 
 
@@ -46,7 +46,7 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 매출 관리 </h6>
+          <h6 class="m-0 h3 text-gray-800"> 미수금 관리 </h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
@@ -117,7 +117,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="filterForm" action="/sales/showrevenues/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+          <form id="filterForm" action="/sales/showoutstandingcollections/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
@@ -297,7 +297,7 @@
                       "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
-                      "outstandingcollection": "N",
+                      "outstandingcollection": "{{ outstandingcollection }}",
                       "modifyMode": "{{ modifyMode }}",
                   },
                   "url": "{% url 'sales:revenues_ajax_url' %}",

@@ -46,7 +46,7 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 매입 관리</h6>
+          <h6 class="m-0 h3 text-gray-800"> 매입 관리 {{ accountspayable }}</h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
@@ -253,6 +253,11 @@
           purchaseInAdvance.setAttribute("name", "purchaseInAdvance");
           purchaseInAdvance.setAttribute("value", '{{ purchaseInAdvance }}');
           filterForm.appendChild(purchaseInAdvance);
+          let accountspayable = document.createElement("input");
+          accountspayable.setAttribute("type", "hidden");
+          accountspayable.setAttribute("name", "accountspayable");
+          accountspayable.setAttribute("value", '{{ accountspayable }}');
+          filterForm.appendChild(accountspayable);
           filterForm.submit();
       }
 
@@ -483,6 +488,11 @@
                   purchaseInAdvance.setAttribute("name", "purchaseInAdvance");
                   purchaseInAdvance.setAttribute("value", '{{ purchaseInAdvance }}');
                   purchaseForm.appendChild(purchaseInAdvance);
+                  let accountspayable = document.createElement("input");
+                  accountspayable.setAttribute("type", "hidden");
+                  accountspayable.setAttribute("name", "accountspayable");
+                  accountspayable.setAttribute("value", '{{ accountspayable }}');
+                  purchaseForm.appendChild(accountspayable);
 
                   const lengthPurchase = $('[name="purchaseId"]').length;
                   for (var i = 0; i <= lengthPurchase - 1; i++) {

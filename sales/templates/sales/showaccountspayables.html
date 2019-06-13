@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  영업-매출관리
+  영업-외상매입금관리
 {% endblock %}
 
 
@@ -46,7 +46,7 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 매출 관리 </h6>
+          <h6 class="m-0 h3 text-gray-800"> 외상매입금 관리 {{ accountspayable }}</h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
@@ -62,24 +62,23 @@
           {% endif %}
           {% if modifyMode == 'Y' %}
             <div class="float-right">
-              <button class="btn btn-danger" id="saveRevenueTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
+              <button class="btn btn-danger" id="savePurchaseTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
             </div>
           {% endif %}
           <div class="table-responsive">
-            <form id="revenueForm" action="/sales/saverevenuetable/">
+            <form id="purchaseForm" action="/sales/savepurchasetable/">
               <table id="showrevenues" class="hover row-border" width="100%" style="width: 100%;">
                 <thead>
                 <tr>
                   <th>구분</th>
-                  <th>영업담당자</th>
+                  <th>담당자</th>
                   <th>계약명</th>
-                  <th>매출처</th>
-                  <th>매출예정일 / 매출일</th>
-                  <th>수금예정일 / 수금일</th>
-                  <th>매출금액</th>
-                  <th>이익금액</th>
+                  <th>매입처</th>
+                  <th>매입예정일 / 매입일</th>
+                  <th>지급예정일 / 지급일</th>
+                  <th>매입금액</th>
                   <th>비고</th>
-                  <th class="d-none">revenueId</th>
+                  <th class="d-none">purchaseId</th>
                 </tr>
                 </thead>
                 <tfoot>
@@ -91,8 +90,7 @@
                   <th style="text-align:center; white-space:nowrap;"></th>
                   <th style="text-align:right; white-space:nowrap;">TOTAL :</th>
                   <th style="text-align:right; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th style="text-align:right; white-space:nowrap;"></th>
                   <th style="text-align:center; white-space:nowrap;"></th>
                 </tr>
                 </tfoot>
@@ -117,18 +115,18 @@
         </div>
 
         <div class="modal-body">
-          <form id="filterForm" action="/sales/showrevenues/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+          <form id="filterForm" action="/sales/showaccountspayables/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="text-primary">시작일자
-                  <div class="text-secondary" style="font-size:13px">(매출예정일 or 수금예정일)</div>
+                <label for="startdate" class=" text-primary">시작일자
+                  <div class="text-secondary" style="font-size:13px">(매입예정일 or 지급예정일)</div>
                 </label>
                 <input type="date" class="form-control" id="startdate" name="startdate">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label for="enddate" class="text-primary">종료일자
-                  <div class="text-secondary" style="font-size:13px">(매출예정일 or 수금예정일)</div>
+                  <div class="text-secondary" style="font-size:13px">(매입예정일 or 지급예정일)</div>
                 </label>
                 <input type="date" class="form-control" id="enddate" name="enddate">
               </div>
@@ -159,18 +157,25 @@
                 <input class="form-control" id="saleCompanyName" name="saleCompanyName">
               </div>
               <div class="col-6">
-                <label for="boardTitle" class="text-primary">계약명</label>
+                <label for="contractName" class="text-primary">계약명</label>
                 <input class="form-control" id="contractName" name="contractName">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="step" class="text-primary">단계</label>
+                <label for="contractStep" class="text-primary">단계</label>
                 <select class="form-control" id="contractStep" name="contractStep">
                   <option value="전체">전체</option>
                   <option value="Opportunity">Opportunity</option>
                   <option value="Firm">Firm</option>
                   <option value="Firm">Drop</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="purchaseInAdvance" class="text-primary">선매입만 보기</label>
+                <select class="form-control" id="purchaseInAdvance" name="purchaseInAdvance">
+                  <option value="N">N</option>
+                  <option value="Y">Y</option>
                 </select>
               </div>
             </div>
@@ -198,7 +203,7 @@
           modifyMode.setAttribute("name", "modifyMode");
           modifyMode.setAttribute("value", '{{ modifyMode }}');
           filterForm.appendChild(modifyMode);
-          filterForm.submit();
+          document.getElementById("filterForm").submit();
       }
 
       function btn_modifyMode() {
@@ -243,11 +248,16 @@
           contractName.setAttribute("name", "contractName");
           contractName.setAttribute("value", '{{ contractName }}');
           filterForm.appendChild(contractName);
-          let outstandingcollection = document.createElement("input");
-          outstandingcollection.setAttribute("type", "hidden");
-          outstandingcollection.setAttribute("name", "outstandingcollection");
-          outstandingcollection.setAttribute("value", '{{ outstandingcollection }}');
-          filterForm.appendChild(outstandingcollection);
+          let purchaseInAdvance = document.createElement("input");
+          purchaseInAdvance.setAttribute("type", "hidden");
+          purchaseInAdvance.setAttribute("name", "purchaseInAdvance");
+          purchaseInAdvance.setAttribute("value", '{{ purchaseInAdvance }}');
+          filterForm.appendChild(purchaseInAdvance);
+          let accountspayable = document.createElement("input");
+          accountspayable.setAttribute("type", "hidden");
+          accountspayable.setAttribute("name", "accountspayable");
+          accountspayable.setAttribute("value", '{{ accountspayable }}');
+          filterForm.appendChild(accountspayable);
           filterForm.submit();
       }
 
@@ -256,7 +266,18 @@
               url: "{% url 'sales:empdept_ajax_url' %}",
               method: 'POST',
               cache: false,
-              data: {"empDeptName": empDeptName},
+              data: {
+                  "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
+                  "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                  "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
+                  "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
+                  "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                  "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
+                  "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
+                  "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
+                  "accountspayable": "{{ accountspayable }}",
+                  "modifyMode": "{{ modifyMode }}"
+              },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var empName = returnData;
@@ -297,10 +318,10 @@
                       "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
-                      "outstandingcollection": "N",
-                      "modifyMode": "{{ modifyMode }}",
+                      "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
+                      "modifyMode": "{{ modifyMode }}"
                   },
-                  "url": "{% url 'sales:revenues_ajax_url' %}",
+                  "url": "{% url 'sales:purchases_ajax_url' %}",
                   "dataSrc": ""
               },
               "columns": [
@@ -317,22 +338,17 @@
                           return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
                       }
                   },
-                  {data: 'contractId__saleCompanyName__companyName'},
-                  {
-                      data: 'predictBillingDate',
-                  },
-                  {
-                      data: 'predictDepositDate',
-                  },
-                  {data: 'revenuePrice'},
-                  {data: 'revenueProfitPrice'},
+                  {data: 'purchaseCompany'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'purchasePrice'},
                   {data: 'comment'},
-                  {data: 'revenueId'},
+                  {data: 'purchaseId'},
               ],
               "columnDefs": [
-                  {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
@@ -343,23 +359,22 @@
                   },
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" name="predictDepositDate" class="input-form" value="' + row["predictDepositDate"] + '" /> / ' +
-                              '<input type="date" name="depositDate"  ' + 'class="input-form"  value="' + row["depositDate"] + '" />'
+                          return '<input type="date" name="predictWithdrawDate" class="input-form" value="' + row["predictWithdrawDate"] + '" /> /' +
+                              ' <input type="date" name="withdrawDate" class="input-form" value="' + row["withdrawDate"] + '" />'
                       },
-                      targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                   },
                   {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
-                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
                   {
                       "render": function (data, type, row) {
-                          return '<input type="text" name="comment" class="input-form"  value="' + data + '" />'
-                      }, targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                          return '<input type="text" name="comment" class="input-form" value="' + data + '" />'
+                      }, targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       "render": function (data, type, row) {
-                          return '<div name="revenueId" >' + data + '</div>'
+                          return '<div name="purchaseId" >' + data + '</div>'
                       },
-                      targets: 9, className: "d-none"
+                      targets: 8, className: "d-none"
                   }
               ],
               dom: 'Blfrtip',
@@ -402,96 +417,94 @@
                   } else if (aData.contractId__contractStep == 'Opportunity') {
                       $('td:eq(0)', nRow).css('color', '#1cc88a');
                   }
-                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
-                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
 
                   {% if modifyMode == 'N' %}
                       $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, "-", ".") + " / " + replaceAll(aData.billingDate, "-", "."));
-                      $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, "-", ".") + " / " + replaceAll(aData.depositDate, "-", "."));
-                      $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+                      $('td:eq(5)', nRow).text(replaceAll(aData.predictWithdrawDate, "-", ".") + " / " + replaceAll(aData.withdrawDate, "-", "."));
+                      $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
-
               },
               "footerCallback": function () {
                   var api = this.api(), data;
 
-                  var revenueResult = 0;
+                  var purchaseResult = 0;
                   api.column(6, {search: 'applied'}).data().each(function (data, index) {
-                      revenueResult += parseFloat(data);
+                      purchaseResult += parseFloat(data);
                   });
-                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
-
-                  var profitResult = 0;
-                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
-                      profitResult += parseFloat(data);
-                  });
-                  $(api.column(7).footer()).html(profitResult.toLocaleString());
+                  $(api.column(6).footer()).html(purchaseResult.toLocaleString());
 
               },
           });
 
           var table = $('#showrevenues').DataTable();
+
           {% if modifyMode == 'N' %}
               $("#showrevenues").on("click", 'tr', function () {
                   const data = table.row(this).data();
-                  location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+                  location.href = '/sales/viewpurchase/' + data.purchaseId + '/'
               });
           {% endif %}
 
           {% if modifyMode == 'Y' %}
-              $('#saveRevenueTable').click(function () {
-                  const revenueForm = document.getElementById("revenueForm");
+              $('#savePurchaseTable').click(function () {
+                  const purchaseForm = document.getElementById("purchaseForm");
                   let startdate = document.createElement("input");
                   startdate.setAttribute("type", "hidden");
                   startdate.setAttribute("name", "startdate");
                   startdate.setAttribute("value", '{{ startdate }}');
-                  revenueForm.appendChild(startdate);
+                  purchaseForm.appendChild(startdate);
                   let enddate = document.createElement("input");
                   enddate.setAttribute("type", "hidden");
                   enddate.setAttribute("name", "enddate");
                   enddate.setAttribute("value", '{{ enddate }}');
-                  revenueForm.appendChild(enddate);
+                  purchaseForm.appendChild(enddate);
                   let contractStep = document.createElement("input");
                   contractStep.setAttribute("type", "hidden");
                   contractStep.setAttribute("name", "contractStep");
                   contractStep.setAttribute("value", '{{ contractStep }}');
-                  revenueForm.appendChild(contractStep);
+                  purchaseForm.appendChild(contractStep);
                   let empDeptName = document.createElement("input");
                   empDeptName.setAttribute("type", "hidden");
                   empDeptName.setAttribute("name", "empDeptName");
                   empDeptName.setAttribute("value", '{{ empDeptName }}');
-                  revenueForm.appendChild(empDeptName);
+                  purchaseForm.appendChild(empDeptName);
                   let empName = document.createElement("input");
                   empName.setAttribute("type", "hidden");
                   empName.setAttribute("name", "empName");
                   empName.setAttribute("value", '{{ empName }}');
-                  revenueForm.appendChild(empName);
+                  purchaseForm.appendChild(empName);
                   let saleCompanyName = document.createElement("input");
                   saleCompanyName.setAttribute("type", "hidden");
                   saleCompanyName.setAttribute("name", "saleCompanyName");
                   saleCompanyName.setAttribute("value", '{{ saleCompanyName }}');
-                  revenueForm.appendChild(saleCompanyName);
+                  purchaseForm.appendChild(saleCompanyName);
                   let contractName = document.createElement("input");
                   contractName.setAttribute("type", "hidden");
                   contractName.setAttribute("name", "contractName");
                   contractName.setAttribute("value", '{{ contractName }}');
-                  revenueForm.appendChild(contractName);
-                  let outstandingcollection = document.createElement("input");
-                  outstandingcollection.setAttribute("type", "hidden");
-                  outstandingcollection.setAttribute("name", "outstandingcollection");
-                  outstandingcollection.setAttribute("value", '{{ outstandingcollection }}');
-                  revenueForm.appendChild(outstandingcollection);
+                  purchaseForm.appendChild(contractName);
+                  let purchaseInAdvance = document.createElement("input");
+                  purchaseInAdvance.setAttribute("type", "hidden");
+                  purchaseInAdvance.setAttribute("name", "purchaseInAdvance");
+                  purchaseInAdvance.setAttribute("value", '{{ purchaseInAdvance }}');
+                  purchaseForm.appendChild(purchaseInAdvance);
+                  let accountspayable = document.createElement("input");
+                  accountspayable.setAttribute("type", "hidden");
+                  accountspayable.setAttribute("name", "accountspayable");
+                  accountspayable.setAttribute("value", '{{ accountspayable }}');
+                  purchaseForm.appendChild(accountspayable);
 
-                  const lengthRevenue = $('[name="revenueId"]').length;
-                  for (var i = 0; i <= lengthRevenue - 1; i++) {
-                      const revenue = document.createElement("input");
-                      const data = $('div[name="revenueId"]').eq(i).text();
-                      revenue.setAttribute("type", "hidden");
-                      revenue.setAttribute("name", "revenueId");
-                      revenue.setAttribute("value", data);
-                      revenueForm.appendChild(revenue);
+                  const lengthPurchase = $('[name="purchaseId"]').length;
+                  for (var i = 0; i <= lengthPurchase - 1; i++) {
+                      const purchase = document.createElement("input");
+                      const data = $('div[name="purchaseId"]').eq(i).text();
+                      purchase.setAttribute("type", "hidden");
+                      purchase.setAttribute("name", "purchaseId");
+                      purchase.setAttribute("value", data);
+                      purchaseForm.appendChild(purchase);
                   }
-                  revenueForm.submit()
+                  purchaseForm.submit()
               });
           {% endif %}
       });

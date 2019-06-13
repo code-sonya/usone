@@ -49,19 +49,19 @@
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDashboard" aria-expanded="true" aria-controls="collapseUtilities">
-          <i class="fas fa-fw fa-tachometer-alt"></i>
-          <span>Dashboard</span>
-        </a>
-        <div id="collapseDashboard" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">데이터분석</h6>
-            <a class="collapse-item" href="/dashboard/quarter/">연간 예상 영업 실적 </a>
-            <a class="collapse-item" href="/dashboard/goal/">영업 목표 분석</a>
-            <a class="collapse-item" href="/dashboard/service/">엔지니어 지원 통계</a>
-          </div>
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDashboard" aria-expanded="true" aria-controls="collapseUtilities">
+        <i class="fas fa-fw fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+      <div id="collapseDashboard" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <h6 class="collapse-header">데이터분석</h6>
+          <a class="collapse-item" href="/dashboard/quarter/">연간 예상 영업 실적 </a>
+          <a class="collapse-item" href="/dashboard/goal/">영업 목표 분석</a>
+          <a class="collapse-item" href="/dashboard/service/">엔지니어 지원 통계</a>
         </div>
-      </li>
+      </div>
+    </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider">
@@ -76,7 +76,7 @@
     {% endif %}
 
 
-    {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.employee.empDeptName == '인프라서비스사업팀' or user.employee.empDeptName == '영업1팀' or user.employee.empDeptName == '영업2팀' or user.employee.empDeptName == '영업3팀'%}
+    {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.employee.empDeptName == '인프라서비스사업팀' or user.employee.empDeptName == '영업1팀' or user.employee.empDeptName == '영업2팀' or user.employee.empDeptName == '영업3팀' %}
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
           <i class="fas fa-fw fa-folder"></i>
@@ -84,11 +84,14 @@
         </a>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">영업관리</h6>
             <a class="collapse-item" href="/sales/showcontracts/">영업기회&계약관리</a>
             <a class="collapse-item" href="/sales/showrevenues/">매출관리</a>
             <a class="collapse-item" href="/sales/showpurchases/">매입관리</a>
-            <a class="collapse-item" href="/sales/showgoals/" >목표관리</a>
+            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
+            <a class="collapse-item" href="/sales/showoutstandingcollections/">미수금관리</a>
+            <a class="collapse-item" href="/sales/showaccountspayables/">외상매입금관리</a>
+            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
+            <a class="collapse-item" href="/sales/showgoals/">목표관리</a>
             <a class="collapse-item" href="/sales/uploadpurchase/">데이터업로드</a>
           </div>
         </div>
@@ -327,65 +330,69 @@
     }
 
     (function ($) {
-      $.fn.simpleMoneyFormat = function() {
-        this.each(function(index, el) {
-          var elType = null; // input or other
-          var value = null;
-          // get value
-          if($(el).is('input') || $(el).is('textarea')){
-            value = $(el).val().replace(/,/g, '');
-            elType = 'input';
-          } else {
-            value = $(el).text().replace(/,/g, '');
-            elType = 'other';
-          }
-          // if value changes
-          $(el).on('paste keyup', function(){
-            value = $(el).val().replace(/,/g, '');
-            formatElement(el, elType, value); // format element
-          });
-          formatElement(el, elType, value); // format element
-        });
-        function formatElement(el, elType, value){
-          var result = '';
-          var valueArray = value.split('');
-          var resultArray = [];
-          var counter = 0;
-          var temp = '';
-          for (var i = valueArray.length - 1; i >= 0; i--) {
-            temp += valueArray[i];
-            counter++
-            if(counter == 3){
-              resultArray.push(temp);
-              counter = 0;
-              temp = '';
+        $.fn.simpleMoneyFormat = function () {
+            this.each(function (index, el) {
+                var elType = null; // input or other
+                var value = null;
+                // get value
+                if ($(el).is('input') || $(el).is('textarea')) {
+                    value = $(el).val().replace(/,/g, '');
+                    elType = 'input';
+                } else {
+                    value = $(el).text().replace(/,/g, '');
+                    elType = 'other';
+                }
+                // if value changes
+                $(el).on('paste keyup', function () {
+                    value = $(el).val().replace(/,/g, '');
+                    formatElement(el, elType, value); // format element
+                });
+                formatElement(el, elType, value); // format element
+            });
+
+            function formatElement(el, elType, value) {
+                var result = '';
+                var valueArray = value.split('');
+                var resultArray = [];
+                var counter = 0;
+                var temp = '';
+                for (var i = valueArray.length - 1; i >= 0; i--) {
+                    temp += valueArray[i];
+                    counter++
+                    if (counter == 3) {
+                        resultArray.push(temp);
+                        counter = 0;
+                        temp = '';
+                    }
+                }
+                ;
+                if (counter > 0) {
+                    resultArray.push(temp);
+                }
+                for (var i = resultArray.length - 1; i >= 0; i--) {
+                    var resTemp = resultArray[i].split('');
+                    for (var j = resTemp.length - 1; j >= 0; j--) {
+                        result += resTemp[j];
+                    }
+                    ;
+                    if (i > 0) {
+                        result += ','
+                    }
+                }
+                ;
+                if (elType == 'input') {
+                    $(el).val(result);
+                } else {
+                    $(el).empty().text(result);
+                }
             }
-          };
-          if(counter > 0){
-            resultArray.push(temp);
-          }
-          for (var i = resultArray.length - 1; i >= 0; i--) {
-            var resTemp = resultArray[i].split('');
-            for (var j = resTemp.length - 1; j >= 0; j--) {
-              result += resTemp[j];
-            };
-            if(i > 0){
-              result += ','
-            }
-          };
-          if(elType == 'input'){
-            $(el).val(result);
-          } else {
-            $(el).empty().text(result);
-          }
-        }
-      };
+        };
     }(jQuery));
     $('.money').simpleMoneyFormat();
 
     function moneyChange() {
         var money = $('.money');
-        for (var count=0; count < money.length; count++) {
+        for (var count = 0; count < money.length; count++) {
             $('#' + money[count].id).val(money[count].value.replace(/,/g, ''));
         }
     }
