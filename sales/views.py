@@ -25,7 +25,7 @@ from service.functions import link_callback
 @login_required
 def post_contract(request):
     if request.method == "POST":
-        form = ContractForm(request.POST)
+        form = ContractForm(request.POST, request.FILES)
 
         if form.is_valid():
             post = form.save(commit=False)
@@ -60,7 +60,7 @@ def post_contract(request):
                 Revenue.objects.create(
                     contractId=post,
                     billingTime=str(idx) + '/' + str(len(jsonRevenue)),
-                    predictBillingDate=revenue["predictBillingDate"] or None,
+                    predictBillingDate=revenue["billingDate"] or revenue["predictBillingDate"] + '-01' or None,
                     billingDate=revenue["billingDate"] or None,
                     predictDepositDate=revenue["predictDepositDate"] or None,
                     depositDate=revenue["depositDate"] or None,
@@ -76,7 +76,7 @@ def post_contract(request):
                 Purchase.objects.create(
                     contractId=post,
                     billingTime=None,
-                    predictBillingDate=purchase["predictPurchaseDate"] or None,
+                    predictBillingDate=purchase["purchaseDate"] or purchase["predictPurchaseDate"] + '-01' or None,
                     billingDate=purchase["purchaseDate"] or None,
                     predictWithdrawDate=purchase["predictWithdrawDate"] or None,
                     withdrawDate=purchase["withdrawDate"] or None,
@@ -256,7 +256,7 @@ def modify_contract(request, contractId):
     contractInstance = Contract.objects.get(contractId=contractId)
 
     if request.method == "POST":
-        form = ContractForm(request.POST, instance=contractInstance)
+        form = ContractForm(request.POST, request.FILES, instance=contractInstance)
 
         if form.is_valid():
             post = form.save(commit=False)
@@ -311,7 +311,7 @@ def modify_contract(request, contractId):
                     Revenue.objects.create(
                         contractId=post,
                         billingTime=str(idx) + '/' + str(len(jsonRevenue)),
-                        predictBillingDate=revenue["predictBillingDate"] or None,
+                        predictBillingDate=revenue["billingDate"] or revenue["predictBillingDate"] + '-01' or None,
                         billingDate=revenue["billingDate"] or None,
                         predictDepositDate=revenue["predictDepositDate"] or None,
                         depositDate=revenue["depositDate"] or None,
@@ -325,7 +325,7 @@ def modify_contract(request, contractId):
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
                     revenueInstance.contractId = post
                     revenueInstance.billingTime = str(idx) + '/' + str(len(jsonRevenue))
-                    revenueInstance.predictBillingDate = revenue["predictBillingDate"] or None
+                    revenueInstance.predictBillingDate = revenue["billingDate"] or revenue["predictBillingDate"] + '-01' or None
                     revenueInstance.billingDate = revenue["billingDate"] or None
                     revenueInstance.predictDepositDate = revenue["predictDepositDate"] or None
                     revenueInstance.depositDate = revenue["depositDate"] or None
@@ -351,7 +351,7 @@ def modify_contract(request, contractId):
                     Purchase.objects.create(
                         contractId=post,
                         billingTime=None,
-                        predictBillingDate=purchase["predictPurchaseDate"] or None,
+                        predictBillingDate=purchase["purchaseDate"] or purchase["predictPurchaseDate"] or None,
                         billingDate=purchase["purchaseDate"] or None,
                         predictWithdrawDate=purchase["predictWithdrawDate"] or None,
                         withdrawDate=purchase["withdrawDate"] or None,
@@ -363,7 +363,7 @@ def modify_contract(request, contractId):
                     purchaseInstance = Purchase.objects.get(purchaseId=int(purchase["purchaseId"]))
                     purchaseInstance.contractId = post
                     purchaseInstance.billingTime = None
-                    purchaseInstance.predictBillingDate = purchase["predictPurchaseDate"] or None
+                    purchaseInstance.predictBillingDate = purchase["purchaseDate"] or purchase["predictPurchaseDate"] or None
                     purchaseInstance.billingDate = purchase["purchaseDate"] or None
                     purchaseInstance.predictWithdrawDate = purchase["predictWithdrawDate"] or None
                     purchaseInstance.withdrawDate = purchase["withdrawDate"] or None
@@ -388,6 +388,9 @@ def modify_contract(request, contractId):
         purchases = Purchase.objects.filter(contractId=contractId)
         saleCompanyNames = Contract.objects.get(contractId=contractId).saleCompanyName
         endCompanyNames = Contract.objects.get(contractId=contractId).endCompanyName
+        contractPaper = str(form.save(commit=False).contractPaper).split('/')[-1]
+        orderPaper = str(form.save(commit=False).orderPaper).split('/')[-1]
+
         companyList = Company.objects.filter(Q(companyStatus='Y'))
         companyNames = []
         for company in companyList:
@@ -401,6 +404,8 @@ def modify_contract(request, contractId):
             'purchases': purchases.order_by('predictBillingDate'),
             'saleCompanyNames': saleCompanyNames,
             'endCompanyNames': endCompanyNames,
+            'contractPaper': contractPaper,
+            'orderPaper': orderPaper,
             'companyNames': companyNames
         }
         return render(request, 'sales/postcontract.html', context)

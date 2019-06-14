@@ -32,7 +32,7 @@
         </div>
 
         <div class="card-body">
-          <form id="ContractForm" method="POST">
+          <form id="ContractForm" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             <div id="Opportunity">
               <div class="form-group row">
@@ -99,7 +99,7 @@
                 <div class="col-2">
                   <label for="contractPaper" class="font-weight-bold"> 계약서 </label>
                   <div class="input-group">
-                    <input class="form-control bg-white" type="text" id="contractPaper_route" readonly>
+                    <input class="form-control bg-white" type="text" id="contractPaper_route" value="{{ contractPaper }}" readonly>
                     <label class="m-0 btn btn-info btn-icon-split">
                       <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>
                       {{ form.contractPaper }}
@@ -109,7 +109,7 @@
                 <div class="col-2">
                   <label for="orderPaper" class="font-weight-bold"> 수주통보서 </label>
                   <div class="input-group">
-                    <input class="form-control bg-white" type="text" id="orderPaper_route" readonly>
+                    <input class="form-control bg-white" type="text" value="{{ orderPaper }}" id="orderPaper_route" readonly>
                     <label class="m-0 btn btn-info btn-icon-split">
                       <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>
                       {{ form.orderPaper }}
@@ -472,9 +472,9 @@
           }
       }
 
-      function changeDates(billingDate, predictBillingDate, predictExecutionDate) {
+      function changeBillingDates(billingDate, predictBillingDate, predictExecutionDate) {
           const date = $('#' + billingDate).val();
-          $('#' + predictBillingDate).val(date);
+          $('#' + predictBillingDate).val(date.substring(0, 7));
 
           if (typeof(predictExecutionDate) != 'undefined') {
               const condition = $('#depositCondition').val();
@@ -493,6 +493,11 @@
                   $('#' + predictExecutionDate).val(aftd.getFullYear() + '-' + ((aftd.getMonth() + 1) > 9 ? '' : '0') + (aftd.getMonth() + 1) + '-' + (aftd.getDate() > 9 ? '' : '0') + aftd.getDate());
               }
           }
+      }
+
+      function changeExecutionDates(executionDate, predictExecutionDate) {
+          const date = $('#' + executionDate).val();
+          $('#' + predictExecutionDate).val(date);
       }
 
       $(document).ready(function () {
@@ -695,12 +700,12 @@
           $('#addRevenue').on('click', function () {
               t2.row.add([
                   '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">추가</div>',
-                  '<input class="input-form" type="date" name="predictBillingDate" id="revenue1' + revenueCounter + '">',
-                  '<input class="input-form" type="date" name="billingDate" id="revenue2' + revenueCounter + '" ' +
-                      'onchange="changeDates(\'revenue2' + revenueCounter + '\',\'revenue1' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
-                  '<input class="input-form" type="date" name="predictDepositDate" id="revenue3' + revenueCounter + '">',
-                  '<input class="input-form" type="date" name="depositDate" id="revenue4' + revenueCounter + '"> ' +
-                      'onchange="changeDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
+                  '<input class="input-form" type="month" max="9999-12" name="predictBillingDate" id="revenue1' + revenueCounter + '">',
+                  '<input class="input-form" type="date" max="9999-12-31" name="billingDate" id="revenue2' + revenueCounter + '" ' +
+                      'onchange="changeBillingDates(\'revenue2' + revenueCounter + '\',\'revenue1' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
+                  '<input class="input-form" type="date" max="9999-12-31" name="predictDepositDate" id="revenue3' + revenueCounter + '">',
+                  '<input class="input-form" type="date" max="9999-12-31" name="depositDate" id="revenue4' + revenueCounter + '" ' +
+                      'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
                   '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '">',
                   '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '">',
                   '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
@@ -728,12 +733,12 @@
               {% for revenue in revenues %}
                   t2.row.add([
                       '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
-                      '<input class="input-form" type="date" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m-d" }}">',
-                      '<input class="input-form" type="date" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}" ' +
-                          'onchange="changeDates(\'revenue2' + revenueCounter + '\',\'revenue1' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
-                      '<input class="input-form" type="date" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
-                      '<input class="input-form" type="date" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}" ' +
-                          'onchange="changeDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
+                      '<input class="input-form" type="month" max="9999-12" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m" }}">',
+                      '<input class="input-form" type="date" max="9999-12-31" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}" ' +
+                          'onchange="changeBillingDates(\'revenue2' + revenueCounter + '\',\'revenue1' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
+                      '<input class="input-form" type="date" max="9999-12-31" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
+                      '<input class="input-form" type="date" max="9999-12-31" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}" ' +
+                          'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
                       '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}">',
                       '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
                       '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
@@ -796,12 +801,12 @@
           $('#addPurchase').on('click', function () {
               t3.row.add([
                   '<div class="text-center d-none" value="0" name="purchaseId" id="purchase0' + purchaseCounter + '">추가</div>',
-                  '<input class="input-form" type="date" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '">',
-                  '<input class="input-form" type="date" name="purchaseDate" id="purchase2' + purchaseCounter + '" ' +
-                      'onchange="changeDates(\'purchase2' + purchaseCounter + '\',\'purchase1' + purchaseCounter + '\')">',
-                  '<input class="input-form" type="date" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '">',
-                  '<input class="input-form" type="date" name="withdrawDate" id="purchase4' + purchaseCounter + '" ' +
-                      'onchange="changeDates(\'purchase4' + purchaseCounter + '\',\'purchase3' + purchaseCounter + '\')">',
+                  '<input class="input-form" type="month" max="9999-12" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '">',
+                  '<input class="input-form" type="date" max="9999-12-31" name="purchaseDate" id="purchase2' + purchaseCounter + '" ' +
+                      'onchange="changeBillingDates(\'purchase2' + purchaseCounter + '\',\'purchase1' + purchaseCounter + '\')">',
+                  '<input class="input-form" type="date" max="9999-12-31" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '">',
+                  '<input class="input-form" type="date" max="9999-12-31" name="withdrawDate" id="purchase4' + purchaseCounter + '" ' +
+                      'onchange="changeExecutionDates(\'purchase4' + purchaseCounter + '\',\'purchase3' + purchaseCounter + '\')">',
                   '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '">',
                   '<input class="money input-form" style="width: 255px;"  name="purchasePrice" id="purchase6' + purchaseCounter + '">',
                   '<input class="input-form" type="text" name="purchaseComment" id="purchase7' + purchaseCounter + '">',
@@ -827,12 +832,12 @@
               {% for purchase in purchases %}
                   t3.row.add([
                       '<div class="text-center d-none" value="0" name="purchaseId" id="purchase0' + purchaseCounter + '">{{ purchase.purchaseId }}</div>',
-                      '<input class="input-form" type="date" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '" value="{{ purchase.predictBillingDate | date:"Y-m-d" }}">',
-                      '<input class="input-form" type="date" name="purchaseDate" id="purchase2' + purchaseCounter + '" value="{{ purchase.billingDate | date:"Y-m-d" }}" ' +
-                          'onchange="changeDates(\'purchase2' + purchaseCounter + '\',\'purchase1' + purchaseCounter + '\')">',
-                      '<input class="input-form" type="date" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '" value="{{ purchase.predictWithdrawDate | date:"Y-m-d" }}">',
-                      '<input class="input-form" type="date" name="withdrawDate" id="purchase4' + purchaseCounter + '" value="{{ purchase.withdrawDate | date:"Y-m-d" }}" ' +
-                          'onchange="changeDates(\'purchase4' + purchaseCounter + '\',\'purchase3' + purchaseCounter + '\')">',
+                      '<input class="input-form" type="month" max="9999-12" name="predictPurchaseDate" id="purchase1' + purchaseCounter + '" value="{{ purchase.predictBillingDate | date:"Y-m" }}">',
+                      '<input class="input-form" type="date" max="9999-12-31" name="purchaseDate" id="purchase2' + purchaseCounter + '" value="{{ purchase.billingDate | date:"Y-m-d" }}" ' +
+                          'onchange="changeBillingDates(\'purchase2' + purchaseCounter + '\',\'purchase1' + purchaseCounter + '\')">',
+                      '<input class="input-form" type="date" max="9999-12-31" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '" value="{{ purchase.predictWithdrawDate | date:"Y-m-d" }}">',
+                      '<input class="input-form" type="date" max="9999-12-31" name="withdrawDate" id="purchase4' + purchaseCounter + '" value="{{ purchase.withdrawDate | date:"Y-m-d" }}" ' +
+                          'onchange="changeExecutionDates(\'purchase4' + purchaseCounter + '\',\'purchase3' + purchaseCounter + '\')">',
                       '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}">',
                       '<input class="money input-form" style="width: 255px;" name="purchasePrice" id="purchase6' + purchaseCounter + '" value="{{ purchase.purchasePrice }}">',
                       '<input class="input-form" type="text" name="purchaseComment" id="purchase7' + purchaseCounter + '" value="{{ purchase.comment }}">',

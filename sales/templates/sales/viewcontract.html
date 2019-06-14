@@ -326,9 +326,17 @@
               {% for revenue in revenues %}
                 <tr class="thtd" {% if revenue.revenueId == revenueId %}style="background-color: #ffffc8"{% endif %}>
                   <td class="thtd">{% if revenue.billingTime == None %}-{% else %}{{ revenue.billingTime }}{% endif %}</td>
-                  <td class="thtd">{% if revenue.predictBillingDate == None %}-{% else %}{{ revenue.predictBillingDate }}{% endif %}</td>
+                  <td class="thtd">
+                    {% if revenue.predictBillingDate == None %}-
+                    {% elif revenue.billingDate != None %}<span class="text-gray-500">발행완료</span>
+                    {% else %}{{ revenue.predictBillingDate }}{% endif %}
+                  </td>
                   <td class="thtd">{% if revenue.billingDate == None %}-{% else %}{{ revenue.billingDate }}{% endif %}</td>
-                  <td class="thtd">{% if revenue.predictDepositDate == None %}-{% else %}{{ revenue.predictDepositDate }}{% endif %}</td>
+                  <td class="thtd">
+                    {% if revenue.predictDepositDate == None %}-
+                    {% elif revenue.depositDate != None %}<span class="text-gray-500">수금완료</span>
+                    {% else %}{{ revenue.predictDepositDate }}{% endif %}
+                  </td>
                   <td class="thtd">{% if revenue.depositDate == None %}-{% else %}{{ revenue.depositDate }}{% endif %}</td>
                   <td class="thtd">{% if revenue.revenueCompany == None %}-{% else %}{{ revenue.revenueCompany }}{% endif %}</td>
                   <td class="thtd">{% if revenue.revenuePrice == None %}-{% else %}{{ revenue.revenuePrice | intcomma }}{% endif %} </td>
@@ -364,9 +372,15 @@
               {% for purchase in purchases %}
                 <tr {% if purchase.purchaseId == purchaseId %}style="background-color: #ffffc8"{% endif %} class="thtd">
                   <td class="thtd">{% if purchase.billingTime == None %}-{% else %}{{ purchase.billingTime }}{% endif %}</td>
-                  <td class="thtd">{% if purchase.predictBillingDate == None %}-{% else %}{{ purchase.predictBillingDate }}{% endif %}</td>
+                  <td class="thtd">
+                    {% if purchase.predictBillingDate == None %}-
+                    {% elif purchase.billingDate != None %}<span class="text-gray-500">발행완료</span>
+                    {% else %}{{ purchase.predictBillingDate }}{% endif %}</td>
                   <td class="thtd">{% if purchase.billingDate == None %}-{% else %}{{ purchase.billingDate }}{% endif %}</td>
-                  <td class="thtd">{% if purchase.predictWithdrawDate == None %}-{% else %}{{ purchase.predictWithdrawDate }}{% endif %}</td>
+                  <td class="thtd">
+                    {% if purchase.predictWithdrawDate == None %}-
+                    {% elif purchase.withdrawDate != None %}<span class="text-gray-500">지급완료</span>
+                    {% else %}{{ purchase.predictWithdrawDate }}{% endif %}</td>
                   <td class="thtd">{% if purchase.withdrawDate == None %}-{% else %}{{ purchase.withdrawDate }}{% endif %}</td>
                   <td class="thtd">{% if purchase.purchaseCompany == None %}-{% else %}{{ purchase.purchaseCompany }}{% endif %}</td>
                   <td class="thtd">{% if purchase.purchasePrice == None %}-{% else %}{{ purchase.purchasePrice | intcomma }}{% endif %} </td>
