@@ -248,7 +248,7 @@ def modify_contract(request, contractId):
                     Purchase.objects.create(
                         contractId=post,
                         billingTime=None,
-                        predictBillingDate=purchase["purchaseDate"] or purchase["predictPurchaseDate"] or None,
+                        predictBillingDate=purchase["purchaseDate"] or purchase["predictPurchaseDate"] + '-01' or None,
                         billingDate=purchase["purchaseDate"] or None,
                         predictWithdrawDate=purchase["predictWithdrawDate"] or None,
                         withdrawDate=purchase["withdrawDate"] or None,
@@ -260,7 +260,7 @@ def modify_contract(request, contractId):
                     purchaseInstance = Purchase.objects.get(purchaseId=int(purchase["purchaseId"]))
                     purchaseInstance.contractId = post
                     purchaseInstance.billingTime = None
-                    purchaseInstance.predictBillingDate = purchase["purchaseDate"] or purchase["predictPurchaseDate"] or None
+                    purchaseInstance.predictBillingDate = purchase["purchaseDate"] or purchase["predictPurchaseDate"] + '-01' or None
                     purchaseInstance.billingDate = purchase["purchaseDate"] or None
                     purchaseInstance.predictWithdrawDate = purchase["predictWithdrawDate"] or None
                     purchaseInstance.withdrawDate = purchase["withdrawDate"] or None
@@ -474,7 +474,8 @@ def revenues_asjson(request):
         revenues = revenues.filter(contractId__contractStep=contractStep)
 
     revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
-                               'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep', 'comment')
+                               'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
+                               'contractId__depositCondition', 'contractId__depositConditionDay', 'comment')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
