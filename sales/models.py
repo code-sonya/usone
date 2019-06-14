@@ -35,6 +35,7 @@ class Contract(models.Model):
     depositConditionDay = models.IntegerField(default=0, null=True, blank=True)
     contractPaper = models.FileField(null=True, blank=True, upload_to="contractPaper/%Y_%m")
     orderPaper = models.FileField(null=True, blank=True, upload_to="orderPaper/%Y_%m")
+    transferContractId = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
