@@ -336,15 +336,15 @@
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"] + '" /> / ' +
-                              '<input type="date" name="billingDate" class="input-form" value="' + row["billingDate"] + '" />'
+                          return '<input type="date" max="9999-12-31" name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"] + '" /> / ' +
+                              '<input type="date" max="9999-12-31" name="billingDate" class="input-form" value="' + row["billingDate"] + '" />'
                       },
                       targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" name="predictDepositDate" class="input-form" value="' + row["predictDepositDate"] + '" /> / ' +
-                              '<input type="date" name="depositDate"  ' + 'class="input-form"  value="' + row["depositDate"] + '" />'
+                          return '<input type="date" max="9999-12-31" name="predictDepositDate" class="input-form" value="' + row["predictDepositDate"] + '" /> / ' +
+                              '<input type="date" max="9999-12-31" name="depositDate"  ' + 'class="input-form"  value="' + row["depositDate"] + '" />'
                       },
                       targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },

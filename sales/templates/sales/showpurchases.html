@@ -88,7 +88,7 @@
           {% endif %}
           {% if accountspayable == 'N' and modifyMode == 'N' %}
             <div class="float-right" style="margin-right: 10px;">
-              <a class="btn btn-info" href="#" onclick="btn_changeDate()" role="button" id="changeDateLink" data-toggle="modal" data-target="#changeDateModal">예상매입일 변경 <i
+              <a class="btn btn-info" href="#" onclick="btn_changeDate()" role="button" id="changeDateLink" data-toggle="modal" data-target="#changeDateModal">매입예정일 변경 <i
                       class="fas fa-clock fa-fw text-white"></i></a>
             </div>
           {% endif %}
@@ -234,7 +234,7 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-12">
-                <h6> < 예상매입일이 지난 매입 목록> </h6>
+                <h6> < 매입예정일아 지난 매입 목록> </h6>
                 <table id="changepredictpurchase" class="pc-table thtd" style="margin:2px">
                   <thead>
                   <tr class="bg-secondary text-white thtd">
@@ -455,15 +455,15 @@
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"] + '" /> / ' +
-                              '<input type="date" name="billingDate" class="input-form" value="' + row["billingDate"] + '" />'
+                          return '<input type="date" max="9999-12-31" name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"] + '" /> / ' +
+                              '<input type="date" max="9999-12-31" name="billingDate" class="input-form" value="' + row["billingDate"] + '" />'
                       },
                       targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" name="predictWithdrawDate" class="input-form" value="' + row["predictWithdrawDate"] + '" /> /' +
-                              ' <input type="date" name="withdrawDate" class="input-form" value="' + row["withdrawDate"] + '" />'
+                          return '<input type="date" max="9999-12-31" name="predictWithdrawDate" class="input-form" value="' + row["predictWithdrawDate"] + '" /> /' +
+                              ' <input type="date" max="9999-12-31" name="withdrawDate" class="input-form" value="' + row["withdrawDate"] + '" />'
                       },
                       targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                   },
