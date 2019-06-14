@@ -34,4 +34,6 @@ urlpatterns = [
     url(r'^pdfdownload/(?P<html>.+)/$', views.pdf_download, name='pdfdownload'),
     url(r'^showoutstandingcollections/', views.show_outstandingcollections, name='showoutstandingcollections'),
     url(r'^showaccountspayables/', views.show_accountspayables, name='showaccountspayables'),
+    url(r'^changepredictpurchase/', views.change_predictpurchase, name='changepredictpurchase'),
+    url(r'^savepredictpurchase/', views.save_predictpurchase, name='savepredictpurchase'),
 ]

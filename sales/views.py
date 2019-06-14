@@ -1284,3 +1284,56 @@ def show_accountspayables(request):
     }
 
     return render(request, 'sales/showaccountspayables.html', context)
+
+
+@login_required
+@csrf_exempt
+def change_predictpurchase(request):
+    lastMonth = datetime(datetime.today().year, datetime.today().month - 1, 1)
+    purchases = Purchase.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastMonth)).exclude(contractId__contractStep='Drop')
+    purchases = purchases.values('purchaseId', 'contractId__contractStep', 'contractId__contractCode', 'contractId__contractName', 'predictBillingDate')
+    for purchase in purchases:
+        purchase['nextBillingDate'] = purchase['predictBillingDate'].replace(month=purchase['predictBillingDate'].month + 1)
+    structure = json.dumps(list(purchases), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def save_predictpurchase(request):
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    purchaseId = request.POST.getlist('purchaseId')
+    nextBillingDate = request.POST.getlist('nextBillingDate')
+    print(purchaseId, nextBillingDate)
+
+    for id, next in zip(purchaseId, nextBillingDate):
+        purchase = Purchase.objects.get(purchaseId=id)
+        purchase.predictBillingDate = next
+        purchase.save()
+
+    startdate = ''
+    enddate = ''
+    empDeptName = ''
+    empName = ''
+    saleCompanyName = ''
+    contractName = ''
+    contractStep = ''
+    purchaseInAdvance = ''
+    modifyMode = 'N'
+    accountspayable = 'N'
+
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
+        'contractStep': contractStep,
+        'purchaseInAdvance': purchaseInAdvance,
+        'accountspayable': accountspayable,
+        'modifyMode': modifyMode,
+    }
+
+    return render(request, 'sales/showpurchases.html', context)

@@ -9,6 +9,27 @@
 {% block css %}
 
   <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
     .buttons-copy {
       background-color: #4e73df;
       color: white;
@@ -63,6 +84,12 @@
           {% if modifyMode == 'Y' %}
             <div class="float-right">
               <button class="btn btn-danger" id="savePurchaseTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
+            </div>
+          {% endif %}
+          {% if accountspayable == 'N' and modifyMode == 'N' %}
+            <div class="float-right" style="margin-right: 10px;">
+              <a class="btn btn-info" href="#" onclick="btn_changeDate()" role="button" id="changeDateLink" data-toggle="modal" data-target="#changeDateModal">예상매입일 변경 <i
+                      class="fas fa-clock fa-fw text-white"></i></a>
             </div>
           {% endif %}
           <div class="table-responsive">
@@ -190,6 +217,50 @@
     </div>
   </div>
 
+  <!-- Filter Modal -->
+  <div class="modal fade" id="changeDateModal" tabindex="-1" role="dialog" aria-labelledby="changeDateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="changeDateModalLabel">매입예정일 변경</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="changeDateForm" action="/sales/savepredictpurchase/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <h6> < 예상매입일이 지난 매입 목록> </h6>
+                <table id="changepredictpurchase" class="pc-table thtd" style="margin:2px">
+                  <thead>
+                  <tr class="bg-secondary text-white thtd">
+                    <th colspan=1>구분</th>
+                    <th colspan=2>계약명</th>
+                    <th colspan=2>(기존)매입예정일</th>
+                    <th class="text-warning" colspan=2>(변경)매입예정일</th>
+                    <th class="d-none">purchaseId</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_savePredictDate()">확인</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -204,6 +275,37 @@
           modifyMode.setAttribute("value", '{{ modifyMode }}');
           filterForm.appendChild(modifyMode);
           document.getElementById("filterForm").submit();
+      }
+
+      function btn_changeDate() {
+          $('#changepredictpurchase > tbody').empty();
+          $.ajax({
+              url: "{% url 'sales:changepredictpurchase' %}",
+              method: 'POST',
+              cache: false,
+              data: {},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  const purchases = returnData;
+                  for (var count = 0; count < purchases.length; count++) {
+                      var tr = $("<tr class='thtd'><td colspan=1>"
+                          + purchases[count].contractId__contractStep + "</td><td colspan=2>["
+                          + purchases[count].contractId__contractCode + "]" + purchases[count].contractId__contractName + "</td><td colspan=2>"
+                          + purchases[count].predictBillingDate + "</td><td colspan=2 name='nextBillingDate'>"
+                          + purchases[count].nextBillingDate + "</td>"
+                          +"<td class='d-none'><input name='purchaseId' value='"+purchases[count].purchaseId+"'><input name='nextBillingDate' value='"
+                          +purchases[count].nextBillingDate+"'></td><tr>"
+                      );
+                      $('#changepredictpurchase').append(tr);
+                  }
+              }
+          })
+      }
+
+      function btn_savePredictDate() {
+          if (confirm("지난 예상매입일을 변경하시겠습니까?") === true) {
+              document.getElementById("changeDateForm").submit();
+          }
       }
 
       function btn_modifyMode() {
@@ -452,7 +554,7 @@
                   var size = $("input[name='predictBillingDate']").length;
                   var nullcheck = true;
                   for (i = 0; i < size; i++) {
-                      var inputValue  = $("input[name='predictBillingDate']").eq(i).val();
+                      var inputValue = $("input[name='predictBillingDate']").eq(i).val();
                       if (!inputValue) {
                           nullcheck = false;
                           break
