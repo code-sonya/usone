@@ -36,4 +36,6 @@ urlpatterns = [
     url(r'^showaccountspayables/', views.show_accountspayables, name='showaccountspayables'),
     url(r'^changepredictpurchase/', views.change_predictpurchase, name='changepredictpurchase'),
     url(r'^savepredictpurchase/', views.save_predictpurchase, name='savepredictpurchase'),
+    url(r'^changepredictrevenue/', views.change_predictrevenue, name='changepredictrevenue'),
+    url(r'^savepredictrevenue/', views.save_predictrevenue, name='savepredictrevenue'),
 ]

@@ -853,6 +853,7 @@ def view_purchase(request, purchaseId):
     context = viewContract(contractId)
     context['purchaseId'] = int(purchaseId)
 
+
 @login_required
 @csrf_exempt
 def save_revenuetable(request):
@@ -1012,7 +1013,7 @@ def change_predictpurchase(request):
     purchases = Purchase.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastMonth)).exclude(contractId__contractStep='Drop')
     purchases = purchases.values('purchaseId', 'contractId__contractStep', 'contractId__contractCode', 'contractId__contractName', 'predictBillingDate')
     for purchase in purchases:
-        purchase['nextBillingDate'] = purchase['predictBillingDate'].replace(month=purchase['predictBillingDate'].month + 1)
+        purchase['nextBillingDate'] = datetime(datetime.today().year, datetime.today().month, 1).date()
     structure = json.dumps(list(purchases), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1023,13 +1024,14 @@ def save_predictpurchase(request):
     employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
     purchaseId = request.POST.getlist('purchaseId')
     nextBillingDate = request.POST.getlist('nextBillingDate')
-    print(purchaseId, nextBillingDate)
 
-    for id, next in zip(purchaseId, nextBillingDate):
-        purchase = Purchase.objects.get(purchaseId=id)
-        purchase.predictBillingDate = next
-        purchase.save()
+    if purchaseId:
+        for id, next in zip(purchaseId, nextBillingDate):
+            purchase = Purchase.objects.get(purchaseId=id)
+            purchase.predictBillingDate = next
+            purchase.save()
 
+    # 필터 바꾸면 수정
     startdate = ''
     enddate = ''
     empDeptName = ''
@@ -1056,3 +1058,59 @@ def save_predictpurchase(request):
     }
 
     return render(request, 'sales/showpurchases.html', context)
+
+
+@login_required
+@csrf_exempt
+def change_predictrevenue(request):
+    lastMonth = datetime(datetime.today().year, datetime.today().month - 1, 1)
+    revenues = Revenue.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastMonth)).exclude(contractId__contractStep='Drop')
+    revenues = revenues.values('revenueId', 'contractId__contractStep', 'contractId__contractCode', 'contractId__contractName', 'predictBillingDate')
+
+    for revenue in revenues:
+        revenue['nextBillingDate'] = datetime(datetime.today().year, datetime.today().month, 1).date()
+
+    structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def save_predictrevenue(request):
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    revenueId = request.POST.getlist('revenueId')
+    nextBillingDate = request.POST.getlist('nextBillingDate')
+
+    if revenueId:
+        for id, next in zip(revenueId, nextBillingDate):
+            revenues = Revenue.objects.get(revenueId=id)
+            revenues.predictBillingDate = next
+            revenues.save()
+
+    # 필터 바꾸면 수정
+    startdate = ''
+    enddate = ''
+    empDeptName = ''
+    empName = ''
+    saleCompanyName = ''
+    contractName = ''
+    contractStep = ''
+    purchaseInAdvance = ''
+    modifyMode = 'N'
+    outstandingcollection = 'N'
+
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
+        'contractStep': contractStep,
+        'purchaseInAdvance': purchaseInAdvance,
+        'outstandingcollection': outstandingcollection,
+        'modifyMode': modifyMode,
+    }
+
+    return render(request, 'sales/showrevenues.html', context)

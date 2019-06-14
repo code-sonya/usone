@@ -9,6 +9,21 @@
 {% block css %}
 
   <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      border-top: 1px dotted #858796a3;
+    }
+
     .buttons-copy {
       background-color: #4e73df;
       color: white;
@@ -63,6 +78,12 @@
           {% if modifyMode == 'Y' %}
             <div class="float-right">
               <button class="btn btn-danger" id="saveRevenueTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
+            </div>
+          {% endif %}
+          {% if outstandingcollection == 'N' and modifyMode == 'N' %}
+            <div class="float-right" style="margin-right: 10px;">
+              <a class="btn btn-info" href="#" onclick="btn_changeDate()" role="button" id="changeDateLink" data-toggle="modal" data-target="#changeDateModal">
+                매출예정일 변경 <i class="fas fa-clock fa-fw text-white"></i></a>
             </div>
           {% endif %}
           <div class="table-responsive">
@@ -185,6 +206,51 @@
     </div>
   </div>
 
+  <!-- Filter Modal -->
+  <div class="modal fade" id="changeDateModal" tabindex="-1" role="dialog" aria-labelledby="changeDateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="changeDateModalLabel">매출예정일 변경</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="changeDateForm" action="/sales/savepredictrevenue/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <h6> < 매출예정일아 지난 매출 목록> </h6>
+                <table id="changepredictrevenue" class="pc-table thtd" style="margin:2px">
+                  <thead>
+                  <tr class="bg-secondary text-white thtd">
+                    <th colspan=1>구분</th>
+                    <th colspan=2>계약명</th>
+                    <th colspan=2>(기존)매출예정일</th>
+                    <th class="text-warning" colspan=2>(변경)매출예정일</th>
+                    <th class="d-none">revenueId</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_savePredictDate()">확인</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 {% endblock %}
 
 
@@ -199,6 +265,46 @@
           modifyMode.setAttribute("value", '{{ modifyMode }}');
           filterForm.appendChild(modifyMode);
           filterForm.submit();
+      }
+
+      function btn_changeDate() {
+          $('#changepredictrevenue > tbody').empty();
+          $.ajax({
+              url: "{% url 'sales:changepredictrevenue' %}",
+              method: 'POST',
+              cache: false,
+              data: {},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  const revenues = returnData;
+                  console.log(revenues.length);
+                  if (revenues.length == 0) {
+                      $('#changepredictrevenue').append(tr);
+                      var tr = $("<tr class='thtd text-secondary'><td colspan=7>매출예정일이 지난 매출 건이 없습니다.</td></tr>");
+                      $('#changepredictrevenue').append(tr);
+
+                  } else {
+                      for (var count = 0; count < revenues.length; count++) {
+                          var tr = $("<tr class='thtd'><td colspan=1>"
+                              + revenues[count].contractId__contractStep + "</td><td colspan=2>["
+                              + revenues[count].contractId__contractCode + "]" + revenues[count].contractId__contractName + "</td><td colspan=2>"
+                              + revenues[count].predictBillingDate + "</td><td colspan=2 name='nextBillingDate'>"
+                              + revenues[count].nextBillingDate + "</td>"
+                              + "<td class='d-none'><input name='revenueId' value='" + revenues[count].revenueId + "'><input name='nextBillingDate' value='"
+                              + revenues[count].nextBillingDate + "'></td><tr>"
+                          );
+                          $('#changepredictrevenue').append(tr);
+                      }
+                  }
+
+              }
+          })
+      }
+
+      function btn_savePredictDate() {
+          if (confirm("지난 예상매입일을 변경하시겠습니까?") === true) {
+              document.getElementById("changeDateForm").submit();
+          }
       }
 
       function btn_modifyMode() {
