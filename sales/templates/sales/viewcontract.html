@@ -79,8 +79,10 @@
         <div id="pdf">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h3 class="m-0 text-gray-800"> [{{ contract.contractCode }}] {{ contract.contractName }} </h3>
-          <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" onclick="pdfDownload('pdf')">
-            <i class="fas fa-download fa-sm text-white-50"></i> PDF 다운로드</a>
+{#          PDF 다운로드 클래스 적용 후 오픈#}
+{#          <a href="/sales/viewcontractpdf/{{ contract.contractId }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">#}
+{#            <i class="fas fa-download fa-sm text-white-50"></i> PDF 다운로드#}
+{#          </a>#}
         </div>
 
         <div class="card-body">
