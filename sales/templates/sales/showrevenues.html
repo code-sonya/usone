@@ -384,13 +384,51 @@
           })
       }
 
-      function replaceAll(str, searchStr, replaceStr) {
-          if (str != null) {
-              var new_str = str.split(searchStr).join(replaceStr);
-              return new_str.split("T").join(" ").slice(0, 10);
+      function replaceAll(predictStr, executionStr, searchStr, replaceStr, complete) {
+          let new_predictStr;
+          let new_executionStr;
+          if (predictStr != null) {
+              new_predictStr = predictStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, 10);
           } else {
-              return '------------'
+              new_predictStr =  '------------'
           }
+
+          if (executionStr != null) {
+              new_executionStr = executionStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, 10);
+              new_predictStr = '--' + complete + '완료--'
+          } else {
+              new_executionStr =  '------------'
+          }
+
+          return new_predictStr + ' / ' + new_executionStr
+      }
+
+      function changeBillingDates(billingDate, predictBillingDate, predictExecutionDate, depositCondition, depositConditionDay) {
+          const date = $('#' + billingDate).val();
+          $('#' + predictBillingDate).val(date.substring(0, 7));
+
+          if (typeof(predictExecutionDate) != 'undefined') {
+              const condition = depositCondition;
+              if (condition === '당월 말') {
+                  const tmld = new Date(date.substring(0, 4), date.substring(5, 7), 0);
+                  $('#' + predictExecutionDate).val(date.substring(0, 8) + tmld.getDate());
+              } else if (condition === '익월 초') {
+                  const nmfd = new Date(date.substring(0, 4), date.substring(5, 7), 1);
+                  $('#' + predictExecutionDate).val(nmfd.getFullYear() + '-' + ((nmfd.getMonth() + 1) > 9 ? '' : '0') + (nmfd.getMonth() + 1) + '-' + '01');
+              } else if (condition === '익월 말') {
+                  const nmld = new Date(date.substring(0, 4), date.substring(5, 7)*1 + 1, 0);
+                  $('#' + predictExecutionDate).val(nmld.getFullYear() + '-' + ((nmld.getMonth() + 1) > 9 ? '' : '0') + (nmld.getMonth() + 1) + '-' + (nmld.getDate() > 9 ? '' : '0') + nmld.getDate());
+              } else if (condition === '계산서 발행 후') {
+                  const aftd = new Date(date.substring(0, 4), date.substring(5, 7)*1 - 1, date.substring(8, 10));
+                  aftd.setDate(aftd.getDate() + depositConditionDay*1);
+                  $('#' + predictExecutionDate).val(aftd.getFullYear() + '-' + ((aftd.getMonth() + 1) > 9 ? '' : '0') + (aftd.getMonth() + 1) + '-' + (aftd.getDate() > 9 ? '' : '0') + aftd.getDate());
+              }
+          }
+      }
+
+      function changeExecutionDates(executionDate, predictExecutionDate) {
+          const date = $('#' + executionDate).val();
+          $('#' + predictExecutionDate).val(date);
       }
 
       $(document).ready(function () {
@@ -448,15 +486,22 @@
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" max="9999-12-31" name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"] + '" /> / ' +
-                              '<input type="date" max="9999-12-31" name="billingDate" class="input-form" value="' + row["billingDate"] + '" />'
+                          return '<input type="month" max="9999-12" id="predictBillingDate' + row["revenueId"] + '" ' +
+                              'name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"].substring(0,7) + '" /> / ' +
+                              '<input type="date" max="9999-12-31" id="billingDate' + row["revenueId"] + '" ' +
+                              'name="billingDate" class="input-form" value="' + row["billingDate"] + '" ' +
+                              'onchange="changeBillingDates(\'billingDate' + row["revenueId"] + '\', \'predictBillingDate' + row["revenueId"] + '\', ' +
+                              '\'predictDepositDate' + row["revenueId"] + '\', \'' + row["contractId__depositCondition"] + '\', \'' + row["contractId__depositConditionDay"] + '\')" />'
                       },
                       targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" max="9999-12-31" name="predictDepositDate" class="input-form" value="' + row["predictDepositDate"] + '" /> / ' +
-                              '<input type="date" max="9999-12-31" name="depositDate"  ' + 'class="input-form"  value="' + row["depositDate"] + '" />'
+                          return '<input type="date" max="9999-12-31" id="predictDepositDate' + row["revenueId"] + '" ' +
+                              'name="predictDepositDate" class="input-form" value="' + row["predictDepositDate"] + '" /> / ' +
+                              '<input type="date" max="9999-12-31" id="depositDate' + row["revenueId"] + '" ' +
+                              'name="depositDate" class="input-form" value="' + row["depositDate"] + '" ' +
+                              'onchange="changeExecutionDates(\'depositDate' + row["revenueId"] + '\', \'predictDepositDate' + row["revenueId"] + '\')" />'
                       },
                       targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
@@ -518,8 +563,8 @@
                   $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
 
                   {% if modifyMode == 'N' %}
-                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, "-", ".") + " / " + replaceAll(aData.billingDate, "-", "."));
-                      $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, "-", ".") + " / " + replaceAll(aData.depositDate, "-", "."));
+                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, aData.billingDate, "-", ".", "발행"));
+                      $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, aData.depositDate, "-", ".", "수금"));
                       $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
 
