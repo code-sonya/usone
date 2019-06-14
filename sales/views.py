@@ -766,7 +766,7 @@ def save_purchasetable(request):
 
     for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, predictWithdrawDate, withdrawDate, comment):
         purchase = Purchase.objects.get(purchaseId=a)
-        purchase.predictBillingDate = b or None
+        purchase.predictBillingDate = c or b + '-01' or None
         purchase.billingDate = c or None
         purchase.predictWithdrawDate = d or None
         purchase.withdrawDate = e or None
@@ -852,6 +852,7 @@ def view_purchase(request, purchaseId):
 
     context = viewContract(contractId)
     context['purchaseId'] = int(purchaseId)
+    return render(request, 'sales/viewcontract.html', context)
 
 @login_required
 @csrf_exempt
@@ -877,7 +878,7 @@ def save_revenuetable(request):
 
     for a, b, c, d, e, f in zip(revenueId, predictBillingDate, billingDate, predictDepositDate, depositDate, comment):
         revenue = Revenue.objects.get(revenueId=a)
-        revenue.predictBillingDate = b or None
+        revenue.predictBillingDate = c or b + '-01' or None
         revenue.billingDate = c or None
         revenue.predictDepositDate = d or None
         revenue.depositDate = e or None

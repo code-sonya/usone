@@ -302,6 +302,34 @@
           }
       }
 
+      function changeBillingDates(billingDate, predictBillingDate, predictExecutionDate) {
+          const date = $('#' + billingDate).val();
+          $('#' + predictBillingDate).val(date.substring(0, 7));
+
+          if (typeof(predictExecutionDate) != 'undefined') {
+              const condition = $('#depositCondition').val();
+              if (condition === '당월 말') {
+                  const tmld = new Date(date.substring(0, 4), date.substring(5, 7), 0);
+                  $('#' + predictExecutionDate).val(date.substring(0, 8) + tmld.getDate());
+              } else if (condition === '익월 초') {
+                  const nmfd = new Date(date.substring(0, 4), date.substring(5, 7), 1);
+                  $('#' + predictExecutionDate).val(nmfd.getFullYear() + '-' + ((nmfd.getMonth() + 1) > 9 ? '' : '0') + (nmfd.getMonth() + 1) + '-' + '01');
+              } else if (condition === '익월 말') {
+                  const nmld = new Date(date.substring(0, 4), date.substring(5, 7)*1 + 1, 0);
+                  $('#' + predictExecutionDate).val(nmld.getFullYear() + '-' + ((nmld.getMonth() + 1) > 9 ? '' : '0') + (nmld.getMonth() + 1) + '-' + (nmld.getDate() > 9 ? '' : '0') + nmld.getDate());
+              } else if (condition === '계산서 발행 후') {
+                  const aftd = new Date(date.substring(0, 4), date.substring(5, 7)*1 - 1, date.substring(8, 10));
+                  aftd.setDate(aftd.getDate() + $('#depositConditionDay').val()*1);
+                  $('#' + predictExecutionDate).val(aftd.getFullYear() + '-' + ((aftd.getMonth() + 1) > 9 ? '' : '0') + (aftd.getMonth() + 1) + '-' + (aftd.getDate() > 9 ? '' : '0') + aftd.getDate());
+              }
+          }
+      }
+
+      function changeExecutionDates(executionDate, predictExecutionDate) {
+          const date = $('#' + executionDate).val();
+          $('#' + predictExecutionDate).val(date);
+      }
+
       $(document).ready(function () {
           $('#showrevenues').dataTable({
               "scrollX": true,
@@ -353,15 +381,21 @@
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" max="9999-12-31"name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"] + '" /> / ' +
-                              '<input type="date" max="9999-12-31" name="billingDate" class="input-form" value="' + row["billingDate"] + '" />'
+                          return '<input type="month" max="9999-12" id="predictBillingDate' + row["purchaseId"] + '" ' +
+                              'name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"].substring(0,7) + '" /> / ' +
+                              '<input type="date" max="9999-12-31" id="billingDate' + row["purchaseId"] + '" ' +
+                              'name="billingDate" class="input-form" onchange="changeBillingDates(\'billingDate' + row["purchaseId"] + '\', \'predictBillingDate' + row["purchaseId"] + '\')" ' +
+                              'value="' + row["billingDate"] + '" />'
                       },
                       targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       "render": function (data, type, row) {
-                          return '<input type="date" max="9999-12-31" name="predictWithdrawDate" class="input-form" value="' + row["predictWithdrawDate"] + '" /> /' +
-                              ' <input type="date" max="9999-12-31" name="withdrawDate" class="input-form" value="' + row["withdrawDate"] + '" />'
+                          return '<input type="date" max="9999-12-31" id="predictWithdrawDate' + row["purchaseId"] + '" ' +
+                              'name="predictWithdrawDate" class="input-form" value="' + row["predictWithdrawDate"] + '" /> / ' +
+                              '<input type="date" max="9999-12-31" id="withdrawDate' + row["purchaseId"] + '" ' +
+                              'name="withdrawDate" class="input-form" onchange="changeExecutionDates(\'withdrawDate' + row["purchaseId"] + '\', \'predictWithdrawDate' + row["purchaseId"] + '\')" ' +
+                              'value="' + row["withdrawDate"] + '" />'
                       },
                       targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                   },
