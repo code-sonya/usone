@@ -1115,3 +1115,23 @@ def save_predictrevenue(request):
     }
 
     return render(request, 'sales/showrevenues.html', context)
+
+
+@login_required
+@csrf_exempt
+def transfer_contract(request):
+    context = {}
+    return render(request, 'sales/transfercontract.html', context)
+
+
+@login_required
+@csrf_exempt
+def empid_asjson(request):
+    empId = request.POST['empId']
+    contracts = Contract.objects.filter(empId=empId)
+    revenues = Revenue.objects.filter(contractId__empId=empId)
+    print(revenues)
+    data = list(contracts)
+    data.extend(list(revenues))
+    json = serializers.serialize('json', data)
+    return HttpResponse(json, content_type='application/json')

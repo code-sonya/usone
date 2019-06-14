@@ -38,4 +38,6 @@ urlpatterns = [
     url(r'^savepredictpurchase/', views.save_predictpurchase, name='savepredictpurchase'),
     url(r'^changepredictrevenue/', views.change_predictrevenue, name='changepredictrevenue'),
     url(r'^savepredictrevenue/', views.save_predictrevenue, name='savepredictrevenue'),
+    url(r'^transfercontract/', views.transfer_contract, name='transfercontract'),
+    url(r'^empidjson/$', views.empid_asjson, name='empid_ajax_url'),
 ]

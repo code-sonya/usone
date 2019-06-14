@@ -1,0 +1,172 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  영업-계약이관
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+  <div class="col-xl-12">
+    <div class="card shadow mb-4">
+
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800"> 계약 이관 </h6>
+      </div>
+
+      <div class="card-body">
+        {% csrf_token %}
+
+        <div class="row mb-1">
+          <div class="col-3">
+            <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
+              <option value="전체">----------------</option>
+              <option value="영업1팀">영업1팀</option>
+              <option value="영업2팀">영업2팀</option>
+            </select>
+          </div>
+          <div class="col-3">
+            <select class="form-control" id="empName" name="empName" onchange="loadContract(this.value)">
+              <option value='전체'>----------------</option>
+            </select>
+          </div>
+          <br>
+          <br>
+          <div id="contract" class="d-none" style="margin:12px;">
+            <h5 class="text-dark mb-3">
+              <b><span>▼</span>진행 중인 계약</b>
+            </h5>
+            <table id="" class="pc-table">
+              <thead>
+              <tr class="text-white" style="background-color: #36b9cc">
+                <th></th>
+                <th>구분</th>
+                <th>계약명</th>
+                <th>영업담당</th>
+                <th>계약일</th>
+                <th>계약금액</th>
+                <th>이익금</th>
+                <th class="d-none">contractId</th>
+              </tr>
+              </thead>
+            </table>
+
+            <h5 class="text-dark mb-3">
+              <b><span>▼</span>이관 완료 계약</b>
+            </h5>
+            <table id="showgoals" class="pc-table">
+              <thead>
+              <tr class="bg-gray-500 text-white">
+                <th></th>
+                <th>구분</th>
+                <th>계약명</th>
+                <th>영업담당</th>
+                <th>계약일</th>
+                <th>계약금액</th>
+                <th>이익금</th>
+                <th class="d-none">contractId</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 10);
+      }
+
+      function changeDeptName(empDeptName, selectId) {
+          $.ajax({
+              url: "{% url 'sales:empdept_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empDeptName": empDeptName},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var empName = returnData;
+                  console.log(empName);
+                  $('#' + selectId).empty();
+
+                  $('#' + selectId).append("<option value='전체'>----------------</option>");
+                  for (var count = 0; count < empName.length; count++) {
+                      var option = $("<option value=" + empName[count].pk + ">" + empName[count].fields.empName + "</option>");
+                      $('#' + selectId).append(option);
+                  }
+              }
+          })
+      }
+
+      function loadContract(empId) {
+          console.log(empId);
+          if (empId != '전체') {
+              $.ajax({
+                  url: "{% url 'sales:empid_ajax_url' %}",
+                  method: 'POST',
+                  cache: false,
+                  data: {"empId": empId},
+                  headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                  success: function (returnData) {
+                      var empName = returnData;
+                      console.log(empName);
+
+                  }
+              });
+              $('#contract').attr('class', 'd-block');
+          }
+
+
+      }
+
+      $(document).ready(function () {
+
+      });
+
+  </script>
+
+{% endblock %}
