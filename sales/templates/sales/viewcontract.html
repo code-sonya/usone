@@ -149,6 +149,15 @@
               <td>{% if contract.contractStep == 'Firm' and contract.contractStartDate %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
             </tr>
             <tr>
+              <td class="bg-light">수&nbsp; 금&nbsp; &nbsp;조&nbsp; 건</td>
+              <td>{{ contract.depositCondition }}{% if contract.depositCondition == '계산서 발행 후' %} {{ contract.depositConditionDay }}일 이내{% endif %}</td>
+              <td class="bg-light">수 주 통 보 서</td>
+              <td><a href="/media/{{ contract.orderPaper }}" download>{{ orderPaper }}</a></td>
+{#              계약서는 추후 필요시 오픈#}
+{#              <td class="bg-light">첨&nbsp; 부&nbsp; &nbsp;파&nbsp; 일</td>#}
+{#              <td><a href="/media/{{ contract.contractPaper }}" download>{{ contractPaper }}</a><br><a href="/media/{{ contract.orderPaper }}" download>{{ orderPaper }}</a></td>#}
+            </tr>
+            <tr>
               <td class="bg-light">참&nbsp; 고&nbsp; &nbsp;사&nbsp; 항</td>
               <td colspan="3">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
             </tr>

@@ -96,16 +96,17 @@
                 <div class="col-2">
                   <label for="depositConditionDay" class="font-weight-bold"> 수금조건일자 </label> {{ form.depositConditionDay }}
                 </div>
-                <div class="col-2">
-                  <label for="contractPaper" class="font-weight-bold"> 계약서 </label>
-                  <div class="input-group">
-                    <input class="form-control bg-white" type="text" id="contractPaper_route" value="{{ contractPaper }}" readonly>
-                    <label class="m-0 btn btn-info btn-icon-split">
-                      <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>
-                      {{ form.contractPaper }}
-                    </label>
-                  </div>
-                </div>
+{#                계약서는 추후 필요시 오픈#}
+{#                <div class="col-2">#}
+{#                  <label for="contractPaper" class="font-weight-bold"> 계약서 </label>#}
+{#                  <div class="input-group">#}
+{#                    <input class="form-control bg-white" type="text" id="contractPaper_route" value="{{ contractPaper }}" readonly>#}
+{#                    <label class="m-0 btn btn-info btn-icon-split">#}
+{#                      <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>#}
+{#                      {{ form.contractPaper }}#}
+{#                    </label>#}
+{#                  </div>#}
+{#                </div>#}
                 <div class="col-2">
                   <label for="orderPaper" class="font-weight-bold"> 수주통보서 </label>
                   <div class="input-group">
@@ -116,7 +117,7 @@
                     </label>
                   </div>
                 </div>
-                <div class="col-xl-4">
+                <div class="col-xl-6">
                   <label for="comment" class="font-weight-bold"> 참고사항 </label> {{ form.comment }}
                 </div>
               </div>
