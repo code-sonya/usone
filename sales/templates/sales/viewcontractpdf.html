@@ -1,0 +1,333 @@
+{% load staticfiles %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+
+  <style type="text/css">
+    @font-face {
+      font-family: JejuGothic;
+      src: url({% static '/mail/JejuGothic.ttf' %});
+    }
+
+    html {
+      font-family: JejuGothic, serif;
+    }
+
+    @page {
+      size: A4;
+      margin-left: 40pt;
+      margin-right: 40pt;
+      margin-top: 50pt;
+    }
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+      border-top: 1px dotted darkgray;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h3 class="m-0 text-gray-800"> [{{ contract.contractCode }}] {{ contract.contractName }} </h3>
+    </div>
+
+    <div class="card-body">
+      <h5 class="text-dark mb-3"><b>▼ 계약내용</b></h5>
+      <table class="pc-table">
+        <tbody>
+        <tr>
+          <td class="bg-light" style="width: 20%; border-top: 0px;">단&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;계</td>
+          <td style="width: 30%; border-top: 0px;">
+            {% if contract.contractStep == "Firm" %}
+              <div class="text-primary"> {{ contract.contractStep }}</div>
+            {% elif contract.contractStep == "Drop" %}
+              <div class="text-danger"> {{ contract.contractStep }}</div>
+            {% else %}
+              <div class="text-success"> {{ contract.contractStep }}</div>
+            {% endif %}
+          </td>
+          <td class="bg-light" style="width: 20%; border-top: 0px;">영&nbsp; 업&nbsp; &nbsp;담&nbsp; 당</td>
+          <td style="width: 30%; border-top: 0px;">{{ contract.empName }} ({{ contract.empDeptName }})</td>
+        </tr>
+        <tr>
+          <td class="bg-light">판&nbsp; 매&nbsp; &nbsp;유&nbsp; 형</td>
+          <td>{{ contract.saleType }}</td>
+          <td class="bg-light">산&nbsp; &nbsp; &nbsp;업&nbsp; &nbsp; &nbsp;군</td>
+          <td>{{ contract.saleIndustry }}</td>
+        </tr>
+        <tr>
+          <td class="bg-light">대&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
+          <td>{{ contract.mainCategory }}</td>
+          <td class="bg-light">소&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
+          <td>{{ contract.subCategory }}</td>
+        </tr>
+        <tr>
+          <td class="bg-light">거&nbsp; &nbsp; &nbsp;래&nbsp; &nbsp; &nbsp;처</td>
+          <td>{{ contract.saleCompanyName.companyName }}{% if contract.saleCustomerName %} ({{ contract.saleCustomerName }}){% endif %}</td>
+          <td class="bg-light">최 종 고 객 사</td>
+          <td>{{ contract.endCompanyName.companyName }}</td>
+        </tr>
+        <tr>
+          <td class="bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}계&nbsp; 약&nbsp; &nbsp;금&nbsp; 액</td>
+          <td><div class="text-danger">{{ contract.salePrice | intcomma }}</div></td>
+          <td class="bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}이&nbsp; 익&nbsp; &nbsp;금&nbsp; 액</td>
+          <td>{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio | floatformat }}%)</td>
+        </tr>
+        <tr>
+          <td class="bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}계&nbsp; &nbsp; &nbsp;약&nbsp; &nbsp; &nbsp;일</td>
+          <td>{{ contract.contractDate }}</td>
+          <td class="bg-light">계&nbsp; 약&nbsp; &nbsp;기&nbsp; 간</td>
+          <td>{% if contract.contractStep == 'Firm' and contract.contractStartDate %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
+        </tr>
+        <tr>
+          <td class="bg-light">수&nbsp; 금&nbsp; &nbsp;조&nbsp; 건</td>
+          <td>{{ contract.depositCondition }}{% if contract.depositCondition == '계산서 발행 후' %} {{ contract.depositConditionDay }}일 이내{% endif %}</td>
+          <td class="bg-light">수 주 통 보 서</td>
+          <td><a href="/media/{{ contract.orderPaper }}" download>{{ orderPaper }}</a></td>
+{#              계약서는 추후 필요시 오픈#}
+{#              <td class="bg-light">첨&nbsp; 부&nbsp; &nbsp;파&nbsp; 일</td>#}
+{#              <td><a href="/media/{{ contract.contractPaper }}" download>{{ contractPaper }}</a><br><a href="/media/{{ contract.orderPaper }}" download>{{ orderPaper }}</a></td>#}
+        </tr>
+        <tr>
+          <td class="bg-light">참&nbsp; 고&nbsp; &nbsp;사&nbsp; 항</td>
+          <td colspan="3">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
+        </tr>
+        </tbody>
+      </table>
+
+      {% if items %}
+        <br>
+        <h5 class="text-dark mb-3"><b>▼ 세부사항</b></h5>
+        <table class="pc-table">
+          <thead>
+          <tr class="bg-secondary">
+            <td class="text-gray-100">대분류</td>
+            <td class="text-gray-100">소분류</td>
+            <td class="text-gray-100">상세내용</td>
+            <td class="text-gray-100">가격</td>
+          </tr>
+          </thead>
+          <tbody>
+          {% for item in items %}
+            <tr class="thtd">
+              <td>{{ item.mainCategory }}</td>
+              <td>{{ item.subCategory }}</td>
+              <td>{{ item.itemName }}</td>
+              <td>{{ item.itemPrice | intcomma }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+
+      <br>
+      <h5 class="text-dark mb-3"><b>▼ 연도 별 매출·이익 기여도</b></h5>
+      <table class="pc-table" id="yearSummary">
+        <thead>
+        <tr class="bg-secondary">
+          <td class="text-gray-100">연도</td>
+          <td class="text-gray-100">매출금액</td>
+          <td class="text-gray-100">이익금액</td>
+          <td class="text-gray-100">수금액</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for summary in yearSummary %}
+          <tr class="thtd">
+            <td>{{ summary.year }}</td>
+            <td>{{ summary.revenuePrice | intcomma }}</td>
+            <td>{{ summary.revenueProfitPrice | intcomma}} ({{ summary.revenueProfitRatio }}%)</td>
+            <td>{{ summary.depositPrice | intcomma }} ({{ summary.depositRatio }}%)</td>
+          </tr>
+        {% endfor %}
+        <tr class="thtd bg-light">
+          <td>{{ yearSum.year }}</td>
+          <td class="text-danger">{{ yearSum.revenuePrice | intcomma }}</td>
+          <td class="text-primary">{{ yearSum.revenueProfitPrice | intcomma}} ({{ yearSum.revenueProfitRatio }}%)</td>
+          <td class="text-success">{{ yearSum.depositPrice | intcomma }} ({{ yearSum.depositRatio }}%)</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <br>
+      <h5 class="text-dark mb-3"><b>▼ 입출금정보</b></h5>
+      <div id="cash">
+        <table style="margin-left:20px">
+          <tbody>
+          <tr>
+            <td style="width: 40%;">총 수금액</td>
+            <td style="width: 40%; text-align: right;">{{ totalDeposit | intcomma }}</td>
+          </tr>
+          <tr>
+            <td style="width: 40%;">총 지급액</td>
+            <td style="width: 40%; text-align: right;">{{ totalWithdraw | intcomma }}</td>
+          </tr>
+          <tr>
+            <td style="width: 40%;">총 집행률</td>
+            <td style="width: 40%; text-align: right;">{{ totalRatio }}%</td>
+          </tr>
+          </tbody>
+        </table>
+
+        <br>
+        <div class="row">
+          <div class="col-xl-6">
+            <table class="pc-table">
+              <thead>
+              <tr class="bg-secondary">
+                <td class="text-gray-100">매출처</td>
+                <td class="text-gray-100">매출금액</td>
+                <td class="text-gray-100">수금액</td>
+                <td class="text-gray-100">수금률</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% for deposit in companyDeposit %}
+                <tr class="thtd">
+                  <td>{% if deposit.revenueCompany == None %}-{% else %}{{ deposit.revenueCompany }}{% endif %}</td>
+                  <td>{% if deposit.sum_deposit == None %}0{% else %}{{ deposit.sum_deposit | intcomma }} {% endif %}</td>
+                  <td>{% if deposit.filter_deposit == None %}0{% else %}{{ deposit.filter_deposit | intcomma }} {% endif %}</td>
+                  <td>{% if deposit.ratio_deposit == None %}0{% else %}{{ deposit.ratio_deposit }}{% endif %}%</td>
+                </tr>
+              {% endfor %}
+              <tr class="thtd bg-light">
+                <td>합계</td>
+                <td>{% if companyTotalDeposit.total_sum_deposit == None %}0{% else %}{{ companyTotalDeposit.total_sum_deposit | intcomma }} {% endif %}</td>
+                <td>{% if companyTotalDeposit.total_filter_deposit == None %}0{% else %}{{ companyTotalDeposit.total_filter_deposit | intcomma }} {% endif %}</td>
+                <td>{% if companyTotalDeposit.total_ratio_deposit == None %}0{% else %}{{ companyTotalDeposit.total_ratio_deposit }}{% endif %}%</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-xl-6">
+            <table class="pc-table">
+              <thead>
+              <tr class="bg-secondary">
+                <td class="text-gray-100">매입처</td>
+                <td class="text-gray-100">매입금액</td>
+                <td class="text-gray-100">지급액</td>
+                <td class="text-gray-100">지급률</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% for withdraw in companyWithdraw %}
+                <tr class="thtd">
+                  <td>{% if withdraw.purchaseCompany == None %}-{% else %}{{ withdraw.purchaseCompany }}{% endif %}</td>
+                  <td>{% if withdraw.sum_withdraw == None %}0{% else %}{{ withdraw.sum_withdraw | intcomma }} {% endif %}</td>
+                  <td>{% if withdraw.filter_withdraw == None %}0{% else %}{{ withdraw.filter_withdraw | intcomma }} {% endif %}</td>
+                  <td>{% if withdraw.ratio_withdraw == None %}0{% else %}{{ withdraw.ratio_withdraw }}{% endif %}%</td>
+                </tr>
+              {% endfor %}
+              <tr class="thtd bg-light">
+                <td>합계</td>
+                <td>{% if companyTotalWithdraw.total_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_sum_withdraw | intcomma }} {% endif %}</td>
+                <td>{% if companyTotalWithdraw.total_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_filter_withdraw | intcomma }} {% endif %}</td>
+                <td>{% if companyTotalWithdraw.total_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_ratio_withdraw }}{% endif %}%</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {% if revenues %}
+        <br>
+        <h5 class="text-dark mb-3"><b>▼ 매출세부정보</b></h5>
+        <table class="pc-table">
+          <thead>
+          <tr class="bg-primary">
+            <td class="text-gray-100" width="5%">회차</td>
+            <td class="text-gray-100" width="10%">매출예정일</td>
+            <td class="text-gray-100" width="10%">매출일</td>
+            <td class="text-gray-100" width="10%">수금예정일</td>
+            <td class="text-gray-100" width="10%">수금일</td>
+            <td class="text-gray-100" width="15%">매출처</td>
+            <td class="text-gray-100" width="12%">매출금액</td>
+            <td class="text-gray-100" width="13%">이익금액</td>
+            <td class="text-gray-100" width="15%">비고</td>
+          </tr>
+          </thead>
+          <tbody>
+          {% for revenue in revenues %}
+            <tr class="thtd" {% if revenue.revenueId == revenueId %}style="background-color: #ffffc8"{% endif %}>
+              <td class="thtd">{% if revenue.billingTime == None %}-{% else %}{{ revenue.billingTime }}{% endif %}</td>
+              <td class="thtd">
+                {% if revenue.predictBillingDate == None %}-
+                {% elif revenue.billingDate != None %}<span class="text-gray-500">발행완료</span>
+                {% else %}{{ revenue.predictBillingDate }}{% endif %}
+              </td>
+              <td class="thtd">{% if revenue.billingDate == None %}-{% else %}{{ revenue.billingDate }}{% endif %}</td>
+              <td class="thtd">
+                {% if revenue.predictDepositDate == None %}-
+                {% elif revenue.depositDate != None %}<span class="text-gray-500">수금완료</span>
+                {% else %}{{ revenue.predictDepositDate }}{% endif %}
+              </td>
+              <td class="thtd">{% if revenue.depositDate == None %}-{% else %}{{ revenue.depositDate }}{% endif %}</td>
+              <td class="thtd">{% if revenue.revenueCompany == None %}-{% else %}{{ revenue.revenueCompany }}{% endif %}</td>
+              <td class="thtd">{% if revenue.revenuePrice == None %}-{% else %}{{ revenue.revenuePrice | intcomma }}{% endif %} </td>
+              <td class="thtd">{% if revenue.revenueProfitPrice == None %}-{% else %}{{ revenue.revenueProfitPrice | intcomma }} ({{ revenue.revenueProfitRatio | floatformat }}%){% endif %} </td>
+              <td class="thtd">{% if revenue.comment == None %}-{% else %}{{ revenue.comment }}{% endif %} </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+
+      {% if purchases %}
+        <br>
+        <h5 class="text-dark mb-3"><b>▼ 매입세부정보</b></h5>
+        <table class="pc-table">
+          <thead>
+          <tr class="bg-primary">
+            <td class="text-gray-100" width="5%">회차</td>
+            <td class="text-gray-100" width="10%">매입예정일</td>
+            <td class="text-gray-100" width="10%">매입일</td>
+            <td class="text-gray-100" width="10%">지급예정일</td>
+            <td class="text-gray-100" width="10%">지급일</td>
+            <td class="text-gray-100" width="20%">매입처</td>
+            <td class="text-gray-100" width="20%">매입금액</td>
+            <td class="text-gray-100" width="15%">비고</td>
+          </tr>
+          </thead>
+          <tbody>
+          {% for purchase in purchases %}
+            <tr {% if purchase.purchaseId == purchaseId %}style="background-color: #ffffc8"{% endif %} class="thtd">
+              <td class="thtd">{% if purchase.billingTime == None %}-{% else %}{{ purchase.billingTime }}{% endif %}</td>
+              <td class="thtd">
+                {% if purchase.predictBillingDate == None %}-
+                {% elif purchase.billingDate != None %}<span class="text-gray-500">발행완료</span>
+                {% else %}{{ purchase.predictBillingDate }}{% endif %}</td>
+              <td class="thtd">{% if purchase.billingDate == None %}-{% else %}{{ purchase.billingDate }}{% endif %}</td>
+              <td class="thtd">
+                {% if purchase.predictWithdrawDate == None %}-
+                {% elif purchase.withdrawDate != None %}<span class="text-gray-500">지급완료</span>
+                {% else %}{{ purchase.predictWithdrawDate }}{% endif %}</td>
+              <td class="thtd">{% if purchase.withdrawDate == None %}-{% else %}{{ purchase.withdrawDate }}{% endif %}</td>
+              <td class="thtd">{% if purchase.purchaseCompany == None %}-{% else %}{{ purchase.purchaseCompany }}{% endif %}</td>
+              <td class="thtd">{% if purchase.purchasePrice == None %}-{% else %}{{ purchase.purchasePrice | intcomma }}{% endif %} </td>
+              <td class="thtd">{% if purchase.comment == None %}-{% else %}{{ purchase.comment }}{% endif %} </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+      </div>
+  </div>
+</body>
+</html>
