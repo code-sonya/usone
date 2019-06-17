@@ -1249,21 +1249,23 @@ def save_transfercontract(request):
             )
         # 기존 계약의 아이템 가격 조정
         beforeitempriceSum = Contractitem.objects.filter(contractId=beforecontract).aggregate(sum=Sum('itemPrice'))
-        Contractitem.objects.create(
-            contractId=beforecontract,
-            mainCategory='기타',
-            subCategory='기타',
-            itemName='계약 이관으로 인한 보정 금액',
-            itemPrice=beforecontract.salePrice - (beforeitempriceSum['sum']),
-        )
+        if beforecontract.salePrice != (beforeitempriceSum['sum']):
+            Contractitem.objects.create(
+                contractId=beforecontract,
+                mainCategory='기타',
+                subCategory='기타',
+                itemName='계약 이관으로 인한 보정 금액',
+                itemPrice=beforecontract.salePrice - (beforeitempriceSum['sum']),
+            )
         # 이관 계약의 아이템 가격 조정
-        Contractitem.objects.create(
-            contractId=aftercontract,
-            mainCategory='기타',
-            subCategory='기타',
-            itemName='계약 이관으로 인한 보정 금액',
-            itemPrice=aftercontract.salePrice - (beforeitempriceSum['sum']),
-        )
+        if aftercontract.salePrice != (beforeitempriceSum['sum']):
+            Contractitem.objects.create(
+                contractId=aftercontract,
+                mainCategory='기타',
+                subCategory='기타',
+                itemName='계약 이관으로 인한 보정 금액',
+                itemPrice=aftercontract.salePrice - (beforeitempriceSum['sum']),
+            )
         # 매입 이관
         for purchase in beforepurchases:
             purchase.contractId = aftercontract
