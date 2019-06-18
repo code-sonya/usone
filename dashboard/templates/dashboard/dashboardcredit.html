@@ -1,0 +1,744 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}
+  분기별 영업 실적
+{% endblock %}
+{% load humanize %}
+
+{% block css %}
+
+  <style type="text/css">
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
+  </style>
+
+{% endblock %}
+{% block content %}
+
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <span>
+    <h1 class="h3 mb-0 text-gray-800">Cash Flow 분석(가제)</h1>
+    </span>
+    <span>
+   </span>
+  </div>
+  <!-- Content Row -->
+  <div class="row">
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-0">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">수금액</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if revenuesTotal.collectionofMoneyTotal > 1000000 %}{{ revenuesTotal.collectionofMoneyTotal|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-0">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">미수금액</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if revenuesTotal.outstandingCollectionsTotal > 1000000 %}{{ revenuesTotal.outstandingCollectionsTotal|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-0">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-info text-uppercase mb-1">지급액</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if purchasesTotal.amountPaidTotal > 1000000 %}{{ purchasesTotal.amountPaidTotal|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-coins fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Requests Card Example -->
+    <div class="col-xl-3 col-md-6 mb-0">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">미지급액</div>
+              <div class="h5 b-0 font-weight-bold text-gray-800">
+                {% if purchasesTotal.accountsPayablesTotal > 1000000 %}{{ purchasesTotal.accountsPayablesTotal|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-coins fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  <!-- Content Row -->
+
+
+  <div class="row">
+    <!-- Area Chart -->
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">월별 미수금액</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="outstandingCollectionsMonth"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- data table -->
+  <div class="row d-none" id="cardrevenues">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">미수금 상세 내용</h6>
+          <div class="dropdown no-arrow">
+          </div>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body" >
+          <div class="table-responsive">
+            <table id="showrevenues" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>구분</th>
+                <th>영업담당자</th>
+                <th>계약명</th>
+                <th>매출처</th>
+                <th>매출예정일 / 매출일</th>
+                <th>수금예정일 / 수금일</th>
+                <th>매출금액</th>
+                <th>이익금액</th>
+                <th>비고</th>
+                <th class="d-none">revenueId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <tr>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:right; white-space:nowrap;">TOTAL :</th>
+                <th style="text-align:right; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+              </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Area Chart -->
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">월별 미지급액</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="accountsPayables"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row d-none" id="cardpurchases">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">미지급 상세 내용</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showpurchases" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>구분</th>
+                <th>담당자</th>
+                <th>계약명</th>
+                <th>매입처</th>
+                <th>매입예정일 / 매입일</th>
+                <th>지급예정일 / 지급일</th>
+                <th>매입금액</th>
+                <th>비고</th>
+                <th class="d-none">purchaseId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <tr>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="text-align:right; white-space:nowrap;">TOTAL :</th>
+                <th style="text-align:right; white-space:nowrap;"></th>
+                <th style="text-align:right; white-space:nowrap;"></th>
+                <th style="text-align:center; white-space:nowrap;"></th>
+              </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/hr/js/demo/chart-bar-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-area-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
+
+  <script>
+      function replaceAll(predictStr, executionStr, searchStr, replaceStr, complete) {
+          let new_predictStr;
+          let new_executionStr;
+          if (predictStr != null) {
+              new_predictStr = predictStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, 10);
+          } else {
+              new_predictStr =  '------------'
+          }
+
+          if (executionStr != null) {
+              new_executionStr = executionStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, 10);
+              new_predictStr = '--' + complete + '완료--'
+          } else {
+              new_executionStr =  '------------'
+          }
+
+          return new_predictStr + ' / ' + new_executionStr
+      }
+
+      function changeDeptName(empDeptName, selectId) {
+          $.ajax({
+              url: "{% url 'sales:empdept_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empDeptName": empDeptName},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var empName = returnData;
+                  console.log(empName);
+                  $('#' + selectId).empty();
+
+                  $('#' + selectId).append("<option value='전체'>전체</option>");
+                  for (var count = 0; count < empName.length; count++) {
+                      var option = $("<option value=" + empName[count].pk + ">" + empName[count].fields.empName + "</option>");
+                      $('#' + selectId).append(option);
+                  }
+              }
+          })
+      }
+
+  </script>
+
+  <script>
+
+      const filterArray = new Array();
+      filterArray['outstandingCollections'] = '';
+      filterArray['accountsPayables'] = '';
+      filterArray['month'] = '';
+
+      const colors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
+      const options = {
+          maintainAspectRatio: false,
+          plugins: {
+              datalabels: {
+                  align: 'end',
+                  anchor: 'end',
+                  color: function (context) {
+                      return context.dataset.backgroundColor;
+                  },
+                  font: function (context) {
+                      var w = context.chart.width;
+                      return {
+                          size: w < 512 ? 12 : 14
+                      };
+                  },
+                  formatter: function (value, context) {
+                      return number_format(value).slice(0, -8);
+                  }
+              }
+          },
+          layout: {
+              padding: {
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: 0
+              }
+          },
+          scales: {
+              xAxes: [{
+                  time: {
+                      unit: 'week'
+                  },
+                  gridLines: {
+                      display: false,
+                      drawBorder: false
+                  },
+                  ticks: {
+                      maxTicksLimit: 8
+                  },
+                  maxBarThickness: 30,
+              }],
+              yAxes: [{
+                  ticks: {
+                      min: 0,
+                      maxTicksLimit: 5,
+                      padding: 5,
+                      // Include a dollar sign in the ticks
+                      callback: function (value, index, values) {
+                          return number_format(value).slice(0, -8);
+                      }
+                  },
+                  gridLines: {
+                      color: "rgb(234, 236, 244)",
+                      zeroLineColor: "rgb(234, 236, 244)",
+                      drawBorder: false,
+                      borderDash: [2],
+                      zeroLineBorderDash: [2]
+                  }
+              }],
+          },
+          tooltips: {
+              titleMarginBottom: 10,
+              titleFontColor: '#6e707e',
+              titleFontSize: 14,
+              backgroundColor: "rgb(255,255,255)",
+              bodyFontColor: "#858796",
+              borderColor: '#dddfeb',
+              borderWidth: 1,
+              xPadding: 15,
+              yPadding: 15,
+              displayColors: false,
+              caretPadding: 10,
+              callbacks: {
+                  label: function (tooltipItem, chart) {
+                      return '총 ' + number_format(tooltipItem.yLabel);
+                  }
+              }
+          }
+      };
+
+      // 월별 미수금액
+      const ctx1 = document.getElementById("outstandingCollectionsMonth");
+      const outstandingCollectionsMonth = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+              labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+              datasets: [{
+                  label: "미수금액",
+                  backgroundColor: "#F29220",
+                  borderColor: "#F29220",
+                  data: [
+                      {% for i in revenuesMonth %}
+                          {{ i.outstandingCollectionsMonth }},
+                      {% endfor %}
+                  ]
+              }],
+          },
+          options: options
+      });
+
+      $("#outstandingCollectionsMonth").click(
+          function (evt) {
+              const activeElement = outstandingCollectionsMonth.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const monthLabel = outstandingCollectionsMonth.data.labels[idx];
+              filterArray['month'] = monthLabel;
+              filterArray['outstandingCollections'] = 'Y';
+              filterArray['accountsPayables'] = '';
+              console.log(filterArray);
+              revenuesTable.clear().draw();
+              purchasesTable.clear().draw();
+              $('#cardrevenues').attr('class','row d-block');
+              $('#cardpurchases').attr('class','row d-none');
+              pushRevenuesData();
+
+          }
+      );
+
+
+      // Bar Chart 4
+      const ctx2 = document.getElementById("accountsPayables");
+      const accountsPayables = new Chart(ctx2, {
+          type: 'bar',
+          data: {
+              labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+              datasets: [{
+                  label: "미지급액",
+                  backgroundColor: "#4365B0",
+                  borderColor: "#4365B0",
+                  data: [
+                      {% for i in purchasesMonth %}
+                          {{ i.accountsPayablesMonth }},
+                      {% endfor %}
+                  ]
+              }],
+          },
+          options: options
+      });
+
+      $("#accountsPayables").click(
+          function (evt) {
+              const activeElement = accountsPayables.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const monthLabel = accountsPayables.data.labels[idx];
+              console.log(monthLabel);
+              filterArray['month'] = monthLabel;
+              filterArray['outstandingCollections'] = '';
+              filterArray['accountsPayables'] = 'Y';
+              console.log(filterArray);
+              revenuesTable.clear().draw();
+              purchasesTable.clear().draw();
+              $('#cardrevenues').attr('class','row d-none');
+              $('#cardpurchases').attr('class','row d-block');
+              pushPurchasesData();
+          }
+      );
+  </script>
+
+  <script>
+      var revenuesTable;
+      var purchasesTable;
+      $(document).ready(function () {
+          revenuesTable = $('#showrevenues').DataTable({
+              "scrollX": true,
+              "autoWidth": false,
+              "processing": true,
+              "columns": [
+                  {data: 'contractId__contractStep'},
+                  {
+                      data: 'contractId__empDeptName',
+                      render: function (data, type, row) {
+                          return row["contractId__empName"] + ' (' + row["contractId__empDeptName"] + ')';
+                      }
+                  },
+                  {
+                      data: 'contractId__contractName',
+                      render: function (data, type, row) {
+                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
+                      }
+                  },
+                  {data: 'contractId__saleCompanyName__companyName'},
+                  {
+                      data: 'predictBillingDate',
+                  },
+                  {
+                      data: 'predictDepositDate',
+                  },
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'comment'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<div name="revenueId" >' + data + '</div>'
+                      },
+                      targets: 9, className: "d-none"
+                  }
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "order": [[4, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.contractId__contractStep == 'Firm') {
+                      $('td:eq(0)', nRow).css('color', '#4e73df');
+                  } else if (aData.contractId__contractStep == 'Opportunity') {
+                      $('td:eq(0)', nRow).css('color', '#1cc88a');
+                  }
+                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, aData.billingDate, "-", ".", "발행"));
+                  $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, aData.depositDate, "-", ".", "수금"));
+                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(profitResult.toLocaleString());
+
+              },
+          });
+
+          $("#showrevenues").on("click", 'tr', function () {
+              const data = revenuesTable.row(this).data();
+              console.log(data);
+              location.href = '/sales/viewcontract/' + data.contractId + '/'
+          });
+
+          purchasesTable = $('#showpurchases').DataTable({
+              "scrollX": true,
+              "autoWidth": false,
+              "processing": true,
+              "columns": [
+                  {data: 'contractId__contractStep'},
+                  {
+                      data: 'contractId__empDeptName',
+                      render: function (data, type, row) {
+                          return row["contractId__empName"] + ' (' + row["contractId__empDeptName"] + ')';
+                      }
+                  },
+                  {
+                      data: 'contractId__contractName',
+                      render: function (data, type, row) {
+                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
+                      }
+                  },
+                  {data: 'purchaseCompany'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'purchasePrice'},
+                  {data: 'comment'},
+                  {data: 'purchaseId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<div name="purchaseId" >' + data + '</div>'
+                      },
+                      targets: 8, className: "d-none"
+                  }
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "order": [[4, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.contractId__contractStep == 'Firm') {
+                      $('td:eq(0)', nRow).css('color', '#4e73df');
+                  } else if (aData.contractId__contractStep == 'Opportunity') {
+                      $('td:eq(0)', nRow).css('color', '#1cc88a');
+                  }
+                  $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
+                  $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, aData.billingDate, "-", ".", "발행"));
+                  $('td:eq(5)', nRow).text(replaceAll(aData.predictWithdrawDate, aData.withdrawDate, "-", ".", "지급"));
+                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var purchaseResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      purchaseResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(purchaseResult.toLocaleString());
+
+              },
+          });
+
+          $("#showFirms").on("click", 'tr', function () {
+              const data = purchasesTable.row(this).data();
+              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+          });
+
+      });
+
+      function pushRevenuesData() {
+          $.ajax({
+              url: "{% url 'dashboard:cashflow_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "outstandingCollections": filterArray['outstandingCollections'],
+                  "accountsPayables": filterArray['accountsPayables'],
+                  "month": filterArray['month'],
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  for (var i = 0; i < returnData.length; i++) {
+                      revenuesTable.row.add(returnData[i]).draw();
+                  }
+              }
+          });
+
+      }
+
+      function pushPurchasesData() {
+          $.ajax({
+              url: "{% url 'dashboard:cashflow_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "outstandingCollections": filterArray['outstandingCollections'],
+                  "accountsPayables": filterArray['accountsPayables'],
+                  "month": filterArray['month'],
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  console.log('returnData:', returnData);
+                  for (var i = 0; i < returnData.length; i++) {
+                      purchasesTable.row.add(returnData[i]).draw();
+                  }
+              }
+          });
+
+      }
+
+
+  </script>
+{% endblock %}
