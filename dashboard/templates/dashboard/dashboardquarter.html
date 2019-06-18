@@ -29,120 +29,58 @@
 {% endblock %}
 {% block content %}
 
+  <h1 class="h3 mb-0 text-gray-800">연간 예상 영업 실적</h1><br>
 
-  <!-- Page Heading -->
-  <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <span>
-    <h1 class="h3 mb-0 text-gray-800">연간 예상 영업 실적</h1>
-    </span>
-    <span>
-   </span>
-  </div>
-  <div class="row mb-0" ><p class="text-secondary col-xl-12 mb-0">▶	Firm 기준 (단위: 백만 원)</p></div>
-  <!-- Content Row -->
+  <div class="row"><p class="text-secondary col-xl-12">▶ Firm (단위 : 백만원)</p></div>
+
   <div class="row">
-    <!-- Earnings (Monthly) Card Example -->
     <div class="col-xl-3 col-md-6 mb-0">
-      <div class="card border-left-danger shadow h-100 py-2">
-        <div class="card-body">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-danger text-uppercase mb-1">목표 매출 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ Target_sales|slugify|slice:"0:-6"|intcomma }}</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Earnings (Monthly) Card Example -->
-    <div class="col-xl-3 col-md-6 mb-0">
-      <div class="card border-left-danger shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-danger text-uppercase mb-1">누적 매출 금액(전체 목표 매출 기준)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if cumulative_sales_amount %}{{ cumulative_sales_amount|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">[{{ todayYear }}년]<br>목표매출 / 누적매출 / 달성률</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if salesTarget %}{{ salesTarget|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if cumulative_sales_amount %}{{ cumulative_sales_amount|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if Sales_rate %}{{ Sales_rate }}{% else %}-{% endif %}%
               </div>
             </div>
-            <div class="col-auto">
-              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
-            </div>
+            <div class="col-auto"><i class="fas fa-won-sign fa-2x text-gray-300"></i></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Earnings (Monthly) Card Example -->
     <div class="col-xl-3 col-md-6 mb-0">
       <div class="card border-left-primary shadow h-100 py-2">
-        <div class="card-body">
+        <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">목표 이익 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ Target_profit|slugify|slice:"0:-6"|intcomma }}</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-coins fa-2x text-gray-300"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Pending Requests Card Example -->
-    <div class="col-xl-3 col-md-6 mb-0">
-      <div class="card border-left-primary shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">누적 이익 금액(전체 목표 이익 기준)</div>
-              <div class="h5 b-0 font-weight-bold text-gray-800">{% if cumulative_profit_amount %}{{ cumulative_profit_amount|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">[{{ todayYear }}년]<br>목표이익 / 누적이익 / 달성률</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if profitTarget %}{{ profitTarget|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if cumulative_profit_amount %}{{ cumulative_profit_amount|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if Profit_rate %}{{ Profit_rate }}{% else %}-{% endif %}%
               </div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-coins fa-2x text-gray-300"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <hr style="margin-top: 3px;margin-bottom: 3px;">
-  <!-- Content Row -->
-  <div class="row">
-
-    <!-- Earnings (Monthly) Card Example -->
-    <div class="col-xl-3 col-md-6 mb-0">
-      <div class="card border-left-success shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 누적 목표 매출 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if Target_quatersales %}{{ Target_quatersales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
+              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Earnings (Monthly) Card Example -->
     <div class="col-xl-3 col-md-6 mb-0">
       <div class="card border-left-success shadow h-100 py-2">
-        <div class="card-body">
+        <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 누적 매출 금액({{ quarter }}분기 목표 매출 기준)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_sales %}{{ quarterly_cumulative_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">[{{ todayQuarter }}분기]<br>목표매출 / 누적매출 / 달성률</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if salesQuarterTarget %}{{ salesQuarterTarget|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if quarterly_cumulative_sales %}{{ quarterly_cumulative_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if Salesquater_rate %}{{ Salesquater_rate }}{% else %}-{% endif %}%
               </div>
             </div>
@@ -153,114 +91,106 @@
         </div>
       </div>
     </div>
-    <!-- Earnings (Monthly) Card Example -->
+
     <div class="col-xl-3 col-md-6 mb-0">
-      <div class="card border-left-warning shadow h-100 py-2">
-        <div class="card-body">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body" style="padding-top: 0.6rem;padding-bottom: 0.6rem">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 목표 이익 금액</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if Target_quaterprofit %}{{ Target_quaterprofit|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}</div>
-            </div>
-            <div class="col-auto">
-              <i class="fas fa-search-dollar fa-2x text-gray-300"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- Pending Requests Card Example -->
-    <div class="col-xl-3 col-md-6 mb-0">
-      <div class="card border-left-warning shadow h-100 py-2">
-        <div class="card-body">
-          <div class="row no-gutters align-items-center">
-            <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 이익 금액({{ quarter }}분기 목표 이익 기준)</div>
-              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_profit %}{{ quarterly_cumulative_profit|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">[{{ todayQuarter }}분기]<br>목표이익 / 누적이익 / 달성률</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if profitQuarterTarget %}{{ profitQuarterTarget|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if quarterly_cumulative_profit %}{{ quarterly_cumulative_profit|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if Profitquater_rate %}{{ Profitquater_rate }}{% else %}-{% endif %}%
               </div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-search-dollar fa-2x text-gray-300"></i>
+              <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <hr style="margin-top: 3px;margin-bottom: 3px;">
-  <div class="row mb-0" ><p class="text-secondary col-xl-12  mb-0">▶ Firm + Opportunity (단위: 백만 원)</p></div>
+
+  <br>
+
+  <div class="row"><p class="text-secondary col-xl-12">▶ Firm, Opportunity (단위 : 백만원)</p></div>
+
   <div class="row">
-    <!-- Earnings (Monthly) Card Example -->
     <div class="col-xl-3 col-md-6 mb-0">
       <div class="card border-left-info shadow h-100 py-2">
-        <div class="card-body">
+        <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem;">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-dark text-uppercase mb-1">예상 매출 금액(전체 목표 매출 기준)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if opp_firm_sales %}{{ opp_firm_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
-              {% if opp_firm_sales_rate %}{{ opp_firm_sales_rate }}{% else %}-{% endif %}%</div>
+              <div class="text-sm font-weight-bold text-info text-uppercase mb-1">[{{ todayYear }}년]<br>목표매출 / 예상매출 / 달성률</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if salesTarget %}{{ salesTarget|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if opp_firm_sales %}{{ opp_firm_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if opp_firm_sales_rate %}{{ opp_firm_sales_rate }}{% else %}-{% endif %}%
+              </div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-money-bill-wave-alt fa-2x text-gray-300"></i>
+              <i class="fas fa-search-dollar fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Earnings (Monthly) Card Example -->
     <div class="col-xl-3 col-md-6 mb-0">
       <div class="card border-left-info shadow h-100 py-2">
-        <div class="card-body">
+        <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem;">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-dark text-uppercase mb-1">예상 이익 금액(전체 목표 이익 기준)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if opp_firm_profits %}{{ opp_firm_profits|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+              <div class="text-sm font-weight-bold text-info text-uppercase mb-1">[{{ todayYear }}년]<br>목표이익 / 예상이익 / 달성률</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if profitTarget %}{{ profitTarget|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if opp_firm_profits %}{{ opp_firm_profits|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if opp_firm_profits_rate %}{{ opp_firm_profits_rate }}{% else %}-{% endif %}%
               </div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-money-bill-wave-alt fa-2x text-gray-300"></i>
+              <i class="fas fa-search-dollar fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <!-- Earnings (Monthly) Card Example -->
+
     <div class="col-xl-3 col-md-6 mb-0">
-      <div class="card border-left-info shadow h-100 py-2">
-        <div class="card-body">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem;">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-dark text-uppercase mb-1">{{ quarter }}분기 누적 예상 매출 금액({{ quarter }}분기 목표 매출 기준)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarter_opp_firm_sales %}{{ quarter_opp_firm_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
-              {% if quarter_opp_firm_sales_rate %}{{ quarter_opp_firm_sales_rate }}{% else %}-{% endif %}%</div>
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">[{{ todayQuarter }}분기]<br>목표매출 / 예상매출 / 달성률</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {% if salesQuarterTarget %}{{ salesQuarterTarget|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if quarter_opp_firm_sales %}{{ quarter_opp_firm_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if quarter_opp_firm_sales_rate %}{{ quarter_opp_firm_sales_rate }}{% else %}-{% endif %}%</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-money-bill-wave-alt fa-2x text-gray-300"></i>
+              <i class="fas fa-coins fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-
-    <!-- Pending Requests Card Example -->
     <div class="col-xl-3 col-md-6 mb-0">
-      <div class="card border-left-info shadow h-100 py-2">
-        <div class="card-body">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem;">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-dark text-uppercase mb-1">{{ quarter }}분기 누적 예상 이익 금액({{ quarter }}분기 목표 이익 기준)</div>
-              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarter_opp_firm_profits %}{{ quarter_opp_firm_profits|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">[{{ todayQuarter }}분기]<br>목표이익 / 예상이익 / 달성률</div>
+              <div class="h5 b-0 font-weight-bold text-gray-800">
+                {% if profitQuarterTarget %}{{ profitQuarterTarget|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
+                {% if quarter_opp_firm_profits %}{{ quarter_opp_firm_profits|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if quarter_opp_firm_profits_rate %}{{ quarter_opp_firm_profits_rate }}{% else %}-{% endif %}%
               </div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-money-bill-wave-alt fa-2x text-gray-300"></i>
+              <i class="fas fa-coins fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -274,7 +204,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">{{ quarter }}분기 누적 opportunity&Firm</h6>
+          <h6 class="m-0 font-weight-bold text-primary">{{ todayQuarter }}분기 누적 opportunity&Firm</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -288,7 +218,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">{{ quarter }}분기 누적 매출/이익</h6>
+          <h6 class="m-0 font-weight-bold text-primary">{{ todayQuarter }}분기 누적 매출/이익</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -417,122 +347,6 @@
               </tfoot>
             </table>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="filterModalLabel">날짜 검색</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
-                <input type="date" class="form-control" id="startdate" name="startdate">
-              </div>
-              <div class="col-6">
-                <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
-                <input type="date" class="form-control" id="enddate" name="enddate">
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="filterDatatable" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="filterDatatableForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter2();}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="font-weight-light text-primary">시작일자</label>
-                <input type="date" class="form-control" id="startdate" name="startdate">
-              </div>
-              <div class="col-6 mb-3 mb-sm-0">
-                <label for="enddate" class="font-weight-light text-primary">종료일자</label>
-                <input type="date" class="form-control" id="enddate" name="enddate">
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="empDeptName" class="font-weight-light text-primary">영업부서</label>
-                <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
-                  <option value="전체">전체</option>
-                  <option value="영업1팀">영업1팀</option>
-                  <option value="영업2팀">영업2팀</option>
-                  <option value="영업3팀">영업3팀</option>
-                </select>
-              </div>
-              <div class="col-6">
-                <label for="empName" class="font-weight-light text-primary">영업담당자</label>
-                <select class="form-control" id="empName" name="empName">
-                  <option value='전체'>전체</option>
-                  {% for i in employees %}
-                    <option value="{{ i.pk }}">{{ i.empName }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="companyName" class="font-weight-light text-primary">거래처</label>
-                <input class="form-control" id="saleCompanyName" name="saleCompanyName">
-              </div>
-              <div class="col-6">
-                <label for="serviceType" class="font-weight-light text-primary">최종고객사</label>
-                <input class="form-control" id="endCompanyName" name="endCompanyName">
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="boardTitle" class="font-weight-light text-primary">계약명</label>
-                <input class="form-control" id="contractName" name="contractName">
-              </div>
-              <div class="col-6">
-                <label for="enddate" class="font-weight-light text-primary">구분</label>
-                <select class="form-control" id="contractStep" name="contractStep">
-                  <option value="전체">전체</option>
-                  <option value="Opportunity">Opportunity</option>
-                  <option value="Firm">Firm</option>
-                  <option value="Drop">Drop</option>
-                </select>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_filter2()">검색</a>
         </div>
       </div>
     </div>
@@ -729,7 +543,7 @@
               const activeElement = todayquarterPiechart.getElementAtEvent(evt);
               const idx = activeElement[0]._index;
               const stepLabel = todayquarterPiechart.data.labels[idx];
-              filterArray['quarter'] = '{{ quarter }}분기';
+              filterArray['quarter'] = '{{ todayQuarter }}분기';
               filterArray['step'] = stepLabel;
               filterArray['cumulative'] = 'Y';
               filterArray['team'] = "";
@@ -753,7 +567,7 @@
       const todayquarterCumulativechart = new Chart(ctx2, {
           type: 'bar',
           data: {
-              labels: ["{{ quarter }}분기"],
+              labels: ["{{ todayQuarter }}분기"],
               datasets: [{
                   label: "매출금액",
                   backgroundColor: "#4365B0",
@@ -774,7 +588,7 @@
               const activeElement = todayquarterCumulativechart.getElementAtEvent(evt);
               const idx = activeElement[0]._index;
               const stepLabel = todayquarterCumulativechart.data.labels[idx];
-              filterArray['quarter'] = '{{ quarter }}분기';
+              filterArray['quarter'] = '{{ todayQuarter }}분기';
               filterArray['cumulative'] = 'Y';
               filterArray['step'] = "";
               filterArray['team'] = "";
