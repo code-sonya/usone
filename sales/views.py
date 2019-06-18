@@ -1129,9 +1129,7 @@ def transfer_contract(request):
 @csrf_exempt
 def empid_asjson(request):
     empId = request.POST['empId']
-    contracts = Contract.objects.filter(empId=empId)
-    revenues = Revenue.objects.filter(contractId__empId=empId)
-    print(revenues)
+    contracts = Contract.objects.filter(Q(empId=empId)&Q(transferContractId__isnull=True))
     contracts = contracts.values()
 
     for contract in contracts:
@@ -1145,9 +1143,6 @@ def empid_asjson(request):
 @login_required
 @csrf_exempt
 def save_transfercontract(request):
-    print(request.GET['afterempName'])
-    print(request.GET.getlist('contractcheck'))
-    print(request.GET.getlist('revenuecheck'))
     empId = Employee.objects.get(empId=request.GET['afterempName'])
     transferrevenues = request.GET.getlist('revenuecheck')
     transfercontracts = request.GET.getlist('contractcheck')

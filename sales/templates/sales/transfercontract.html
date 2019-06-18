@@ -85,10 +85,9 @@
             <br>
             <div id="contract" class="d-none">
               <h5 class="text-dark mb-3">
-                <b><span>▼</span>진행 중인 계약</b>
+                <b><span>▼</span>미이관 계약</b>
               </h5>
               <table id="beforetransfer" class="pc-table">
-
               </table>
               <div class="text-center">
                 <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
@@ -182,12 +181,11 @@
                               $('#' + trId).after(table);
                           }
                           if (0 < contract[count].revenue.length) {
-                              const thead = "<tr name='" + contract[count].contractId + "'class='d-none' id='th" + contract[count].contractId + "'><td colspan=1></td><td colspan=2>매출처</td><td colspan=2>매출예정일<td colspan=2>매출일</td></tr>";
+                              const thead = "<tr name='" + contract[count].contractId + "'class='d-none' id='th"
+                                  + contract[count].contractId + "'><td colspan=1></td><td colspan=2>매출처</td><td colspan=2>매출예정일<td colspan=2>매출일</td></tr>";
                               $('#' + trId).after(thead);
                           }
-
                       }
-
                   }
               });
               $('#contract').attr('class', 'd-block');
