@@ -216,20 +216,20 @@ def dashboard_quarter(request):
                     "q3_end": "{}-10-01".format(today_year),
                     "q4_end": "{}-01-01".format(today_year + 1)}
 
-    total_sales = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q4_end']))
+    total_sales = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
 
     if quarter == 1:
-        revenues_accumulate = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end']))
-        revenues_quarter = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end']))
+        revenues_accumulate = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end']))
+        revenues_quarter = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end']))
     elif quarter == 2:
-        revenues_accumulate = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q2_end']))
-        revenues_quarter = revenues.filter(Q(billingDate__gte=dict_quarter['q1_end']) & Q(billingDate__lt=dict_quarter['q2_end']))
+        revenues_accumulate = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q2_end']))
+        revenues_quarter = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_end']) & Q(predictBillingDate__lt=dict_quarter['q2_end']))
     elif quarter == 3:
-        revenues_accumulate = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q3_end']))
-        revenues_quarter = revenues.filter(Q(billingDate__gte=dict_quarter['q2_end']) & Q(billingDate__lt=dict_quarter['q3_end']))
+        revenues_accumulate = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q3_end']))
+        revenues_quarter = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q2_end']) & Q(predictBillingDate__lt=dict_quarter['q3_end']))
     elif quarter == 4:
-        revenues_accumulate = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q4_end']))
-        revenues_quarter = revenues.filter(Q(billingDate__gte=dict_quarter['q3_end']) & Q(billingDate__lt=dict_quarter['q4_end']))
+        revenues_accumulate = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
+        revenues_quarter = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
 
     ###목표매출금액 & 이익 금액
     goal = Goal.objects.filter(year=today_year)
@@ -257,8 +257,8 @@ def dashboard_quarter(request):
         Target_quaterprofit = Target_profit
 
     ###누적매출금액 & 이익 금액
-    cumulative_sales_amount = total_sales.aggregate(cumulative_sales_amount=Sum('revenuePrice'))
-    cumulative_profit_amount = total_sales.aggregate(cumulative_profit_amount=Sum('revenueProfitPrice'))
+    cumulative_sales_amount = total_sales.aggregate(cumulative_sales_amount=Sum('revenuePrice') or 0 )
+    cumulative_profit_amount = total_sales.aggregate(cumulative_profit_amount=Sum('revenueProfitPrice') or 0)
 
     ###현재 분기까지 누적매출금액 & 이익 금액
     quarterly_cumulative_sales = revenues_accumulate.aggregate(quarterly_cumulative_sales=Sum('revenuePrice'))
@@ -284,10 +284,10 @@ def dashboard_quarter(request):
     quarter_oppprofit = [0 if quarter_opp_profitsum[i] == None else quarter_opp_profitsum[i] for i in range(len(quarter_opp_profitsum))]
 
     # 분기 Firm
-    quarter1_revenues = revenues.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end'])).aggregate(sum=Sum('revenuePrice'))
-    quarter2_revenues = revenues.filter(Q(billingDate__gte=dict_quarter['q1_end']) & Q(billingDate__lt=dict_quarter['q2_end'])).aggregate(sum=Sum('revenuePrice'))
-    quarter3_revenues = revenues.filter(Q(billingDate__gte=dict_quarter['q2_end']) & Q(billingDate__lt=dict_quarter['q3_end'])).aggregate(sum=Sum('revenuePrice'))
-    quarter4_revenues = revenues.filter(Q(billingDate__gte=dict_quarter['q3_end']) & Q(billingDate__lt=dict_quarter['q4_end'])).aggregate(sum=Sum('revenuePrice'))
+    quarter1_revenues = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end'])).aggregate(sum=Sum('revenuePrice'))
+    quarter2_revenues = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_end']) & Q(predictBillingDate__lt=dict_quarter['q2_end'])).aggregate(sum=Sum('revenuePrice'))
+    quarter3_revenues = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q2_end']) & Q(predictBillingDate__lt=dict_quarter['q3_end'])).aggregate(sum=Sum('revenuePrice'))
+    quarter4_revenues = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end'])).aggregate(sum=Sum('revenuePrice'))
     quarter_firm_sum = [quarter1_revenues['sum'], quarter2_revenues['sum'], quarter3_revenues['sum'], quarter4_revenues['sum']]
     quarter_firm = [0 if quarter_firm_sum[i] == None else quarter_firm_sum[i] for i in range(len(quarter_firm_sum))]
 
@@ -298,28 +298,29 @@ def dashboard_quarter(request):
     salesteam_lst = Employee.objects.values('empDeptName').filter(Q(empStatus='Y')).distinct()
     salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" in x['empDeptName']]
     ###월별 팀 매출 금액
-    team_revenues = total_sales.values('billingDate__month', 'contractId__empDeptName'
-                                       ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'billingDate__month')
+    team_revenues = total_sales.values('predictBillingDate__month', 'contractId__empDeptName'
+                                       ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
 
     team_revenues = list(team_revenues)
     for i in salesteam_lst:
         month_lst = [i for i in range(1, 13)]
         for j in team_revenues:
             if j['contractId__empDeptName'] == i:
-                month_lst.remove(j['billingDate__month'])
+                month_lst.remove(j['predictBillingDate__month'])
         for m in month_lst:
-            team_revenues.append({'billingDate__month': m, 'contractId__empDeptName': i, 'revenuePrice__sum': 0})
+            team_revenues.append({'predictBillingDate__month': m, 'contractId__empDeptName': i, 'revenuePrice__sum': 0})
 
     team_revenues.sort(key=lambda x: x['contractId__empDeptName'], reverse=False)
-    team_revenues.sort(key=lambda x: x['billingDate__month'], reverse=False)
+    team_revenues.sort(key=lambda x: x['predictBillingDate__month'], reverse=False)
 
     ###전체 매출/이익 금액(opp&firm)
-    opp_firm_sales = cumulative_sales_amount['cumulative_sales_amount'] + sum(quarter_opp)
-    opp_firm_profits = cumulative_profit_amount['cumulative_profit_amount'] + sum(quarter_oppprofit)
+    print(cumulative_sales_amount['cumulative_sales_amount'])
+    opp_firm_sales = cumulative_sales_amount['cumulative_sales_amount'] or 0 + sum(quarter_opp)
+    opp_firm_profits = cumulative_profit_amount['cumulative_profit_amount'] or 0+ sum(quarter_oppprofit)
 
     ###분기 누적 매출/이익  금액(opp&firm)
-    quarter_opp_firm_sales = quarterly_cumulative_sales['quarterly_cumulative_sales'] + sum(quarter_opp[0:quarter])
-    quarter_opp_firm_profits = quarterly_cumulative_profit['quarterly_cumulative_profit'] + sum(quarter_oppprofit[0:quarter])
+    quarter_opp_firm_sales = quarterly_cumulative_sales['quarterly_cumulative_sales'] or 0 + sum(quarter_opp[0:quarter])
+    quarter_opp_firm_profits = quarterly_cumulative_profit['quarterly_cumulative_profit'] or 0 + sum(quarter_oppprofit[0:quarter])
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -393,7 +394,7 @@ def dashboard_goal(request):
                     "q4_end": "{}-01-01".format(today_year + 1)}
     salesteam_lst = Employee.objects.values('empDeptName').filter(Q(empStatus='Y')).distinct()
     salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" in x['empDeptName']]
-    revenues = Revenue.objects.filter(Q(billingDate__year=today_year))
+    revenues = Revenue.objects.filter(Q(predictBillingDate__year=today_year)&Q(contractId__contractStep='Firm'))
 
     ## 팀별 목표 & 전체 매출 금액
     # data_team_goals = Goal.objects.filter(Q(empDeptName__icontains='영업') & Q(year=today_year))
@@ -403,22 +404,22 @@ def dashboard_goal(request):
                                                     sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'))
     data_team_sales = []
     for i in salesteam_lst:
-        sales = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__year=today_year)).values('contractId__empDeptName').aggregate(sum_sales=Sum('revenuePrice'),
+        sales = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__year=today_year)).values('contractId__empDeptName').aggregate(sum_sales=Sum('revenuePrice'),
                                                                                                                                             sum_profits=Sum('revenueProfitPrice'))
         data_team_sales.append({i: sales})
 
     for i in salesteam_lst:
         # 분기 Firm
         if i == '영업1팀':
-            team1_revenues = revenues.filter(Q(contractId__empDeptName=i)).values('billingDate__month', 'contractId__empDeptName'
-                                                                                  ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'billingDate__month')
-            quarter1_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end'])) \
+            team1_revenues = revenues.filter(Q(contractId__empDeptName=i)).values('predictBillingDate__month', 'contractId__empDeptName'
+                                                                                  ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
+            quarter1_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end'])) \
                 .aggregate(sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
-            quarter2_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q1_end']) & Q(billingDate__lt=dict_quarter['q2_end'])) \
+            quarter2_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dict_quarter['q1_end']) & Q(predictBillingDate__lt=dict_quarter['q2_end'])) \
                 .aggregate(sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
-            quarter3_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q2_end']) & Q(billingDate__lt=dict_quarter['q3_end'])) \
+            quarter3_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dict_quarter['q2_end']) & Q(predictBillingDate__lt=dict_quarter['q3_end'])) \
                 .aggregate(sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
-            quarter4_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q3_end']) & Q(billingDate__lt=dict_quarter['q4_end'])) \
+            quarter4_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end'])) \
                 .aggregate(sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
             quarter_firm_team1_revenuePrice = [quarter1_revenues['sum_sales'], quarter2_revenues['sum_sales'], quarter3_revenues['sum_sales'], quarter4_revenues['sum_sales']]
             quarter_firm_team1_revenueProfitPrice = [quarter1_revenues['sum_profits'], quarter2_revenues['sum_profits'], quarter3_revenues['sum_profits'], quarter4_revenues['sum_profits']]
@@ -427,18 +428,18 @@ def dashboard_goal(request):
                                           range(len(quarter_firm_team1_revenueProfitPrice))]
 
         elif i == '영업2팀':
-            team2_revenues = revenues.filter(Q(contractId__empDeptName=i)).values('billingDate__month', 'contractId__empDeptName'
-                                                                                  ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'billingDate__month')
-            quarter1_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end'])) \
+            team2_revenues = revenues.filter(Q(contractId__empDeptName=i)).values('predictBillingDate__month', 'contractId__empDeptName'
+                                                                                  ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
+            quarter1_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end'])) \
                 .aggregate(
                 sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
-            quarter2_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q1_end']) & Q(billingDate__lt=dict_quarter['q2_end'])) \
+            quarter2_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dict_quarter['q1_end']) & Q(predictBillingDate__lt=dict_quarter['q2_end'])) \
                 .aggregate(
                 sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
-            quarter3_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q2_end']) & Q(billingDate__lt=dict_quarter['q3_end'])) \
+            quarter3_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dict_quarter['q2_end']) & Q(predictBillingDate__lt=dict_quarter['q3_end'])) \
                 .aggregate(
                 sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
-            quarter4_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(billingDate__gte=dict_quarter['q3_end']) & Q(billingDate__lt=dict_quarter['q4_end'])) \
+            quarter4_revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end'])) \
                 .aggregate(
                 sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
             quarter_firm_team2_revenuePrice = [quarter1_revenues['sum_sales'], quarter2_revenues['sum_sales'], quarter3_revenues['sum_sales'], quarter4_revenues['sum_sales']]
@@ -453,16 +454,16 @@ def dashboard_goal(request):
     team1_month_lst = [i for i in range(1, 13)]
     team2_month_lst = [i for i in range(1, 13)]
     for j in team1_revenues:
-        team1_month_lst.remove(j['billingDate__month'])
+        team1_month_lst.remove(j['predictBillingDate__month'])
     for m in team1_month_lst:
-        team1_revenues.append({'billingDate__month': m, 'revenuePrice__sum': 0})
+        team1_revenues.append({'predictBillingDate__month': m, 'revenuePrice__sum': 0})
     for j in team2_revenues:
-        team2_month_lst.remove(j['billingDate__month'])
+        team2_month_lst.remove(j['predictBillingDate__month'])
     for m in team2_month_lst:
-        team2_revenues.append({'billingDate__month': m, 'revenuePrice__sum': 0})
+        team2_revenues.append({'predictBillingDate__month': m, 'revenuePrice__sum': 0})
 
-    team1_revenues.sort(key=lambda x: x['billingDate__month'], reverse=False)
-    team2_revenues.sort(key=lambda x: x['billingDate__month'], reverse=False)
+    team1_revenues.sort(key=lambda x: x['predictBillingDate__month'], reverse=False)
+    team2_revenues.sort(key=lambda x: x['predictBillingDate__month'], reverse=False)
     context = {
         "year": today_year,
         "data_team_goals": data_team_goals,
@@ -634,35 +635,36 @@ def quarter_firm_asjson(request):
     cumulative = request.POST['cumulative']
     quarter = request.POST['quarter']
 
-    dataFirm = Revenue.objects.filter(Q(billingDate__year=today_year))
+    dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=today_year))
+    print("dataFirm",dataFirm)
 
     if quarter:
         if cumulative == 'Y':
             if quarter == '1분기':
-                dataFirm = dataFirm.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end']))
+                dataFirm = dataFirm.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end']))
             elif quarter == '2분기':
-                dataFirm = dataFirm.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q2_end']))
+                dataFirm = dataFirm.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q2_end']))
             elif quarter == '3분기':
-                dataFirm = dataFirm.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q3_end']))
+                dataFirm = dataFirm.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q3_end']))
             elif quarter == '4분기':
-                dataFirm = dataFirm.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q4_end']))
+                dataFirm = dataFirm.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
         elif cumulative == 'N':
             if quarter == '1분기':
-                dataFirm = dataFirm.filter(Q(billingDate__gte=dict_quarter['q1_start']) & Q(billingDate__lt=dict_quarter['q1_end']))
+                dataFirm = dataFirm.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end']))
             elif quarter == '2분기':
-                dataFirm = dataFirm.filter(Q(billingDate__gte=dict_quarter['q1_end']) & Q(billingDate__lt=dict_quarter['q2_end']))
+                dataFirm = dataFirm.filter(Q(predictBillingDate__gte=dict_quarter['q1_end']) & Q(predictBillingDate__lt=dict_quarter['q2_end']))
             elif quarter == '3분기':
-                dataFirm = dataFirm.filter(Q(billingDate__gte=dict_quarter['q2_end']) & Q(billingDate__lt=dict_quarter['q3_end']))
+                dataFirm = dataFirm.filter(Q(predictBillingDate__gte=dict_quarter['q2_end']) & Q(predictBillingDate__lt=dict_quarter['q3_end']))
             elif quarter == '4분기':
-                dataFirm = dataFirm.filter(Q(billingDate__gte=dict_quarter['q3_end']) & Q(billingDate__lt=dict_quarter['q4_end']))
+                dataFirm = dataFirm.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
 
     if team:
         dataFirm = dataFirm.filter(Q(contractId__empDeptName=team))
 
     if month:
-        dataFirm = dataFirm.filter(Q(billingDate__month=month))
+        dataFirm = dataFirm.filter(Q(predictBillingDate__month=month))
 
-    dataFirm = dataFirm.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
+    dataFirm = dataFirm.values('predictBillingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
                                'contractId__empName', 'contractId__empDeptName', 'revenueId')
 
     structureStep = json.dumps(list(dataFirm), cls=DjangoJSONEncoder)
