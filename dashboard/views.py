@@ -12,9 +12,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from service.models import Servicereport
-from sales.models import Contract, Category, Contractitem, Revenue, Goal
+from sales.models import Contract, Category, Contractitem, Revenue, Goal, Purchase
 from hr.models import Employee
 from django.db.models import functions
+from django.db.models.functions import Coalesce
 
 
 @login_required
@@ -669,3 +670,56 @@ def quarter_firm_asjson(request):
 
     structureStep = json.dumps(list(dataFirm), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')
+
+
+
+def dashboard_credit(request):
+    template = loader.get_template('dashboard/dashboardcredit.html')
+    todayYear = datetime.today().year
+    # 해당 년도 매출
+    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear))
+    # 월별 미수금액 / 수금액
+    revenuesMonth = revenues.values('predictBillingDate__month')\
+                                                        .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(billingDate__isnull=False) & Q(depositDate__isnull=True)),0)
+                                                                ,collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)),0))
+    # 총 미수금액 / 수금액
+    revenuesTotal = revenuesMonth.aggregate(outstandingCollectionsTotal=Sum('outstandingCollectionsMonth')
+                                                         ,collectionofMoneyTotal=Sum('collectionofMoneyMonth'))
+    # 해당 년도 매입
+    purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear))
+    # 월별 미지급액 / 지급액
+    purchasesMonth = purchases.values('predictBillingDate__month').annotate(accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)),0)
+                                                                                ,amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)),0))
+    # 총 미지급액
+    purchasesTotal = purchasesMonth.aggregate(accountsPayablesTotal=Sum('accountsPayablesMonth')
+                                                     ,amountPaidTotal=Sum('amountPaidMonth'))
+    context = {
+        'revenuesTotal': revenuesTotal,
+        'revenuesMonth':revenuesMonth,
+        'purchasesTotal':purchasesTotal,
+        'purchasesMonth':purchasesMonth,
+    }
+    return HttpResponse(template.render(context, request))
+
+@login_required
+@csrf_exempt
+def cashflow_asjson(request):
+    todayYear = datetime.today().year
+    outstandingCollections = request.POST['outstandingCollections']
+    accountsPayables = request.POST['accountsPayables']
+    month = request.POST['month'][:-1]
+
+    if outstandingCollections:
+        cashflow = Revenue.objects.filter(Q(predictBillingDate__year=todayYear)&Q(predictBillingDate__month=month)&Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
+        cashflow = cashflow.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
+                               'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
+                               'contractId__depositCondition', 'contractId__depositConditionDay', 'comment')
+
+    if accountsPayables:
+        cashflow = Purchase.objects.filter(Q(predictBillingDate__year=todayYear)&Q(predictBillingDate__month=month)&Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
+        cashflow = cashflow.values('contractId__contractName', 'purchaseCompany', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
+                               'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
+
+    structureStep = json.dumps(list(cashflow), cls=DjangoJSONEncoder)
+    return HttpResponse(structureStep, content_type='application/json')
+
