@@ -70,7 +70,7 @@
               </div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
+              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -107,7 +107,7 @@
               </div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-search-dollar fa-2x text-gray-300"></i>
+              <i class="fas fa-coins fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@
               <div class="h5 mb-0 font-weight-bold text-gray-800">{% if Target_quatersales %}{{ Target_quatersales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+              <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-success text-uppercase mb-1">{{ quarter }}분기 누적 매출 금액({{ quarter }}분기 목표 매출 기준)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_sales %}{{ quarterly_cumulative_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}/
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_sales %}{{ quarterly_cumulative_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if Salesquater_rate %}{{ Salesquater_rate }}{% else %}-{% endif %}%
               </div>
             </div>
@@ -163,7 +163,7 @@
               <div class="h5 mb-0 font-weight-bold text-gray-800">{% if Target_quaterprofit %}{{ Target_quaterprofit|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-coins fa-2x text-gray-300"></i>
+              <i class="fas fa-search-dollar fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -178,7 +178,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">{{ quarter }}분기 누적 이익 금액({{ quarter }}분기 목표 이익 기준)</div>
-              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_profit %}{{ quarterly_cumulative_profit|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}/
+              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarterly_cumulative_profit %}{{ quarterly_cumulative_profit|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if Profitquater_rate %}{{ Profitquater_rate }}{% else %}-{% endif %}%
               </div>
             </div>
@@ -200,11 +200,11 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-dark text-uppercase mb-1">예상 매출 금액(전체 목표 매출 기준)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if opp_firm_sales %}{{ opp_firm_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}/
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if opp_firm_sales %}{{ opp_firm_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
               {% if opp_firm_sales_rate %}{{ opp_firm_sales_rate }}{% else %}-{% endif %}%</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+              <i class="fas fa-money-bill-wave-alt fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -218,12 +218,12 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-dark text-uppercase mb-1">예상 이익 금액(전체 목표 이익 기준)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if opp_firm_profits %}{{ opp_firm_profits|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}/
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if opp_firm_profits %}{{ opp_firm_profits|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if opp_firm_profits_rate %}{{ opp_firm_profits_rate }}{% else %}-{% endif %}%
               </div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-money-bill-alt fa-2x text-gray-300"></i>
+              <i class="fas fa-money-bill-wave-alt fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -236,11 +236,11 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-dark text-uppercase mb-1">{{ quarter }}분기 누적 예상 매출 금액({{ quarter }}분기 목표 매출 기준)</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarter_opp_firm_sales %}{{ quarter_opp_firm_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}/
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if quarter_opp_firm_sales %}{{ quarter_opp_firm_sales|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
               {% if quarter_opp_firm_sales_rate %}{{ quarter_opp_firm_sales_rate }}{% else %}-{% endif %}%</div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-coins fa-2x text-gray-300"></i>
+              <i class="fas fa-money-bill-wave-alt fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -255,12 +255,12 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-dark text-uppercase mb-1">{{ quarter }}분기 누적 예상 이익 금액({{ quarter }}분기 목표 이익 기준)</div>
-              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarter_opp_firm_profits %}{{ quarter_opp_firm_profits|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %}/
+              <div class="h5 b-0 font-weight-bold text-gray-800">{% if quarter_opp_firm_profits %}{{ quarter_opp_firm_profits|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if quarter_opp_firm_profits_rate %}{{ quarter_opp_firm_profits_rate }}{% else %}-{% endif %}%
               </div>
             </div>
             <div class="col-auto">
-              <i class="fas fa-search-dollar fa-2x text-gray-300"></i>
+              <i class="fas fa-money-bill-wave-alt fa-2x text-gray-300"></i>
             </div>
           </div>
         </div>
@@ -612,7 +612,7 @@
                       };
                   },
                   formatter: function (value, context) {
-                      return number_format(value);
+                      return number_format(value).slice(0,-8);
                   }
               }
           },
@@ -645,7 +645,7 @@
                       padding: 5,
                       // Include a dollar sign in the ticks
                       callback: function (value, index, values) {
-                          return number_format(value);
+                          return number_format(value).slice(0,-8);
                       }
                   },
                   gridLines: {
@@ -703,7 +703,7 @@
                           dataArr.map(data => {
                               sum += data;
                           });
-                          let dataSum = number_format(value) + "";
+                          let dataSum = number_format(value).slice(0,-8);
                           return dataSum;
 
 
@@ -713,7 +713,7 @@
                   outlabels: {
                       text: '%l %p',
                       color: 'white',
-                      stretch: 45,
+                      stretch: 5,
                       font: {
                           resizable: true,
                           minSize: 12,
