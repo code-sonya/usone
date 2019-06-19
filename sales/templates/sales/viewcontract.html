@@ -295,7 +295,7 @@
                   {% for withdraw in companyWithdraw %}
                     <tr class="thtd">
                       <td>{% if withdraw.purchaseCompany == None %}-{% else %}{{ withdraw.purchaseCompany }}{% endif %}</td>
-                      <td>{% if withdraw.sum_withdraw == None %}0{% else %}{{ withdraw.sum_withdraw | intcomma }} {% endif %}</td>
+                      <td>{% if withdraw.sum_withdraw == None %}0{% else %}{{ withdraw.sum_withdraw | intcomma }} ({{ withdraw.sum_ratio_withdraw }}%){% endif %}</td>
                       <td>{% if withdraw.filter_withdraw == None %}0{% else %}{{ withdraw.filter_withdraw | intcomma }} {% endif %}</td>
                       <td>{% if withdraw.ratio_withdraw == None %}0{% else %}{{ withdraw.ratio_withdraw }}{% endif %}%</td>
                     </tr>
