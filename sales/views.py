@@ -435,8 +435,8 @@ def contracts_asjson(request):
     if contractName:
         contracts = contracts.filter(contractName__contains=contractName)
 
-    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName', 'endCompanyName', 'contractDate', 'contractId', 'salePrice',
-                                 'profitPrice')
+    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName__companyNameKo', 'endCompanyName__companyNameKo',
+                                 'contractDate', 'contractId', 'salePrice', 'profitPrice')
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -473,7 +473,7 @@ def revenues_asjson(request):
     if contractStep != '전체' and contractStep != '':
         revenues = revenues.filter(contractId__contractStep=contractStep)
 
-    revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
+    revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyNameKo', 'revenuePrice', 'revenueProfitPrice',
                                'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
                                'contractId__depositCondition', 'contractId__depositConditionDay', 'comment')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
