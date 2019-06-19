@@ -130,7 +130,7 @@ def dayreport_sort(x):
         return 7, x['serviceStartDatetime']
     if x['empName'] == '김소령' or x['empName'] == '어경진':
         return 8, x['serviceStartDatetime']
-    if x['empName'] == '임형균' or x['empName'] == '':
+    if x['empName'] == '임형균' or x['empName'] == '김영진':
         return 9, x['serviceStartDatetime']
     if x['empName'] == '' or x['empName'] == '':
         return 10, x['serviceStartDatetime']
