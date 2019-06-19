@@ -51,7 +51,7 @@
    </span>
   </div>
 
-  <div class="row">
+  <div class="row d-none d-sm-block">
     <div class="col-xl-12 col-lg-6">
       <div class="card shadow mb-4">
         <!-- Card Header-->
@@ -126,7 +126,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">영업1팀 영업 현황</h6>
+          <h6 class="m-0 font-weight-bold text-secondary">영업1팀 영업 현황</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -141,7 +141,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">영업2팀 영업 현황</h6>
+          <h6 class="m-0 font-weight-bold text-secondary">영업2팀 영업 현황</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -159,7 +159,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">분기별 매출 현황</h6>
+          <h6 class="m-0 font-weight-bold text-secondary">분기별 매출 현황</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -178,7 +178,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">월별 매출 현황</h6>
+          <h6 class="m-0 font-weight-bold text-secondary">월별 매출 현황</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -196,7 +196,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">Firm 상세 내용</h6>
+          <h6 class="m-0 font-weight-bold text-secondary">매출 상세 내용</h6>
           <div class="dropdown no-arrow">
             {#            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterDatatable">#}
             {#              <i class="fas fa-filter fa-fw text-gray-400"></i>#}
@@ -234,45 +234,6 @@
       </div>
     </div>
   </div>
-
-{#  <div class="row">#}
-{#    <div class="col-xl-12 col-lg-12">#}
-{#      <div class="card shadow mb-4">#}
-{#        <!-- Card Header-->#}
-{#        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">#}
-{#          <h6 class="m-0 font-weight-bold text-success">Opportunity 상세 내용</h6>#}
-{#        </div>#}
-{#        <!-- Card Body -->#}
-{#        <div class="card-body">#}
-{#          <div class="table-responsive">#}
-{#            <table id="showOpportunitys" class="hover row-border" width="100%" style="width: 100%;">#}
-{#              <thead>#}
-{#              <tr>#}
-{#                <th>영업부서</th>#}
-{#                <th>영업담당</th>#}
-{#                <th>계약명</th>#}
-{#                <th>거래처</th>#}
-{#                <th>예상매출금액</th>#}
-{#                <th>예상이익금액</th>#}
-{#                <th>예상계약일</th>#}
-{#                <th class="d-none">contractId</th>#}
-{#              </tr>#}
-{#              </thead>#}
-{#              <tfoot>#}
-{#              <th></th>#}
-{#              <th></th>#}
-{#              <th></th>#}
-{#              <th>TOTAL :</th>#}
-{#              <th></th>#}
-{#              <th></th>#}
-{#              <th></th>#}
-{#              </tfoot>#}
-{#            </table>#}
-{#          </div>#}
-{#        </div>#}
-{#      </div>#}
-{#    </div>#}
-{#  </div>#}
 
   <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -447,6 +408,7 @@
       const colors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
+
       const options = {
           maintainAspectRatio: false,
           plugins: {
@@ -463,7 +425,11 @@
                       };
                   },
                   formatter: function (value, context) {
-                      return number_format(value).slice(0,-8);
+                      if (window.innerWidth < 400){
+                          return ''
+                      }else{
+                          return number_format(value).slice(0, -8);
+                      }
                   }
               }
           },
@@ -496,7 +462,7 @@
                       padding: 5,
                       // Include a dollar sign in the ticks
                       callback: function (value, index, values) {
-                          return number_format(value).slice(0,-8);
+                          return number_format(value).slice(0, -8);
                       }
                   },
                   gridLines: {
@@ -568,6 +534,14 @@
               ],
           },
           options: {
+              layout: {
+                  padding: {
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      bottom: 0
+                  }
+              },
               maintainAspectRatio: false,
               tooltips:
                   {
@@ -583,7 +557,7 @@
                           dataArr.map(data => {
                               sum += data;
                           });
-                          let dataSum = number_format(value).slice(0,-8);
+                          let dataSum = number_format(value).slice(0, -8);
                           return dataSum;
 
                       },
@@ -608,15 +582,13 @@
       $("#team1Piechart").click(
           function (evt) {
               filterArray['quarter'] = '';
-              filterArray['step'] = '';
+              filterArray['step'] = 'Firm';
               filterArray['cumulative'] = '';
               filterArray['team'] = "영업1팀";
               filterArray['month'] = "";
               console.log(filterArray);
-              oppTable.clear().draw();
               firmTable.clear().draw();
               pushFirmData();
-              pushOppData();
           }
       );
 
@@ -634,6 +606,14 @@
               ],
           },
           options: {
+              layout: {
+                  padding: {
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      bottom: 0
+                  }
+              },
               maintainAspectRatio: false,
               tooltips:
                   {
@@ -649,7 +629,7 @@
                           dataArr.map(data => {
                               sum += data;
                           });
-                          let dataSum = number_format(value).slice(0,-8);
+                          let dataSum = number_format(value).slice(0, -8);
                           return dataSum;
 
                       },
@@ -673,15 +653,13 @@
       $("#team2Piechart").click(
           function (evt) {
               filterArray['quarter'] = '';
-              filterArray['step'] = '';
+              filterArray['step'] = 'Firm';
               filterArray['cumulative'] = '';
               filterArray['team'] = "영업2팀";
               filterArray['month'] = "";
               console.log(filterArray);
-              oppTable.clear().draw();
               firmTable.clear().draw();
               pushFirmData();
-              pushOppData();
           }
       );
 
@@ -737,10 +715,9 @@
               filterArray['team'] = teamName[0];
               filterArray['month'] = "";
               console.log(filterArray);
-              oppTable.clear().draw();
               firmTable.clear().draw();
               pushFirmData();
-              pushOppData();
+
           }
       );
 
@@ -813,108 +790,17 @@
               filterArray['team'] = teamName[0];
               filterArray['quarter'] = "";
               filterArray['cumulative'] = "";
-              filterArray['step'] = "";
+              filterArray['step'] = "Firm";
               console.log(filterArray);
-              oppTable.clear().draw();
               firmTable.clear().draw();
-              pushOppData();
               pushFirmData();
           }
       );
   </script>
 
   <script>
-      var oppTable;
       var firmTable;
       $(document).ready(function () {
-          oppTable = $('#showOpportunitys').DataTable({
-              "processing": true,
-              "columns": [
-                  {data: "empDeptName"},
-                  {data: "empName"},
-                  {
-                      data: 'contractName',
-                      render: function (data, type, row) {
-                          return '[' + row["contractCode"] + '] ' + row["contractName"];
-                      }
-                  },
-                  {data: "saleCompanyName"},
-                  {data: "salePrice"},
-                  {data: "profitPrice"},
-                  {data: "contractDate"},
-                  {data: "contractId"},
-              ],
-              "columnDefs": [
-                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
-              ],
-              dom: 'Blfrtip',
-              buttons: [
-                  {
-                      extend: 'excel',
-                      text: '엑셀',
-                      footer: true
-                  },
-                  {
-                      extend: 'copy',
-                      text: '복사',
-                      footer: true
-                  },
-                  {
-                      extend: 'print',
-                      text: '인쇄',
-                      footer: true
-                  }
-              ],
-              "order": [[6, 'desc']],
-              "searching": true,
-              "paging": true,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_ 개씩 보기",
-                  "search": "검색:",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "다음",
-                      "previous": "이전"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(4)', nRow).text(aData.salePrice.toLocaleString() + '원');
-                  $('td:eq(5)', nRow).text(aData.profitPrice.toLocaleString() + '원');
-                  $('td:eq(6)', nRow).text(replaceAll(aData.contractDate, "-", "."));
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
-
-                  var saleResult = 0;
-                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
-                      saleResult += parseFloat(data);
-                  });
-                  $(api.column(4).footer()).html(saleResult.toLocaleString() + '원');
-
-                  var profitResult = 0;
-                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
-                      profitResult += parseFloat(data);
-                  });
-                  $(api.column(5).footer()).html(profitResult.toLocaleString() + '원');
-              },
-          });
-
-          $("#showOpportunitys").on("click", 'tr', function () {
-              const data = oppTable.row(this).data();
-              console.log(data);
-              location.href = '/sales/viewcontract/' + data.contractId + '/'
-          });
 
           firmTable = $('#showFirms').DataTable({
               "processing": true,
@@ -978,8 +864,8 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString() + '원');
-                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString() + '원');
+                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString());
                   $('td:eq(6)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
               },
               "footerCallback": function () {
@@ -989,13 +875,13 @@
                   api.column(4, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(4).footer()).html(revenueResult.toLocaleString() + '원');
+                  $(api.column(4).footer()).html(revenueResult.toLocaleString());
 
                   var profitResult = 0;
                   api.column(5, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(5).footer()).html(profitResult.toLocaleString() + '원');
+                  $(api.column(5).footer()).html(profitResult.toLocaleString());
               },
           });
 
@@ -1006,31 +892,9 @@
 
       });
 
-      function pushOppData() {
-          $.ajax({
-              url: "{% url 'dashboard:quarter_opp_ajax_url' %}",
-              method: 'POST',
-              cache: false,
-              data: {
-                  "step": filterArray['step'],
-                  "team": filterArray['team'],
-                  "cumulative": filterArray['cumulative'],
-                  "quarter": filterArray['quarter'],
-                  "month": filterArray['month'],
-              },
-              headers: {'X-CSRFToken': '{{ csrf_token }}'},
-              success: function (returnData) {
-                  for (var i = 0; i < returnData.length; i++) {
-                      oppTable.row.add(returnData[i]).draw();
-                  }
-              }
-          });
-
-      }
-
       function pushFirmData() {
           $.ajax({
-              url: "{% url 'dashboard:quarter_firm_ajax_url' %}",
+              url: "{% url 'dashboard:quarter_ajax_url' %}",
               method: 'POST',
               cache: false,
               data: {

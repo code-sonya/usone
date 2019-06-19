@@ -563,7 +563,7 @@ def opportunity_asjson(request):
 
 @login_required
 @csrf_exempt
-def quarter_opp_asjson(request):
+def quarter_asjson(request):
     today_year = datetime.today().year
     dict_quarter = {"q1_start": "{}-01-01".format(today_year),
                     "q1_end": "{}-04-01".format(today_year),
@@ -579,58 +579,7 @@ def quarter_opp_asjson(request):
     cumulative = request.POST['cumulative']
     quarter = request.POST['quarter']
 
-    dataOpp = Contract.objects.filter(Q(contractStep='Opportunity') & Q(contractDate__year=today_year))
-
-    if quarter:
-        if cumulative == 'Y':
-            if quarter == '1분기':
-                dataOpp = dataOpp.filter(Q(contractDate__gte=dict_quarter['q1_start']) & Q(contractDate__lt=dict_quarter['q1_end']))
-            elif quarter == '2분기':
-                dataOpp = dataOpp.filter(Q(contractDate__gte=dict_quarter['q1_start']) & Q(contractDate__lt=dict_quarter['q2_end']))
-            elif quarter == '3분기':
-                dataOpp = dataOpp.filter(Q(contractDate__gte=dict_quarter['q1_start']) & Q(contractDate__lt=dict_quarter['q3_end']))
-            elif quarter == '4분기':
-                dataOpp = dataOpp.filter(Q(contractDate__gte=dict_quarter['q1_start']) & Q(contractDate__lt=dict_quarter['q4_end']))
-        elif cumulative == 'N':
-            if quarter == '1분기':
-                dataOpp = dataOpp.filter(Q(contractDate__gte=dict_quarter['q1_start']) & Q(contractDate__lt=dict_quarter['q1_end']))
-            elif quarter == '2분기':
-                dataOpp = dataOpp.filter(Q(contractDate__gte=dict_quarter['q1_end']) & Q(contractDate__lt=dict_quarter['q2_end']))
-            elif quarter == '3분기':
-                dataOpp = dataOpp.filter(Q(contractDate__gte=dict_quarter['q2_end']) & Q(contractDate__lt=dict_quarter['q3_end']))
-            elif quarter == '4분기':
-                dataOpp = dataOpp.filter(Q(contractDate__gte=dict_quarter['q3_end']) & Q(contractDate__lt=dict_quarter['q4_end']))
-
-    if team:
-        dataOpp = dataOpp.filter(Q(empDeptName=team))
-
-    if month:
-        dataOpp = dataOpp.filter(Q(contractDate__month=month))
-
-    dataOpp = dataOpp.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName', 'salePrice', 'profitPrice', 'contractDate', 'contractId')
-    structureStep = json.dumps(list(dataOpp), cls=DjangoJSONEncoder)
-    return HttpResponse(structureStep, content_type='application/json')
-
-
-@login_required
-@csrf_exempt
-def quarter_firm_asjson(request):
-    today_year = datetime.today().year
-    dict_quarter = {"q1_start": "{}-01-01".format(today_year),
-                    "q1_end": "{}-04-01".format(today_year),
-                    "q2_end": "{}-07-01".format(today_year),
-                    "q3_end": "{}-10-01".format(today_year),
-                    "q4_end": "{}-01-01".format(today_year + 1)}
-    step = request.POST['step']
-    team = request.POST['team']
-    if team == '합계':
-        team = ''
-    month = request.POST['month']
-    month = month.replace('월', '')
-    cumulative = request.POST['cumulative']
-    quarter = request.POST['quarter']
-
-    dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=today_year))
+    dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=today_year)&Q(contractId__contractStep=step))
     print("dataFirm",dataFirm)
 
     if quarter:
