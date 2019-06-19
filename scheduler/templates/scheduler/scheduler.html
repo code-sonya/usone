@@ -150,6 +150,10 @@
           form_check.submit();
       }
 
+      function teamRemove(event) {
+          return "team" == event.className;
+      }
+
       $(document).ready(function () {
           $('#calendar').fullCalendar({
               customButtons: {
@@ -175,18 +179,22 @@
                   addCalendar: {
                       text: '+팀',
                       click: function popupLayer() {
-
                           btnView();
+                      }
+                  },
+                  mySchedule: {
+                      text: 'My일정',
+                      click: function () {
+                          $('#calendar').fullCalendar('removeEvents', teamRemove);
 
                       }
-
                   }
 
               },
               header: {
                   left: 'addCalendar prev,next',
                   center: 'title',
-                  right: 'month,basicWeek addEvent'
+                  right: 'mySchedule addEvent'
               }, defaultDate: new Date(),
               contentHeight: "auto",
               locale: 'ko',
@@ -289,7 +297,8 @@
                               service_id: '{{ i.vacationId }}',
                               name: '{{ i.empName }}',
                               vacationType: '{{ i.vacationType }}',
-                              type: 'X'
+                              type: 'X',
+                              className: 'me'
                           },
                       {% endfor %}
                       {% for i in teamVacation %}
@@ -300,7 +309,8 @@
                               service_id: '{{ i.vacationId }}',
                               name: '{{ i.empName }}',
                               vacationType: '{{ i.vacationType }}',
-                              type: 'X'
+                              type: 'X',
+                              className: 'team',
                           },
                       {% endfor %}
                   ],
