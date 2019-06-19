@@ -143,8 +143,8 @@
           console.log(empId);
           $('#beforetransfer').empty();
           const th = "<thead>" + "<tr class='text-white' style='background-color: #36b9cc'>"
-              + "<th colspan=1></th>" + "<th colspan=1>구분</th>" + "<th colspan=3>계약명</th>"
-              + "<th colspan=2>계약일</th>" + "<th class=\"d-none\">contractId</th>" + "</tr>" + "</thead>";
+              + "<th colspan=1></th>" + "<th colspan=2>구분</th>" + "<th colspan=6>계약명</th>"
+              + "<th colspan=3>계약일</th>" + "<th class=\"d-none\">contractId</th>" + "</tr>" + "</thead>";
 
           $('#beforetransfer').append(th);
 
@@ -161,9 +161,9 @@
                       for (var count = 0; count < contract.length; count++) {
                           const trId = contract[count].contractId;
                           const tr = $("<tr class='thtd' style='background-color:white' id='" + contract[count].contractId + "'><td colspan=1><input type='checkbox' name='contractcheck' value='"
-                              + contract[count].contractId + "' onclick='btn_contractcheck(this.value)'></td><td colspan=1>"
-                              + contract[count].contractStep + "</td><td colspan=3>["
-                              + contract[count].contractCode + "]" + contract[count].contractName + "</td><td colspan=2>"
+                              + contract[count].contractId + "' onclick='btn_contractcheck(this.value)'></td><td colspan=2>"
+                              + contract[count].contractStep + "</td><td colspan=6>["
+                              + contract[count].contractCode + "]" + contract[count].contractName + "</td><td colspan=3>"
                               + contract[count].contractDate + "</td>"
                               + "<td class='d-none'><input name='contractId' value='" + contract[count].contractId + "'></td></tr>"
                           );
@@ -171,18 +171,21 @@
 
                           for (var r = 0; r < contract[count].revenue.length; r++) {
                               console.log(contract[count].revenue[r].revenueId);
-                              const table = "<tr name='" + contract[count].contractId + "' class='d-none'><td colspan=1><input type='checkbox' class='input"+contract[count].contractId
+                              const table = "<tr name='" + contract[count].contractId + "' class='d-none'><td></td><td colspan=1><input type='checkbox' class='input"+contract[count].contractId
                                   +"' name='revenuecheck' value='"
                                   + contract[count].revenue[r].revenueId
-                                  + "' onclick='btn_revenuecheck(this.value)'></td><td colspan=2>" + contract[count].revenue[r].revenueCompany_id + "</td><td colspan=2>"
-                                  + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td><td colspan=2>"
+                                  + "' onclick='btn_revenuecheck(this.value)'></td><td colspan=4>" + contract[count].revenue[r].revenueCompany_id + "</td><td colspan=3>"
+                                  + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td><td colspan=3>"
                                   + replaceAll(contract[count].revenue[r].billingDate) + "</td>"
                                   + "<td class='d-none'><input name='revenueId' value='" + contract[count].revenue[r].revenueId + "'></td><tr>";
                               $('#' + trId).after(table);
                           }
                           if (0 < contract[count].revenue.length) {
                               const thead = "<tr name='" + contract[count].contractId + "'class='d-none' id='th"
-                                  + contract[count].contractId + "'><td colspan=1></td><td colspan=2>매출처</td><td colspan=2>매출예정일<td colspan=2>매출일</td></tr>";
+                                  + contract[count].contractId + "'><td></td><td style='background-color:lightsteelblue'></td>" +
+                                  "<td style='background-color:lightsteelblue' colspan=4>매출처</td>" +
+                                  "<td style='background-color:lightsteelblue' colspan=3>매출예정일" +
+                                  "<td style='background-color:lightsteelblue' colspan=3>매출일</td></tr>";
                               $('#' + trId).after(thead);
                           }
                       }
@@ -206,7 +209,7 @@
           console.log($('tr[name=' + trId + ']').attr('class'));
           if ($('tr[name=' + trId + ']').attr('class') == 'd-none') {
               $('tr[name=' + trId + ']').attr('class', 'd-table-row');
-              $('#th' + trId).css('background-color','lightsteelblue')
+              {#$('#th' + trId).css('background-color','lightsteelblue')#}
           } else {
               $('tr[name=' + trId + ']').attr('class', 'd-none');
               $('.input'+trId).prop("checked", false);
@@ -216,9 +219,7 @@
 
       function btn_revenuecheck(trId) {
           console.log(trId);
-          $('tr[name=' + trId + ']').css('background-color', 'lightgrey')
-
-
+          {#$('tr[name=' + trId + ']').css('background-color', 'lightgrey')#}
       }
 
       function btn_save() {
