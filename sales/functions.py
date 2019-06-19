@@ -88,19 +88,20 @@ def viewContract(contractId):
         companyTotalDeposit['total_ratio_deposit'] = round(companyTotalDeposit['total_filter_deposit'] / companyTotalDeposit['total_sum_deposit'] * 100)
 
     # 입출금정보 - 매입
-    companyWithdraw = purchases \
-        .values('purchaseCompany') \
-        .annotate(sum_withdraw=Coalesce(Sum('purchasePrice'), 0)) \
-        .annotate(filter_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)) \
-        .annotate(ratio_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0) * 100 / Coalesce(Sum('purchasePrice'), 0))
-
     companyTotalWithdraw = purchases.aggregate(
         total_sum_withdraw=Coalesce(Sum('purchasePrice'), 0),
         total_filter_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0),
     )
 
+    companyWithdraw = purchases \
+        .values('purchaseCompany') \
+        .annotate(sum_withdraw=Coalesce(Sum('purchasePrice'), 0)) \
+        .annotate(filter_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)) \
+        .annotate(ratio_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0) * 100 / Coalesce(Sum('purchasePrice'), 0)) \
+        .annotate(sum_ratio_withdraw=Coalesce(Sum('purchasePrice'), 0)*100/companyTotalWithdraw['total_sum_withdraw'])
+
     if (companyTotalWithdraw['total_sum_withdraw']) == 0:
-        companyTotalWithdraw['total_sum_withdraw'] = '-'
+        companyTotalWithdraw['total_sum_withdraw'] = '0'
     else:
         companyTotalWithdraw['total_ratio_withdraw'] = round(companyTotalWithdraw['total_filter_withdraw'] / companyTotalWithdraw['total_sum_withdraw'] * 100)
 
