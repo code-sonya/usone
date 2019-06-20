@@ -516,8 +516,8 @@
                       {% endif %}
                       targets: 9, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
-                  {targets: 10, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 11, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 10, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 11, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {
                       {% if modifyMode == 'Y' %}
                       "render": function (data, type, row) {
@@ -530,7 +530,7 @@
                       "render": function (data, type, row) {
                           return '<div name="revenueId" >' + data + '</div>'
                       },
-                      targets: 13, visible: false
+                      targets: 13, className: "d-none"
                   },
               ],
               dom: 'Blfrtip',
@@ -552,7 +552,7 @@
                   }
               ],
               "deferRender": true,
-              "order": [[6, 'desc']],
+              "order": [[1, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -580,8 +580,14 @@
 
                   {% if modifyMode == 'N' %}
                       $('td:eq(6)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                      if (aData.billingDate != null) {
+                          $('td:eq(6)', nRow).css('color', '#b7b9cc');
+                      }
                       $('td:eq(7)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
                       $('td:eq(8)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
+                      if (aData.depositDate != null) {
+                          $('td:eq(8)', nRow).css('color', '#b7b9cc');
+                      }
                       $('td:eq(9)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
                       $('td:eq(12)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
