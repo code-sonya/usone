@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  영업-매입관리
+  영업관리
 {% endblock %}
 
 
@@ -110,15 +110,15 @@
                 </thead>
                 <tfoot>
                 <tr>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:right; white-space:nowrap;">TOTAL :</th>
-                  <th style="text-align:right; white-space:nowrap;"></th>
-                  <th style="text-align:right; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th>TOTAL :</th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
                 </tr>
                 </tfoot>
               </table>
@@ -149,13 +149,13 @@
                 <label for="startdate" class=" text-primary">시작일자
                   <div class="text-secondary" style="font-size:13px">(매입예정일 or 지급예정일)</div>
                 </label>
-                <input type="date" class="form-control" id="startdate" name="startdate">
+                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label for="enddate" class="text-primary">종료일자
                   <div class="text-secondary" style="font-size:13px">(매입예정일 or 지급예정일)</div>
                 </label>
-                <input type="date" class="form-control" id="enddate" name="enddate">
+                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate">
               </div>
             </div>
             <div class="row mb-1">
@@ -234,7 +234,7 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-12">
-                <h6> < 매입예정일아 지난 매입 목록> </h6>
+                <h6> < 매입예정일이 지난 매입 목록> </h6>
                 <table id="changepredictpurchase" class="pc-table thtd" style="margin:2px">
                   <thead>
                   <tr class="bg-secondary text-white thtd">
@@ -445,7 +445,7 @@
       $(document).ready(function () {
           $('#showrevenues').dataTable({
               "scrollX": true,
-              "autoWidth": false,
+              "autoWidth": true,
               "processing": true,
               "ajax": {
                   "processing": true,
@@ -479,7 +479,7 @@
                           return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
                       }
                   },
-                  {data: 'purchaseCompany'},
+                  {data: 'purchaseCompany__companyNameKo'},
                   {data: 'predictBillingDate'},
                   {data: 'billingDate'},
                   {data: 'purchasePrice'},
@@ -489,8 +489,8 @@
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "20%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
                           return '<input type="month" max="9999-12" id="predictBillingDate' + row["purchaseId"] + '" ' +
@@ -511,7 +511,7 @@
                       },
                       targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                   },
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
                           return '<input type="text" name="comment" class="input-form" value="' + data + '" />'

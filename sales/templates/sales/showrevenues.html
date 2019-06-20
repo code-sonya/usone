@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  영업-매출관리
+  영업관리
 {% endblock %}
 
 
@@ -433,8 +433,7 @@
 
       $(document).ready(function () {
           $('#showrevenues').dataTable({
-              "scrollX": true,
-              "autoWidth": false,
+              "autoWidth": true,
               "processing": true,
               "ajax": {
                   "processing": true,
@@ -467,7 +466,7 @@
                           return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
                       }
                   },
-                  {data: 'contractId__saleCompanyName__companyNameKo'},
+                  {data: 'revenueCompany__companyNameKo'},
                   {
                       data: 'predictBillingDate',
                   },
@@ -542,6 +541,7 @@
               "paging": true,
               "info": false,
               "scrollY": "80vh",
+              "scrollX": true,
               "scrollCollapse": true,
               "language": {
                   "lengthMenu": "_MENU_ 개씩 보기",
@@ -567,7 +567,6 @@
                       $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, aData.depositDate, "-", ".", "수금"));
                       $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
-
               },
               "footerCallback": function () {
                   var api = this.api(), data;

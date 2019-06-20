@@ -123,7 +123,7 @@
               <td class="bg-light">거&nbsp; &nbsp; &nbsp;래&nbsp; &nbsp; &nbsp;처</td>
               <td>
                 <a href="/client/viewclient/{{ contract.saleCompanyName.companyName }}" class="text-dark">
-                  {{ contract.saleCompanyName.companyName }}
+                  {{ contract.saleCompanyName.companyNameKo }}
                 </a>
                 <a href="/client/viewcustomer/{{ contract.saleCustomerId.customerId }}" class="text-dark">
                   {% if contract.saleCustomerName %} ({{ contract.saleCustomerName }}){% endif %}
@@ -131,8 +131,8 @@
               </td>
               <td class="bg-light">최 종 고 객 사</td>
               <td>
-                <a href="/client/viewclient/{{ contract.endCompanyName.companyName }}">
-                  {{ contract.endCompanyName.companyName }}
+                <a href="/client/viewclient/{{ contract.endCompanyName.companyName }}" class="text-dark">
+                  {{ contract.endCompanyName.companyNameKo }}
                 </a>
               </td>
             </tr>
@@ -161,7 +161,7 @@
             </tr>
             <tr>
               <td class="bg-light">참&nbsp; 고&nbsp; &nbsp;사&nbsp; 항</td>
-              <td colspan="3" class="text-left">&nbsp;&nbsp;{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
+              <td colspan="3" style="padding-left: 20px;" class="text-left">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
             </tr>
             </tbody>
           </table>
@@ -266,7 +266,7 @@
                   <tbody>
                   {% for deposit in companyDeposit %}
                     <tr class="thtd">
-                      <td>{% if deposit.revenueCompany == None %}-{% else %}{{ deposit.revenueCompany }}{% endif %}</td>
+                      <td>{% if deposit.revenueCompany__companyNameKo == None %}-{% else %}{{ deposit.revenueCompany__companyNameKo }}{% endif %}</td>
                       <td>{% if deposit.sum_deposit == None %}0{% else %}{{ deposit.sum_deposit | intcomma }} {% endif %}</td>
                       <td>{% if deposit.filter_deposit == None %}0{% else %}{{ deposit.filter_deposit | intcomma }} {% endif %}</td>
                       <td>{% if deposit.ratio_deposit == None %}0{% else %}{{ deposit.ratio_deposit }}{% endif %}%</td>
@@ -294,7 +294,7 @@
                   <tbody>
                   {% for withdraw in companyWithdraw %}
                     <tr class="thtd">
-                      <td>{% if withdraw.purchaseCompany == None %}-{% else %}{{ withdraw.purchaseCompany }}{% endif %}</td>
+                      <td>{% if withdraw.purchaseCompany__companyNameKo == None %}-{% else %}{{ withdraw.purchaseCompany__companyNameKo }}{% endif %}</td>
                       <td>{% if withdraw.sum_withdraw == None %}0{% else %}{{ withdraw.sum_withdraw | intcomma }} ({{ withdraw.sum_ratio_withdraw }}%){% endif %}</td>
                       <td>{% if withdraw.filter_withdraw == None %}0{% else %}{{ withdraw.filter_withdraw | intcomma }} {% endif %}</td>
                       <td>{% if withdraw.ratio_withdraw == None %}0{% else %}{{ withdraw.ratio_withdraw }}{% endif %}%</td>
@@ -349,7 +349,7 @@
                     {% else %}{{ revenue.predictDepositDate }}{% endif %}
                   </td>
                   <td class="thtd">{% if revenue.depositDate == None %}-{% else %}{{ revenue.depositDate }}{% endif %}</td>
-                  <td class="thtd">{% if revenue.revenueCompany == None %}-{% else %}{{ revenue.revenueCompany }}{% endif %}</td>
+                  <td class="thtd">{% if revenue.revenueCompany.companyNameKo == None %}-{% else %}{{ revenue.revenueCompany.companyNameKo }}{% endif %}</td>
                   <td class="thtd">{% if revenue.revenuePrice == None %}-{% else %}{{ revenue.revenuePrice | intcomma }}{% endif %} </td>
                   <td class="thtd">{% if revenue.revenueProfitPrice == None %}-{% else %}{{ revenue.revenueProfitPrice | intcomma }} ({{ revenue.revenueProfitRatio | floatformat }}%){% endif %} </td>
                   <td class="thtd">{% if revenue.comment == None %}-{% else %}{{ revenue.comment }}{% endif %} </td>
@@ -393,7 +393,7 @@
                     {% elif purchase.withdrawDate != None %}<span class="text-gray-500">지급완료</span>
                     {% else %}{{ purchase.predictWithdrawDate }}{% endif %}</td>
                   <td class="thtd">{% if purchase.withdrawDate == None %}-{% else %}{{ purchase.withdrawDate }}{% endif %}</td>
-                  <td class="thtd">{% if purchase.purchaseCompany == None %}-{% else %}{{ purchase.purchaseCompany }}{% endif %}</td>
+                  <td class="thtd">{% if purchase.purchaseCompany.companyNameKo == None %}-{% else %}{{ purchase.purchaseCompany.companyNameKo }}{% endif %}</td>
                   <td class="thtd">{% if purchase.purchasePrice == None %}-{% else %}{{ purchase.purchasePrice | intcomma }}{% endif %} </td>
                   <td class="thtd">{% if purchase.comment == None %}-{% else %}{{ purchase.comment }}{% endif %} </td>
                 </tr>
