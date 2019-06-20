@@ -1,6 +1,5 @@
 {% extends "dashboard/layout.html" %}
 
-
 {% block title %}
   영업관리
 {% endblock %}
@@ -67,7 +66,7 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 매출 관리 </h6>
+          <h6 class="m-0 h3 text-gray-800">매출 관리</h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
@@ -98,11 +97,15 @@
                 <thead>
                 <tr>
                   <th>구분</th>
-                  <th>영업담당자</th>
+                  <th>관리번호</th>
+                  <th>소속</th>
+                  <th>영업대표</th>
                   <th>계약명</th>
                   <th>매출처</th>
-                  <th>매출예정일 / 매출일</th>
-                  <th>수금예정일 / 수금일</th>
+                  <th>매출예정일</th>
+                  <th>매출일</th>
+                  <th>수금예정일</th>
+                  <th>수금일</th>
                   <th>매출금액</th>
                   <th>이익금액</th>
                   <th>비고</th>
@@ -111,6 +114,10 @@
                 </thead>
                 <tfoot>
                 <tr>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
                   <th></th>
                   <th></th>
                   <th></th>
@@ -384,23 +391,18 @@
           })
       }
 
-      function replaceAll(predictStr, executionStr, searchStr, replaceStr, complete) {
-          let new_predictStr;
-          let new_executionStr;
-          if (predictStr != null) {
-              new_predictStr = predictStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, 10);
-          } else {
-              new_predictStr =  '------------'
-          }
+      function replaceDate(predictStr, executionStr, searchStr, replaceStr, complete, idx) {
+          let newStr;
 
           if (executionStr != null) {
-              new_executionStr = executionStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, 10);
-              new_predictStr = '--' + complete + '완료--'
-          } else {
-              new_executionStr =  '------------'
+              newStr = complete + '완료';
           }
-
-          return new_predictStr + ' / ' + new_executionStr
+          else if (predictStr != null) {
+              newStr = predictStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, idx);
+          } else {
+              newStr =  '-'
+          }
+          return newStr
       }
 
       function changeBillingDates(billingDate, predictBillingDate, predictExecutionDate, depositCondition, depositConditionDay) {
@@ -454,25 +456,15 @@
               },
               "columns": [
                   {data: 'contractId__contractStep'},
-                  {
-                      data: 'contractId__empDeptName',
-                      render: function (data, type, row) {
-                          return row["contractId__empName"] + ' (' + row["contractId__empDeptName"] + ')';
-                      }
-                  },
-                  {
-                      data: 'contractId__contractName',
-                      render: function (data, type, row) {
-                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
-                      }
-                  },
+                  {data: 'contractId__contractCode'},
+                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__empName'},
+                  {data: 'contractId__contractName'},
                   {data: 'revenueCompany__companyNameKo'},
-                  {
-                      data: 'predictBillingDate',
-                  },
-                  {
-                      data: 'predictDepositDate',
-                  },
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'predictDepositDate'},
+                  {data: 'depositDate'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
                   {data: 'comment'},
@@ -481,42 +473,65 @@
               "columnDefs": [
                   {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {
+                      {% if modifyMode == 'Y' %}
                       "render": function (data, type, row) {
                           return '<input type="month" max="9999-12" id="predictBillingDate' + row["revenueId"] + '" ' +
-                              'name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"].substring(0,7) + '" /> / ' +
-                              '<input type="date" max="9999-12-31" id="billingDate' + row["revenueId"] + '" ' +
+                              'name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"].substring(0,7) + '" />'
+                      },
+                      {% endif %}
+                      targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
+                  {
+                      {% if modifyMode == 'Y' %}
+                      "render": function (data, type, row) {
+                          return '<input type="date" max="9999-12-31" id="billingDate' + row["revenueId"] + '" ' +
                               'name="billingDate" class="input-form" value="' + row["billingDate"] + '" ' +
                               'onchange="changeBillingDates(\'billingDate' + row["revenueId"] + '\', \'predictBillingDate' + row["revenueId"] + '\', ' +
                               '\'predictDepositDate' + row["revenueId"] + '\', \'' + row["contractId__depositCondition"] + '\', \'' + row["contractId__depositConditionDay"] + '\')" />'
                       },
-                      targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      {% endif %}
+                      targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
+                      {% if modifyMode == 'Y' %}
                       "render": function (data, type, row) {
                           return '<input type="date" max="9999-12-31" id="predictDepositDate' + row["revenueId"] + '" ' +
-                              'name="predictDepositDate" class="input-form" value="' + row["predictDepositDate"] + '" /> / ' +
-                              '<input type="date" max="9999-12-31" id="depositDate' + row["revenueId"] + '" ' +
+                              'name="predictDepositDate" class="input-form" value="' + row["predictDepositDate"] + '" />'
+                      },
+                      {% endif %}
+                      targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
+                  {
+                      {% if modifyMode == 'Y' %}
+                      "render": function (data, type, row) {
+                          return '<input type="date" max="9999-12-31" id="depositDate' + row["revenueId"] + '" ' +
                               'name="depositDate" class="input-form" value="' + row["depositDate"] + '" ' +
                               'onchange="changeExecutionDates(\'depositDate' + row["revenueId"] + '\', \'predictDepositDate' + row["revenueId"] + '\')" />'
                       },
-                      targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      {% endif %}
+                      targets: 9, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
-                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
+                  {targets: 10, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 11, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
+                      {% if modifyMode == 'Y' %}
                       "render": function (data, type, row) {
                           return '<input type="text" name="comment" class="input-form"  value="' + data + '" />'
-                      }, targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      },
+                      targets: 12, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      {% endif %}
                   },
                   {
                       "render": function (data, type, row) {
                           return '<div name="revenueId" >' + data + '</div>'
                       },
-                      targets: 9, className: "d-none"
-                  }
+                      targets: 13, visible: false
+                  },
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -536,7 +551,8 @@
                       footer: true
                   }
               ],
-              "order": [[4, 'desc']],
+              "deferRender": true,
+              "order": [[6, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -559,29 +575,31 @@
                   } else if (aData.contractId__contractStep == 'Opportunity') {
                       $('td:eq(0)', nRow).css('color', '#1cc88a');
                   }
-                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
-                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(10)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(11)', nRow).text(aData.revenueProfitPrice.toLocaleString());
 
                   {% if modifyMode == 'N' %}
-                      $('td:eq(4)', nRow).text(replaceAll(aData.predictBillingDate, aData.billingDate, "-", ".", "발행"));
-                      $('td:eq(5)', nRow).text(replaceAll(aData.predictDepositDate, aData.depositDate, "-", ".", "수금"));
-                      $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+                      $('td:eq(6)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                      $('td:eq(7)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                      $('td:eq(8)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
+                      $('td:eq(9)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
+                      $('td:eq(12)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
               },
               "footerCallback": function () {
                   var api = this.api(), data;
 
                   var revenueResult = 0;
-                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(10, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+                  $(api.column(10).footer()).html(revenueResult.toLocaleString());
 
                   var profitResult = 0;
-                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(11, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(7).footer()).html(profitResult.toLocaleString());
+                  $(api.column(11).footer()).html(profitResult.toLocaleString());
 
               },
           });
