@@ -711,8 +711,9 @@
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   for (var i = 0; i < returnData.length; i++) {
-                      revenuesTable.row.add(returnData[i]).draw();
+                      revenuesTable.row.add(returnData[i]);
                   }
+                  revenuesTable.draw();
               }
           });
 
@@ -732,8 +733,9 @@
               success: function (returnData) {
                   console.log('returnData:', returnData);
                   for (var i = 0; i < returnData.length; i++) {
-                      purchasesTable.row.add(returnData[i]).draw();
+                      purchasesTable.row.add(returnData[i]);
                   }
+                  purchasesTable.draw();
               }
           });
 

@@ -1169,8 +1169,9 @@
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   for (var i = 0; i < returnData.length; i++) {
-                      table.row.add(returnData[i]).draw();
+                      table.row.add(returnData[i]);
                   }
+                  table.draw()
               }
           });
 
