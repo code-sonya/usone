@@ -738,9 +738,8 @@
           function (evt) {
               const activeElement = contractMonthlychart.getElementAtEvent(evt);
               const idx = activeElement[0]._index;
-              const datasetIndex = activeElement[0]._datasetIndex;
-              console.log(datasetIndex);
               const monthLabel = contractMonthlychart.data.labels[idx];
+              const datasetIndex = activeElement[0]._datasetIndex;
               const teamLabel = contractMonthlychart.data.datasets[datasetIndex].label;
               filterArray['month'] = monthLabel;
               filterArray['team'] = teamLabel;
@@ -1053,10 +1052,10 @@
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
-                  console.log('returnData:', returnData);
                   for (var i = 0; i < returnData.length; i++) {
-                      table.row.add(returnData[i]).draw();
+                      table.row.add(returnData[i])
                   }
+                  table.draw()
               }
           });
 

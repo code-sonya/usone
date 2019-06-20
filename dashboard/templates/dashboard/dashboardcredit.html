@@ -506,12 +506,12 @@
               "columnDefs": [
                   {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
-                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
@@ -620,11 +620,11 @@
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "20%", className: "dt-head-left dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-left dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
+                  {targets: 6, width: "10%", className: "dt-head-right dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
@@ -711,8 +711,9 @@
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   for (var i = 0; i < returnData.length; i++) {
-                      revenuesTable.row.add(returnData[i]).draw();
+                      revenuesTable.row.add(returnData[i]);
                   }
+                  revenuesTable.draw();
               }
           });
 
@@ -732,8 +733,9 @@
               success: function (returnData) {
                   console.log('returnData:', returnData);
                   for (var i = 0; i < returnData.length; i++) {
-                      purchasesTable.row.add(returnData[i]).draw();
+                      purchasesTable.row.add(returnData[i]);
                   }
+                  purchasesTable.draw();
               }
           });
 
