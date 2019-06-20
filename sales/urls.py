@@ -41,4 +41,5 @@ urlpatterns = [
     url(r'^transfercontract/', views.transfer_contract, name='transfercontract'),
     url(r'^empidjson/$', views.empid_asjson, name='empid_ajax_url'),
     url(r'^savetransfercontract/', views.save_transfercontract, name='savetransfercontract'),
+    url(r'^showpurchaseinadvance/', views.show_purchaseinadvance, name='showpurchaseinadvance'),
 ]

@@ -711,7 +711,6 @@ def show_purchases(request):
         saleCompanyName = request.POST['saleCompanyName']
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
-        purchaseInAdvance = request.POST['purchaseInAdvance']
         modifyMode = request.POST['modifyMode']
     else:
         startdate = ''
@@ -721,10 +720,10 @@ def show_purchases(request):
         saleCompanyName = ''
         contractName = ''
         contractStep = ''
-        purchaseInAdvance = ''
         modifyMode = 'N'
 
     accountspayable = 'N'
+    purchaseInAdvance = 'N'
     context = {
         'employees': employees,
         'startdate': startdate,
@@ -806,6 +805,7 @@ def purchases_asjson(request):
     purchaseInAdvance = request.POST['purchaseInAdvance']
     accountspayable = request.POST['accountspayable']
     # print(startdate,enddate,empDeptName,empName,saleCompanyName,contractName,contractStep,contractStep)
+    print('purchaseInAdvance:',purchaseInAdvance)
 
     if accountspayable == 'Y':
         purchase = Purchase.objects.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
@@ -977,7 +977,6 @@ def show_accountspayables(request):
         saleCompanyName = request.POST['saleCompanyName']
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
-        purchaseInAdvance = request.POST['purchaseInAdvance']
         modifyMode = request.POST['modifyMode']
     else:
         startdate = ''
@@ -987,10 +986,10 @@ def show_accountspayables(request):
         saleCompanyName = ''
         contractName = ''
         contractStep = ''
-        purchaseInAdvance = ''
         modifyMode = 'N'
 
     accountspayable = 'Y'
+    purchaseInAdvance = 'N'
     context = {
         'employees': employees,
         'startdate': startdate,
@@ -1268,3 +1267,46 @@ def save_transfercontract(request):
 
     context = {}
     return render(request, 'sales/transfercontract.html', context)
+
+
+def show_purchaseinadvance(request):
+    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+
+    if request.method == "POST":
+        startdate = request.POST["startdate"]
+        enddate = request.POST["enddate"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        saleCompanyName = request.POST['saleCompanyName']
+        contractName = request.POST['contractName']
+        contractStep = request.POST['contractStep']
+        modifyMode = request.POST['modifyMode']
+    else:
+        startdate = ''
+        enddate = ''
+        empDeptName = ''
+        empName = ''
+        saleCompanyName = ''
+        contractName = ''
+        contractStep = ''
+        purchaseInAdvance = ''
+        modifyMode = 'N'
+
+    accountspayable = 'N'
+    purchaseInAdvance = 'Y'
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'contractName': contractName,
+        'contractStep': contractStep,
+        'purchaseInAdvance': purchaseInAdvance,
+        'accountspayable': accountspayable,
+        'modifyMode': modifyMode,
+    }
+
+    return render(request, 'sales/showpurchaseinadvance.html', context)
+
