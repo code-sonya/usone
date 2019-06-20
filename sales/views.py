@@ -87,10 +87,10 @@ def post_contract(request):
 
     else:
         form = ContractForm()
-        companyList = Company.objects.filter(Q(companyStatus='Y'))
+        companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
         for company in companyList:
-            temp = {'id': company.pk, 'value': company.companyName}
+            temp = {'id': company.pk, 'value': company.companyNameKo}
             companyNames.append(temp)
         context = {
             'form': form,
@@ -288,10 +288,10 @@ def modify_contract(request, contractId):
         contractPaper = str(form.save(commit=False).contractPaper).split('/')[-1]
         orderPaper = str(form.save(commit=False).orderPaper).split('/')[-1]
 
-        companyList = Company.objects.filter(Q(companyStatus='Y'))
+        companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
         for company in companyList:
-            temp = {'id': company.pk, 'value': company.companyName}
+            temp = {'id': company.pk, 'value': company.companyNameKo}
             companyNames.append(temp)
 
         context = {
@@ -473,7 +473,7 @@ def revenues_asjson(request):
     if contractStep != '전체' and contractStep != '':
         revenues = revenues.filter(contractId__contractStep=contractStep)
 
-    revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyNameKo', 'revenuePrice', 'revenueProfitPrice',
+    revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'revenueCompany__companyNameKo', 'revenuePrice', 'revenueProfitPrice',
                                'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
                                'contractId__depositCondition', 'contractId__depositConditionDay', 'comment')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
@@ -839,7 +839,7 @@ def purchases_asjson(request):
         contractId = [i['contractId'] for i in purchaseContract]
         purchase = purchase.filter(Q(contractId__in=contractId) & Q(billingDate__isnull=False))
 
-    purchase = purchase.values('contractId__contractName', 'purchaseCompany', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
+    purchase = purchase.values('contractId__contractName', 'purchaseCompany__companyNameKo', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
                                'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
     structure = json.dumps(list(purchase), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

@@ -72,10 +72,11 @@ def viewContract(contractId):
 
     # 입출금정보 - 매출
     companyDeposit = revenues \
-        .values('revenueCompany') \
+        .values('revenueCompany__companyNameKo') \
         .annotate(sum_deposit=Coalesce(Sum('revenuePrice'), 0)) \
         .annotate(filter_deposit=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)) \
         .annotate(ratio_deposit=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0) * 100 / Coalesce(Sum('revenuePrice'), 0))
+    print(companyDeposit)
 
     companyTotalDeposit = revenues.aggregate(
         total_sum_deposit=Coalesce(Sum('revenuePrice'), 0),
@@ -94,7 +95,7 @@ def viewContract(contractId):
     )
 
     companyWithdraw = purchases \
-        .values('purchaseCompany') \
+        .values('purchaseCompany__companyNameKo') \
         .annotate(sum_withdraw=Coalesce(Sum('purchasePrice'), 0)) \
         .annotate(filter_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)) \
         .annotate(ratio_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0) * 100 / Coalesce(Sum('purchasePrice'), 0)) \
