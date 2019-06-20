@@ -231,7 +231,45 @@
     </div>
   </div>
 
-  <!-- Content Row -->
+  <div class="row d-none" id="firm1">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">매출 상세 내용</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showFirms1" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>영업부서</th>
+                <th>영업담당</th>
+                <th>계약명</th>
+                <th>거래처</th>
+                <th>매출금액</th>
+                <th>이익금액</th>
+                <th>빌링일자</th>
+                <th class="d-none">revenueId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>TOTAL :</th>
+              <th></th>
+              <th></th>
+              <th></th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <div class="row">
     <!-- Area Chart -->
@@ -245,6 +283,47 @@
         <div class="card-body">
           <div class="chart-area">
             <canvas id="quarterBarchart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row d-none" id="firm2">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">매출 상세 내용</h6>
+        </div>
+        <div class="dropdown no-arrow">
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showFirms2" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>영업부서</th>
+                <th>영업담당</th>
+                <th>계약명</th>
+                <th>거래처</th>
+                <th>매출금액</th>
+                <th>이익금액</th>
+                <th>빌링일자</th>
+                <th class="d-none">revenueId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>TOTAL :</th>
+              <th></th>
+              <th></th>
+              <th></th>
+              </tfoot>
+            </table>
           </div>
         </div>
       </div>
@@ -270,22 +349,16 @@
   </div>
 
   <!-- data table -->
-  <div class="row">
+  <div class="row d-none" id="firm3">
     <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-secondary">매출 상세 내용</h6>
-          <div class="dropdown no-arrow">
-            {#            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterDatatable">#}
-            {#              <i class="fas fa-filter fa-fw text-gray-400"></i>#}
-            {#            </a>#}
-          </div>
+          <h6 class="m-0 font-weight-bold text-secondary">매출 상세 내용</h6><!-- Card Body -->
         </div>
-        <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
-            <table id="showFirms" class="hover row-border" width="100%" style="width: 100%;">
+            <table id="showFirms3" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
                 <th>영업부서</th>
@@ -451,7 +524,7 @@
               caretPadding: 10,
               callbacks: {
                   label: function (tooltipItem, chart) {
-                      return ' '+number_format(tooltipItem.yLabel);
+                      return ' ' + number_format(tooltipItem.yLabel);
                   }
               }
           }
@@ -523,8 +596,11 @@
               filterArray['team'] = "";
               filterArray['month'] = "";
               console.log(filterArray);
-              firmTable.clear().draw();
-              pushData();
+              firmTable1.clear().draw();
+              $('#firm1').attr('class', 'row d-block');
+              $('#firm2').attr('class', 'row d-none');
+              $('#firm3').attr('class', 'row d-none');
+              pushData(firmTable1);
           }
       );
 
@@ -560,8 +636,12 @@
               filterArray['team'] = "";
               filterArray['month'] = "";
               console.log(filterArray);
-              firmTable.clear().draw();
-              pushData();
+              firmTable1.clear().draw();
+              $('#firm1').attr('class', 'row d-block');
+              $('#firm2').attr('class', 'row d-none');
+              $('#firm3').attr('class', 'row d-none');
+              pushData(firmTable1);
+
           }
       );
 
@@ -607,8 +687,11 @@
               filterArray['cumulative'] = 'N';
               filterArray['month'] = "";
               console.log(filterArray);
-              firmTable.clear().draw();
-              pushData();
+              firmTable2.clear().draw();
+              $('#firm1').attr('class', 'row d-none');
+              $('#firm2').attr('class', 'row d-block');
+              $('#firm3').attr('class', 'row d-none');
+              pushData(firmTable2);
           }
       );
 
@@ -665,16 +748,21 @@
               filterArray['cumulative'] = "";
               filterArray['step'] = "Firm";
               console.log(filterArray);
-              firmTable.clear().draw();
-              pushData();
+              firmTable3.clear().draw();
+              $('#firm1').attr('class', 'row d-none');
+              $('#firm2').attr('class', 'row d-none');
+              $('#firm3').attr('class', 'row d-block');
+              pushData(firmTable3);
           }
       );
   </script>
 
   <script>
-      var firmTable;
+      var firmTable1;
+      var firmTable2;
+      var firmTable3;
       $(document).ready(function () {
-          firmTable = $('#showFirms').DataTable({
+          firmTable1 = $('#showFirms1').DataTable({
               "scrollX": true,
               "autoWidth": false,
               "processing": true,
@@ -696,10 +784,10 @@
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap text-right"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, visible: false}
               ],
@@ -759,7 +847,190 @@
               },
           });
 
-          $("#showFirms").on("click", 'tr', function () {
+          firmTable2 = $('#showFirms2').DataTable({
+              "scrollX": true,
+              "autoWidth": false,
+              "processing": true,
+              "columns": [
+                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__empName'},
+                  {
+                      data: 'contractId__contractName',
+                      render: function (data, type, row) {
+                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
+                      }
+                  },
+                  {data: 'contractId__saleCompanyName__companyName'},
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'predictBillingDate'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, visible: false}
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "order": [[6, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(profitResult.toLocaleString());
+              },
+
+
+          });
+
+          firmTable3 = $('#showFirms3').DataTable({
+              "scrollX": true,
+              "autoWidth": false,
+              "processing": true,
+              "columns": [
+                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__empName'},
+                  {
+                      data: 'contractId__contractName',
+                      render: function (data, type, row) {
+                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
+                      }
+                  },
+                  {data: 'contractId__saleCompanyName__companyName'},
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'predictBillingDate'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, visible: false}
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "order": [[6, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(profitResult.toLocaleString());
+              },
+
+          });
+
+          $("#showFirms1").on("click", 'tr', function () {
+              const data = firmTable.row(this).data();
+              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+          });
+
+          $("#showFirms2").on("click", 'tr', function () {
+              const data = firmTable.row(this).data();
+              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+          });
+
+          $("#showFirms3").on("click", 'tr', function () {
               const data = firmTable.row(this).data();
               location.href = '/sales/viewrevenue/' + data.revenueId + '/'
           });
@@ -767,7 +1038,8 @@
       });
 
 
-      function pushData() {
+      function pushData(table) {
+
           $.ajax({
               url: "{% url 'dashboard:quarter_ajax_url' %}",
               method: 'POST',
@@ -783,13 +1055,11 @@
               success: function (returnData) {
                   console.log('returnData:', returnData);
                   for (var i = 0; i < returnData.length; i++) {
-                      firmTable.row.add(returnData[i]).draw();
+                      table.row.add(returnData[i]).draw();
                   }
               }
           });
 
       }
-
-
   </script>
 {% endblock %}
