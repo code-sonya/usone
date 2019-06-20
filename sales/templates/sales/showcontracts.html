@@ -10,6 +10,24 @@
 
   <style type="text/css">
 
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
   </style>
 
 {% endblock %}
@@ -251,6 +269,24 @@
                   {targets: 7, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 8, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 9, visible: false}
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
               ],
               "order": [[6, 'desc']],
               "searching": true,

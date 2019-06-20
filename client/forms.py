@@ -1,6 +1,9 @@
 from django import forms
+from django.db.models import Q
+
 from .models import Company
 from .models import Customer
+from hr.models import Employee
 
 
 class CompanyForm(forms.ModelForm):
@@ -16,6 +19,10 @@ class CompanyForm(forms.ModelForm):
             'saleEmpId': forms.Select(attrs={'class': 'form-control', 'id': "saleEmpId"}),
             'companyAddress': forms.TextInput(attrs={'class': 'form-control', 'id': 'companyAddress'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(CompanyForm, self).__init__(*args, **kwargs)
+        self.fields["saleEmpId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
 
 
 class CustomerForm(forms.ModelForm):

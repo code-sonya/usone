@@ -31,8 +31,8 @@ def post_contract(request):
             post = form.save(commit=False)
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
-            post.saleCompanyName = Company.objects.filter(companyName=form.clean()['saleCompanyNames']).first()
-            post.endCompanyName = Company.objects.filter(companyName=form.clean()['endCompanyNames']).first()
+            post.saleCompanyName = Company.objects.filter(companyNameKo=form.clean()['saleCompanyNames']).first()
+            post.endCompanyName = Company.objects.filter(companyNameKo=form.clean()['endCompanyNames']).first()
             if form.clean()['saleCustomerId']:
                 post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             else:
@@ -63,7 +63,7 @@ def post_contract(request):
                     billingDate=revenue["billingDate"] or None,
                     predictDepositDate=revenue["predictDepositDate"] or None,
                     depositDate=revenue["depositDate"] or None,
-                    revenueCompany=Company.objects.filter(companyName=revenue["revenueCompany"]).first(),
+                    revenueCompany=Company.objects.filter(companyNameKo=revenue["revenueCompany"]).first(),
                     revenuePrice=int(revenue["revenuePrice"]),
                     revenueProfitPrice=int(revenue["revenueProfitPrice"]),
                     revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100)),
@@ -79,7 +79,7 @@ def post_contract(request):
                     billingDate=purchase["purchaseDate"] or None,
                     predictWithdrawDate=purchase["predictWithdrawDate"] or None,
                     withdrawDate=purchase["withdrawDate"] or None,
-                    purchaseCompany=Company.objects.filter(companyName=purchase["purchaseCompany"]).first(),
+                    purchaseCompany=Company.objects.filter(companyNameKo=purchase["purchaseCompany"]).first(),
                     purchasePrice=int(purchase["purchasePrice"]),
                     comment=purchase["purchaseComment"],
                 )
@@ -159,8 +159,8 @@ def modify_contract(request, contractId):
             post = form.save(commit=False)
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
-            post.saleCompanyName = Company.objects.filter(companyName=form.clean()['saleCompanyNames']).first()
-            post.endCompanyName = Company.objects.filter(companyName=form.clean()['endCompanyNames']).first()
+            post.saleCompanyName = Company.objects.filter(companyNameKo=form.clean()['saleCompanyNames']).first()
+            post.endCompanyName = Company.objects.filter(companyNameKo=form.clean()['endCompanyNames']).first()
             if form.clean()['saleCustomerId']:
                 post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             else:
@@ -212,7 +212,7 @@ def modify_contract(request, contractId):
                         billingDate=revenue["billingDate"] or None,
                         predictDepositDate=revenue["predictDepositDate"] or None,
                         depositDate=revenue["depositDate"] or None,
-                        revenueCompany=Company.objects.filter(companyName=revenue["revenueCompany"]).first(),
+                        revenueCompany=Company.objects.filter(companyNameKo=revenue["revenueCompany"]).first(),
                         revenuePrice=int(revenue["revenuePrice"]),
                         revenueProfitPrice=int(revenue["revenueProfitPrice"]),
                         revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100)),
@@ -226,7 +226,7 @@ def modify_contract(request, contractId):
                     revenueInstance.billingDate = revenue["billingDate"] or None
                     revenueInstance.predictDepositDate = revenue["predictDepositDate"] or None
                     revenueInstance.depositDate = revenue["depositDate"] or None
-                    revenueInstance.revenueCompany = Company.objects.filter(companyName=revenue["revenueCompany"]).first()
+                    revenueInstance.revenueCompany = Company.objects.filter(companyNameKo=revenue["revenueCompany"]).first()
                     revenueInstance.revenuePrice = int(revenue["revenuePrice"])
                     revenueInstance.revenueProfitPrice = int(revenue["revenueProfitPrice"])
                     revenueInstance.revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
