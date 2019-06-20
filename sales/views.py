@@ -805,7 +805,7 @@ def purchases_asjson(request):
     purchaseInAdvance = request.POST['purchaseInAdvance']
     accountspayable = request.POST['accountspayable']
     # print(startdate,enddate,empDeptName,empName,saleCompanyName,contractName,contractStep,contractStep)
-    print('purchaseInAdvance:',purchaseInAdvance)
+    # print('purchaseInAdvance:',purchaseInAdvance)
 
     if accountspayable == 'Y':
         purchase = Purchase.objects.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
