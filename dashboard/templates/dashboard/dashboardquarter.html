@@ -739,13 +739,14 @@
               const activeElement = contractMonthlychart.getElementAtEvent(evt);
               const idx = activeElement[0]._index;
               const monthLabel = contractMonthlychart.data.labels[idx];
+              const datasetIndex = activeElement[0]._datasetIndex;
               const teamLabel = contractMonthlychart.data.datasets[datasetIndex].label;
               filterArray['month'] = monthLabel;
               filterArray['team'] = teamLabel;
               filterArray['quarter'] = "";
               filterArray['cumulative'] = "";
               filterArray['step'] = "Firm";
-              ㅊ.log(filterArray);
+              console.log(filterArray);
               firmTable3.clear().draw();
               $('#firm1').attr('class', 'row d-none');
               $('#firm2').attr('class', 'row d-none');
