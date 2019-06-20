@@ -523,6 +523,7 @@
               filterArray['team'] = "";
               filterArray['month'] = "";
               console.log(filterArray);
+              firmTable.clear().draw();
               pushData();
           }
       );
@@ -555,7 +556,7 @@
               const stepLabel = todayquarterCumulativechart.data.labels[idx];
               filterArray['quarter'] = '{{ todayQuarter }}분기';
               filterArray['cumulative'] = 'Y';
-              filterArray['step'] = "";
+              filterArray['step'] = "Firm";
               filterArray['team'] = "";
               filterArray['month'] = "";
               console.log(filterArray);

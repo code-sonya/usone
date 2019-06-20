@@ -84,7 +84,7 @@
               <td class="goalthtd">매출목표</td>
               <td class="goalthtd">이익목표</td>
             </tr>
-            {% for i in data_team_goals %}
+            {% for i in teamGoals %}
               <tr class="goalTalble">
                 <td class="goalthtd">{{ i.empDeptName }}</td>
                 <td class="goalthtd">{{ i.empName }}</td>
@@ -103,16 +103,16 @@
 
             <tr class="goalTalble">
               <td class="goalthtd" colspan="2">합계</td>
-              <td class="goalthtd text-danger font-weight-bold">{{ data_team_goals_sum.sum_yearSales|slugify|slice:"0:-6"|intcomma }}</td>
-              <td class="goalthtd text-primary font-weight-bold">{{ data_team_goals_sum.sum_yearProfit|slugify|slice:"0:-6"|intcomma }}</td>
-              <td class="goalthtd font-weight-bold">{{ data_team_goals_sum.sum_salesq1|slugify|slice:"0:-6"|intcomma }}</td>
-              <td class="goalthtd font-weight-bold">{{ data_team_goals_sum.sum_profitq1|slugify|slice:"0:-6"|intcomma }}</td>
-              <td class="goalthtd font-weight-bold">{{ data_team_goals_sum.sum_salesq2|slugify|slice:"0:-6"|intcomma }}</td>
-              <td class="goalthtd font-weight-bold">{{ data_team_goals_sum.sum_profitq2|slugify|slice:"0:-6"|intcomma }}</td>
-              <td class="goalthtd font-weight-bold">{{ data_team_goals_sum.sum_salesq3|slugify|slice:"0:-6"|intcomma }}</td>
-              <td class="goalthtd font-weight-bold">{{ data_team_goals_sum.sum_profitq3|slugify|slice:"0:-6"|intcomma }}</td>
-              <td class="goalthtd font-weight-bold">{{ data_team_goals_sum.sum_salesq4|slugify|slice:"0:-6"|intcomma }}</td>
-              <td class="goalthtd font-weight-bold">{{ data_team_goals_sum.sum_profitq4|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd text-danger font-weight-bold">{{ teamGoalsSum.sum_yearSales|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd text-primary font-weight-bold">{{ teamGoalsSum.sum_yearProfit|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_salesq1|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_profitq1|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_salesq2|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_profitq2|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_salesq3|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_profitq3|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_salesq4|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_profitq4|slugify|slice:"0:-6"|intcomma }}</td>
             </tr>
           </table>
           <br>
@@ -495,8 +495,8 @@
       };
       // Pie Chart 1
 
-      {% for j in data_team_sales %}
-          {% for i in data_team_goals %}
+      {% for j in teamSales %}
+          {% for i in teamGoals %}
               {% if i.empDeptName == '영업1팀' %}
                   {% if j.영업1팀 %}
                       const team1_goal = '{{ i.yearSalesSum }}';
@@ -688,14 +688,14 @@
                   type: 'bar',
                   label: '영업1팀 분기매출',
                   backgroundColor: "#ff5879",
-                  data: {{ quarter_firm_team1_sales }},
+                  data: {{ quarterFirmTeam1Sales }},
                   borderColor: 'white',
                   borderWidth: 2
               }, {
                   type: 'bar',
                   label: '영업2팀 분기매출',
                   backgroundColor: "#42b8b8",
-                  data: {{ quarter_firm_team2_sales }},
+                  data: {{ quarterFirmTeam2Sales }},
               }],
           },
           options: options
@@ -733,7 +733,7 @@
                       borderColor: "pink",
                       borderWidth: 2,
                       fill: false,
-                      data: [{% for i in data_team_goals %}
+                      data: [{% for i in teamGoals %}
                           {% if i.empDeptName == "영업1팀" %}
                               {{ i.sales1 }},{{ i.sales2 }},{{ i.sales3 }},{{ i.sales4 }},{{ i.sales5 }},{{ i.sales6 }},
                               {{ i.sales7 }},{{ i.sales8 }},{{ i.sales9 }},{{ i.sales10 }},{{ i.sales11 }},{{ i.sales12 }}
@@ -746,7 +746,7 @@
                       borderColor: "skyblue",
                       borderWidth: 2,
                       fill: false,
-                      data: [{% for i in data_team_goals %}
+                      data: [{% for i in teamGoals %}
                           {% if i.empDeptName == "영업2팀" %}
                               {{ i.sales1 }},{{ i.sales2 }},{{ i.sales3 }},{{ i.sales4 }},{{ i.sales5 }},{{ i.sales6 }},
                               {{ i.sales7 }},{{ i.sales8 }},{{ i.sales9 }},{{ i.sales10 }},{{ i.sales11 }},{{ i.sales12 }}
@@ -756,7 +756,7 @@
                       type: 'bar',
                       label: '영업1팀 매출금액',
                       backgroundColor: "#ff5879",
-                      data: [{% for i in team1_revenues %}
+                      data: [{% for i in team1Revenues %}
                           {{ i.revenuePrice__sum }} ,
                       {% endfor %}],
                       borderColor: 'white',
@@ -768,7 +768,7 @@
                               '영업2팀 매출금액',
                           backgroundColor:
                               "#42b8b8",
-                          data: [{% for i in team2_revenues %}
+                          data: [{% for i in team2Revenues %}
                               {{ i.revenuePrice__sum }} ,
                           {% endfor %}],
                       }
