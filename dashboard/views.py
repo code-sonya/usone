@@ -307,12 +307,15 @@ def dashboard_quarter(request):
     teamRevenues.sort(key=lambda x: x['predictBillingDate__month'], reverse=False)
 
     ###전체 매출/이익 금액(opp&firm)
-    opptyFirmSales = cumulativeSalesAmount or 0 + sum(quarterOppty)
-    opptyFirmProfits = cumulativeProfitAmount['cumulative_profit_amount'] or 0+ sum(quarterOpptyProfit)
+    print('quarterOppty',quarterOppty)
+    print('cumulativeSalesAmount',cumulativeSalesAmount)
+    opptyFirmSales = cumulativeSalesAmount + sum(quarterOppty)
+    print(sum(quarterOppty))
+    opptyFirmProfits = cumulativeProfitAmount['cumulative_profit_amount'] + sum(quarterOpptyProfit)
 
     ###분기 누적 매출/이익  금액(opp&firm)
-    quarterOpptyFirmSales = quarterlyCumulativeSales['quarterly_cumulative_sales'] or 0 + sum(quarterOppty[0:todayQuarter])
-    quarterOpptyFirmProfits = quarterlyCumulativeProfit['quarterly_cumulative_profit'] or 0 + sum(quarterOpptyProfit[0:todayQuarter])
+    quarterOpptyFirmSales = quarterlyCumulativeSales['quarterly_cumulative_sales']  + sum(quarterOppty[0:todayQuarter])
+    quarterOpptyFirmProfits = quarterlyCumulativeProfit['quarterly_cumulative_profit']  + sum(quarterOpptyProfit[0:todayQuarter])
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
