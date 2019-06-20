@@ -471,12 +471,12 @@
                   {data: 'revenueId'},
               ],
               "columnDefs": [
-                  {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {
                       {% if modifyMode == 'Y' %}
                       "render": function (data, type, row) {
@@ -484,7 +484,7 @@
                               'name="predictBillingDate" class="input-form" value="' + row["predictBillingDate"].substring(0,7) + '" />'
                       },
                       {% endif %}
-                      targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      targets: 6, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       {% if modifyMode == 'Y' %}
@@ -495,7 +495,7 @@
                               '\'predictDepositDate' + row["revenueId"] + '\', \'' + row["contractId__depositCondition"] + '\', \'' + row["contractId__depositConditionDay"] + '\')" />'
                       },
                       {% endif %}
-                      targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      targets: 7, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       {% if modifyMode == 'Y' %}
@@ -504,7 +504,7 @@
                               'name="predictDepositDate" class="input-form" value="' + row["predictDepositDate"] + '" />'
                       },
                       {% endif %}
-                      targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      targets: 8, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       {% if modifyMode == 'Y' %}
@@ -514,17 +514,17 @@
                               'onchange="changeExecutionDates(\'depositDate' + row["revenueId"] + '\', \'predictDepositDate' + row["revenueId"] + '\')" />'
                       },
                       {% endif %}
-                      targets: 9, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      targets: 9, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
-                  {targets: 10, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 11, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 10, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 11, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       {% if modifyMode == 'Y' %}
                       "render": function (data, type, row) {
                           return '<input type="text" name="comment" class="input-form"  value="' + data + '" />'
                       },
-                      targets: 12, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                       {% endif %}
+                      targets: 12, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
                       "render": function (data, type, row) {
