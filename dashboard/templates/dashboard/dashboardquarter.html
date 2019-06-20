@@ -738,8 +738,6 @@
           function (evt) {
               const activeElement = contractMonthlychart.getElementAtEvent(evt);
               const idx = activeElement[0]._index;
-              const datasetIndex = activeElement[0]._datasetIndex;
-              console.log(datasetIndex);
               const monthLabel = contractMonthlychart.data.labels[idx];
               const teamLabel = contractMonthlychart.data.datasets[datasetIndex].label;
               filterArray['month'] = monthLabel;
@@ -747,7 +745,7 @@
               filterArray['quarter'] = "";
               filterArray['cumulative'] = "";
               filterArray['step'] = "Firm";
-              console.log(filterArray);
+              ㅊ.log(filterArray);
               firmTable3.clear().draw();
               $('#firm1').attr('class', 'row d-none');
               $('#firm2').attr('class', 'row d-none');
@@ -1053,7 +1051,6 @@
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
-                  console.log('returnData:', returnData);
                   for (var i = 0; i < returnData.length; i++) {
                       table.row.add(returnData[i]).draw();
                   }
