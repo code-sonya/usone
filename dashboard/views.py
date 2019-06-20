@@ -307,12 +307,15 @@ def dashboard_quarter(request):
     teamRevenues.sort(key=lambda x: x['predictBillingDate__month'], reverse=False)
 
     ###전체 매출/이익 금액(opp&firm)
-    opptyFirmSales = cumulativeSalesAmount or 0 + sum(quarterOppty)
-    opptyFirmProfits = cumulativeProfitAmount['cumulative_profit_amount'] or 0+ sum(quarterOpptyProfit)
+    print('quarterOppty',quarterOppty)
+    print('cumulativeSalesAmount',cumulativeSalesAmount)
+    opptyFirmSales = cumulativeSalesAmount + sum(quarterOppty)
+    print(sum(quarterOppty))
+    opptyFirmProfits = cumulativeProfitAmount['cumulative_profit_amount'] + sum(quarterOpptyProfit)
 
     ###분기 누적 매출/이익  금액(opp&firm)
-    quarterOpptyFirmSales = quarterlyCumulativeSales['quarterly_cumulative_sales'] or 0 + sum(quarterOppty[0:todayQuarter])
-    quarterOpptyFirmProfits = quarterlyCumulativeProfit['quarterly_cumulative_profit'] or 0 + sum(quarterOpptyProfit[0:todayQuarter])
+    quarterOpptyFirmSales = quarterlyCumulativeSales['quarterly_cumulative_sales']  + sum(quarterOppty[0:todayQuarter])
+    quarterOpptyFirmProfits = quarterlyCumulativeProfit['quarterly_cumulative_profit']  + sum(quarterOpptyProfit[0:todayQuarter])
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -615,7 +618,7 @@ def dashboard_credit(request):
     template = loader.get_template('dashboard/dashboardcredit.html')
     todayYear = datetime.today().year
     # 해당 년도 매출
-    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear))
+    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear)&Q(billingDate__isnull=False))
     # 월별 미수금액 / 수금액
     revenuesMonth = revenues.values('predictBillingDate__month')\
                                                         .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(billingDate__isnull=False) & Q(depositDate__isnull=True)),0)
@@ -624,7 +627,7 @@ def dashboard_credit(request):
     revenuesTotal = revenuesMonth.aggregate(outstandingCollectionsTotal=Sum('outstandingCollectionsMonth')
                                                          ,collectionofMoneyTotal=Sum('collectionofMoneyMonth'))
     # 해당 년도 매입
-    purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear))
+    purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear)&Q(billingDate__isnull=False))
     # 월별 미지급액 / 지급액
     purchasesMonth = purchases.values('predictBillingDate__month').annotate(accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)),0)
                                                                                 ,amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)),0))
