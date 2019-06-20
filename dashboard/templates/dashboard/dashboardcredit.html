@@ -588,8 +588,7 @@
 
           $("#showrevenues").on("click", 'tr', function () {
               const data = revenuesTable.row(this).data();
-              console.log(data);
-              location.href = '/sales/viewcontract/' + data.contractId + '/'
+              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
           });
 
           purchasesTable = $('#showpurchases').DataTable({
@@ -691,9 +690,9 @@
               },
           });
 
-          $("#showFirms").on("click", 'tr', function () {
+          $("#showpurchases").on("click", 'tr', function () {
               const data = purchasesTable.row(this).data();
-              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+              location.href = '/sales/viewpurchase/' + data.purchaseId + '/'
           });
 
       });
