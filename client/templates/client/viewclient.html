@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  고객사 정보
+  고객사
 {% endblock %}
 
 
@@ -64,14 +64,14 @@
 
   <div class="row">
     <div class="col-xl-1"></div>
-    <!-- PC화면 -->
+
     <div class="col-xl-10 ">
       <div class="card shadow mb-4">
-        <!-- 카드 제목 : 게시물 제목 -->
+
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> {{ company.companyName }} </h6>
         </div>
-        <!-- 카드 본문 -->
+
         <div class="card-body">
           {% csrf_token %}
           <table class="table mb-0" width="100%">
@@ -183,11 +183,6 @@
               </td>
             </tr>
 
-            <tr class="row b">
-              <th class="col-2 a">SYSTEM정보</th>
-              <td class="col-10">{{ company.companySystem }}</td>
-            </tr>
-
             <tr class="row">
               <td class="col-2 a"><b>DB참고사항</b></td>
               <td class="col-10">
@@ -202,9 +197,13 @@
                   </form>
                   <button id="dbcomment" algin="right" class="btn btn-info c" onclick="db_comment()">참고사항작성</button>
                   <br>
-
                 {% endif %}
               </td>
+            </tr>
+
+            <tr class="row b">
+              <th class="col-2 a">SYSTEM정보</th>
+              <td class="col-10">{{ company.companySystem }}</td>
             </tr>
 
             <tr class="row">
@@ -225,9 +224,7 @@
             </tr>
             </tbody>
           </table>
-
         </div>
-        <!--card body end -->
       </div>
 
       <div class="card shadow mb-4">
@@ -251,14 +248,14 @@
               </thead>
               <tfoot>
                 <tr>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;">TOTAL : </th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
-                  <th style="text-align:center; white-space:nowrap;"></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
+                  <th>TOTAL : </th>
+                  <th></th>
+                  <th></th>
+                  <th></th>
                 </tr>
               </tfoot>
             </table>
@@ -432,7 +429,7 @@
                       data: 'contractName',
                       render: function (data, type, row) {return '[' + row["contractCode"] + '] ' + row["contractName"];}
                   },
-                  {data: 'saleCompanyName'},
+                  {data: 'saleCompanyName__companyNameKo'},
                   {data: 'salePrice'},
                   {data: 'profitPrice'},
                   {data: 'contractDate'},
@@ -442,10 +439,10 @@
                   {targets: 0, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 1, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 2, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 3, width: "39%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 3, width: "39%", className: "dt-head-left dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 4, width: "10%", className: "dt-head-left dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 5, width: "10%", className: "dt-head-right dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 6, width: "10%", className: "dt-head-right dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 8, visible: false}
               ],
@@ -466,8 +463,8 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(5)', nRow).text(aData.salePrice.toLocaleString() + '원');
-                  $('td:eq(6)', nRow).text(aData.profitPrice.toLocaleString() + '원');
+                  $('td:eq(5)', nRow).text(aData.salePrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(aData.profitPrice.toLocaleString());
                   $('td:eq(7)', nRow).text(replaceAll(aData.contractDate, "-", "."));
                   if (aData.contractStep == 'Firm'){
                       $('td:eq(0)', nRow).css('color', '#4e73df');
@@ -482,13 +479,13 @@
                   api.column(5, {search:'applied'}).data().each(function(data,index){
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(5).footer()).html(revenueResult.toLocaleString() +'원');
+                  $(api.column(5).footer()).html(revenueResult.toLocaleString());
 
                   var profitResult = 0;
                   api.column(6, {search:'applied'}).data().each(function(data,index){
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(6).footer()).html(profitResult.toLocaleString() +'원');
+                  $(api.column(6).footer()).html(profitResult.toLocaleString());
               },
           });
 
