@@ -212,6 +212,30 @@
 
   <script type="text/javascript">
 
+      var value;
+      var inputId;
+
+      function addInput(input) {
+          if (window.event.keyCode == 9) {
+              value = $(input).attr('data-id');
+              inputId = $(input).attr('id');
+          }
+      }
+
+      {#거래처#}
+      var saleCustomerId = $('#saleCustomerId');
+      saleCustomerId.focus(function () {
+          $('#saleCompanyNames').trigger('set', {id: value});
+
+      });
+
+      {#최종고객사#}
+      var salePrice = $('#salePrice');
+      salePrice.focus(function () {
+          $('#endCompanyNames').trigger('set', {id: value});
+
+      });
+
       function btn_cancel() {
           if (confirm("취소 하시겠습니까?") === true) {
               location.href = "/sales/showcontracts"
@@ -220,20 +244,13 @@
           }
       }
 
-      var value;
-      function addInput() {
-          if (window.event.keyCode == 9) {
-              value = $('#saleCompanyNames').attr('data-id')
-          }
+
+      function replaceAll(predictStr, searchStr, replaceStr) {
+
+          new_predictStr = predictStr.split(searchStr).join(replaceStr).split("T").join(" ");
+
+          return new_predictStr
       }
-
-      var text1 = $('#saleCustomerId');
-      text1.focus(function () {
-          console.log('focus');
-          console.log(value);
-          $('#saleCompanyNames').trigger('set', {id: value});
-
-      });
 
 
       function btn_save() {
@@ -519,6 +536,7 @@
       }
 
       $(document).ready(function () {
+
           // 단계에 따른 표기 방법
           changeStep();
 
@@ -720,8 +738,9 @@
                   '<input class="input-form" type="date" max="9999-12-31" name="predictDepositDate" id="revenue3' + revenueCounter + '">',
                   '<input class="input-form" type="date" max="9999-12-31" name="depositDate" id="revenue4' + revenueCounter + '" ' +
                   'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
-                  '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '">',
-                  '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '">',
+                  '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" ' +
+                  'id="revenue5' + revenueCounter + '" onkeydown="addInput(revenue5' + revenueCounter + ')">',
+                  '<input class="money input-form ee" name="revenuePrice" id="revenue6' + revenueCounter + '">',
                   '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
                   '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '">',
                   '<i class="fas fa-times-circle" name="remove">'
@@ -737,6 +756,11 @@
                   noResult: '검색결과없음',
                   focusShow: true,
               });
+
+              $('#revenue6' + revenueCounter).on('focus', function (e) {
+                  $('#'+inputId).trigger('set', {id: value});
+              });
+
 
               revenueCounter++;
           });
@@ -817,7 +841,8 @@
                   '<input class="input-form" type="date" max="9999-12-31" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '">',
                   '<input class="input-form" type="date" max="9999-12-31" name="withdrawDate" id="purchase4' + purchaseCounter + '" ' +
                   'onchange="changeExecutionDates(\'purchase4' + purchaseCounter + '\',\'purchase3' + purchaseCounter + '\')">',
-                  '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '">',
+                  '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" ' +
+                  'id="purchase5' + purchaseCounter + '" onkeydown="addInput(purchase5' + purchaseCounter + ')">',
                   '<input class="money input-form" style="width: 255px;"  name="purchasePrice" id="purchase6' + purchaseCounter + '">',
                   '<input class="input-form" type="text" name="purchaseComment" id="purchase7' + purchaseCounter + '">',
                   '<i class="fas fa-times-circle" name="remove">'
@@ -831,6 +856,10 @@
                   multiStyle: {space: 5, width: 80},
                   noResult: '검색결과없음',
                   focusShow: true,
+              });
+
+              $('#purchase6' + purchaseCounter).on('focus', function (e) {
+                  $('#'+inputId).trigger('set', {id: value});
               });
 
               purchaseCounter++;

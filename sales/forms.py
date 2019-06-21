@@ -7,8 +7,8 @@ from .models import Contract, Goal, Purchase
 
 
 class ContractForm(forms.ModelForm):
-    saleCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off', 'onkeydown':'addInput()'}))
-    endCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'endCompanyNames', 'autocomplete': 'off'}))
+    saleCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off', 'onkeydown':'addInput(saleCompanyNames)'}))
+    endCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'endCompanyNames', 'autocomplete': 'off', 'onkeydown':'addInput(endCompanyNames)'}))
 
     class Meta:
         model = Contract
