@@ -114,11 +114,11 @@ def overtime(str_start_datetime, str_end_datetime):
 
 
 def dayreport_sort(x):
-    if x['empName'] == '최영준' or x['empName'] == '박정일':
+    if x['empName'] == '최영준' or x['empName'] == '박정일' or x['empName'] == '홍형표' or x['empName'] == '이용주':
         return 1, x['serviceStartDatetime']
-    if x['empName'] == '최순석' or x['empName'] == '임성민':
+    if x['empName'] == '최순석' or x['empName'] == '임성민' or x['empName'] == '전병선' or x['empName'] == '':
         return 2, x['serviceStartDatetime']
-    if x['empName'] == '박경진' or x['empName'] == '유병길':
+    if x['empName'] == '박경진' or x['empName'] == '유병길' or x['empName'] == '전세현' or x['empName'] == '':
         return 3, x['serviceStartDatetime']
     if x['empName'] == '유명수' or x['empName'] == '임중정':
         return 4, x['serviceStartDatetime']

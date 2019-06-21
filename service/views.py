@@ -536,18 +536,55 @@ def day_report(request, day=None):
 
     solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
     db = dayreport_query2(empDeptName="DB지원팀", day=day)
+    sales1 = dayreport_query2(empDeptName="영업1팀", day=day)
+    sales2 = dayreport_query2(empDeptName="영업2팀", day=day)
+
+    dept = request.user.employee.empDeptName
+
+    rows = []
+    if dept == '영업2팀':
+        rows.append([
+            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+        ])
+        rows.append([
+            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+        ])
+    elif dept == '솔루션지원팀':
+        rows.append([
+            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+        ])
+        rows.append([
+            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+        ])
+    elif dept == 'DB지원팀':
+        rows.append([
+            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+        ])
+        rows.append([
+            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+        ])
+    else:
+        rows.append([
+            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+        ])
+        rows.append([
+            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+        ])
 
     context = {
         'day': day,
         'Date': Date,
         'beforeDate': beforeDate,
         'afterDate': afterDate,
-        'serviceSolution': solution[0],
-        'educationSolution': solution[1],
-        'vacationSolution': solution[2],
-        'serviceDb': db[0],
-        'educationDb': db[1],
-        'vacationDb': db[2],
+        'rows': rows,
     }
 
     return render(request, 'service/dayreport.html', context)
