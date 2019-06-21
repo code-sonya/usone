@@ -250,8 +250,6 @@ def dashboard_quarter(request):
         revenuesAccumulate = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
         revenuesQuarter = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
 
-
-
     # 누적매출금액 & 이익 금액
     cumulativeSalesAmount = firmRevenuePrice.aggregate(sum=Sum('revenuePrice'))['sum']
     cumulativeProfitAmount = firmRevenuePrice.aggregate(cumulative_profit_amount=Sum('revenueProfitPrice') or 0)
@@ -266,10 +264,14 @@ def dashboard_quarter(request):
 
     # 분기별 opportunity & Firm
     # 분기 opp
-    quarter1Oppty = oppRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end'])).aggregate(sum=Sum('revenuePrice'),sum_profit=Sum('revenueProfitPrice'))
-    quarter2Oppty = oppRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_end']) & Q(predictBillingDate__lt=dict_quarter['q2_end'])).aggregate(sum=Sum('revenuePrice'),sum_profit=Sum('revenueProfitPrice'))
-    quarter3Oppty = oppRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q2_end']) & Q(predictBillingDate__lt=dict_quarter['q3_end'])).aggregate(sum=Sum('revenuePrice'),sum_profit=Sum('revenueProfitPrice'))
-    quarter4Oppty = oppRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end'])).aggregate(sum=Sum('revenuePrice'),sum_profit=Sum('revenueProfitPrice'))
+    quarter1Oppty = oppRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end'])).aggregate(sum=Sum('revenuePrice'),
+                                                                                                                                                             sum_profit=Sum('revenueProfitPrice'))
+    quarter2Oppty = oppRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_end']) & Q(predictBillingDate__lt=dict_quarter['q2_end'])).aggregate(sum=Sum('revenuePrice'),
+                                                                                                                                                           sum_profit=Sum('revenueProfitPrice'))
+    quarter3Oppty = oppRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q2_end']) & Q(predictBillingDate__lt=dict_quarter['q3_end'])).aggregate(sum=Sum('revenuePrice'),
+                                                                                                                                                           sum_profit=Sum('revenueProfitPrice'))
+    quarter4Oppty = oppRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end'])).aggregate(sum=Sum('revenuePrice'),
+                                                                                                                                                           sum_profit=Sum('revenueProfitPrice'))
     quarterOpptySum = [quarter1Oppty['sum'], quarter2Oppty['sum'], quarter3Oppty['sum'], quarter4Oppty['sum']]
     quarterOpptyProfitSum = [quarter1Oppty['sum_profit'], quarter2Oppty['sum_profit'], quarter3Oppty['sum_profit'], quarter4Oppty['sum_profit']]
     quarterOppty = [0 if quarterOpptySum[i] == None else quarterOpptySum[i] for i in range(len(quarterOpptySum))]
@@ -292,7 +294,7 @@ def dashboard_quarter(request):
 
     ###월별 팀 매출 금액
     teamRevenues = firmRevenuePrice.values('predictBillingDate__month', 'contractId__empDeptName'
-                                       ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
+                                           ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
     teamRevenues = list(teamRevenues)
 
     for i in salesteamList:
@@ -307,15 +309,15 @@ def dashboard_quarter(request):
     teamRevenues.sort(key=lambda x: x['predictBillingDate__month'], reverse=False)
 
     ###전체 매출/이익 금액(opp&firm)
-    print('quarterOppty',quarterOppty)
-    print('cumulativeSalesAmount',cumulativeSalesAmount)
+    print('quarterOppty', quarterOppty)
+    print('cumulativeSalesAmount', cumulativeSalesAmount)
     opptyFirmSales = cumulativeSalesAmount + sum(quarterOppty)
     print(sum(quarterOppty))
     opptyFirmProfits = cumulativeProfitAmount['cumulative_profit_amount'] + sum(quarterOpptyProfit)
 
     ###분기 누적 매출/이익  금액(opp&firm)
-    quarterOpptyFirmSales = quarterlyCumulativeSales['quarterly_cumulative_sales']  + sum(quarterOppty[0:todayQuarter])
-    quarterOpptyFirmProfits = quarterlyCumulativeProfit['quarterly_cumulative_profit']  + sum(quarterOpptyProfit[0:todayQuarter])
+    quarterOpptyFirmSales = quarterlyCumulativeSales['quarterly_cumulative_sales'] + sum(quarterOppty[0:todayQuarter])
+    quarterOpptyFirmProfits = quarterlyCumulativeProfit['quarterly_cumulative_profit'] + sum(quarterOpptyProfit[0:todayQuarter])
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -383,31 +385,31 @@ def dashboard_goal(request):
     template = loader.get_template('dashboard/dashboardgoal.html')
     todayYear = datetime.today().year
     dictQuarter = {"q1_start": "{}-01-01".format(todayYear),
-                    "q1_end": "{}-04-01".format(todayYear),
-                    "q2_end": "{}-07-01".format(todayYear),
-                    "q3_end": "{}-10-01".format(todayYear),
-                    "q4_end": "{}-01-01".format(todayYear + 1)}
+                   "q1_end": "{}-04-01".format(todayYear),
+                   "q2_end": "{}-07-01".format(todayYear),
+                   "q3_end": "{}-10-01".format(todayYear),
+                   "q4_end": "{}-01-01".format(todayYear + 1)}
     salesteamList = Employee.objects.values('empDeptName').filter(Q(empStatus='Y')).distinct()
     salesteamList = [x['empDeptName'] for x in salesteamList if "영업" in x['empDeptName']]
-    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear)&Q(contractId__contractStep='Firm'))
+    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(contractId__contractStep='Firm'))
 
     ## 팀별 목표 & 전체 매출 금액
     # teamGoals = Goal.objects.filter(Q(empDeptName__icontains='영업') & Q(year=todayYear))
     teamGoals = Goal.objects.filter(Q(year=todayYear))
     teamGoalsSum = teamGoals.aggregate(sum_yearSales=Sum('yearSalesSum'), sum_yearProfit=Sum('yearProfitSum'), sum_salesq1=Sum('salesq1'), sum_salesq2=Sum('salesq2'),
-                                                    sum_salesq3=Sum('salesq3'), sum_salesq4=Sum('salesq3'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'),
-                                                    sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'))
+                                       sum_salesq3=Sum('salesq3'), sum_salesq4=Sum('salesq3'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'),
+                                       sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'))
     teamSales = []
     for i in salesteamList:
         sales = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__year=todayYear)).values('contractId__empDeptName').aggregate(sum_sales=Sum('revenuePrice'),
-                                                                                                                                            sum_profits=Sum('revenueProfitPrice'))
+                                                                                                                                                  sum_profits=Sum('revenueProfitPrice'))
         teamSales.append({i: sales})
 
     for i in salesteamList:
         # 분기 Firm
         if i == '영업1팀':
             team1Revenues = revenues.filter(Q(contractId__empDeptName=i)).values('predictBillingDate__month', 'contractId__empDeptName'
-                                                                                  ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
+                                                                                 ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
             quarter1Revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dictQuarter['q1_start']) & Q(predictBillingDate__lt=dictQuarter['q1_end'])) \
                 .aggregate(sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
             quarter2Revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dictQuarter['q1_end']) & Q(predictBillingDate__lt=dictQuarter['q2_end'])) \
@@ -420,11 +422,11 @@ def dashboard_goal(request):
             quarterFirmTeam1RevenueProfitPrice = [quarter1Revenues['sum_profits'], quarter2Revenues['sum_profits'], quarter3Revenues['sum_profits'], quarter4Revenues['sum_profits']]
             quarterFirmTeam1Sales = [0 if quarterFirmTeam1RevenuePrice[i] == None else quarterFirmTeam1RevenuePrice[i] for i in range(len(quarterFirmTeam1RevenuePrice))]
             quarterFirmTeam1Profits = [0 if quarterFirmTeam1RevenueProfitPrice[i] == None else quarterFirmTeam1RevenueProfitPrice[i] for i in
-                                          range(len(quarterFirmTeam1RevenueProfitPrice))]
+                                       range(len(quarterFirmTeam1RevenueProfitPrice))]
 
         elif i == '영업2팀':
             team2Revenues = revenues.filter(Q(contractId__empDeptName=i)).values('predictBillingDate__month', 'contractId__empDeptName'
-                                                                                  ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
+                                                                                 ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
             quarter1Revenues = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__gte=dictQuarter['q1_start']) & Q(predictBillingDate__lt=dictQuarter['q1_end'])) \
                 .aggregate(
                 sum_sales=Sum('revenuePrice'), sum_profits=Sum('revenueProfitPrice'))
@@ -441,7 +443,7 @@ def dashboard_goal(request):
             quarterFirmTeam2RevenueProfitPrice = [quarter1Revenues['sum_profits'], quarter2Revenues['sum_profits'], quarter3Revenues['sum_profits'], quarter4Revenues['sum_profits']]
             quarterFirmTeam2Sales = [0 if quarterFirmTeam2RevenuePrice[i] == None else quarterFirmTeam2RevenuePrice[i] for i in range(len(quarterFirmTeam2RevenuePrice))]
             quarterFirmTeam2Profits = [0 if quarterFirmTeam1RevenueProfitPrice[i] == None else quarterFirmTeam2RevenueProfitPrice[i] for i in
-                                          range(len(quarterFirmTeam2RevenueProfitPrice))]
+                                       range(len(quarterFirmTeam2RevenueProfitPrice))]
 
     ###월별 팀 매출 금액
     team1Revenues = list(team1Revenues)
@@ -578,7 +580,7 @@ def quarter_asjson(request):
     cumulative = request.POST['cumulative']
     quarter = request.POST['quarter']
 
-    dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=todayYear)&Q(contractId__contractStep=step))
+    dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(contractId__contractStep=step))
 
     if quarter:
         if cumulative == 'Y':
@@ -613,34 +615,34 @@ def quarter_asjson(request):
     return HttpResponse(structureStep, content_type='application/json')
 
 
-
 def dashboard_credit(request):
     template = loader.get_template('dashboard/dashboardcredit.html')
     todayYear = datetime.today().year
     # 해당 년도 매출
-    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear)&Q(billingDate__isnull=False))
+    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False))
     # 월별 미수금액 / 수금액
-    revenuesMonth = revenues.values('predictBillingDate__month')\
-                                                        .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(billingDate__isnull=False) & Q(depositDate__isnull=True)),0)
-                                                                ,collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)),0))
+    revenuesMonth = revenues.values('predictBillingDate__month') \
+        .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(billingDate__isnull=False) & Q(depositDate__isnull=True)), 0)
+                  , collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0))
     # 총 미수금액 / 수금액
     revenuesTotal = revenuesMonth.aggregate(outstandingCollectionsTotal=Sum('outstandingCollectionsMonth')
-                                                         ,collectionofMoneyTotal=Sum('collectionofMoneyMonth'))
+                                            , collectionofMoneyTotal=Sum('collectionofMoneyMonth'))
     # 해당 년도 매입
-    purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear)&Q(billingDate__isnull=False))
+    purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False))
     # 월별 미지급액 / 지급액
-    purchasesMonth = purchases.values('predictBillingDate__month').annotate(accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)),0)
-                                                                                ,amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)),0))
+    purchasesMonth = purchases.values('predictBillingDate__month').annotate(accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)), 0)
+                                                                            , amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0))
     # 총 미지급액
     purchasesTotal = purchasesMonth.aggregate(accountsPayablesTotal=Sum('accountsPayablesMonth')
-                                                     ,amountPaidTotal=Sum('amountPaidMonth'))
+                                              , amountPaidTotal=Sum('amountPaidMonth'))
     context = {
         'revenuesTotal': revenuesTotal,
-        'revenuesMonth':revenuesMonth,
-        'purchasesTotal':purchasesTotal,
-        'purchasesMonth':purchasesMonth,
+        'revenuesMonth': revenuesMonth,
+        'purchasesTotal': purchasesTotal,
+        'purchasesMonth': purchasesMonth,
     }
     return HttpResponse(template.render(context, request))
+
 
 @login_required
 @csrf_exempt
@@ -651,16 +653,49 @@ def cashflow_asjson(request):
     month = request.POST['month'][:-1]
 
     if outstandingCollections:
-        cashflow = Revenue.objects.filter(Q(predictBillingDate__year=todayYear)&Q(predictBillingDate__month=month)&Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
+        cashflow = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(predictBillingDate__month=month) & Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
         cashflow = cashflow.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
-                               'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
-                               'contractId__depositCondition', 'contractId__depositConditionDay', 'comment')
+                                   'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
+                                   'contractId__depositCondition', 'contractId__depositConditionDay', 'comment')
 
     if accountsPayables:
-        cashflow = Purchase.objects.filter(Q(predictBillingDate__year=todayYear)&Q(predictBillingDate__month=month)&Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
+        cashflow = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(predictBillingDate__month=month) & Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
         cashflow = cashflow.values('contractId__contractName', 'purchaseCompany', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
-                               'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
+                                   'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
 
     structureStep = json.dumps(list(cashflow), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')
 
+
+@login_required
+@csrf_exempt
+def service_asjson(request):
+    startdate = request.POST['startdate'].replace('.','-')
+    enddate = request.POST['enddate'].replace('.','-')
+    company = request.POST['company']
+    empname = request.POST['empname']
+    servicetype = request.POST['servicetype']
+    overhour = request.POST['overhour']
+    print(overhour)
+
+    services = Servicereport.objects.filter(Q(serviceDate__gte=startdate)&Q(serviceDate__lte=enddate))
+
+    if company:
+        services = services.filter(Q(companyName=company))
+
+    if company:
+        services = services.filter(Q(companyName=company))
+
+    if empname:
+        services = services.filter(Q(empName=empname))
+
+    if servicetype:
+        services = services.filter(Q(serviceType=servicetype))
+
+    if overhour:
+        services = services.exclude(serviceOverHour=0)
+
+    services = services.values()
+    print(services)
+    structureStep = json.dumps(list(services), cls=DjangoJSONEncoder)
+    return HttpResponse(structureStep, content_type='application/json')
