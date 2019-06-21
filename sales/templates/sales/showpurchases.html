@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  영업관리
+  매입관리
 {% endblock %}
 
 
@@ -608,7 +608,6 @@
                       purchaseResult += parseFloat(data);
                   });
                   $(api.column(10).footer()).html(purchaseResult.toLocaleString());
-
               },
           });
 
