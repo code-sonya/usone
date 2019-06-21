@@ -226,14 +226,12 @@
       var saleCustomerId = $('#saleCustomerId');
       saleCustomerId.focus(function () {
           $('#saleCompanyNames').trigger('set', {id: value});
-
       });
 
       {#최종고객사#}
       var salePrice = $('#salePrice');
       salePrice.focus(function () {
           $('#endCompanyNames').trigger('set', {id: value});
-
       });
 
       function btn_cancel() {

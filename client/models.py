@@ -7,7 +7,7 @@ class Company(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'), ('X', 'X'))
 
     companyName = models.CharField(max_length=100, primary_key=True)
-    companyNameKo = models.CharField(max_length=100)
+    companyNameKo = models.CharField(max_length=100, unique=True)
     companyNumber = models.CharField(max_length=30, null=True, blank=True)
     saleEmpId = models.ForeignKey(Employee, null=True, blank=True, on_delete=models.CASCADE, related_name='saleEmpID')
     solutionMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='solutionMainEmpID')
@@ -39,7 +39,7 @@ class Customer(models.Model):
     companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
     customerDeptName = models.CharField(max_length=30, null=True, blank=True)
     customerPhone = models.CharField(max_length=20, null=True, blank=True)
-    customerEmail = models.EmailField(max_length=254)
+    customerEmail = models.CharField(max_length=254, null=True, blank=True)
     customerStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     class Meta:

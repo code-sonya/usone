@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  담당자 등록
+  고객사
 {% endblock %}
 
 {% block css %}
@@ -15,11 +15,9 @@
     <div class="col-xl-2"></div>
     <div class="col-xl-8 ">
       <div class="card shadow mb-4">
-        <!-- 카드 제목 : 게시물 제목 -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> {{ companyName }} 담당자 등록</h6>
         </div>
-        <!-- 카드 본문 -->
         <div class="card-body">
           <form id="Customerform" method="POST">
             {% csrf_token %}
@@ -37,19 +35,19 @@
             </div>
             <div class="row">
               <div class="col-xl-12 col-sm-12">
-                <label for="customerDeptName" class="font-weight-bold text-primary"> 담당자 부서 </label> {{ form.customerDeptName }}
+                <label for="customerDeptName" class="font-weight-bold"> 담당자 부서 </label> {{ form.customerDeptName }}
                 <br>
               </div>
             </div>
             <div class="row">
               <div class="col-xl-12 col-sm-10">
-                 <label for="customerPhone" class="font-weight-bold text-primary"> 담당자 연락처 </label> {{ form.customerPhone }}
+                 <label for="customerPhone" class="font-weight-bold"> 담당자 연락처 </label> {{ form.customerPhone }}
                 <br>
               </div>
             </div>
             <div class="row">
               <div class="col-xl-12 col-sm-10">
-                 <label for="customerEmail" class="font-weight-bold text-primary"> 담당자 이메일 </label> {{ form.customerEmail }}
+                 <label for="customerEmail" class="font-weight-bold"> 담당자 이메일 </label> {{ form.customerEmail }}
                 <br>
               </div>
             </div>
