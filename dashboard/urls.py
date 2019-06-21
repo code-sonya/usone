@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^opportunityjson/$', views.opportunity_asjson, name='opportunity_ajax_url'),
     url(r'^quarterasjson/$', views.quarter_asjson, name='quarter_ajax_url'),
     url(r'^cashflowasjson/$', views.cashflow_asjson, name='cashflow_ajax_url'),
+    url(r'^serviceasjson/$', views.service_asjson, name='service_ajax_url'),
 ]
