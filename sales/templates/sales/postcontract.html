@@ -706,7 +706,7 @@
                   $('#' + predictExecutionDate).val(tmsd.getFullYear() + '-' + ((tmsd.getMonth() + 1) > 9 ? '' : '0') + (tmsd.getMonth() + 1) + '-' + (tmsd.getDate() > 9 ? '' : '0') + tmsd.getDate());
               } else if (condition === '익월') {
                   const nmsd = new Date(date.substring(0, 4), date.substring(5, 7) * 1, $('#depositConditionDay').val());
-                  $('#' + predictExecutionDate).val(tmsd.getFullYear() + '-' + ((tmsd.getMonth() + 1) > 9 ? '' : '0') + (tmsd.getMonth() + 1) + '-' + (tmsd.getDate() > 9 ? '' : '0') + tmsd.getDate());
+                  $('#' + predictExecutionDate).val(nmsd.getFullYear() + '-' + ((nmsd.getMonth() + 1) > 9 ? '' : '0') + (nmsd.getMonth() + 1) + '-' + (nmsd.getDate() > 9 ? '' : '0') + nmsd.getDate());
               }
           }
       }
