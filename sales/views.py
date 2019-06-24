@@ -1129,7 +1129,7 @@ def transfer_contract(request):
 @csrf_exempt
 def empid_asjson(request):
     empId = request.POST['empId']
-    contracts = Contract.objects.filter(Q(empId=empId)&Q(transferContractId__isnull=True))
+    contracts = Contract.objects.filter(Q(empId=empId) & Q(transferContractId__isnull=True))
     contracts = contracts.values()
 
     for contract in contracts:
@@ -1311,3 +1311,19 @@ def show_purchaseinadvance(request):
 
     return render(request, 'sales/showpurchaseinadvance.html', context)
 
+
+def save_company(request):
+
+    companyName = request.POST['companyName']
+    companyNameKo = request.POST['companyNameKo']
+    companyNumber = request.POST['companyNumber']
+    companyAddress = request.POST['companyAddress']
+
+    if Company.objects.filter(companyName=companyName):
+        result = 'N'
+    else:
+        Company.objects.create(companyName=companyName, companyNameKo=companyNameKo, companyNumber=companyNumber, companyAddress=companyAddress)
+        result = ['Y', companyName, companyNameKo ]
+
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

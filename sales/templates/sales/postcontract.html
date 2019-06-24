@@ -30,6 +30,11 @@
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> 영업기회 및 계약 등록 </h6>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="companyLink" data-toggle="modal" data-target="#companyModal">
+              <i class="fas fa-hotel fa-fw text-gray-600"></i>
+            </a>
+          </div>
         </div>
 
         <div class="card-body">
@@ -205,6 +210,62 @@
     </div>
   </div>
 
+  <!-- Filter Modal -->
+  <div class="modal fade" id="companyModal" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">고객사 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="companyForm" onkeydown="javascript: if (event.keyCode == 13) {btn_register();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12 mb-6 mb-sm-0">
+                <label for="companyName" class="font-weight-light text-primary"><b>[기술]고객사 명</b></label>
+                <input type="text" class="form-control" id="companyName" name="companyName">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12 mb-6 mb-sm-0">
+                <label for="companyNameKo" class="font-weight-light text-primary"><b>[영업]고객사 명</b></label>
+                <input type="text" class="form-control" id="companyNameKo" name="companyNameKo">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="companyNumber" class="font-weight-light text-secondary">사업자등록번호</label>
+                <input class="form-control" id="companyNumber" name="companyNumber">
+              </div>
+            </div>
+            {#            <div class="row mb-1">#}
+            {#              <div class="col-12">#}
+            {#                <label for="salesEmpId" class="font-weight-light text-secondary">영업대표</label>#}
+            {#                <input class="form-control" id="salesEmpId" name="salesEmpId">#}
+            {#              </div>#}
+            {#            </div>#}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="companyAddress" class="font-weight-light text-secondary">주소</label>
+                <input class="form-control" id="companyAddress" name="companyAddress">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_register()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -214,6 +275,10 @@
 
       var value;
       var inputId;
+      var resultcompanyName;
+      var resultcompanyNameKo;
+      var companyList = new Array();
+      companyList ={{ companyNames|safe }};
 
       function addInput(input) {
           if (window.event.keyCode == 9) {
@@ -242,12 +307,118 @@
           }
       }
 
+      function btn_register() {
 
-      function replaceAll(predictStr, searchStr, replaceStr) {
+          const companyName = document.getElementById("companyName").value;
+          const companyNameKo = document.getElementById("companyNameKo").value;
+          const companyNumber = document.getElementById("companyNumber").value;
+          const companyAddress = document.getElementById("companyAddress").value;
 
-          new_predictStr = predictStr.split(searchStr).join(replaceStr).split("T").join(" ");
+          if (document.getElementById("companyName").value === '') {
+              alert("[기술]고객사 명 입력해주세요.");
+              return false;
+          }
 
-          return new_predictStr
+          if (document.getElementById("companyNameKo").value === '') {
+              alert("[영업]고객사 명 입력해주세요.");
+              return false;
+          }
+
+          $.ajax({
+              url: "{% url 'sales:savecompany' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "companyName": companyName,
+                  "companyNameKo": companyNameKo,
+                  "companyNumber": companyNumber,
+                  "companyAddress": companyAddress
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData == 'N') {
+                      alert('이미 등록된 고객사입니다.');
+                      companyList ={{ companyNames|safe }};
+                  } else if (returnData[0] == 'Y') {
+                      $('.close').click();
+                      alert('등록이 완료되었습니다.');
+                      resultcompanyName = returnData[1];
+                      resultcompanyNameKo = returnData[2];
+                      companyList.push({id: resultcompanyName, value: resultcompanyNameKo});
+                      replaceMagic();
+                  }
+              }
+          });
+
+      }
+
+      function replaceMagic() {
+          $('#saleCompanyNames').magicsearch({
+              dataSource: companyList,
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+              success: function ($input, data) {
+                  $.ajax({
+                      url: "{% url 'sales:salemanager_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      data: {"saleCompanyName": data.id},
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var salecompany = returnData;
+                          $('#saleCustomerId').empty();
+                          $('#saleCustomerId').append('<option value="" selected="">---------</option>');
+
+                          for (var count = 0; count < salecompany.length; count++) {
+                              var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
+                              $('#saleCustomerId').append(option);
+                          }
+                      }
+                  });
+              }
+          });
+
+          $('#endCompanyNames').magicsearch({
+              dataSource: companyList,
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+          });
+
+          var lengthrevenueCompany = $('[name="revenueCompany"]').length;
+          var lengthpurchaseCompany = $('[name="purchaseCompany"]').length;
+
+          for (var i = 0; i < lengthrevenueCompany; i++) {
+              $('#revenue5' + i).magicsearch({
+                  dataSource: companyList,
+                  fields: 'value',
+                  id: 'id',
+                  format: '%value%',
+                  multiStyle: {space: 5, width: 80},
+                  noResult: '검색결과없음',
+                  focusShow: true,
+              });
+          }
+
+          for (var j = 0; j < lengthpurchaseCompany; j++) {
+               $('#purchase5' + j).magicsearch({
+                  dataSource: companyList,
+                  fields: 'value',
+                  id: 'id',
+                  format: '%value%',
+                  multiStyle: {space: 5, width: 80},
+                  noResult: '검색결과없음',
+                  focusShow: true,
+              });
+          }
+
       }
 
 
@@ -548,7 +719,7 @@
               saleCompanyNames.setAttribute("data-id", "{{ saleCompanyNames }}");
           {% endif %}
           $('#saleCompanyNames').magicsearch({
-              dataSource: {{ companyNames|safe }},
+              dataSource: companyList,
               fields: 'value',
               id: 'id',
               format: '%value%',
@@ -584,7 +755,7 @@
               endCompanyNames.setAttribute("data-id", "{{ endCompanyNames }}");
           {% endif %}
           $('#endCompanyNames').magicsearch({
-              dataSource: {{ companyNames|safe }},
+              dataSource: companyList,
               fields: 'value',
               id: 'id',
               format: '%value%',
@@ -746,7 +917,7 @@
               $('.money').simpleMoneyFormat();
               document.getElementById("revenue5" + revenueCounter).setAttribute("data-id", $('#saleCompanyNames').attr('data-id'));
               $('#revenue5' + revenueCounter).magicsearch({
-                  dataSource: {{ companyNames|safe }},
+                  dataSource: companyList,
                   fields: 'value',
                   id: 'id',
                   format: '%value%',
@@ -756,7 +927,7 @@
               });
 
               $('#revenue6' + revenueCounter).on('focus', function (e) {
-                  $('#'+inputId).trigger('set', {id: value});
+                  $('#' + inputId).trigger('set', {id: value});
               });
 
 
@@ -781,7 +952,7 @@
                   ]).draw(false);
                   $('.money').simpleMoneyFormat();
                   $('#revenue5' + revenueCounter).magicsearch({
-                      dataSource: {{ companyNames|safe }},
+                      dataSource: companyList,
                       fields: 'value',
                       id: 'id',
                       format: '%value%',
@@ -847,7 +1018,7 @@
               ]).draw(false);
               $('.money').simpleMoneyFormat();
               $('#purchase5' + purchaseCounter).magicsearch({
-                  dataSource: {{ companyNames|safe }},
+                  dataSource: companyList,
                   fields: 'value',
                   id: 'id',
                   format: '%value%',
@@ -857,7 +1028,7 @@
               });
 
               $('#purchase6' + purchaseCounter).on('focus', function (e) {
-                  $('#'+inputId).trigger('set', {id: value});
+                  $('#' + inputId).trigger('set', {id: value});
               });
 
               purchaseCounter++;
@@ -880,7 +1051,7 @@
                   ]).draw(false);
                   $('.money').simpleMoneyFormat();
                   $('#purchase5' + purchaseCounter).magicsearch({
-                      dataSource: {{ companyNames|safe }},
+                      dataSource: companyList,
                       fields: 'value',
                       id: 'id',
                       format: '%value%',
