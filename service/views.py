@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
 
 from hr.models import Employee
+from client.models import Company
 from noticeboard.models import Board
 from .forms import ServicereportForm, ServiceformForm
 from .functions import *
@@ -198,16 +199,25 @@ def post_service(request, postdate):
         form.fields['enddate'].initial = postdate
         form.fields['endtime'].initial = "18:00"
         serviceforms = Serviceform.objects.filter(empId=empId)
+
         empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
         empNames = []
         for emp in empList:
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
+
+        companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
+        companyNames = []
+        for company in companyList:
+            temp = {'id': company.pk, 'value': company.pk}
+            companyNames.append(temp)
+
         context = {
             'form': form,
             'postdate': postdate,
             'serviceforms': serviceforms,
             'empNames': empNames,
+            'companyNames': companyNames,
         }
         return render(request, 'service/postservice.html', context)
 
@@ -412,10 +422,20 @@ def modify_service(request, serviceId):
 
         coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
 
+        companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
+        companyNames = []
+        for company in companyList:
+            temp = {'id': company.pk, 'value': company.pk}
+            companyNames.append(temp)
+
+        companyName = Servicereport.objects.get(serviceId=serviceId).companyName
+
         context = {
             'form': form,
             'empNames': empNames,
             'coWorkers': coWorkers,
+            'companyNames': companyNames,
+            'companyName': companyName,
         }
         return render(request, 'service/postservice.html', context)
 

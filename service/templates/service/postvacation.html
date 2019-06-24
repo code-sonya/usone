@@ -26,11 +26,11 @@
           <div class="form-group row">
             <div class="col-6 mb-3 mb-sm-0">
               <label for="startdate" class="font-weight-bold text-primary"> 시작 일자 </label>
-              <input type="date" name="startdate" class="form-control" id="startdate" onchange="showVal(this.value)" maxlength="16" required="">
+              <input type="date" max="9999-12-31" name="startdate" class="form-control" id="startdate" onchange="showVal(this.value)" maxlength="16" required="">
             </div>
             <div class="col-6">
               <label for="enddate" class="font-weight-bold text-primary"> 종료 일자 </label>
-              <input type="date" name="enddate" class="form-control" id="enddate" onchange="showTable()" maxlength="16" required="">
+              <input type="date" max="9999-12-31" name="enddate" class="form-control" id="enddate" onchange="showTable()" maxlength="16" required="">
             </div>
           </div>
 
