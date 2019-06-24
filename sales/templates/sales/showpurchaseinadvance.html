@@ -353,7 +353,8 @@
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                       "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
                       "accountspayable": '{{ accountspayable }}',
-                      "modifyMode": "{{ modifyMode }}"
+                      "modifyMode": "{{ modifyMode }}",
+                      "userId": "{{ user.employee.empId }}",
                   },
                   "url": "{% url 'sales:purchases_ajax_url' %}",
                   "dataSrc": ""
