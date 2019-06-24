@@ -5,9 +5,9 @@ from .models import Servicereport, Serviceform
 
 
 class ServicereportForm(forms.ModelForm):
-    startdate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'startdate', 'onchange': "showVal(this.value)"}))
+    startdate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date', "max": '9999-12-31', 'id': 'startdate', 'onchange': "showVal(this.value)"}))
     starttime = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time', 'id': 'starttime'}))
-    enddate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'enddate'}))
+    enddate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date', "max": '9999-12-31', 'id': 'enddate'}))
     endtime = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time', 'id': 'endtime'}))
     coWorkers = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'coWorkers', 'autocomplete': 'off'}))
 
@@ -18,7 +18,7 @@ class ServicereportForm(forms.ModelForm):
                   'serviceLocation', 'directgo', 'coWorkers', 'serviceTitle', 'serviceDetails')
 
         widgets = {
-            'companyName': forms.Select(attrs={'class': 'form-control', 'id': 'companyName'}),
+            'companyName': forms.TextInput(attrs={'class': 'form-control magicsearch', 'id': 'companyName', 'autocomplete': 'off', 'onkeydown': 'addInput(companyName)'}),
             'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType"}),
             'serviceLocation': forms.Select(attrs={'class': 'form-control', 'id': 'serviceLocation'}),
             'directgo': forms.Select(attrs={'class': 'form-control', 'id': 'directgo'}),

@@ -106,14 +106,21 @@
     <li class="nav-item">
       <a class="nav-link" href="#" onclick="btn_dayreport()">
         <i class="fas fa-fw fa-pencil-ruler"></i>
-        <span>일일 업무</span></a>
+        <span>일일업무</span></a>
     </li>
 
     <!-- Nav Item - Daily Report -->
     <li class="nav-item">
-      <a class="nav-link" href="/service/showservices/">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSchedule" aria-expanded="true" aria-controls="collapseSchedule">
         <i class="far fa-fw fa-calendar-check"></i>
-        <span>일정 관리</span></a>
+        <span>일정관리</span>
+      </a>
+      <div id="collapseSchedule" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <a class="collapse-item" href="/service/showservices/">일정관리</a>
+          <a class="collapse-item" href="/service/showvacations/">휴가관리</a>
+        </div>
+      </div>
     </li>
 
     <!-- Nav Item - Calendar -->
