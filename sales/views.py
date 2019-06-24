@@ -99,7 +99,6 @@ def post_contract(request):
         for emp in empList:
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
-        print(empNames)
         context = {
             'form': form,
             'companyNames': companyNames,
