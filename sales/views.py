@@ -87,14 +87,23 @@ def post_contract(request):
 
     else:
         form = ContractForm()
+
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
         for company in companyList:
             temp = {'id': company.pk, 'value': company.companyNameKo}
             companyNames.append(temp)
+
+        empList = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {'id': emp.pk, 'value': emp.empName}
+            empNames.append(temp)
+
         context = {
             'form': form,
             'companyNames': companyNames,
+            'empNames': empNames,
         }
         return render(request, 'sales/postcontract.html', context)
 

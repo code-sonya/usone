@@ -227,31 +227,36 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-12 mb-6 mb-sm-0">
-                <label for="companyName" class="font-weight-light text-primary"><b>[기술]고객사 명</b></label>
+                <label for="companyName" class="font-weight-bold text-primary">[기술]고객사 명</label>
                 <input type="text" class="form-control" id="companyName" name="companyName">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-12 mb-6 mb-sm-0">
-                <label for="companyNameKo" class="font-weight-light text-primary"><b>[영업]고객사 명</b></label>
+                <label for="companyNameKo" class="font-weight-bold text-primary">[영업]고객사 명</label>
                 <input type="text" class="form-control" id="companyNameKo" name="companyNameKo">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-12">
-                <label for="companyNumber" class="font-weight-light text-secondary">사업자등록번호</label>
+                <label for="companyNumber" class="font-weight-bold text-secondary">사업자등록번호</label>
                 <input class="form-control" id="companyNumber" name="companyNumber">
               </div>
             </div>
-            {#            <div class="row mb-1">#}
-            {#              <div class="col-12">#}
-            {#                <label for="salesEmpId" class="font-weight-light text-secondary">영업대표</label>#}
-            {#                <input class="form-control" id="salesEmpId" name="salesEmpId">#}
-            {#              </div>#}
-            {#            </div>#}
             <div class="row mb-1">
               <div class="col-12">
-                <label for="companyAddress" class="font-weight-light text-secondary">주소</label>
+                <label for="salesEmpId" class="font-weight-bold text-secondary">영업대표</label>
+                <select class="form-control" id="salesEmpId" name="salesEmpId">
+                  <option value="" selected="">---------</option>
+                  {% for emp in empNames %}
+                    <option value="{{ emp.pk }}">{{ emp.value }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="companyAddress" class="font-weight-bold text-secondary">주소</label>
                 <input class="form-control" id="companyAddress" name="companyAddress">
               </div>
             </div>
