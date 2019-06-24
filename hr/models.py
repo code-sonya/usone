@@ -20,6 +20,7 @@ class Employee(models.Model):
 
     empId = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    empCode = models.CharField(max_length=20, null=True, blank=True)
     empName = models.CharField(max_length=10)
     empPosition = models.IntegerField(choices=empPositionChoices, default=6)
     empManager = models.CharField(max_length=1, choices=statusChoices, default='N')
@@ -32,3 +33,14 @@ class Employee(models.Model):
 
     def __str__(self):
         return self.empName
+
+
+class Attendance(models.Model):
+    attendanceId = models.AutoField(primary_key=True)
+    attendanceDate = models.DateField()
+    attendanceTime = models.TimeField()
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    attendanceType = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.attendanceId

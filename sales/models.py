@@ -8,7 +8,7 @@ class Contract(models.Model):
     saleTypeChoices = (('직판', '직판'), ('T1', 'T1'), ('T2', 'T2'), ('기타', '기타'))
     saleIndustryChoices = (('금융', '금융'), ('공공', '공공'), ('유통 & 제조', '유통 & 제조'), ('통신 & 미디어', '통신 & 미디어'), ('기타', '기타'))
     contractStepChoices = (('Opportunity', 'Opportunity'), ('Firm', 'Firm'), ('Drop', 'Drop'))
-    depositConditionChoices = (('계산서 발행 후', '계산서 발행 후'), ('당월 말', '당월 말'), ('익월 초', '익월 초'), ('익월 말', '익월 말'))
+    depositConditionChoices = (('계산서 발행 후', '계산서 발행 후'), ('당월', '당월'), ('익월', '익월'), ('당월 말', '당월 말'), ('익월 초', '익월 초'), ('익월 말', '익월 말'))
 
     contractId = models.AutoField(primary_key=True)
     contractCode = models.CharField(max_length=30)

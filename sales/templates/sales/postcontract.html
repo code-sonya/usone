@@ -428,7 +428,6 @@
 
       }
 
-
       function btn_save() {
           if (document.getElementById("contractCode").value === '') {
               alert("관리번호를 입력해주세요.");
@@ -675,7 +674,7 @@
       }
 
       function changeCondition() {
-          if ($('#depositCondition').val() == '계산서 발행 후') {
+          if ($('#depositCondition').val() == '계산서 발행 후' || $('#depositCondition').val() == '당월' || $('#depositCondition').val() == '익월' ) {
               $('#depositConditionDay').removeAttr('readonly');
           } else {
               $('#depositConditionDay').val(0);
@@ -702,6 +701,12 @@
                   const aftd = new Date(date.substring(0, 4), date.substring(5, 7) * 1 - 1, date.substring(8, 10));
                   aftd.setDate(aftd.getDate() + $('#depositConditionDay').val() * 1);
                   $('#' + predictExecutionDate).val(aftd.getFullYear() + '-' + ((aftd.getMonth() + 1) > 9 ? '' : '0') + (aftd.getMonth() + 1) + '-' + (aftd.getDate() > 9 ? '' : '0') + aftd.getDate());
+              } else if (condition === '당월') {
+                  const tmsd = new Date(date.substring(0, 4), date.substring(5, 7) * 1 - 1, $('#depositConditionDay').val());
+                  $('#' + predictExecutionDate).val(tmsd.getFullYear() + '-' + ((tmsd.getMonth() + 1) > 9 ? '' : '0') + (tmsd.getMonth() + 1) + '-' + (tmsd.getDate() > 9 ? '' : '0') + tmsd.getDate());
+              } else if (condition === '익월') {
+                  const nmsd = new Date(date.substring(0, 4), date.substring(5, 7) * 1, $('#depositConditionDay').val());
+                  $('#' + predictExecutionDate).val(tmsd.getFullYear() + '-' + ((tmsd.getMonth() + 1) > 9 ? '' : '0') + (tmsd.getMonth() + 1) + '-' + (tmsd.getDate() > 9 ? '' : '0') + tmsd.getDate());
               }
           }
       }
