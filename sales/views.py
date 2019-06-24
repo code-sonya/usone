@@ -97,9 +97,9 @@ def post_contract(request):
         empList = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
         empNames = []
         for emp in empList:
-            temp = {'id': emp.pk, 'value': emp.empName}
+            temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
-
+        print(empNames)
         context = {
             'form': form,
             'companyNames': companyNames,
@@ -1326,12 +1326,13 @@ def save_company(request):
     companyName = request.POST['companyName']
     companyNameKo = request.POST['companyNameKo']
     companyNumber = request.POST['companyNumber']
+    salesEmpId = Employee.objects.get(empId=request.POST['salesEmpId'])
     companyAddress = request.POST['companyAddress']
 
     if Company.objects.filter(companyName=companyName):
         result = 'N'
     else:
-        Company.objects.create(companyName=companyName, companyNameKo=companyNameKo, companyNumber=companyNumber, companyAddress=companyAddress)
+        Company.objects.create(companyName=companyName, companyNameKo=companyNameKo, companyNumber=companyNumber, saleEmpId=salesEmpId, companyAddress=companyAddress)
         result = ['Y', companyName, companyNameKo ]
 
     structure = json.dumps(result, cls=DjangoJSONEncoder)

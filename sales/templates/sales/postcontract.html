@@ -249,7 +249,7 @@
                 <select class="form-control" id="salesEmpId" name="salesEmpId">
                   <option value="" selected="">---------</option>
                   {% for emp in empNames %}
-                    <option value="{{ emp.pk }}">{{ emp.value }}</option>
+                    <option value="{{ emp.id }}">{{ emp.value }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -317,6 +317,7 @@
           const companyName = document.getElementById("companyName").value;
           const companyNameKo = document.getElementById("companyNameKo").value;
           const companyNumber = document.getElementById("companyNumber").value;
+          const salesEmpId = document.getElementById("salesEmpId").value;
           const companyAddress = document.getElementById("companyAddress").value;
 
           if (document.getElementById("companyName").value === '') {
@@ -337,6 +338,7 @@
                   "companyName": companyName,
                   "companyNameKo": companyNameKo,
                   "companyNumber": companyNumber,
+                  "salesEmpId": salesEmpId,
                   "companyAddress": companyAddress
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
