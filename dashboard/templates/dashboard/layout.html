@@ -96,11 +96,25 @@
             <a class="collapse-item" href="/sales/showgoals/">목표관리</a>
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/transfercontract/">계약이관</a>
-{#            <a class="collapse-item" href="/sales/uploadpurchase/">데이터업로드</a>#}
+            {#            <a class="collapse-item" href="/sales/uploadpurchase/">데이터업로드</a>#}
           </div>
         </div>
       </li>
     {% endif %}
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHr" aria-expanded="true" aria-controls="collapseHr">
+        <i class="fas fa-fw fa-folder"></i>
+        <span>근태관리</span>
+      </a>
+      <div id="collapseHr" class="collapse" aria-labelledby="headingHr" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <a class="collapse-item" href="/hr/showpunctuality/">근태현황</a>
+         <a class="collapse-item" href="/hr/uploadcaps/">데이터업로드</a>
+          {#            <a class="collapse-item" href="/sales/uploadpurchase/">데이터업로드</a>#}
+        </div>
+      </div>
+    </li>
 
     <!-- Nav Item - Daily Report -->
     <li class="nav-item">
