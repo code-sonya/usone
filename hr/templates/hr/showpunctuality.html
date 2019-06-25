@@ -81,10 +81,8 @@
                       <td class="text-primary">{{ user.status }}</td>
                     {% elif user.status == '지각' %}
                       <td class="text-danger">{{ user.status }}</td>
-                    {% elif user.status == '상주' %}
-                      <td class="text-secondary">{{ user.status }}</td>
                     {% else %}
-                      <td class="text-secondary">-</td>
+                      <td class="text-secondary">{{ user.status }}</td>
                     {% endif %}
                   </tr>
                 {% endfor %}
