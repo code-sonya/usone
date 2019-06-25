@@ -64,15 +64,12 @@
       </div>
     </li>
 
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
     {% if user.employee.empDeptName == '경영지원본부' %}
-      <!-- Nav Item - Daily Report -->
+      <!-- Nav Item - Over Hour -->
       <li class="nav-item">
         <a class="nav-link" href="/dashboard/overhour/">
           <i class="fas fa-fw fa-clock"></i>
-          <span>초과근무계산</span></a>
+          <span>초과근무</span></a>
       </li>
     {% endif %}
 
@@ -115,6 +112,9 @@
         </div>
       </div>
     </li>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider">
 
     <!-- Nav Item - Daily Report -->
     <li class="nav-item">
