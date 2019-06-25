@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 
 class Employee(models.Model):
-    empPositionChoices = ((1, '임원'), (2, '부장'), (3, '차장'), (4, '과장'), (5, '대리'), (6, '사원'))
+    empPositionChoices = ((0, '임원'), (1, '이사'), (2, '부장'), (3, '차장'), (4, '과장'), (5, '대리'), (6, '사원'))
     empDeptNameChoices = (
         ('임원', '임원'),
         ('경영지원본부', '경영지원본부'),
