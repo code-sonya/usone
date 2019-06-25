@@ -44,7 +44,8 @@ def show_punctuality(request, day=None):
     beforeDate = Date - datetime.timedelta(days=1)
     afterDate = Date + datetime.timedelta(days=1)
     users = User.objects.filter(Q(employee__empStatus='Y')).exclude(Q(employee__empDeptName='임원')|Q(employee__empDeptName='미정'))\
-                        .values('employee__empId','employee__empName','employee__empDeptName','employee__empPosition','employee__empRank','employee__dispatchCompany')
+                        .values('employee__empId','employee__empName','employee__empDeptName','employee__empPosition','employee__empRank','employee__dispatchCompany')\
+                        .order_by('employee__empDeptName','employee__empPosition','employee__empRank')
     attendances = Attendance.objects.filter(attendanceDate=day).order_by('attendanceTime')
 
 
@@ -56,7 +57,6 @@ def show_punctuality(request, day=None):
         positionName = employee_empPosition(user['employee__empPosition'])
         user['positionName'] = positionName
         vacation = Vacation.objects.filter(Q(vacationDate=day) & Q(empId_id=user['employee__empId'])).first()
-        print(vacation)
 
         # 상주
         if user['employee__dispatchCompany'] != '내근':
@@ -99,8 +99,6 @@ def show_punctuality(request, day=None):
                         else:
                             user['status'] = '출근'
                             break
-
-    print(users)
 
     context = {
         'day': day,

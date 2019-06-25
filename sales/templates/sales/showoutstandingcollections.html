@@ -276,7 +276,7 @@
 
                   $('#' + selectId).append("<option value='전체'>전체</option>");
                   for (var count = 0; count < empName.length; count++) {
-                      var option = $("<option value=" + empName[count].empName + ">" + empName[count].fields.empName + "</option>");
+                      var option = $("<option value=" + empName[count].fields.empName + ">" + empName[count].fields.empName + "</option>");
                       $('#' + selectId).append(option);
                   }
               }
@@ -344,6 +344,8 @@
                       "outstandingcollection": "{{ outstandingcollection }}",
                       "modifyMode": "{{ modifyMode }}",
                       "userId": "{{ user.employee.empId }}",
+                      "maincategory": "{{ maincategory }}",
+                      "issued": "{{ issued }}",
                   },
                   "url": "{% url 'sales:revenues_ajax_url' %}",
                   "dataSrc": ""

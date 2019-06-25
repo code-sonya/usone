@@ -122,6 +122,7 @@ def show_contracts(request):
         saleCompanyName = request.POST['saleCompanyName']
         endCompanyName = request.POST['endCompanyName']
         contractName = request.POST['contractName']
+        maincategory = request.POST['maincategory']
 
     else:
         startdate = ''
@@ -132,6 +133,7 @@ def show_contracts(request):
         saleCompanyName = ''
         endCompanyName = ''
         contractName = ''
+        maincategory = ''
 
     context = {
         'employees': employees,
@@ -144,6 +146,7 @@ def show_contracts(request):
         'endCompanyName': endCompanyName,
         'contractName': contractName,
         'salesteam_lst': salesteam_lst,
+        'maincategory':maincategory,
     }
 
     return render(request, 'sales/showcontracts.html', context)
@@ -329,6 +332,8 @@ def show_revenues(request):
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
+        maincategory = request.POST['maincategory']
+        issued = request.POST['issued']
 
     else:
         startdate = ''
@@ -339,6 +344,8 @@ def show_revenues(request):
         contractName = ''
         contractStep = ''
         modifyMode = 'N'
+        maincategory = ''
+        issued = 'N'
 
     outstandingcollection = 'N'
     context = {
@@ -352,6 +359,8 @@ def show_revenues(request):
         'contractStep': contractStep,
         'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
+        'maincategory':maincategory,
+        'issued':issued
     }
 
     return render(request, 'sales/showrevenues.html', context)
@@ -425,6 +434,7 @@ def contracts_asjson(request):
     saleCompanyName = request.POST['saleCompanyName']
     endCompanyName = request.POST['endCompanyName']
     contractName = request.POST['contractName']
+    maincategory = request.POST['maincategory']
 
     contracts = Contract.objects.all()
 
@@ -455,6 +465,9 @@ def contracts_asjson(request):
     if contractName:
         contracts = contracts.filter(contractName__contains=contractName)
 
+    if maincategory:
+        contracts = contracts.filter(mainCategory__icontains=maincategory)
+
     contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName__companyNameKo', 'endCompanyName__companyNameKo',
                                  'contractDate', 'contractId', 'salePrice', 'profitPrice', 'mainCategory', 'subCategory', 'saleIndustry', 'saleType',
                                  'contractStartDate', 'contractEndDate', 'depositCondition', 'depositConditionDay')
@@ -465,6 +478,7 @@ def contracts_asjson(request):
 @login_required
 @csrf_exempt
 def revenues_asjson(request):
+    # print(request.POST)
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     empDeptName = request.POST['empDeptName']
@@ -473,12 +487,17 @@ def revenues_asjson(request):
     contractName = request.POST['contractName']
     contractStep = request.POST['contractStep']
     outstandingcollection = request.POST['outstandingcollection']
+    maincategory = request.POST['maincategory']
+    issued = request.POST['issued']
     user = Employee.objects.get(empId=request.POST['userId'])
 
     if outstandingcollection == 'Y':
         revenues = Revenue.objects.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
     elif outstandingcollection == 'N':
-        revenues = Revenue.objects.all()
+        if issued =='Y':
+            revenues = Revenue.objects.filter(Q(billingDate__isnull=False))
+        else:
+            revenues = Revenue.objects.all()
 
     if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
@@ -501,6 +520,8 @@ def revenues_asjson(request):
         revenues = revenues.filter(contractId__contractName__contains=contractName)
     if contractStep != '전체' and contractStep != '':
         revenues = revenues.filter(contractId__contractStep=contractStep)
+    if maincategory:
+        revenues = revenues.filter(contractId__mainCategory__icontains=maincategory)
 
     revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'revenueCompany__companyNameKo', 'revenuePrice', 'revenueProfitPrice',
                                'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
@@ -741,6 +762,8 @@ def show_purchases(request):
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
+        maincategory = request.POST['maincategory']
+        issued = request.POST['issued']
     else:
         startdate = ''
         enddate = ''
@@ -750,6 +773,8 @@ def show_purchases(request):
         contractName = ''
         contractStep = ''
         modifyMode = 'N'
+        maincategory = ''
+        issued = 'N'
 
     accountspayable = 'N'
     purchaseInAdvance = 'N'
@@ -765,6 +790,8 @@ def show_purchases(request):
         'purchaseInAdvance': purchaseInAdvance,
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
+        'maincategory': maincategory,
+        'issued': issued
     }
 
     return render(request, 'sales/showpurchases.html', context)
@@ -791,6 +818,8 @@ def save_purchasetable(request):
     contractStep = request.GET['contractStep']
     purchaseInAdvance = request.GET['purchaseInAdvance']
     accountspayable = request.GET['accountspayable']
+    maincategory = request.GET['maincategory']
+    issued = request.GET['issued']
     modifyMode = 'N'
 
     for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, predictWithdrawDate, withdrawDate, comment):
@@ -814,6 +843,8 @@ def save_purchasetable(request):
         'purchaseInAdvance': purchaseInAdvance,
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
+        'maincategory':maincategory,
+        'issued':issued,
     }
     if accountspayable == 'Y':
         return render(request, 'sales/showaccountspayables.html', context)
@@ -824,6 +855,7 @@ def save_purchasetable(request):
 @login_required
 @csrf_exempt
 def purchases_asjson(request):
+    # print(request.POST)
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     empDeptName = request.POST['empDeptName']
@@ -833,12 +865,17 @@ def purchases_asjson(request):
     contractStep = request.POST['contractStep']
     purchaseInAdvance = request.POST['purchaseInAdvance']
     accountspayable = request.POST['accountspayable']
+    maincategory = request.POST['maincategory']
+    issued = request.POST['issued']
     user = Employee.objects.get(empId=request.POST['userId'])
 
     if accountspayable == 'Y':
         purchase = Purchase.objects.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
     elif accountspayable == 'N':
-        purchase = Purchase.objects.all()
+        if issued == 'Y':
+            purchase = Purchase.objects.filter(billingDate__isnull=False)
+        else:
+            purchase = Purchase.objects.all()
 
     if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
@@ -861,6 +898,8 @@ def purchases_asjson(request):
         purchase = purchase.filter(contractId__contractName__contains=contractName)
     if contractStep != '전체' and contractStep != '':
         purchase = purchase.filter(contractId__contractStep=contractStep)
+    if maincategory:
+        purchase = purchase.filter(contractId__mainCategory__icontains=maincategory)
     if purchaseInAdvance != 'N' and purchaseInAdvance != '':
         # 매입일이 있는 계약
         purchaseContract = Purchase.objects.values('contractId').filter(billingDate__isnull=False).distinct()
@@ -966,6 +1005,8 @@ def show_outstandingcollections(request):
         modifyMode = 'N'
 
     outstandingcollection = 'Y'
+    maincategory = ''
+    issued = ''
     context = {
         'employees': employees,
         'startdate': startdate,
@@ -977,6 +1018,8 @@ def show_outstandingcollections(request):
         'contractStep': contractStep,
         'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
+        'maincategory': maincategory,
+        'issued' : issued
     }
 
     return render(request, 'sales/showoutstandingcollections.html', context)
@@ -1025,6 +1068,8 @@ def show_accountspayables(request):
 
     accountspayable = 'Y'
     purchaseInAdvance = 'N'
+    maincategory = ''
+    issued = 'N'
     context = {
         'employees': employees,
         'startdate': startdate,
@@ -1037,6 +1082,8 @@ def show_accountspayables(request):
         'purchaseInAdvance': purchaseInAdvance,
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
+        'maincategory': maincategory,
+        'issued': issued
     }
 
     return render(request, 'sales/showaccountspayables.html', context)
@@ -1324,11 +1371,12 @@ def show_purchaseinadvance(request):
         saleCompanyName = ''
         contractName = ''
         contractStep = ''
-        purchaseInAdvance = ''
         modifyMode = 'N'
 
     accountspayable = 'N'
     purchaseInAdvance = 'Y'
+    maincategory = ''
+    issued = 'N'
     context = {
         'employees': employees,
         'startdate': startdate,
@@ -1341,6 +1389,8 @@ def show_purchaseinadvance(request):
         'purchaseInAdvance': purchaseInAdvance,
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
+        'maincategory': maincategory,
+        'issued':issued
     }
 
     return render(request, 'sales/showpurchaseinadvance.html', context)

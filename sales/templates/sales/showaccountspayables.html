@@ -269,18 +269,7 @@
               url: "{% url 'sales:empdept_ajax_url' %}",
               method: 'POST',
               cache: false,
-              data: {
-                  "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
-                  "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
-                  "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
-                  "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
-                  "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                  "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
-                  "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
-                  "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
-                  "accountspayable": "{{ accountspayable }}",
-                  "modifyMode": "{{ modifyMode }}"
-              },
+              data: {"empDeptName": empDeptName},
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var empName = returnData;
@@ -289,7 +278,7 @@
 
                   $('#' + selectId).append("<option value='전체'>전체</option>");
                   for (var count = 0; count < empName.length; count++) {
-                      var option = $("<option value=" + empName[count].empName + ">" + empName[count].fields.empName + "</option>");
+                      var option = $("<option value=" + empName[count].fields.empName + ">" + empName[count].fields.empName + "</option>");
                       $('#' + selectId).append(option);
                   }
               }
@@ -357,6 +346,8 @@
                       "accountspayable": '{{ accountspayable }}',
                       "modifyMode": "{{ modifyMode }}",
                       "userId": "{{ user.employee.empId }}",
+                      "maincategory": "{{ maincategory }}",
+                      "issued": "{{ issued }}",
                   },
                   "url": "{% url 'sales:purchases_ajax_url' %}",
                   "dataSrc": ""
