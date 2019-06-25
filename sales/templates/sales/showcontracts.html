@@ -174,6 +174,12 @@
                 </select>
               </div>
             </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="maincategory" class="font-weight-light text-primary">대분류</label>
+                <input class="form-control" id="maincategory" name="maincategory">
+              </div>
+            </div>
           </form>
         </div>
 
@@ -214,7 +220,7 @@
 
                   $('#' + selectId).append("<option value='전체'>전체</option>");
                   for (var count = 0; count < empName.length; count++) {
-                      var option = $("<option value=" + empName[count].empName + ">" + empName[count].fields.empName + "</option>");
+                      var option = $("<option value=" + empName[count].fields.empName + ">" + empName[count].fields.empName + "</option>");
                       $('#' + selectId).append(option);
                   }
               }
@@ -248,6 +254,7 @@
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
+                      "maincategory": {% if maincategory %}"{{ maincategory }}",{% else %}"",{% endif %}
                   },
                   "url": "{% url 'sales:contracts_ajax_url' %}",
                   "dataSrc": ""
