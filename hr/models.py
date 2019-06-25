@@ -16,7 +16,6 @@ class Employee(models.Model):
         ('DB지원팀', 'DB지원팀'),
         ('미정', '미정')
     )
-    empAuthChoices = (('임원', '임원'), ('경영지원', '경영지원'), ('영업지원', '영업지원'), ('영업대표', '영업대표'), ('일반', '일반'))
     statusChoices = (('Y', 'Y'), ('N', 'N'))
 
     empId = models.AutoField(primary_key=True)
@@ -30,7 +29,7 @@ class Employee(models.Model):
     empDeptName = models.CharField(max_length=30, choices=empDeptNameChoices, default='미정')
     dispatchCompany = models.CharField(max_length=100, default='내근')
     message = models.CharField(max_length=200, default='내근 업무 내용을 작성해 주세요.', help_text='내근 업무 내용을 작성해 주세요.')
-    empAuth = models.CharField(max_length=10, choices=empAuthChoices, default='일반')
+    empAuth = models.CharField(max_length=10, default='일반')
     empRank = models.IntegerField(default=10)
     empStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 

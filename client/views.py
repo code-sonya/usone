@@ -18,7 +18,7 @@ from django.core import serializers
 @csrf_exempt
 def client_asjson(request):
     companyName = request.POST['companyName']
-    services = Servicereport.objects.filter(companyName=companyName)
+    services = Servicereport.objects.filter(companyName=companyName).values('serviceId', 'serviceDate', 'empName', 'empDeptName', 'serviceType', 'serviceTitle')
     json = serializers.serialize('json', services)
     return HttpResponse(json, content_type='application/json')
 
