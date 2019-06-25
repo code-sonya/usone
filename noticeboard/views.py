@@ -16,15 +16,8 @@ from .models import Board
 
 
 @login_required
-def board_asjson(request):
-    boards = Board.objects.values('boardWriteDatetime', 'serviceId__serviceType', 'boardWriter__empName', 'serviceId__companyName', 'boardTitle', 'boardDetails', 'boardId')
-    structure = json.dumps(list(boards), cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
-
-
-@login_required
 @csrf_exempt
-def filter_asjson(request):
+def board_asjson(request):
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
     empDeptName = request.POST['empDeptName']

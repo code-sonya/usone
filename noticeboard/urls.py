@@ -10,5 +10,4 @@ urlpatterns = [
     url(r'^deleteboard/(?P<boardId>.+)/$', views.delete_board, name='deleteboard'),
     url(r'^modifyboard/(?P<boardId>.+)/$', views.modify_board, name='modifyboard'),
     url(r'^json/$', views.board_asjson, name='board_ajax_url'),
-    url(r'^jsonfilter/$', views.filter_asjson, name='filter_ajax_url'),
 ]

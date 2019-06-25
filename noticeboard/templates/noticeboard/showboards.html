@@ -45,11 +45,10 @@
               <thead>
               <tr>
                 <th>작성일</th>
-                <th>구분</th>
                 <th>작성자</th>
+                <th>구분</th>
                 <th>고객사</th>
                 <th>제목</th>
-                <th class="d-none">내</th>
                 <th class="d-none">boardId</th>
               </tr>
               </thead>
@@ -143,118 +142,65 @@
 
       $(document).ready(function () {
 
-          {% if filter == "Y" %}
-
-              $('#showboards').dataTable({
+          $('#showboards').dataTable({
+              "processing": true,
+              "ajax": {
                   "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "type": 'POST',
-                      "data": {
-                          "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
-                          "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
-                          "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
-                          "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                          "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
-                          "serviceType": {% if serviceType %}"{{ serviceType }}",{% else %}"",{% endif %}
-                          "boardTitle": {% if boardTitle %}"{{ boardTitle }}",{% else %}"",{% endif %}
-                      },
-                      "url": "{% url 'noticeboard:filter_ajax_url' %}",
-                      "dataSrc": ""
+                  "type": 'POST',
+                  "data": {
+                      "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
+                      "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                      "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
+                      "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                      "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
+                      "serviceType": {% if serviceType %}"{{ serviceType }}",{% else %}"",{% endif %}
+                      "boardTitle": {% if boardTitle %}"{{ boardTitle }}",{% else %}"",{% endif %}
                   },
-                  "columns": [
-                      {data: "boardWriteDatetime"},
-                      {data: "serviceId__serviceType"},
-                      {data: "boardWriter__empName"},
-                      {data: "serviceId__companyName"},
-                      {data: "boardTitle"},
-                      {data: "boardDetails"},
-                      {data: "boardId"},
+                  "url": "{% url 'noticeboard:board_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: "boardWriteDatetime"},
+                  {data: "boardWriter__empName"},
+                  {data: "serviceId__serviceType"},
+                  {data: "serviceId__companyName"},
+                  {data: "boardTitle"},
+                  {data: "boardId"},
 
-                  ],
-                  "columnDefs": [
-                      {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
-                      {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
-                      {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: [5,6], visible: false}
-                  ],
-                  "order": [[0, 'desc']],
-                  "searching": true,
-                  "paging": true,
-                  "info": false,
-                  "scrollY": "80vh",
-                  "scrollCollapse": true,
-                  "language": {
-                      "lengthMenu": "_MENU_ 개씩 보기",
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "50%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "d-none"}
+              ],
+              "deferRender": true,
+              "order": [[0, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
                   },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      if (aData.boardWriteDatetime != "") {
-                          $('td:eq(0)', nRow).text(replaceAll(aData.boardWriteDatetime,"-","."));
-                      }
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.boardWriteDatetime != "") {
+                      $('td:eq(0)', nRow).text(replaceAll(aData.boardWriteDatetime,"-","."));
                   }
+              }
 
-              });
-
-          {% else %}
-              $('#showboards').dataTable({
-                  "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "url": "{% url 'noticeboard:board_ajax_url' %}",
-                      "dataSrc": ""
-                  },
-                  "columns": [
-                      {data: "boardWriteDatetime"},
-                      {data: "serviceId__serviceType"},
-                      {data: "boardWriter__empName"},
-                      {data: "serviceId__companyName"},
-                      {data: "boardTitle"},
-                      {data: "boardDetails"},
-                      {data: "boardId"},
-
-                  ],
-                  "columnDefs": [
-                      {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
-                      {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
-                      {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: [5,6], visible: false}
-                  ],
-                  "order": [[0, 'desc']],
-                  "searching": true,
-                  "paging": true,
-                  "info": false,
-                  "scrollY": "80vh",
-                  "scrollCollapse": true,
-                  "language": {
-                      "lengthMenu": "_MENU_ 개씩 보기",
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
-                  },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      if (aData.boardWriteDatetime != "") {
-                          $('td:eq(0)', nRow).text(replaceAll(aData.boardWriteDatetime,"-","."));
-                      }
-                  }
-
-              });
-
-          {% endif %}
+          });
 
            var table = $('#showboards').DataTable();
 
