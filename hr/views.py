@@ -50,13 +50,11 @@ def show_punctuality(request, day=None):
 
     for user in users:
         # 기본
-        user['status'] = '지각'
+        user['status'] = '-'
 
         # 직급
         positionName = employee_empPosition(user['employee__empPosition'])
-        print(positionName)
         user['positionName'] = positionName
-
 
         # 상주
         if user['employee__dispatchCompany'] != '내근':
