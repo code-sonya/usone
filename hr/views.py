@@ -55,14 +55,26 @@ def show_punctuality(request, day=None):
         # 직급
         positionName = employee_empPosition(user['employee__empPosition'])
         user['positionName'] = positionName
+        vacation = Vacation.objects.filter(Q(vacationDate=day) & Q(empId_id=user['employee__empId'])).first()
+        print(vacation)
 
         # 상주
         if user['employee__dispatchCompany'] != '내근':
             user['status'] = '상주'
 
         # 휴가
-        elif Vacation.objects.filter(Q(vacationDate=day)&Q(empId_id=user['employee__empId'])):
-            user['status'] = '휴가'
+        elif vacation:
+            if vacation.vacationType == '일차' or vacation.vacationType=='오전반차':
+                user['status'] = vacation.vacationType
+            else:
+                for attendance in attendances:
+                    if user['employee__empId'] == attendance.empId_id:
+                        if attendance.attendanceTime >= datetime.time(9, 1, 0):
+                            user['status'] = '지각'
+                            break
+                        else:
+                            user['status'] = '출근'
+                            break
 
         else:
             service = Servicereport.objects.filter(Q(serviceDate=day) & Q(empId=user['employee__empId'])).order_by('serviceStartDatetime').first()

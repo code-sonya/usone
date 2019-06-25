@@ -71,20 +71,25 @@
                 </thead>
                 <tbody>
                 {% for user in users %}
-                  <tr>
-                    <td>{% ifchanged user.employee__empDeptName %}<b>{{ user.employee__empDeptName }}</b><br>{% endifchanged %}</td>
-                    <td>{{ user.employee__empName }}</td>
-                    <td>{{ user.positionName }}</td>
-                    {% if user.status == '휴가' %}
-                      <td class="text-success">{{ user.status }}</td>
-                    {% elif user.status == '직출' %}
-                      <td class="text-primary">{{ user.status }}</td>
-                    {% elif user.status == '지각' %}
-                      <td class="text-danger">{{ user.status }}</td>
-                    {% else %}
-                      <td class="text-secondary">{{ user.status }}</td>
-                    {% endif %}
-                  </tr>
+                  {% ifchanged user.employee__empDeptName %}
+                    <tr class="bg-gray-200">
+                      <td><b>{{ user.employee__empDeptName }}</b><br></td>
+                      {% else %}
+                    <tr>
+                    <td></td>
+                  {% endifchanged %}
+                <td>{{ user.employee__empName }}</td>
+                <td>{{ user.positionName }}</td>
+                {% if user.status == '일차' or user.status == '오전반차' %}
+                  <td class="text-success">{{ user.status }}</td>
+                {% elif user.status == '직출' %}
+                  <td class="text-primary">{{ user.status }}</td>
+                {% elif user.status == '지각' %}
+                  <td class="text-danger">{{ user.status }}</td>
+                {% else %}
+                  <td class="text-secondary">{{ user.status }}</td>
+                {% endif %}
+                </tr>
                 {% endfor %}
                 </tbody>
 
