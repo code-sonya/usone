@@ -118,6 +118,16 @@
       </li>
     {% endif %}
 
+    {% if user.employee.empDeptName == '임원' %}
+      <!-- Nav Item - 근태관리 -->
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">
+          <i class="fas fa-fw fa-folder"></i>
+          <span>근태관리</span>
+        </a>
+      </li>
+    {% endif %}
+
     <!-- Divider -->
     <hr class="sidebar-divider">
 
