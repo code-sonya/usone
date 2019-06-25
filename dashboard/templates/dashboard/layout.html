@@ -106,7 +106,7 @@
       </a>
       <div id="collapseHr" class="collapse" aria-labelledby="headingHr" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="/hr/showpunctuality/">근태현황</a>
+          <a class="collapse-item" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">근태현황</a>
          <a class="collapse-item" href="/hr/uploadcaps/">데이터업로드</a>
           {#            <a class="collapse-item" href="/sales/uploadpurchase/">데이터업로드</a>#}
         </div>
@@ -118,7 +118,7 @@
 
     <!-- Nav Item - Daily Report -->
     <li class="nav-item">
-      <a class="nav-link" href="#" onclick="btn_dayreport()">
+      <a class="nav-link" href="#" onclick="btn_dayreport('/service/dayreport/')">
         <i class="fas fa-fw fa-pencil-ruler"></i>
         <span>일일업무</span></a>
     </li>
@@ -292,13 +292,13 @@
 {% block script %}{% endblock %}
 
 <script type="text/javascript">
-    function btn_dayreport() {
+    function btn_dayreport(path) {
         const dateToday = new Date();
         const yyyy = dateToday.getFullYear();
         const mm = ((dateToday.getMonth() + 1) > 9 ? '' : '0') + (dateToday.getMonth() + 1);
         const dd = (dateToday.getDate() > 9 ? '' : '0') + dateToday.getDate();
         const strToday = yyyy + '-' + mm + '-' + dd;
-        const url = "/service/dayreport/" + strToday;
+        const url = path + strToday;
         location.href = url;
     }
 
