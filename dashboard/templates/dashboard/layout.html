@@ -94,18 +94,6 @@
       </li>
     {% endif %}
 
-
-    <li class="nav-item">
-      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHr" aria-expanded="true" aria-controls="collapseHr">
-        <i class="fas fa-fw fa-folder"></i>
-        <span>근태관리</span>
-      </a>
-      <div id="collapseHr" class="collapse" aria-labelledby="headingHr" data-parent="#accordionSidebar">
-        <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">근태현황</a>
-         <a class="collapse-item" href="/hr/uploadcaps/">데이터업로드</a>
-          {#            <a class="collapse-item" href="/sales/uploadpurchase/">데이터업로드</a>#}
-
     {% if user.employee.empDeptName == '경영지원본부' %}
       <!-- Nav Item - 초과근무 -->
       <li class="nav-item">
@@ -122,7 +110,7 @@
         </a>
         <div id="collapseHr" class="collapse" aria-labelledby="headingHr" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
-            <a class="collapse-item" href="/hr/showpunctuality/">근태현황</a>
+            <a class="collapse-item" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">근태현황</a>
             <a class="collapse-item" href="/hr/uploadcaps/">데이터업로드</a>
             {#            <a class="collapse-item" href="/sales/uploadpurchase/">데이터업로드</a>#}
           </div>
