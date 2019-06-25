@@ -72,10 +72,20 @@
                 <tbody>
                 {% for user in users %}
                   <tr>
-                  <td>{% ifchanged user.employee__empDeptName %}<b>{{ user.employee__empDeptName }}</b><br>{% endifchanged %}</td>
-                  <td>{{ user.employee__empName }}</td>
-                  <td>{{ user.positionName }}</td>
-                  <td>{{ user.status }}</td>
+                    <td>{% ifchanged user.employee__empDeptName %}<b>{{ user.employee__empDeptName }}</b><br>{% endifchanged %}</td>
+                    <td>{{ user.employee__empName }}</td>
+                    <td>{{ user.positionName }}</td>
+                    {% if user.status == '휴가' %}
+                      <td class="text-success">{{ user.status }}</td>
+                    {% elif user.status == '직출' %}
+                      <td class="text-primary">{{ user.status }}</td>
+                    {% elif user.status == '지각' %}
+                      <td class="text-danger">{{ user.status }}</td>
+                    {% elif user.status == '상주' %}
+                      <td class="text-secondary">{{ user.status }}</td>
+                    {% else %}
+                      <td class="text-secondary">-</td>
+                    {% endif %}
                   </tr>
                 {% endfor %}
                 </tbody>
