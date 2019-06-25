@@ -403,6 +403,8 @@
           {% endif %}
           </div>
         </div>
+
+        {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
         <div class="text-center" style="padding: 0px 20px 20px 20px">
           <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
             <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
@@ -413,6 +415,7 @@
             <span class="text"> 수정 </span>
           </a>
         </div>
+        {% endif %}
 
       </div>
 

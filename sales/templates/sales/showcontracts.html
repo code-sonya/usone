@@ -238,15 +238,16 @@
                   "processing": true,
                   "type": 'POST',
                   "data": {
+                      "userId": "{{ user.employee.empId }}",
                       "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
                       "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
                       "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
                       "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
                       "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                      "companyName": "",
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
-                      "userId": "{{ user.employee.empId }}",
                   },
                   "url": "{% url 'sales:contracts_ajax_url' %}",
                   "dataSrc": ""
@@ -311,6 +312,7 @@
                       footer: true
                   }
               ],
+              "deferRender": true,
               "order": [[1, 'desc']],
               "searching": true,
               "paging": true,

@@ -415,19 +415,20 @@ def category_asjson(request):
 @login_required
 @csrf_exempt
 def contracts_asjson(request):
+    user = Employee.objects.get(empId=request.POST['userId'])
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     contractStep = request.POST["contractStep"]
     empDeptName = request.POST['empDeptName']
     empName = request.POST['empName']
+    companyName = request.POST['companyName']
     saleCompanyName = request.POST['saleCompanyName']
     endCompanyName = request.POST['endCompanyName']
     contractName = request.POST['contractName']
-    user = Employee.objects.get(empId=request.POST['userId'])
 
     contracts = Contract.objects.all()
 
-    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.empName == '이현승':
+    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
@@ -444,10 +445,13 @@ def contracts_asjson(request):
         contracts = contracts.filter(empDeptName=empDeptName)
     if empName != '전체' and empName != '':
         contracts = contracts.filter(empName=empName)
-    if saleCompanyName:
-        contracts = contracts.filter(saleCompanyName__companyName__icontains=saleCompanyName)
-    if endCompanyName:
-        contracts = contracts.filter(endCompanyName__companyName__icontains=endCompanyName)
+    if companyName:
+        contracts = contracts.filter(Q(saleCompanyName__companyName__icontains=companyName) | Q(endCompanyName__companyName__icontains=companyName))
+    else:
+        if saleCompanyName:
+            contracts = contracts.filter(saleCompanyName__companyName__icontains=saleCompanyName)
+        if endCompanyName:
+            contracts = contracts.filter(endCompanyName__companyName__icontains=endCompanyName)
     if contractName:
         contracts = contracts.filter(contractName__contains=contractName)
 
@@ -476,7 +480,7 @@ def revenues_asjson(request):
     elif outstandingcollection == 'N':
         revenues = Revenue.objects.all()
 
-    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.empName == '이현승':
+    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         revenues = revenues.filter(contractId__empDeptName=user.empDeptName)
@@ -836,7 +840,7 @@ def purchases_asjson(request):
     elif accountspayable == 'N':
         purchase = Purchase.objects.all()
 
-    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.empName == '이현승':
+    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         purchase = purchase.filter(contractId__empDeptName=user.empDeptName)

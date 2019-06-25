@@ -15,5 +15,5 @@ def employee_empPosition(positionNumber):
         positionName = '사원'
     else:
         positionName = '미정'
-        
+
     return positionName
