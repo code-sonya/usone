@@ -1,0 +1,218 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  목표등록
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 목표 등록 </h6>
+
+        </div>
+
+        <div class="card-body">
+
+          <form id="GoalForm" method="POST">
+
+            {% csrf_token %}
+            <div class="form-group row">
+              <div class="col-4">
+                <label for="year" class="font-weight-bold text-dark"> 목표 년도 </label> {{ form.year }}
+              </div>
+              <div class="col-4">
+                <label for="empDeptName" class="font-weight-bold text-dark"> 부서 명 </label> {{ form.empDeptName }}
+              </div>
+              <div class="col-4">
+                <label for="empName" class="font-weight-bold text-dark"> 영업 담당자 </label> {{ form.empName }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-2">
+                <label for="sales1" class="font-weight-bold text-primary"> 1월 목표 매출 </label> {{ form.sales1 }}
+              </div>
+              <div class="col-2">
+                <label for="profit1" class="font-weight-bold text-success"> 1월 목표 이익 </label> {{ form.profit1 }}
+              </div>
+              <div class="col-2">
+                <label for="sales2" class="font-weight-bold text-primary"> 2월 목표 매출 </label> {{ form.sales2 }}
+              </div>
+              <div class="col-2">
+                <label for="profit2" class="font-weight-bold text-success"> 2월 목표 이익 </label> {{ form.profit2 }}
+              </div>
+              <div class="col-2">
+                <label for="sales3" class="font-weight-bold text-primary"> 3월 목표 매출 </label> {{ form.sales3 }}
+              </div>
+              <div class="col-2">
+                <label for="profit3" class="font-weight-bold text-success"> 3월 목표 이익 </label> {{ form.profit3 }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-2">
+                <label for="sales4" class="font-weight-bold text-primary"> 4월 목표 매출 </label> {{ form.sales4 }}
+              </div>
+              <div class="col-2">
+                <label for="profit4" class="font-weight-bold text-success"> 4월 목표 이익 </label> {{ form.profit4 }}
+              </div>
+              <div class="col-2">
+                <label for="sales5" class="font-weight-bold text-primary"> 5월 목표 매출 </label> {{ form.sales5 }}
+              </div>
+              <div class="col-2">
+                <label for="profit5" class="font-weight-bold text-success"> 5월 목표 이익 </label> {{ form.profit5 }}
+              </div>
+              <div class="col-2">
+                <label for="sales6" class="font-weight-bold text-primary"> 6월 목표 매출 </label> {{ form.sales6 }}
+              </div>
+              <div class="col-2">
+                <label for="profit6" class="font-weight-bold text-success"> 6월 목표 이익 </label> {{ form.profit6 }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-2">
+                <label for="sales7" class="font-weight-bold text-primary"> 7월 목표 매출 </label> {{ form.sales7 }}
+              </div>
+              <div class="col-2">
+                <label for="profit7" class="font-weight-bold text-success"> 7월 목표 이익 </label> {{ form.profit7 }}
+              </div>
+              <div class="col-2">
+                <label for="sales8" class="font-weight-bold text-primary"> 8월 목표 매출 </label> {{ form.sales8 }}
+              </div>
+              <div class="col-2">
+                <label for="profit8" class="font-weight-bold text-success"> 8월 목표 이익 </label> {{ form.profit8 }}
+              </div>
+              <div class="col-2">
+                <label for="sales9" class="font-weight-bold text-primary"> 9월 목표 매출 </label> {{ form.sales9 }}
+              </div>
+              <div class="col-2">
+                <label for="profit9" class="font-weight-bold text-success"> 9월 목표 이익 </label> {{ form.profit9 }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-2">
+                <label for="sales10" class="font-weight-bold text-primary"> 10월 목표 매출 </label> {{ form.sales10 }}
+              </div>
+              <div class="col-2">
+                <label for="profit10" class="font-weight-bold text-success"> 10월 목표 이익 </label> {{ form.profit10 }}
+              </div>
+              <div class="col-2">
+                <label for="sales11" class="font-weight-bold text-primary"> 11월 목표 매출 </label> {{ form.sales11 }}
+              </div>
+              <div class="col-2">
+                <label for="profit11" class="font-weight-bold text-success"> 11월 목표 이익 </label> {{ form.profit11 }}
+              </div>
+              <div class="col-2">
+                <label for="sales12" class="font-weight-bold text-primary"> 12월 목표 매출 </label> {{ form.sales12 }}
+              </div>
+              <div class="col-2">
+                <label for="profit12" class="font-weight-bold text-success"> 12월 목표 이익 </label> {{ form.profit12 }}
+              </div>
+            </div>
+
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_cancel() {
+          if (confirm("취소 하시겠습니까?") === true) {
+              location.href = "/sales/showgoals"
+          } else {
+              return false;
+          }
+      }
+
+      function changeDeptName(empDeptName) {
+          $.ajax({
+              url: "{% url 'sales:empdept_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empDeptName": empDeptName},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var empName = returnData;
+                  console.log(empName);
+                  $('#empName').empty();
+
+                  $('#empName').append("<option value='전체'>전체</option>");
+                  for (var count = 0; count < empName.length; count++) {
+                      var option = $("<option value=" + empName[count].pk + ">" + empName[count].fields.empName + "</option>");
+                      $('#empName').append(option);
+                  }
+              }
+          })
+      }
+
+      function btn_save() {
+          moneyChange();
+          const GoalForm = document.getElementById("GoalForm");
+
+          if (confirm("저장 하시겠습니까?") === true) {
+              GoalForm.submit();
+          }
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 16);
+      }
+
+
+      $(document).ready(function () {
+          {# 영업 부서 - 영업 사원 선택 #}
+          var sales_lst = new Array();
+          var new_str = '{{ salesteam_lst }}'.split('&#39;').join('');
+          new_str = new_str.split('[').join('');
+          new_str = new_str.split(']').join('');
+          sales_lst = new_str.split(',');
+          $('#empDeptName').append("<option value='선택'>-----------------</option>");
+          for (var count = 0; count < sales_lst.length; count++) {
+              var option = $("<option value=" + sales_lst[count] + ">" + sales_lst[count] + "</option>");
+              $('#empDeptName').append(option);
+          }
+          $('#empName').append("<option value='선택'>-----------------</option>");
+
+          {# 목표 년도 설정 #}
+          $('#year').val('{{ today_year }}');
+
+          {# 목표 수정 시 #}
+          $('#empDeptName').val('{{ empDeptName }}');
+          changeDeptName('{{ empDeptName }}');
+          $('#empName').val('{{ empName }}');
+
+      })
+  </script>
+
+{% endblock %}

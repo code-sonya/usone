@@ -1,0 +1,899 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}
+  대시보드
+{% endblock %}
+{% load humanize %}
+{% block content %}
+
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <span>
+    <h1 class="h3 mb-0 text-gray-800">영업기회&계약 분석(Opportunity&Firm)</h1>
+    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate }}~{{ enddate }} )</h6>
+    </span>
+    <span>
+      <a href="#" class="d-sm-inline-block btn btn-sm btn-info shadow-sm" id="filterLink" data-toggle="modal" data-target="#filterModal"><i class="fas fa-filter fa-sm text-white-50"></i> 날짜 검색 </a>
+    </span>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">전체 계약예상 금액</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if allsalePrice %}{{ allsalePrice|intcomma }}{% else %}0{% endif %} 원</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">전체 이익예상 금액</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if allprofitPrice %}{{ allprofitPrice|intcomma }}{% else %}0{% endif %} 원</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-coins fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings (Monthly) Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-info text-uppercase mb-1">전체 고객사</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if contract_count %}{{ contract_count }}{% else %}0{% endif %} 개 고객사</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-building fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Pending Requests Card Example -->
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">전체 계약 건수</div>
+              <div class="h5 b-0 font-weight-bold text-gray-800">{{ contract_count }}건</div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-briefcase fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+
+  <div class="row">
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">단계별 분석</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="step-barchart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">영업팀별 분석</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="emp-groupedbarchart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">상품별 분석(대분류)</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-pie pt-4 pb-2">
+            <canvas id="maincategory-piechart"></canvas>
+          </div>
+          <div class="mt-4 text-center small">
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">상품별 분석(소분류)</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-pie pt-4 pb-2">
+            <canvas id="subcategory-piechart"></canvas>
+          </div>
+          <div class="mt-4 text-center small">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">고객사별 분석</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="customer-barchart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- data table -->
+  <div class="row">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">상세 내용</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showopportunity" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>성함</th>
+                <th>고객사</th>
+                <th>구분</th>
+                <th>날짜</th>
+                <th>지원시간</th>
+                <th>초과근무시간</th>
+                <th>제목</th>
+                <th class="d-none">serviceId</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">날짜 검색</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
+                <input type="date" class="form-control" id="startdate" name="startdate">
+              </div>
+              <div class="col-6">
+                <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
+                <input type="date" class="form-control" id="enddate" name="enddate">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/hr/js/demo/chart-bar-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-area-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script>
+
+      var chart_options = {};
+
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+
+      const filterArray = new Array();
+      filterArray['step'] = '';
+      filterArray['maincategory'] = '';
+      filterArray['subcategory'] = '';
+      filterArray['emp'] = '';
+      filterArray['customer'] = '';
+
+
+      $(document).ready(function () {
+          pushData();
+          console.log(filterArray);
+          $('#showopportunity').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'step': filterArray['step'],
+                      'maincategory': filterArray['maincategory'],
+                      'subcategory': filterArray['subcategory'],
+                      'emp': filterArray['emp'],
+                      'customer': filterArray['customer']
+                  },
+                  "url": "{% url 'dashboard:opportunity_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: "pk"},
+                  {data: "fields.serviceDate"},
+                  {data: "fields.empId"},
+                  {data: "fields.empName"},
+                  {data: "fields.empDeptName"},
+                  {data: "fields.companyName"},
+                  {data: "fields.serviceType"},
+                  {data: "fields.serviceStartDatetime"},
+                  {data: "fields.serviceEndDatetime"},
+                  {data: "fields.serviceFinishDatetime"},
+                  {data: "fields.serviceOverHour"},
+                  {data: "fields.serviceRegHour"},
+                  {data: "fields.serviceLocation"},
+                  {data: "fields.directgo"},
+                  {data: "fields.serviceTitle"},
+                  {data: "fields.serviceDetails"},
+                  {data: "fields.customerName"},
+                  {data: "fields.customerDeptName"},
+                  {data: "fields.customerPhone"},
+                  {data: "fields.customerEmail"},
+                  {data: "fields.serviceSignPath"},
+                  {data: "fields.serviceStatus"},
+              ],
+              "columnDefs": [
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 14, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: [0, 2, 5, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21], visible: false},
+                  {"orderable": false, "targets": [6, 0]},
+              ],
+              "order": [[1, 'desc'], [3, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              }
+          });
+
+          var table = $('#showopportunity').DataTable();
+
+          $("#showopportunity").on("click", 'tr', function () {
+              const data = table.row(this).data();
+              location.href = '/sales/viewcontract/' + data.pk + '/'
+          });
+      });
+
+      var stepChart = new Chart(document.getElementById("step-barchart"), {
+          type: 'bar',
+          data: {
+              labels: [],
+              datasets: [{
+                  label: "금액 (원)",
+                  backgroundColor: ["#1cc88a", "#4e73df"],
+                  data: []
+              }]
+          },
+          options: {
+              plugins: {
+                  datalabels: {
+                      align: 'end',
+                      anchor: 'end',
+                      color: function (context) {
+                          return context.dataset.backgroundColor;
+                      },
+                      font: function (context) {
+                          var w = context.chart.width;
+                          return {
+                              size: w < 512 ? 12 : 14
+                          };
+                      },
+                      formatter: function (value, context) {
+                          return number_format(value);
+                      }
+
+                  }
+              },
+              legend: {display: false},
+              maintainAspectRatio: false,
+              layout: {
+                  padding: {
+                      left: 10,
+                      right: 25,
+                      top: 25,
+                      bottom: 0
+                  }
+              },
+              scales: {
+                  xAxes: [{
+                      time: {
+                          unit: 'week'
+                      },
+                      gridLines: {
+                          display: false,
+                          drawBorder: false
+                      },
+                      ticks: {
+                          maxTicksLimit: 6
+                      },
+                      maxBarThickness: 50,
+                  }],
+                  yAxes: [{
+                      ticks: {
+                          min: 0,
+                          maxTicksLimit: 5,
+                          padding: 10,
+                          // Include a dollar sign in the ticks
+                          callback: function (value, index, values) {
+                              return number_format(value);
+                          }
+                      },
+                      gridLines: {
+                          color: "rgb(234, 236, 244)",
+                          zeroLineColor: "rgb(234, 236, 244)",
+                          drawBorder: false,
+                          borderDash: [2],
+                          zeroLineBorderDash: [2]
+                      }
+                  }],
+              },
+              tooltips: {
+                  titleMarginBottom: 10,
+                  titleFontColor: '#6e707e',
+                  titleFontSize: 14,
+                  backgroundColor: "rgb(255,255,255)",
+                  bodyFontColor: "#858796",
+                  borderColor: '#dddfeb',
+                  borderWidth: 1,
+                  xPadding: 15,
+                  yPadding: 15,
+                  displayColors: false,
+                  caretPadding: 10,
+                  callbacks: {
+                      label: function (tooltipItem, chart) {
+                          return '총 ' + number_format(tooltipItem.yLabel);
+                      }
+                  }
+              },
+              onClick: barClick
+          }
+      });
+
+      var maincategoryChart = new Chart(document.getElementById("maincategory-piechart"), {
+          type: 'pie',
+          data: {
+              labels: [],
+              datasets: [{
+                  label: "상품별 (건)",
+                  backgroundColor: ["#858796", "#e83e8c", "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "grey"],
+                  data: []
+              }]
+          },
+          options: {
+              maintainAspectRatio: false,
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let percentage = (value * 100 / sum).toFixed(2) + "%";
+                          return percentage;
+
+
+                      },
+                      color: '#fff',
+                  }
+              },
+              onClick: piemainClick
+          }
+      });
+
+      var subcategoryChart = new Chart(document.getElementById("subcategory-piechart"), {
+          type: 'pie',
+          data: {
+              labels: [],
+              datasets: [{
+                  label: "상품별 (건)",
+                  backgroundColor: ["#858796", "#e83e8c", "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "grey"],
+                  data: []
+              }]
+          },
+          options: {
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let percentage = (value * 100 / sum).toFixed(2) + "%";
+                          return percentage;
+
+
+                      },
+                      color: '#fff',
+                  }
+              },
+              maintainAspectRatio: false,
+              tooltips: {
+                  backgroundColor: "rgb(255,255,255)",
+                  bodyFontColor: "#858796",
+                  borderColor: '#dddfeb',
+                  borderWidth: 1,
+                  xPadding: 15,
+                  yPadding: 15,
+                  displayColors: false,
+                  caretPadding: 10,
+              },
+              onClick: piesubClick
+          }
+      });
+
+      var empChart = new Chart(document.getElementById("emp-groupedbarchart"), {
+          type: 'bar',
+          data: {
+              labels: [],
+              datasets: [
+                  {
+                      label: "계약예상금액",
+                      backgroundColor: "#3e95cd",
+                      data: []
+                  }, {
+                      label: "이익예상금액",
+                      backgroundColor: "#8e5ea2",
+                      data: []
+                  }
+              ]
+          },
+          options: {
+              plugins: {
+                  datalabels: {
+                      align: 'end',
+                      anchor: 'end',
+                      color: function (context) {
+                          return context.dataset.backgroundColor;
+                      },
+                      font: function (context) {
+                          var w = context.chart.width;
+                          return {
+                              size: w < 512 ? 12 : 14
+                          };
+                      },
+                      formatter: function (value, context) {
+                          return number_format(value);
+                      }
+
+                  }
+              },
+              maintainAspectRatio: false,
+              layout: {
+                  padding: {
+                      left: 10,
+                      right: 25,
+                      top: 25,
+                      bottom: 0
+                  }
+              },
+              scales: {
+                  xAxes: [{
+                      time: {
+                          unit: 'week'
+                      },
+                      gridLines: {
+                          display: false,
+                          drawBorder: false
+                      },
+                      ticks: {
+                          maxTicksLimit: 6
+                      },
+                      maxBarThickness: 50,
+                  }],
+                  yAxes: [{
+                      ticks: {
+                          min: 0,
+                          maxTicksLimit: 5,
+                          padding: 10,
+                          // Include a dollar sign in the ticks
+                          callback: function (value, index, values) {
+                              return number_format(value);
+                          }
+                      },
+                      gridLines: {
+                          color: "rgb(234, 236, 244)",
+                          zeroLineColor: "rgb(234, 236, 244)",
+                          drawBorder: false,
+                          borderDash: [2],
+                          zeroLineBorderDash: [2]
+                      }
+                  }],
+              },
+              tooltips: {
+                  titleMarginBottom: 10,
+                  titleFontColor: '#6e707e',
+                  titleFontSize: 14,
+                  backgroundColor: "rgb(255,255,255)",
+                  bodyFontColor: "#858796",
+                  borderColor: '#dddfeb',
+                  borderWidth: 1,
+                  xPadding: 15,
+                  yPadding: 15,
+                  displayColors: false,
+                  caretPadding: 10,
+                  callbacks: {
+                      label: function (tooltipItem, chart) {
+                          return '총 ' + number_format(tooltipItem.yLabel);
+                      }
+                  }
+              },
+              onClick: groupedbarClick
+          }
+      });
+
+      var customerChart = new Chart(document.getElementById("customer-barchart"), {
+          type: 'bar',
+          data: {
+              labels: [],
+              datasets: [{
+                  label: "계약예상금액",
+                  backgroundColor: "#4365B0",
+                  borderColor: "#4365B0",
+                  data: []
+              }, {
+                  label: "이익예상금액",
+                  backgroundColor: "#F29220",
+                  borderColor: "#F29220",
+                  data: []
+              }],
+          },
+          options: {
+              plugins: {
+                  datalabels: {
+                      align: 'end',
+                      anchor: 'end',
+                      color: function (context) {
+                          return context.dataset.backgroundColor;
+                      },
+                      font: function (context) {
+                          var w = context.chart.width;
+                          return {
+                              size: w < 512 ? 12 : 14
+                          };
+                      },
+                      formatter: function (value, context) {
+                          return number_format(value);
+                      }
+
+                  }
+              },
+              maintainAspectRatio: false,
+              layout: {
+                  padding: {
+                      left: 10,
+                      right: 25,
+                      top: 25,
+                      bottom: 0
+                  }
+              },
+              scales: {
+                  xAxes: [{
+                      time: {
+                          unit: 'week'
+                      },
+                      gridLines: {
+                          display: false,
+                          drawBorder: false
+                      },
+                      ticks: {
+                          maxTicksLimit: 6
+                      },
+                      maxBarThickness: 50,
+                  }],
+                  yAxes: [{
+                      ticks: {
+                          min: 0,
+                          maxTicksLimit: 5,
+                          padding: 10,
+                          // Include a dollar sign in the ticks
+                          callback: function (value, index, values) {
+                              return number_format(value);
+                          }
+                      },
+                      gridLines: {
+                          color: "rgb(234, 236, 244)",
+                          zeroLineColor: "rgb(234, 236, 244)",
+                          drawBorder: false,
+                          borderDash: [2],
+                          zeroLineBorderDash: [2]
+                      }
+                  }],
+              },
+              tooltips: {
+                  titleMarginBottom: 10,
+                  titleFontColor: '#6e707e',
+                  titleFontSize: 14,
+                  backgroundColor: "rgb(255,255,255)",
+                  bodyFontColor: "#858796",
+                  borderColor: '#dddfeb',
+                  borderWidth: 1,
+                  xPadding: 15,
+                  yPadding: 15,
+                  displayColors: false,
+                  caretPadding: 10,
+                  callbacks: {
+                      label: function (tooltipItem, chart) {
+                          return '총 ' + number_format(tooltipItem.yLabel);
+                      }
+                  }
+              },
+              onClick: stackbarClick
+          }
+      });
+
+
+      function removeData() {
+          console.log(stepChart.data);
+          stepChart.data = {
+              labels: [],
+              datasets: [{
+                  label: "금액 (원)",
+                  backgroundColor: ["#1cc88a", "#4e73df"],
+                  data: []
+              }]
+          };
+          stepChart.update();
+          console.log(stepChart.data);
+          maincategoryChart.data = {
+              labels: [],
+              datasets: [{
+                  label: "상품별 (건)",
+                  backgroundColor: ["#858796", "#e83e8c", "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "grey"],
+                  data: []
+              }]
+          };
+          maincategoryChart.update();
+          subcategoryChart.data = {
+              labels: [],
+              datasets: [{
+                  label: "상품별 (건)",
+                  backgroundColor: ["#858796", "#e83e8c", "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "grey"],
+                  data: []
+              }]
+          };
+          subcategoryChart.update();
+          empChart.data = {
+              labels: [],
+              datasets: [
+                  {
+                      label: "계약예상금액",
+                      backgroundColor: "#3e95cd",
+                      data: []
+                  }, {
+                      label: "이익예상금액",
+                      backgroundColor: "#8e5ea2",
+                      data: []
+                  }
+              ]
+          };
+          empChart.update();
+          customerChart.data = {
+              labels: [],
+              datasets: [{
+                  label: "계약예상금액",
+                  backgroundColor: "#4365B0",
+                  borderColor: "#4365B0",
+                  data: []
+              }, {
+                  label: "이익예상금액",
+                  backgroundColor: "#F29220",
+                  borderColor: "#F29220",
+                  data: []
+              }]
+
+          };
+          customerChart.update();
+      }
+
+      function barClick(evt) {
+          const activeElement = stepChart.getElementAtEvent(evt);
+          const idx = activeElement[0]._index;
+          const stepLabel = stepChart.data.labels[idx];
+          filterArray['step'] = stepLabel;
+          removeData();
+          pushData();
+      }
+
+      {# 2. category type chart   #}
+
+      function piemainClick(evt) {
+          const activeElement = maincategoryChart.getElementAtEvent(evt);
+          const idx = activeElement[0]._index;
+          const categoryLabel = maincategoryChart.data.labels[idx];
+          filterArray['maincategory'] = categoryLabel;
+          console.log(filterArray);
+          removeData();
+          pushData();
+      }
+
+      function piesubClick(evt) {
+          const activeElement = subcategoryChart.getElementAtEvent(evt);
+          const idx = activeElement[0]._index;
+          const categoryLabel = subcategoryChart.data.labels[idx];
+          filterArray['subcategory'] = categoryLabel;
+          console.log(filterArray);
+          removeData();
+          pushData();
+      }
+
+
+      {# 3. sales emp chart   #}
+
+      function groupedbarClick(evt) {
+          const activeElement = empChart.getElementAtEvent(evt);
+          const idx = activeElement[0]._index;
+          const empLabel = empChart.data.labels[idx];
+          filterArray['emp'] = empLabel;
+          removeData();
+          pushData();
+      }
+
+      function stackbarClick(evt) {
+          const activeElement = customerChart.getElementAtEvent(evt);
+          const idx = activeElement[0]._index;
+          const stepLabel = customerChart.data.labels[idx];
+          filterArray['customer'] = stepLabel;
+          console.log("filter:", filterArray);
+          removeData();
+          pushData();
+      }
+
+      function pushData() {
+
+          $.ajax({
+              url: "{% url 'dashboard:opportunity_ajax_graph' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  'step': filterArray['step'],
+                  'maincategory': filterArray['maincategory'],
+                  'subcategory': filterArray['subcategory'],
+                  'emp': filterArray['emp'],
+                  'customer': filterArray['customer']
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnStep) {
+                  var dataStep = returnStep;
+                  for (var k = 0; k < dataStep.length; k++) {
+                      const labels = Object.keys(dataStep[k]);
+                      const first_key = Object.keys(dataStep[k])[0];
+                      if (first_key == 'contractStep') {
+                          stepChart.data.labels.push(dataStep[k]['contractStep']);
+                          stepChart.data.datasets.forEach((dataset) => {
+                              dataset.data.push(dataStep[k]['sum_price']);
+                          });
+                          stepChart.update();
+
+                      } else if (first_key == 'mainCategory') {
+                          maincategoryChart.data.labels.push(dataStep[k]['mainCategory']);
+                          maincategoryChart.data.datasets.forEach((dataset) => {
+                              dataset.data.push(dataStep[k]['sum_main']);
+                          });
+                          maincategoryChart.update();
+
+                      } else if (first_key == 'subCategory') {
+                          subcategoryChart.data.labels.push(dataStep[k]['subCategory']);
+                          subcategoryChart.data.datasets.forEach((dataset) => {
+                              dataset.data.push(dataStep[k]['sum_sub']);
+                          });
+                          subcategoryChart.update();
+
+                      } else if (first_key == 'empDeptName') {
+                          empChart.data.labels.push(dataStep[k]['empDeptName']);
+                          empChart.data.datasets[0].data.push(dataStep[k]['sum_price']);
+                          empChart.data.datasets[1].data.push(dataStep[k]['sum_profit']);
+                          empChart.update();
+
+                      } else if (first_key == 'endCompanyName') {
+                          customerChart.data.labels.push(dataStep[k]['endCompanyName']);
+                          customerChart.data.datasets[1].data.push(dataStep[k]['sum_profit']);
+                          customerChart.data.datasets[0].data.push(dataStep[k]['sum_price']);
+                          customerChart.update();
+
+                      }
+                  }
+
+              }
+          });
+      }
+
+
+  </script>
+
+
+{% endblock %}

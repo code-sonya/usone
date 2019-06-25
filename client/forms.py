@@ -1,24 +1,28 @@
 from django import forms
+from django.db.models import Q
+
 from .models import Company
 from .models import Customer
+from hr.models import Employee
+
 
 class CompanyForm(forms.ModelForm):
 
     class Meta:
         model = Company
-        fields = ('companyName', 'saleEmpId', 'companyAddress')
+        fields = ('companyName', 'companyNameKo', 'companyNumber', 'saleEmpId', 'companyAddress')
 
         widgets = {
             'companyName': forms.TextInput(attrs={'class': 'form-control', 'id': 'companyName'}),
+            'companyNameKo': forms.TextInput(attrs={'class': 'form-control', 'id': 'companyNameKo'}),
+            'companyNumber': forms.TextInput(attrs={'class': 'form-control', 'id': 'companyNumber'}),
             'saleEmpId': forms.Select(attrs={'class': 'form-control', 'id': "saleEmpId"}),
             'companyAddress': forms.TextInput(attrs={'class': 'form-control', 'id': 'companyAddress'}),
         }
 
-        labels = {
-            'companyName': '고객사명',
-            'saleEmpId': '영업대표',
-            'companyAddress': '주소',
-        }
+    def __init__(self, *args, **kwargs):
+        super(CompanyForm, self).__init__(*args, **kwargs)
+        self.fields["saleEmpId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
 
 
 class CustomerForm(forms.ModelForm):

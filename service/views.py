@@ -10,6 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
 
 from hr.models import Employee
+from client.models import Company
 from noticeboard.models import Board
 from .forms import ServicereportForm, ServiceformForm
 from .functions import *
@@ -198,16 +199,25 @@ def post_service(request, postdate):
         form.fields['enddate'].initial = postdate
         form.fields['endtime'].initial = "18:00"
         serviceforms = Serviceform.objects.filter(empId=empId)
+
         empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
         empNames = []
         for emp in empList:
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
+
+        companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
+        companyNames = []
+        for company in companyList:
+            temp = {'id': company.pk, 'value': company.pk}
+            companyNames.append(temp)
+
         context = {
             'form': form,
             'postdate': postdate,
             'serviceforms': serviceforms,
             'empNames': empNames,
+            'companyNames': companyNames,
         }
         return render(request, 'service/postservice.html', context)
 
@@ -412,10 +422,20 @@ def modify_service(request, serviceId):
 
         coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
 
+        companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
+        companyNames = []
+        for company in companyList:
+            temp = {'id': company.pk, 'value': company.pk}
+            companyNames.append(temp)
+
+        companyName = Servicereport.objects.get(serviceId=serviceId).companyName
+
         context = {
             'form': form,
             'empNames': empNames,
             'coWorkers': coWorkers,
+            'companyNames': companyNames,
+            'companyName': companyName,
         }
         return render(request, 'service/postservice.html', context)
 
@@ -506,27 +526,6 @@ def delete_vacation(request, vacationId):
 
 
 @login_required
-def day_report_bak(request, day):
-    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    beforeDate = Date - datetime.timedelta(days=1)
-    afterDate = Date + datetime.timedelta(days=1)
-
-    solution = dayreport_query(empDeptName="솔루션지원팀", day=day)
-    db = dayreport_query(empDeptName="DB지원팀", day=day)
-
-    context = {
-        'day': day,
-        'Date': Date,
-        'beforeDate': beforeDate,
-        'afterDate': afterDate,
-        'solution': solution,
-        'db': db,
-    }
-
-    return render(request, 'service/dayreport_bak.html', context)
-
-
-@login_required
 def day_report(request, day=None):
     if day is None:
         day = str(datetime.datetime.today())[:10]
@@ -536,18 +535,55 @@ def day_report(request, day=None):
 
     solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
     db = dayreport_query2(empDeptName="DB지원팀", day=day)
+    sales1 = dayreport_query2(empDeptName="영업1팀", day=day)
+    sales2 = dayreport_query2(empDeptName="영업2팀", day=day)
+
+    dept = request.user.employee.empDeptName
+
+    rows = []
+    if dept == '영업2팀':
+        rows.append([
+            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+        ])
+        rows.append([
+            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+        ])
+    elif dept == '솔루션지원팀':
+        rows.append([
+            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+        ])
+        rows.append([
+            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+        ])
+    elif dept == 'DB지원팀':
+        rows.append([
+            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+        ])
+        rows.append([
+            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+        ])
+    else:
+        rows.append([
+            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+        ])
+        rows.append([
+            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+        ])
 
     context = {
         'day': day,
         'Date': Date,
         'beforeDate': beforeDate,
         'afterDate': afterDate,
-        'serviceSolution': solution[0],
-        'educationSolution': solution[1],
-        'vacationSolution': solution[2],
-        'serviceDb': db[0],
-        'educationDb': db[1],
-        'vacationDb': db[2],
+        'rows': rows,
     }
 
     return render(request, 'service/dayreport.html', context)

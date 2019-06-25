@@ -1,0 +1,1182 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}
+  영업 목표 분석
+{% endblock %}
+{% load humanize %}
+
+{% block css %}
+
+  <style type="text/css">
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .goalTalble {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+
+    .goalthtd {
+      padding: 5px;
+      text-align: center;
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+  </style>
+
+{% endblock %}
+{% block content %}
+
+
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <span>
+    <h1 class="h3 mb-0 text-gray-800">영업 목표 분석</h1>
+    </span>
+    <span>
+   </span>
+  </div>
+
+  <div class="row d-none d-sm-block">
+    <div class="col-xl-12 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">{{ year }} 년 영업팀별 목표 매출 및 이익</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="text-right"><span class="text-right">(단위 : 백만 원)</span></div>
+          <table class="goalTalble" style="width:100%;" class="hover row-border" width="100%">
+            <tr class="goalTalble" style="background-color: #4bacc6;color:#fff;">
+              <th colspan="2" class="goalthtd">구분</th>
+              <th colspan="2" class="goalthtd">1Y(100%)</th>
+              <th colspan="2" class="goalthtd">1Q(20%)</th>
+              <th colspan="2" class="goalthtd">2Q(25%)</th>
+              <th colspan="2" class="goalthtd">3Q(25%)</th>
+              <th colspan="2" class="goalthtd">4Q(30%)</th>
+            </tr>
+            <tr class="goalTalble" style="background-color: #4bacc6;color:#fff;">
+              <td class="goalthtd">부서명</td>
+              <td class="goalthtd">담당자</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+              <td class="goalthtd">매출목표</td>
+              <td class="goalthtd">이익목표</td>
+            </tr>
+            {% for i in teamGoals %}
+              <tr class="goalTalble">
+                <td class="goalthtd">{{ i.empDeptName }}</td>
+                <td class="goalthtd">{{ i.empName }}</td>
+                <td class="goalthtd">{{ i.yearSalesSum|slugify|slice:"0:-6"|intcomma }}</td>
+                <td class="goalthtd">{{ i.yearProfitSum|slugify|slice:"0:-6"|intcomma }}</td>
+                <td class="goalthtd">{{ i.salesq1|slugify|slice:"0:-6"|intcomma }}</td>
+                <td class="goalthtd">{{ i.profitq1|slugify|slice:"0:-6"|intcomma }}</td>
+                <td class="goalthtd">{{ i.salesq2|slugify|slice:"0:-6"|intcomma }}</td>
+                <td class="goalthtd">{{ i.profitq2|slugify|slice:"0:-6"|intcomma }}</td>
+                <td class="goalthtd">{{ i.salesq3|slugify|slice:"0:-6"|intcomma }}</td>
+                <td class="goalthtd">{{ i.profitq3|slugify|slice:"0:-6"|intcomma }}</td>
+                <td class="goalthtd">{{ i.salesq4|slugify|slice:"0:-6"|intcomma }}</td>
+                <td class="goalthtd">{{ i.profitq4|slugify|slice:"0:-6"|intcomma }}</td>
+              </tr>
+            {% endfor %}
+
+            <tr class="goalTalble">
+              <td class="goalthtd" colspan="2">합계</td>
+              <td class="goalthtd text-danger font-weight-bold">{{ teamGoalsSum.sum_yearSales|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd text-primary font-weight-bold">{{ teamGoalsSum.sum_yearProfit|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_salesq1|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_profitq1|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_salesq2|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_profitq2|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_salesq3|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_profitq3|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_salesq4|slugify|slice:"0:-6"|intcomma }}</td>
+              <td class="goalthtd font-weight-bold">{{ teamGoalsSum.sum_profitq4|slugify|slice:"0:-6"|intcomma }}</td>
+            </tr>
+          </table>
+          <br>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">영업1팀 영업 현황</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="team1Piechart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">영업2팀 영업 현황</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="team2Piechart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row d-none" id="firm1">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">매출 상세 내용</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showFirms1" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>영업부서</th>
+                <th>영업담당</th>
+                <th>계약명</th>
+                <th>거래처</th>
+                <th>매출금액</th>
+                <th>이익금액</th>
+                <th>빌링일자</th>
+                <th class="d-none">revenueId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>TOTAL :</th>
+              <th></th>
+              <th></th>
+              <th></th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Row -->
+  <div class="row">
+    <div class="col-xl-12 col-lg-6">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">분기별 매출 현황</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="quarterBarchart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row d-none" id="firm2">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">매출 상세 내용</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showFirms2" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>영업부서</th>
+                <th>영업담당</th>
+                <th>계약명</th>
+                <th>거래처</th>
+                <th>매출금액</th>
+                <th>이익금액</th>
+                <th>빌링일자</th>
+                <th class="d-none">revenueId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>TOTAL :</th>
+              <th></th>
+              <th></th>
+              <th></th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <!-- Area Chart -->
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">월별 매출 현황</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="contractMonthlychart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- data table -->
+  <div class="row d-none" id="firm3">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">매출 상세 내용</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showFirms3" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>영업부서</th>
+                <th>영업담당</th>
+                <th>계약명</th>
+                <th>거래처</th>
+                <th>매출금액</th>
+                <th>이익금액</th>
+                <th>빌링일자</th>
+                <th class="d-none">revenueId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>TOTAL :</th>
+              <th></th>
+              <th></th>
+              <th></th>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">날짜 검색</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
+                <input type="date" class="form-control" id="startdate" name="startdate">
+              </div>
+              <div class="col-6">
+                <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
+                <input type="date" class="form-control" id="enddate" name="enddate">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="filterDatatable" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterDatatableForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter2();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="font-weight-light text-primary">시작일자</label>
+                <input type="date" class="form-control" id="startdate" name="startdate">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="enddate" class="font-weight-light text-primary">종료일자</label>
+                <input type="date" class="form-control" id="enddate" name="enddate">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="empDeptName" class="font-weight-light text-primary">영업부서</label>
+                <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
+                  <option value="전체">전체</option>
+                  <option value="영업1팀">영업1팀</option>
+                  <option value="영업2팀">영업2팀</option>
+                  <option value="영업3팀">영업3팀</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="empName" class="font-weight-light text-primary">영업담당자</label>
+                <select class="form-control" id="empName" name="empName">
+                  <option value='전체'>전체</option>
+                  {% for i in employees %}
+                    <option value="{{ i.pk }}">{{ i.empName }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="companyName" class="font-weight-light text-primary">거래처</label>
+                <input class="form-control" id="saleCompanyName" name="saleCompanyName">
+              </div>
+              <div class="col-6">
+                <label for="serviceType" class="font-weight-light text-primary">최종고객사</label>
+                <input class="form-control" id="endCompanyName" name="endCompanyName">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="boardTitle" class="font-weight-light text-primary">계약명</label>
+                <input class="form-control" id="contractName" name="contractName">
+              </div>
+              <div class="col-6">
+                <label for="enddate" class="font-weight-light text-primary">구분</label>
+                <select class="form-control" id="contractStep" name="contractStep">
+                  <option value="전체">전체</option>
+                  <option value="Opportunity">Opportunity</option>
+                  <option value="Firm">Firm</option>
+                  <option value="Drop">Drop</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter2()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/hr/js/demo/chart-bar-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-area-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
+
+  <script>
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+
+      function btn_filter2() {
+          document.getElementById("filterDatatableForm").submit();
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 10);
+      }
+
+      function changeDeptName(empDeptName, selectId) {
+          $.ajax({
+              url: "{% url 'sales:empdept_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empDeptName": empDeptName},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var empName = returnData;
+                  console.log(empName);
+                  $('#' + selectId).empty();
+
+                  $('#' + selectId).append("<option value='전체'>전체</option>");
+                  for (var count = 0; count < empName.length; count++) {
+                      var option = $("<option value=" + empName[count].pk + ">" + empName[count].fields.empName + "</option>");
+                      $('#' + selectId).append(option);
+                  }
+              }
+          })
+      }
+
+  </script>
+
+  <script>
+
+      const filterArray = new Array();
+      filterArray['quarter'] = '';
+      filterArray['step'] = '';
+      filterArray['team'] = '';
+      filterArray['cumulative'] = '';
+      filterArray['month'] = '';
+
+      const colors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
+
+      const options = {
+          maintainAspectRatio: false,
+          plugins: {
+              datalabels: {
+                  align: 'end',
+                  anchor: 'end',
+                  color: function (context) {
+                      return context.dataset.backgroundColor;
+                  },
+                  font: function (context) {
+                      var w = context.chart.width;
+                      return {
+                          size: w < 512 ? 12 : 14
+                      };
+                  },
+                  formatter: function (value, context) {
+                      if (window.innerWidth < 400) {
+                          return ''
+                      } else {
+                          return number_format(value).slice(0, -8);
+                      }
+                  }
+              }
+          },
+          layout: {
+              padding: {
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: 0
+              }
+          },
+          scales: {
+              xAxes: [{
+                  time: {
+                      unit: 'week'
+                  },
+                  gridLines: {
+                      display: false,
+                      drawBorder: false
+                  },
+                  ticks: {
+                      maxTicksLimit: 8
+                  },
+                  maxBarThickness: 30,
+              }],
+              yAxes: [{
+                  ticks: {
+                      min: 0,
+                      maxTicksLimit: 5,
+                      padding: 5,
+                      // Include a dollar sign in the ticks
+                      callback: function (value, index, values) {
+                          return number_format(value).slice(0, -8);
+                      }
+                  },
+                  gridLines: {
+                      color: "rgb(234, 236, 244)",
+                      zeroLineColor: "rgb(234, 236, 244)",
+                      drawBorder: false,
+                      borderDash: [2],
+                      zeroLineBorderDash: [2]
+                  }
+              }],
+          },
+          tooltips: {
+              titleMarginBottom: 10,
+              titleFontColor: '#6e707e',
+              titleFontSize: 14,
+              backgroundColor: "rgb(255,255,255)",
+              bodyFontColor: "#858796",
+              borderColor: '#dddfeb',
+              borderWidth: 1,
+              xPadding: 15,
+              yPadding: 15,
+              displayColors: false,
+              caretPadding: 10,
+              callbacks: {
+                  label: function (tooltipItem, chart) {
+                      return '총 ' + number_format(tooltipItem.yLabel);
+                  }
+              }
+          }
+      };
+      // Pie Chart 1
+
+      {% for j in teamSales %}
+          {% for i in teamGoals %}
+              {% if i.empDeptName == '영업1팀' %}
+                  {% if j.영업1팀 %}
+                      const team1_goal = '{{ i.yearSalesSum }}';
+                      const team1_q1 = '{{ i.salesq1 }}';
+                      const team1_q2 = '{{ i.salesq2 }}';
+                      const team1_q3 = '{{ i.salesq3 }}';
+                      const team1_q4 = '{{ i.salesq4 }}';
+                      const team1_revenue = '{{ j.영업1팀.sum_sales }}';
+                      const team1_deficit = Number(team1_goal) - Number(team1_revenue);
+                  {% endif %}
+              {% elif i.empDeptName == '영업2팀' %}
+                  {% if j.영업2팀 %}
+                      const team2_goal = '{{ i.yearSalesSum }}';
+                      const team2_q1 = '{{ i.salesq1 }}';
+                      const team2_q2 = '{{ i.salesq2 }}';
+                      const team2_q3 = '{{ i.salesq3 }}';
+                      const team2_q4 = '{{ i.salesq4 }}';
+                      const team2_revenue = '{{ j.영업2팀.sum_sales }}';
+                      const team2_deficit = Number(team2_goal) - Number(team2_revenue);
+                  {% endif %}
+              {% endif %}
+          {% endfor %}
+      {% endfor %}
+      const ctx1 = document.getElementById("team1Piechart");
+      const team1Piechart = new Chart(ctx1, {
+          type: 'pie',
+          data: {
+              labels: ["달성금액", '미달성금액'],
+              datasets: [{
+                  data: [team1_revenue, team1_deficit],
+                  backgroundColor: ['#858796', '#E74A3B'],
+                  hoverBackgroundColor: ['#858796', '#E74A3B'],
+                  hoverBorderColor: "rgba(234, 236, 244, 1)",
+              }
+              ],
+          },
+          options: {
+              layout: {
+                  padding: {
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      bottom: 0
+                  }
+              },
+              maintainAspectRatio: false,
+              tooltips:
+                  {
+                      enabled: false
+                  }
+              ,
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let dataSum = number_format(value).slice(0, -8);
+                          return dataSum;
+
+                      },
+                      color: '#fff',
+                  },
+                  outlabels: {
+                      text: '%l %p',
+                      color: 'white',
+                      stretch: 5,
+                      font: {
+                          resizable: true,
+                          minSize:
+                              12,
+                          maxSize:
+                              18
+                      }
+                  }
+              }
+          },
+      });
+
+      $("#team1Piechart").click(
+          function (evt) {
+              filterArray['quarter'] = '';
+              filterArray['step'] = 'Firm';
+              filterArray['cumulative'] = '';
+              filterArray['team'] = "영업1팀";
+              filterArray['month'] = "";
+              console.log(filterArray);
+              firmTable1.clear().draw();
+              $('#firm1').attr('class', 'row d-block');
+              $('#firm2').attr('class', 'row d-none');
+              $('#firm3').attr('class', 'row d-none');
+              pushData(firmTable1);
+          }
+      );
+
+      const ctx2 = document.getElementById("team2Piechart");
+      const team2Piechart = new Chart(ctx2, {
+          type: 'pie',
+          data: {
+              labels: ["달성금액", '미달성금액'],
+              datasets: [{
+                  data: [team2_revenue, team2_deficit],
+                  backgroundColor: ['#858796', '#E74A3B'],
+                  hoverBackgroundColor: ['#858796', '#E74A3B'],
+                  hoverBorderColor: "rgba(234, 236, 244, 1)",
+              }
+              ],
+          },
+          options: {
+              layout: {
+                  padding: {
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      bottom: 0
+                  }
+              },
+              maintainAspectRatio: false,
+              tooltips:
+                  {
+                      enabled: false
+                  }
+              ,
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let dataSum = number_format(value).slice(0, -8);
+                          return dataSum;
+
+                      },
+                      color: '#fff',
+                  },
+                  outlabels: {
+                      text: '%l %p',
+                      color: 'white',
+                      stretch: 5,
+                      font: {
+                          resizable: true,
+                          minSize:
+                              12,
+                          maxSize:
+                              18
+                      }
+                  }
+              }
+          },
+      });
+      $("#team2Piechart").click(
+          function (evt) {
+              filterArray['quarter'] = '';
+              filterArray['step'] = 'Firm';
+              filterArray['cumulative'] = '';
+              filterArray['team'] = "영업2팀";
+              filterArray['month'] = "";
+              console.log(filterArray);
+              firmTable1.clear().draw();
+              $('#firm1').attr('class', 'row d-block');
+              $('#firm2').attr('class', 'row d-none');
+              $('#firm3').attr('class', 'row d-none');
+              pushData(firmTable1);
+          }
+      );
+
+      // Bar Chart 2
+      const ctx3 = document.getElementById("quarterBarchart");
+      const quarterBarchart = new Chart(ctx3, {
+          type: 'bar',
+          data: {
+              labels: ["1분기", "2분기", "3분기", "4분기"],
+              datasets: [{
+                  type: 'line',
+                  label: '영업1팀 목표매출',
+                  borderColor: "pink",
+                  borderWidth: 2,
+                  fill: false,
+                  data: [team1_q1, team1_q2, team1_q3, team1_q4],
+
+              }, {
+                  type: 'line',
+                  label: '영업2팀 목표매출',
+                  borderColor: "skyblue",
+                  borderWidth: 2,
+                  fill: false,
+                  data: [team2_q1, team2_q2, team2_q3, team2_q4],
+              }, {
+                  type: 'bar',
+                  label: '영업1팀 분기매출',
+                  backgroundColor: "#ff5879",
+                  data: {{ quarterFirmTeam1Sales }},
+                  borderColor: 'white',
+                  borderWidth: 2
+              }, {
+                  type: 'bar',
+                  label: '영업2팀 분기매출',
+                  backgroundColor: "#42b8b8",
+                  data: {{ quarterFirmTeam2Sales }},
+              }],
+          },
+          options: options
+      });
+
+      $("#quarterBarchart").click(
+          function (evt) {
+              const activeElement = quarterBarchart.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const quarterLabel = quarterBarchart.data.labels[idx];
+              const datasetIndex = activeElement[0]._datasetIndex;
+              const teamLabel = quarterBarchart.data.datasets[datasetIndex].label;
+              const teamName = teamLabel.split(' ');
+              filterArray['quarter'] = quarterLabel;
+              filterArray['cumulative'] = 'N';
+              filterArray['step'] = "Firm";
+              filterArray['team'] = teamName[0];
+              filterArray['month'] = "";
+              console.log(filterArray);
+              firmTable2.clear().draw();
+              $('#firm1').attr('class', 'row d-none');
+              $('#firm2').attr('class', 'row d-block');
+              $('#firm3').attr('class', 'row d-none');
+              pushData(firmTable2);
+          }
+      );
+
+      // Bar Chart 4
+      const ctx4 = document.getElementById("contractMonthlychart");
+      const contractMonthlychart = new Chart(ctx4, {
+              type: 'bar',
+              data: {
+                  labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
+                  datasets: [{
+                      type: 'line',
+                      label: '영업1팀 목표매출',
+                      borderColor: "pink",
+                      borderWidth: 2,
+                      fill: false,
+                      data: [{% for i in teamGoals %}
+                          {% if i.empDeptName == "영업1팀" %}
+                              {{ i.sales1 }},{{ i.sales2 }},{{ i.sales3 }},{{ i.sales4 }},{{ i.sales5 }},{{ i.sales6 }},
+                              {{ i.sales7 }},{{ i.sales8 }},{{ i.sales9 }},{{ i.sales10 }},{{ i.sales11 }},{{ i.sales12 }}
+                          {% endif %}
+                      {% endfor %}],
+
+                  }, {
+                      type: 'line',
+                      label: '영업2팀 목표매출',
+                      borderColor: "skyblue",
+                      borderWidth: 2,
+                      fill: false,
+                      data: [{% for i in teamGoals %}
+                          {% if i.empDeptName == "영업2팀" %}
+                              {{ i.sales1 }},{{ i.sales2 }},{{ i.sales3 }},{{ i.sales4 }},{{ i.sales5 }},{{ i.sales6 }},
+                              {{ i.sales7 }},{{ i.sales8 }},{{ i.sales9 }},{{ i.sales10 }},{{ i.sales11 }},{{ i.sales12 }}
+                          {% endif %}
+                      {% endfor %}],
+                  }, {
+                      type: 'bar',
+                      label: '영업1팀 매출금액',
+                      backgroundColor: "#ff5879",
+                      data: [{% for i in team1Revenues %}
+                          {{ i.revenuePrice__sum }} ,
+                      {% endfor %}],
+                      borderColor: 'white',
+                      borderWidth: 2
+                  },
+                      {
+                          type: 'bar',
+                          label:
+                              '영업2팀 매출금액',
+                          backgroundColor:
+                              "#42b8b8",
+                          data: [{% for i in team2Revenues %}
+                              {{ i.revenuePrice__sum }} ,
+                          {% endfor %}],
+                      }
+                  ],
+              },
+              options: options
+          })
+      ;
+
+      $("#contractMonthlychart").click(
+          function (evt) {
+              const activeElement = contractMonthlychart.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const datasetIndex = activeElement[0]._datasetIndex;
+              const monthLabel = contractMonthlychart.data.labels[idx];
+              const teamLabel = contractMonthlychart.data.datasets[datasetIndex].label;
+              const teamName = teamLabel.split(' ');
+              filterArray['month'] = monthLabel;
+              filterArray['team'] = teamName[0];
+              filterArray['quarter'] = "";
+              filterArray['cumulative'] = "";
+              filterArray['step'] = "Firm";
+              console.log(filterArray);
+              firmTable3.clear().draw();
+              $('#firm1').attr('class', 'row d-none');
+              $('#firm2').attr('class', 'row d-none');
+              $('#firm3').attr('class', 'row d-block');
+              pushData(firmTable3);
+          }
+      );
+  </script>
+
+  <script>
+      var firmTable1;
+      var firmTable2;
+      var firmTable3;
+      $(document).ready(function () {
+
+          firmTable1 = $('#showFirms1').DataTable({
+              "processing": true,
+              "columns": [
+                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__empName'},
+                  {
+                      data: 'contractId__contractName',
+                      render: function (data, type, row) {
+                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
+                      }
+                  },
+                  {data: 'contractId__saleCompanyName__companyName'},
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'predictBillingDate'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, visible: false}
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "order": [[6, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(profitResult.toLocaleString());
+              },
+          });
+
+          firmTable2 = $('#showFirms2').DataTable({
+              "processing": true,
+              "columns": [
+                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__empName'},
+                  {
+                      data: 'contractId__contractName',
+                      render: function (data, type, row) {
+                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
+                      }
+                  },
+                  {data: 'contractId__saleCompanyName__companyName'},
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'predictBillingDate'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, visible: false}
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "order": [[6, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(profitResult.toLocaleString());
+              },
+          });
+
+          firmTable3 = $('#showFirms3').DataTable({
+              "processing": true,
+              "columns": [
+                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__empName'},
+                  {
+                      data: 'contractId__contractName',
+                      render: function (data, type, row) {
+                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
+                      }
+                  },
+                  {data: 'contractId__saleCompanyName__companyName'},
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'predictBillingDate'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, visible: false}
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "order": [[6, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(profitResult.toLocaleString());
+              },
+          });
+
+          $("#showFirms1").on("click", 'tr', function () {
+              const data = firmTable1.row(this).data();
+              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+          });
+
+          $("#showFirms2").on("click", 'tr', function () {
+              const data = firmTable2.row(this).data();
+              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+          });
+
+          $("#showFirms3").on("click", 'tr', function () {
+              const data = firmTable3.row(this).data();
+              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+          });
+
+      });
+
+      function pushData(table) {
+          $.ajax({
+              url: "{% url 'dashboard:quarter_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "step": filterArray['step'],
+                  "team": filterArray['team'],
+                  "cumulative": filterArray['cumulative'],
+                  "quarter": filterArray['quarter'],
+                  "month": filterArray['month'],
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  for (var i = 0; i < returnData.length; i++) {
+                      table.row.add(returnData[i]);
+                  }
+                  table.draw()
+              }
+          });
+
+      }
+
+
+  </script>
+{% endblock %}

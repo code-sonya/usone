@@ -1,50 +1,19 @@
-{% load staticfiles %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "dashboard/layout.html" %}
+{% block title %}
+  엔지니어 지원 통계
+{% endblock %}
 
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
+{% block content %}
 
-  <title>대시보드</title>
-
-  <!-- Custom fonts for this template-->
-  <link href='{% static "hr/vendor/fontawesome-free/css/all.min.css" %}' rel="stylesheet" type="text/css">
-  <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-
-  <!-- Custom styles for this template-->
-  <link href='{% static "hr/css/sb-admin-2.min.css" %}' rel="stylesheet">
-  <link href='{% static "hr/vendor/datatables/jquery.dataTables.min.css" %}' rel="stylesheet">
-  <link href='{% static "hr/vendor/datatables/dataTables.bootstrap4.min.css" %}' rel="stylesheet">
-  <link href="{% static 'scheduler/css/fullcalendar.css' %}" rel="stylesheet">
-
-  {% block css %}{% endblock %}
-
-</head>
-
-<body id="page-top" class="sidebar-toggled">
-
-  <!-- Page Wrapper -->
-  <div id="wrapper">
- <!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column">
-    <!-- Main Content -->
-      <div id="content">
-  <!-- Begin Page Content -->
-        <div class="container-fluid">
 
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <span>
-    <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+    <h1 class="h3 mb-0 text-gray-800">엔지니어 지원 통계 {% if user.employee.empDeptName == "임원" %}(SOLUTION&DB){% endif %}</h1>
     <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate }}~{{ enddate }} )</h6>
     </span>
     <span>
       <a href="#" class="d-sm-inline-block btn btn-sm btn-info shadow-sm" id="filterLink" data-toggle="modal" data-target="#filterModal"><i class="fas fa-filter fa-sm text-white-50"></i> 날짜 검색 </a>
-      <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm" id="pdf"><i class="fas fa-download fa-sm text-white-50"></i> Generate Report</a>
     </span>
 
   </div>
@@ -59,7 +28,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">전체 지원 횟수</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_support_time.serviceHour__count }}건</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__count %}{{ all_support_time.serviceHour__count }}{% else %}0{% endif %} 건</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-briefcase fa-2x text-gray-300"></i>
@@ -76,7 +45,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-success text-uppercase mb-1">전체 지원 시간</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_support_time.serviceHour__sum }}시간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__sum %}{{ all_support_time.serviceHour__sum }}{% else %}0.0{% endif %} 시간</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-clock fa-2x text-gray-300"></i>
@@ -93,7 +62,7 @@
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-info text-uppercase mb-1">전체 초과 근무 시간</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{{ all_support_Overtime.serviceOverHour__sum }}시간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_Overtime.serviceOverHour__sum %}{{ all_support_Overtime.serviceOverHour__sum }}{% else %}0.0{% endif %} 시간</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-moon fa-2x text-gray-300"></i>
@@ -121,26 +90,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Content Row -->
-
-  <div class="row">
-    <div class="col-xl-12 col-lg-12">
-      <div class="card shadow mb-4">
-        <!-- Card Header-->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원 시간</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <div id="SupportTimeTreemap" style="height: 100%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Content Row -->
 
   <div class="row">
@@ -159,6 +108,38 @@
       </div>
     </div>
   </div>
+
+    <!-- data table -->
+  <div class="row d-none" id="service1">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">상세 내용</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showservice1" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>엔지니어</th>
+                <th>고객사</th>
+                <th>구분</th>
+                <th>날짜</th>
+                <th>지원시간</th>
+                <th>초과근무시간</th>
+                <th>제목</th>
+                <th class="d-none">serviceId</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <div class="row">
 
@@ -233,6 +214,38 @@
     </div>
   </div>
 
+   <!-- data table -->
+  <div class="row d-none" id="service2">
+    <div class="col-xl-12 col-lg-12">
+      <div class="card shadow mb-4">
+        <!-- Card Header-->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">상세 내용</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showservice2" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>엔지니어</th>
+                <th>고객사</th>
+                <th>구분</th>
+                <th>날짜</th>
+                <th>지원시간</th>
+                <th>초과근무시간</th>
+                <th>제목</th>
+                <th class="d-none">serviceId</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <div class="row">
 
     <!-- Bar Chart -->
@@ -269,7 +282,7 @@
   </div>
 
   <!-- data table -->
-  <div class="row">
+  <div class="row d-none" id="service3">
     <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Header-->
@@ -279,10 +292,10 @@
         <!-- Card Body -->
         <div class="card-body">
           <div class="table-responsive">
-            <table id="showservice" class="hover row-border" width="100%" style="width: 100%;">
+            <table id="showservice3" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>성함</th>
+                <th>엔지니어</th>
                 <th>고객사</th>
                 <th>구분</th>
                 <th>날짜</th>
@@ -317,11 +330,11 @@
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
                 <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
-                <input type="date" class="form-control" id="startdate" name="startdate">
+                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate">
               </div>
               <div class="col-6">
                 <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
-                <input type="date" class="form-control" id="enddate" name="enddate">
+                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate">
               </div>
             </div>
           </form>
@@ -334,13 +347,15 @@
       </div>
     </div>
   </div>
-        </div>
-      </div>
-    </div>
-  </div>
-<script src="/static/hr/js/demo/chart-bar-demo.js"></script>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/hr/js/demo/chart-bar-demo.js"></script>
   <script src="/static/hr/js/demo/chart-area-demo.js"></script>
   <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
 
   <script>
       function btn_filter() {
@@ -349,12 +364,38 @@
   </script>
 
   <script>
+
+      const filterArray = new Array();
+      filterArray['company'] = '';
+      filterArray['empname'] = '';
+      filterArray['servicetype'] = '';
+      filterArray['overhour'] = '';
+
       // 고객사별 지원 시간
       // Bar Chart Example
       const colors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
       const options = {
+          plugins: {
+              datalabels: {
+                  align: 'end',
+                  anchor: 'end',
+                  color: function (context) {
+                      return context.dataset.backgroundColor;
+                  },
+                  font: function (context) {
+                      var w = context.chart.width;
+                      return {
+                          size: w < 512 ? 12 : 14
+                      };
+                  },
+                  formatter: function (value, context) {
+                      return number_format(value);
+                  }
+
+              }
+          },
           maintainAspectRatio: false,
           layout: {
               padding: {
@@ -376,12 +417,13 @@
                   ticks: {
                       maxTicksLimit: 6
                   },
-                  maxBarThickness: 25,
+                  maxBarThickness: 30,
               }],
               yAxes: [{
                   ticks: {
+                      min: 0,
                       maxTicksLimit: 5,
-                      padding: 10,
+                      padding: 5,
                       // Include a dollar sign in the ticks
                       callback: function (value, index, values) {
                           return number_format(value);
@@ -420,7 +462,7 @@
       };
       // Bar Chart 1
       var ctx = document.getElementById("CustomerSupportTime");
-      var myBarChart = new Chart(ctx, {
+      var CustomerSupportTime = new Chart(ctx, {
           type: 'bar',
           data: {
               labels: [
@@ -442,9 +484,28 @@
           },
           options: options
       });
+
+      $("#CustomerSupportTime").click(
+          function (evt) {
+              const activeElement = CustomerSupportTime.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const companyLabel = CustomerSupportTime.data.labels[idx];
+              filterArray['company'] = companyLabel;
+              filterArray['empname'] = '';
+              filterArray['servicetype'] = '';
+              filterArray['overhour'] = '';
+              console.log(filterArray);
+              serviceTable1.clear().draw();
+              $('#service1').attr('class', 'row d-block');
+              $('#service2').attr('class', 'row d-none');
+              $('#service3').attr('class', 'row d-none');
+              pushData(serviceTable1);
+          }
+      );
+
       // Bar Chart 2
       var ctx = document.getElementById("empSupportTime");
-      var myBarChart = new Chart(ctx, {
+      var empSupportTime = new Chart(ctx, {
           type: 'bar',
           data: {
               labels: [
@@ -466,9 +527,27 @@
           },
           options: options
       });
+
+      $("#empSupportTime").click(
+          function (evt) {
+              const activeElement = empSupportTime.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const empnameLabel = empSupportTime.data.labels[idx];
+              filterArray['company'] = '';
+              filterArray['empname'] = empnameLabel;
+              filterArray['servicetype'] = '';
+              filterArray['overhour'] = '';
+              console.log(filterArray);
+              serviceTable2.clear().draw();
+              $('#service1').attr('class', 'row d-none');
+              $('#service2').attr('class', 'row d-block');
+              $('#service3').attr('class', 'row d-none');
+              pushData(serviceTable2);
+          }
+      );
       // Bar Chart 3
       var ctx = document.getElementById("empSupportCount");
-      var myBarChart = new Chart(ctx, {
+      var empSupportCount = new Chart(ctx, {
           type: 'bar',
           data: {
               labels: [
@@ -490,9 +569,28 @@
           },
           options: options
       });
+
+      $("#empSupportCount").click(
+          function (evt) {
+              const activeElement = empSupportCount.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const empnameLabel = empSupportCount.data.labels[idx];
+              filterArray['company'] = '';
+              filterArray['empname'] = empnameLabel;
+              filterArray['servicetype'] = '';
+              filterArray['overhour'] = '';
+              console.log(filterArray);
+              serviceTable3.clear().draw();
+              $('#service1').attr('class', 'row d-none');
+              $('#service2').attr('class', 'row d-none');
+              $('#service3').attr('class', 'row d-block');
+              pushData(serviceTable3);
+          }
+      );
+
       // Bar Chart 4
       var ctx = document.getElementById("empSupportOver");
-      var myBarChart = new Chart(ctx, {
+      var empSupportOver = new Chart(ctx, {
           type: 'bar',
           data: {
               labels: [
@@ -514,11 +612,29 @@
           },
           options: options
       });
+
+      $("#empSupportOver").click(
+          function (evt) {
+              const activeElement = empSupportOver.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const empnameLabel = empSupportOver.data.labels[idx];
+              filterArray['company'] = '';
+              filterArray['empname'] = empnameLabel;
+              filterArray['servicetype'] = '';
+              filterArray['overhour'] = 'Y';
+              console.log(filterArray);
+              serviceTable3.clear().draw();
+              $('#service1').attr('class', 'row d-none');
+              $('#service2').attr('class', 'row d-none');
+              $('#service3').attr('class', 'row d-block');
+              pushData(serviceTable3);
+          }
+      );
   </script>
   <script>
       // Pie Chart 1
       var ctx = document.getElementById("typeSupportTime");
-      var myPieChart = new Chart(ctx, {
+      var typeSupportTime = new Chart(ctx, {
           type: 'doughnut',
           data: {
               labels: [
@@ -539,76 +655,103 @@
           },
           options: {
               maintainAspectRatio: false,
-              tooltips: {
-                  backgroundColor: "rgb(255,255,255)",
-                  bodyFontColor: "#858796",
-                  borderColor: '#dddfeb',
-                  borderWidth: 1,
-                  xPadding: 15,
-                  yPadding: 15,
-                  displayColors: false,
-                  caretPadding: 10,
-              },
               legend: {
                   display: false
               },
-              cutoutPercentage: 80,
+              cutoutPercentage: 50,
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let dataSum = value + "시간";
+                          return dataSum;
+
+
+                      },
+                      color: '#fff',
+                  },
+                  outlabels: {
+                      text: '%l %p',
+                      color: 'white',
+                      stretch: 20,
+                      font: {
+                          resizable: true,
+                          minSize: 12,
+                          maxSize: 18
+                      }
+                  }
+              }
           },
       });
+
+      $("#typeSupportTime").click(
+          function (evt) {
+              const activeElement = typeSupportTime.getElementAtEvent(evt);
+              const idx = activeElement[0]._index;
+              const servicetypeLabel = typeSupportTime.data.labels[idx];
+              filterArray['company'] = '';
+              filterArray['empname'] = '';
+              filterArray['servicetype'] = servicetypeLabel;
+              filterArray['overhour'] = '';
+              console.log(filterArray);
+              serviceTable2.clear().draw();
+              $('#service1').attr('class', 'row d-none');
+              $('#service2').attr('class', 'row d-block');
+              $('#service3').attr('class', 'row d-none');
+              pushData(serviceTable2);
+          }
+      );
   </script>
-  <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
-  <script src="https://cdn.anychart.com/releases/v8/js/anychart-ui.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
-  <script src="https://cdn.anychart.com/releases/v8/js/anychart-exports.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
-  <script src="https://cdn.anychart.com/releases/v8/js/anychart-treemap.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
-  <script src="https://cdn.anychart.com/releases/v8/js/anychart-data-adapter.min.js?hcode=be5162d915534272a57d0bb781d27f2b"></script>
-  <link href="https://cdn.anychart.com/releases/v8/css/anychart-ui.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
-  <link href="https://cdn.anychart.com/releases/v8/fonts/css/anychart-font.min.css?hcode=be5162d915534272a57d0bb781d27f2b" type="text/css" rel="stylesheet">
+
   <script>
-      anychart.onDocumentReady(function () {
-
-          // create data
-          var data = [
-              {
-                  name: "고객사", children: [
-                      {% for i in customer_support_time %}
-                          {name: "{{ i.companyName }}", value: {{ i.sum_supportTime }}},
-                      {% endfor %}
-                  ]
-              }
-          ];
-
-          var chart = anychart.treeMap(data, "as-tree");
-
-          chart.container("SupportTimeTreemap");
-
-          var customColorScale = anychart.scales.ordinalColor();
-          customColorScale.ranges([
-              {less: 10},
-              {from: 10, to: 15},
-              {from: 15, to: 25},
-              {greater: 25}
-          ]);
-          customColorScale.colors(["lightgray", "#9ed1de", "#00ccff", "#ffcc00"]);
-
-          // set the color scale as the color scale of the chart
-          chart.colorScale(customColorScale);
-
-          chart.draw();
-      });
-  </script>
-  <script>
-  $(document).ready(function () {
-
-          const table = $('#showservice').DataTable({
+      var serviceTable1;
+      var serviceTable2;
+      var serviceTable3;
+      $(document).ready(function () {
+          serviceTable1 = $('#showservice1').DataTable({
               data: [],
               columns: [
-                  {data: "성함"},
-                  {data: "고객사"},
-                  {data: "구분"},
-                  {data: "날짜"},
-                  {data: "지원시간"},
-                  {data: "초과근무시간"},
-                  {data: "제목"},
+                  {data: "empName"},
+                  {data: "companyName_id"},
+                  {data: "serviceType"},
+                  {data: "serviceDate"},
+                  {data: "serviceHour"},
+                  {data: "serviceOverHour"},
+                  {data: "serviceTitle"},
+                  {data: "serviceId"}
+              ],
+              columnDefs: [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, visible: false}
+              ],
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollCollapse": true,
+          });
+
+          serviceTable2 = $('#showservice2').DataTable({
+              data: [],
+              columns: [
+                  {data: "empName"},
+                  {data: "companyName_id"},
+                  {data: "serviceType"},
+                  {data: "serviceDate"},
+                  {data: "serviceHour"},
+                  {data: "serviceOverHour"},
+                  {data: "serviceTitle"},
                   {data: "serviceId"}
               ],
               columnDefs: [
@@ -619,7 +762,7 @@
                   {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible:false}
+                  {targets: 7, visible: false}
               ],
               "searching": false,
               "paging": false,
@@ -628,27 +771,76 @@
               "scrollCollapse": true,
           });
 
-          {% for service in all_support_data %}
-              var rowNode = table.row.add( {
-                  "성함":  "{{ service.empName }}",
-                  "고객사": "{{ service.companyName.companyName }}",
-                  "구분": "{{ service.serviceType }}",
-                  "날짜": "{{ service.serviceDate | date:"Y-m-d" }}",
-                  "지원시간": "{{ service.serviceHour }}",
-                  "초과근무시간": "{{ service.serviceOverHour }}",
-                  "제목": "{{ service.serviceTitle }}",
-                  "serviceId": "{{ service.serviceId }}",
-              } ).draw().node();
-
-          {% endfor %}
-
-          $("#showservice").on("click", 'tr', function(){
-              const data = table.row(this).data();
-              location.href='/service/viewservice/' + data.serviceId + '/'
+          serviceTable3 = $('#showservice3').DataTable({
+              data: [],
+              columns: [
+                  {data: "empName"},
+                  {data: "companyName_id"},
+                  {data: "serviceType"},
+                  {data: "serviceDate"},
+                  {data: "serviceHour"},
+                  {data: "serviceOverHour"},
+                  {data: "serviceTitle"},
+                  {data: "serviceId"}
+              ],
+              columnDefs: [
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, visible: false}
+              ],
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollCollapse": true,
           });
 
-      });
-  </script>
-</body>
-</html>
+          $("#showservice1").on("click", 'tr', function () {
+              const data = serviceTable1.row(this).data();
+              location.href = '/service/viewservice/' + data.serviceId + '/'
+          });
 
+          $("#showservice2").on("click", 'tr', function () {
+              const data = serviceTable2.row(this).data();
+              location.href = '/service/viewservice/' + data.serviceId + '/'
+          });
+
+          $("#showservice3").on("click", 'tr', function () {
+              const data = serviceTable3.row(this).data();
+              location.href = '/service/viewservice/' + data.serviceId + '/'
+          });
+
+
+      });
+
+      function pushData(table) {
+
+          $.ajax({
+              url: "{% url 'dashboard:service_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "company": filterArray['company'],
+                  "empname": filterArray['empname'],
+                  "servicetype": filterArray['servicetype'],
+                  "overhour": filterArray['overhour'],
+                  "startdate":'{{ startdate }}',
+                  "enddate":'{{ enddate }}'
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  for (var i = 0; i < returnData.length; i++) {
+                      table.row.add(returnData[i])
+                  }
+                  table.draw()
+              }
+          });
+
+      }
+  </script>
+{% endblock %}

@@ -18,9 +18,8 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-1"></div>
 
-    <div class="col-xl-10 d-xl-block">
+    <div class="col-xl-12">
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -36,6 +35,7 @@
             </a>
           </div>
         </div>
+
         <div class="card-body">
           {% csrf_token %}
 
@@ -43,12 +43,15 @@
             <table id="showclientlist" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>고객사</th>
+                <th>[영업] 고객사 명</th>
+                <th>[기술] 고객사 명</th>
                 <th>영업대표</th>
-                <th>DB담당자</th>
-                <th>SYSTEM담당자</th>
-                <th>DB계약만료일</th>
-                <th>SYSTEM계약만료일</th>
+                <th>[DB] 정</th>
+                <th>[DB] 부</th>
+                <th>[솔루션] 정</th>
+                <th>[솔루션] 부</th>
+                <th>DB 계약만료</th>
+                <th>솔루션 계약만료</th>
               </tr>
               </thead>
             </table>
@@ -59,7 +62,6 @@
       </div>
     </div>
 
-    <div class="col-xl-1"></div>
   </div>
 
   <!-- Filter Modal -->
@@ -77,17 +79,6 @@
         <div class="modal-body">
           <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
-            <div class="row">
-              <div class="col-4 text-center">
-                <label class="checkbox"><input type="checkbox" name="chkbox" value="present" checked> 현재 고객사</label>
-              </div>
-              <div class="col-4 text-center">
-                <label class="checkbox"><input type="checkbox" name="chkbox" value="past"> 과거 고객사</label>
-              </div>
-              <div class="col-4 text-center">
-                <label class="checkbox"><input type="checkbox" name="chkbox" value="wait"> 등록대기</label>
-              </div>
-            </div>
             <div class="row mb-1">
               <div class="col-12">
                 <label for="empName" class="font-weight-light text-primary">성함</label>
@@ -122,159 +113,65 @@
       }
 
       $(document).ready(function () {
-
-
-          {% if filter == 'Y'%}
-              $('#showclientlist').DataTable({
+          $('#showclientlist').DataTable({
+              "processing": true,
+              "ajax": {
                   "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "type": 'POST',
-                      "data": {
-                          "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
-                          "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                          "chkbox": {% if chkbox %}"{{ chkbox }}",{% else %}"",{% endif %}
-                      },
-                      "url": "{% url 'client:filter_ajax_url' %}",
-                      "dataSrc": ""
+                  "type": 'POST',
+                  "data": {
+                      "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
+                      "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                      "chkbox": {% if chkbox %}"{{ chkbox }}",{% else %}"",{% endif %}
                   },
-                  columns: [
-                      {data: "companyName"},
-                      {data: "saleEmpId__empName"},
-                      {
-                          data: "dbMainEmpId__empName",
-                          render: function (data, type, row) {
-                              var value = row["dbMainEmpId__empName"];
-                              var value2 = row["dbSubEmpId__empName"];
-                              if (value == null) {
-                                  value = '';
-                              }
-                              if (value2 == null) {
-                                  value2 = '';
-                              }
-                              return value + '/' + value2;
-                          }
-                      },
-                      {
-                          data: "solutionMainEmpId__empName",
-                          render: function (data, type, row) {
-                              var value = row["solutionMainEmpId__empName"];
-                              var value2 = row["solutionSubEmpId__empName"];
-                              if (value == null) {
-                                  value = '';
-                              }
-                              if (value2 == null) {
-                                  value2 = '';
-                              }
-                              return value + '/' + value2;
-                          }
-                      },
-                      {data: "dbContractEndDate"},
-                      {data: "solutionContractEndDate"},
-                  ],
-                  columnDefs: [
-                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  ],
-                  "searching": true,
-                  "paging": true,
-                  "info": false,
-                  "scrollY": "80vh",
-                  "scrollCollapse": true,
-                  "language": {
-                      "lengthMenu": "_MENU_ 개씩 보기",
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
+                  "url": "{% url 'client:filter_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              columns: [
+                  {data: "companyNameKo"},
+                  {data: "companyName"},
+                  {data: "saleEmpId__empName"},
+                  {data: "dbMainEmpId__empName"},
+                  {data: "dbSubEmpId__empName"},
+                  {data: "solutionMainEmpId__empName"},
+                  {data: "solutionSubEmpId__empName"},
+                  {data: "dbContractEndDate"},
+                  {data: "solutionContractEndDate"},
+              ],
+              columnDefs: [
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
                   },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      if (aData.companyName != "") {
-                          $('td:eq(0)', nRow).css('color', '#4e73df');
-                          {#$('td:eq(0)', nRow).css('color', '#4e73df').css('font-weight','bold');#}
-                      }
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.companyName != "") {
+                      $('td:eq(0)', nRow).css('color', '#4e73df');
+                      {#$('td:eq(0)', nRow).css('color', '#4e73df').css('font-weight','bold');#}
                   }
-              });
-          {% else %}
-              $('#showclientlist').DataTable({
-                  "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "url": "{% url 'client:list_ajax_url' %}",
-                      "dataSrc": ""
-                  },
-                  columns: [
-                      {data: "companyName"},
-                      {data: "saleEmpId__empName"},
-                      {
-                          data: "dbMainEmpId__empName",
-                          render: function (data, type, row) {
-                              var value = row["dbMainEmpId__empName"];
-                              var value2 = row["dbSubEmpId__empName"];
-                              if (value == null) {
-                                  value = '';
-                              }
-                              if (value2 == null) {
-                                  value2 = '';
-                              }
-                              return value + '/' + value2;
-                          }
-                      },
-                      {
-                          data: "solutionMainEmpId__empName",
-                          render: function (data, type, row) {
-                              var value = row["solutionMainEmpId__empName"];
-                              var value2 = row["solutionSubEmpId__empName"];
-                              if (value == null) {
-                                  value = '';
-                              }
-                              if (value2 == null) {
-                                  value2 = '';
-                              }
-                              return value + '/' + value2;
-                          }
-                      },
-                      {data: "dbContractEndDate"},
-                      {data: "solutionContractEndDate"},
-                  ],
-                  columnDefs: [
-                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  ],
-                  "searching": true,
-                  "paging": true,
-                  "info": false,
-                  "scrollY": "80vh",
-                  "scrollCollapse": true,
-                  "language": {
-                      "lengthMenu": "_MENU_ 개씩 보기",
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
-                  },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      if (aData.companyName != "") {
-                          $('td:eq(0)', nRow).css('color', '#4e73df');
-                          {#$('td:eq(0)', nRow).css('color', '#4e73df').css('font-weight','bold');#}
-                      }
-                  }
-              });
-          {% endif %}
+              }
+          });
+
 
           var table = $('#showclientlist').DataTable();
 

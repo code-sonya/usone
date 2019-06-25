@@ -1,0 +1,111 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  근태현황
+{% endblock %}
+{% block css %}
+  <style type="text/css">
+    .mobile-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 4px;
+      vertical-align: middle;
+      font-size: 16px;
+      border-top: 1px dotted #858796a3;
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <h2 class="text-center d-none d-xl-block mb-3">
+    <i class="fas fa-angle-left" onclick="location.href='/hr/showpunctuality/{{ beforeDate | date:'Y-m-d' }}/'"></i>
+    {{ Date | date:"Y년 m월 d일" }} ({{ Date | date:"D" | slice:"0:1" }})
+    <i class="fas fa-angle-right" onclick="location.href='/hr/showpunctuality/{{ afterDate | date:'Y-m-d' }}/'"></i>
+  </h2>
+
+  <h3 class="text-center d-xl-none mb-3">
+    <i class="fas fa-angle-left" onclick="location.href='/service/dayreport/{{ beforeDate | date:'Y-m-d' }}/'"></i>
+    {{ Date | date:"Y년 m월 d일" }} ({{ Date | date:"D" | slice:"0:1" }})
+    <i class="fas fa-angle-right" onclick="location.href='/service/dayreport/{{ afterDate | date:'Y-m-d' }}/'"></i>
+  </h3>
+  <div class="row">
+    <div class="col-xl-12">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 근태 현황 </h6>
+
+        </div>
+
+        <div class="card-body">
+
+          <div class="row">
+            <div class="col-xl-2"></div>
+            <div class="col-xl-8">
+              <table class="mobile-table">
+                <thead>
+                <tr class="bg-secondary text-white">
+                  <td>부서</td>
+                  <td>성명</td>
+                  <td>직급</td>
+                  <td>현황</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user in users %}
+                  {% ifchanged user.employee__empDeptName %}
+                    <tr class="bg-gray-200">
+                      <td><b>{{ user.employee__empDeptName }}</b><br></td>
+                      {% else %}
+                    <tr>
+                    <td></td>
+                  {% endifchanged %}
+                <td>{{ user.employee__empName }}</td>
+                <td>{{ user.positionName }}</td>
+                {% if user.status == '일차' or user.status == '오전반차' %}
+                  <td class="text-success">{{ user.status }}</td>
+                {% elif user.status == '직출' %}
+                  <td class="text-primary">{{ user.status }}</td>
+                {% elif user.status == '지각' %}
+                  <td class="text-danger">{{ user.status }}</td>
+                {% else %}
+                  <td class="text-secondary">{{ user.status }}</td>
+                {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+
+              </table>
+            </div>
+            <div class="col-xl-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+
+{% endblock %}

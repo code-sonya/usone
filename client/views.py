@@ -18,19 +18,9 @@ from django.core import serializers
 @csrf_exempt
 def client_asjson(request):
     companyName = request.POST['companyName']
-    services = Servicereport.objects.filter(companyName=companyName)
+    services = Servicereport.objects.filter(companyName=companyName).values('serviceId', 'serviceDate', 'empName', 'empDeptName', 'serviceType', 'serviceTitle')
     json = serializers.serialize('json', services)
     return HttpResponse(json, content_type='application/json')
-
-
-@login_required
-@csrf_exempt
-def list_asjson(request):
-    companylist = Company.objects.filter(companyStatus='Y')
-    companylist = companylist.values('companyName', 'saleEmpId__empName', 'dbMainEmpId__empName', 'dbSubEmpId__empName', 'solutionMainEmpId__empName',
-                                     'solutionSubEmpId__empName', 'dbContractEndDate', 'solutionContractEndDate')
-    structure = json.dumps(list(companylist), cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
@@ -38,24 +28,8 @@ def list_asjson(request):
 def filter_asjson(request):
     companyName = request.POST["companyName"]
     empName = request.POST["empName"]
-    chkbox = request.POST["chkbox"]
 
-    companylist = Company.objects.all()
-
-    if 'present' in chkbox:
-        companylist_present = companylist.filter(companyStatus='Y')
-    else:
-        companylist_present = companylist.filter(companyStatus='O')
-    if 'past' in chkbox:
-        companylist_past = companylist.filter(companyStatus='N')
-    else:
-        companylist_past = companylist.filter(companyStatus='O')
-    if 'wait' in chkbox:
-        companylist_wait = companylist.filter(companyStatus='X')
-    else:
-        companylist_wait = companylist.filter(companyStatus='O')
-
-    companylist = companylist_present | companylist_past | companylist_wait
+    companylist = Company.objects.filter(companyStatus='Y')
 
     if companyName:
         companylist = companylist.filter(companyName__icontains=companyName)
@@ -70,7 +44,7 @@ def filter_asjson(request):
             Q(saleEmpId=empId)
         )
 
-    companylist = companylist.values('companyName', 'saleEmpId__empName', 'dbMainEmpId__empName', 'dbSubEmpId__empName', 'solutionMainEmpId__empName',
+    companylist = companylist.values('companyName', 'companyNameKo', 'saleEmpId__empName', 'dbMainEmpId__empName', 'dbSubEmpId__empName', 'solutionMainEmpId__empName',
                                      'solutionSubEmpId__empName', 'dbContractEndDate', 'solutionContractEndDate')
     structure = json.dumps(list(companylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -106,7 +80,7 @@ def post_client(request):
     if request.method == "POST":
         form = CompanyForm(request.POST)
         post = form.save(commit=False)
-        post.companyStatus = 'X'
+        post.companyStatus = 'Y'
         post.save()
         return redirect('client:show_clientlist')
 

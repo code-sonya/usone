@@ -113,122 +113,6 @@ def overtime(str_start_datetime, str_end_datetime):
     return round((int(minute_sum) / 60), 1)
 
 
-def dayreport_sort(x):
-    if x['empName'] == '최영준' or x['empName'] == '박정일':
-        return 1, x['serviceStartDatetime']
-    if x['empName'] == '최순석' or x['empName'] == '임성민':
-        return 2, x['serviceStartDatetime']
-    if x['empName'] == '박경진' or x['empName'] == '유병길':
-        return 3, x['serviceStartDatetime']
-    if x['empName'] == '유명수' or x['empName'] == '임중정':
-        return 4, x['serviceStartDatetime']
-    if x['empName'] == '권성진' or x['empName'] == '구본석':
-        return 5, x['serviceStartDatetime']
-    if x['empName'] == '김동혁' or x['empName'] == '정남구':
-        return 6, x['serviceStartDatetime']
-    if x['empName'] == '박준형' or x['empName'] == '이현수':
-        return 7, x['serviceStartDatetime']
-    if x['empName'] == '김소령' or x['empName'] == '어경진':
-        return 8, x['serviceStartDatetime']
-    if x['empName'] == '임형균' or x['empName'] == '김영진':
-        return 9, x['serviceStartDatetime']
-    if x['empName'] == '' or x['empName'] == '':
-        return 10, x['serviceStartDatetime']
-
-
-def dayreport_query(empDeptName, day):
-    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    Date_min = datetime.datetime.combine(Date, datetime.datetime.min.time())
-    Date_max = datetime.datetime.combine(Date, datetime.datetime.max.time())
-
-    serviceDept = Servicereport.objects.filter(
-        Q(empDeptName=empDeptName) & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
-    )
-
-    vacationDept = Vacation.objects.filter(
-        Q(empDeptName=empDeptName) & Q(vacationDate=Date)
-    )
-
-    inDept = User.objects.filter(
-        Q(employee__empDeptName=empDeptName) & Q(employee__empStatus='Y')
-    ).exclude(
-        Q(employee__empId__in=serviceDept.values('empId')) | Q(employee__empId__in=vacationDept.values('empId'))
-    )
-
-    listDept = []
-
-    for service in serviceDept:
-        if service.serviceType == '교육' and service.directgo == 'Y':
-            flag = '직출'
-            companyName = '교육'
-            serviceType = ''
-        elif service.serviceType == '교육' and service.directgo == 'N':
-            flag = ''
-            companyName = '교육'
-            serviceType = ''
-        elif service.directgo == 'Y':
-            flag = '직출'
-            companyName = service.companyName
-            serviceType = service.serviceType
-        else:
-            flag = ''
-            companyName = service.companyName
-            serviceType = service.serviceType
-        listDept.append({
-            'serviceId': service.serviceId,
-            'flag': flag,
-            'empName': service.empName,
-            'serviceStartDatetime': service.serviceStartDatetime,
-            'serviceEndDatetime': service.serviceEndDatetime,
-            'serviceStatus': service.serviceStatus,
-            'companyName': companyName,
-            'serviceType': serviceType,
-            'serviceTitle': service.serviceTitle,
-        })
-
-    for vacation in vacationDept:
-        listDept.append({
-            'serviceId': '',
-            'flag': '휴가',
-            'empName': vacation.empName,
-            'serviceStartDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
-            'serviceEndDatetime': '',
-            'serviceStatus': '',
-            'companyName': '',
-            'serviceType': '',
-            'serviceTitle': vacation.vacationType,
-        })
-
-    for emp in inDept:
-        if emp.employee.dispatchCompany == '내근':
-            flag = ''
-            serviceType = ''
-        else:
-            flag = '상주'
-            serviceType = ''
-        listDept.append({
-            'serviceId': '',
-            'flag': flag,
-            'empName': emp.employee.empName,
-            'serviceStartDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
-            'serviceEndDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
-            'serviceStatus': '',
-            'companyName': emp.employee.dispatchCompany,
-            'serviceType': serviceType,
-            'serviceTitle': emp.employee.message,
-        })
-
-    listDept.sort(key=dayreport_sort)
-
-    query = []
-    for l in listDept:
-        temp = QueryDict('', mutable=True)
-        temp.update(l)
-        query.append(temp)
-
-    return query
-
-
 def dayreport_query2(empDeptName, day):
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     Date_min = datetime.datetime.combine(Date, datetime.datetime.min.time())
@@ -271,6 +155,7 @@ def dayreport_query2(empDeptName, day):
                 'serviceEndDatetime': service.serviceEndDatetime,
                 'serviceStatus': service.serviceStatus,
                 'serviceTitle': service.serviceTitle,
+                'sortKey': service.empId.empRank,
             })
         else:
             listService.append({
@@ -283,6 +168,7 @@ def dayreport_query2(empDeptName, day):
                 'companyName': service.companyName,
                 'serviceType': service.serviceType,
                 'serviceTitle': service.serviceTitle,
+                'sortKey': service.empId.empRank,
             })
 
     if not holiday:
@@ -301,6 +187,7 @@ def dayreport_query2(empDeptName, day):
                 'companyName': emp.employee.dispatchCompany,
                 'serviceType': '',
                 'serviceTitle': emp.employee.message,
+                'sortKey': emp.employee.empRank,
             })
 
         for vacation in vacationDept:
@@ -308,11 +195,12 @@ def dayreport_query2(empDeptName, day):
                 'empName': vacation.empName,
                 'serviceStartDatetime': Date,
                 'vacationType': vacation.vacationType[:2],
+                'sortKey': vacation.empId.empRank,
             })
 
-    listService.sort(key=dayreport_sort)
-    listEducation.sort(key=dayreport_sort)
-    listVacation.sort(key=dayreport_sort)
+    listService.sort(key=lambda x: x['sortKey'])
+    listEducation.sort(key=lambda x: x['sortKey'])
+    listVacation.sort(key=lambda x: x['sortKey'])
 
     queryService = []
     queryEducation = []

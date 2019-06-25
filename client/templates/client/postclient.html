@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  고객사 등록
+  고객사
 {% endblock %}
 
 
@@ -15,26 +15,48 @@
 
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          {% if service %}
-            <h6 class="m-0 h3 text-gray-800"> {{ service.serviceDate|date:"Y. m. d." }} {{ service.companyName }} ({{ service.serviceType }}) 추가내용 </h6>
-          {% else %}
-            <h6 class="m-0 h3 text-gray-800"> 고객사 등록 신청 </h6>
-          {% endif %}
+          <h6 class="m-0 h3 text-gray-800">고객사 등록</h6>
         </div>
 
         <div class="card-body">
           <form id="CompanyForm" method="POST">
-
             {% csrf_token %}
-            <div class="form-group">
-              <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <label for="companyName" class="font-weight-bold text-primary">[기술] 고객사 명</label> {{ form.companyName }}
+                </div>
+                <div class="form-group">
+                  <label for="companyNameKo" class="font-weight-bold text-primary">[영업] 고객사 명</label> {{ form.companyNameKo }}
+                </div>
+                <div class="form-group">
+                  <label for="companyNumber" class="font-weight-bold">사업자등록번호</label> {{ form.companyNumber }}
+                </div>
+                <div class="form-group">
+                  <label for="saleEmpId" class="font-weight-bold">영업대표</label> {{ form.saleEmpId }}
+                </div>
+                <div class="form-group">
+                  <label for="companyAddress" class="font-weight-bold">주소</label> {{ form.companyAddress }}
+                </div>
+              </div>
+              <div class="col-sm-6 mb-4">
+                <br>
+                <h3>※ 참고사항</h3>
+                <br>
+                <span class="text-gray-900">
+                  1. [기술] 고객사 명이란?<br>
+                  엔지니어 서비스 레포트에 표기될 고객사 명으로,<br>
+                  영문이 포함된 고객사의 경우 <b class="text-danger">영문을 포함하여 입력</b>을 권장.<br>
+                  <b class="text-primary">예시 : HSBC펀드서비스</b><br><br>
+                  2. [영업] 고객사 명이란?<br>
+                  영업관리(거래처, 매입처, 최종고객사)에서 사용될 고객사 명으로,<br>
+                  <b class="text-danger">정식 업체명을 한글로 입력</b>.<br>
+                  <b class="text-primary">예시 : 에이치에스비씨펀드서비스</b><br><br>
+                  3. 사업자등록번호, 영업대표, 주소는 선택사항으로, 필요시 입력.<br>
+                </span>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="saleEmpId" class="font-weight-bold text-primary"> 영업대표 </label> {{ form.saleEmpId }}
-            </div>
-            <div class="form-group">
-              <label for="companyAddress" class="font-weight-bold text-primary"> 주소 </label> {{ form.companyAddress }}
-            </div>
+
 
             <div class="text-center">
               <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
@@ -46,9 +68,7 @@
                 <span class="text"> 저장 </span>
               </a>
             </div>
-
           </form>
-
         </div>
 
       </div>
@@ -76,18 +96,17 @@
 
       function btn_save() {
           const companyName = document.getElementById("companyName").value;
-          const saleEmpId = document.getElementById("saleEmpId").value;
-          const companyAddress = document.getElementById("companyAddress").value;
+          const companyNameKo = document.getElementById("companyNameKo").value;
 
+          if (companyNameKo === '') {
+              alert("[영업] 고객사 명을 입력해주세요.");
+              return false;
+          }
           if (companyName === '') {
-              alert("고객사명을 입력해주세요.");
+              alert("[기술] 고객사 명을 입력해주세요.");
               return false;
           }
-          if (saleEmpId === '') {
-              alert("영업대표를 선택해주세요.");
-              return false;
-          }
-          if (confirm("고객사 등록 신청을 하시겠습니까?") === true) {    //확인
+          if (confirm("고객사 등록을 하시겠습니까?") === true) {    //확인
               document.getElementById("CompanyForm").submit();
           }
       }

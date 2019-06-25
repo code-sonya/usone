@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 
 class Employee(models.Model):
-    empPositionChoices = ((1, '임원'), (2, '부장'), (3, '차장'), (4, '과장'), (5, '대리'), (6, '사원'))
+    empPositionChoices = ((0, '임원'), (1, '이사'), (2, '부장'), (3, '차장'), (4, '과장'), (5, '대리'), (6, '사원'))
     empDeptNameChoices = (
         ('임원', '임원'),
         ('경영지원본부', '경영지원본부'),
@@ -20,6 +20,7 @@ class Employee(models.Model):
 
     empId = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    empCode = models.CharField(max_length=20, null=True, blank=True)
     empName = models.CharField(max_length=10)
     empPosition = models.IntegerField(choices=empPositionChoices, default=6)
     empManager = models.CharField(max_length=1, choices=statusChoices, default='N')
@@ -28,7 +29,20 @@ class Employee(models.Model):
     empDeptName = models.CharField(max_length=30, choices=empDeptNameChoices, default='미정')
     dispatchCompany = models.CharField(max_length=100, default='내근')
     message = models.CharField(max_length=200, default='내근 업무 내용을 작성해 주세요.', help_text='내근 업무 내용을 작성해 주세요.')
+    empAuth = models.CharField(max_length=10, default='일반')
+    empRank = models.IntegerField(default=10)
     empStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     def __str__(self):
-        return 'Employee : {}'.format(self.empName)
+        return self.empName
+
+
+class Attendance(models.Model):
+    attendanceId = models.AutoField(primary_key=True)
+    attendanceDate = models.DateField()
+    attendanceTime = models.TimeField()
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    attendanceType = models.CharField(max_length=20)
+
+    def __str__(self):
+        return str(self.attendanceId)

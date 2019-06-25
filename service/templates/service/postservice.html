@@ -17,7 +17,7 @@
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
 
-          <h6 class="m-0 h3 text-gray-800"> 일정등록 </h6>
+          <h6 class="m-0 h3 text-gray-800">일정{% if form.serviceTitle.value == None %} 등록{% else %} 수정{% endif %}</h6>
 
           {% if form.serviceTitle.value == None %} <!-- 일정 등록 화면과 일정 수정 화면 구분 -->
             <div class="dropdown no-arrow">
@@ -45,8 +45,6 @@
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-header" id="myForm"> 관리:</div>
                 <a class="dropdown-item" href="/service/showserviceforms/"> 양식관리 </a>
-                <a class="dropdown-item" href="/service/showvacations/"> 휴가관리 </a>
-
               </div>
             </div>
           {% endif %}
@@ -232,15 +230,55 @@
           document.getElementById("serviceDetails").style.backgroundColor = "#e8f0fe";
       }
 
-      function backgroundWhite(id) {
-          document.getElementById(id).style.backgroundColor = "#fff";
+      var value;
+      var inputId;
+
+      function addInput(input) {
+          if (window.event.keyCode == 9) {
+              value = $(input).attr('data-id');
+              inputId = $(input).attr('id');
+          }
       }
 
+      $('#serviceType').focus(function () {
+          $('#companyName').trigger('set', {id: value});
+      });
+
       $(document).ready(function () {
+          const companyName = document.getElementById('companyName');
+          {% if companyName %}
+              companyName.setAttribute("data-id", "{{ companyName }}");
+          {% endif %}
+
+          $('#companyName').magicsearch({
+              dataSource: {{ companyNames|safe }},
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              noResult: '검색결과없음',
+              focusShow: true,
+          });
+          companyName.removeAttribute("style");
+          companyName.parentElement.removeAttribute("style");
+
           const coWorkers = document.getElementById('coWorkers');
           {% if coWorkers %}
               coWorkers.setAttribute("data-id", "{{ coWorkers }}");
           {% endif %}
+
+          $('#coWorkers').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'value',
+              id: 'id',
+              multiple: true,
+              multiField: 'value',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+          });
+          coWorkers.removeAttribute("style");
+          coWorkers.parentElement.removeAttribute("style");
 
           $('#companyName').on("propertychange change keyup paste input", function () {
               document.getElementById("companyName").style.backgroundColor = "#fff";
@@ -266,19 +304,6 @@
           $('#serviceDetails').on("propertychange change keyup paste input", function () {
               document.getElementById("serviceDetails").style.backgroundColor = "#fff";
           });
-          $('#coWorkers').magicsearch({
-              dataSource: {{ empNames|safe }},
-              fields: 'value',
-              id: 'id',
-              multiple: true,
-              multiField: 'value',
-              format: '%value%',
-              multiStyle: {space: 5, width: 80},
-              noResult: '검색결과없음',
-              focusShow: true,
-          });
-          coWorkers.removeAttribute("style");
-          coWorkers.parentElement.removeAttribute("style");
       });
 
   </script>

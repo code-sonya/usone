@@ -1,0 +1,156 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+{% block title %}
+  목표관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 18px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .mobile-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 4px;
+      vertical-align: middle;
+      font-size: 16px;
+      border-top: 1px dotted #858796a3;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-1"></div>
+
+    <div class="col-xl-10">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h3 class="m-0 text-gray-800"> {{ goal.year }}년도 {{ goal.empDeptName }} - {{ goal.empName }} 영업 목표 </h3>
+        </div>
+
+        <div class="card-body">
+          <h5 class="text-dark mb-3"><b> ▼ 목표 금액</b></h5>
+          <table class="pc-table">
+            <thead>
+            <tr>
+              <td colspan="12" class="text-success font-weight-bold">전체 목표 금액 <br> {{ goal.yearSalesSum|intcomma }}원<br>({{ goal.yearProfitSum|intcomma }}원)
+            </tr>
+            </tr>
+            <tr>
+              <th colspan="6" class="text-primary">Q1 목표 금액<br>{{ goal.salesq1|intcomma }}원<br>({{ goal.profitq1|intcomma }}원)</th>
+              <th colspan="6" class="text-primary">Q2 목표 금액<br> {{ goal.salesq2|intcomma }}원<br>({{ goal.profitq2|intcomma }})</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td colspan="2">1월</td>
+              <td colspan="2">2월</td>
+              <td colspan="2">3월</td>
+              <td colspan="2">4월</td>
+              <td colspan="2">5월</td>
+              <td colspan="2">6월</td>
+            </tr>
+            <tr>
+              <td colspan="2">{{ goal.sales1|intcomma }}원<br>({{ goal.profit1|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales2|intcomma }}원<br>({{ goal.profit2|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales3|intcomma }}원<br>({{ goal.profit3|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales4|intcomma }}원<br>({{ goal.profit4|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales5|intcomma }}원<br>({{ goal.profit5|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales6|intcomma }}원<br>({{ goal.profit6|intcomma }}원)</td>
+            </tr>
+            </tbody>
+          </table>
+          <table class="pc-table">
+            <thead>
+            <tr>
+              <th colspan="6" class="text-primary">Q3 목표 금액<br>{{ goal.salesq3|intcomma }}원<br>({{ goal.profitq3|intcomma }}원)</th>
+              <th colspan="6" class="text-primary">Q4 목표 금액<br>{{ goal.salesq4|intcomma }}원<br>({{ goal.profitq4|intcomma }}원)</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td colspan="2">7월</td>
+              <td colspan="2">8월</td>
+              <td colspan="2">9월</td>
+              <td colspan="2">10월</td>
+              <td colspan="2">11월</td>
+              <td colspan="2">12월</td>
+            </tr>
+            <tr>
+              <td colspan="2">{{ goal.sales7|intcomma }}원<br>({{ goal.profit7|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales8|intcomma }}원<br>({{ goal.profit8|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales9|intcomma }}원<br>({{ goal.profit9|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales10|intcomma }}원<br>({{ goal.profit10|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales11|intcomma }}원<br>({{ goal.profit11|intcomma }}원)</td>
+              <td colspan="2">{{ goal.sales12|intcomma }}원<br>({{ goal.profit12|intcomma }}원)</td>
+            </tr>
+            </tbody>
+          </table>
+          <br>
+          <div class="text-center">
+            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+              <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+              <span class="text"> 삭제 </span>
+            </a>
+            <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+              <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+              <span class="text"> 수정 </span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-1"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_modify() {
+          location.href = '/sales/modifygoal/' + {{ goal.goalId }} +'/';
+      }
+
+      function btn_delete() {
+          if (confirm("삭제 하시겠습니까?") === true) {
+              location.href = '/sales/deletegoal/' + {{ goal.goalId }} +'/';
+          }
+      }
+
+  </script>
+
+{% endblock %}
