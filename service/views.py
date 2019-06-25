@@ -7,7 +7,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
+from django.core.serializers.json import DjangoJSONEncoder
 from xhtml2pdf import pisa
+import json
 
 from hr.models import Employee
 from client.models import Company
@@ -18,16 +20,8 @@ from .models import Serviceform
 
 
 @login_required
-def service_asjson(request):
-    empId = Employee(empId=request.user.employee.empId)
-    services = Servicereport.objects.filter(empId=empId)
-    json = serializers.serialize('json', services)
-    return HttpResponse(json, content_type='application/json')
-
-
-@login_required
 @csrf_exempt
-def filter_asjson(request):
+def service_asjson(request):
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
     empDeptName = request.POST['empDeptName']
@@ -52,8 +46,10 @@ def filter_asjson(request):
     if serviceTitle:
         services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
 
-    json = serializers.serialize('json', services)
-    return HttpResponse(json, content_type='application/json')
+    services = services.values('serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType', 'serviceStartDatetime', 'serviceEndDatetime',
+                               'serviceHour', 'serviceOverHour', 'serviceDetails', 'serviceStatus', 'serviceId')
+    structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
