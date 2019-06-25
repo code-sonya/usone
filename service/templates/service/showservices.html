@@ -36,32 +36,23 @@
             ({{ sumOverHour }}시간 초과근무)
           </div>
           <b style="font-size:14px; color:red">※ 지난 일정은 "완료" 해주세요</b>
-          <div class="table-responsive">
+          <div class="table-responsive mt-3">
             <table id="showservice" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th class="d-none">pk</th>
                 <th>날짜</th>
-                <th class="d-none">empId</th>
-                <th class="d-none">empName</th>
-                <th class="d-none">empDeptName</th>
                 <th>고객사</th>
-                <th class="d-none">serviceType</th>
-                <th class="d-none">serviceStartDatetime</th>
-                <th class="d-none">serviceEndDatetime</th>
-                <th class="d-none">serviceFinishDatetime</th>
-                <th class="d-none">serviceOverHour</th>
-                <th class="d-none">serviceRegHour</th>
-                <th class="d-none">serviceLocation</th>
-                <th class="d-none">directgo</th>
                 <th>제목</th>
-                <th class="d-none">serviceDetails</th>
-                <th class="d-none">customerName</th>
-                <th class="d-none">customerDeptName</th>
-                <th class="d-none">customerPhone</th>
-                <th class="d-none">customerEmail</th>
-                <th class="d-none">serviceSignPath</th>
+                <th class="d-none">성함</th>
+                <th class="d-none">직출</th>
+                <th class="d-none">일정구분</th>
+                <th class="d-none">시작시간</th>
+                <th class="d-none">종료시간</th>
+                <th class="d-none">소요시간</th>
+                <th class="d-none">초과근무</th>
+                <th class="d-none">내용</th>
                 <th class="d-none">serviceStatus</th>
+                <th class="d-none">serviceId</th>
               </tr>
               </tr>
               </thead>
@@ -320,177 +311,95 @@
       }
 
       $(document).ready(function () {
-          {% if filter == 'N'%}
-
-              $('#showservice').dataTable({
+          $('#showservice').dataTable({
+              "processing": true,
+              "ajax": {
                   "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "url": "{% url 'service:service_ajax_url' %}",
-                      "dataSrc": ""
+                  "type": 'POST',
+                  "data": {
+                      "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
+                      "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
+                      "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
+                      "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                      "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
+                      "serviceType": {% if serviceType %}"{{ serviceType }}",{% else %}"",{% endif %}
+                      "serviceTitle": {% if serviceTitle %}"{{ serviceTitle }}",{% else %}"",{% endif %}
                   },
+                  "url": "{% url 'service:service_ajax_url' %}",
+                  "dataSrc": ""
+              },
 
-                  "columns": [
-                      {data: "pk"},
-                      {data: "fields.serviceDate"},
-                      {data: "fields.empId"},
-                      {data: "fields.empName"},
-                      {data: "fields.empDeptName"},
-                      {data: "fields.companyName"},
-                      {data: "fields.serviceType"},
-                      {data: "fields.serviceStartDatetime"},
-                      {data: "fields.serviceEndDatetime"},
-                      {data: "fields.serviceFinishDatetime"},
-                      {data: "fields.serviceOverHour"},
-                      {data: "fields.serviceRegHour"},
-                      {data: "fields.serviceLocation"},
-                      {data: "fields.directgo"},
-                      {data: "fields.serviceTitle"},
-                      {data: "fields.serviceDetails"},
-                      {data: "fields.customerName"},
-                      {data: "fields.customerDeptName"},
-                      {data: "fields.customerPhone"},
-                      {data: "fields.customerEmail"},
-                      {data: "fields.serviceSignPath"},
-                      {data: "fields.serviceStatus"},
-                  ],
-                  "columnDefs": [
-                      {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 14, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: [0, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21], visible: false},
-                      {"orderable": false, "targets": [0, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]},
-                  ],
-                  "searching": true,
-                  "paging": false,
-                  "info": false,
-                  "scrollY": "60vh",
-                  "scrollCollapse": true,
-                  "order": [[1, 'desc'], [7, 'asc']],
-                  "language": {
-                      "lengthMenu": "_MENU_ 개씩 보기",
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
+              "columns": [
+                  {data: "serviceDate"},
+                  {data: "companyName__companyName"},
+                  {data: "serviceTitle"},
+                  {data: "empName"},
+                  {data: "directgo"},
+                  {data: "serviceType"},
+                  {data: "serviceStartDatetime"},
+                  {data: "serviceEndDatetime"},
+                  {data: "serviceHour"},
+                  {data: "serviceOverHour"},
+                  {data: "serviceDetails"},
+                  {data: "serviceStatus"},
+                  {data: "serviceId"},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "60%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12], className: "d-none"},
+              ],
+              "deferRender": true,
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "order": [[0, 'desc']],
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
                   },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      const today = new Date();
-                      const startdate = new Date(aData.fields.serviceEndDatetime);
-                      if (startdate <= today && aData.fields.serviceStatus == 'N') {
-                          $('td', nRow).css('background-color', '#fff2f9').css('color', 'red');
-                      } else if (aData.fields.serviceStatus == "Y") {
-                          $('td', nRow).css('background-color', '#f2f2f2');
-                      } else {
-                          $('td', nRow).css('background-color', '#ffffff');
-
-                      }
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  const today = new Date();
+                  const startdate = new Date(aData.serviceEndDatetime);
+                  if (startdate <= today && aData.serviceStatus == 'N') {
+                      $('td', nRow).css('background-color', '#fff2f9').css('color', 'red');
+                  } else if (aData.serviceStatus == "Y") {
+                      $('td', nRow).css('background-color', '#f2f2f2');
+                  } else {
+                      $('td', nRow).css('background-color', '#ffffff');
                   }
-
-              });
-
-          {% else %}
-              $('#showservice').dataTable({
-                  "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "type": 'POST',
-                      "data": {
-                          "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
-                          "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
-                          "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
-                          "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                          "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
-                          "serviceType": {% if serviceType %}"{{ serviceType }}",{% else %}"",{% endif %}
-                          "serviceTitle": {% if serviceTitle %}"{{ serviceTitle }}",{% else %}"",{% endif %}
-                      },
-                      "url": "{% url 'service:filter_ajax_url' %}",
-                      "dataSrc": ""
-                  },
-
-                  "columns": [
-                      {data: "pk"},
-                      {data: "fields.serviceDate"},
-                      {data: "fields.empId"},
-                      {data: "fields.empName"},
-                      {data: "fields.empDeptName"},
-                      {data: "fields.companyName"},
-                      {data: "fields.serviceType"},
-                      {data: "fields.serviceStartDatetime"},
-                      {data: "fields.serviceEndDatetime"},
-                      {data: "fields.serviceFinishDatetime"},
-                      {data: "fields.serviceOverHour"},
-                      {data: "fields.serviceRegHour"},
-                      {data: "fields.serviceLocation"},
-                      {data: "fields.directgo"},
-                      {data: "fields.serviceTitle"},
-                      {data: "fields.serviceDetails"},
-                      {data: "fields.customerName"},
-                      {data: "fields.customerDeptName"},
-                      {data: "fields.customerPhone"},
-                      {data: "fields.customerEmail"},
-                      {data: "fields.serviceSignPath"},
-                      {data: "fields.serviceStatus"},
-                  ],
-                  "columnDefs": [
-                      {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 14, width: "60%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: [0, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21], visible: false},
-                      {"orderable": false, "targets": [0, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]},
-                  ],
-                  "searching": true,
-                  "paging": false,
-                  "info": false,
-                  "scrollY": "60vh",
-                  "scrollCollapse": true,
-                  "order": [[1, 'desc'], [7, 'asc']],
-                  "language": {
-                      "lengthMenu": "_MENU_ 개씩 보기",
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
-                  },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      const today = new Date();
-                      const startdate = new Date(aData.fields.serviceEndDatetime);
-                      if (startdate <= today && aData.fields.serviceStatus == 'N') {
-                          $('td', nRow).css('background-color', '#fff2f9').css('color', 'red');
-                      } else if (aData.fields.serviceStatus == "Y") {
-                          $('td', nRow).css('background-color', '#f2f2f2');
-                      } else {
-                          $('td', nRow).css('background-color', '#ffffff');
-                      }
-                  }
-              });
-          {% endif %}
+              }
+          });
 
           var table = $('#showservice').DataTable();
 
           $("#showservice").on("click", 'tr', function () {
               const data = table.row(this).data();
-              location.href = '/service/viewservice/' + data.pk + '/'
+              location.href = '/service/viewservice/' + data.serviceId + '/'
           });
 
           $("#showservice").on("mouseenter", 'tr', function () {
               const data = table.row(this).data();
-              $('#empName').text(data.fields.empName);
-              $('#directgo').text(data.fields.directgo);
-              $('#companyName').text(data.fields.companyName);
-              $('#serviceType').text(data.fields.serviceType.replace('&amp;', '&'));
-              $('#serviceStartDatetime').text(replaceAll(data.fields.serviceStartDatetime, "-", "."));
-              $('#serviceEndDatetime').text(replaceAll(data.fields.serviceEndDatetime, "-", "."));
-              $('#serviceHour').text(data.fields.serviceHour);
-              $('#serviceOverHour').text(data.fields.serviceOverHour);
-              $('#serviceTitle').text(data.fields.serviceTitle);
-              $('#serviceDetails').html(data.fields.serviceDetails);
+              $('#empName').text(data.empName);
+              $('#directgo').text(data.directgo);
+              $('#companyName').text(data.companyName__companyName);
+              $('#serviceType').text(data.serviceType.replace('&amp;', '&'));
+              $('#serviceStartDatetime').text(replaceAll(data.serviceStartDatetime, "-", "."));
+              $('#serviceEndDatetime').text(replaceAll(data.serviceEndDatetime, "-", "."));
+              $('#serviceHour').text(data.serviceHour + ' 시간');
+              $('#serviceOverHour').text(data.serviceOverHour + ' 시간');
+              $('#serviceTitle').text(data.serviceTitle);
+              $('#serviceDetails').html(data.serviceDetails);
           });
 
       });
