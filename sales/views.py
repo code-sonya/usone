@@ -345,7 +345,7 @@ def show_revenues(request):
         contractStep = ''
         modifyMode = 'N'
         maincategory = ''
-        issued = 'N'
+        issued = ''
 
     outstandingcollection = 'N'
     context = {
@@ -496,6 +496,8 @@ def revenues_asjson(request):
     elif outstandingcollection == 'N':
         if issued =='Y':
             revenues = Revenue.objects.filter(Q(billingDate__isnull=False))
+        elif issued =='N':
+            revenues = Revenue.objects.filter(Q(billingDate__isnull=True))
         else:
             revenues = Revenue.objects.all()
 
@@ -774,7 +776,7 @@ def show_purchases(request):
         contractStep = ''
         modifyMode = 'N'
         maincategory = ''
-        issued = 'N'
+        issued = ''
 
     accountspayable = 'N'
     purchaseInAdvance = 'N'
@@ -874,6 +876,8 @@ def purchases_asjson(request):
     elif accountspayable == 'N':
         if issued == 'Y':
             purchase = Purchase.objects.filter(billingDate__isnull=False)
+        elif issued == 'N':
+            purchase = Purchase.objects.filter(billingDate__isnull=True)
         else:
             purchase = Purchase.objects.all()
 
@@ -1069,7 +1073,7 @@ def show_accountspayables(request):
     accountspayable = 'Y'
     purchaseInAdvance = 'N'
     maincategory = ''
-    issued = 'N'
+    issued = ''
     context = {
         'employees': employees,
         'startdate': startdate,
@@ -1376,7 +1380,7 @@ def show_purchaseinadvance(request):
     accountspayable = 'N'
     purchaseInAdvance = 'Y'
     maincategory = ''
-    issued = 'N'
+    issued = ''
     context = {
         'employees': employees,
         'startdate': startdate,
