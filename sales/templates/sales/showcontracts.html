@@ -121,17 +121,17 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="font-weight-light text-primary">시작일자</label>
+                <label for="startdate" class="text-primary">시작일자</label>
                 <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="enddate" class="font-weight-light text-primary">종료일자</label>
+                <label for="enddate" class="text-primary">종료일자</label>
                 <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="empDeptName" class="font-weight-light text-primary">영업부서</label>
+                <label for="empDeptName" class="text-primary">영업부서</label>
                 <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
                   <option value="전체">전체</option>
                   {#                  <option value="영업1팀">영업1팀</option>#}
@@ -140,7 +140,7 @@
                 </select>
               </div>
               <div class="col-6">
-                <label for="empName" class="font-weight-light text-primary">영업담당자</label>
+                <label for="empName" class="text-primary">영업담당자</label>
                 <select class="form-control" id="empName" name="empName">
                   <option value='전체'>전체</option>
                   {% for i in employees %}
@@ -151,21 +151,21 @@
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="companyName" class="font-weight-light text-primary">거래처</label>
+                <label for="companyName" class="text-primary">거래처</label>
                 <input class="form-control" id="saleCompanyName" name="saleCompanyName">
               </div>
               <div class="col-6">
-                <label for="serviceType" class="font-weight-light text-primary">최종고객사</label>
+                <label for="serviceType" class="text-primary">최종고객사</label>
                 <input class="form-control" id="endCompanyName" name="endCompanyName">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="boardTitle" class="font-weight-light text-primary">계약명</label>
+                <label for="boardTitle" class="text-primary">계약명</label>
                 <input class="form-control" id="contractName" name="contractName">
               </div>
               <div class="col-6">
-                <label for="enddate" class="font-weight-light text-primary">단계</label>
+                <label for="enddate" class="text-primary">단계</label>
                 <select class="form-control" id="contractStep" name="contractStep">
                   <option value="전체">전체</option>
                   <option value="Opportunity">Opportunity</option>
@@ -176,7 +176,7 @@
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="maincategory" class="font-weight-light text-primary">대분류</label>
+                <label for="maincategory" class="text-primary">대분류</label>
                 <input class="form-control" id="maincategory" name="maincategory">
               </div>
             </div>
