@@ -526,27 +526,6 @@ def delete_vacation(request, vacationId):
 
 
 @login_required
-def day_report_bak(request, day):
-    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    beforeDate = Date - datetime.timedelta(days=1)
-    afterDate = Date + datetime.timedelta(days=1)
-
-    solution = dayreport_query(empDeptName="솔루션지원팀", day=day)
-    db = dayreport_query(empDeptName="DB지원팀", day=day)
-
-    context = {
-        'day': day,
-        'Date': Date,
-        'beforeDate': beforeDate,
-        'afterDate': afterDate,
-        'solution': solution,
-        'db': db,
-    }
-
-    return render(request, 'service/dayreport_bak.html', context)
-
-
-@login_required
 def day_report(request, day=None):
     if day is None:
         day = str(datetime.datetime.today())[:10]
