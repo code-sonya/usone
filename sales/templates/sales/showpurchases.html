@@ -235,7 +235,7 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-12">
-                <h6> < 매입예정일이 지난 매입 목록> </h6>
+                <h6> < 매입예정일이 지난 매입 목록 > </h6>
                 <table id="changepredictpurchase" class="pc-table thtd" style="margin:2px">
                   <thead>
                   <tr class="bg-secondary text-white thtd">
@@ -456,7 +456,8 @@
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                       "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
                       "accountspayable": '{{ accountspayable }}',
-                      "modifyMode": "{{ modifyMode }}"
+                      "modifyMode": "{{ modifyMode }}",
+                      "userId": "{{ user.employee.empId }}",
                   },
                   "url": "{% url 'sales:purchases_ajax_url' %}",
                   "dataSrc": ""

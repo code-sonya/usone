@@ -340,6 +340,7 @@
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                       "outstandingcollection": "{{ outstandingcollection }}",
                       "modifyMode": "{{ modifyMode }}",
+                      "userId": "{{ user.employee.empId }}",
                   },
                   "url": "{% url 'sales:revenues_ajax_url' %}",
                   "dataSrc": ""

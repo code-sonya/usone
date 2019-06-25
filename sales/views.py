@@ -99,7 +99,6 @@ def post_contract(request):
         for emp in empList:
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
-        print(empNames)
         context = {
             'form': form,
             'companyNames': companyNames,
@@ -424,8 +423,16 @@ def contracts_asjson(request):
     saleCompanyName = request.POST['saleCompanyName']
     endCompanyName = request.POST['endCompanyName']
     contractName = request.POST['contractName']
+    user = Employee.objects.get(empId=request.POST['userId'])
 
     contracts = Contract.objects.all()
+
+    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.empName == '이현승':
+        None
+    elif user.empManager == 'Y':
+        contracts = contracts.filter(empDeptName=user.empDeptName)
+    else:
+        contracts = contracts.filter(empId=user.empId)
 
     if startdate:
         contracts = contracts.filter(contractDate__gte=startdate)
@@ -462,11 +469,19 @@ def revenues_asjson(request):
     contractName = request.POST['contractName']
     contractStep = request.POST['contractStep']
     outstandingcollection = request.POST['outstandingcollection']
+    user = Employee.objects.get(empId=request.POST['userId'])
 
     if outstandingcollection == 'Y':
         revenues = Revenue.objects.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
     elif outstandingcollection == 'N':
         revenues = Revenue.objects.all()
+
+    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.empName == '이현승':
+        None
+    elif user.empManager == 'Y':
+        revenues = revenues.filter(contractId__empDeptName=user.empDeptName)
+    else:
+        revenues = revenues.filter(contractId__empId=user.empId)
 
     if startdate:
         revenues = revenues.filter(Q(predictBillingDate__gte=startdate) or Q(predictDepositDate__gte=startdate))
@@ -814,13 +829,19 @@ def purchases_asjson(request):
     contractStep = request.POST['contractStep']
     purchaseInAdvance = request.POST['purchaseInAdvance']
     accountspayable = request.POST['accountspayable']
-    # print(startdate,enddate,empDeptName,empName,saleCompanyName,contractName,contractStep,contractStep)
-    # print('purchaseInAdvance:',purchaseInAdvance)
+    user = Employee.objects.get(empId=request.POST['userId'])
 
     if accountspayable == 'Y':
         purchase = Purchase.objects.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
     elif accountspayable == 'N':
         purchase = Purchase.objects.all()
+
+    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.empName == '이현승':
+        None
+    elif user.empManager == 'Y':
+        purchase = purchase.filter(contractId__empDeptName=user.empDeptName)
+    else:
+        purchase = purchase.filter(contractId__empId=user.empId)
 
     if startdate:
         purchase = purchase.filter(Q(predictBillingDate__gte=startdate) or Q(predictWithdrawDate__gte=startdate))

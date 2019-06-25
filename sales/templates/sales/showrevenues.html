@@ -236,7 +236,7 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-12">
-                <h6> < 매출예정일아 지난 매출 목록> </h6>
+                <h6> < 매출예정일이 지난 매출 목록 > </h6>
                 <table id="changepredictrevenue" class="pc-table thtd" style="margin:2px">
                   <thead>
                   <tr class="bg-secondary text-white thtd">
@@ -450,6 +450,7 @@
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
                       "outstandingcollection": "N",
                       "modifyMode": "{{ modifyMode }}",
+                      "userId": "{{ user.employee.empId }}",
                   },
                   "url": "{% url 'sales:revenues_ajax_url' %}",
                   "dataSrc": ""

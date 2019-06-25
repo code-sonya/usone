@@ -246,6 +246,7 @@
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
+                      "userId": "{{ user.employee.empId }}",
                   },
                   "url": "{% url 'sales:contracts_ajax_url' %}",
                   "dataSrc": ""
