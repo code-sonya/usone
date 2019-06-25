@@ -478,7 +478,7 @@ def contracts_asjson(request):
 @login_required
 @csrf_exempt
 def revenues_asjson(request):
-    print(request.POST)
+    # print(request.POST)
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     empDeptName = request.POST['empDeptName']
@@ -493,7 +493,6 @@ def revenues_asjson(request):
 
     if outstandingcollection == 'Y':
         revenues = Revenue.objects.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
-        print('outstandingcollection')
     elif outstandingcollection == 'N':
         if issued =='Y':
             revenues = Revenue.objects.filter(Q(billingDate__isnull=False))
@@ -856,7 +855,7 @@ def save_purchasetable(request):
 @login_required
 @csrf_exempt
 def purchases_asjson(request):
-    print(request.POST)
+    # print(request.POST)
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     empDeptName = request.POST['empDeptName']

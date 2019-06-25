@@ -100,8 +100,6 @@ def show_punctuality(request, day=None):
                             user['status'] = '출근'
                             break
 
-    print(users)
-
     context = {
         'day': day,
         'Date': Date,
