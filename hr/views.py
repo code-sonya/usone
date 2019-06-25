@@ -57,7 +57,6 @@ def show_punctuality(request, day=None):
         positionName = employee_empPosition(user['employee__empPosition'])
         user['positionName'] = positionName
         vacation = Vacation.objects.filter(Q(vacationDate=day) & Q(empId_id=user['employee__empId'])).first()
-        print(vacation)
 
         # 상주
         if user['employee__dispatchCompany'] != '내근':
