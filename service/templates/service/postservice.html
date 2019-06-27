@@ -230,8 +230,8 @@
           document.getElementById("serviceDetails").style.backgroundColor = "#e8f0fe";
       }
 
-      var value;
-      var inputId;
+      var value = "";
+      var inputId = "";
 
       function addInput(input) {
           if (window.event.keyCode == 9) {
@@ -241,7 +241,11 @@
       }
 
       $('#serviceType').focus(function () {
-          $('#companyName').trigger('set', {id: value});
+          if (value !== "") {
+              $('#companyName').trigger('set', {id: value});
+              value = "";
+              inputId = "";
+          }
       });
 
       $(document).ready(function () {

@@ -278,8 +278,8 @@
 
   <script type="text/javascript">
 
-      var value;
-      var inputId;
+      var value = "";
+      var inputId = "";
       var resultcompanyName;
       var resultcompanyNameKo;
       var companyList = new Array();
@@ -295,13 +295,21 @@
       {#거래처#}
       var saleCustomerId = $('#saleCustomerId');
       saleCustomerId.focus(function () {
-          $('#saleCompanyNames').trigger('set', {id: value});
+          if (value !== "") {
+              $('#saleCompanyNames').trigger('set', {id: value});
+              value = "";
+              inputId = "";
+          }
       });
 
       {#최종고객사#}
       var salePrice = $('#salePrice');
       salePrice.focus(function () {
-          $('#endCompanyNames').trigger('set', {id: value});
+          if (value !== "") {
+              $('#endCompanyNames').trigger('set', {id: value});
+              value = "";
+              inputId = "";
+          }
       });
 
       function btn_cancel() {
@@ -939,7 +947,11 @@
               });
 
               $('#revenue6' + revenueCounter).on('focus', function (e) {
-                  $('#' + inputId).trigger('set', {id: value});
+                  if (value !== "") {
+                      $('#' + inputId).trigger('set', {id: value});
+                      value = "";
+                      inputId = "";
+                  }
               });
 
 
@@ -1040,7 +1052,11 @@
               });
 
               $('#purchase6' + purchaseCounter).on('focus', function (e) {
-                  $('#' + inputId).trigger('set', {id: value});
+                  if (value !== "") {
+                      $('#' + inputId).trigger('set', {id: value});
+                      value = "";
+                      inputId = "";
+                  }
               });
 
               purchaseCounter++;
