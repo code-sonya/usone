@@ -117,20 +117,20 @@
                 </thead>
                 <tfoot>
                 <tr>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th>TOTAL :</th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
-                  <th></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
                 </tr>
                 </tfoot>
               </table>
@@ -177,15 +177,19 @@
                   <option value="전체">전체</option>
                   <option value="영업1팀">영업1팀</option>
                   <option value="영업2팀">영업2팀</option>
-                  <option value="영업3팀">영업3팀</option>
+{#                  <option value="영업3팀">영업3팀</option>#}
                 </select>
               </div>
               <div class="col-6">
                 <label for="empName" class="text-primary">영업담당자</label>
                 <select class="form-control" id="empName" name="empName">
                   <option value='전체'>전체</option>
-                  {% for i in employees %}
-                    <option value="{{ i.empName }}">{{ i.empName }}</option>
+                  {% for e in employees %}
+                    <option value="{{ e.empName }}">{{ e.empName }}</option>
+                  {% endfor %}
+                  <option value="">------</option>
+                  {% for pe in pastEmployees %}
+                    <option value="{{ pe.empName }}">{{ pe.empName }}</option>
                   {% endfor %}
                 </select>
               </div>

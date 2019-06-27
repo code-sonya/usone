@@ -145,8 +145,8 @@ def save_caps(request):
                 Attendance.objects.create(empId=empId, attendanceDate=rows[0], attendanceTime=rows[1], attendanceType=rows[4])
                 successCount += 1
 
-    print('successCount:',successCount)
-    print(errorList)
+    # print('successCount:',successCount)
+    # print(errorList)
 
     context = {
         "datalen": datalen - 1,

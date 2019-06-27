@@ -42,9 +42,10 @@
       font-size: 16px;
       border-top: 1px dotted #858796a3;
     }
-    a:link { color: black; text-decoration: none;}
-    a:visited { color: black; text-decoration: none;}
-    a:hover { color: blue; text-decoration: underline;}
+    {##}
+    {#a:link { color: black; text-decoration: none;}#}
+    {#a:visited { color: black; text-decoration: none;}#}
+    {#a:hover { color: blue; text-decoration: underline;}#}
 
   </style>
 
@@ -55,8 +56,9 @@
   <div class="row">
     <div class="col-xl-2"></div>
     <!-- PC화면 -->
-    <div class="col-xl-8 d-none d-xl-block" style="z-index: 9999">
+    <div class="col-xl-8 d-none d-xl-block" style="z-index: 2">
       <div class="text-right mb-3" style="min-width: 1000px">
+        {% if service.empId.empId == user.employee.empId %}
         <a href="#" class="btn btn-warning" style="width: 50px; height: 42px;" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
           <i class="fas fa-edit text-gray-100" style="font-size: 1.5em;"></i>
         </a>
@@ -65,6 +67,7 @@
           <i class="fas fa-envelope text-gray-100" style="font-size: 1.5em;"></i>
         </a>
         &nbsp;&nbsp;
+        {% endif %}
         <a href="#" class="btn btn-danger" style="width: 50px; height: 42px;" onclick="location.href='/service/viewservicepdf/{{ service.serviceId }}'">
           <i class="fas fa-file-pdf text-gray-100" style="font-size: 1.5em;"></i>
         </a>
@@ -91,7 +94,7 @@
         <tr style="height: 50px;">
           <td style="width: 195px; text-align: center; font-size:14px" colspan="2">
             <strong>
-              <a href="/client/viewclient/{{ service.companyName }}/" style="font-size: 18px">{{ service.companyName }}</a>
+              <a href="/client/viewclient/{{ service.companyName }}/" style="font-size: 18px; color:black">{{ service.companyName }}</a>
             </strong> 귀중
           </td>
           <td style="width: 195px; text-align: center;" colspan="2">
@@ -108,7 +111,7 @@
           </td>
         </tr>
         <tr style="height: 370px;">
-          <td style="width: 1000px; vertical-align: top" colspan="10">
+          <td style="width: 1000px; vertical-align: top; white-space: normal" colspan="10">
             <p>&nbsp;</p>&nbsp;&nbsp;&nbsp;&nbsp;
             <strong>내 용 :</strong>
             <p><div style="padding-left: 40px">{{ service.serviceTitle }}</div></p>

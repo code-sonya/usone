@@ -109,9 +109,8 @@ def post_contract(request):
 
 @login_required
 def show_contracts(request):
-    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
-    salesteam_lst = Employee.objects.values('empDeptName').distinct()
-    salesteam_lst = [x['empDeptName'] for x in salesteam_lst if "영업" in x['empDeptName']]
+    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -122,7 +121,7 @@ def show_contracts(request):
         saleCompanyName = request.POST['saleCompanyName']
         endCompanyName = request.POST['endCompanyName']
         contractName = request.POST['contractName']
-        maincategory = request.POST['maincategory']
+        mainCategory = request.POST['mainCategory']
 
     else:
         startdate = ''
@@ -133,10 +132,11 @@ def show_contracts(request):
         saleCompanyName = ''
         endCompanyName = ''
         contractName = ''
-        maincategory = ''
+        mainCategory = ''
 
     context = {
         'employees': employees,
+        'pastEmployees': pastEmployees,
         'startdate': startdate,
         'enddate': enddate,
         'contractStep': contractStep,
@@ -145,8 +145,7 @@ def show_contracts(request):
         'saleCompanyName': saleCompanyName,
         'endCompanyName': endCompanyName,
         'contractName': contractName,
-        'salesteam_lst': salesteam_lst,
-        'maincategory':maincategory,
+        'mainCategory': mainCategory,
     }
 
     return render(request, 'sales/showcontracts.html', context)
@@ -321,7 +320,8 @@ def modify_contract(request, contractId):
 
 @login_required
 def show_revenues(request):
-    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -350,6 +350,7 @@ def show_revenues(request):
     outstandingcollection = 'N'
     context = {
         'employees': employees,
+        'pastEmployees': pastEmployees,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,
@@ -434,7 +435,7 @@ def contracts_asjson(request):
     saleCompanyName = request.POST['saleCompanyName']
     endCompanyName = request.POST['endCompanyName']
     contractName = request.POST['contractName']
-    maincategory = request.POST['maincategory']
+    mainCategory = request.POST['mainCategory']
 
     contracts = Contract.objects.all()
 
@@ -465,8 +466,8 @@ def contracts_asjson(request):
     if contractName:
         contracts = contracts.filter(contractName__contains=contractName)
 
-    if maincategory:
-        contracts = contracts.filter(mainCategory__icontains=maincategory)
+    if mainCategory:
+        contracts = contracts.filter(mainCategory__icontains=mainCategory)
 
     contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName__companyNameKo', 'endCompanyName__companyNameKo',
                                  'contractDate', 'contractId', 'salePrice', 'profitPrice', 'mainCategory', 'subCategory', 'saleIndustry', 'saleType',
@@ -753,7 +754,8 @@ def save_purchase(request):
 
 
 def show_purchases(request):
-    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -782,6 +784,7 @@ def show_purchases(request):
     purchaseInAdvance = 'N'
     context = {
         'employees': employees,
+        'pastEmployees': pastEmployees,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,
@@ -986,7 +989,8 @@ def save_revenuetable(request):
 @login_required
 @csrf_exempt
 def show_outstandingcollections(request):
-    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -1013,6 +1017,7 @@ def show_outstandingcollections(request):
     issued = ''
     context = {
         'employees': employees,
+        'pastEmployees': pastEmployees,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,
@@ -1049,7 +1054,8 @@ def view_contract_pdf(request, contractId):
 @login_required
 @csrf_exempt
 def show_accountspayables(request):
-    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -1076,6 +1082,7 @@ def show_accountspayables(request):
     issued = ''
     context = {
         'employees': employees,
+        'pastEmployees': pastEmployees,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,
@@ -1356,7 +1363,8 @@ def save_transfercontract(request):
 
 
 def show_purchaseinadvance(request):
-    employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
+    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -1383,6 +1391,7 @@ def show_purchaseinadvance(request):
     issued = ''
     context = {
         'employees': employees,
+        'pastEmployees': pastEmployees,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,

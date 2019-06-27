@@ -309,10 +309,7 @@ def dashboard_quarter(request):
     teamRevenues.sort(key=lambda x: x['predictBillingDate__month'], reverse=False)
 
     ###전체 매출/이익 금액(opp&firm)
-    print('quarterOppty', quarterOppty)
-    print('cumulativeSalesAmount', cumulativeSalesAmount)
     opptyFirmSales = cumulativeSalesAmount + sum(quarterOppty)
-    print(sum(quarterOppty))
     opptyFirmProfits = cumulativeProfitAmount['cumulative_profit_amount'] + sum(quarterOpptyProfit)
 
     ###분기 누적 매출/이익  금액(opp&firm)
@@ -676,7 +673,6 @@ def service_asjson(request):
     empname = request.POST['empname']
     servicetype = request.POST['servicetype']
     overhour = request.POST['overhour']
-    print(overhour)
 
     services = Servicereport.objects.filter(Q(serviceDate__gte=startdate)&Q(serviceDate__lte=enddate))
 
@@ -696,6 +692,6 @@ def service_asjson(request):
         services = services.exclude(serviceOverHour=0)
 
     services = services.values()
-    print(services)
+
     structureStep = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')

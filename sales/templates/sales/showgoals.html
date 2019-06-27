@@ -55,14 +55,14 @@
               </thead>
               <tfoot>
               <tr>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;">TOTAL :</th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
-                <th style="text-align:center; white-space:nowrap;"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
               </tr>
               </tfoot>
             </table>
@@ -198,11 +198,11 @@
                   {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 8, visible: false}
               ],
               "order": [[0, 'desc']],
@@ -222,11 +222,11 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(3)', nRow).text(aData.salesq1.toLocaleString() + '원');
-                  $('td:eq(4)', nRow).text(aData.salesq2.toLocaleString() + '원');
-                  $('td:eq(5)', nRow).text(aData.salesq3.toLocaleString() + '원');
-                  $('td:eq(6)', nRow).text(aData.salesq4.toLocaleString() + '원');
-                  $('td:eq(7)', nRow).text(aData.yearSalesSum.toLocaleString() + '원').css('color', '#4e73df');
+                  $('td:eq(3)', nRow).text(aData.salesq1.toLocaleString());
+                  $('td:eq(4)', nRow).text(aData.salesq2.toLocaleString());
+                  $('td:eq(5)', nRow).text(aData.salesq3.toLocaleString());
+                  $('td:eq(6)', nRow).text(aData.salesq4.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.yearSalesSum.toLocaleString()).css('color', '#4e73df');
               },
               "footerCallback": function () {
                   var api = this.api(), data;
@@ -235,31 +235,31 @@
                   api.column(3, {search: 'applied'}).data().each(function (data, index) {
                       q1Result += parseFloat(data);
                   });
-                  $(api.column(3).footer()).html(q1Result.toLocaleString() + '원');
+                  $(api.column(3).footer()).html(q1Result.toLocaleString());
 
                   var q2Result = 0;
                   api.column(4, {search: 'applied'}).data().each(function (data, index) {
                       q2Result += parseFloat(data);
                   });
-                  $(api.column(4).footer()).html(q2Result.toLocaleString() + '원');
+                  $(api.column(4).footer()).html(q2Result.toLocaleString());
 
                   var q3Result = 0;
                   api.column(5, {search: 'applied'}).data().each(function (data, index) {
                       q3Result += parseFloat(data);
                   });
-                  $(api.column(5).footer()).html(q3Result.toLocaleString() + '원');
+                  $(api.column(5).footer()).html(q3Result.toLocaleString());
 
                   var q4Result = 0;
                   api.column(6, {search: 'applied'}).data().each(function (data, index) {
                       q4Result += parseFloat(data);
                   });
-                  $(api.column(6).footer()).html(q4Result.toLocaleString() + '원');
+                  $(api.column(6).footer()).html(q4Result.toLocaleString());
 
                   var totalResult = 0;
                   api.column(7, {search: 'applied'}).data().each(function (data, index) {
                       totalResult += parseFloat(data);
                   });
-                  $(api.column(7).footer()).html(totalResult.toLocaleString() + '원');
+                  $(api.column(7).footer()).html(totalResult.toLocaleString());
 
 
               },

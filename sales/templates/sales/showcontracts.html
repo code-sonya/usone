@@ -83,16 +83,16 @@
               </thead>
               <tfoot>
               <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th>TOTAL :</th>
-                <th></th>
-                <th></th>
-                <th></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
               </tr>
               </tfoot>
             </table>
@@ -134,17 +134,21 @@
                 <label for="empDeptName" class="text-primary">영업부서</label>
                 <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
                   <option value="전체">전체</option>
-                  {#                  <option value="영업1팀">영업1팀</option>#}
-                  {#                  <option value="영업2팀">영업2팀</option>#}
-                  {#                  <option value="영업3팀">영업3팀</option>#}
+                  <option value="영업1팀">영업1팀</option>
+                  <option value="영업2팀">영업2팀</option>
+{#                  <option value="영업3팀">영업3팀</option>#}
                 </select>
               </div>
               <div class="col-6">
                 <label for="empName" class="text-primary">영업담당자</label>
                 <select class="form-control" id="empName" name="empName">
                   <option value='전체'>전체</option>
-                  {% for i in employees %}
-                    <option value="{{ i.empName }}">{{ i.empName }}</option>
+                  {% for e in employees %}
+                    <option value="{{ e.empName }}">{{ e.empName }}</option>
+                  {% endfor %}
+                  <option value="">------</option>
+                  {% for pe in pastEmployees %}
+                    <option value="{{ pe.empName }}">{{ pe.empName }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -176,8 +180,8 @@
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="maincategory" class="text-primary">대분류</label>
-                <input class="form-control" id="maincategory" name="maincategory">
+                <label for="mainCategory" class="text-primary">대분류</label>
+                <input class="form-control" id="mainCategory" name="mainCategory">
               </div>
             </div>
           </form>
@@ -228,15 +232,6 @@
       }
 
       $(document).ready(function () {
-          var sales_lst = new Array();
-          var new_str = '{{ salesteam_lst }}'.split('&#39;').join('');
-          new_str = new_str.split('[').join('');
-          new_str = new_str.split(']').join('');
-          sales_lst = new_str.split(',');
-          for (var count = 0; count < sales_lst.length; count++) {
-              var option = $("<option value=" + sales_lst[count] + ">" + sales_lst[count] + "</option>");
-              $('#empDeptName').append(option);
-          }
 
           $('#showcontracts').dataTable({
               "processing": true,
@@ -254,7 +249,7 @@
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
-                      "maincategory": {% if maincategory %}"{{ maincategory }}",{% else %}"",{% endif %}
+                      "mainCategory": {% if mainCategory %}"{{ mainCategory }}",{% else %}"",{% endif %}
                   },
                   "url": "{% url 'sales:contracts_ajax_url' %}",
                   "dataSrc": ""
@@ -361,7 +356,6 @@
                       profitResult += parseFloat(data);
                   });
                   $(api.column(9).footer()).html(profitResult.toLocaleString());
-
               },
           });
 

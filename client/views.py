@@ -11,7 +11,6 @@ from service.models import Servicereport
 from .models import Company, Customer
 from .forms import CompanyForm, CustomerForm
 from hr.models import Employee
-from django.core import serializers
 
 
 @login_required
@@ -19,8 +18,8 @@ from django.core import serializers
 def client_asjson(request):
     companyName = request.POST['companyName']
     services = Servicereport.objects.filter(companyName=companyName).values('serviceId', 'serviceDate', 'empName', 'empDeptName', 'serviceType', 'serviceTitle')
-    json = serializers.serialize('json', services)
-    return HttpResponse(json, content_type='application/json')
+    structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
@@ -119,7 +118,6 @@ def view_client(request, companyName):
 
 @login_required
 def view_customer(request, customerId):
-
     template = loader.get_template('client/viewcustomer.html')
     customer = Customer.objects.get(customerId=customerId)
     if request.method == 'POST':
@@ -143,6 +141,7 @@ def delete_customer(request, customerId):
     customer.delete()
     return redirect('client:view_client', companyName)
 
+
 @login_required
 def post_customer(request, companyName):
     if request.method == "POST":
@@ -156,7 +155,6 @@ def post_customer(request, companyName):
         form = CustomerForm()
         context = {
             'form': form,
-            'companyName':companyName
+            'companyName': companyName
         }
         return render(request, 'client/postcustomer.html', context)
-

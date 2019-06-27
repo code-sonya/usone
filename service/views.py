@@ -30,21 +30,24 @@ def service_asjson(request):
     serviceType = request.POST['serviceType']
     serviceTitle = request.POST['serviceTitle']
 
-    services = Servicereport.objects.all()
-    if startdate:
-        services = services.filter(serviceDate__gte=startdate)
-    if enddate:
-        services = services.filter(serviceDate__lte=enddate)
-    if empDeptName:
-        services = services.filter(empDeptName__icontains=empDeptName)
-    if empName:
-        services = services.filter(empName__icontains=empName)
-    if companyName:
-        services = services.filter(companyName__companyName__icontains=companyName)
-    if serviceType:
-        services = services.filter(serviceType__icontains=serviceType)
-    if serviceTitle:
-        services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
+    if startdate or enddate or empDeptName or empName or companyName or serviceType or serviceTitle:
+        services = Servicereport.objects.all()
+        if startdate:
+            services = services.filter(serviceDate__gte=startdate)
+        if enddate:
+            services = services.filter(serviceDate__lte=enddate)
+        if empDeptName:
+            services = services.filter(empDeptName__icontains=empDeptName)
+        if empName:
+            services = services.filter(empName__icontains=empName)
+        if companyName:
+            services = services.filter(companyName__companyName__icontains=companyName)
+        if serviceType:
+            services = services.filter(serviceType__icontains=serviceType)
+        if serviceTitle:
+            services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
+    else:
+        services = Servicereport.objects.filter(empId=request.user.employee.empId)
 
     services = services.values('serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType', 'serviceStartDatetime', 'serviceEndDatetime',
                                'serviceHour', 'serviceOverHour', 'serviceDetails', 'serviceStatus', 'serviceId')

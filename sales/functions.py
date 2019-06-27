@@ -76,7 +76,6 @@ def viewContract(contractId):
         .annotate(sum_deposit=Coalesce(Sum('revenuePrice'), 0)) \
         .annotate(filter_deposit=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)) \
         .annotate(ratio_deposit=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0) * 100 / Coalesce(Sum('revenuePrice'), 0))
-    print(companyDeposit)
 
     companyTotalDeposit = revenues.aggregate(
         total_sum_deposit=Coalesce(Sum('revenuePrice'), 0),
