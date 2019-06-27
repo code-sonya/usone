@@ -360,8 +360,8 @@ def show_revenues(request):
         'contractStep': contractStep,
         'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
-        'maincategory':maincategory,
-        'issued':issued
+        'maincategory': maincategory,
+        'issued': issued
     }
 
     return render(request, 'sales/showrevenues.html', context)
@@ -495,9 +495,9 @@ def revenues_asjson(request):
     if outstandingcollection == 'Y':
         revenues = Revenue.objects.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
     elif outstandingcollection == 'N':
-        if issued =='Y':
+        if issued == 'Y':
             revenues = Revenue.objects.filter(Q(billingDate__isnull=False))
-        elif issued =='N':
+        elif issued == 'N':
             revenues = Revenue.objects.filter(Q(billingDate__isnull=True))
         else:
             revenues = Revenue.objects.all()
@@ -848,8 +848,8 @@ def save_purchasetable(request):
         'purchaseInAdvance': purchaseInAdvance,
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
-        'maincategory':maincategory,
-        'issued':issued,
+        'maincategory': maincategory,
+        'issued': issued,
     }
     if accountspayable == 'Y':
         return render(request, 'sales/showaccountspayables.html', context)
@@ -1028,7 +1028,7 @@ def show_outstandingcollections(request):
         'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
         'maincategory': maincategory,
-        'issued' : issued
+        'issued': issued
     }
 
     return render(request, 'sales/showoutstandingcollections.html', context)
@@ -1403,14 +1403,13 @@ def show_purchaseinadvance(request):
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
         'maincategory': maincategory,
-        'issued':issued
+        'issued': issued
     }
 
     return render(request, 'sales/showpurchaseinadvance.html', context)
 
 
 def save_company(request):
-
     companyName = request.POST['companyName']
     companyNameKo = request.POST['companyNameKo']
     companyNumber = request.POST['companyNumber']
@@ -1421,7 +1420,64 @@ def save_company(request):
         result = 'N'
     else:
         Company.objects.create(companyName=companyName, companyNameKo=companyNameKo, companyNumber=companyNumber, saleEmpId=salesEmpId, companyAddress=companyAddress)
-        result = ['Y', companyName, companyNameKo ]
+        result = ['Y', companyName, companyNameKo]
 
     structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+def daily_report(request):
+    # 연도, 월, 분기
+    todayYear = datetime.today().year
+    todayMonth = datetime.today().month
+    if todayMonth in [1, 2, 3]:
+        todayQuarter = 1
+    elif todayMonth in [4, 5, 6]:
+        todayQuarter = 2
+    elif todayMonth in [7, 8, 9]:
+        todayQuarter = 3
+    elif todayMonth in [10, 11, 12]:
+        todayQuarter = 4
+
+    dict_quarter = {"q1_start": "{}-01-01".format(todayYear),
+                    "q1_end": "{}-04-01".format(todayYear),
+                    "q2_end": "{}-07-01".format(todayYear),
+                    "q3_end": "{}-10-01".format(todayYear),
+                    "q4_end": "{}-01-01".format(todayYear + 1)}
+
+    teamGoals = Goal.objects.filter(Q(year=todayYear))
+    teamGoalsSum = teamGoals.aggregate(sum_yearSales=Sum('yearSalesSum'), sum_yearProfit=Sum('yearProfitSum'), sum_salesq1=Sum('salesq1'), sum_salesq2=Sum('salesq2'),
+                                       sum_salesq3=Sum('salesq3'), sum_salesq4=Sum('salesq3'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'),
+                                       sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'))
+
+    if todayQuarter == 1:
+        quarterteamGoals = teamGoals.annotate(sum_quaterSales=Sum('salesq1'), sum_quaterProfits=Sum('profitq1'))
+    elif todayQuarter == 2:
+        quarterteamGoals = teamGoals.annotate(sum_quaterSales=Sum('salesq1', 'salesq2'), sum_quaterProfits=Sum('profitq1', 'profitq2'))
+    elif todayQuarter == 3:
+        quarterteamGoals = teamGoals.annotate(sum_quaterSales=Sum('salesq1', 'salesq2', 'salesq3'), sum_quaterProfits=Sum('profitq1', 'profitq2', 'profitq3'))
+    else:
+        quarterteamGoals = teamGoals.annotate(sum_quaterSales=Sum('yearSalesSum'), sum_quaterProfits=Sum('yearProfitSum'))
+
+    print(teamGoals, teamGoalsSum)
+
+    context = {'todayYear': todayYear,
+               'todayQuarter': str(todayQuarter) + 'Q',
+               'teamGoals': teamGoals,
+               'teamGoalsSum': teamGoalsSum,
+               'quarterteamGoals': quarterteamGoals}
+
+    return render(request, 'sales/dailyreport.html', context)
+
+
+@login_required
+@csrf_exempt
+def outstanding_asjson(request):
+    today = datetime.today()
+    revenues = Revenue.objects.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True) & Q(predictDepositDate__lt=today))
+    revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'revenueCompany__companyNameKo', 'revenuePrice', 'revenueProfitPrice',
+                               'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
+                               'contractId__depositCondition', 'contractId__depositConditionDay', 'comment')
+
+    structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

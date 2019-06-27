@@ -315,11 +315,11 @@
           {% if revenues %}
             <br>
             <h5 class="text-dark mb-3"><b>
-              <span id="revenuesDown" class="d-none" onclick="downClick('revenues', 'revenuesUp', 'revenuesDown')">▼</span>
-              <span id="revenuesUp" onclick="upClick('revenues', 'revenuesUp', 'revenuesDown')">▶</span>
+              <span id="revenuesDown" onclick="downClick('revenues', 'revenuesUp', 'revenuesDown')">▼</span>
+              <span id="revenuesUp" class="d-none" onclick="upClick('revenues', 'revenuesUp', 'revenuesDown')">▶</span>
               매출세부정보
             </b></h5>
-            <table class="pc-table d-none" id="revenues">
+            <table class="pc-table" id="revenues">
               <thead>
               <tr class="bg-primary">
                 <td class="text-gray-100" width="5%">회차</td>
@@ -362,11 +362,11 @@
           {% if purchases %}
             <br>
             <h5 class="text-dark mb-3"><b>
-              <span id="purchasesDown" class="d-none" onclick="downClick('purchases', 'purchasesUp', 'purchasesDown')">▼</span>
-              <span id="purchasesUp" onclick="upClick('purchases', 'purchasesUp', 'purchasesDown')">▶</span>
+              <span id="purchasesDown" onclick="downClick('purchases', 'purchasesUp', 'purchasesDown')">▼</span>
+              <span id="purchasesUp" class="d-none" onclick="upClick('purchases', 'purchasesUp', 'purchasesDown')">▶</span>
               매입세부정보
             </b></h5>
-            <table class="pc-table d-none" id="purchases">
+            <table class="pc-table" id="purchases">
               <thead>
               <tr class="bg-primary">
                 <td class="text-gray-100" width="5%">회차</td>
