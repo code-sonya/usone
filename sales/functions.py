@@ -129,3 +129,82 @@ def viewContract(contractId):
     }
 
     return context
+
+
+def dailyReportRows(year, quarter=4, contractStep="F"):
+    if year < 1000 or year > 9999:
+        raise Exception('Please enter in year format.(4 digit integer)')
+    if quarter not in [1, 2, 3, 4]:
+        raise Exception('Please enter in quarter format.(1 to 4 integer)')
+    if contractStep not in ['F', 'O', 'FO', 'OF']:
+        raise Exception('Please enter in one of ["F", "O", "FO", "OF"].')
+
+    dict_quarter = {"q1_start": "{}-01-01".format(year),
+                    "q1_end": "{}-04-01".format(year), "q2_end": "{}-07-01".format(year),
+                    "q3_end": "{}-10-01".format(year), "q4_end": "{}-01-01".format(year + 1)}
+
+    goal = Goal.objects.filter(Q(year=year))
+    if quarter == 1:
+        teamGoal = goal.values('empDeptName')\
+            .annotate(revenueTarget=F('salesq1'),
+                      profitTarget=F('profitq1'))
+        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end']))
+    elif quarter == 2:
+        teamGoal = goal.values('empDeptName')\
+            .annotate(revenueTarget=F('salesq1') + F('salesq2'),
+                      profitTarget=F('profitq1') + F('profitq2'))
+        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q2_end']))
+    elif quarter == 3:
+        teamGoal = goal.values('empDeptName')\
+            .annotate(revenueTarget=F('salesq1') + F('salesq2') + F('salesq3'),
+                      profitTarget=F('profitq1') + F('profitq2') + F('profitq3'))
+        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q3_end']))
+    else:
+        teamGoal = goal.values('empDeptName')\
+            .annotate(revenueTarget=F('salesq1') + F('salesq2') + F('salesq3') + F('salesq4'),
+                      profitTarget=F('profitq1') + F('profitq2') + F('profitq3') + F('profitq4'))
+        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
+    sumGoal = teamGoal.aggregate(revenueTargetSum=Sum('revenueTarget'), profitTargetSum=Sum('profitTarget'))
+
+    if contractStep == 'F':
+        revenue = revenue.filter(contractId__contractStep='Firm')
+    elif contractStep == 'O':
+        revenue = revenue.filter(contractId__contractStep='Opportunity')
+    elif contractStep == 'FO' or contractStep == 'OF':
+        revenue = revenue.filter(Q(contractId__contractStep='Opportunity') | Q(contractId__contractStep='Firm'))
+
+    teamRevenue = list(revenue.values('contractId__empDeptName').annotate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice')))
+    sumRevenue = revenue.aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+
+    rows = []
+    teams = teamGoal.values('empDeptName').distinct()
+    teams = [i['empDeptName'] for i in list(teams)]
+
+    for team in teams:
+        revenuePrice = [i['revenuePrice'] for i in teamRevenue if i['contractId__empDeptName'] == team] or [0]
+        profitPrice = [i['revenueProfitPrice'] for i in teamRevenue if i['contractId__empDeptName'] == team] or [0]
+        row = {
+            'empDeptName': team[:4],
+            'revenueTarget': teamGoal.filter(empDeptName=team)[0]['revenueTarget'],
+            'profitTarget': teamGoal.filter(empDeptName=team)[0]['profitTarget'],
+            'revenuePrice': revenuePrice[0],
+            'profitPrice': profitPrice[0],
+        }
+        row['revenueRatio'] = round(row['revenuePrice'] / row['revenueTarget'] * 100)
+        row['profitRatio'] = round(row['profitPrice'] / row['profitTarget'] * 100)
+        rows.append(row)
+
+    revenuePrice = sumRevenue['revenuePrice'] or 0
+    profitPrice = sumRevenue['revenueProfitPrice'] or 0
+    row = {
+        'empDeptName': '합계',
+        'revenueTarget': sumGoal['revenueTargetSum'],
+        'profitTarget': sumGoal['profitTargetSum'],
+        'revenuePrice': revenuePrice,
+        'profitPrice': profitPrice,
+    }
+    row['revenueRatio'] = round(row['revenuePrice'] / row['revenueTarget'] * 100)
+    row['profitRatio'] = round(row['profitPrice'] / row['profitTarget'] * 100)
+    rows.append(row)
+
+    return rows

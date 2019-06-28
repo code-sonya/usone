@@ -13,9 +13,9 @@ from django.db.models.functions import Coalesce
 from hr.models import Employee
 from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase
-from .functions import viewContract
+from .functions import viewContract, dailyReportRows
 from service.models import Company, Customer
-from django.db.models import Q
+from django.db.models import Q, Value, F, CharField
 from datetime import datetime, timedelta
 import pandas as pd
 from xhtml2pdf import pisa
@@ -1439,33 +1439,25 @@ def daily_report(request):
     elif todayMonth in [10, 11, 12]:
         todayQuarter = 4
 
-    dict_quarter = {"q1_start": "{}-01-01".format(todayYear),
-                    "q1_end": "{}-04-01".format(todayYear),
-                    "q2_end": "{}-07-01".format(todayYear),
-                    "q3_end": "{}-10-01".format(todayYear),
-                    "q4_end": "{}-01-01".format(todayYear + 1)}
+    # 1. Firm 기준 연간 누계 달성 현황
+    # 1-1. 연간 누계 달성 현황
+    rowsFY = dailyReportRows(todayYear, 4, 'F')
+    # 1-2. 분기 누계 달성 현황
+    rowsFQ = dailyReportRows(todayYear, todayQuarter, 'F')
+    # 2. Firm, Oppt'y 기준 연간 누계 달성 현황
+    # 2-1. 연간 누계 달성 현황
+    rowsFOY = dailyReportRows(todayYear, 4, 'FO')
+    # 2-2. 분기 누계 달성 현황
+    rowsFOQ = dailyReportRows(todayYear, todayQuarter, 'FO')
 
-    teamGoals = Goal.objects.filter(Q(year=todayYear))
-    teamGoalsSum = teamGoals.aggregate(sum_yearSales=Sum('yearSalesSum'), sum_yearProfit=Sum('yearProfitSum'), sum_salesq1=Sum('salesq1'), sum_salesq2=Sum('salesq2'),
-                                       sum_salesq3=Sum('salesq3'), sum_salesq4=Sum('salesq3'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'),
-                                       sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'))
-
-    if todayQuarter == 1:
-        quarterteamGoals = teamGoals.annotate(sum_quaterSales=Sum('salesq1'), sum_quaterProfits=Sum('profitq1'))
-    elif todayQuarter == 2:
-        quarterteamGoals = teamGoals.annotate(sum_quaterSales=Sum('salesq1', 'salesq2'), sum_quaterProfits=Sum('profitq1', 'profitq2'))
-    elif todayQuarter == 3:
-        quarterteamGoals = teamGoals.annotate(sum_quaterSales=Sum('salesq1', 'salesq2', 'salesq3'), sum_quaterProfits=Sum('profitq1', 'profitq2', 'profitq3'))
-    else:
-        quarterteamGoals = teamGoals.annotate(sum_quaterSales=Sum('yearSalesSum'), sum_quaterProfits=Sum('yearProfitSum'))
-
-    print(teamGoals, teamGoalsSum)
-
-    context = {'todayYear': todayYear,
-               'todayQuarter': str(todayQuarter) + 'Q',
-               'teamGoals': teamGoals,
-               'teamGoalsSum': teamGoalsSum,
-               'quarterteamGoals': quarterteamGoals}
+    context = {
+        'todayYear': todayYear,
+        'todayQuarter': str(todayQuarter) + 'Q',
+        'rowsFY': rowsFY,
+        'rowsFQ': rowsFQ,
+        'rowsFOY': rowsFOY,
+        'rowsFOQ': rowsFOQ,
+    }
 
     return render(request, 'sales/dailyreport.html', context)
 

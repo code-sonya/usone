@@ -16,7 +16,7 @@
     }
 
     .mobile-table td, .mobile-table th {
-      padding: 4px;
+      padding: 5px 10px;
       vertical-align: middle;
       font-size: 16px;
       border-top: 1px dotted #858796a3;
@@ -47,8 +47,8 @@
         </div>
 
         <div class="card-body">
-          <div class="row ml-1 mb-2"><h6 class="font-weight-bold text-dark">1. {{ todayYear }}년 실적 현황</h6></div>
-          <div class="row ml-3"><span class="text-dark"> 1) <span class="text-primary">Firm </span>차트 기준 실적 현황</span></div>
+          <div class="row ml-1 mb-2"><span class="font-weight-bold text-dark">1. {{ todayYear }}년 실적 현황</span></div>
+          <div class="row ml-3 mb-2"><span class="text-dark"> 1) <span class="text-primary">Firm</span> 차트 기준 실적 현황</span></div>
 
           <div class="row">
             <div class="col-xl-6">
@@ -58,8 +58,8 @@
                 <tr class="bg-light">
                   <td rowspan="2">구분</td>
                   <td colspan="2">연간 목표</td>
-                  <td colspan="2">{{ todayQuarter }} 달성</td>
-                  <td colspan="2">{{ todayQuarter }} 달성률</td>
+                  <td colspan="2">연간 달성</td>
+                  <td colspan="2">연간 달성률</td>
                 </tr>
                 <tr class="bg-light">
                   <td>매출</td>
@@ -69,29 +69,19 @@
                   <td>매출</td>
                   <td>GP</td>
                 </tr>
-                {% for goal in teamGoals %}
-                  <tr>
-                    <td>{{ goal.empDeptName }}</td>
-                    <td>{{ goal.yearSalesSum |slugify|slice:"0:-6"|intcomma }}</td>
-                    <td>{{ goal.yearProfitSum |slugify|slice:"0:-6"|intcomma }}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                {% endfor %}
-                <tr>
-                  <td class="bg-light">합계</td>
-                  <td>{{ teamGoalsSum.sum_yearSales|slugify|slice:"0:-6"|intcomma }}</td>
-                  <td>{{ teamGoalsSum.sum_yearProfit|slugify|slice:"0:-6"|intcomma }}</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
                 </thead>
                 <tbody>
-
+                {% for row in rowsFY %}
+                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                    <td>{{ row.empDeptName }}</td>
+                    <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.profitTarget |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.profitPrice |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.revenueRatio }}%</td>
+                    <td class="text-right">{{ row.profitRatio }}%</td>
+                  </tr>
+                {% endfor %}
                 </tbody>
               </table>
             </div>
@@ -101,7 +91,7 @@
                 <thead>
                 <tr class="bg-light">
                   <td rowspan="2">구분</td>
-                  <td colspan="2">연간 목표</td>
+                  <td colspan="2">{{ todayQuarter }} 목표</td>
                   <td colspan="2">{{ todayQuarter }} 달성</td>
                   <td colspan="2">{{ todayQuarter }} 달성률</td>
                 </tr>
@@ -113,10 +103,19 @@
                   <td>매출</td>
                   <td>GP</td>
                 </tr>
-
                 </thead>
                 <tbody>
-
+                {% for row in rowsFQ %}
+                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                    <td>{{ row.empDeptName }}</td>
+                    <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.profitTarget |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.profitPrice |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.revenueRatio }}%</td>
+                    <td class="text-right">{{ row.profitRatio }}%</td>
+                  </tr>
+                {% endfor %}
                 </tbody>
               </table>
             </div>
@@ -130,8 +129,8 @@
                 <tr class="bg-light">
                   <td rowspan="2">구분</td>
                   <td colspan="2">연간 목표</td>
-                  <td colspan="2">{{ todayQuarter }} 달성</td>
-                  <td colspan="2">{{ todayQuarter }} 달성률</td>
+                  <td colspan="2">연간 달성</td>
+                  <td colspan="2">연간 달성률</td>
                 </tr>
                 <tr class="bg-light">
                   <td>매출</td>
@@ -143,7 +142,17 @@
                 </tr>
                 </thead>
                 <tbody>
-
+                {% for row in rowsFOY %}
+                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                    <td>{{ row.empDeptName }}</td>
+                    <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.profitTarget |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.profitPrice |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.revenueRatio }}%</td>
+                    <td class="text-right">{{ row.profitRatio }}%</td>
+                  </tr>
+                {% endfor %}
                 </tbody>
               </table>
             </div>
@@ -153,7 +162,7 @@
                 <thead>
                 <tr class="bg-light">
                   <td rowspan="2">구분</td>
-                  <td colspan="2">연간 목표</td>
+                  <td colspan="2">{{ todayQuarter }} 목표</td>
                   <td colspan="2">{{ todayQuarter }} 달성</td>
                   <td colspan="2">{{ todayQuarter }} 달성률</td>
                 </tr>
@@ -167,6 +176,17 @@
                 </tr>
                 </thead>
                 <tbody>
+                {% for row in rowsFOQ %}
+                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                    <td>{{ row.empDeptName }}</td>
+                    <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.profitTarget |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.profitPrice |slugify|slice:"0:-6"|intcomma }}</td>
+                    <td class="text-right">{{ row.revenueRatio }}%</td>
+                    <td class="text-right">{{ row.profitRatio }}%</td>
+                  </tr>
+                {% endfor %}
 
                 </tbody>
               </table>
