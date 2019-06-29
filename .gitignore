@@ -59,7 +59,10 @@ local_settings.py
 db.sqlite3
 media/images/signature/
 media/board/
+media/json/
+media/pdf/
 mail/mailInfo.py
+*.json
 
 # Flask stuff:
 instance/
