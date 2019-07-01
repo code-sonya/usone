@@ -39,7 +39,6 @@ def dashboard_service(request):
                                                         Q(serviceDate__lte=enddate)).exclude(serviceType="교육")
         all_support_data = all_support_data.objects.filter(Q(empDeptName='DB지원팀')|Q(empDeptName='솔루션지원팀'))
 
-
         all_support_time = all_support_data.aggregate(Sum('serviceHour'), Count('serviceHour'))
 
         all_support_Overtime = all_support_data.aggregate(Sum('serviceOverHour'))
