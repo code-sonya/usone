@@ -1075,17 +1075,17 @@ def show_accountspayables(request):
     else:
         startdate = ''
         enddate = ''
-        empDeptName = ''
+        empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         contractName = ''
-        contractStep = ''
+        contractStep = '전체'
         modifyMode = 'N'
 
     accountspayable = 'Y'
     purchaseInAdvance = 'N'
     maincategory = ''
-    issued = ''
+    issued = '전체'
     context = {
         'employees': employees,
         'pastEmployees': pastEmployees,
