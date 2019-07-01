@@ -488,6 +488,13 @@
                       $('td:eq(9)', nRow).text(replaceDate(aData.withdrawDate, null, "-", ".", null, 10));
                       $('td:eq(11)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
+
+                  if (aData.predictWithdrawDate < '{{ today | date:"Y-m-d" }}') {
+                      $('td:eq(8)', nRow).css('color', '#ff0000');
+                  }
+                  if (aData.predictWithdrawDate < '{{ before | date:"Y-m-d" }}') {
+                      $(nRow).css('background-color', '#ffe6e6');
+                  }
               },
               "footerCallback": function () {
                   var api = this.api(), data;

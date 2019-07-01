@@ -1016,7 +1016,7 @@ def show_outstandingcollections(request):
     maincategory = ''
     issued = ''
     today = datetime.today()
-    before = datetime.today() - timedelta(days=30)
+    before = datetime.today() - timedelta(days=180)
     context = {
         'employees': employees,
         'pastEmployees': pastEmployees,
@@ -1084,6 +1084,8 @@ def show_accountspayables(request):
     purchaseInAdvance = 'N'
     maincategory = ''
     issued = ''
+    today = datetime.today()
+    before = datetime.today() - timedelta(days=180)
     context = {
         'employees': employees,
         'pastEmployees': pastEmployees,
@@ -1098,7 +1100,9 @@ def show_accountspayables(request):
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
         'maincategory': maincategory,
-        'issued': issued
+        'issued': issued,
+        'today': today,
+        'before': before,
     }
 
     return render(request, 'sales/showaccountspayables.html', context)
