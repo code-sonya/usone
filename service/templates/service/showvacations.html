@@ -76,9 +76,10 @@
               columnDefs: [
                   {targets: 0, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
-              "ordering": false,
+              "order": [[0, 'desc']],
+              "ordering": true,
               "searching": false,
               "paging": false,
               "info": false,
@@ -88,7 +89,7 @@
 
           {% for vacation in vacations %}
               table.row.add( {
-                  "휴가일": "{{ vacation.vacationDate }}",
+                  "휴가일": "{{ vacation.vacationDate }} ({{ vacation.vacationDate | date:"D" | slice:"0:1" }})",
                   "휴가구분": "{{ vacation.vacationType }}",
                   "삭제": "<a href=\"#\" class=\"btn btn-sm btn-danger\" onclick=\"btn_delete({{ vacation.vacationId }})\"><span class=\"icon text-white-50\"> <i class=\"fas fa-trash-alt\"> </i> </span></a>"
               } ).draw();
