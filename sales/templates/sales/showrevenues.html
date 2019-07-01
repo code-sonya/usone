@@ -174,7 +174,7 @@
               <div class="col-6">
                 <label for="empDeptName" class="text-primary">영업부서</label>
                 <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
-                  {% if empDeptName == '전체' or empDeptName == '' %}
+                  {% if empDeptName == '전체' %}
                     <option value='전체' selected="selected">전체</option>
                   {% else %}
                     <option value="전체">전체</option>
@@ -184,8 +184,11 @@
                   {% else %}
                     <option value="영업1팀">영업1팀</option>
                   {% endif %}
-
-                  <option value="영업2팀">영업2팀</option>
+                  {% if empDeptName == '영업2팀' %}
+                    <option value="영업2팀" selected="selected">영업2팀</option>
+                  {% else %}
+                    <option value="영업2팀">영업2팀</option>
+                  {% endif %}
                 </select>
               </div>
               <div class="col-6">
@@ -218,7 +221,6 @@
                     {% else %}
                       <option value="{{ pe.empName }}">{{ pe.empName }}</option>
                     {% endif %}
-
                   {% endfor %}
                 </select>
               </div>
@@ -257,7 +259,6 @@
                   {% else %}
                     <option value="Drop">Drop</option>
                   {% endif %}
-
                 </select>
               </div>
               <div class="col-6">
@@ -402,56 +403,11 @@
           modifyMode.setAttribute("name", "modifyMode");
           modifyMode.setAttribute("value", 'Y');
           filterForm.appendChild(modifyMode);
-          {#let startdate = document.createElement("input");#}
-          {#startdate.setAttribute("type", "hidden");#}
-          {#startdate.setAttribute("name", "startdate");#}
-          {#startdate.setAttribute("value", '{{ startdate }}');#}
-          {#filterForm.appendChild(startdate);#}
-          {#let enddate = document.createElement("input");#}
-          {#enddate.setAttribute("type", "hidden");#}
-          {#enddate.setAttribute("name", "enddate");#}
-          {#enddate.setAttribute("value", '{{ enddate }}');#}
-          {#filterForm.appendChild(enddate);#}
-          {#let contractStep = document.createElement("input");#}
-          {#contractStep.setAttribute("type", "hidden");#}
-          {#contractStep.setAttribute("name", "contractStep");#}
-          {#contractStep.setAttribute("value", '{{ contractStep }}');#}
-          {#filterForm.appendChild(contractStep);#}
-          {#let empDeptName = document.createElement("input");#}
-          {#empDeptName.setAttribute("type", "hidden");#}
-          {#empDeptName.setAttribute("name", "empDeptName");#}
-          {#empDeptName.setAttribute("value", '{{ empDeptName }}');#}
-          {#filterForm.appendChild(empDeptName);#}
-          {#let empName = document.createElement("input");#}
-          {#empName.setAttribute("type", "hidden");#}
-          {#empName.setAttribute("name", "empName");#}
-          {#empName.setAttribute("value", '{{ empName }}');#}
-          {#filterForm.appendChild(empName);#}
-          {#let saleCompanyName = document.createElement("input");#}
-          {#saleCompanyName.setAttribute("type", "hidden");#}
-          {#saleCompanyName.setAttribute("name", "saleCompanyName");#}
-          {#saleCompanyName.setAttribute("value", '{{ saleCompanyName }}');#}
-          {#filterForm.appendChild(saleCompanyName);#}
-          {#let contractName = document.createElement("input");#}
-          {#contractName.setAttribute("type", "hidden");#}
-          {#contractName.setAttribute("name", "contractName");#}
-          {#contractName.setAttribute("value", '{{ contractName }}');#}
-          {#filterForm.appendChild(contractName);#}
           let outstandingcollection = document.createElement("input");
           outstandingcollection.setAttribute("type", "hidden");
           outstandingcollection.setAttribute("name", "outstandingcollection");
           outstandingcollection.setAttribute("value", '{{ outstandingcollection }}');
           filterForm.appendChild(outstandingcollection);
-          {#let maincategory = document.createElement("input");#}
-          {#maincategory.setAttribute("type", "hidden");#}
-          {#maincategory.setAttribute("name", "maincategory");#}
-          {#maincategory.setAttribute("value", '{{ maincategory }}');#}
-          {#filterForm.appendChild(maincategory);#}
-          {#let issued = document.createElement("input");#}
-          {#issued.setAttribute("type", "hidden");#}
-          {#issued.setAttribute("name", "issued");#}
-          {#issued.setAttribute("value", '{{ issued }}');#}
-          {#filterForm.appendChild(issued);#}
           filterForm.submit();
       }
 
@@ -695,8 +651,8 @@
                   $(api.column(11).footer()).html(profitResult.toLocaleString());
 
               },
-              "search":{
-                  "search":'{{ searchText }}'
+              "search": {
+                  "search": '{{ searchText }}'
               }
           });
 
@@ -781,7 +737,7 @@
                       let searchText = document.createElement("input");
                       searchText.setAttribute("type", "hidden");
                       searchText.setAttribute("name", "searchText");
-                      searchText.setAttribute("value", search );
+                      searchText.setAttribute("value", search);
                       revenueForm.appendChild(searchText);
 
                       const lengthRevenue = $('[name="revenueId"]').length;

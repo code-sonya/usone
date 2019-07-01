@@ -772,14 +772,14 @@ def show_purchases(request):
     else:
         startdate = ''
         enddate = ''
-        empDeptName = ''
+        empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         contractName = ''
-        contractStep = ''
+        contractStep = '전체'
         modifyMode = 'N'
         maincategory = ''
-        issued = ''
+        issued = '전체'
 
     accountspayable = 'N'
     purchaseInAdvance = 'N'
@@ -826,7 +826,8 @@ def save_purchasetable(request):
     accountspayable = request.GET['accountspayable']
     maincategory = request.GET['maincategory']
     issued = request.GET['issued']
-    modifyMode = 'N'
+    modifyMode = request.GET['modifyMode']
+    searchText = request.GET['searchText']
 
     for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, predictWithdrawDate, withdrawDate, comment):
         purchase = Purchase.objects.get(purchaseId=a)
@@ -851,6 +852,7 @@ def save_purchasetable(request):
         'modifyMode': modifyMode,
         'maincategory': maincategory,
         'issued': issued,
+        'searchText':searchText,
     }
     if accountspayable == 'Y':
         return render(request, 'sales/showaccountspayables.html', context)
