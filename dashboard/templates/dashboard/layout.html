@@ -44,7 +44,7 @@
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#" onclick="btn_dayreport('/service/dayreport/')">
       <div class="sidebar-brand-text mx-4">USONE</div>
     </a>
-
+  
     {% if user.employee.empId == 2 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
     <li class="nav-item">
       <a class="nav-link" href="/sales/dailyreport/">
