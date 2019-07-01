@@ -490,6 +490,12 @@
                       $('td:eq(9)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
                       $('td:eq(12)', nRow).text(aData.comment).css('color', '#e74a3b');
                   {% endif %}
+                  if (aData.predictDepositDate < '{{ today | date:"Y-m-d" }}') {
+                      $('td:eq(8)', nRow).css('color', '#ff0000');
+                  }
+                  if (aData.predictDepositDate < '{{ before | date:"Y-m-d" }}') {
+                      $(nRow).css('background-color', '#ffe6e6');
+                  }
               },
               "footerCallback": function () {
                   var api = this.api(), data;

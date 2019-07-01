@@ -1015,6 +1015,8 @@ def show_outstandingcollections(request):
     outstandingcollection = 'Y'
     maincategory = ''
     issued = ''
+    today = datetime.today()
+    before = datetime.today() - timedelta(days=30)
     context = {
         'employees': employees,
         'pastEmployees': pastEmployees,
@@ -1028,7 +1030,9 @@ def show_outstandingcollections(request):
         'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
         'maincategory': maincategory,
-        'issued': issued
+        'issued': issued,
+        'today': today,
+        'before': before,
     }
 
     return render(request, 'sales/showoutstandingcollections.html', context)
