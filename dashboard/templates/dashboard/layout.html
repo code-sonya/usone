@@ -44,6 +44,7 @@
       <div class="sidebar-brand-text mx-4">USONE</div>
     </a>
 
+    {% if user.employee.empId == 2 or user.employee.empDept == '경영지원본부' %}
     <li class="nav-item">
       <a class="nav-link" href="/sales/dailyreport/">
         <i class="fas fa-fw fa-newspaper text-white"></i>
@@ -51,6 +52,7 @@
     </li>
     <!-- Divider -->
     <hr class="sidebar-divider my-0">
+    {% endif %}
 
     {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
       <!-- Nav Item - Dashboard -->
