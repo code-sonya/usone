@@ -112,7 +112,12 @@ def viewContract(contractId):
         'contract': contract,
         'items': items,
         'revenues': revenues.order_by('predictBillingDate'),
+        'sumRevenuePrice': revenues.aggregate(sum_revenuePrice=Sum('revenuePrice'))['sum_revenuePrice'],
+        'sumRevenueProfitPrice': revenues.aggregate(sum_revenueProfitPrice=Sum('revenueProfitPrice'))['sum_revenueProfitPrice'],
+        'sumRevenueProfitRatio': round(revenues.aggregate(sum_revenueProfitPrice=Sum('revenueProfitPrice'))['sum_revenueProfitPrice'] * 100 /
+                                       revenues.aggregate(sum_revenuePrice=Sum('revenuePrice'))['sum_revenuePrice']),
         'purchases': purchases.order_by('predictBillingDate'),
+        'sumPurchasePrice': purchases.aggregate(sum_purchasePrice=Sum('purchasePrice'))['sum_purchasePrice'],
         'contractPaper': contractPaper,
         'orderPaper': orderPaper,
         # 연도 별 매출·이익 기여도

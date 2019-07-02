@@ -18,7 +18,7 @@
     }
 
     .pc-table td, .pc-table th {
-      padding: 5px;
+      padding: 5px 15px;
       text-align: center;
       vertical-align: middle;
       font-size: 17px;
@@ -350,11 +350,22 @@
                   </td>
                   <td class="thtd">{% if revenue.depositDate == None %}-{% else %}{{ revenue.depositDate }}{% endif %}</td>
                   <td class="thtd">{% if revenue.revenueCompany.companyNameKo == None %}-{% else %}{{ revenue.revenueCompany.companyNameKo }}{% endif %}</td>
-                  <td class="thtd">{% if revenue.revenuePrice == None %}-{% else %}{{ revenue.revenuePrice | intcomma }}{% endif %} </td>
-                  <td class="thtd">{% if revenue.revenueProfitPrice == None %}-{% else %}{{ revenue.revenueProfitPrice | intcomma }} ({{ revenue.revenueProfitRatio | floatformat }}%){% endif %} </td>
+                  <td class="thtd text-right">{% if revenue.revenuePrice == None %}-{% else %}{{ revenue.revenuePrice | intcomma }}{% endif %} </td>
+                  <td class="thtd text-right">{% if revenue.revenueProfitPrice == None %}-{% else %}{{ revenue.revenueProfitPrice | intcomma }} ({{ revenue.revenueProfitRatio | floatformat }}%){% endif %} </td>
                   <td class="thtd">{% if revenue.comment == None %}-{% else %}{{ revenue.comment }}{% endif %} </td>
                 </tr>
               {% endfor %}
+                <tr style="border: 0px" class="thtd">
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd font-weight-bold">TOTAL : </td>
+                  <td style="border: 0px" class="thtd text-right font-weight-bold">{{ sumRevenuePrice | intcomma }}</td>
+                  <td style="border: 0px" class="thtd text-right font-weight-bold">{{ sumRevenueProfitPrice | intcomma }} ({{ sumRevenueProfitRatio }}%)</td>
+                  <td style="border: 0px" class="thtd"></td>
+                </tr>
               </tbody>
             </table>
           {% endif %}
@@ -394,10 +405,20 @@
                     {% else %}{{ purchase.predictWithdrawDate }}{% endif %}</td>
                   <td class="thtd">{% if purchase.withdrawDate == None %}-{% else %}{{ purchase.withdrawDate }}{% endif %}</td>
                   <td class="thtd">{% if purchase.purchaseCompany.companyNameKo == None %}-{% else %}{{ purchase.purchaseCompany.companyNameKo }}{% endif %}</td>
-                  <td class="thtd">{% if purchase.purchasePrice == None %}-{% else %}{{ purchase.purchasePrice | intcomma }}{% endif %} </td>
+                  <td class="thtd text-right">{% if purchase.purchasePrice == None %}-{% else %}{{ purchase.purchasePrice | intcomma }}{% endif %} </td>
                   <td class="thtd">{% if purchase.comment == None %}-{% else %}{{ purchase.comment }}{% endif %} </td>
                 </tr>
               {% endfor %}
+                <tr style="border: 0px" class="thtd">
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd"></td>
+                  <td style="border: 0px" class="thtd font-weight-bold">TOTAL : </td>
+                  <td style="border: 0px" class="thtd text-right font-weight-bold">{{ sumPurchasePrice | intcomma }}</td>
+                  <td style="border: 0px" class="thtd"></td>
+                </tr>
               </tbody>
             </table>
           {% endif %}
