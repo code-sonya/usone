@@ -262,7 +262,7 @@ def modify_contract(request, contractId):
                         billingDate=purchase["purchaseDate"] or None,
                         predictWithdrawDate=purchase["predictWithdrawDate"] or None,
                         withdrawDate=purchase["withdrawDate"] or None,
-                        purchaseCompany=Company.objects.filter(companyName=purchase["purchaseCompany"]).first(),
+                        purchaseCompany=Company.objects.filter(companyNameKo=purchase["purchaseCompany"]).first(),
                         purchasePrice=int(purchase["purchasePrice"]),
                         comment=purchase["purchaseComment"],
                     )
@@ -274,7 +274,7 @@ def modify_contract(request, contractId):
                     purchaseInstance.billingDate = purchase["purchaseDate"] or None
                     purchaseInstance.predictWithdrawDate = purchase["predictWithdrawDate"] or None
                     purchaseInstance.withdrawDate = purchase["withdrawDate"] or None
-                    purchaseInstance.purchaseCompany = Company.objects.filter(companyName=purchase["purchaseCompany"]).first()
+                    purchaseInstance.purchaseCompany = Company.objects.filter(companyNameKo=purchase["purchaseCompany"]).first()
                     purchaseInstance.purchasePrice = int(purchase["purchasePrice"])
                     purchaseInstance.comment = purchase["purchaseComment"]
                     purchaseInstance.save()
@@ -1487,3 +1487,36 @@ def outstanding_asjson(request):
 
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+@login_required
+@csrf_exempt
+def check_gp(request):
+    revenues = Revenue.objects.values('contractId','contractId__contractCode','contractId__contractName').annotate(sum_price=Sum('revenuePrice'),sum_profit=Sum('revenueProfitPrice'))
+    purchases = Purchase.objects.values('contractId').annotate(sum_price=Sum('purchasePrice'))
+    contractTrue = []
+    contractFalse = []
+    contracts = Contract.objects.all()
+    for i in contracts:
+        for r in revenues:
+            if i.contractId == r['contractId']:
+                if i.salePrice == r['sum_price']:
+                    if i.profitPrice == r['sum_profit']:
+                        contractTrue.append({"id":i.contractId,'code':i.contractCode,'reason':'일치'})
+                    else:
+                        contractFalse.append({"id":i.contractId,'code':i.contractCode,'name':i.contractName,'reason':'이익합계불일치'})
+                else:
+                    contractFalse.append({"id":i.contractId,'code':i.contractCode,'reason':'메출합계불일치'})
+    for r in revenues:
+        for p in purchases:
+            if r['contractId'] == p['contractId']:
+                if (r['sum_price'] - p['sum_price']) == r['sum_profit']:
+                    contractTrue.append({"id": r['contractId'], 'code': r['contractId__contractCode'], 'reason': '일치'})
+                else:
+                    contractFalse.append({"id": r['contractId'], 'code': r['contractId__contractCode'],'name':r['contractId__contractName'],
+                                          'reason': 'GP불일치' ,'revenueprice' : r['sum_price'],'purchaseprice':p['sum_price'],'gap':r['sum_price'] - p['sum_price']})
+
+    context ={
+        'contractFalse':contractFalse,
+        'contracts':contracts,
+    }
+    return render(request, 'sales/checkgp.html', context)

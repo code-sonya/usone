@@ -1,0 +1,100 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  데이터 확인
+{% endblock %}
+{% load humanize %}
+{% block css %}
+  <style type="text/css">
+    .mobile-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 4px;
+      vertical-align: middle;
+      font-size: 16px;
+      border-top: 1px dotted #858796a3;
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-xl-12">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 불일치 데이터 ({{ contractFalse|length }}건)</h6>
+
+        </div>
+
+        <div class="card-body">
+
+          <div class="row">
+            <div class="col-xl-0"></div>
+            <div class="col-xl-12">
+              <table class="mobile-table">
+                <thead>
+                <tr class="bg-secondary text-white">
+                  <td colspan="1">ID</td>
+                  <td colspan="2">계약코드</td>
+                  <td colspan="4">계약명</td>
+                  <td colspan="2">reason</td>
+                  <td colspan="2">매출의합</td>
+                  <td colspan="2">매입의합</td>
+                  <td colspan="2">매출-매입</td>
+                  <td colspan="2">GP</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in contractFalse %}
+                  {% for c in contracts %}
+                    {% if i.id == c.contractId %}
+                      <tr>
+                        <td colspan="1">{{ i.id }}</td>
+                        <td colspan="2"><a href="/sales/viewcontract/{{ i.id }}/" target="_blank">{{ i.code }}</a></td>
+                        <td colspan="4">{{ i.name }}</td>
+                        <td colspan="2">{{ i.reason }}</td>
+                        <td colspan="2">{{ i.revenueprice|intcomma }}</td>
+                        <td colspan="2">{{ i.purchaseprice|intcomma }}</td>
+                        <td colspan="2">{{ i.gap|intcomma }}</td>
+                        <td colspan="2">{{ c.profitPrice|intcomma }}</td>
+                      </tr>
+                    {% endif %}
+                  {% endfor %}
+                {% endfor %}
+                </tbody>
+
+              </table>
+            </div>
+            <div class="col-xl-0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+
+{% endblock %}
