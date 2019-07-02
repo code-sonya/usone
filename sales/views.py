@@ -1392,17 +1392,17 @@ def show_purchaseinadvance(request):
     else:
         startdate = ''
         enddate = ''
-        empDeptName = ''
+        empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         contractName = ''
-        contractStep = ''
+        contractStep = '전체'
         modifyMode = 'N'
 
     accountspayable = 'N'
     purchaseInAdvance = 'Y'
     maincategory = ''
-    issued = ''
+    issued = '전체'
     context = {
         'employees': employees,
         'pastEmployees': pastEmployees,

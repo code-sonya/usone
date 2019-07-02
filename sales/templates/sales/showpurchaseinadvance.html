@@ -132,37 +132,78 @@
                 <label for="startdate" class=" text-primary">시작일자
                   <div class="text-secondary" style="font-size:13px">(매입예정일 or 지급예정일)</div>
                 </label>
-                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate">
+                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" value="{{ startdate }}">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label for="enddate" class="text-primary">종료일자
                   <div class="text-secondary" style="font-size:13px">(매입예정일 or 지급예정일)</div>
                 </label>
-                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate">
+                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" value="{{ enddate }}">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
                 <label for="empDeptName" class="text-primary">영업부서</label>
                 <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
-                  <option value="전체">전체</option>
-                  <option value="영업1팀">영업1팀</option>
-                  <option value="영업2팀">영업2팀</option>
-{#                  <option value="영업3팀">영업3팀</option>#}
+                  {% if empDeptName == '전체' %}
+                    <option value='전체' selected="selected">전체</option>
+                  {% else %}
+                    <option value="전체">전체</option>
+                  {% endif %}
+                  {% if empDeptName == '영업1팀' %}
+                    <option value="영업1팀" selected="selected">영업1팀</option>
+                  {% else %}
+                    <option value="영업1팀">영업1팀</option>
+                  {% endif %}
+                  {% if empDeptName == '영업2팀' %}
+                    <option value="영업2팀" selected="selected">영업2팀</option>
+                  {% else %}
+                    <option value="영업2팀">영업2팀</option>
+                  {% endif %}
                 </select>
               </div>
               <div class="col-6">
                 <label for="empName" class="text-primary">영업담당자</label>
                 <select class="form-control" id="empName" name="empName">
                   <option value='전체'>전체</option>
-                  {% for e in employees %}
-                    <option value="{{ e.empName }}">{{ e.empName }}</option>
-                  {% endfor %}
+                  {% if empDeptName != '전체' %}
+                    {% for e in employees %}
+                      {% if e.empDeptName == empDeptName %}
+                        {% if empName and empName == e.empName %}
+                          <option value="{{ e.empName }}" selected="selected">{{ e.empName }}</option>
+                        {% else %}
+                          <option value="{{ e.empName }}">{{ e.empName }}</option>
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    {% for e in employees %}
+                      {% if e.empName == empName %}
+                        <option value="{{ e.empName }}" selected="selected">{{ e.empName }}</option>
+                      {% else %}
+                        <option value="{{ e.empName }}">{{ e.empName }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  {% endif %}
                   <option value="">------</option>
                   {% for pe in pastEmployees %}
-                    <option value="{{ pe.empName }}">{{ pe.empName }}</option>
+                    {% if pe.empName == empName %}
+                      <option value="{{ pe.empName }}" selected="selected">{{ pe.empName }}</option>
+                    {% else %}
+                      <option value="{{ pe.empName }}">{{ pe.empName }}</option>
+                    {% endif %}
                   {% endfor %}
                 </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="companyName" class="text-primary">거래처</label>
+                <input class="form-control" id="saleCompanyName" name="saleCompanyName" value="{{ saleCompanyName }}">
+              </div>
+              <div class="col-6">
+                <label for="contractName" class="text-primary">계약명</label>
+                <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
               </div>
             </div>
             <div class="row mb-1">
@@ -179,10 +220,26 @@
               <div class="col-6">
                 <label for="contractStep" class="text-primary">단계</label>
                 <select class="form-control" id="contractStep" name="contractStep">
-                  <option value="전체">전체</option>
-                  <option value="Opportunity">Opportunity</option>
-                  <option value="Firm">Firm</option>
-                  <option value="Firm">Drop</option>
+                  {% if contractStep == '전체' %}
+                    <option value="전체" selected="selected">전체</option>
+                  {% else %}
+                    <option value="전체">전체</option>
+                  {% endif %}
+                  {% if contractStep == 'Opportunity' %}
+                    <option value="Opportunity" selected="selected">Opportunity</option>
+                  {% else %}
+                    <option value="Opportunity">Opportunity</option>
+                  {% endif %}
+                  {% if contractStep == 'Firm' %}
+                    <option value="Firm" selected="selected">Firm</option>
+                  {% else %}
+                    <option value="Firm">Firm</option>
+                  {% endif %}
+                  {% if contractStep == 'Drop' %}
+                    <option value="Drop" selected="selected">Drop</option>
+                  {% else %}
+                    <option value="Drop">Drop</option>
+                  {% endif %}
                 </select>
               </div>
             </div>
@@ -220,41 +277,6 @@
           modifyMode.setAttribute("name", "modifyMode");
           modifyMode.setAttribute("value", 'Y');
           filterForm.appendChild(modifyMode);
-          let startdate = document.createElement("input");
-          startdate.setAttribute("type", "hidden");
-          startdate.setAttribute("name", "startdate");
-          startdate.setAttribute("value", '{{ startdate }}');
-          filterForm.appendChild(startdate);
-          let enddate = document.createElement("input");
-          enddate.setAttribute("type", "hidden");
-          enddate.setAttribute("name", "enddate");
-          enddate.setAttribute("value", '{{ enddate }}');
-          filterForm.appendChild(enddate);
-          let contractStep = document.createElement("input");
-          contractStep.setAttribute("type", "hidden");
-          contractStep.setAttribute("name", "contractStep");
-          contractStep.setAttribute("value", '{{ contractStep }}');
-          filterForm.appendChild(contractStep);
-          let empDeptName = document.createElement("input");
-          empDeptName.setAttribute("type", "hidden");
-          empDeptName.setAttribute("name", "empDeptName");
-          empDeptName.setAttribute("value", '{{ empDeptName }}');
-          filterForm.appendChild(empDeptName);
-          let empName = document.createElement("input");
-          empName.setAttribute("type", "hidden");
-          empName.setAttribute("name", "empName");
-          empName.setAttribute("value", '{{ empName }}');
-          filterForm.appendChild(empName);
-          let saleCompanyName = document.createElement("input");
-          saleCompanyName.setAttribute("type", "hidden");
-          saleCompanyName.setAttribute("name", "saleCompanyName");
-          saleCompanyName.setAttribute("value", '{{ saleCompanyName }}');
-          filterForm.appendChild(saleCompanyName);
-          let contractName = document.createElement("input");
-          contractName.setAttribute("type", "hidden");
-          contractName.setAttribute("name", "contractName");
-          contractName.setAttribute("value", '{{ contractName }}');
-          filterForm.appendChild(contractName);
           let purchaseInAdvance = document.createElement("input");
           purchaseInAdvance.setAttribute("type", "hidden");
           purchaseInAdvance.setAttribute("name", "purchaseInAdvance");
@@ -497,6 +519,9 @@
                   });
                   $(api.column(10).footer()).html(purchaseResult.toLocaleString());
               },
+              "search": {
+                  "search": '{{ searchText }}'
+              }
           });
 
           var table = $('#showrevenues').DataTable();
@@ -521,6 +546,7 @@
                   }
                   if (nullcheck == true) {
                       const purchaseForm = document.getElementById("purchaseForm");
+                      const search = document.getElementsByClassName('form-control form-control-sm')[1].value;
                       let startdate = document.createElement("input");
                       startdate.setAttribute("type", "hidden");
                       startdate.setAttribute("name", "startdate");
@@ -566,6 +592,26 @@
                       accountspayable.setAttribute("name", "accountspayable");
                       accountspayable.setAttribute("value", '{{ accountspayable }}');
                       purchaseForm.appendChild(accountspayable);
+                      let maincategory = document.createElement("input");
+                      maincategory.setAttribute("type", "hidden");
+                      maincategory.setAttribute("name", "maincategory");
+                      maincategory.setAttribute("value", '{{ maincategory }}');
+                      purchaseForm.appendChild(maincategory);
+                      let issued = document.createElement("input");
+                      issued.setAttribute("type", "hidden");
+                      issued.setAttribute("name", "issued");
+                      issued.setAttribute("value", '{{ issued }}');
+                      purchaseForm.appendChild(issued);
+                      let modifyMode = document.createElement("input");
+                      modifyMode.setAttribute("type", "hidden");
+                      modifyMode.setAttribute("name", "modifyMode");
+                      modifyMode.setAttribute("value", '{{ modifyMode }}');
+                      purchaseForm.appendChild(modifyMode);
+                      let searchText = document.createElement("input");
+                      searchText.setAttribute("type", "hidden");
+                      searchText.setAttribute("name", "searchText");
+                      searchText.setAttribute("value", search);
+                      purchaseForm.appendChild(searchText);
 
                       const lengthPurchase = $('[name="purchaseId"]').length;
                       for (var i = 0; i <= lengthPurchase - 1; i++) {
