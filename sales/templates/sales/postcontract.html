@@ -614,14 +614,13 @@
                   "이익금액과 GP의 합이 일치하지 않습니다.");
               return false;
           }
-          if (revenueMinusPurchase != sumRevenueProfitPrice) {
-              alert("매출금액 : " + sumRevenuePrice.toLocaleString() + "\n" +
-                  "매입금액 : " + sumRevenueProfitPrice.toLocaleString() + "\n" +
-                  "매출-매입 : " + revenueMinusPurchase.toLocaleString() + "\n" +
-                  "GP : " + sumRevenueProfitPrice.toLocaleString() + "\n" +
-                  "매출금액 - 매입금액이 GP와 일치하지 않습니다.");
-              return false;
-          }
+          {#if (revenueMinusPurchase != sumRevenueProfitPrice) {#}
+          {#    alert("매출금액 : " + sumRevenuePrice.toLocaleString() + "\n" +#}
+          {#        "매입금액 : " + sumRevenueProfitPrice.toLocaleString() + "\n" +#}
+          {#        "매출-매입 : " + revenueMinusPurchase.toLocaleString() + "\n" +#}
+          {#        "GP : " + sumRevenueProfitPrice.toLocaleString() + "\n" +#}
+          {#        "매출금액 - 매입금액이 GP와 일치하지 않습니다.");#}
+          {#    return false;}#}
 
           if (confirm("저장 하시겠습니까?") === true) {
               ContractForm.submit();
