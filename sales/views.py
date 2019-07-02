@@ -324,6 +324,7 @@ def show_revenues(request):
     pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
+        print(request.POST)
         startdate = request.POST["startdate"]
         enddate = request.POST["enddate"]
         empDeptName = request.POST['empDeptName']
@@ -337,15 +338,15 @@ def show_revenues(request):
 
     else:
         startdate = ''
-        enddate = ''
-        empDeptName = ''
+        enddate =''
+        empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         contractName = ''
-        contractStep = ''
+        contractStep = '전체'
         modifyMode = 'N'
         maincategory = ''
-        issued = ''
+        issued = '전체'
 
     outstandingcollection = 'N'
     context = {
@@ -771,14 +772,14 @@ def show_purchases(request):
     else:
         startdate = ''
         enddate = ''
-        empDeptName = ''
+        empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         contractName = ''
-        contractStep = ''
+        contractStep = '전체'
         modifyMode = 'N'
         maincategory = ''
-        issued = ''
+        issued = '전체'
 
     accountspayable = 'N'
     purchaseInAdvance = 'N'
@@ -825,7 +826,8 @@ def save_purchasetable(request):
     accountspayable = request.GET['accountspayable']
     maincategory = request.GET['maincategory']
     issued = request.GET['issued']
-    modifyMode = 'N'
+    modifyMode = request.GET['modifyMode']
+    searchText = request.GET['searchText']
 
     for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, predictWithdrawDate, withdrawDate, comment):
         purchase = Purchase.objects.get(purchaseId=a)
@@ -850,6 +852,7 @@ def save_purchasetable(request):
         'modifyMode': modifyMode,
         'maincategory': maincategory,
         'issued': issued,
+        'searchText':searchText,
     }
     if accountspayable == 'Y':
         return render(request, 'sales/showaccountspayables.html', context)
@@ -957,7 +960,9 @@ def save_revenuetable(request):
     contractName = request.GET['contractName']
     contractStep = request.GET['contractStep']
     outstandingcollection = request.GET['outstandingcollection']
-    modifyMode = 'N'
+    modifyMode = request.GET['modifyMode']
+    searchText = request.GET['searchText']
+    print("request.GET",request.GET)
 
     for a, b, c, d, e, f in zip(revenueId, predictBillingDate, billingDate, predictDepositDate, depositDate, comment):
         revenue = Revenue.objects.get(revenueId=a)
@@ -979,6 +984,7 @@ def save_revenuetable(request):
         'contractStep': contractStep,
         'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
+        'searchText':searchText,
     }
     if outstandingcollection == 'Y':
         return render(request, 'sales/showoutstandingcollections.html', context)
@@ -1073,19 +1079,19 @@ def show_accountspayables(request):
     else:
         startdate = ''
         enddate = ''
-        empDeptName = ''
+        empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         contractName = ''
-        contractStep = ''
+        contractStep = '전체'
         modifyMode = 'N'
 
     accountspayable = 'Y'
     purchaseInAdvance = 'N'
     maincategory = ''
-    issued = ''
     today = datetime.today()
     before = datetime.today() - timedelta(days=180)
+    issued = '전체'
     context = {
         'employees': employees,
         'pastEmployees': pastEmployees,
@@ -1142,7 +1148,7 @@ def save_predictpurchase(request):
     contractName = ''
     contractStep = ''
     purchaseInAdvance = ''
-    modifyMode = 'N'
+    modifyMode = 'Y'
     accountspayable = 'N'
 
     context = {

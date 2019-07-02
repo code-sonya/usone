@@ -35,9 +35,8 @@ def dashboard_service(request):
         enddate = startdate + timedelta(days=6)
 
     if request.user.employee.empDeptName == "임원":
-        all_support_data = Servicereport.objects.filter(Q(serviceDate__gte=startdate) &
-                                                        Q(serviceDate__lte=enddate)).exclude(serviceType="교육")
-        all_support_data = all_support_data.objects.filter(Q(empDeptName='DB지원팀')|Q(empDeptName='솔루션지원팀'))
+        all_support_data = Servicereport.objects.filter((Q(serviceDate__gte=startdate) &
+                                                        Q(serviceDate__lte=enddate))&(Q(empDeptName='DB지원팀')|Q(empDeptName='솔루션지원팀'))).exclude(serviceType="교육")
 
         all_support_time = all_support_data.aggregate(Sum('serviceHour'), Count('serviceHour'))
 
