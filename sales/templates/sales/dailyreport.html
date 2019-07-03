@@ -52,7 +52,7 @@
 
           <div class="row">
             <div class="col-xl-6">
-              <span class="ml-3"> ① 연간 누계 달성 현황</span>
+              <span class="ml-3">① 연간 누계 달성 현황</span>
               <table class="mobile-table ml-2">
                 <thead>
                 <tr class="bg-light">
@@ -233,7 +233,7 @@
               <table class="mobile-table">
                 <thead>
                 <tr class="text-white" style="background-color: darkorange">
-                  <td colspan="12">UnioneI&C 채권 및 채무 현황</td>
+                  <td colspan="12">Unione I&C 채권 및 채무 현황</td>
                 </tr>
                 </thead>
                 <tbody>
@@ -246,13 +246,9 @@
                   <td colspan="6">1300,000,000</td>
                 </tr>
                 <tr>
-                  <td colspan="3" rowspan="4" class="bg-light">매입채무조정사항</td>
+                  <td colspan="3" rowspan="3" class="bg-light">매입채무조정사항</td>
                   <td colspan="3" class="bg-light">선매입</td>
                   <td colspan="6">-300,000,000</td>
-                </tr>
-                <tr>
-                  <td colspan="3" class="bg-light">선지급</td>
-                  <td colspan="6">-400,000,000</td>
                 </tr>
                 <tr>
                   <td colspan="3" class="bg-light">미접수</td>
@@ -266,8 +262,6 @@
                   <td colspan="6" class="bg-warning">매출채권-매입채무</td>
                   <td colspan="6" class="text-success">200,000,000</td>
                 </tr>
-
-
                 </tbody>
               </table>
             </div>
@@ -333,10 +327,13 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-
                   $('td:eq(3)', nRow).text(aData.revenuePrice.toLocaleString());
-
-
+                  if (aData.predictDepositDate < '{{ today | date:"Y-m-d" }}') {
+                      $('td:eq(4)', nRow).css('color', '#ff0000');
+                  }
+                  if (aData.predictDepositDate < '{{ before | date:"Y-m-d" }}') {
+                      $(nRow).css('background-color', '#ffe6e6');
+                  }
               },
               "footerCallback": function () {
                   var api = this.api(), data;

@@ -1467,6 +1467,8 @@ def daily_report(request):
     context = {
         'todayYear': todayYear,
         'todayQuarter': str(todayQuarter) + 'Q',
+        'today': datetime.today(),
+        'before': datetime.today() - timedelta(days=180),
         'rowsFY': rowsFY,
         'rowsFQ': rowsFQ,
         'rowsFOY': rowsFOY,
