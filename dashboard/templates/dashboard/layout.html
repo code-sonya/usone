@@ -83,20 +83,26 @@
         </a>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
-            <a class="collapse-item" href="/sales/showcontracts/">영업기회&계약관리</a>
+            <a class="collapse-item" href="/sales/showcontracts/">계약관리</a>
             <a class="collapse-item" href="/sales/showrevenues/">매출관리</a>
             <a class="collapse-item" href="/sales/showpurchases/">매입관리</a>
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/showoutstandingcollections/">미수금관리</a>
             <a class="collapse-item" href="/sales/showaccountspayables/">외상매입금관리</a>
-            <a class="collapse-item" href="/sales/showpurchaseinadvance/">선매입관리</a>
+            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
+            <a class="collapse-item" href="#">선매입관리(예정)</a>
+            <a class="collapse-item" href="#">미접수관리(예정)</a>
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/showgoals/">목표관리</a>
             {% if user.is_staff %}
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/transfercontract/">계약이관</a>
+            <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
             {% endif %}
-            {#            <a class="collapse-item" href="/sales/uploadpurchase/">데이터업로드</a>#}
+            {% if user.employee.empDeptName == '경영지원본부' %}
+            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
+            <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
+            {% endif %}
           </div>
         </div>
       </li>

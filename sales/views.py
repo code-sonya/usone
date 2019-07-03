@@ -782,7 +782,6 @@ def show_purchases(request):
         issued = '전체'
 
     accountspayable = 'N'
-    purchaseInAdvance = 'N'
     context = {
         'employees': employees,
         'pastEmployees': pastEmployees,
@@ -793,7 +792,6 @@ def show_purchases(request):
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
         'contractStep': contractStep,
-        'purchaseInAdvance': purchaseInAdvance,
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
         'maincategory': maincategory,
@@ -871,7 +869,6 @@ def purchases_asjson(request):
     saleCompanyName = request.POST['saleCompanyName']
     contractName = request.POST['contractName']
     contractStep = request.POST['contractStep']
-    purchaseInAdvance = request.POST['purchaseInAdvance']
     accountspayable = request.POST['accountspayable']
     maincategory = request.POST['maincategory']
     issued = request.POST['issued']
@@ -910,18 +907,6 @@ def purchases_asjson(request):
         purchase = purchase.filter(contractId__contractStep=contractStep)
     if maincategory:
         purchase = purchase.filter(contractId__mainCategory__icontains=maincategory)
-    if purchaseInAdvance != 'N' and purchaseInAdvance != '':
-        # 매입일이 있는 계약
-        purchaseContract = Purchase.objects.values('contractId').filter(billingDate__isnull=False).distinct()
-        # 매출일이 있는 계약
-        revenueContract = Revenue.objects.values('contractId').filter(billingDate__isnull=False).distinct()
-        purchaseContract = list(purchaseContract)
-        revenueContract = list(revenueContract)
-        for i in revenueContract:
-            if i in purchaseContract:
-                purchaseContract.remove(i)
-        contractId = [i['contractId'] for i in purchaseContract]
-        purchase = purchase.filter(Q(contractId__in=contractId) & Q(billingDate__isnull=False))
 
     purchase = purchase.values('contractId__contractName', 'purchaseCompany__companyNameKo', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
                                'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
@@ -1087,7 +1072,6 @@ def show_accountspayables(request):
         modifyMode = 'N'
 
     accountspayable = 'Y'
-    purchaseInAdvance = 'N'
     maincategory = ''
     today = datetime.today()
     before = datetime.today() - timedelta(days=180)
@@ -1102,7 +1086,6 @@ def show_accountspayables(request):
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
         'contractStep': contractStep,
-        'purchaseInAdvance': purchaseInAdvance,
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
         'maincategory': maincategory,
@@ -1400,7 +1383,6 @@ def show_purchaseinadvance(request):
         modifyMode = 'N'
 
     accountspayable = 'N'
-    purchaseInAdvance = 'Y'
     maincategory = ''
     issued = '전체'
     context = {
@@ -1413,7 +1395,6 @@ def show_purchaseinadvance(request):
         'saleCompanyName': saleCompanyName,
         'contractName': contractName,
         'contractStep': contractStep,
-        'purchaseInAdvance': purchaseInAdvance,
         'accountspayable': accountspayable,
         'modifyMode': modifyMode,
         'maincategory': maincategory,
@@ -1453,24 +1434,83 @@ def daily_report(request):
     elif todayMonth in [10, 11, 12]:
         todayQuarter = 4
 
-    # 1. Firm 기준 연간 누계 달성 현황
-    # 1-1. 연간 누계 달성 현황
+    # 2019년 실적 현황
+    #  1. Firm 기준 연간 누계 달성 현황
+    #   1-1. 연간 누계 달성 현황
     rowsFY = dailyReportRows(todayYear, 4, 'F')
-    # 1-2. 분기 누계 달성 현황
+    #   1-2. 분기 누계 달성 현황
     rowsFQ = dailyReportRows(todayYear, todayQuarter, 'F')
-    # 2. Firm, Oppt'y 기준 연간 누계 달성 현황
-    # 2-1. 연간 누계 달성 현황
+    #  2. Firm, Oppt'y 기준 연간 누계 달성 현황
+    #   2-1. 연간 누계 달성 현황
     rowsFOY = dailyReportRows(todayYear, 4, 'FO')
-    # 2-2. 분기 누계 달성 현황
+    #   2-2. 분기 누계 달성 현황
     rowsFOQ = dailyReportRows(todayYear, todayQuarter, 'FO')
+
+    # 채권 및 채무 현황
+    contracts = Contract.objects.all()
+    revenues = Revenue.objects.all()
+    purchases = Purchase.objects.all()
+    money = {}
+
+    # 1. 회계기준 기본 잔액
+    money['A'] = revenues.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True)).aggregate(sum=Sum('revenuePrice'))['sum']
+    money['B'] = purchases.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)).aggregate(sum=Sum('purchasePrice'))['sum']
+    money['AmB'] = money['A'] - money['B']
+
+    # 2. 매입채무 조정
+    money['C'] = 0
+    money['D'] = 0
+    money['E'] = 0
+    for contract in contracts:
+        # 계약 별 매출발행비율
+        contractRevenues = revenues.filter(contractId=contract.contractId)
+        billingContractRevenues = contractRevenues.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+        sumContractRevenues = contractRevenues.aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+        ratioContractRevenues = billingContractRevenues / sumContractRevenues
+
+        # 계약 별 매입접수비율
+        contractPurchases = purchases.filter(contractId=contract.contractId)
+        billingContractPurchases = contractPurchases.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+        sumContractPurchases = contractPurchases.aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+        if sumContractPurchases:
+            ratioContractPurchases = billingContractPurchases / sumContractPurchases
+        else:
+            ratioContractPurchases = 0
+
+        # 계약 별 수금비율
+        depositContractRevenues = contractRevenues.filter(Q(depositDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+        depositRatioContractRevenues = depositContractRevenues / sumContractRevenues
+
+        # 계약 별 지급비율
+        withdrawContractPurchases = contractPurchases.filter(Q(withdrawDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+        if sumContractPurchases:
+            withdrawRatioContractPurchases = withdrawContractPurchases / sumContractPurchases
+        else:
+            withdrawRatioContractPurchases = 0
+
+        # 미접수, 선매입, 선지급 계산
+        if ratioContractRevenues > ratioContractPurchases:
+            money['C'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
+        elif ratioContractRevenues < ratioContractPurchases:
+            money['D'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
+        if depositRatioContractRevenues < withdrawRatioContractPurchases:
+            money['E'] += round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases))
+    money['CpD'] = money['C'] + money['D']
+    money['F'] = money['B'] + money['CpD']
+
+    # 3. 조정사항 반영 후 잔액
+    money['AmF'] = money['A'] - money['F']
 
     context = {
         'todayYear': todayYear,
         'todayQuarter': str(todayQuarter) + 'Q',
+        'today': datetime.today(),
+        'before': datetime.today() - timedelta(days=180),
         'rowsFY': rowsFY,
         'rowsFQ': rowsFQ,
         'rowsFOY': rowsFOY,
         'rowsFOQ': rowsFOQ,
+        'money': money,
     }
 
     return render(request, 'sales/dailyreport.html', context)
@@ -1506,6 +1546,14 @@ def check_gp(request):
                         contractFalse.append({"id":i.contractId,'code':i.contractCode,'name':i.contractName,'reason':'이익합계불일치'})
                 else:
                     contractFalse.append({"id":i.contractId,'code':i.contractCode,'reason':'메출합계불일치'})
+
+        if purchases.filter(contractId=i.contractId).first() is None:
+            if revenues.filter(contractId=i.contractId).first()['sum_price'] != revenues.filter(contractId=i.contractId).first()['sum_profit']:
+                contractFalse.append({"id": i.contractId, 'code': revenues.filter(contractId=i.contractId).first()['contractId__contractCode'],
+                                      'name': revenues.filter(contractId=i.contractId).first()['contractId__contractName'],
+                                      'reason': 'GP불일치', 'revenueprice': revenues.filter(contractId=i.contractId).first()['sum_price'], 'purchaseprice': 0,
+                                      'gap': revenues.filter(contractId=i.contractId).first()['sum_price'] - 0})
+
     for r in revenues:
         for p in purchases:
             if r['contractId'] == p['contractId']:

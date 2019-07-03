@@ -262,7 +262,6 @@
               </div>
               <div class="col-6">
                 <label for="maincategory" class="text-primary">대분류</label>
-                <input class="form-control" id="maincategory" name="maincategory">
                 <input class="form-control" id="maincategory" name="maincategory" value="{{ maincategory }}">
               </div>
             </div>
@@ -484,7 +483,6 @@
                       "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
                       "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
                       "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
-                      "purchaseInAdvance": {% if purchaseInAdvance %}"{{ purchaseInAdvance }}",{% else %}"",{% endif %}
                       "accountspayable": '{{ accountspayable }}',
                       "modifyMode": "{{ modifyMode }}",
                       "userId": "{{ user.employee.empId }}",
