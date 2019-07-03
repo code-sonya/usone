@@ -194,6 +194,7 @@
             </div>
           </div>
           <br>
+
           <div class="row ml-1 mb-2"><h6 class="font-weight-bold text-dark h5">2. 미수금 주요 현황 </h6></div>
           <div class="row ml-3">
             <span class="text-dark">
@@ -227,40 +228,128 @@
             </table>
           </div>
           <br>
+
           <div class="row ml-1 mb-2"><h6 class="font-weight-bold text-dark h5">3. 채권 및 채무 현황 </h6></div>
           <div class="row">
-            <div class="col-xl-12">
+            <div class="col-xl-6">
+              <div class="ml-3 mb-2 text-dart"> 1) 회계기준 기본 잔액 </div>
               <table class="mobile-table">
                 <thead>
                 <tr class="text-white" style="background-color: darkorange">
-                  <td colspan="12">Unione I&C 채권 및 채무 현황</td>
+                  <td colspan="7">계정과목</td>
+                  <td colspan="5">금액</td>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                  <td colspan="6" class="bg-light text-primary">매출채권잔액</td>
-                  <td colspan="6">1000,000,000</td>
+                  <td colspan="7" class="bg-light text-primary" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
+                  <td colspan="5" class="text-right">{{ money.A | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="6" class="bg-light text-danger">매입채무잔액</td>
-                  <td colspan="6">1300,000,000</td>
+                  <td colspan="7" class="bg-light text-danger" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
+                  <td colspan="5" class="text-right">{{ money.B | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="3" rowspan="3" class="bg-light">매입채무조정사항</td>
-                  <td colspan="3" class="bg-light">선매입</td>
-                  <td colspan="6">-300,000,000</td>
+                  <td colspan="7" class="bg-light"><span class="text-primary">매출 (A)</span> - <span class="text-danger">매입 (B)</span></td>
+                  <td colspan="5" class="text-right">{{ money.AmB | intcomma }}</td>
+                </tr>
+                </tbody>
+              </table>
+
+              <div class="row ml-3 mb-2">2) 매입채무 조정 </div>
+              <table class="mobile-table">
+                <thead>
+                <tr class="text-white" style="background-color: darkorange">
+                  <td colspan="7">계정과목</td>
+                  <td colspan="5">금액</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td colspan="7" class="bg-light text-danger" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
+                  <td colspan="5" class="text-right">{{ money.B | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="3" class="bg-light">미접수</td>
-                  <td colspan="6">200,000,000</td>
+                  <td colspan="3" rowspan="4" class="bg-light">매입<br class="d-xl-none">채무<br>조정<br class="d-xl-none">사항</td>
+                  <td colspan="4" class="bg-light">미접수 (C)</td>
+                  <td colspan="5" class="text-right">{{ money.C | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="3" class="bg-light font-weight-bold">소계</td>
-                  <td colspan="6">-500,000,000</td>
+                  <td colspan="4" class="bg-light">선매입 (D)</td>
+                  <td colspan="5" class="text-right">{{ money.D | intcomma }}</td>
+                </tr>
+                <tr class="text-gray-500">
+                  <td colspan="4" class="bg-light">선지급 (E)</td>
+                  <td colspan="5" class="text-right">{{ money.E | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="6" class="bg-warning">매출채권-매입채무</td>
-                  <td colspan="6" class="text-success">200,000,000</td>
+                  <td colspan="4" class="bg-light font-weight-bold">소계</td>
+                  <td colspan="5" class="text-right">{{ money.CpD | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="7" class="bg-light text-success">조정매입채무잔액 (F)</td>
+                  <td colspan="5" class="text-right">{{ money.F | intcomma }}</td>
+                </tr>
+                </tbody>
+              </table>
+
+              <div class="row ml-3 mb-2">3) 조정사항 반영 후 잔액</div>
+              <table class="mobile-table">
+                <thead>
+                <tr class="text-white" style="background-color: darkorange">
+                  <td colspan="7">계정과목</td>
+                  <td colspan="5">금액</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td colspan="7" class="bg-light text-primary" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
+                  <td colspan="5" class="text-right">{{ money.A | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="7" class="bg-light text-success">조정매입채무잔액 (F)</td>
+                  <td colspan="5" class="text-right">{{ money.F | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="7" class="bg-light"><span class="text-primary">매출 (A)</span> - <span class="text-success">매입 (F)</span></td>
+                  <td colspan="5" class="text-right font-weight-bold">{{ money.AmF | intcomma }}</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-xl-6">
+              <div class="row ml-1 mb-2">※ 용어정의</div>
+              <table class="mobile-table">
+                <thead>
+                <tr class="bg-light">
+                  <td colspan="4">용어</td>
+                  <td colspan="8">정의</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td colspan="4" class="text-primary" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
+                  <td colspan="8" class="text-left">매출발행 & 미수금</td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="text-danger" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
+                  <td colspan="8" class="text-left">매입접수 & 미지급</td>
+                </tr>
+                <tr>
+                  <td colspan="4">미접수 (C)</td>
+                  <td colspan="8" class="text-left">매출발행비율 > 매입접수비율</td>
+                </tr>
+                <tr>
+                  <td colspan="4">선매입 (D)</td>
+                  <td colspan="8" class="text-left">매출발행비율 < 매입접수비율</td>
+                </tr>
+                <tr>
+                  <td colspan="4">선지급 (E)</td>
+                  <td colspan="8" class="text-left">수금률 < 지급률 (참고사항)</td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="text-success">조정매입채무잔액 (F)</td>
+                  <td colspan="8" class="text-left">B - (C + D). 선지급은 선매입에 포함되므로 계산 생략.</td>
                 </tr>
                 </tbody>
               </table>
