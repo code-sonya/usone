@@ -141,7 +141,6 @@ def show_yearpunctuality(request, year=None):
             year = datetime.datetime.today().year
 
         userList = year_absence(str(year))
-
     context = {
         'year' : year,
         'userList' : userList
@@ -149,3 +148,8 @@ def show_yearpunctuality(request, year=None):
 
     return render(request, 'hr/showyearpunctuality.html', context)
 
+def show_absence(request):
+    context = {
+
+    }
+    return render(request, 'hr/showabsence.html', context)

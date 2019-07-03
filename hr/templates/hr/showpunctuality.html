@@ -67,7 +67,7 @@
                   <td>성명</td>
                   <td>직급</td>
                   <td>현황</td>
-                  <td>비고</td>
+{#                  <td>비고</td>#}
                   <td>분기지각체크</td>
                 </tr>
                 </thead>
@@ -104,11 +104,11 @@
                   {% else %}
                     <td class="text-secondary">{{ user.punctualityType }}</td>
                   {% endif %}
-                  {% if user.comment %}
-                    <td>{{ user.comment }}</td>
-                  {% else %}
-                    <td></td>
-                  {% endif %}
+{#                  {% if user.comment %}#}
+{#                    <td>{{ user.comment }}</td>#}
+{#                  {% else %}#}
+{#                    <td></td>#}
+{#                  {% endif %}#}
                   {% if user.absenceCount %}
                     {% if user.absenceCount == 1 or user.absenceCount == 2 %}
                       <td name="absence">{{ user.absenceCount }}회
@@ -131,7 +131,7 @@
                 {% endfor %}
                 <tr class="bg-gray-200">
                   <td>합계</td>
-                  <td colspan="5">{{ sumpunctuality }}명</td>
+                  <td colspan="4">{{ sumpunctuality }}명</td>
                 </tr>
 
 
