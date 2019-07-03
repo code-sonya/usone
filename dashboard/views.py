@@ -250,6 +250,9 @@ def dashboard_quarter(request):
         revenuesAccumulate = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
         revenuesQuarter = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
 
+    # 메인카테고리&서브카테고리
+    maincategoryRevenuePrice = firmRevenuePrice.values('contractId__mainCategory').annotate(sumMainPrice=Sum('revenuePrice'),sumMainProfitPrice=Sum('revenueProfitPrice'))
+
     # 누적매출금액 & 이익 금액
     cumulativeSalesAmount = firmRevenuePrice.aggregate(sum=Sum('revenuePrice'))['sum']
     cumulativeProfitAmount = firmRevenuePrice.aggregate(cumulative_profit_amount=Sum('revenueProfitPrice') or 0)
@@ -373,6 +376,8 @@ def dashboard_quarter(request):
         'saleCompanyName': saleCompanyName,
         'endCompanyName': endCompanyName,
         'contractName': contractName,
+        'maincategoryRevenuePrice':maincategoryRevenuePrice,
+
     }
     return HttpResponse(template.render(context, request))
 
@@ -476,50 +481,17 @@ def dashboard_goal(request):
 @login_required
 @csrf_exempt
 def opportunity_graph(request):
+    todayYear = datetime.today().year
     step = request.POST['step']
     maincategory = request.POST['maincategory']
-    subcategory = request.POST['subcategory']
-    emp = request.POST['emp']
-    customer = request.POST['customer']
 
-    dataStep = Contract.objects.all()
-    dataCategory = Contractitem.objects.all()
+    dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(contractId__contractStep=step)&Q(contractId__mainCategory=maincategory))
 
-    if step:
-        dataStep = dataStep.filter(contractStep=step)
-        dataCategory = dataCategory.filter(contractId__contractStep=step)
+    subCategory = dataFirm.values('contractId__subCategory').annotate(sum_sub=Sum('revenuePrice'))
 
-    if maincategory:
-        dataStep = dataStep.filter(contractitem__mainCategory=maincategory)
-        dataCategory = dataCategory.filter(mainCategory=maincategory)
+    structure = json.dumps(list(subCategory), cls=DjangoJSONEncoder)
 
-    if subcategory:
-        dataStep = dataStep.filter(contractitem__subCategory=subcategory)
-        dataCategory = dataCategory.filter(subCategory=subcategory)
-
-    if emp:
-        dataStep = dataStep.filter(empDeptName=emp)
-        dataCategory = dataCategory.filter(contractId__empDeptName=emp)
-
-    if customer:
-        dataStep = dataStep.filter(endCompanyName=customer)
-        dataCategory = dataCategory.filter(contractId__endCompanyName=customer)
-
-    Step = dataStep.values('contractStep').annotate(sum_price=Sum('salePrice'))
-    Category_main = dataCategory.values('mainCategory').annotate(sum_main=Sum('itemPrice'))
-    Category_sub = dataCategory.values('subCategory').annotate(sum_sub=Sum('itemPrice'))
-    Emp = dataStep.values('empDeptName').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice')).order_by('empDeptName')
-    Company = dataStep.values('endCompanyName').annotate(sum_price=Sum('salePrice')).annotate(sum_profit=Sum('profitPrice'))
-
-    dataStep = list(Step)
-    dataStep.extend(list(Category_main))
-    dataStep.extend(list(Category_sub))
-    dataStep.extend(list(Emp))
-    dataStep.extend(list(Company))
-
-    structureStep = json.dumps(dataStep, cls=DjangoJSONEncoder)
-
-    return HttpResponse(structureStep, content_type='application/json')
+    return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
@@ -576,6 +548,8 @@ def quarter_asjson(request):
     month = request.POST['month'].replace('월', '')
     cumulative = request.POST['cumulative']
     quarter = request.POST['quarter']
+    maincategory = request.POST['maincategory']
+    subcategory = request.POST['subcategory']
 
     dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(contractId__contractStep=step))
 
@@ -604,6 +578,13 @@ def quarter_asjson(request):
 
     if month:
         dataFirm = dataFirm.filter(Q(predictBillingDate__month=month))
+
+    if maincategory:
+        if subcategory:
+            dataFirm = dataFirm.filter(Q(contractId__mainCategory=maincategory)&Q(contractId__subCategory=subcategory))
+        else:
+            dataFirm = dataFirm.filter(Q(contractId__mainCategory=maincategory))
+
 
     dataFirm = dataFirm.values('predictBillingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
                                'contractId__empName', 'contractId__empDeptName', 'revenueId')
