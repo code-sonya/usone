@@ -6,14 +6,14 @@ from django.shortcuts import render, redirect, reverse
 from sales.models import Contract, Category, Revenue, Contractitem, Goal, Purchase
 from service.models import Company, Customer, Servicereport, Vacation
 import pandas as pd
-from .models import Attendance, Employee
+from .models import Attendance, Employee, Punctuality
 from django.db.models import Q
 from django.db.models import Sum, Count
 from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 import datetime
-from .functions import employee_empPosition
+from .functions import employee_empPosition, save_punctuality, check_absence, year_absence
 
 @login_required
 def profile(request):
@@ -43,69 +43,44 @@ def show_punctuality(request, day=None):
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     beforeDate = Date - datetime.timedelta(days=1)
     afterDate = Date + datetime.timedelta(days=1)
-    users = User.objects.filter(Q(employee__empStatus='Y')).exclude(Q(employee__empDeptName='임원')|Q(employee__empDeptName='미정'))\
-                        .values('employee__empId','employee__empName','employee__empDeptName','employee__empPosition','employee__empRank','employee__dispatchCompany')\
-                        .order_by('employee__empDeptName','employee__empPosition','employee__empRank')
-    attendances = Attendance.objects.filter(attendanceDate=day).order_by('attendanceTime')
+    year = day[:4]
+    month = day[5:7]
 
+    # 분기
+    if month in ['01','02','03']:
+        startdate = '{}-01-01'.format(year)
+    elif month in ['04','05','06']:
+        startdate = '{}-04-01'.format(year)
+    elif month in ['07','08','09']:
+        startdate = '{}-07-01'.format(year)
+    else:
+        startdate = '{}-10-01'.format(year)
 
-    for user in users:
-        # 기본
-        user['status'] = '-'
+    punctuality = Punctuality.objects.filter(punctualityDate=day).order_by('empId__empPosition')
+    punctualityList = []
+    punctualityList.append(punctuality.filter(empId__empDeptName='경영지원본부').values('empId_id', 'empId__empDeptName', 'empId__empName','empId__empPosition', 'punctualityType', 'comment'))
+    punctualityList.append(punctuality.filter(empId__empDeptName='영업1팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
+    punctualityList.append(punctuality.filter(empId__empDeptName='영업2팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
+    punctualityList.append(punctuality.filter(empId__empDeptName='인프라서비스사업팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
+    punctualityList.append(punctuality.filter(empId__empDeptName='솔루션지원팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
+    punctualityList.append(punctuality.filter(empId__empDeptName='DB지원팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
 
-        # 직급
-        positionName = employee_empPosition(user['employee__empPosition'])
-        user['positionName'] = positionName
-        vacation = Vacation.objects.filter(Q(vacationDate=day) & Q(empId_id=user['employee__empId'])).first()
-
-        # 상주
-        if user['employee__dispatchCompany'] != '내근':
-            user['status'] = '상주'
-
-        # 휴가
-        elif vacation:
-            if vacation.vacationType == '일차' or vacation.vacationType=='오전반차':
-                user['status'] = vacation.vacationType
-            else:
-                for attendance in attendances:
-                    if user['employee__empId'] == attendance.empId_id:
-                        if attendance.attendanceTime >= datetime.time(9, 1, 0):
-                            user['status'] = '지각'
-                            break
-                        else:
-                            user['status'] = '출근'
-                            break
-
-        else:
-            service = Servicereport.objects.filter(Q(serviceDate=day) & Q(empId=user['employee__empId'])).order_by('serviceStartDatetime').first()
-            if service:
-                if service.directgo == 'Y':
-                    user['status'] = '직출'
-                else:
-                    for attendance in attendances:
-                        if user['employee__empId'] == attendance.empId_id:
-                            if attendance.attendanceTime >= datetime.time(9,1,0):
-                                user['status'] = '지각'
-                                break
-                            else:
-                                user['status'] = '출근'
-                                break
-            else:
-                for attendance in attendances:
-                    if user['employee__empId'] == attendance.empId_id:
-                        if attendance.attendanceTime >= datetime.time(9, 1, 0):
-                            user['status'] = '지각'
-                            break
-                        else:
-                            user['status'] = '출근'
-                            break
+    for pun in punctualityList:
+        for user in pun:
+            absence = check_absence(user['empId_id'], startdate, day, False)
+            if absence:
+                user['absenceDate'] = []
+                for a in absence:
+                    user['absenceDate'].append(a.punctualityDate)
+                user['absenceCount'] = len(absence)
 
     context = {
         'day': day,
         'Date': Date,
         'beforeDate': beforeDate,
         'afterDate': afterDate,
-        'users':users,
+        'punctualityList':punctualityList,
+        'sumpunctuality':len(punctuality)
     }
     return HttpResponse(template.render(context, request))
 
@@ -145,8 +120,8 @@ def save_caps(request):
                 Attendance.objects.create(empId=empId, attendanceDate=rows[0], attendanceTime=rows[1], attendanceType=rows[4])
                 successCount += 1
 
-    # print('successCount:',successCount)
-    # print(errorList)
+    #근태 정보 저장
+    save_punctuality(list(data['발생일자'].unique()))
 
     context = {
         "datalen": datalen - 1,
@@ -155,3 +130,22 @@ def save_caps(request):
     }
 
     return render(request, 'hr/uploadcaps.html', context)
+
+
+def show_yearpunctuality(request, year=None):
+    if request.method == "POST":
+        year = request.POST['year']
+        userList = year_absence(str(year))
+    else:
+        if year is None:
+            year = datetime.datetime.today().year
+
+        userList = year_absence(str(year))
+
+    context = {
+        'year' : year,
+        'userList' : userList
+    }
+
+    return render(request, 'hr/showyearpunctuality.html', context)
+

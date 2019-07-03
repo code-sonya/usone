@@ -1,0 +1,227 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  연간 지각 현황
+{% endblock %}
+{% block css %}
+  <style type="text/css">
+    .mobile-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 4px;
+      vertical-align: middle;
+      font-size: 16px;
+      border-top: 1px dotted #858796a3;
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-xl-12">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> {{ year }}년 지각 현황 </h6>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            </a>
+          </div>
+
+        </div>
+
+        <div class="card-body">
+
+          <div class="row">
+            <div class="col-xl-12">
+              <table class="mobile-table">
+                <thead>
+                <tr class="bg-secondary text-white">
+                  <td colspan="2">부서</td>
+                  <td>성명</td>
+                  <td>직급</td>
+                  <td colspan="2">Q1</td>
+                  <td class="bg-info text-white">Q1합계</td>
+                  <td colspan="2">Q2</td>
+                  <td class="bg-info text-white">Q2합계</td>
+                  <td colspan="2">Q3</td>
+                  <td class="bg-info text-white">Q3합계</td>
+                  <td colspan="2">Q4</td>
+                  <td class="bg-info text-white">Q4합계</td>
+                  <td class="bg-warning text-white">년합계</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for team in userList %}
+                  {% for user in team %}
+                    {% ifchanged user.employee__empDeptName %}
+                      <tr class="bg-gray-200">
+                        <td colspan="2"><b>{{ user.employee__empDeptName }}</b><br></td>
+                        {% else %}
+                      <tr>
+                      <td colspan="2"></td>
+                    {% endifchanged %}
+                  <td>{{ user.employee__empName }}</td>
+                  <td>{{ user.employeePositionName }}</td>
+                  {% if user.q1absenceDate %}
+                    <td colspan="2" name="absence">
+                      {% for date in user.q1absenceDate %}
+                        {{ date|date:"m/d" }},
+                      {% endfor %}</td>
+                  {% else %}
+                    <td colspan="2"></td>
+                  {% endif %}
+                  {% if user.q1absenceCount %}
+                    {% if user.q1absenceCount == 1 or user.q1absenceCount == 2 %}
+                      <td>{{ user.q1absenceCount }}회</td>
+                    {% else %}
+                      <td><span class="text-danger">{{ user.q1absenceCount }}</span>회</td>
+                    {% endif %}
+                  {% else %}
+                    <td></td>
+                  {% endif %}
+                  {% if user.q2absenceDate %}
+                    <td colspan="2" name="absence">
+                      {% for date in user.q2absenceDate %}
+                        {{ date|date:"m/d" }},
+                      {% endfor %}</td>
+                    </td>
+                  {% else %}
+                    <td colspan="2"></td>
+                  {% endif %}
+                  {% if user.q2absenceCount %}
+                    {% if user.q2absenceCount == 1 or user.q2absenceCount == 2 %}
+                      <td>{{ user.q2absenceCount }}회</td>
+                    {% else %}
+                      <td><span class="text-danger">{{ user.q2absenceCount }}</span>회</td>
+                    {% endif %}
+                  {% else %}
+                    <td></td>
+                  {% endif %}
+                  {% if user.q3absenceDate %}
+                    <td colspan="2" name="absence">
+                      {% for date in user.q3absenceDate %}
+                        {{ date|date:"m/d" }},
+                      {% endfor %}</td>
+                    </td>
+                  {% else %}
+                    <td colspan="2"></td>
+                  {% endif %}
+                  {% if user.q3absenceCount %}
+                    {% if user.q3absenceCount == 1 or user.q3absenceCount == 2 %}
+                      <td>{{ user.q3absenceCount }}회</td>
+                    {% else %}
+                      <td><span class="text-danger">{{ user.q3absenceCount }}</span>회</td>
+                    {% endif %}
+                  {% else %}
+                    <td></td>
+                  {% endif %}
+                  {% if user.q4absenceDate %}
+                    <td colspan="2" name="absence">
+                      {% for date in user.q4absenceDate %}
+                        {{ date|date:"m/d" }},
+                      {% endfor %}</td>
+                    </td>
+                  {% else %}
+                    <td colspan="2"></td>
+                  {% endif %}
+                  {% if user.q4absenceCount %}
+                    {% if user.q4absenceCount == 1 or user.q4absenceCount == 2 %}
+                      <td>{{ user.q4absenceCount }}회</td>
+                    {% else %}
+                      <td><span class="text-danger">{{ user.q4absenceCount }}</span>회</td>
+                    {% endif %}
+                  {% else %}
+                    <td></td>
+                  {% endif %}
+                  {% if user.yearabsenceCount %}
+                    <td>{{ user.yearabsenceCount }}회</td>
+                  {% else %}
+                    <td></td>
+                  {% endif %}
+                  </tr>
+                  {% endfor %}
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="text-primary">조회년도</label>
+                <input type="number" value='{{ year }}' max="9999" class="form-control" id="year" name="year">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script>
+      $(document).ready(function () {
+          var size = $("td[name='absence']").length;
+          console.log(size);
+          for (i = 0; i < size; i++) {
+              var tdValue = $("td[name='absence']").eq(i).text();
+              console.log(tdValue);
+              var newValue = tdValue.substr(0, tdValue.length - 24);
+
+              $("td[name='absence']").eq(i).text(newValue);
+          }
+      });
+
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+  </script>
+
+
+{% endblock %}

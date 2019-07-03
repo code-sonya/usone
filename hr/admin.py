@@ -21,7 +21,7 @@ admin.site.register(User, UserAdmin)
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):
     list_display = ('attendanceId', 'attendanceDate', 'attendanceTime', 'empId', 'attendanceType')
-    list_filter = ('attendanceDate', 'attendanceTime')
+    list_filter = ('attendanceDate','empId')
     list_display_links = ['attendanceId', 'attendanceDate', 'attendanceTime', 'empId', 'attendanceType']
 
 
