@@ -308,7 +308,7 @@ def modify_contract(request, contractId):
             'form': form,
             'items': items,
             'revenues': revenues.order_by('predictBillingDate'),
-            'purchases': purchases.order_by('purchaseId'),
+            'purchases': purchases.order_by('predictBillingDate'),
             'saleCompanyNames': saleCompanyNames,
             'endCompanyNames': endCompanyNames,
             'contractPaper': contractPaper,

@@ -1086,7 +1086,7 @@
                       '<input class="input-form" type="date" max="9999-12-31" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '" value="{{ purchase.predictWithdrawDate | date:"Y-m-d" }}">',
                       '<input class="input-form" type="date" max="9999-12-31" name="withdrawDate" id="purchase4' + purchaseCounter + '" value="{{ purchase.withdrawDate | date:"Y-m-d" }}" ' +
                       'onchange="changeExecutionDates(\'purchase4' + purchaseCounter + '\',\'purchase3' + purchaseCounter + '\')">',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}">{% if user.employee.empId == 1 %}{{ purchase.purchaseId }}{% endif %}',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}">',
                       '<input class="money input-form" style="width: 255px;" name="purchasePrice" id="purchase6' + purchaseCounter + '" value="{{ purchase.purchasePrice }}">',
                       '<input class="input-form" type="text" name="purchaseComment" id="purchase7' + purchaseCounter + '" value="{{ purchase.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
