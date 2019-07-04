@@ -41,7 +41,6 @@ def save_punctuality(dateList):
     for date in dateList:
         print(date)
         if datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10])).weekday() not in [5, 6] and is_holiday(date) == False:
-            print('평일')
             attendances = Attendance.objects.filter(attendanceDate=date).order_by('attendanceTime')
             for user in users:
                 # 기본
@@ -99,13 +98,10 @@ def save_punctuality(dateList):
                 # 값이 달라진 row 만 insert
                 if Punctuality.objects.filter(Q(empId=user['employee__empId']) & Q(punctualityDate=user['date']) & Q(punctualityType=user['status'])).first() == None:
                     # 비고란에 값이 있으면 안 바꿈. 수정이 일어난 경우
-                    if Punctuality.objects.filter(Q(empId=user['employee__empId']) & Q(punctualityDate=user['date']) & Q(punctualityType=user['status'])&Q(comment__isnull=True)):
+                    if Punctuality.objects.filter(Q(empId=user['employee__empId']) & Q(punctualityDate=user['date'])&Q(comment__isnull=True)).first() == None:
                         employee = Employee.objects.get(empId=user['employee__empId'])
                         Punctuality.objects.create(empId=employee, punctualityDate=user['date'], punctualityType=user['status'])
 
-        else:
-            print(is_holiday(date))
-            print('주말 or 공휴일')
 
     return 0
 

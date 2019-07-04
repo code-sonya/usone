@@ -79,6 +79,7 @@ def show_punctuality(request, day=None):
                     user['absenceDate'].append(a.punctualityDate)
                 user['absenceCount'] = len(absence)
 
+    print(punctualityList)
     context = {
         'day': day,
         'Date': Date,
