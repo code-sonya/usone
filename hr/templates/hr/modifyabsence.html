@@ -1,0 +1,195 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  근태 수정
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 80%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .pc-table-main {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      margin-top: 1rem;
+
+    }
+
+    .pc-table-main td, .pc-table-main th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 18px;
+      border-top: 1px dotted #858796a3;
+    }
+
+
+    .mobile-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 4px;
+      vertical-align: middle;
+      font-size: 16px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-1"></div>
+
+    <div class="col-xl-10 ">
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> 근태 조회 </h6>
+        </div>
+
+        <div class="card-body">
+          {% csrf_token %}
+          <form id="absenceForm" method="POST">
+            <table class="pc-table-main thtd pl-10">
+              <thead></thead>
+              <tbody>
+              <tr class="thtd">
+                <td colspan="2" class="bg-light"> 날짜</td>
+                <td colspan="3"> {{ punctuality.punctualityDate }}</td>
+              </tr>
+              <tr class="thtd">
+                <td colspan="2" class="bg-light"> 부서</td>
+                <td colspan="3"> {{ punctuality.empId__empDeptName }}</td>
+              </tr>
+              <tr class="thtd">
+                <td colspan="2" class="bg-light"> 성명</td>
+                <td colspan="3"> {{ punctuality.empId__empName }}</td>
+              </tr>
+              <tr class="thtd">
+                <td colspan="2" class="bg-light"> 근태 현황</td>
+                <td colspan="3">
+                  <select id="punctualityType" name="punctualityType">
+                    {% if punctuality.punctualityType == '출근' %}
+                      <option value="출근" selected="selected">출근</option>
+                    {% else %}
+                      <option value="출근">출근</option>
+                    {% endif %}
+                    {% if punctuality.punctualityType == '지각' %}
+                      <option value="지각" selected="selected">지각</option>
+                    {% else %}
+                      <option value="지각">지각</option>
+                    {% endif %}
+                    {% if punctuality.punctualityType == '일차' %}
+                      <option value="일차" selected="selected">일차</option>
+                    {% else %}
+                      <option value="일차">일차</option>
+                    {% endif %}
+                    {% if punctuality.punctualityType == '오전반차' %}
+                      <option value="오전반차" selected="selected">오전반차</option>
+                    {% else %}
+                      <option value="오전반차">오전반차</option>
+                    {% endif %}
+                    {% if punctuality.punctualityType == '직출' %}
+                      <option value="직출" selected="selected">직출</option>
+                    {% else %}
+                      <option value="직출">직출</option>
+                    {% endif %}
+                    {% if punctuality.punctualityType == '상주' %}
+                      <option value="상주" selected="selected">상주</option>
+                    {% else %}
+                      <option value="상주">상주</option>
+                    {% endif %}
+                  </select>
+                </td>
+              </tr>
+              <tr class="thtd">
+                <td colspan="2" class="bg-light"> 비고</td>
+                <td colspan="3">
+                  {% if punctuality.comment %}
+                    <input type="text" class="form-control" id="comment" name="comment" value="{{ punctuality.comment }}">
+                  {% else %}
+                    <input type="text" class="form-control" id="comment" name="comment" value="">
+                  {% endif %}
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+              <div class="text-center" style="padding: 0px 20px 20px 20px">
+                <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                  <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                  <span class="text"> 취소 </span>
+                </a>
+                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                  <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+                  <span class="text"> 저장 </span>
+                </a>
+              </div>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_save() {
+          if (document.getElementById("comment").value === '') {
+              alert("변경 사유를 입력해주세요.");
+              return false;
+          }
+          $("#absenceForm").submit();
+      }
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              history.back();
+          } else {
+              return false;
+          }
+      }
+
+  </script>
+
+{% endblock %}

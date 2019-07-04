@@ -10,4 +10,7 @@ urlpatterns = [
     url(r'^showabsence/$', views.show_absence, name='showabsence'),
     url(r'^uploadcaps/$', views.upload_caps, name='uploadcaps'),
     url(r'^savecaps/$', views.save_caps, name='savecaps'),
+    url(r'^absencesasjson/$', views.absences_asjson, name='absences_ajax_url'),
+    url(r'^viewabsence/(?P<punctualityId>.+)/$', views.view_absence, name='viewabsence'),
+    url(r'^modifyabsence/(?P<punctualityId>.+)/$', views.modify_absence, name='modifyabsence'),
 ]

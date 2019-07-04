@@ -14,8 +14,12 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 import datetime
 from .functions import employee_empPosition, save_punctuality, check_absence, year_absence
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
 
 @login_required
+@csrf_exempt
 def profile(request):
     template = loader.get_template('hr/profile.html')
     userId = request.user.id
@@ -36,6 +40,7 @@ def profile(request):
 
 
 @login_required
+@csrf_exempt
 def show_punctuality(request, day=None):
     template = loader.get_template('hr/showpunctuality.html')
     if day is None:
@@ -47,18 +52,18 @@ def show_punctuality(request, day=None):
     month = day[5:7]
 
     # 분기
-    if month in ['01','02','03']:
+    if month in ['01', '02', '03']:
         startdate = '{}-01-01'.format(year)
-    elif month in ['04','05','06']:
+    elif month in ['04', '05', '06']:
         startdate = '{}-04-01'.format(year)
-    elif month in ['07','08','09']:
+    elif month in ['07', '08', '09']:
         startdate = '{}-07-01'.format(year)
     else:
         startdate = '{}-10-01'.format(year)
 
     punctuality = Punctuality.objects.filter(punctualityDate=day).order_by('empId__empPosition')
     punctualityList = []
-    punctualityList.append(punctuality.filter(empId__empDeptName='경영지원본부').values('empId_id', 'empId__empDeptName', 'empId__empName','empId__empPosition', 'punctualityType', 'comment'))
+    punctualityList.append(punctuality.filter(empId__empDeptName='경영지원본부').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
     punctualityList.append(punctuality.filter(empId__empDeptName='영업1팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
     punctualityList.append(punctuality.filter(empId__empDeptName='영업2팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
     punctualityList.append(punctuality.filter(empId__empDeptName='인프라서비스사업팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
@@ -79,8 +84,8 @@ def show_punctuality(request, day=None):
         'Date': Date,
         'beforeDate': beforeDate,
         'afterDate': afterDate,
-        'punctualityList':punctualityList,
-        'sumpunctuality':len(punctuality)
+        'punctualityList': punctualityList,
+        'sumpunctuality': len(punctuality)
     }
     return HttpResponse(template.render(context, request))
 
@@ -95,9 +100,9 @@ def upload_caps(request):
     }
     return HttpResponse(template.render(context, request))
 
+
 @login_required
 def save_caps(request):
-
     csv_file = request.FILES["csv_file"]
     xl_file = pd.ExcelFile(csv_file)
     data = pd.read_excel(xl_file)
@@ -116,22 +121,24 @@ def save_caps(request):
             empId = ''
 
         if empId:
-            if Attendance.objects.filter(Q(empId=empId) & Q(attendanceDate=rows[0]) & Q(attendanceTime=rows[1])).first() == None :
+            if Attendance.objects.filter(Q(empId=empId) & Q(attendanceDate=rows[0]) & Q(attendanceTime=rows[1])).first() == None:
                 Attendance.objects.create(empId=empId, attendanceDate=rows[0], attendanceTime=rows[1], attendanceType=rows[4])
                 successCount += 1
 
-    #근태 정보 저장
+    # 근태 정보 저장
     save_punctuality(list(data['발생일자'].unique()))
 
     context = {
         "datalen": datalen - 1,
-        "errorList":errorList,
-        "successCount":successCount,
+        "errorList": errorList,
+        "successCount": successCount,
     }
 
     return render(request, 'hr/uploadcaps.html', context)
 
 
+@login_required
+@csrf_exempt
 def show_yearpunctuality(request, year=None):
     if request.method == "POST":
         year = request.POST['year']
@@ -142,14 +149,89 @@ def show_yearpunctuality(request, year=None):
 
         userList = year_absence(str(year))
     context = {
-        'year' : year,
-        'userList' : userList
+        'year': year,
+        'userList': userList
     }
 
     return render(request, 'hr/showyearpunctuality.html', context)
 
-def show_absence(request):
-    context = {
 
+@login_required
+@csrf_exempt
+def show_absence(request):
+    if request.method == "POST":
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        empName = request.POST['empName']
+        empDeptName = request.POST['empDeptName']
+
+    else:
+        startdate = ''
+        enddate = ''
+        empName = ''
+        empDeptName = ''
+
+    context = {
+        'startdate': startdate,
+        'enddate': enddate,
+        'empName': empName,
+        'empDeptName': empDeptName
     }
     return render(request, 'hr/showabsence.html', context)
+
+
+@login_required
+@csrf_exempt
+def absences_asjson(request):
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    empName = request.POST['empName']
+    empDeptName = request.POST['empDeptName']
+
+    punctualitys = Punctuality.objects.filter(Q(punctualityType='지각'))
+
+    if startdate:
+        punctualitys = punctualitys.filter(punctualityDate__gte=startdate)
+    if enddate:
+        punctualitys = punctualitys.filter(punctualityDate__lte=enddate)
+    if empName:
+        punctualitys = punctualitys.filter(empId__empName__icontains=empName)
+    if empDeptName:
+        punctualitys = punctualitys.filter(empId__empDeptName__icontains=empDeptName)
+
+    punctualitys = punctualitys.values('punctualityDate', 'empId__empDeptName', 'empId__empName', 'punctualityType', 'comment', 'punctualityId')
+    structure = json.dumps(list(punctualitys), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+@login_required
+@csrf_exempt
+def view_absence(request, punctualityId):
+    punctuality = Punctuality.objects.filter(Q(punctualityId=punctualityId))
+    punctuality = punctuality.values('punctualityDate', 'empId__empDeptName', 'empId__empName', 'punctualityType', 'comment', 'punctualityId').first()
+    context = {
+        'punctuality':punctuality
+    }
+    return render(request, 'hr/viewabsence.html', context)
+
+@login_required
+@csrf_exempt
+def modify_absence(request, punctualityId):
+
+    if request.method == "POST":
+        punctuality = Punctuality.objects.get(Q(punctualityId=punctualityId))
+        punctualityType = request.POST["punctualityType"]
+        comment = request.POST['comment']
+        punctuality.punctualityType = punctualityType
+        punctuality.comment = comment
+        punctuality.save()
+        print(punctuality)
+        return redirect('hr:viewabsence',punctualityId)
+
+    else:
+        punctuality = Punctuality.objects.filter(Q(punctualityId=punctualityId))
+        punctuality = punctuality.values('punctualityDate', 'empId__empDeptName', 'empId__empName', 'punctualityType', 'comment', 'punctualityId').first()
+
+        context = {
+            'punctuality':punctuality
+        }
+        return render(request, 'hr/modifyabsence.html', context)
