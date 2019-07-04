@@ -39,7 +39,6 @@ def save_punctuality(dateList):
         .order_by('employee__empDeptName', 'employee__empPosition', 'employee__empRank')
 
     for date in dateList:
-        print(date)
         if datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10])).weekday() not in [5, 6] and is_holiday(date) == False:
             attendances = Attendance.objects.filter(attendanceDate=date).order_by('attendanceTime')
             for user in users:
@@ -108,9 +107,9 @@ def save_punctuality(dateList):
 
 def check_absence(id, startdate, enddate, contain):
     if contain == False:
-        punctuality = Punctuality.objects.filter(Q(punctualityDate__gte=startdate) & Q(punctualityDate__lt=enddate) & Q(empId_id=id) & Q(punctualityType='지각'))
-    else:
         punctuality = Punctuality.objects.filter(Q(punctualityDate__gte=startdate) & Q(punctualityDate__lte=enddate) & Q(empId_id=id) & Q(punctualityType='지각'))
+    else:
+        punctuality = Punctuality.objects.filter(Q(punctualityDate__gte=startdate) & Q(punctualityDate__lt=enddate) & Q(empId_id=id) & Q(punctualityType='지각'))
     return punctuality
 
 def year_absence(year):
@@ -169,11 +168,11 @@ def year_absence(year):
             team3.append(user)
         elif user['employee__empDeptName'] == '인프라서비스사업팀':
             team4.append(user)
-        elif user['employee__empDeptName'] == '솔루션사업팀':
+        elif user['employee__empDeptName'] == '솔루션지원팀':
             team5.append(user)
         elif user['employee__empDeptName'] == 'DB지원팀':
             team6.append(user)
 
     userList = (team1, team2, team3, team4, team5, team6 )
-
+    print(userList)
     return userList

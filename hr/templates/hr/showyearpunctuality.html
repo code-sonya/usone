@@ -155,6 +155,8 @@
                   {% endif %}
                   {% if user.yearabsenceCount %}
                     <td>{{ user.yearabsenceCount }}회</td>
+                  {% elif user.employee__dispatchCompany != '내근' %}
+                    <td class="text-danger">상주</td>
                   {% else %}
                     <td></td>
                   {% endif %}

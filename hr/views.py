@@ -129,13 +129,13 @@ def save_caps(request):
     # 근태 정보 저장
     save_punctuality(list(data['발생일자'].unique()))
 
-    context = {
-        "datalen": datalen - 1,
-        "errorList": errorList,
-        "successCount": successCount,
-    }
+    # context = {
+    #     "datalen": datalen - 1,
+    #     "errorList": errorList,
+    #     "successCount": successCount,
+    # }
 
-    return render(request, 'hr/uploadcaps.html', context)
+    return redirect('hr:uploadcaps')
 
 
 @login_required
