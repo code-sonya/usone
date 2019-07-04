@@ -289,6 +289,8 @@
           if (window.event.keyCode == 9) {
               value = $(input).attr('data-id');
               inputId = $(input).attr('id');
+              console.log(value);
+              console.log(inputId);
           }
       }
 
@@ -982,14 +984,17 @@
                       '<input class="input-form" type="date" max="9999-12-31" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
                       '<input class="input-form" type="date" max="9999-12-31" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}" ' +
                       'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}">',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}" onkeydown="addInput(revenue5' + revenueCounter + ')">',
                       '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
                       '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
                       '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
-                  ]).draw(false);
-                  $('.money').simpleMoneyFormat();
-                  $('#revenue5' + revenueCounter).magicsearch({
+                  ]);
+                  revenueCounter++;
+              {% endfor %}
+              t2.draw();
+              for (var r=0; r < revenueCounter; r++) {
+                  $('#revenue5' + r).magicsearch({
                       dataSource: companyList,
                       fields: 'value',
                       id: 'id',
@@ -998,8 +1003,15 @@
                       noResult: '검색결과없음',
                       focusShow: true,
                   });
-                  revenueCounter++;
-              {% endfor %}
+                  $('#revenue6' + r).on('focus', function (e) {
+                      if (value !== "") {
+                          $('#' + inputId).trigger('set', {id: value});
+                          value = "";
+                          inputId = "";
+                      }
+                  });
+              }
+              $('.money').simpleMoneyFormat();
           {% else %}
               $('#addRevenue').click();
           {% endif %}
@@ -1072,7 +1084,6 @@
                       inputId = "";
                   }
               });
-
               purchaseCounter++;
           });
 
@@ -1086,13 +1097,16 @@
                       '<input class="input-form" type="date" max="9999-12-31" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '" value="{{ purchase.predictWithdrawDate | date:"Y-m-d" }}">',
                       '<input class="input-form" type="date" max="9999-12-31" name="withdrawDate" id="purchase4' + purchaseCounter + '" value="{{ purchase.withdrawDate | date:"Y-m-d" }}" ' +
                       'onchange="changeExecutionDates(\'purchase4' + purchaseCounter + '\',\'purchase3' + purchaseCounter + '\')">',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}">',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}" onkeydown="addInput(purchase5' + purchaseCounter + ')">',
                       '<input class="money input-form" style="width: 255px;" name="purchasePrice" id="purchase6' + purchaseCounter + '" value="{{ purchase.purchasePrice }}">',
                       '<input class="input-form" type="text" name="purchaseComment" id="purchase7' + purchaseCounter + '" value="{{ purchase.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
-                  ]).draw(false);
-                  $('.money').simpleMoneyFormat();
-                  $('#purchase5' + purchaseCounter).magicsearch({
+                  ]);
+                  purchaseCounter++;
+              {% endfor %}
+              t3.draw();
+              for (var p=0; p < purchaseCounter; p++) {
+                  $('#purchase5' + p).magicsearch({
                       dataSource: companyList,
                       fields: 'value',
                       id: 'id',
@@ -1101,8 +1115,16 @@
                       noResult: '검색결과없음',
                       focusShow: true,
                   });
-                  purchaseCounter++;
-              {% endfor %}
+                  $('#purchase6' + p).on('focus', function (e) {
+                      if (value !== "") {
+                          $('#' + inputId).trigger('set', {id: value});
+                          value = "";
+                          inputId = "";
+                      }
+                  });
+              }
+              $('.money').simpleMoneyFormat();
+
           {% else %}
               $('#addPurchase').click();
           {% endif %}

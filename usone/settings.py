@@ -140,3 +140,6 @@ LOGIN_REDIRECT_URL = '/'
 # media files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+# post data limit(The number of GET/POST parameters exceeded)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
