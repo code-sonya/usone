@@ -1,10 +1,10 @@
 {% extends "dashboard/layout.html" %}
-
+{% load humanize %}
 
 {% block title %}
-  데이터 확인
+  데이터 검증
 {% endblock %}
-{% load humanize %}
+
 {% block css %}
   <style type="text/css">
     .mobile-table {
@@ -16,7 +16,7 @@
     }
 
     .mobile-table td, .mobile-table th {
-      padding: 4px;
+      padding: 4px 10px;
       vertical-align: middle;
       font-size: 16px;
       border-top: 1px dotted #858796a3;
@@ -40,9 +40,7 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
           <h6 class="m-0 h3 text-gray-800"> 불일치 데이터 ({{ contractFalse|length }}건)</h6>
-
         </div>
 
         <div class="card-body">
@@ -53,14 +51,14 @@
               <table class="mobile-table">
                 <thead>
                 <tr class="bg-secondary text-white">
-                  <td colspan="1">ID</td>
                   <td colspan="2">계약코드</td>
-                  <td colspan="4">계약명</td>
-                  <td colspan="2">reason</td>
-                  <td colspan="2">매출의합</td>
-                  <td colspan="2">매입의합</td>
+                  <td colspan="5">계약명</td>
+                  <td colspan="2">상태</td>
+                  <td colspan="2">매출</td>
+                  <td colspan="2">매입</td>
                   <td colspan="2">매출-매입</td>
                   <td colspan="2">GP</td>
+                  <td colspan="2">차액</td>
                 </tr>
                 </thead>
                 <tbody>
@@ -68,14 +66,14 @@
                   {% for c in contracts %}
                     {% if i.id == c.contractId %}
                       <tr>
-                        <td colspan="1">{{ i.id }}</td>
                         <td colspan="2"><a href="/sales/viewcontract/{{ i.id }}/" target="_blank">{{ i.code }}</a></td>
-                        <td colspan="4">{{ i.name }}</td>
+                        <td colspan="5" class="text-left">{{ i.name }}</td>
                         <td colspan="2">{{ i.reason }}</td>
-                        <td colspan="2">{{ i.revenueprice|intcomma }}</td>
-                        <td colspan="2">{{ i.purchaseprice|intcomma }}</td>
-                        <td colspan="2">{{ i.gap|intcomma }}</td>
-                        <td colspan="2">{{ c.profitPrice|intcomma }}</td>
+                        <td colspan="2" class="text-right">{{ i.revenueprice|intcomma }}</td>
+                        <td colspan="2" class="text-right">{{ i.purchaseprice|intcomma }}</td>
+                        <td colspan="2" class="text-right">{{ i.gap|intcomma }}</td>
+                        <td colspan="2" class="text-right">{{ c.profitPrice|intcomma }}</td>
+                        <td colspan="2" class="text-right">{{ i.gap_gp|intcomma }}</td>
                       </tr>
                     {% endif %}
                   {% endfor %}

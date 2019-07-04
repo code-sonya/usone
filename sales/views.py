@@ -1528,10 +1528,11 @@ def outstanding_asjson(request):
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
 @login_required
 @csrf_exempt
 def check_gp(request):
-    revenues = Revenue.objects.values('contractId','contractId__contractCode','contractId__contractName').annotate(sum_price=Sum('revenuePrice'),sum_profit=Sum('revenueProfitPrice'))
+    revenues = Revenue.objects.values('contractId', 'contractId__contractCode', 'contractId__contractName').annotate(sum_price=Sum('revenuePrice'), sum_profit=Sum('revenueProfitPrice'))
     purchases = Purchase.objects.values('contractId').annotate(sum_price=Sum('purchasePrice'))
     contractTrue = []
     contractFalse = []
@@ -1541,18 +1542,19 @@ def check_gp(request):
             if i.contractId == r['contractId']:
                 if i.salePrice == r['sum_price']:
                     if i.profitPrice == r['sum_profit']:
-                        contractTrue.append({"id":i.contractId,'code':i.contractCode,'reason':'일치'})
+                        contractTrue.append({"id": i.contractId, 'code': i.contractCode, 'reason': '일치'})
                     else:
-                        contractFalse.append({"id":i.contractId,'code':i.contractCode,'name':i.contractName,'reason':'이익합계불일치'})
+                        contractFalse.append({"id": i.contractId, 'code': i.contractCode, 'name': i.contractName, 'reason': '이익합계불일치'})
                 else:
-                    contractFalse.append({"id":i.contractId,'code':i.contractCode,'reason':'메출합계불일치'})
+                    contractFalse.append({"id": i.contractId, 'code': i.contractCode, 'reason': '메출합계불일치'})
 
         if purchases.filter(contractId=i.contractId).first() is None:
             if revenues.filter(contractId=i.contractId).first()['sum_price'] != revenues.filter(contractId=i.contractId).first()['sum_profit']:
                 contractFalse.append({"id": i.contractId, 'code': revenues.filter(contractId=i.contractId).first()['contractId__contractCode'],
                                       'name': revenues.filter(contractId=i.contractId).first()['contractId__contractName'],
                                       'reason': 'GP불일치', 'revenueprice': revenues.filter(contractId=i.contractId).first()['sum_price'], 'purchaseprice': 0,
-                                      'gap': revenues.filter(contractId=i.contractId).first()['sum_price'] - 0})
+                                      'gap': revenues.filter(contractId=i.contractId).first()['sum_price'] - 0,
+                                      'gap_gp': (revenues.filter(contractId=i.contractId).first()['sum_price'] - 0) - i.profitPrice})
 
     for r in revenues:
         for p in purchases:
@@ -1560,11 +1562,12 @@ def check_gp(request):
                 if (r['sum_price'] - p['sum_price']) == r['sum_profit']:
                     contractTrue.append({"id": r['contractId'], 'code': r['contractId__contractCode'], 'reason': '일치'})
                 else:
-                    contractFalse.append({"id": r['contractId'], 'code': r['contractId__contractCode'],'name':r['contractId__contractName'],
-                                          'reason': 'GP불일치' ,'revenueprice' : r['sum_price'],'purchaseprice':p['sum_price'],'gap':r['sum_price'] - p['sum_price']})
+                    contractFalse.append({"id": r['contractId'], 'code': r['contractId__contractCode'], 'name': r['contractId__contractName'],
+                                          'reason': 'GP불일치', 'revenueprice': r['sum_price'], 'purchaseprice': p['sum_price'], 'gap': r['sum_price'] - p['sum_price'],
+                                          'gap_gp': (r['sum_price'] - p['sum_price']) - r['sum_profit']})
 
-    context ={
-        'contractFalse':contractFalse,
-        'contracts':contracts,
+    context = {
+        'contractFalse': contractFalse,
+        'contracts': contracts,
     }
     return render(request, 'sales/checkgp.html', context)
