@@ -36,7 +36,7 @@ def dashboard_service(request):
 
     if request.user.employee.empDeptName == "임원":
         all_support_data = Servicereport.objects.filter((Q(serviceDate__gte=startdate) &
-                                                        Q(serviceDate__lte=enddate))&(Q(empDeptName='DB지원팀')|Q(empDeptName='솔루션지원팀'))).exclude(serviceType="교육")
+                                                         Q(serviceDate__lte=enddate)) & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀'))).exclude(serviceType="교육")
 
         all_support_time = all_support_data.aggregate(Sum('serviceHour'), Count('serviceHour'))
 
@@ -115,17 +115,19 @@ def over_hour(request):
     if request.method == "POST":
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
+        filter = 'Y'
 
-        context = {
-            'filter': "Y",
-            'startdate': startdate,
-            'enddate': enddate,
-        }
 
     else:
-        context = {
-            'filter': 'N',
-        }
+        startdate = ''
+        enddate = ''
+        filter = 'N'
+
+    context = {
+        'filter': filter,
+        'startdate': startdate,
+        'enddate': enddate,
+    }
 
     return HttpResponse(template.render(context, request))
 
@@ -133,19 +135,15 @@ def over_hour(request):
 @login_required
 @csrf_exempt
 def over_asjson(request):
-    overHour = Servicereport.objects.filter(serviceOverHour__gt=0)
-    overHourlist = overHour.values('serviceStartDatetime', 'serviceEndDatetime', 'empId__empName', 'empId__empDeptName', 'companyName', 'serviceOverHour', 'serviceId')
-    structure = json.dumps(list(overHourlist), cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
-
-
-@login_required
-@csrf_exempt
-def filter_asjson(request):
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
-    overHour = Servicereport.objects.filter(Q(serviceOverHour__gt=0) & Q(serviceDate__gte=startdate) & Q(serviceDate__lte=enddate))
-    overHourlist = overHour.values('serviceStartDatetime', 'serviceEndDatetime', 'empId__empName', 'empId__empDeptName', 'companyName', 'serviceOverHour')
+    overHour = Servicereport.objects.filter(Q(serviceOverHour__gt=0)&Q(serviceStatus='Y'))
+    if startdate:
+        overHour = overHour.filter(Q(serviceDate__gte=startdate))
+    if enddate:
+        overHour = overHour.filter(Q(serviceDate__lte=enddate))
+
+    overHourlist = overHour.values('serviceStartDatetime', 'serviceEndDatetime', 'empId__empName', 'empId__empDeptName', 'companyName', 'serviceOverHour', 'serviceId')
     structure = json.dumps(list(overHourlist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -251,7 +249,7 @@ def dashboard_quarter(request):
         revenuesQuarter = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
 
     # 메인카테고리&서브카테고리
-    maincategoryRevenuePrice = firmRevenuePrice.values('contractId__mainCategory').annotate(sumMainPrice=Sum('revenuePrice'),sumMainProfitPrice=Sum('revenueProfitPrice'))
+    maincategoryRevenuePrice = firmRevenuePrice.values('contractId__mainCategory').annotate(sumMainPrice=Sum('revenuePrice'), sumMainProfitPrice=Sum('revenueProfitPrice'))
 
     # 누적매출금액 & 이익 금액
     cumulativeSalesAmount = firmRevenuePrice.aggregate(sum=Sum('revenuePrice'))['sum']
@@ -376,7 +374,7 @@ def dashboard_quarter(request):
         'saleCompanyName': saleCompanyName,
         'endCompanyName': endCompanyName,
         'contractName': contractName,
-        'maincategoryRevenuePrice':maincategoryRevenuePrice,
+        'maincategoryRevenuePrice': maincategoryRevenuePrice,
 
     }
     return HttpResponse(template.render(context, request))
@@ -485,7 +483,7 @@ def opportunity_graph(request):
     step = request.POST['step']
     maincategory = request.POST['maincategory']
 
-    dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(contractId__contractStep=step)&Q(contractId__mainCategory=maincategory))
+    dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(contractId__contractStep=step) & Q(contractId__mainCategory=maincategory))
 
     subCategory = dataFirm.values('contractId__subCategory').annotate(sum_sub=Sum('revenuePrice'))
 
@@ -581,10 +579,9 @@ def quarter_asjson(request):
 
     if maincategory:
         if subcategory:
-            dataFirm = dataFirm.filter(Q(contractId__mainCategory=maincategory)&Q(contractId__subCategory=subcategory))
+            dataFirm = dataFirm.filter(Q(contractId__mainCategory=maincategory) & Q(contractId__subCategory=subcategory))
         else:
             dataFirm = dataFirm.filter(Q(contractId__mainCategory=maincategory))
-
 
     dataFirm = dataFirm.values('predictBillingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
                                'contractId__empName', 'contractId__empDeptName', 'revenueId')
@@ -648,14 +645,14 @@ def cashflow_asjson(request):
 @login_required
 @csrf_exempt
 def service_asjson(request):
-    startdate = request.POST['startdate'].replace('.','-')
-    enddate = request.POST['enddate'].replace('.','-')
+    startdate = request.POST['startdate'].replace('.', '-')
+    enddate = request.POST['enddate'].replace('.', '-')
     company = request.POST['company']
     empname = request.POST['empname']
     servicetype = request.POST['servicetype']
     overhour = request.POST['overhour']
 
-    services = Servicereport.objects.filter(Q(serviceDate__gte=startdate)&Q(serviceDate__lte=enddate))
+    services = Servicereport.objects.filter(Q(serviceDate__gte=startdate) & Q(serviceDate__lte=enddate))
 
     if company:
         services = services.filter(Q(companyName=company))

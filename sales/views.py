@@ -1408,7 +1408,10 @@ def save_company(request):
     companyName = request.POST['companyName']
     companyNameKo = request.POST['companyNameKo']
     companyNumber = request.POST['companyNumber']
-    salesEmpId = Employee.objects.get(empId=request.POST['salesEmpId'])
+    if request.POST['salesEmpId']:
+        salesEmpId = Employee.objects.get(empId=request.POST['salesEmpId'])
+    else:
+        salesEmpId = None
     companyAddress = request.POST['companyAddress']
 
     if Company.objects.filter(companyName=companyName):

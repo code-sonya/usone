@@ -9,23 +9,23 @@
 {% block css %}
 
   <style type="text/css">
-  .buttons-copy{
-    background-color: #4e73df;
-    color:white;
-    margin-bottom: 1rem;
-  }
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
 
-  .buttons-excel{
-    background-color: #36b9cc;
-    color:white;
-    margin-bottom: 1rem;
-  }
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
 
-  .buttons-print{
-    background-color: #f6c23e;
-    color:white;
-    margin-bottom: 1rem;
-  }
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
 
   </style>
 
@@ -124,159 +124,87 @@
 
       function replaceAll(str, searchStr, replaceStr) {
           var new_str = str.split(searchStr).join(replaceStr);
-          return new_str.split("T").join(" ").slice(0,16);
+          return new_str.split("T").join(" ").slice(0, 16);
       }
 
       $(document).ready(function () {
 
 
-          {% if filter == 'Y'%}
-              $('#overhourlist').DataTable({
+          $('#overhourlist').DataTable({
+              "processing": true,
+              "ajax": {
                   "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "type": 'POST',
-                      "data": {
-                          "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
-                          "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
-                      },
-                      "url": "{% url 'dashboard:filter_ajax_url' %}",
-                      "dataSrc": ""
+                  "type": 'POST',
+                  "data": {
+                      "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
+                      "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
                   },
-                  dom: 'Blfrtip',
-                  buttons: [
-                      {
-                          extend: 'excel',
-                          text: '엑셀',
-                          footer: true
-                      },
-                      {
-                          extend: 'copy',
-                          text: '복사',
-                          footer: true
-                      },
-                      {
-                          extend: 'print',
-                          text: '인쇄',
-                          footer: true
-                      }
-                  ],
-                  columns: [
-                      {data: "serviceStartDatetime"},
-                      {data: "serviceEndDatetime"},
-                      {data: "empId__empName"},
-                      {data: "empId__empDeptName"},
-                      {data: "companyName"},
-                      {data: "serviceOverHour"},
-                      {data: "serviceId"},
-                  ],
-                  columnDefs: [
-                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 6, visible: false},
-                  ],
-                  "searching": true,
-                  "paging": true,
-                  "info": false,
-                  "scrollY": "80vh",
-                  "scrollCollapse": true,
-                  "order": [[0, 'asc']],
-                  "language": {
-                      "lengthMenu": "_MENU_ 개씩 보기",
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
+                  "url": "{% url 'dashboard:over_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
                   },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      if (aData.serviceStartDatetime != "") {
-                          $('td:eq(0)', nRow).text(replaceAll(aData.serviceStartDatetime,"-","."));
-                          $('td:eq(5)', nRow).css('color', '#e74a3b');
-                      }
-
-                      if (aData.serviceEndDatetime != "") {
-                          $('td:eq(1)', nRow).text(replaceAll(aData.serviceEndDatetime,"-","."));
-                      }
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
                   }
-              });
-          {% else %}
-              $('#overhourlist').DataTable({
-                  "processing": true,
-                  "ajax": {
-                      "processing": true,
-                      "url": "{% url 'dashboard:over_ajax_url' %}",
-                      "dataSrc": ""
+              ],
+              columns: [
+                  {data: "serviceStartDatetime"},
+                  {data: "serviceEndDatetime"},
+                  {data: "empId__empName"},
+                  {data: "empId__empDeptName"},
+                  {data: "companyName"},
+                  {data: "serviceOverHour"},
+                  {data: "serviceId"},
+              ],
+              columnDefs: [
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, visible: false},
+              ],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "order": [[0, 'desc']],
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
                   },
-                  dom: 'Blfrtip',
-                  buttons: [
-                      {
-                          extend: 'excel',
-                          text: '엑셀',
-                          footer: true
-                      },
-                      {
-                          extend: 'copy',
-                          text: '복사',
-                          footer: true
-                      },
-                      {
-                          extend: 'print',
-                          text: '인쇄',
-                          footer: true
-                      }
-                  ],
-                  columns: [
-                      {data: "serviceStartDatetime"},
-                      {data: "serviceEndDatetime"},
-                      {data: "empId__empName"},
-                      {data: "empId__empDeptName"},
-                      {data: "companyName"},
-                      {data: "serviceOverHour"},
-                      {data: "serviceId"},
-                  ],
-                  columnDefs: [
-                      {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                      {targets: 6, visible: false},
-                  ],
-                  "searching": true,
-                  "paging": true,
-                  "info": false,
-                  "scrollY": "80vh",
-                  "order": [[0, 'desc']],
-                  "scrollCollapse": true,
-                  "language": {
-                      "search": "검색:",
-                      "paginate": {
-                          "first": "처음",
-                          "last": "끝",
-                          "next": "다음",
-                          "previous": "이전"
-                      },
-                  },
-                  "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                      if (aData.serviceStartDatetime != "") {
-                          $('td:eq(0)', nRow).text(replaceAll(aData.serviceStartDatetime,"-","."));
-                          $('td:eq(5)', nRow).css('color', '#e74a3b');
-                      }
-
-                      if (aData.serviceEndDatetime != "") {
-                          $('td:eq(1)', nRow).text(replaceAll(aData.serviceEndDatetime,"-","."));
-                      }
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.serviceStartDatetime != "") {
+                      $('td:eq(0)', nRow).text(replaceAll(aData.serviceStartDatetime, "-", "."));
+                      $('td:eq(5)', nRow).css('color', '#e74a3b');
                   }
-              });
-          {% endif %}
+
+                  if (aData.serviceEndDatetime != "") {
+                      $('td:eq(1)', nRow).text(replaceAll(aData.serviceEndDatetime, "-", "."));
+                  }
+              }
+          });
 
           var table = $('#overhourlist').DataTable();
 
