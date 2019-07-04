@@ -598,7 +598,7 @@ def dashboard_credit(request):
     # 월별 미수금액 / 수금액
     revenuesMonth = revenues.values('predictBillingDate__month') \
         .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(billingDate__isnull=False) & Q(depositDate__isnull=True)), 0)
-                  , collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0))
+                  , collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)).order_by('predictBillingDate__month')
     # 총 미수금액 / 수금액
     revenuesTotal = revenuesMonth.aggregate(outstandingCollectionsTotal=Sum('outstandingCollectionsMonth')
                                             , collectionofMoneyTotal=Sum('collectionofMoneyMonth'))
@@ -606,7 +606,7 @@ def dashboard_credit(request):
     purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False))
     # 월별 미지급액 / 지급액
     purchasesMonth = purchases.values('predictBillingDate__month').annotate(accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)), 0)
-                                                                            , amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0))
+                                                                            , amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)).order_by('predictBillingDate__month')
     # 총 미지급액
     purchasesTotal = purchasesMonth.aggregate(accountsPayablesTotal=Sum('accountsPayablesMonth')
                                               , amountPaidTotal=Sum('amountPaidMonth'))
