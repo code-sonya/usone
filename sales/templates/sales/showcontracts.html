@@ -124,16 +124,16 @@
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
                 <label for="startdate" class="text-primary">시작일자</label>
-                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate">
+                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" value="{{ startdate }}">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label for="enddate" class="text-primary">종료일자</label>
-                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate">
+                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" value="{{ enddate }}">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="mainCategory" class="text-primary">분기</label>
+                <label for="quarter" class="text-primary">분기</label>
                 <select class="form-control" id="quarter" name="quarter" onchange="changeQuarter('startdate', 'enddate', 'quarter')">
                   <option value="">------</option>
                   <option value="1">1분기</option>
@@ -146,8 +146,8 @@
                 <label for="enddate" class="text-primary">단계</label>
                 <select class="form-control" id="contractStep" name="contractStep">
                   <option value="전체">전체</option>
-                  <option value="Opportunity">Opportunity</option>
-                  <option value="Firm">Firm</option>
+                  <option value="Opportunity" {% if contractStep == "Opportunity" %}selected{% endif %}>Opportunity</option>
+                  <option value="Firm" {% if contractStep == "Firm" %}selected{% endif %}>Firm</option>
                 </select>
               </div>
             </div>
@@ -156,8 +156,8 @@
                 <label for="empDeptName" class="text-primary">영업부서</label>
                 <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
                   <option value="전체">전체</option>
-                  <option value="영업1팀">영업1팀</option>
-                  <option value="영업2팀">영업2팀</option>
+                  <option value="영업1팀" {% if empDeptName == '영업1팀' %}selected{% endif %}>영업1팀</option>
+                  <option value="영업2팀" {% if empDeptName == '영업2팀' %}selected{% endif %}>영업2팀</option>
 {#                  <option value="영업3팀">영업3팀</option>#}
                 </select>
               </div>
@@ -165,34 +165,38 @@
                 <label for="empName" class="text-primary">영업담당자</label>
                 <select class="form-control" id="empName" name="empName">
                   <option value='전체'>전체</option>
-                  {% for e in employees %}
-                    <option value="{{ e.empName }}">{{ e.empName }}</option>
-                  {% endfor %}
-                  <option value="">------</option>
-                  {% for pe in pastEmployees %}
-                    <option value="{{ pe.empName }}">{{ pe.empName }}</option>
-                  {% endfor %}
+                  {% if empDeptName != '전체' %}
+                    {% for e in employees %}
+                      {% if e.empDeptName == empDeptName %}
+                        <option value="{{ e.empName }}" {% if empName and empName == e.empName %}selected{% endif %}>{{ e.empName }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    {% for e in employees %}
+                      <option value="{{ e.empName }}" {% if e.empName == empName %}selected{% endif %}>{{ e.empName }}</option>
+                    {% endfor %}
+                  {% endif %}
                 </select>
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
                 <label for="companyName" class="text-primary">거래처</label>
-                <input class="form-control" id="saleCompanyName" name="saleCompanyName">
+                <input class="form-control" id="saleCompanyName" name="saleCompanyName" value="{{ saleCompanyName }}">
               </div>
               <div class="col-6">
                 <label for="serviceType" class="text-primary">최종고객사</label>
-                <input class="form-control" id="endCompanyName" name="endCompanyName">
+                <input class="form-control" id="endCompanyName" name="endCompanyName" value="{{ endCompanyName }}">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
                 <label for="boardTitle" class="text-primary">계약명</label>
-                <input class="form-control" id="contractName" name="contractName">
+                <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
               </div>
               <div class="col-6">
                 <label for="mainCategory" class="text-primary">대분류</label>
-                <input class="form-control" id="mainCategory" name="mainCategory">
+                <input class="form-control" id="mainCategory" name="mainCategory" value="{{ mainCategory }}">
               </div>
             </div>
           </form>
