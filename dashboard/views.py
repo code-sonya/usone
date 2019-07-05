@@ -248,8 +248,12 @@ def dashboard_quarter(request):
         revenuesAccumulate = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
         revenuesQuarter = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
 
-    # 메인카테고리&서브카테고리
+    # 메인카테고리
     maincategoryRevenuePrice = firmRevenuePrice.values('contractId__mainCategory').annotate(sumMainPrice=Sum('revenuePrice'), sumMainProfitPrice=Sum('revenueProfitPrice'))
+
+    # 산업군별 & 판매유형별
+    salesindustryRevenuePrice = firmRevenuePrice.values('contractId__saleIndustry').annotate(sumIndustryPrice=Sum('revenuePrice'), sumIndustryProfitPrice=Sum('revenueProfitPrice'))
+    salestypeRevenuePrice = firmRevenuePrice.values('contractId__saleType').annotate(sumTypePrice=Sum('revenuePrice'), sumTypeProfitPrice=Sum('revenueProfitPrice'))
 
     # 누적매출금액 & 이익 금액
     cumulativeSalesAmount = firmRevenuePrice.aggregate(sum=Sum('revenuePrice'))['sum']
@@ -375,7 +379,8 @@ def dashboard_quarter(request):
         'endCompanyName': endCompanyName,
         'contractName': contractName,
         'maincategoryRevenuePrice': maincategoryRevenuePrice,
-
+        'salesindustryRevenuePrice':salesindustryRevenuePrice,
+        'salestypeRevenuePrice':salestypeRevenuePrice,
     }
     return HttpResponse(template.render(context, request))
 
@@ -549,6 +554,8 @@ def quarter_asjson(request):
     quarter = request.POST['quarter']
     maincategory = request.POST['maincategory']
     subcategory = request.POST['subcategory']
+    industry = request.POST['industry']
+    salestype = request.POST['salestype']
 
     dataFirm = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(contractId__contractStep=step))
 
@@ -584,10 +591,15 @@ def quarter_asjson(request):
         else:
             dataFirm = dataFirm.filter(Q(contractId__mainCategory=maincategory))
 
+    if industry:
+        dataFirm = dataFirm.filter(Q(contractId__saleIndustry=industry))
+
+    if salestype:
+        dataFirm = dataFirm.filter(Q(contractId__saleType=salestype))
+
     dataFirm = dataFirm.values('predictBillingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
                                'contractId__empName', 'contractId__empDeptName', 'revenueId')
 
-    print(dataFirm)
     structureStep = json.dumps(list(dataFirm), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')
 

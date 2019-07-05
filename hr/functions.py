@@ -40,7 +40,7 @@ def save_punctuality(dateList):
 
     for date in dateList:
         if datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10])).weekday() not in [5, 6] and is_holiday(date) == False:
-            attendances = Attendance.objects.filter(attendanceDate=date).order_by('attendanceTime')
+
             for user in users:
                 # 기본
                 user['status'] = '-'
@@ -51,23 +51,32 @@ def save_punctuality(dateList):
                 user['positionName'] = positionName
                 vacation = Vacation.objects.filter(Q(vacationDate=date) & Q(empId_id=user['employee__empId'])).first()
 
-                # 상주
-                if user['employee__dispatchCompany'] != '내근':
-                    user['status'] = '상주'
+                # 업로드된 데이터 날짜의 employee 첫번째 지문 기록
+                attendance = Attendance.objects.filter(Q(attendanceDate=date)&Q(empId_id=user['employee__empId'])).order_by('attendanceTime').first()
 
                 # 휴가
-                elif vacation:
+                if vacation:
+                    # 일차 or 오전반차
                     if vacation.vacationType == '일차' or vacation.vacationType == '오전반차':
                         user['status'] = vacation.vacationType
+                    # 오후반차
                     else:
-                        for attendance in attendances:
-                            if user['employee__empId'] == attendance.empId_id:
+                        service = Servicereport.objects.filter(Q(serviceDate=date) & Q(empId=user['employee__empId'])&Q(directgo='Y')).first()
+                        # 오후반차이고 직출일 떄
+                        if service:
+                            user['status'] = '작출'
+                        # 오후반차이고 직출 아닐 때
+                        else:
+                            # 첫번째 지문기록이 있을 때
+                            if attendance:
                                 if attendance.attendanceTime >= datetime.time(9, 1, 0):
                                     user['status'] = '지각'
-                                    break
                                 else:
                                     user['status'] = '출근'
-                                    break
+
+                # 상주
+                elif user['employee__dispatchCompany'] != '내근':
+                    user['status'] = '상주'
 
                 else:
                     service = Servicereport.objects.filter(Q(serviceDate=date) & Q(empId=user['employee__empId'])).order_by('serviceStartDatetime').first()
@@ -75,32 +84,38 @@ def save_punctuality(dateList):
                         if service.directgo == 'Y':
                             user['status'] = '직출'
                         else:
-                            for attendance in attendances:
-                                if user['employee__empId'] == attendance.empId_id:
-                                    if attendance.attendanceTime >= datetime.time(9, 1, 0):
-                                        user['status'] = '지각'
-                                        break
-                                    else:
-                                        user['status'] = '출근'
-                                        break
-                    else:
-                        for attendance in attendances:
-                            if user['employee__empId'] == attendance.empId_id:
+                            # 첫번째 지문기록이 있을 때
+                            if attendance:
                                 if attendance.attendanceTime >= datetime.time(9, 1, 0):
                                     user['status'] = '지각'
-                                    break
                                 else:
                                     user['status'] = '출근'
-                                    break
+                    else:
+                        # 첫번째 지문기록이 있을 때
+                        if attendance:
+                            if attendance.attendanceTime >= datetime.time(9, 1, 0):
+                                user['status'] = '지각'
+                            else:
+                                user['status'] = '출근'
 
             for user in users:
-                # 값이 달라진 row 만 insert
-                if Punctuality.objects.filter(Q(empId=user['employee__empId']) & Q(punctualityDate=user['date']) & Q(punctualityType=user['status'])).first() == None:
-                    # 비고란에 값이 있으면 안 바꿈. 수정이 일어난 경우
-                    if Punctuality.objects.filter(Q(empId=user['employee__empId']) & Q(punctualityDate=user['date'])&Q(comment__isnull=True)).first() == None:
-                        employee = Employee.objects.get(empId=user['employee__empId'])
-                        Punctuality.objects.create(empId=employee, punctualityDate=user['date'], punctualityType=user['status'])
+                punctuality = Punctuality.objects.filter(Q(empId=user['employee__empId']) & Q(punctualityDate=user['date']))
+                # 해당날짜에 근태 정보가 있음
+                if punctuality.first():
+                    # 비고란에 값이 있으면 안 바꿈
+                    if punctuality.filter(Q(comment__isnull=False)).first():
+                        pass
 
+                    else:
+                        punctuality = punctuality.first()
+                        if punctuality.punctualityType != user['status']:
+                            punctuality.punctualityType = user['status']
+                            punctuality.save()
+
+                # 해당 날짜에 근태 정보가 없음
+                else:
+                    employee = Employee.objects.get(empId=user['employee__empId'])
+                    Punctuality.objects.create(empId=employee, punctualityDate=user['date'], punctualityType=user['status'])
 
     return 0
 
@@ -174,5 +189,4 @@ def year_absence(year):
             team6.append(user)
 
     userList = (team1, team2, team3, team4, team5, team6 )
-    print(userList)
     return userList
