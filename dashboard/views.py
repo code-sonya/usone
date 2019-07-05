@@ -137,13 +137,13 @@ def over_hour(request):
 def over_asjson(request):
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
-    overHour = Servicereport.objects.filter(Q(serviceOverHour__gt=0)&Q(serviceStatus='Y'))
+    overHour = Servicereport.objects.filter(Q(serviceOverHour__gt=0) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
     if startdate:
         overHour = overHour.filter(Q(serviceDate__gte=startdate))
     if enddate:
         overHour = overHour.filter(Q(serviceDate__lte=enddate))
 
-    overHourlist = overHour.values('serviceStartDatetime', 'serviceEndDatetime', 'empId__empName', 'empId__empDeptName', 'companyName', 'serviceOverHour', 'serviceId')
+    overHourlist = overHour.values('serviceStartDatetime', 'serviceEndDatetime', 'empName', 'empDeptName', 'companyName', 'serviceOverHour', 'serviceId')
     structure = json.dumps(list(overHourlist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -539,6 +539,7 @@ def quarter_asjson(request):
                     "q2_end": "{}-07-01".format(todayYear),
                     "q3_end": "{}-10-01".format(todayYear),
                     "q4_end": "{}-01-01".format(todayYear + 1)}
+    print(request.POST)
     step = request.POST['step']
     team = request.POST['team']
     if team == '합계':
@@ -586,6 +587,7 @@ def quarter_asjson(request):
     dataFirm = dataFirm.values('predictBillingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
                                'contractId__empName', 'contractId__empDeptName', 'revenueId')
 
+    print(dataFirm)
     structureStep = json.dumps(list(dataFirm), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')
 
@@ -598,7 +600,7 @@ def dashboard_credit(request):
     # 월별 미수금액 / 수금액
     revenuesMonth = revenues.values('predictBillingDate__month') \
         .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(billingDate__isnull=False) & Q(depositDate__isnull=True)), 0)
-                  , collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0))
+                  , collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)).order_by('predictBillingDate__month')
     # 총 미수금액 / 수금액
     revenuesTotal = revenuesMonth.aggregate(outstandingCollectionsTotal=Sum('outstandingCollectionsMonth')
                                             , collectionofMoneyTotal=Sum('collectionofMoneyMonth'))
@@ -606,7 +608,7 @@ def dashboard_credit(request):
     purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False))
     # 월별 미지급액 / 지급액
     purchasesMonth = purchases.values('predictBillingDate__month').annotate(accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)), 0)
-                                                                            , amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0))
+                                                                            , amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)).order_by('predictBillingDate__month')
     # 총 미지급액
     purchasesTotal = purchasesMonth.aggregate(accountsPayablesTotal=Sum('accountsPayablesMonth')
                                               , amountPaidTotal=Sum('amountPaidMonth'))

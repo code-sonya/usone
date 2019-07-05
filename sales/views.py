@@ -110,7 +110,6 @@ def post_contract(request):
 @login_required
 def show_contracts(request):
     employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
-    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -127,7 +126,7 @@ def show_contracts(request):
         startdate = ''
         enddate = ''
         contractStep = ''
-        empDeptName = ''
+        empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         endCompanyName = ''
@@ -136,7 +135,6 @@ def show_contracts(request):
 
     context = {
         'employees': employees,
-        'pastEmployees': pastEmployees,
         'startdate': startdate,
         'enddate': enddate,
         'contractStep': contractStep,
@@ -308,7 +306,7 @@ def modify_contract(request, contractId):
             'form': form,
             'items': items,
             'revenues': revenues.order_by('predictBillingDate'),
-            'purchases': purchases.order_by('purchaseId'),
+            'purchases': purchases.order_by('predictBillingDate'),
             'saleCompanyNames': saleCompanyNames,
             'endCompanyNames': endCompanyNames,
             'contractPaper': contractPaper,
@@ -321,10 +319,8 @@ def modify_contract(request, contractId):
 @login_required
 def show_revenues(request):
     employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
-    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
-        print(request.POST)
         startdate = request.POST["startdate"]
         enddate = request.POST["enddate"]
         empDeptName = request.POST['empDeptName']
@@ -338,7 +334,7 @@ def show_revenues(request):
 
     else:
         startdate = ''
-        enddate =''
+        enddate = ''
         empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
@@ -351,7 +347,6 @@ def show_revenues(request):
     outstandingcollection = 'N'
     context = {
         'employees': employees,
-        'pastEmployees': pastEmployees,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,
@@ -405,11 +400,9 @@ def salemanager_asjson(request):
 def empdept_asjson(request):
     empDeptName = request.POST['empDeptName']
     if empDeptName == '전체':
-        employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀') & Q(empStatus='Y'))
-        # employees = Employee.objects.filter(Q(empDeptName='영업1팀') | Q(empDeptName='영업2팀') | Q(empDeptName='영업3팀'))
+        employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
     else:
-        employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
-        # employees = Employee.objects.filter(Q(empDeptName=empDeptName))
+        employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
     json = serializers.serialize('json', employees)
     return HttpResponse(json, content_type='application/json')
 
@@ -496,10 +489,12 @@ def revenues_asjson(request):
     if outstandingcollection == 'Y':
         revenues = Revenue.objects.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
     elif outstandingcollection == 'N':
-        if issued == 'Y':
-            revenues = Revenue.objects.filter(Q(billingDate__isnull=False))
-        elif issued == 'N':
+        if issued == 'A':
             revenues = Revenue.objects.filter(Q(billingDate__isnull=True))
+        elif issued == 'B':
+            revenues = Revenue.objects.filter(Q(billingDate__isnull=False))
+        elif issued == 'C':
+            revenues = Revenue.objects.filter(Q(depositDate__isnull=False))
         else:
             revenues = Revenue.objects.all()
 
@@ -850,7 +845,7 @@ def save_purchasetable(request):
         'modifyMode': modifyMode,
         'maincategory': maincategory,
         'issued': issued,
-        'searchText':searchText,
+        'searchText': searchText,
     }
     if accountspayable == 'Y':
         return render(request, 'sales/showaccountspayables.html', context)
@@ -877,10 +872,12 @@ def purchases_asjson(request):
     if accountspayable == 'Y':
         purchase = Purchase.objects.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
     elif accountspayable == 'N':
-        if issued == 'Y':
-            purchase = Purchase.objects.filter(billingDate__isnull=False)
-        elif issued == 'N':
+        if issued == 'A':
             purchase = Purchase.objects.filter(billingDate__isnull=True)
+        elif issued == 'B':
+            purchase = Purchase.objects.filter(billingDate__isnull=False)
+        elif issued == 'C':
+            purchase = Purchase.objects.filter(withdrawDate__isnull=False)
         else:
             purchase = Purchase.objects.all()
 
@@ -947,7 +944,7 @@ def save_revenuetable(request):
     outstandingcollection = request.GET['outstandingcollection']
     modifyMode = request.GET['modifyMode']
     searchText = request.GET['searchText']
-    print("request.GET",request.GET)
+    print("request.GET", request.GET)
 
     for a, b, c, d, e, f in zip(revenueId, predictBillingDate, billingDate, predictDepositDate, depositDate, comment):
         revenue = Revenue.objects.get(revenueId=a)
@@ -969,7 +966,7 @@ def save_revenuetable(request):
         'contractStep': contractStep,
         'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
-        'searchText':searchText,
+        'searchText': searchText,
     }
     if outstandingcollection == 'Y':
         return render(request, 'sales/showoutstandingcollections.html', context)
@@ -992,20 +989,23 @@ def show_outstandingcollections(request):
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
+        maincategory = request.POST['maincategory']
+        issued = request.POST['issued']
 
     else:
         startdate = ''
         enddate = ''
-        empDeptName = ''
+        empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         contractName = ''
         contractStep = ''
         modifyMode = 'N'
+        maincategory = ''
+        issued = ''
 
     outstandingcollection = 'Y'
-    maincategory = ''
-    issued = ''
+
     today = datetime.today()
     before = datetime.today() - timedelta(days=180)
     context = {
@@ -1061,6 +1061,8 @@ def show_accountspayables(request):
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
+        maincategory = request.POST['maincategory']
+        issued = request.POST['issued']
     else:
         startdate = ''
         enddate = ''
@@ -1070,12 +1072,12 @@ def show_accountspayables(request):
         contractName = ''
         contractStep = '전체'
         modifyMode = 'N'
+        maincategory = ''
+        issued = '전체'
 
     accountspayable = 'Y'
-    maincategory = ''
     today = datetime.today()
     before = datetime.today() - timedelta(days=180)
-    issued = '전체'
     context = {
         'employees': employees,
         'pastEmployees': pastEmployees,
@@ -1531,10 +1533,11 @@ def outstanding_asjson(request):
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
 @login_required
 @csrf_exempt
 def check_gp(request):
-    revenues = Revenue.objects.values('contractId','contractId__contractCode','contractId__contractName').annotate(sum_price=Sum('revenuePrice'),sum_profit=Sum('revenueProfitPrice'))
+    revenues = Revenue.objects.values('contractId', 'contractId__contractCode', 'contractId__contractName').annotate(sum_price=Sum('revenuePrice'), sum_profit=Sum('revenueProfitPrice'))
     purchases = Purchase.objects.values('contractId').annotate(sum_price=Sum('purchasePrice'))
     contractTrue = []
     contractFalse = []
@@ -1544,18 +1547,19 @@ def check_gp(request):
             if i.contractId == r['contractId']:
                 if i.salePrice == r['sum_price']:
                     if i.profitPrice == r['sum_profit']:
-                        contractTrue.append({"id":i.contractId,'code':i.contractCode,'reason':'일치'})
+                        contractTrue.append({"id": i.contractId, 'code': i.contractCode, 'reason': '일치'})
                     else:
-                        contractFalse.append({"id":i.contractId,'code':i.contractCode,'name':i.contractName,'reason':'이익합계불일치'})
+                        contractFalse.append({"id": i.contractId, 'code': i.contractCode, 'name': i.contractName, 'reason': '이익합계불일치'})
                 else:
-                    contractFalse.append({"id":i.contractId,'code':i.contractCode,'reason':'메출합계불일치'})
+                    contractFalse.append({"id": i.contractId, 'code': i.contractCode, 'reason': '메출합계불일치'})
 
         if purchases.filter(contractId=i.contractId).first() is None:
             if revenues.filter(contractId=i.contractId).first()['sum_price'] != revenues.filter(contractId=i.contractId).first()['sum_profit']:
                 contractFalse.append({"id": i.contractId, 'code': revenues.filter(contractId=i.contractId).first()['contractId__contractCode'],
                                       'name': revenues.filter(contractId=i.contractId).first()['contractId__contractName'],
                                       'reason': 'GP불일치', 'revenueprice': revenues.filter(contractId=i.contractId).first()['sum_price'], 'purchaseprice': 0,
-                                      'gap': revenues.filter(contractId=i.contractId).first()['sum_price'] - 0})
+                                      'gap': revenues.filter(contractId=i.contractId).first()['sum_price'] - 0,
+                                      'gap_gp': (revenues.filter(contractId=i.contractId).first()['sum_price'] - 0) - i.profitPrice})
 
     for r in revenues:
         for p in purchases:
@@ -1563,11 +1567,12 @@ def check_gp(request):
                 if (r['sum_price'] - p['sum_price']) == r['sum_profit']:
                     contractTrue.append({"id": r['contractId'], 'code': r['contractId__contractCode'], 'reason': '일치'})
                 else:
-                    contractFalse.append({"id": r['contractId'], 'code': r['contractId__contractCode'],'name':r['contractId__contractName'],
-                                          'reason': 'GP불일치' ,'revenueprice' : r['sum_price'],'purchaseprice':p['sum_price'],'gap':r['sum_price'] - p['sum_price']})
+                    contractFalse.append({"id": r['contractId'], 'code': r['contractId__contractCode'], 'name': r['contractId__contractName'],
+                                          'reason': 'GP불일치', 'revenueprice': r['sum_price'], 'purchaseprice': p['sum_price'], 'gap': r['sum_price'] - p['sum_price'],
+                                          'gap_gp': (r['sum_price'] - p['sum_price']) - r['sum_profit']})
 
-    context ={
-        'contractFalse':contractFalse,
-        'contracts':contracts,
+    context = {
+        'contractFalse': contractFalse,
+        'contracts': contracts,
     }
     return render(request, 'sales/checkgp.html', context)

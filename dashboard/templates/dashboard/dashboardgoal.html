@@ -1169,6 +1169,8 @@
                   "cumulative": filterArray['cumulative'],
                   "quarter": filterArray['quarter'],
                   "month": filterArray['month'],
+                  "maincategory": '',
+                  "subcategory": '',
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
