@@ -430,8 +430,12 @@ def contracts_asjson(request):
     endCompanyName = request.POST['endCompanyName']
     contractName = request.POST['contractName']
     mainCategory = request.POST['mainCategory']
+    drops = request.POST['drops']
 
-    contracts = Contract.objects.all()
+    if drops == "Y":
+        contracts = Contract.objects.filter(contractStep='Drop')
+    else:
+        contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
 
     if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
@@ -464,7 +468,7 @@ def contracts_asjson(request):
         contracts = contracts.filter(mainCategory__icontains=mainCategory)
 
     contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName__companyNameKo', 'endCompanyName__companyNameKo',
-                                 'contractDate', 'contractId', 'salePrice', 'profitPrice', 'mainCategory', 'subCategory', 'saleIndustry', 'saleType',
+                                 'contractDate', 'contractId', 'salePrice', 'profitPrice', 'mainCategory', 'subCategory', 'saleIndustry', 'saleType', 'comment',
                                  'contractStartDate', 'contractEndDate', 'depositCondition', 'depositConditionDay')
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

@@ -38,10 +38,8 @@
   <div class="row">
     <div class="col-xl-12">
       <div class="card shadow mb-4">
-
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 계약 관리</h6>
-
+          <h6 class="m-0 h3 text-gray-800">영업기회 & 계약 관리</h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
@@ -72,6 +70,7 @@
                 <th>계약일</th>
                 <th>계약금액</th>
                 <th>이익금액</th>
+                <th class="d-none">참고사항</th>
                 <th class="d-none">계약시작일</th>
                 <th class="d-none">계약종료일</th>
                 <th class="d-none">종목</th>
@@ -93,6 +92,66 @@
                 <th style="padding: 8px 10px; text-align: right"></th>
                 <th style="padding: 8px 10px; text-align: right"></th>
                 <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+              </tr>
+              </tfoot>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" onclick="updown('dropcard')">
+          <h6 class="m-0 h3 text-gray-800">실주 계약 관리</h6>
+        </div>
+
+        <div id="dropcard" class="card-body d-block">
+          {% csrf_token %}
+
+          <div class="table-responsive">
+            <table id="showdrops" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th class="d-none">구분</th>
+                <th class="d-none">관리번호</th>
+                <th>소속</th>
+                <th>영업대표</th>
+                <th>계약명</th>
+                <th>거래처</th>
+                <th>최종고객사</th>
+                <th>예상계약월</th>
+                <th>예상계약금액</th>
+                <th>예상이익금액</th>
+                <th>참고사항</th>
+                <th class="d-none">계약시작일</th>
+                <th class="d-none">계약종료일</th>
+                <th class="d-none">종목</th>
+                <th class="d-none">상세</th>
+                <th class="d-none">산업군</th>
+                <th class="d-none">판매유형</th>
+                <th class="d-none">대금결제조건1</th>
+                <th class="d-none">대금결제조건2</th>
+                <th class="d-none">contractId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <tr>
+                <th class="d-none"></th>
+                <th class="d-none"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                <th style="padding: 8px 10px; text-align: right"></th>
                 <th style="padding: 8px 10px; text-align: right"></th>
                 <th style="padding: 8px 10px; text-align: right"></th>
               </tr>
@@ -143,7 +202,7 @@
                 </select>
               </div>
               <div class="col-6">
-                <label for="enddate" class="text-primary">단계</label>
+                <label for="contractStep" class="text-primary">단계</label>
                 <select class="form-control" id="contractStep" name="contractStep">
                   <option value="전체">전체</option>
                   <option value="Opportunity" {% if contractStep == "Opportunity" %}selected{% endif %}>Opportunity</option>
@@ -181,17 +240,17 @@
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="companyName" class="text-primary">거래처</label>
+                <label for="saleCompanyName" class="text-primary">거래처</label>
                 <input class="form-control" id="saleCompanyName" name="saleCompanyName" value="{{ saleCompanyName }}">
               </div>
               <div class="col-6">
-                <label for="serviceType" class="text-primary">최종고객사</label>
+                <label for="endCompanyName" class="text-primary">최종고객사</label>
                 <input class="form-control" id="endCompanyName" name="endCompanyName" value="{{ endCompanyName }}">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="boardTitle" class="text-primary">계약명</label>
+                <label for="contractName" class="text-primary">계약명</label>
                 <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
               </div>
               <div class="col-6">
@@ -218,6 +277,10 @@
   <script type="text/javascript">
       function btn_filter() {
           document.getElementById("filterForm").submit();
+      }
+
+      function btn_filter2() {
+          document.getElementById("filterForm2").submit();
       }
 
       function replaceAll(str, searchStr, replaceStr) {
@@ -264,8 +327,19 @@
           }
       }
 
+      function updown(tableId) {
+          if ($('#' + tableId).hasClass("d-none") === true) {
+              $('#' + tableId).removeClass("d-none");
+              $('#' + tableId).addClass("d-block");
+          } else if ($('#' + tableId).hasClass("d-block") === true) {
+              $('#' + tableId).removeClass("d-block");
+              $('#' + tableId).addClass("d-none");
+          }
+      }
+
       $(document).ready(function () {
 
+          {#영업기회 & 계약 관리 테이블#}
           $('#showcontracts').dataTable({
               "processing": true,
               "ajax": {
@@ -273,16 +347,17 @@
                   "type": 'POST',
                   "data": {
                       "userId": "{{ user.employee.empId }}",
-                      "startdate": {% if startdate %}"{{ startdate }}"{% else %}""{% endif %},
-                      "enddate": {% if enddate %}"{{ enddate }}"{% else %}""{% endif %},
-                      "contractStep": {% if contractStep %}"{{ contractStep }}"{% else %}""{% endif %},
-                      "empDeptName": {% if empDeptName %}"{{ empDeptName }}"{% else %}""{% endif %},
-                      "empName": {% if empName %}"{{ empName }}"{% else %}""{% endif %},
+                      "startdate": "{{ startdate }}",
+                      "enddate": "{{ enddate }}",
+                      "contractStep": "{{ contractStep }}",
+                      "empDeptName": "{{ empDeptName }}",
+                      "empName": "{{ empName }}",
                       "companyName": "",
-                      "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}"{% else %}""{% endif %},
-                      "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}"{% else %}""{% endif %},
-                      "contractName": {% if contractName %}"{{ contractName }}"{% else %}""{% endif %},
-                      "mainCategory": {% if mainCategory %}"{{ mainCategory }}"{% else %}""{% endif %},
+                      "saleCompanyName": "{{ saleCompanyName }}",
+                      "endCompanyName": "{{ endCompanyName }}",
+                      "contractName": "{{ contractName }}",
+                      "mainCategory": "{{ mainCategory }}",
+                      "drops": "N"
                   },
                   "url": "{% url 'sales:contracts_ajax_url' %}",
                   "dataSrc": ""
@@ -298,6 +373,7 @@
                   {data: "contractDate"},
                   {data: "salePrice"},
                   {data: "profitPrice"},
+                  {data: "comment"},
                   {data: "contractStartDate"},
                   {data: "contractEndDate"},
                   {data: "mainCategory"},
@@ -328,6 +404,7 @@
                   {targets: 16, visible: false},
                   {targets: 17, visible: false},
                   {targets: 18, visible: false},
+                  {targets: 19, visible: false},
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -392,10 +469,141 @@
               },
           });
 
-          var table = $('#showcontracts').DataTable();
+          const contractsTable = $('#showcontracts').DataTable();
 
           $("#showcontracts").on("click", 'tr', function () {
-              const data = table.row(this).data();
+              const data = contractsTable.row(this).data();
+              location.href = '/sales/viewcontract/' + data.contractId + '/'
+          });
+
+          {#실주 계약 관리 테이블#}
+          $('#showdrops').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      "userId": "{{ user.employee.empId }}",
+                      "startdate": "",
+                      "enddate": "",
+                      "contractStep": "",
+                      "empDeptName": "전체",
+                      "empName": "",
+                      "companyName": "",
+                      "saleCompanyName": "",
+                      "endCompanyName": "",
+                      "contractName": "",
+                      "mainCategory": "",
+                      "drops": "Y",
+                  },
+                  "url": "{% url 'sales:contracts_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: "contractStep"},
+                  {data: "contractCode"},
+                  {data: "empDeptName"},
+                  {data: "empName"},
+                  {data: "contractName"},
+                  {data: "saleCompanyName__companyNameKo"},
+                  {data: "endCompanyName__companyNameKo"},
+                  {data: "contractDate"},
+                  {data: "salePrice"},
+                  {data: "profitPrice"},
+                  {data: "comment"},
+                  {data: "contractStartDate"},
+                  {data: "contractEndDate"},
+                  {data: "mainCategory"},
+                  {data: "subCategory"},
+                  {data: "saleIndustry"},
+                  {data: "saleType"},
+                  {data: "depositCondition"},
+                  {data: "depositConditionDay"},
+                  {data: "contractId"},
+              ],
+              "columnDefs": [
+                  {targets: 0, visible: false},
+                  {targets: 1, visible: false},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 10, width: "20%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 11, visible: false},
+                  {targets: 12, visible: false},
+                  {targets: 13, visible: false},
+                  {targets: 14, visible: false},
+                  {targets: 15, visible: false},
+                  {targets: 16, visible: false},
+                  {targets: 17, visible: false},
+                  {targets: 18, visible: false},
+                  {targets: 19, visible: false},
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "deferRender": true,
+              "order": [[1, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.salePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.profitPrice.toLocaleString());
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var saleResult = 0;
+                  api.column(8, {search: 'applied'}).data().each(function (data, index) {
+                      saleResult += parseFloat(data);
+                  });
+                  $(api.column(8).footer()).html(saleResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(9, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(9).footer()).html(profitResult.toLocaleString());
+              },
+          });
+
+          const dropTable = $('#showdrops').DataTable();
+
+          $("#showdrops").on("click", 'tr', function () {
+              const data = dropTable.row(this).data();
               location.href = '/sales/viewcontract/' + data.contractId + '/'
           });
       });
