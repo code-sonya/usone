@@ -133,6 +133,26 @@
             </div>
             <div class="row mb-1">
               <div class="col-6">
+                <label for="mainCategory" class="text-primary">분기</label>
+                <select class="form-control" id="quarter" name="quarter" onchange="changeQuarter('startdate', 'enddate', 'quarter')">
+                  <option value="">------</option>
+                  <option value="1">1분기</option>
+                  <option value="2">2분기</option>
+                  <option value="3">3분기</option>
+                  <option value="4">4분기</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="enddate" class="text-primary">단계</label>
+                <select class="form-control" id="contractStep" name="contractStep">
+                  <option value="전체">전체</option>
+                  <option value="Opportunity">Opportunity</option>
+                  <option value="Firm">Firm</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
                 <label for="empDeptName" class="text-primary">영업부서</label>
                 <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
                   <option value="전체">전체</option>
@@ -170,17 +190,6 @@
                 <label for="boardTitle" class="text-primary">계약명</label>
                 <input class="form-control" id="contractName" name="contractName">
               </div>
-              <div class="col-6">
-                <label for="enddate" class="text-primary">단계</label>
-                <select class="form-control" id="contractStep" name="contractStep">
-                  <option value="전체">전체</option>
-                  <option value="Opportunity">Opportunity</option>
-                  <option value="Firm">Firm</option>
-                  <option value="Drop">Drop</option>
-                </select>
-              </div>
-            </div>
-            <div class="row mb-1">
               <div class="col-6">
                 <label for="mainCategory" class="text-primary">대분류</label>
                 <input class="form-control" id="mainCategory" name="mainCategory">
@@ -233,6 +242,24 @@
           })
       }
 
+      function changeQuarter(startDateId, endDateId, quarterId) {
+          const quarter = $('#' + quarterId).val();
+          const year = new Date().getFullYear();
+          if (quarter === '1') {
+              $('#' + startDateId).val(year + '-01-01');
+              $('#' + endDateId).val(year + '-03-31');
+          } else if (quarter === '2') {
+              $('#' + startDateId).val(year + '-04-01');
+              $('#' + endDateId).val(year + '-06-30');
+          } else if (quarter === '3') {
+              $('#' + startDateId).val(year + '-07-01');
+              $('#' + endDateId).val(year + '-09-30');
+          } else if (quarter === '4') {
+              $('#' + startDateId).val(year + '-10-01');
+              $('#' + endDateId).val(year + '-12-31');
+          }
+      }
+
       $(document).ready(function () {
 
           $('#showcontracts').dataTable({
@@ -242,16 +269,16 @@
                   "type": 'POST',
                   "data": {
                       "userId": "{{ user.employee.empId }}",
-                      "startdate": {% if startdate %}"{{ startdate }}",{% else %}"",{% endif %}
-                      "enddate": {% if enddate %}"{{ enddate }}",{% else %}"",{% endif %}
-                      "contractStep": {% if contractStep %}"{{ contractStep }}",{% else %}"",{% endif %}
-                      "empDeptName": {% if empDeptName %}"{{ empDeptName }}",{% else %}"",{% endif %}
-                      "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                      "startdate": {% if startdate %}"{{ startdate }}"{% else %}""{% endif %},
+                      "enddate": {% if enddate %}"{{ enddate }}"{% else %}""{% endif %},
+                      "contractStep": {% if contractStep %}"{{ contractStep }}"{% else %}""{% endif %},
+                      "empDeptName": {% if empDeptName %}"{{ empDeptName }}"{% else %}""{% endif %},
+                      "empName": {% if empName %}"{{ empName }}"{% else %}""{% endif %},
                       "companyName": "",
-                      "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}",{% else %}"",{% endif %}
-                      "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}",{% else %}"",{% endif %}
-                      "contractName": {% if contractName %}"{{ contractName }}",{% else %}"",{% endif %}
-                      "mainCategory": {% if mainCategory %}"{{ mainCategory }}",{% else %}"",{% endif %}
+                      "saleCompanyName": {% if saleCompanyName %}"{{ saleCompanyName }}"{% else %}""{% endif %},
+                      "endCompanyName": {% if endCompanyName %}"{{ endCompanyName }}"{% else %}""{% endif %},
+                      "contractName": {% if contractName %}"{{ contractName }}"{% else %}""{% endif %},
+                      "mainCategory": {% if mainCategory %}"{{ mainCategory }}"{% else %}""{% endif %},
                   },
                   "url": "{% url 'sales:contracts_ajax_url' %}",
                   "dataSrc": ""
