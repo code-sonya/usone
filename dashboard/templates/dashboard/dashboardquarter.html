@@ -1186,7 +1186,7 @@
           data: {
               labels: [
                   {% for industry in salesindustryRevenuePrice %}
-                      '{{ industry.contractId__saleIndustry }}',
+                      '{{ industry.contractId__saleIndustry }}'.replace('&amp;', '&'),
                   {% endfor %}
               ],
               datasets: [
@@ -1250,7 +1250,7 @@
                   outlabels: {
                       text: '%l',
                       color: 'white',
-                      stretch: 40,
+                      stretch:5,
                       font: {
                           resizable: true,
                           minSize: 12,
