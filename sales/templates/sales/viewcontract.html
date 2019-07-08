@@ -262,10 +262,10 @@
                 <table class="pc-table">
                   <thead>
                   <tr class="bg-secondary">
-                    <td class="text-gray-100">매출처</td>
-                    <td class="text-gray-100">매출금액</td>
-                    <td class="text-gray-100">수금액</td>
-                    <td class="text-gray-100">수금률</td>
+                    <td class="text-gray-100" width="30%">매출처</td>
+                    <td class="text-gray-100" width="25%">매출금액</td>
+                    <td class="text-gray-100" width="25%">수금액</td>
+                    <td class="text-gray-100" width="20%">수금률</td>
                   </tr>
                   </thead>
                   <tbody>
@@ -290,25 +290,27 @@
                 <table class="pc-table">
                   <thead>
                   <tr class="bg-secondary">
-                    <td class="text-gray-100">매입처</td>
-                    <td class="text-gray-100">매입금액</td>
-                    <td class="text-gray-100">지급액</td>
-                    <td class="text-gray-100">지급률</td>
+                    <td class="text-gray-100" width="30%">매입처</td>
+                    <td class="text-gray-100" width="27%">매입금액</td>
+                    <td class="text-gray-100" width="23%">지급액</td>
+                    <td class="text-gray-100" width="20%">지급률</td>
                   </tr>
                   </thead>
                   <tbody>
                   {% for withdraw in companyWithdraw %}
                     <tr class="thtd">
-                      <td>{% if withdraw.purchaseCompany__companyNameKo == None %}-{% else %}{{ withdraw.purchaseCompany__companyNameKo }}{% endif %}</td>
-                      <td>{% if withdraw.sum_withdraw == None %}0{% else %}{{ withdraw.sum_withdraw | intcomma }} ({{ withdraw.sum_ratio_withdraw }}%){% endif %}</td>
-                      <td>{% if withdraw.filter_withdraw == None %}0{% else %}{{ withdraw.filter_withdraw | intcomma }} {% endif %}</td>
+                      <td class="text-left">{% if withdraw.purchaseCompany__companyNameKo == None %}-{% else %}{{ withdraw.purchaseCompany__companyNameKo }}{% endif %}</td>
+                      <td class="text-right">{% if withdraw.sum_withdraw == None %}0{% else %}{{ withdraw.sum_withdraw | intcomma }}
+                        <span style="display: inline-block; width: 60px;">({{ withdraw.sum_ratio_withdraw }}%)</span>{% endif %}</td>
+                      <td class="text-right">{% if withdraw.filter_withdraw == None %}0{% else %}{{ withdraw.filter_withdraw | intcomma }} {% endif %}</td>
                       <td>{% if withdraw.ratio_withdraw == None %}0{% else %}{{ withdraw.ratio_withdraw }}{% endif %}%</td>
                     </tr>
                   {% endfor %}
                   <tr class="thtd bg-light">
                     <td>합계</td>
-                    <td>{% if companyTotalWithdraw.total_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_sum_withdraw | intcomma }} {% endif %}</td>
-                    <td>{% if companyTotalWithdraw.total_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_filter_withdraw | intcomma }} {% endif %}</td>
+                    <td class="text-right">{% if companyTotalWithdraw.total_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_sum_withdraw | intcomma }}
+                      <span style="display: inline-block; width: 60px;"></span>{% endif %}</td>
+                    <td class="text-right">{% if companyTotalWithdraw.total_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_filter_withdraw | intcomma }}{% endif %}</td>
                     <td>{% if companyTotalWithdraw.total_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_ratio_withdraw }}{% endif %}%</td>
                   </tr>
                   </tbody>
