@@ -31,6 +31,14 @@ def viewContract(contractId):
     contractPaper = str(contract.contractPaper).split('/')[-1]
     orderPaper = str(contract.orderPaper).split('/')[-1]
 
+    sumRevenuePrice = revenues.aggregate(sum_revenuePrice=Coalesce(Sum('revenuePrice'), 0))['sum_revenuePrice']
+    sumRevenueProfitPrice = revenues.aggregate(sum_revenueProfitPrice=Coalesce(Sum('revenueProfitPrice'), 0))['sum_revenueProfitPrice']
+    if sumRevenueProfitPrice:
+        sumRevenueProfitRatio = round(sumRevenueProfitPrice / sumRevenuePrice * 100)
+    else:
+        sumRevenueProfitRatio = 0
+    sumPurchasePrice = purchases.aggregate(sum_purchasePrice=Coalesce(Sum('purchasePrice'), 0))['sum_purchasePrice']
+
     # 연도 별 매출·이익 기여도
     yearList = list(set([i['predictBillingDate'].year for i in list(revenues.values('predictBillingDate'))]))
     yearSummary = []
@@ -112,12 +120,11 @@ def viewContract(contractId):
         'contract': contract,
         'items': items,
         'revenues': revenues.order_by('predictBillingDate'),
-        'sumRevenuePrice': revenues.aggregate(sum_revenuePrice=Sum('revenuePrice'))['sum_revenuePrice'],
-        'sumRevenueProfitPrice': revenues.aggregate(sum_revenueProfitPrice=Sum('revenueProfitPrice'))['sum_revenueProfitPrice'],
-        'sumRevenueProfitRatio': round(revenues.aggregate(sum_revenueProfitPrice=Sum('revenueProfitPrice'))['sum_revenueProfitPrice'] * 100 /
-                                       revenues.aggregate(sum_revenuePrice=Sum('revenuePrice'))['sum_revenuePrice']),
+        'sumRevenuePrice': sumRevenuePrice,
+        'sumRevenueProfitPrice': sumRevenueProfitPrice,
+        'sumRevenueProfitRatio': sumRevenueProfitRatio,
         'purchases': purchases.order_by('predictBillingDate'),
-        'sumPurchasePrice': purchases.aggregate(sum_purchasePrice=Sum('purchasePrice'))['sum_purchasePrice'],
+        'sumPurchasePrice': sumPurchasePrice,
         'contractPaper': contractPaper,
         'orderPaper': orderPaper,
         # 연도 별 매출·이익 기여도

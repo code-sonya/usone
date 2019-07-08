@@ -195,6 +195,7 @@
             </table>
           {% endif %}
 
+          {% if contract.contractStep != 'Drop' %}
           <br>
           <h5 class="text-dark mb-3"><b>
             <span id="yearSummaryDown" onclick="downClick('yearSummary', 'yearSummaryUp', 'yearSummaryDown')">▼</span>
@@ -311,6 +312,7 @@
               </div>
             </div>
           </div>
+          {% endif %}
 
           {% if revenues %}
             <br>
