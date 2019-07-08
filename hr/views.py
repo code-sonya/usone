@@ -189,7 +189,7 @@ def absences_asjson(request):
     empName = request.POST['empName']
     empDeptName = request.POST['empDeptName']
 
-    punctualitys = Punctuality.objects.filter(Q(punctualityType='지각')|Q(punctualityType='-'))
+    punctualitys = Punctuality.objects.all()
 
     if startdate:
         punctualitys = punctualitys.filter(punctualityDate__gte=startdate)
