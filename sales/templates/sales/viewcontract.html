@@ -138,11 +138,9 @@
             </tr>
             <tr>
               <td class="bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}계&nbsp; 약&nbsp; &nbsp;금&nbsp; 액</td>
-              <td>
-                <div class="text-danger">{{ contract.salePrice | intcomma }}</div>
-              </td>
+              <td class="text-danger font-weight-bold">{{ contract.salePrice | intcomma }}</td>
               <td class="bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}이&nbsp; 익&nbsp; &nbsp;금&nbsp; 액</td>
-              <td>{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio | floatformat }}%)</td>
+              <td class="text-primary font-weight-bold">{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio | floatformat }}%)</td>
             </tr>
             <tr>
               <td class="bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}계&nbsp; &nbsp; &nbsp;약&nbsp; &nbsp; &nbsp;일</td>
@@ -207,8 +205,10 @@
             <tr class="bg-secondary">
               <td class="text-gray-100">연도</td>
               <td class="text-gray-100">매출금액</td>
+              <td class="text-gray-100">매입금액</td>
               <td class="text-gray-100">이익금액</td>
               <td class="text-gray-100">수금액</td>
+              <td class="text-gray-100">지급액</td>
             </tr>
             </thead>
             <tbody>
@@ -216,15 +216,19 @@
               <tr class="thtd">
                 <td>{{ summary.year }}</td>
                 <td>{{ summary.revenuePrice | intcomma }}</td>
+                <td>{{ summary.purchasePrice | intcomma }}</td>
                 <td>{{ summary.revenueProfitPrice | intcomma}} ({{ summary.revenueProfitRatio }}%)</td>
                 <td>{{ summary.depositPrice | intcomma }} ({{ summary.depositRatio }}%)</td>
+                <td>{{ summary.withdrawPrice | intcomma }} ({{ summary.withdrawRatio }}%)</td>
               </tr>
             {% endfor %}
             <tr class="thtd bg-light">
               <td>{{ yearSum.year }}</td>
               <td class="text-danger">{{ yearSum.revenuePrice | intcomma }}</td>
+              <td class="text-success">{{ yearSum.purchasePrice | intcomma }}</td>
               <td class="text-primary">{{ yearSum.revenueProfitPrice | intcomma}} ({{ yearSum.revenueProfitRatio }}%)</td>
-              <td class="text-success">{{ yearSum.depositPrice | intcomma }} ({{ yearSum.depositRatio }}%)</td>
+              <td>{{ yearSum.depositPrice | intcomma }} ({{ yearSum.depositRatio }}%)</td>
+              <td>{{ yearSum.withdrawPrice | intcomma }} ({{ yearSum.withdrawRatio }}%)</td>
             </tr>
             </tbody>
           </table>

@@ -242,15 +242,15 @@
                 </thead>
                 <tbody>
                 <tr>
-                  <td colspan="7" class="bg-light text-primary" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
+                  <td colspan="7" class="bg-light text-danger" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
                   <td colspan="5" class="text-right">{{ money.A | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="7" class="bg-light text-danger" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
+                  <td colspan="7" class="bg-light text-success" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
                   <td colspan="5" class="text-right">{{ money.B | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="7" class="bg-light"><span class="text-primary">매출 (A)</span> - <span class="text-danger">매입 (B)</span></td>
+                  <td colspan="7" class="bg-light"><span class="text-danger">매출 (A)</span> - <span class="text-success">매입 (B)</span></td>
                   <td colspan="5" class="text-right">{{ money.AmB | intcomma }}</td>
                 </tr>
                 </tbody>
@@ -266,7 +266,7 @@
                 </thead>
                 <tbody>
                 <tr>
-                  <td colspan="7" class="bg-light text-danger" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
+                  <td colspan="7" class="bg-light text-success" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
                   <td colspan="5" class="text-right">{{ money.B | intcomma }}</td>
                 </tr>
                 <tr>
@@ -287,7 +287,7 @@
                   <td colspan="5" class="text-right">{{ money.CpD | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="7" class="bg-light text-success">조정매입채무잔액 (F)</td>
+                  <td colspan="7" class="bg-light text-primary">조정매입채무잔액 (F)</td>
                   <td colspan="5" class="text-right">{{ money.F | intcomma }}</td>
                 </tr>
                 </tbody>
@@ -303,15 +303,15 @@
                 </thead>
                 <tbody>
                 <tr>
-                  <td colspan="7" class="bg-light text-primary" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
+                  <td colspan="7" class="bg-light text-danger" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
                   <td colspan="5" class="text-right">{{ money.A | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="7" class="bg-light text-success">조정매입채무잔액 (F)</td>
+                  <td colspan="7" class="bg-light text-primary">조정매입채무잔액 (F)</td>
                   <td colspan="5" class="text-right">{{ money.F | intcomma }}</td>
                 </tr>
                 <tr>
-                  <td colspan="7" class="bg-light"><span class="text-primary">매출 (A)</span> - <span class="text-success">매입 (F)</span></td>
+                  <td colspan="7" class="bg-light"><span class="text-danger">매출 (A)</span> - <span class="text-primary">매입 (F)</span></td>
                   <td colspan="5" class="text-right font-weight-bold">{{ money.AmF | intcomma }}</td>
                 </tr>
                 </tbody>
@@ -328,11 +328,11 @@
                 </thead>
                 <tbody>
                 <tr>
-                  <td colspan="4" class="text-primary" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
+                  <td colspan="4" class="text-danger" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
                   <td colspan="8" class="text-left">매출발행 & 미수금</td>
                 </tr>
                 <tr>
-                  <td colspan="4" class="text-danger" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
+                  <td colspan="4" class="text-success" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
                   <td colspan="8" class="text-left">매입접수 & 미지급</td>
                 </tr>
                 <tr>
@@ -348,7 +348,7 @@
                   <td colspan="8" class="text-left">수금률 < 지급률 (참고사항)</td>
                 </tr>
                 <tr>
-                  <td colspan="4" class="text-success">조정매입채무잔액 (F)</td>
+                  <td colspan="4" class="text-primary">조정매입채무잔액 (F)</td>
                   <td colspan="8" class="text-left">B - (C + D). 선지급은 선매입에 포함되므로 계산 생략.</td>
                 </tr>
                 </tbody>

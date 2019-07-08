@@ -46,8 +46,10 @@ def viewContract(contractId):
         temp = {
             'year': str(year),
             'revenuePrice': revenues.aggregate(revenuePrice=Coalesce(Sum('revenuePrice', filter=Q(predictBillingDate__year=year)), 0))['revenuePrice'],
+            'purchasePrice': purchases.aggregate(purchasePrice=Coalesce(Sum('purchasePrice', filter=Q(predictBillingDate__year=year)), 0))['purchasePrice'],
             'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Coalesce(Sum('revenueProfitPrice', filter=Q(predictBillingDate__year=year)), 0))['revenueProfitPrice'],
             'depositPrice': revenues.aggregate(depositPrice=Coalesce(Sum('revenuePrice', filter=Q(predictBillingDate__year=year) & Q(depositDate__isnull=False)), 0))['depositPrice'],
+            'withdrawPrice': purchases.aggregate(withdrawPrice=Coalesce(Sum('purchasePrice', filter=Q(predictBillingDate__year=year) & Q(withdrawDate__isnull=False)), 0))['withdrawPrice'],
         }
         if temp['revenuePrice'] == 0:
             temp['revenueProfitRatio'] = '-'
@@ -55,13 +57,20 @@ def viewContract(contractId):
         else:
             temp['revenueProfitRatio'] = round(temp['revenueProfitPrice'] / temp['revenuePrice'] * 100)
             temp['depositRatio'] = round(temp['depositPrice'] / temp['revenuePrice'] * 100)
+        if temp['purchasePrice'] == 0:
+            temp['withdrawRatio'] = '-'
+        else:
+            temp['withdrawRatio'] = round(temp['withdrawPrice'] / temp['purchasePrice'] * 100)
+
         yearSummary.append(temp)
 
     yearSum = {
         'year': '합계',
         'revenuePrice': revenues.aggregate(revenuePrice=Coalesce(Sum('revenuePrice'), 0))['revenuePrice'],
+        'purchasePrice': purchases.aggregate(purchasePrice=Coalesce(Sum('purchasePrice'), 0))['purchasePrice'],
         'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Coalesce(Sum('revenueProfitPrice'), 0))['revenueProfitPrice'],
         'depositPrice': revenues.aggregate(depositPrice=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0))['depositPrice'],
+        'withdrawPrice': purchases.aggregate(withdrawPrice=Coalesce(Sum('purchasePrice', filter=Q(predictBillingDate__year=year) & Q(withdrawDate__isnull=False)), 0))['withdrawPrice'],
     }
     if yearSum['revenuePrice'] == 0:
         yearSum['revenueProfitRatio'] = '-'
@@ -69,6 +78,10 @@ def viewContract(contractId):
     else:
         yearSum['revenueProfitRatio'] = round(yearSum['revenueProfitPrice'] / yearSum['revenuePrice'] * 100)
         yearSum['depositRatio'] = round(yearSum['depositPrice'] / yearSum['revenuePrice'] * 100)
+    if yearSum['purchasePrice'] == 0:
+        yearSum['withdrawRatio'] = '-'
+    else:
+        yearSum['withdrawRatio'] = round(yearSum['withdrawPrice'] / yearSum['purchasePrice'] * 100)
 
     # 입출금정보 - 총 금액
     totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))["sum_deposit"]

@@ -1456,7 +1456,7 @@ def daily_report(request):
     rowsFOQ = dailyReportRows(todayYear, todayQuarter, 'FO')
 
     # 채권 및 채무 현황
-    contracts = Contract.objects.all()
+    contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
     revenues = Revenue.objects.all()
     purchases = Purchase.objects.all()
     money = {}
