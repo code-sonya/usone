@@ -699,19 +699,15 @@
 
           if (contractStep === 'Drop') {
               t2.rows().remove().draw();
-              $('#revenuediv').removeClass('d-table');
               $('#revenuediv').addClass('d-none');
               t3.rows().remove().draw();
-              $('#purchasediv').removeClass('d-table');
               $('#purchasediv').addClass('d-none');
           } else {
               $('#revenuediv').removeClass('d-none');
-              $('#revenuediv').addClass('d-table');
               if (t2.rows().data().length === 0){
                   $('#addRevenue').click();
               }
               $('#purchasediv').removeClass('d-none');
-              $('#purchasediv').addClass('d-table');
               if (t3.rows().data().length === 0) {
                   $('#addPurchase').click();
               }
