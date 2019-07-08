@@ -28,5 +28,5 @@ class AttendanceAdmin(admin.ModelAdmin):
 @admin.register(Punctuality)
 class PunctualityAdmin(admin.ModelAdmin):
     list_display = ('punctualityId', 'empId', 'punctualityDate', 'punctualityType', 'comment')
-    list_filter = ('punctualityDate', 'punctualityType')
+    list_filter = ('punctualityDate', 'punctualityType' , 'comment')
     list_display_links = ['punctualityId', 'empId', 'punctualityDate', 'punctualityType', 'comment']

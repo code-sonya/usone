@@ -45,6 +45,7 @@ def save_punctuality(dateList):
                 # 기본
                 user['status'] = '-'
                 user['date'] = date
+                user['comment'] = ''
 
                 # 직급
                 positionName = employee_empPosition(user['employee__empPosition'])
@@ -71,8 +72,10 @@ def save_punctuality(dateList):
                             if attendance:
                                 if attendance.attendanceTime >= datetime.time(9, 1, 0):
                                     user['status'] = '지각'
+                                    user['comment'] = '오후반차'
                                 else:
                                     user['status'] = '출근'
+                                    user['comment'] = '오후반차'
 
                 # 상주
                 elif user['employee__dispatchCompany'] != '내근':
@@ -83,6 +86,9 @@ def save_punctuality(dateList):
                     if service:
                         if service.directgo == 'Y':
                             user['status'] = '직출'
+                            if service.serviceType == '교육':
+                                user['comment'] = '교육'
+
                         else:
                             # 첫번째 지문기록이 있을 때
                             if attendance:
@@ -108,14 +114,25 @@ def save_punctuality(dateList):
 
                     else:
                         punctuality = punctuality.first()
+                        # 근태 정보가 다를 때
                         if punctuality.punctualityType != user['status']:
                             punctuality.punctualityType = user['status']
                             punctuality.save()
+                        # 근태 정보가 같은데 비고 정보가 다를때
+                        elif punctuality.punctualityType == user['status'] and punctuality.comment != user['comment']:
+                            punctuality.punctualityType = user['status']
+                            punctuality.comment = user['comment']
+                            punctuality.save()
+
 
                 # 해당 날짜에 근태 정보가 없음
                 else:
                     employee = Employee.objects.get(empId=user['employee__empId'])
-                    Punctuality.objects.create(empId=employee, punctualityDate=user['date'], punctualityType=user['status'])
+                    if user['comment'] != '':
+                        Punctuality.objects.create(empId=employee, punctualityDate=user['date'], punctualityType=user['status'], comment=user['comment'])
+                    else:
+                        Punctuality.objects.create(empId=employee, punctualityDate=user['date'], punctualityType=user['status'])
+
 
     return 0
 
