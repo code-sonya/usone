@@ -7,6 +7,23 @@
 {% load humanize %}
 {% block css %}
   <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 10px;
+      vertical-align: middle;
+      font-size: 16px;
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
     .mobile-table {
       color: #333333;
       table-layout: fixed;
@@ -18,8 +35,7 @@
     .mobile-table td, .mobile-table th {
       padding: 5px 10px;
       vertical-align: middle;
-      font-size: 16px;
-      border-top: 1px dotted #858796a3;
+      font-size: 14px;
       text-align: center;
       border: 1px solid lightgray;
       border-collapse: collapse;
@@ -34,26 +50,29 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row">
+  <div class="row d-none d-xl-block">
     <div class="col-xl-12">
 
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-          <h6 class="m-0 h3 text-gray-800"> 영업관리 Daily Report </h6>
-          <span class="text-right"> [단위: 부가세 별도] </span>
-
+          <h6 class="m-0 h3 text-gray-800">Daily Report</h6>
+          <span class="text-right">[부가세 별도]</span>
         </div>
 
         <div class="card-body">
-          <div class="row ml-1 mb-2"><span class="font-weight-bold text-dark h5">1. {{ todayYear }}년 실적 현황</span></div>
-          <div class="row ml-3 mb-2"><span class="text-dark"> 1) <span class="text-primary">Firm</span> 차트 기준 실적 현황</span></div>
+          <div class="row ml-1 mr-1 mb-2 justify-content-between">
+            <span class="font-weight-bold text-dark h5">1. {{ todayYear }}년 실적 현황</span>
+            <span>[단위 : 백만원]</span>
+          </div>
+          <div class="row ml-3 mb-2">
+            <span class="text-dark"> 1) <span class="text-primary font-weight-bold">Firm</span> 실적 현황</span>
+          </div>
 
           <div class="row">
             <div class="col-xl-6">
               <span class="ml-3">① 연간 누계 달성 현황</span>
-              <table class="mobile-table ml-2">
+              <table class="pc-table ml-2">
                 <thead>
                 <tr class="bg-light">
                   <td rowspan="2">구분</td>
@@ -87,7 +106,7 @@
             </div>
             <div class="col-xl-6">
               <span class="ml-3"> ② 분기 누계 달성 현황</span>
-              <table class="mobile-table mr-3">
+              <table class="pc-table mr-3">
                 <thead>
                 <tr class="bg-light">
                   <td rowspan="2">구분</td>
@@ -121,11 +140,11 @@
             </div>
           </div>
           <br>
-          <div class="row ml-3 mb-2"><span class="text-dark"> 2) <span class="text-primary">Firm </span> + <span class="text-success">Oppt'y </span> 차트 기준 누계 실적 현황</span></div>
+          <div class="row ml-3 mb-2"><span class="text-dark">2) <span class="text-primary font-weight-bold">Firm</span> + <span class="text-success font-weight-bold">Oppt'y</span> 실적 현황</span></div>
           <div class="row">
             <div class="col-xl-6">
               <span class="ml-3"> ① 연간 누계 달성 현황</span>
-              <table class="mobile-table ml-2">
+              <table class="pc-table ml-2">
                 <thead>
                 <tr class="bg-light">
                   <td rowspan="2">구분</td>
@@ -158,8 +177,8 @@
               </table>
             </div>
             <div class="col-xl-6">
-              <span class="ml-2"> ② 분기 누계 달성 현황</span>
-              <table class="mobile-table mr-3">
+              <span class="ml-3"> ② 분기 누계 달성 현황</span>
+              <table class="pc-table mr-3">
                 <thead>
                 <tr class="bg-light">
                   <td rowspan="2">구분</td>
@@ -195,7 +214,10 @@
           </div>
           <br>
 
-          <div class="row ml-1 mb-2"><h6 class="font-weight-bold text-dark h5">2. 미수금 주요 현황 </h6></div>
+          <div class="row ml-1 mr-1 mb-2 justify-content-between">
+            <span class="font-weight-bold text-dark h5">2. 미수금 주요 현황 </span>
+            <span>[단위 : 원]</span>
+          </div>
           <div class="row ml-3">
             <span class="text-dark">
               ※ 본 자료에는 <span class="text-danger">수금예정일이 경과된 채권</span>만 표기.
@@ -206,11 +228,10 @@
             <table id="showrevenues" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>매출일</th>
+                <th>수금예정일</th>
                 <th>매출처</th>
                 <th>계약명</th>
                 <th>매출금액</th>
-                <th>수금예정일</th>
                 <th>비고</th>
                 <th class="d-none">revenueId</th>
               </tr>
@@ -222,6 +243,296 @@
                 <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
                 <th style="padding: 8px 10px; text-align: right"></th>
                 <th style="padding: 8px 10px; text-align: right"></th>
+              </tr>
+              </tfoot>
+            </table>
+          </div>
+          <br>
+
+          <div class="row ml-1 mr-1 mb-2 justify-content-between">
+            <span class="font-weight-bold text-dark h5">3. 채권 및 채무 현황 </span>
+            <span>[단위 : 원]</span>
+          </div>
+          <div class="row">
+            <div class="col-xl-6">
+              <div class="ml-3 mb-2 text-dart"> 1) 회계기준 기본 잔액 </div>
+              <table class="pc-table">
+                <thead>
+                <tr class="text-white" style="background-color: darkorange">
+                  <td colspan="7">계정과목</td>
+                  <td colspan="5">금액</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td colspan="7" class="bg-light text-danger" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
+                  <td colspan="5" class="text-right">{{ money.A | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="7" class="bg-light text-success" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
+                  <td colspan="5" class="text-right">{{ money.B | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="7" class="bg-light"><span class="text-danger">매출 (A)</span> - <span class="text-success">매입 (B)</span></td>
+                  <td colspan="5" class="text-right">{{ money.AmB | intcomma }}</td>
+                </tr>
+                </tbody>
+              </table>
+
+              <div class="row ml-3 mb-2">2) 매입채무 조정 </div>
+              <table class="pc-table">
+                <thead>
+                <tr class="text-white" style="background-color: darkorange">
+                  <td colspan="7">계정과목</td>
+                  <td colspan="5">금액</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td colspan="7" class="bg-light text-success" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
+                  <td colspan="5" class="text-right">{{ money.B | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="3" rowspan="4" class="bg-light">매입<br class="d-xl-none">채무<br>조정<br class="d-xl-none">사항</td>
+                  <td colspan="4" class="bg-light">미접수 (C)</td>
+                  <td colspan="5" class="text-right">{{ money.C | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="bg-light">선매입 (D)</td>
+                  <td colspan="5" class="text-right">{{ money.D | intcomma }}</td>
+                </tr>
+                <tr class="text-gray-500">
+                  <td colspan="4" class="bg-light">선지급 (E)</td>
+                  <td colspan="5" class="text-right">{{ money.E | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="bg-light font-weight-bold">소계</td>
+                  <td colspan="5" class="text-right">{{ money.CpD | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="7" class="bg-light text-primary">조정매입채무잔액 (F)</td>
+                  <td colspan="5" class="text-right">{{ money.F | intcomma }}</td>
+                </tr>
+                </tbody>
+              </table>
+
+              <div class="row ml-3 mb-2">3) 조정사항 반영 후 잔액</div>
+              <table class="pc-table">
+                <thead>
+                <tr class="text-white" style="background-color: darkorange">
+                  <td colspan="7">계정과목</td>
+                  <td colspan="5">금액</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td colspan="7" class="bg-light text-danger" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
+                  <td colspan="5" class="text-right">{{ money.A | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="7" class="bg-light text-primary">조정매입채무잔액 (F)</td>
+                  <td colspan="5" class="text-right">{{ money.F | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td colspan="7" class="bg-light"><span class="text-danger">매출 (A)</span> - <span class="text-primary">매입 (F)</span></td>
+                  <td colspan="5" class="text-right font-weight-bold">{{ money.AmF | intcomma }}</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-xl-6">
+              <div class="row ml-1 mb-2">※ 용어정의</div>
+              <table class="pc-table">
+                <thead>
+                <tr class="bg-light">
+                  <td colspan="4">용어</td>
+                  <td colspan="8">정의</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td colspan="4" class="text-danger" onclick="location.href='/sales/showoutstandingcollections/'">매출채권잔액 (A)</td>
+                  <td colspan="8" class="text-left">매출발행 & 미수금</td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="text-success" onclick="location.href='/sales/showaccountspayables/'">매입채무잔액 (B)</td>
+                  <td colspan="8" class="text-left">매입접수 & 미지급</td>
+                </tr>
+                <tr>
+                  <td colspan="4">미접수 (C)</td>
+                  <td colspan="8" class="text-left">매출발행비율 > 매입접수비율</td>
+                </tr>
+                <tr>
+                  <td colspan="4">선매입 (D)</td>
+                  <td colspan="8" class="text-left">매출발행비율 < 매입접수비율</td>
+                </tr>
+                <tr>
+                  <td colspan="4">선지급 (E)</td>
+                  <td colspan="8" class="text-left">수금률 < 지급률 (참고사항)</td>
+                </tr>
+                <tr>
+                  <td colspan="4" class="text-primary">조정매입채무잔액 (F)</td>
+                  <td colspan="8" class="text-left">B - (C + D). 선지급은 선매입에 포함되므로 계산 생략.</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="row d-xl-none">
+      <div class="col-xl-12">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">Daily Report</h6>
+          <span class="text-right">[부가세 별도]</span>
+        </div>
+
+        <div class="card-body">
+          <div class="row ml-1 mr-1 mb-2 justify-content-between">
+            <span class="font-weight-bold text-dark h5">1. {{ todayYear }}년 실적 현황</span>
+            <span>[단위 : 백만원]</span>
+          </div>
+          <div class="row ml-3 mb-2">
+            <span class="text-dark"> 1) <span class="text-primary font-weight-bold">Firm</span> 실적 현황</span>
+          </div>
+
+          <div class="row">
+            <div class="col-xl-6">
+              <span class="ml-3">① 연간 누계 달성 현황</span>
+              <table class="mobile-table">
+                <thead>
+                <tr class="bg-light">
+                  <td width="16%">구분</td>
+                  <td width="28%">목표 매출<br>(목표 GP)</td>
+                  <td width="28%">달성 매출<br>(달성 GP)</td>
+                  <td width="28%">달성률</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rowsFY %}
+                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                    <td>{{ row.empDeptName }}</td>
+                    <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}<br>({{ row.profitTarget |slugify|slice:"0:-6"|intcomma }})</td>
+                    <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}<br>({{ row.profitPrice |slugify|slice:"0:-6"|intcomma }})</td>
+                    <td class="text-right">{{ row.revenueRatio }}%<br>({{ row.profitRatio }}%)</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="col-xl-6">
+              <span class="ml-3"> ② {{ todayQuarter }} 누계 달성 현황</span>
+              <table class="mobile-table">
+                <thead>
+                <tr class="bg-light">
+                  <td width="16%">구분</td>
+                  <td width="28%">목표 매출<br>(목표 GP)</td>
+                  <td width="28%">달성 매출<br>(달성 GP)</td>
+                  <td width="28%">달성률</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rowsFQ %}
+                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                    <td>{{ row.empDeptName }}</td>
+                    <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}<br>({{ row.profitTarget |slugify|slice:"0:-6"|intcomma }})</td>
+                    <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}<br>({{ row.profitPrice |slugify|slice:"0:-6"|intcomma }})</td>
+                    <td class="text-right">{{ row.revenueRatio }}%<br>({{ row.profitRatio }}%)</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <br>
+          <div class="row ml-3 mb-2"><span class="text-dark">2) <span class="text-primary font-weight-bold">Firm</span> + <span class="text-success font-weight-bold">Oppt'y</span> 실적 현황</span></div>
+          <div class="row">
+            <div class="col-xl-6">
+              <span class="ml-3"> ① 연간 누계 달성 현황</span>
+              <table class="mobile-table">
+                <thead>
+                <tr class="bg-light">
+                  <td width="16%">구분</td>
+                  <td width="28%">목표 매출<br>(목표 GP)</td>
+                  <td width="28%">달성 매출<br>(달성 GP)</td>
+                  <td width="28%">달성률</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rowsFOY %}
+                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                    <td>{{ row.empDeptName }}</td>
+                    <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}<br>({{ row.profitTarget |slugify|slice:"0:-6"|intcomma }})</td>
+                    <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}<br>({{ row.profitPrice |slugify|slice:"0:-6"|intcomma }})</td>
+                    <td class="text-right">{{ row.revenueRatio }}%<br>({{ row.profitRatio }}%)</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="col-xl-6">
+              <span class="ml-3"> ② 분기 누계 달성 현황</span>
+              <table class="mobile-table mr-3">
+                <thead>
+                <tr class="bg-light">
+                  <td width="16%">구분</td>
+                  <td width="28%">목표 매출<br>(목표 GP)</td>
+                  <td width="28%">달성 매출<br>(달성 GP)</td>
+                  <td width="28%">달성률</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in rowsFOQ %}
+                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                    <td>{{ row.empDeptName }}</td>
+                    <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}<br>({{ row.profitTarget |slugify|slice:"0:-6"|intcomma }})</td>
+                    <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}<br>({{ row.profitPrice |slugify|slice:"0:-6"|intcomma }})</td>
+                    <td class="text-right">{{ row.revenueRatio }}%<br>({{ row.profitRatio }}%)</td>
+                  </tr>
+                {% endfor %}
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <br>
+
+          <div class="row ml-1 mr-1 mb-2 justify-content-between">
+            <span class="font-weight-bold text-dark h5">2. 미수금 주요 현황 </span>
+            <span>[단위 : 원]</span>
+          </div>
+          <div class="row ml-3">
+            <span class="text-dark">
+              ※ 본 자료에는 <span class="text-danger">수금예정일이 경과된 채권</span>만 표기.
+              미수금 전체 내역은 <a href="/sales/showoutstandingcollections/">여기</a>에서 확인 가능.
+            </span>
+          </div>
+          <div class="table-responsive">
+            <table id="mobileshowrevenues" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>수금예정일</th>
+                <th>매출처</th>
+                <th>계약명</th>
+                <th>매출금액</th>
+                <th>비고</th>
+                <th class="d-none">revenueId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <tr>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                <th style="padding: 8px 10px; text-align: right"></th>
                 <th style="padding: 8px 10px; text-align: right"></th>
               </tr>
               </tfoot>
@@ -229,7 +540,10 @@
           </div>
           <br>
 
-          <div class="row ml-1 mb-2"><h6 class="font-weight-bold text-dark h5">3. 채권 및 채무 현황 </h6></div>
+          <div class="row ml-1 mr-1 mb-2 justify-content-between">
+            <span class="font-weight-bold text-dark h5">3. 채권 및 채무 현황 </span>
+            <span>[단위 : 원]</span>
+          </div>
           <div class="row">
             <div class="col-xl-6">
               <div class="ml-3 mb-2 text-dart"> 1) 회계기준 기본 잔액 </div>
@@ -367,6 +681,20 @@
 
   <script>
 
+      function replaceDate(predictStr, executionStr, searchStr, replaceStr, complete, idx) {
+          let newStr;
+
+          if (executionStr != null) {
+              newStr = complete + '완료';
+          }
+          else if (predictStr != null) {
+              newStr = predictStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, idx);
+          } else {
+              newStr =  '-'
+          }
+          return newStr
+      }
+
       $(document).ready(function () {
 
           $('#showrevenues').dataTable({
@@ -381,11 +709,10 @@
                   "dataSrc": ""
               },
               "columns": [
-                  {data: 'billingDate'},
+                  {data: 'predictDepositDate'},
                   {data: 'revenueCompany__companyNameKo'},
                   {data: 'contractId__contractName'},
                   {data: 'revenuePrice'},
-                  {data: 'predictDepositDate'},
                   {data: 'comment'},
                   {data: 'revenueId'},
               ],
@@ -394,12 +721,11 @@
                   {targets: 1, width: '15%', className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: '30%', className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: '10%', className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: '10%', className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: '25%', className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, className: "d-none"},
+                  {targets: 4, width: '35%', className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "d-none"},
               ],
               "deferRender": true,
-              "order": [[4, 'asc']],
+              "order": [[0, 'asc']],
               "searching": true,
               "paging": false,
               "info": false,
@@ -416,9 +742,10 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(0)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
                   $('td:eq(3)', nRow).text(aData.revenuePrice.toLocaleString());
                   if (aData.predictDepositDate < '{{ today | date:"Y-m-d" }}') {
-                      $('td:eq(4)', nRow).css('color', '#ff0000');
+                      $('td:eq(0)', nRow).css('color', '#ff0000');
                   }
                   if (aData.predictDepositDate < '{{ before | date:"Y-m-d" }}') {
                       $(nRow).css('background-color', '#ffe6e6');
@@ -436,9 +763,81 @@
               },
           });
 
-          var table = $('#showrevenues').DataTable();
+          const table = $('#showrevenues').DataTable();
           $("#showrevenues").on("click", 'tr', function () {
               const data = table.row(this).data();
+              location.href = '/sales/viewrevenue/' + data.revenueId + '/'
+          });
+
+          $('#mobileshowrevenues').dataTable({
+              "scrollX": true,
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {},
+                  "url": "{% url 'sales:outstanding_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'predictDepositDate'},
+                  {data: 'revenueCompany__companyNameKo'},
+                  {data: 'contractId__contractName'},
+                  {data: 'revenuePrice'},
+                  {data: 'comment'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: '10%', className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: '15%', className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: '30%', className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: '10%', className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: '35%', className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[0, 'asc']],
+              "searching": true,
+              "paging": false,
+              "info": false,
+              "scrollY": "40vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(0)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
+                  $('td:eq(3)', nRow).text(aData.revenuePrice.toLocaleString());
+                  if (aData.predictDepositDate < '{{ today | date:"Y-m-d" }}') {
+                      $('td:eq(0)', nRow).css('color', '#ff0000');
+                  }
+                  if (aData.predictDepositDate < '{{ before | date:"Y-m-d" }}') {
+                      $(nRow).css('background-color', '#ffe6e6');
+                  }
+              },
+              "footerCallback": function () {
+                  var mobileapi = this.api(), data;
+
+                  var mobilerevenueResult = 0;
+                  mobileapi.column(3, {search: 'applied'}).data().each(function (data, index) {
+                      mobilerevenueResult += parseFloat(data);
+                  });
+                  $(mobileapi.column(3).footer()).html(mobilerevenueResult.toLocaleString());
+
+              },
+          });
+
+          var mobiletable = $('#mobileshowrevenues').DataTable();
+          $("#mobileshowrevenues").on("click", 'tr', function () {
+              const data = mobiletable.row(this).data();
               location.href = '/sales/viewrevenue/' + data.revenueId + '/'
           });
       });
