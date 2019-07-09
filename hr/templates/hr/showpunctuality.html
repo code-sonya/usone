@@ -97,14 +97,30 @@
                   {% elif p.empId__empPosition == 6 %}
                     <td>사원</td>
                   {% endif %}
-                  {% if p.punctualityType == '일차' or p.punctualityType == '오전반차' %}
-                    <td class="text-success">{{ p.punctualityType }}</td>
-                  {% elif p.punctualityType == '직출' %}
-                    <td class="text-primary">{{ p.punctualityType }}</td>
-                  {% elif p.punctualityType == '지각' %}
-                    <td class="text-danger">{{ p.punctualityType }}</td>
+                  {% if user.employee.empDeptName == '경영지원본부' %}
+                    {% if p.punctualityType == '일차' or p.punctualityType == '오전반차' %}
+                      <td><a href="/hr/viewabsence/{{ p.punctualityId }}/" class="text-success">{{ p.punctualityType }}</a></td>
+                    {% elif p.punctualityType == '직출' %}
+                      <td><a href="/hr/viewabsence/{{ p.punctualityId }}/" class="text-primary">{{ p.punctualityType }}</a></td>
+                    {% elif p.punctualityType == '지각' %}
+                      <td><a href="/hr/viewabsence/{{ p.punctualityId }}/" class="text-danger">{{ p.punctualityType }}</a></td>
+                    {% elif p.punctualityType == '-' %}
+                      <td><a href="/hr/viewabsence/{{ p.punctualityId }}/" class="text-secondary">{{ p.punctualityType }}</a></td>
+                    {% else %}
+                      <td><a href="/hr/viewabsence/{{ p.punctualityId }}/" class="text-secondary">{{ p.punctualityType }}</a></td>
+                    {% endif %}
                   {% else %}
-                    <td class="text-secondary">{{ p.punctualityType }}</td>
+                    {% if p.punctualityType == '일차' or p.punctualityType == '오전반차' %}
+                      <td class="text-success">{{ p.punctualityType }}</td>
+                    {% elif p.punctualityType == '직출' %}
+                      <td class="text-primary">{{ p.punctualityType }}</td>
+                    {% elif p.punctualityType == '지각' %}
+                      <td class="text-danger">{{ p.punctualityType }}</td>
+                    {% elif p.punctualityType == '-' %}
+                      <td class="text-secondary">{{ p.punctualityType }}</td>
+                    {% else %}
+                      <td class="text-secondary">{{ p.punctualityType }}</td>
+                    {% endif %}
                   {% endif %}
                   {% if user.employee.empDeptName != '임원' %}
                     {% if p.comment %}

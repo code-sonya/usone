@@ -608,7 +608,6 @@ def dashboard_credit(request):
     template = loader.get_template('dashboard/dashboardcredit.html')
     todayYear = datetime.today().year
     today = datetime.today()
-    print(today)
     # 해당 년도 매출 (이번년도에 매출발행이 됐고 수금예정일이 있는 것)
     revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False) & Q(predictDepositDate__isnull=False))
     # 월별 미수금액 / 수금액

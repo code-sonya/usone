@@ -63,12 +63,18 @@ def show_punctuality(request, day=None):
 
     punctuality = Punctuality.objects.filter(punctualityDate=day).order_by('empId__empPosition')
     punctualityList = []
-    punctualityList.append(punctuality.filter(empId__empDeptName='경영지원본부').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
-    punctualityList.append(punctuality.filter(empId__empDeptName='영업1팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
-    punctualityList.append(punctuality.filter(empId__empDeptName='영업2팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
-    punctualityList.append(punctuality.filter(empId__empDeptName='인프라서비스사업팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
-    punctualityList.append(punctuality.filter(empId__empDeptName='솔루션지원팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
-    punctualityList.append(punctuality.filter(empId__empDeptName='DB지원팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment'))
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='경영지원본부').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='영업1팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='영업2팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='인프라서비스사업팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='솔루션지원팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='DB지원팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
 
     for pun in punctualityList:
         for user in pun:
@@ -204,20 +210,21 @@ def absences_asjson(request):
     structure = json.dumps(list(punctualitys), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
 @login_required
 @csrf_exempt
 def view_absence(request, punctualityId):
     punctuality = Punctuality.objects.filter(Q(punctualityId=punctualityId))
     punctuality = punctuality.values('punctualityDate', 'empId__empDeptName', 'empId__empName', 'punctualityType', 'comment', 'punctualityId').first()
     context = {
-        'punctuality':punctuality
+        'punctuality': punctuality
     }
     return render(request, 'hr/viewabsence.html', context)
+
 
 @login_required
 @csrf_exempt
 def modify_absence(request, punctualityId):
-
     if request.method == "POST":
         punctuality = Punctuality.objects.get(Q(punctualityId=punctualityId))
         punctualityType = request.POST["punctualityType"]
@@ -226,13 +233,13 @@ def modify_absence(request, punctualityId):
         punctuality.comment = comment
         punctuality.save()
         print(punctuality)
-        return redirect('hr:viewabsence',punctualityId)
+        return redirect('hr:viewabsence', punctualityId)
 
     else:
         punctuality = Punctuality.objects.filter(Q(punctualityId=punctualityId))
         punctuality = punctuality.values('punctualityDate', 'empId__empDeptName', 'empId__empName', 'punctualityType', 'comment', 'punctualityId').first()
 
         context = {
-            'punctuality':punctuality
+            'punctuality': punctuality
         }
         return render(request, 'hr/modifyabsence.html', context)
