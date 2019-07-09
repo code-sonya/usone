@@ -1580,3 +1580,22 @@ def check_gp(request):
         'contracts': contracts,
     }
     return render(request, 'sales/checkgp.html', context)
+
+@login_required
+@csrf_exempt
+def contract_revenues(request):
+    contractId = request.POST['contractId']
+    revenues = Revenue.objects.filter(Q(contractId__contractId=contractId))
+    revenues = revenues.values('billingTime','predictBillingDate','billingDate','predictDepositDate','depositDate','revenueCompany__companyNameKo','revenuePrice','revenueProfitPrice','comment','revenueId')
+    structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+@login_required
+@csrf_exempt
+def contract_purchases(request):
+    contractId = request.POST['contractId']
+    purchases = Purchase.objects.filter(Q(contractId__contractId=contractId))
+    purchases = purchases.values('billingTime','predictBillingDate','billingDate','predictWithdrawDate','withdrawDate','purchaseCompany__companyNameKo','purchasePrice','comment','purchaseId')
+    structure = json.dumps(list(purchases), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
