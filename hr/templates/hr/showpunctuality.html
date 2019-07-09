@@ -67,71 +67,77 @@
                   <td>성명</td>
                   <td>직급</td>
                   <td>현황</td>
-                  <td>비고</td>
-                  <td>분기지각체크</td>
+                  {% if user.employee.empDeptName != '임원' %}
+                    <td>비고</td>
+                    <td>분기지각체크</td>
+                  {% endif %}
                 </tr>
                 </thead>
                 <tbody>
                 {% for punctuality in punctualityList %}
-                  {% for user in punctuality %}
-                    {% ifchanged user.empId__empDeptName %}
+                  {% for p in punctuality %}
+                    {% ifchanged p.empId__empDeptName %}
                       <tr class="bg-gray-200">
-                        <td><b>{{ user.empId__empDeptName }}</b><br></td>
+                        <td><b>{{ p.empId__empDeptName }}</b><br></td>
                         {% else %}
                       <tr>
                       <td></td>
                     {% endifchanged %}
-                  <td>{{ user.empId__empName }}</td>
-                  {% if user.empId__empPosition == 1 %}
+                  <td>{{ p.empId__empName }}</td>
+                  {% if p.empId__empPosition == 1 %}
                     <td>이사</td>
-                  {% elif user.empId__empPosition == 2 %}
+                  {% elif p.empId__empPosition == 2 %}
                     <td>부장</td>
-                  {% elif user.empId__empPosition == 3 %}
+                  {% elif p.empId__empPosition == 3 %}
                     <td>차장</td>
-                  {% elif user.empId__empPosition == 4 %}
+                  {% elif p.empId__empPosition == 4 %}
                     <td>과장</td>
-                  {% elif user.empId__empPosition == 5 %}
+                  {% elif p.empId__empPosition == 5 %}
                     <td>대리</td>
-                  {% elif user.empId__empPosition == 6 %}
+                  {% elif p.empId__empPosition == 6 %}
                     <td>사원</td>
                   {% endif %}
-                  {% if user.punctualityType == '일차' or user.punctualityType == '오전반차' %}
-                    <td class="text-success">{{ user.punctualityType }}</td>
+                  {% if p.punctualityType == '일차' or p.punctualityType == '오전반차' %}
+                    <td class="text-success">{{ p.punctualityType }}</td>
                   {% elif user.punctualityType == '직출' %}
-                    <td class="text-primary">{{ user.punctualityType }}</td>
+                    <td class="text-primary">{{ p.punctualityType }}</td>
                   {% elif user.punctualityType == '지각' %}
-                    <td class="text-danger">{{ user.punctualityType }}</td>
+                    <td class="text-danger">{{ p.punctualityType }}</td>
                   {% else %}
-                    <td class="text-secondary">{{ user.punctualityType }}</td>
+                    <td class="text-secondary">{{ p.punctualityType }}</td>
                   {% endif %}
-                  {% if user.comment %}
-                    <td>{{ user.comment }}</td>
-                  {% else %}
-                    <td></td>
-                  {% endif %}
-                  {% if user.absenceCount %}
-                    {% if user.absenceCount == 1 or user.absenceCount == 2 %}
-                      <td name="absence">{{ user.absenceCount }}회
-                        {% else %}
-                      <td name="absence" class="text-danger">{{ user.absenceCount }}회
+                  {% if user.employee.empDeptName != '임원' %}
+                    {% if p.comment %}
+                      <td>{{ p.comment }}</td>
+                    {% else %}
+                      <td></td>
                     {% endif %}
-                  (
-                  {% for date in user.absenceDate %}
-                    {{ date|date:"m/d" }},
-                  {% endfor %}
-                  )
-                  </td>
-                  {% else %}
-                    <td></td>
+                    {% if p.absenceCount %}
+                      {% if p.absenceCount == 1 or p.absenceCount == 2 %}
+                        <td name="absence">{{ p.absenceCount }}회
+                          {% else %}
+                        <td name="absence" class="text-danger">{{ p.absenceCount }}회
+                      {% endif %}
+                    (
+                    {% for date in p.absenceDate %}
+                      {{ date|date:"m/d" }},
+                    {% endfor %}
+                    )
+                    </td>
+                    {% else %}
+                      <td></td>
+                    {% endif %}
                   {% endif %}
-
-
                   </tr>
                   {% endfor %}
                 {% endfor %}
                 <tr class="bg-gray-200">
                   <td>합계</td>
-                  <td colspan="5">{{ sumpunctuality }}명</td>
+                  {% if user.employee.empDeptName != '임원' %}
+                    <td colspan="5">{{ sumpunctuality }}명</td>
+                  {% else %}
+                    <td colspan="3">{{ sumpunctuality }}명</td>
+                  {% endif %}
                 </tr>
 
 

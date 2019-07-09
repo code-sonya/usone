@@ -379,8 +379,8 @@ def dashboard_quarter(request):
         'endCompanyName': endCompanyName,
         'contractName': contractName,
         'maincategoryRevenuePrice': maincategoryRevenuePrice,
-        'salesindustryRevenuePrice':salesindustryRevenuePrice,
-        'salestypeRevenuePrice':salestypeRevenuePrice,
+        'salesindustryRevenuePrice': salesindustryRevenuePrice,
+        'salestypeRevenuePrice': salestypeRevenuePrice,
     }
     return HttpResponse(template.render(context, request))
 
@@ -607,28 +607,50 @@ def quarter_asjson(request):
 def dashboard_credit(request):
     template = loader.get_template('dashboard/dashboardcredit.html')
     todayYear = datetime.today().year
-    # 해당 년도 매출
-    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False))
+    today = datetime.today()
+    print(today)
+    # 해당 년도 매출 (이번년도에 매출발행이 됐고 지급예정일이 있는 것)
+    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False) & Q(predictDepositDate__isnull=False))
     # 월별 미수금액 / 수금액
-    revenuesMonth = revenues.values('predictBillingDate__month') \
-        .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(billingDate__isnull=False) & Q(depositDate__isnull=True)), 0)
-                  , collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)).order_by('predictBillingDate__month')
+    revenuesMonth = revenues.values('predictDepositDate__month') \
+        .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=True) & Q(predictDepositDate__lte=today)), 0)
+                  , collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)).order_by('predictDepositDate__month')
     # 총 미수금액 / 수금액
     revenuesTotal = revenuesMonth.aggregate(outstandingCollectionsTotal=Sum('outstandingCollectionsMonth')
                                             , collectionofMoneyTotal=Sum('collectionofMoneyMonth'))
     # 해당 년도 매입
-    purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False))
+    purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False) & Q(predictWithdrawDate__isnull=False))
     # 월별 미지급액 / 지급액
-    purchasesMonth = purchases.values('predictBillingDate__month').annotate(accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)), 0)
-                                                                            , amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)).order_by('predictBillingDate__month')
+    purchasesMonth = purchases.values('predictWithdrawDate__month').annotate(
+        accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True) & Q(predictWithdrawDate__lte=today)), 0)
+        , amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)).order_by('predictWithdrawDate__month')
     # 총 미지급액
     purchasesTotal = purchasesMonth.aggregate(accountsPayablesTotal=Sum('accountsPayablesMonth')
                                               , amountPaidTotal=Sum('amountPaidMonth'))
+
+    revenueMonth=[]
+    for m in range(1,13):
+        rMonth = {'predictDepositDate__month': m, 'outstandingCollectionsMonth': 0, 'collectionofMoneyMonth': 0}
+        for r in revenuesMonth:
+            if r['predictDepositDate__month'] == m:
+                rMonth = r
+                break
+        revenueMonth.append(rMonth)
+
+    purchaseMonth = []
+    for m in range(1, 13):
+        pMonth = {'predictWithdrawDate__month': m, 'accountsPayablesMonth': 0, 'amountPaidMonth': 0}
+        for p in purchasesMonth:
+            if p['predictWithdrawDate__month'] == m:
+                pMonth = p
+                break
+        purchaseMonth.append(pMonth)
+
     context = {
         'revenuesTotal': revenuesTotal,
-        'revenuesMonth': revenuesMonth,
+        'revenuesMonth': revenueMonth,
         'purchasesTotal': purchasesTotal,
-        'purchasesMonth': purchasesMonth,
+        'purchasesMonth': purchaseMonth,
     }
     return HttpResponse(template.render(context, request))
 
@@ -640,15 +662,17 @@ def cashflow_asjson(request):
     outstandingCollections = request.POST['outstandingCollections']
     accountsPayables = request.POST['accountsPayables']
     month = request.POST['month'][:-1]
+    print(request.POST)
 
     if outstandingCollections:
-        cashflow = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(predictBillingDate__month=month) & Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
+        cashflow = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(predictDepositDate__month=month) & Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
         cashflow = cashflow.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
                                    'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
                                    'contractId__depositCondition', 'contractId__depositConditionDay', 'comment')
 
     if accountsPayables:
-        cashflow = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(predictBillingDate__month=month) & Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
+        cashflow = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(predictWithdrawDate__month=month) & Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
+        print(cashflow)
         cashflow = cashflow.values('contractId__contractName', 'purchaseCompany', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
                                    'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
 
