@@ -613,7 +613,7 @@ def dashboard_credit(request):
     revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False) & Q(predictDepositDate__isnull=False))
     # 월별 미수금액 / 수금액
     revenuesMonth = revenues.values('predictDepositDate__month') \
-        .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=True) & Q(predictDepositDate__lte=today)), 0)
+        .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=True)), 0)
                   , collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)).order_by('predictDepositDate__month')
     # 총 미수금액 / 수금액
     revenuesTotal = revenuesMonth.aggregate(outstandingCollectionsTotal=Sum('outstandingCollectionsMonth')
@@ -622,12 +622,13 @@ def dashboard_credit(request):
     purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False) & Q(predictWithdrawDate__isnull=False))
     # 월별 미지급액 / 지급액
     purchasesMonth = purchases.values('predictWithdrawDate__month').annotate(
-        accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True) & Q(predictWithdrawDate__lte=today)), 0)
+        accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0)
         , amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)).order_by('predictWithdrawDate__month')
     # 총 미지급액
-    purchasesTotal = purchasesMonth.aggregate(accountsPayablesTotal=Sum('accountsPayablesMonth')
-                                              , amountPaidTotal=Sum('amountPaidMonth'))
-
+    purchasesTotal = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False))\
+                                     .aggregate(accountsPayablesTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True )),0)
+                                              , amountPaidTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)),0))
+    print(purchasesTotal)
     revenueMonth=[]
     for m in range(1,13):
         rMonth = {'predictDepositDate__month': m, 'outstandingCollectionsMonth': 0, 'collectionofMoneyMonth': 0}

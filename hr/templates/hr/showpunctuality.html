@@ -99,9 +99,9 @@
                   {% endif %}
                   {% if p.punctualityType == '일차' or p.punctualityType == '오전반차' %}
                     <td class="text-success">{{ p.punctualityType }}</td>
-                  {% elif user.punctualityType == '직출' %}
+                  {% elif p.punctualityType == '직출' %}
                     <td class="text-primary">{{ p.punctualityType }}</td>
-                  {% elif user.punctualityType == '지각' %}
+                  {% elif p.punctualityType == '지각' %}
                     <td class="text-danger">{{ p.punctualityType }}</td>
                   {% else %}
                     <td class="text-secondary">{{ p.punctualityType }}</td>
