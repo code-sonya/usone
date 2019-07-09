@@ -1661,10 +1661,11 @@ def inadvance_asjson(request):
             withdrawRatioContractPurchases = 0
 
         contract['billingInadvance'] = round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
-        if round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases)) < 0:
+
+        if depositRatioContractRevenues < withdrawRatioContractPurchases:
             contract['withdrawInadvance'] = round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases))
             contract['depositInadvance'] = 0
-        elif round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases)) > 0:
+        elif depositRatioContractRevenues > withdrawRatioContractPurchases:
             contract['withdrawInadvance'] = 0
             contract['depositInadvance'] = round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases))
         else:
@@ -1672,10 +1673,10 @@ def inadvance_asjson(request):
             contract['depositInadvance'] = 0
 
         if title == '선매입관리':
-            if ratioContractRevenues < ratioContractPurchases:
+            if ratioContractRevenues <= ratioContractPurchases:
                 purchaseinadvanceList.append(contract)
         elif title == '미접수관리':
-            if ratioContractRevenues > ratioContractPurchases != 0:
+            if ratioContractRevenues > ratioContractPurchases:
                 purchaseinadvanceList.append(contract)
 
     structure = json.dumps(purchaseinadvanceList, cls=DjangoJSONEncoder)
