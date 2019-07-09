@@ -86,6 +86,7 @@ def save_punctuality(dateList):
                     if service:
                         if service.directgo == 'Y':
                             user['status'] = '직출'
+                            user['comment'] = service.companyName
                             if service.serviceType == '교육':
                                 user['comment'] = '교육'
 
