@@ -398,50 +398,6 @@
                   </tfoot>
                 </table>
               </div>
-              {#              <table class="pc-table" id="purchases">#}
-              {#                <thead>#}
-              {#                <tr class="bg-primary">#}
-              {#                  <td class="text-gray-100" width="5%">회차</td>#}
-              {#                  <td class="text-gray-100" width="10%">매입예정일</td>#}
-              {#                  <td class="text-gray-100" width="10%">매입일</td>#}
-              {#                  <td class="text-gray-100" width="10%">지급예정일</td>#}
-              {#                  <td class="text-gray-100" width="10%">지급일</td>#}
-              {#                  <td class="text-gray-100" width="20%">매입처</td>#}
-              {#                  <td class="text-gray-100" width="20%">매입금액</td>#}
-              {#                  <td class="text-gray-100" width="15%">비고</td>#}
-              {#                </tr>#}
-              {#                </thead>#}
-              {#                <tbody>#}
-              {#                {% for purchase in purchases %}#}
-              {#                  <tr {% if purchase.purchaseId == purchaseId %}style="background-color: #ffffc8"{% endif %} class="thtd">#}
-              {#                    <td class="thtd">{% if purchase.billingTime == None %}-{% else %}{{ purchase.billingTime }}{% endif %}</td>#}
-              {#                    <td class="thtd">#}
-              {#                      {% if purchase.predictBillingDate == None %}-#}
-              {#                      {% elif purchase.billingDate != None %}<span class="text-gray-500">발행완료</span>#}
-              {#                      {% else %}{{ purchase.predictBillingDate }}{% endif %}</td>#}
-              {#                    <td class="thtd">{% if purchase.billingDate == None %}-{% else %}{{ purchase.billingDate }}{% endif %}</td>#}
-              {#                    <td class="thtd">#}
-              {#                      {% if purchase.predictWithdrawDate == None %}-#}
-              {#                      {% elif purchase.withdrawDate != None %}<span class="text-gray-500">지급완료</span>#}
-              {#                      {% else %}{{ purchase.predictWithdrawDate }}{% endif %}</td>#}
-              {#                    <td class="thtd">{% if purchase.withdrawDate == None %}-{% else %}{{ purchase.withdrawDate }}{% endif %}</td>#}
-              {#                    <td class="thtd">{% if purchase.purchaseCompany.companyNameKo == None %}-{% else %}{{ purchase.purchaseCompany.companyNameKo }}{% endif %}</td>#}
-              {#                    <td class="thtd text-right">{% if purchase.purchasePrice == None %}-{% else %}{{ purchase.purchasePrice | intcomma }}{% endif %} </td>#}
-              {#                    <td class="thtd">{% if purchase.comment == None %}-{% else %}{{ purchase.comment }}{% endif %} </td>#}
-              {#                  </tr>#}
-              {#                {% endfor %}#}
-              {#                <tr style="border: 0px" class="thtd">#}
-              {#                  <td style="border: 0px" class="thtd"></td>#}
-              {#                  <td style="border: 0px" class="thtd"></td>#}
-              {#                  <td style="border: 0px" class="thtd"></td>#}
-              {#                  <td style="border: 0px" class="thtd"></td>#}
-              {#                  <td style="border: 0px" class="thtd"></td>#}
-              {#                  <td style="border: 0px" class="thtd font-weight-bold">TOTAL :</td>#}
-              {#                  <td style="border: 0px" class="thtd text-right font-weight-bold">{{ sumPurchasePrice | intcomma }}</td>#}
-              {#                  <td style="border: 0px" class="thtd"></td>#}
-              {#                </tr>#}
-              {#                </tbody>#}
-              {#              </table>#}
             {% endif %}
           </div>
         </div>
