@@ -1768,6 +1768,8 @@ def show_revenueinadvance(request):
     return render(request, 'sales/showinadvance.html', context)
 
 
+@login_required
+@csrf_exempt
 def contract_revenues(request):
     contractId = request.POST['contractId']
     revenues = Revenue.objects.filter(Q(contractId__contractId=contractId))

@@ -512,9 +512,7 @@
                   {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 8, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {
-                      targets: 9, className: "d-none"
-                  },
+                  {targets: 9, className: "d-none"},
               ],
               "deferRender": true,
               "order": [[1, 'asc']],
@@ -550,8 +548,6 @@
                   }
                   $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
                   $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
-
-
               },
               "footerCallback": function () {
                   var api = this.api(), data;
