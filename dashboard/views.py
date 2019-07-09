@@ -609,7 +609,7 @@ def dashboard_credit(request):
     todayYear = datetime.today().year
     today = datetime.today()
     print(today)
-    # 해당 년도 매출 (이번년도에 매출발행이 됐고 지급예정일이 있는 것)
+    # 해당 년도 매출 (이번년도에 매출발행이 됐고 수금예정일이 있는 것)
     revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False) & Q(predictDepositDate__isnull=False))
     # 월별 미수금액 / 수금액
     revenuesMonth = revenues.values('predictDepositDate__month') \
@@ -618,7 +618,7 @@ def dashboard_credit(request):
     # 총 미수금액 / 수금액
     revenuesTotal = revenuesMonth.aggregate(outstandingCollectionsTotal=Sum('outstandingCollectionsMonth')
                                             , collectionofMoneyTotal=Sum('collectionofMoneyMonth'))
-    # 해당 년도 매입
+    # 해당 년도 매입  (이번년도에 매입접수가 됐고 지급예정일이 있는 것)
     purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False) & Q(predictWithdrawDate__isnull=False))
     # 월별 미지급액 / 지급액
     purchasesMonth = purchases.values('predictWithdrawDate__month').annotate(
