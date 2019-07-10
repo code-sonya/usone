@@ -62,7 +62,7 @@ def save_punctuality(dateList):
                 if vacation:
                     # 일차 or 오전반차
                     if vacation.vacationType == '일차' or vacation.vacationType == '오전반차':
-                        user['status'] = vacation.vacationTypea
+                        user['status'] = vacation.vacationType
 
                     # 오후반차
                     else:
