@@ -179,7 +179,7 @@
           for (i = 0; i < size; i++) {
               var tdValue = $("td[name='absence']").eq(i).text();
               var len = tdValue.length - 100;
-              var newValue = tdValue.substr(0, tdValue.length - 59) + ' )';
+              var newValue = tdValue.substr(0, tdValue.length - 65) + ' )';
               $("td[name='absence']").eq(i).text(newValue);
           }
       });

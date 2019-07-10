@@ -1581,6 +1581,7 @@ def check_gp(request):
     }
     return render(request, 'sales/checkgp.html', context)
 
+
 @login_required
 @csrf_exempt
 def contract_revenues(request):
@@ -1589,6 +1590,7 @@ def contract_revenues(request):
     revenues = revenues.values('billingTime','predictBillingDate','billingDate','predictDepositDate','depositDate','revenueCompany__companyNameKo','revenuePrice','revenueProfitPrice','comment','revenueId')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
 
 @login_required
 @csrf_exempt
