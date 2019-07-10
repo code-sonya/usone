@@ -550,14 +550,14 @@
               {% for summary in yearSummary %}
                 <tr class="thtd">
                   <td>{{ summary.year }}</td>
-                  <td>{{ summary.revenuePrice | intcomma }}</td>
-                  <td>{{ summary.revenueProfitPrice | intcomma }}<br>({{ summary.revenueProfitRatio }}%)</td>
+                  <td class="text-right">{{ summary.revenuePrice | intcomma }}</td>
+                  <td class="text-right">{{ summary.revenueProfitPrice | intcomma }}<br>({{ summary.revenueProfitRatio }}%)</td>
                 </tr>
               {% endfor %}
               <tr class="thtd bg-light">
                 <td>{{ yearSum.year }}</td>
-                <td class="text-danger">{{ yearSum.revenuePrice | intcomma }}</td>
-                <td class="text-primary">{{ yearSum.revenueProfitPrice | intcomma }}<br>({{ yearSum.revenueProfitRatio }}%)</td>
+                <td class="text-danger text-right">{{ yearSum.revenuePrice | intcomma }}</td>
+                <td class="text-primary text-right">{{ yearSum.revenueProfitPrice | intcomma }}<br>({{ yearSum.revenueProfitRatio }}%)</td>
               </tr>
               </tbody>
             </table>
