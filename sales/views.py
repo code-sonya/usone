@@ -1581,6 +1581,7 @@ def check_gp(request):
     }
     return render(request, 'sales/checkgp.html', context)
 
+
 @login_required
 @csrf_exempt
 def inadvance_asjson(request):
