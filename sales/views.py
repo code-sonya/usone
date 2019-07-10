@@ -1671,13 +1671,13 @@ def inadvance_asjson(request):
         else:
             contract['withdrawInadvance'] = 0
             contract['depositInadvance'] = 0
-
-        if title == '선매입관리':
-            if ratioContractRevenues <= ratioContractPurchases:
-                purchaseinadvanceList.append(contract)
-        elif title == '미접수관리':
-            if ratioContractRevenues > ratioContractPurchases:
-                purchaseinadvanceList.append(contract)
+        if contract['billingInadvance'] != 0 or contract['withdrawInadvance'] != 0 or contract['depositInadvance'] !=0:
+            if title == '선매입관리':
+                if ratioContractRevenues <= ratioContractPurchases:
+                    purchaseinadvanceList.append(contract)
+            elif title == '미접수관리':
+                if ratioContractRevenues > ratioContractPurchases:
+                    purchaseinadvanceList.append(contract)
 
     structure = json.dumps(purchaseinadvanceList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
