@@ -15,7 +15,7 @@ from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase
 from .functions import viewContract, dailyReportRows
 from service.models import Company, Customer
-from django.db.models import Q, Value, F, CharField
+from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta
 import pandas as pd
 from xhtml2pdf import pisa
@@ -1407,7 +1407,7 @@ def show_purchaseinadvance(request):
         'issued': issued
     }
 
-    return render(request, 'sales/showpurchaseinadvance.html', context)
+    return render(request, 'sales/showinadvance.html', context)
 
 
 def save_company(request):
@@ -1497,7 +1497,7 @@ def daily_report(request):
         else:
             withdrawRatioContractPurchases = 0
 
-        # 미접수, 선매입, 선지급 계산
+        # 미접수, 선매입, 선수금, 선지급 계산
         if ratioContractRevenues > ratioContractPurchases:
             money['C'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
         elif ratioContractRevenues < ratioContractPurchases:
@@ -1584,6 +1584,194 @@ def check_gp(request):
 
 @login_required
 @csrf_exempt
+def inadvance_asjson(request):
+    user = Employee.objects.get(empId=request.POST['userId'])
+    startdate = request.POST["startdate"]
+    enddate = request.POST["enddate"]
+    contractStep = request.POST["contractStep"]
+    empDeptName = request.POST['empDeptName']
+    empName = request.POST['empName']
+    saleCompanyName = request.POST['saleCompanyName']
+    endCompanyName = request.POST['endCompanyName']
+    contractName = request.POST['contractName']
+    mainCategory = request.POST['mainCategory']
+    title = request.POST['title']
+
+    contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
+
+    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+        None
+    elif user.empManager == 'Y':
+        contracts = contracts.filter(empDeptName=user.empDeptName)
+    else:
+        contracts = contracts.filter(empId=user.empId)
+
+    if startdate:
+        contracts = contracts.filter(contractDate__gte=startdate)
+    if enddate:
+        contracts = contracts.filter(contractDate__lte=enddate)
+    if contractStep != '전체' and contractStep != '':
+        contracts = contracts.filter(contractStep=contractStep)
+    if empDeptName != '전체' and empDeptName != '':
+        contracts = contracts.filter(empDeptName=empDeptName)
+    if empName != '전체' and empName != '':
+        contracts = contracts.filter(empName=empName)
+    if saleCompanyName:
+        contracts = contracts.filter(saleCompanyName__companyName__icontains=saleCompanyName)
+    if endCompanyName:
+        contracts = contracts.filter(endCompanyName__companyName__icontains=endCompanyName)
+    if contractName:
+        contracts = contracts.filter(contractName__contains=contractName)
+    if mainCategory:
+        contracts = contracts.filter(mainCategory__icontains=mainCategory)
+
+    revenues = Revenue.objects.all()
+    purchases = Purchase.objects.all()
+
+    contracts = contracts.values('contractStep', 'contractCode', 'empDeptName', 'empName',  'contractName', 'saleCompanyName__companyNameKo', 'endCompanyName__companyNameKo',
+                                 'contractDate', 'contractId', 'salePrice', 'profitPrice', 'mainCategory', 'subCategory', 'saleIndustry', 'saleType', 'comment',
+                                 'contractStartDate', 'contractEndDate', 'depositCondition', 'depositConditionDay')
+
+    purchaseinadvanceList = []
+
+    for contract in contracts:
+        # 계약 별 매출발행비율
+        contractRevenues = revenues.filter(contractId=contract['contractId'])
+        billingContractRevenues = contractRevenues.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+        sumContractRevenues = contractRevenues.aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+        ratioContractRevenues = billingContractRevenues / sumContractRevenues
+
+        # 계약 별 매입접수비율
+        contractPurchases = purchases.filter(contractId=contract['contractId'])
+        billingContractPurchases = contractPurchases.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+        sumContractPurchases = contractPurchases.aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+        if sumContractPurchases:
+            ratioContractPurchases = billingContractPurchases / sumContractPurchases
+        else:
+            ratioContractPurchases = 0
+
+        # 계약 별 수금비율
+        depositContractRevenues = contractRevenues.filter(Q(depositDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+        depositRatioContractRevenues = depositContractRevenues / sumContractRevenues
+
+        # 계약 별 지급비율
+        withdrawContractPurchases = contractPurchases.filter(Q(withdrawDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+        if sumContractPurchases:
+            withdrawRatioContractPurchases = withdrawContractPurchases / sumContractPurchases
+        else:
+            withdrawRatioContractPurchases = 0
+
+        contract['billingInadvance'] = round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
+
+        if depositRatioContractRevenues < withdrawRatioContractPurchases:
+            contract['withdrawInadvance'] = round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases))
+            contract['depositInadvance'] = 0
+        elif depositRatioContractRevenues > withdrawRatioContractPurchases:
+            contract['withdrawInadvance'] = 0
+            contract['depositInadvance'] = round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases))
+        else:
+            contract['withdrawInadvance'] = 0
+            contract['depositInadvance'] = 0
+        if contract['billingInadvance'] != 0 or contract['withdrawInadvance'] != 0 or contract['depositInadvance'] !=0:
+            if title == '선매입관리':
+                if ratioContractRevenues <= ratioContractPurchases:
+                    purchaseinadvanceList.append(contract)
+            elif title == '미접수관리':
+                if ratioContractRevenues > ratioContractPurchases:
+                    purchaseinadvanceList.append(contract)
+
+    structure = json.dumps(purchaseinadvanceList, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+def show_purchaseinadvance(request):
+    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+
+    if request.method == "POST":
+        startdate = request.POST["startdate"]
+        enddate = request.POST["enddate"]
+        contractStep = request.POST["contractStep"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        saleCompanyName = request.POST['saleCompanyName']
+        endCompanyName = request.POST['endCompanyName']
+        contractName = request.POST['contractName']
+        mainCategory = request.POST['mainCategory']
+
+    else:
+        startdate = ''
+        enddate = ''
+        contractStep = ''
+        empDeptName = '전체'
+        empName = ''
+        saleCompanyName = ''
+        endCompanyName = ''
+        contractName = ''
+        mainCategory = ''
+
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'contractStep': contractStep,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'endCompanyName': endCompanyName,
+        'contractName': contractName,
+        'mainCategory': mainCategory,
+        'title': '선매입관리',
+        'money': '선매입금액',
+    }
+
+    return render(request, 'sales/showinadvance.html', context)
+
+
+def show_revenueinadvance(request):
+    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+
+    if request.method == "POST":
+        startdate = request.POST["startdate"]
+        enddate = request.POST["enddate"]
+        contractStep = request.POST["contractStep"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        saleCompanyName = request.POST['saleCompanyName']
+        endCompanyName = request.POST['endCompanyName']
+        contractName = request.POST['contractName']
+        mainCategory = request.POST['mainCategory']
+
+    else:
+        startdate = ''
+        enddate = ''
+        contractStep = ''
+        empDeptName = '전체'
+        empName = ''
+        saleCompanyName = ''
+        endCompanyName = ''
+        contractName = ''
+        mainCategory = ''
+
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'contractStep': contractStep,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'saleCompanyName': saleCompanyName,
+        'endCompanyName': endCompanyName,
+        'contractName': contractName,
+        'mainCategory': mainCategory,
+        'title': '미접수관리',
+        'money': '미접수금액',
+    }
+
+    return render(request, 'sales/showinadvance.html', context)
+
+
+@login_required
+@csrf_exempt
 def contract_revenues(request):
     contractId = request.POST['contractId']
     revenues = Revenue.objects.filter(Q(contractId__contractId=contractId))
@@ -1600,4 +1788,3 @@ def contract_purchases(request):
     purchases = purchases.values('billingTime','predictBillingDate','billingDate','predictWithdrawDate','withdrawDate','purchaseCompany__companyNameKo','purchasePrice','comment','purchaseId')
     structure = json.dumps(list(purchases), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
-
