@@ -52,7 +52,7 @@
       padding: 5px 10px;
       text-align: center;
       vertical-align: middle;
-      font-size: 15px;
+      font-size: 14px;
       border-top: 1px dotted #858796a3;
     }
 
@@ -516,16 +516,14 @@
             <table class="mobile-table" id="categoryItemMobile" style="table-layout:fixed">
               <thead>
               <tr class="bg-secondary">
-                <td class="text-gray-100" width="33%">대분류<br>(소분류)</td>
-                <td class="text-gray-100" width="33%">상세내용</td>
-                <td class="text-gray-100" width="34%">가격</td>
+                <td class="text-gray-100" width="50%">대분류<br>(소분류)</td>
+                <td class="text-gray-100" width="50%">가격</td>
               </tr>
               </thead>
               <tbody>
               {% for item in items %}
                 <tr class="thtd">
                   <td style="text-overflow: ellipsis; overflow:hidden; white-space: nowrap;">{{ item.mainCategory }}<br>({{ item.subCategory }})</td>
-                  <td>{{ item.itemName }}</td>
                   <td>{{ item.itemPrice | intcomma }}</td>
                 </tr>
               {% endfor %}
