@@ -7,14 +7,16 @@ from .models import Contract, Goal, Purchase
 
 
 class ContractForm(forms.ModelForm):
-    saleCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off', 'onkeydown':'addInput(saleCompanyNames)'}))
-    endCompanyNames = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'endCompanyNames', 'autocomplete': 'off', 'onkeydown':'addInput(endCompanyNames)'}))
+    saleCompanyNames = forms.CharField(max_length=200, required=False,
+                                       widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off', 'onkeydown': 'addInput(saleCompanyNames)'}))
+    endCompanyNames = forms.CharField(max_length=200, required=False,
+                                      widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'endCompanyNames', 'autocomplete': 'off', 'onkeydown': 'addInput(endCompanyNames)'}))
 
     class Meta:
         model = Contract
         fields = ('contractCode', 'contractName', 'contractStep', 'empId', 'saleCompanyNames', 'saleCustomerId', 'endCompanyNames', 'saleType', 'saleIndustry',
                   'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate', 'depositCondition', 'depositConditionDay',
-                  'contractPaper', 'orderPaper', 'comment')
+                  'contractPaper', 'modifyContractPaper', 'orderPaper', 'comment')
 
         widgets = {
             'contractCode': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractCode'}),
@@ -34,6 +36,7 @@ class ContractForm(forms.ModelForm):
             'depositConditionDay': forms.TextInput(attrs={'class': 'form-control', 'id': 'depositConditionDay'}),
             'contractPaper': forms.FileInput(attrs={'class': 'd-none', 'id': 'contractPaper',
                                                     'onchange': "javascript:document.getElementById('contractPaper_route').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
+            'modifyContractPaper':forms.Select(attrs={'class': 'form-control', 'id': 'modifyContractPaper'}),
             'orderPaper': forms.FileInput(attrs={'class': 'd-none', 'id': 'orderPaper',
                                                  'onchange': "javascript:document.getElementById('orderPaper_route').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
             'comment': forms.TextInput(attrs={'class': 'form-control', 'id': 'comment'}),

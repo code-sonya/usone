@@ -125,6 +125,7 @@ def show_contracts(request):
         endCompanyName = request.POST['endCompanyName']
         contractName = request.POST['contractName']
         mainCategory = request.POST['mainCategory']
+        modifyContractPaper = request.POST['modifyContractPaper']
 
     else:
         startdate = ''
@@ -136,6 +137,7 @@ def show_contracts(request):
         endCompanyName = ''
         contractName = ''
         mainCategory = ''
+        modifyContractPaper = ''
 
     context = {
         'employees': employees,
@@ -148,6 +150,7 @@ def show_contracts(request):
         'endCompanyName': endCompanyName,
         'contractName': contractName,
         'mainCategory': mainCategory,
+        'modifyContractPaper': modifyContractPaper,
     }
 
     return render(request, 'sales/showcontracts.html', context)
@@ -441,6 +444,7 @@ def contracts_asjson(request):
     endCompanyName = request.POST['endCompanyName']
     contractName = request.POST['contractName']
     mainCategory = request.POST['mainCategory']
+    modifyContractPaper = request.POST['modifyContractPaper']
     drops = request.POST['drops']
 
     if drops == "Y":
@@ -477,6 +481,9 @@ def contracts_asjson(request):
 
     if mainCategory:
         contracts = contracts.filter(mainCategory__icontains=mainCategory)
+
+    if modifyContractPaper:
+        contracts = contracts.filter(modifyContractPaper=modifyContractPaper)
 
     contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName__companyNameKo', 'endCompanyName__companyNameKo',
                                  'contractDate', 'contractId', 'salePrice', 'profitPrice', 'mainCategory', 'subCategory', 'saleIndustry', 'saleType', 'comment',

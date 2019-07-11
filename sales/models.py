@@ -9,6 +9,7 @@ class Contract(models.Model):
     saleIndustryChoices = (('금융', '금융'), ('공공', '공공'), ('유통 & 제조', '유통 & 제조'), ('통신 & 미디어', '통신 & 미디어'), ('기타', '기타'))
     contractStepChoices = (('Opportunity', 'Opportunity'), ('Firm', 'Firm'), ('Drop', 'Drop'))
     depositConditionChoices = (('계산서 발행 후', '계산서 발행 후'), ('당월', '당월'), ('익월', '익월'), ('당월 말', '당월 말'), ('익월 초', '익월 초'), ('익월 말', '익월 말'))
+    modifyContractPaperChoices = (('N', 'N'), ('Y', 'Y'))
 
     contractId = models.AutoField(primary_key=True)
     contractCode = models.CharField(max_length=30)
@@ -34,6 +35,7 @@ class Contract(models.Model):
     depositCondition = models.CharField(max_length=20, choices=depositConditionChoices, default='계산서 발행 후', null=True, blank=True)
     depositConditionDay = models.IntegerField(default=0, null=True, blank=True)
     contractPaper = models.FileField(null=True, blank=True, upload_to="contractPaper/%Y_%m")
+    modifyContractPaper = models.CharField(max_length=20, choices=modifyContractPaperChoices, default='N', null=True, blank=True)
     orderPaper = models.FileField(null=True, blank=True, upload_to="orderPaper/%Y_%m")
     transferContractId = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)

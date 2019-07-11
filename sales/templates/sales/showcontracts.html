@@ -45,10 +45,10 @@
               <i class="fas fa-filter fa-fw text-gray-400"></i>
             </a>
             {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <a class="dropdown-toggle" href="/sales/postcontract/" role="button">
-              <i class="fas fa-plus fa-fw text-gray-400"></i>
-            </a>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a class="dropdown-toggle" href="/sales/postcontract/" role="button">
+                <i class="fas fa-plus fa-fw text-gray-400"></i>
+              </a>
             {% endif %}
           </div>
         </div>
@@ -217,7 +217,7 @@
                   <option value="전체">전체</option>
                   <option value="영업1팀" {% if empDeptName == '영업1팀' %}selected{% endif %}>영업1팀</option>
                   <option value="영업2팀" {% if empDeptName == '영업2팀' %}selected{% endif %}>영업2팀</option>
-{#                  <option value="영업3팀">영업3팀</option>#}
+                  {#                  <option value="영업3팀">영업3팀</option>#}
                 </select>
               </div>
               <div class="col-6">
@@ -250,14 +250,25 @@
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="contractName" class="text-primary">계약명</label>
-                <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
-              </div>
-              <div class="col-6">
                 <label for="mainCategory" class="text-primary">대분류</label>
                 <input class="form-control" id="mainCategory" name="mainCategory" value="{{ mainCategory }}">
               </div>
+              <div class="col-6">
+                <label for="modifyContractPaper" class="text-primary">수주통보서수정대상</label>
+                <select class="form-control" id="modifyContractPaper" name="modifyContractPaper">
+                  <option value="">------</option>
+                  <option value="Y" {% if modifyContractPaper == 'Y' %}selected{% endif %}>Y</option>
+                  <option value="N" {% if modifyContractPaper == 'N' %}selected{% endif %}>N</option>
+                </select>
+              </div>
             </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="contractName" class="text-primary">계약명</label>
+                <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
+              </div>
+            </div>
+
           </form>
         </div>
 
@@ -357,6 +368,7 @@
                       "endCompanyName": "{{ endCompanyName }}",
                       "contractName": "{{ contractName }}",
                       "mainCategory": "{{ mainCategory }}",
+                      "modifyContractPaper": "{{ modifyContractPaper }}",
                       "drops": "N"
                   },
                   "url": "{% url 'sales:contracts_ajax_url' %}",
@@ -494,6 +506,7 @@
                       "endCompanyName": "",
                       "contractName": "",
                       "mainCategory": "",
+                      "modifyContractPaper": "",
                       "drops": "Y",
                   },
                   "url": "{% url 'sales:contracts_ajax_url' %}",

@@ -123,7 +123,10 @@
                     </label>
                   </div>
                 </div>
-                <div class="col-xl-6">
+                <div class="col-xl-2">
+                  <label for="modifyContractPaper" class="font-weight-bold text-primary"> 수주통보서수정대상 </label> {{ form.modifyContractPaper }}
+                </div>
+                <div class="col-xl-4">
                   <label for="comment" class="font-weight-bold"> 참고사항 </label> {{ form.comment }}
                 </div>
               </div>
@@ -425,7 +428,7 @@
           }
 
           for (var j = 0; j < lengthpurchaseCompany; j++) {
-               $('#purchase5' + j).magicsearch({
+              $('#purchase5' + j).magicsearch({
                   dataSource: companyList,
                   fields: 'value',
                   id: 'id',
@@ -465,6 +468,10 @@
           }
           if (document.getElementById("contractDate").value === '') {
               alert("계약일을 입력해주세요.");
+              return false;
+          }
+           if (document.getElementById("modifyContractPaper").value === '') {
+              alert("수주통보서수정대상 여부를 선택해 주세요.");
               return false;
           }
 
@@ -581,7 +588,7 @@
               sumItemPrice += Number($('input[name="itemPrice"]').eq(i).val().replace(/,/g, ''));
           }
           if (sumItemPrice != $('#salePrice').val().replace(/,/g, '')) {
-              alert("계약금액 : " + ($('#salePrice').val()*1).toLocaleString() + "\n" +
+              alert("계약금액 : " + ($('#salePrice').val() * 1).toLocaleString() + "\n" +
                   "세부금액 : " + sumItemPrice.toLocaleString() + "\n" +
                   "계약금액과 세부사항 금액의 합이 일치하지 않습니다.");
               return false;
@@ -593,7 +600,7 @@
                   sumRevenuePrice += Number($('input[name="revenuePrice"]').eq(i).val().replace(/,/g, ''));
               }
               if (sumRevenuePrice != $('#salePrice').val().replace(/,/g, '')) {
-                  alert("계약금액 : " + ($('#salePrice').val()*1).toLocaleString() + "\n" +
+                  alert("계약금액 : " + ($('#salePrice').val() * 1).toLocaleString() + "\n" +
                       "매출금액 : " + sumRevenuePrice.toLocaleString() + "\n" +
                       "계약금액과 매출금액의 합이 일치하지 않습니다.");
                   return false;
@@ -604,7 +611,7 @@
                   sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val().replace(/,/g, ''));
               }
               if (sumRevenueProfitPrice != $('#profitPrice').val().replace(/,/g, '')) {
-                  alert("이익금액 : " + ($('#profitPrice').val()*1).toLocaleString() + "\n" +
+                  alert("이익금액 : " + ($('#profitPrice').val() * 1).toLocaleString() + "\n" +
                       "GP : " + sumRevenueProfitPrice.toLocaleString() + "\n" +
                       "이익금액과 GP의 합이 일치하지 않습니다.");
                   return false;
@@ -704,7 +711,7 @@
               $('#purchasediv').addClass('d-none');
           } else {
               $('#revenuediv').removeClass('d-none');
-              if (t2.rows().data().length === 0){
+              if (t2.rows().data().length === 0) {
                   $('#addRevenue').click();
               }
               $('#purchasediv').removeClass('d-none');
@@ -715,7 +722,7 @@
       }
 
       function changeCondition() {
-          if ($('#depositCondition').val() == '계산서 발행 후' || $('#depositCondition').val() == '당월' || $('#depositCondition').val() == '익월' ) {
+          if ($('#depositCondition').val() == '계산서 발행 후' || $('#depositCondition').val() == '당월' || $('#depositCondition').val() == '익월') {
               $('#depositConditionDay').removeAttr('readonly');
           } else {
               $('#depositConditionDay').val(0);
@@ -1005,7 +1012,7 @@
                   revenueCounter++;
               {% endfor %}
               t2.draw();
-              for (var r=0; r < revenueCounter; r++) {
+              for (var r = 0; r < revenueCounter; r++) {
                   $('#revenue5' + r).magicsearch({
                       dataSource: companyList,
                       fields: 'value',
@@ -1117,7 +1124,7 @@
                   purchaseCounter++;
               {% endfor %}
               t3.draw();
-              for (var p=0; p < purchaseCounter; p++) {
+              for (var p = 0; p < purchaseCounter; p++) {
                   $('#purchase5' + p).magicsearch({
                       dataSource: companyList,
                       fields: 'value',

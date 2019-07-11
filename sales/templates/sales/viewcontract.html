@@ -128,13 +128,13 @@
               </td>
             </tr>
             <tr>
-              <td class="bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}계&nbsp; 약&nbsp; &nbsp;금&nbsp; 액</td>
+              <td class="bg-light">계&nbsp; 약&nbsp; &nbsp;금&nbsp; 액</td>
               <td class="text-danger font-weight-bold">{{ contract.salePrice | intcomma }}</td>
-              <td class="bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}이&nbsp; 익&nbsp; &nbsp;금&nbsp; 액</td>
+              <td class="bg-light">이&nbsp; 익&nbsp; &nbsp;금&nbsp; 액</td>
               <td class="text-primary font-weight-bold">{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio | floatformat }}%)</td>
             </tr>
             <tr>
-              <td class="bg-light">{% if contract.contractStep != 'Firm' %}예&nbsp; 상&nbsp; {% endif %}계&nbsp; &nbsp; &nbsp;약&nbsp; &nbsp; &nbsp;일</td>
+              <td class="bg-light">계&nbsp; &nbsp; &nbsp;약&nbsp; &nbsp; &nbsp;일</td>
               <td>{{ contract.contractDate }}</td>
               <td class="bg-light">계&nbsp; 약&nbsp; &nbsp;기&nbsp; 간</td>
               <td>{% if contract.contractStep == 'Firm' and contract.contractStartDate %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
@@ -150,8 +150,10 @@
               {#              <td><a href="/media/{{ contract.contractPaper }}" download>{{ contractPaper }}</a><br><a href="/media/{{ contract.orderPaper }}" download>{{ orderPaper }}</a></td>#}
             </tr>
             <tr>
+              <td class="bg-light">수&nbsp; 정&nbsp; &nbsp;대&nbsp; 상</td>
+              <td style="padding-left: 20px;" class="text-center">{{ contract.modifyContractPaper }}</td>
               <td class="bg-light">참&nbsp; 고&nbsp; &nbsp;사&nbsp; 항</td>
-              <td colspan="3" style="padding-left: 20px;" class="text-left">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
+              <td style="padding-left: 20px;" class="text-left">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
             </tr>
             </tbody>
           </table>
@@ -423,7 +425,7 @@
           <table class="mobile-table" id="contractMobile">
             <tbody>
             <tr>
-              <td class="bg-light" style="width: 40%; border-top: 0px;">단계</td>
+              <td class="bg-light" style="width: 40%; border-top: 0px;">단&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;계</td>
               <td style="width: 60%; border-top: 0px;">
                 {% if contract.contractStep == "Firm" %}
                   <div class="text-primary"> {{ contract.contractStep }}</div>
@@ -435,27 +437,27 @@
               </td>
             </tr>
             <tr>
-              <td class="bg-light" style="width: 20%; border-top: 0px;">영업담당</td>
+              <td class="bg-light" style="width: 20%; border-top: 0px;">영&nbsp; 업&nbsp; &nbsp;담&nbsp; 당</td>
               <td style="width: 30%; border-top: 0px;">{{ contract.empName }} ({{ contract.empDeptName }})</td>
             </tr>
             <tr>
-              <td class="bg-light">판매유형</td>
+              <td class="bg-light">판&nbsp; 매&nbsp; &nbsp;유&nbsp; 형</td>
               <td>{{ contract.saleType }}</td>
             </tr>
             <tr>
-              <td class="bg-light">산업군</td>
+              <td class="bg-light">산&nbsp; &nbsp; &nbsp;업&nbsp; &nbsp; &nbsp;군</td>
               <td>{{ contract.saleIndustry }}</td>
             </tr>
             <tr>
-              <td class="bg-light">대분류</td>
+              <td class="bg-light">대&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
               <td>{{ contract.mainCategory }}</td>
             </tr>
             <tr>
-              <td class="bg-light">소분류</td>
+              <td class="bg-light">소&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
               <td>{{ contract.subCategory }}</td>
             </tr>
             <tr>
-              <td class="bg-light">거래처</td>
+              <td class="bg-light">거&nbsp; &nbsp; &nbsp;래&nbsp; &nbsp; &nbsp;처</td>
               <td>
                 <a href="/client/viewclient/{{ contract.saleCompanyName.companyName }}" class="text-dark">
                   {{ contract.saleCompanyName.companyNameKo }}
@@ -466,7 +468,7 @@
               </td>
             </tr>
             <tr>
-              <td class="bg-light">최종고객사</td>
+              <td class="bg-light">최 종 고 객 사</td>
               <td>
                 <a href="/client/viewclient/{{ contract.endCompanyName.companyName }}" class="text-dark">
                   {{ contract.endCompanyName.companyNameKo }}
@@ -474,34 +476,38 @@
               </td>
             </tr>
             <tr>
-              <td class="bg-light">계약금액</td>
+              <td class="bg-light">계&nbsp; 약&nbsp; &nbsp;금&nbsp; 액</td>
               <td class="text-danger font-weight-bold">{{ contract.salePrice | intcomma }}</td>
             </tr>
             <tr>
-              <td class="bg-light">이익금액</td>
+              <td class="bg-light">이&nbsp; 익&nbsp; &nbsp;금&nbsp; 액</td>
               <td class="text-primary font-weight-bold">{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio | floatformat }}%)</td>
             </tr>
             <tr>
-              <td class="bg-light">계약일</td>
+              <td class="bg-light">계&nbsp; &nbsp; &nbsp;약&nbsp; &nbsp; &nbsp;일</td>
               <td>{{ contract.contractDate }}</td>
             </tr>
             <tr>
-              <td class="bg-light">계약기간</td>
+              <td class="bg-light">계&nbsp; 약&nbsp; &nbsp;기&nbsp; 간</td>
               <td>{% if contract.contractStep == 'Firm' and contract.contractStartDate %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
             </tr>
             <tr>
-              <td class="bg-light">수금조건</td>
+              <td class="bg-light">수&nbsp; 금&nbsp; &nbsp;조&nbsp; 건</td>
               <td>{{ contract.depositCondition }}{% if contract.depositCondition == '계산서 발행 후' %}<br> {{ contract.depositConditionDay }}일 이내{% endif %}</td>
             </tr>
             <tr>
-              <td class="bg-light">수주통보서</td>
+              <td class="bg-light">수 주 통 보 서</td>
               <td><a href="/media/{{ contract.orderPaper }}" download>{{ orderPaper }}</a></td>
               {#              계약서는 추후 필요시 오픈#}
               {#              <td class="bg-light">첨&nbsp; 부&nbsp; &nbsp;파&nbsp; 일</td>#}
               {#              <td><a href="/media/{{ contract.contractPaper }}" download>{{ contractPaper }}</a><br><a href="/media/{{ contract.orderPaper }}" download>{{ orderPaper }}</a></td>#}
             </tr>
             <tr>
-              <td class="bg-light">참고사항</td>
+              <td class="bg-light">수&nbsp; 정&nbsp; &nbsp;대&nbsp; 상</td>
+              <td style="padding-left: 20px;" class="text-center">{{ contract.modifyContractPaper }}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">참&nbsp; 고&nbsp; &nbsp;사&nbsp; 항</td>
               <td colspan="3" style="padding-left: 20px;" class="text-left">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
             </tr>
             </tbody>
@@ -600,10 +606,12 @@
                     <tbody>
                     {% for deposit in companyDeposit %}
                       <tr class="thtd">
-                        <td class="text-left" style="text-overflow: ellipsis; overflow:hidden; white-space: nowrap;">{% if deposit.revenueCompany__companyNameKo == None %}-{% else %}{{ deposit.revenueCompany__companyNameKo }}{% endif %}</td>
+                        <td class="text-left" style="text-overflow: ellipsis; overflow:hidden; white-space: nowrap;">{% if deposit.revenueCompany__companyNameKo == None %}-{% else %}
+                          {{ deposit.revenueCompany__companyNameKo }}{% endif %}</td>
                         <td class="text-right">{% if deposit.sum_deposit == None %}0{% else %}{{ deposit.sum_deposit | intcomma }}{% endif %}</td>
                         <td class="text-right">{% if deposit.filter_deposit == None %}0{% else %}{{ deposit.filter_deposit | intcomma }}{% endif %}<br>
-                          ({% if deposit.ratio_deposit == None %}0{% else %}{{ deposit.ratio_deposit }}{% endif %}%)</td>
+                          ({% if deposit.ratio_deposit == None %}0{% else %}{{ deposit.ratio_deposit }}{% endif %}%)
+                        </td>
                         <td></td>
                       </tr>
                     {% endfor %}
@@ -611,7 +619,8 @@
                       <td>합계</td>
                       <td class="text-right">{% if companyTotalDeposit.total_sum_deposit == None %}0{% else %}{{ companyTotalDeposit.total_sum_deposit | intcomma }}{% endif %}</td>
                       <td class="text-right">{% if companyTotalDeposit.total_filter_deposit == None %}0{% else %}{{ companyTotalDeposit.total_filter_deposit | intcomma }}{% endif %}<br>
-                        ({% if companyTotalDeposit.total_ratio_deposit == None %}0{% else %}{{ companyTotalDeposit.total_ratio_deposit }}{% endif %}%)</td>
+                        ({% if companyTotalDeposit.total_ratio_deposit == None %}0{% else %}{{ companyTotalDeposit.total_ratio_deposit }}{% endif %}%)
+                      </td>
                     </tr>
                     </tbody>
                   </table>
@@ -628,11 +637,13 @@
                     <tbody>
                     {% for withdraw in companyWithdraw %}
                       <tr class="thtd">
-                        <td class="text-left" style="text-overflow: ellipsis; overflow:hidden; white-space: nowrap;">{% if withdraw.purchaseCompany__companyNameKo == None %}-{% else %}{{ withdraw.purchaseCompany__companyNameKo }}{% endif %}</td>
+                        <td class="text-left" style="text-overflow: ellipsis; overflow:hidden; white-space: nowrap;">{% if withdraw.purchaseCompany__companyNameKo == None %}-{% else %}
+                          {{ withdraw.purchaseCompany__companyNameKo }}{% endif %}</td>
                         <td class="text-right">{% if withdraw.sum_withdraw == None %}0{% else %}{{ withdraw.sum_withdraw | intcomma }}
                           <span style="display: inline-block; width: 60px;">({{ withdraw.sum_ratio_withdraw }}%)</span>{% endif %}</td>
                         <td class="text-right">{% if withdraw.filter_withdraw == None %}0{% else %}{{ withdraw.filter_withdraw | intcomma }}{% endif %}<br>
-                          ({% if withdraw.ratio_withdraw == None %}0{% else %}{{ withdraw.ratio_withdraw }}{% endif %}%)</td>
+                          ({% if withdraw.ratio_withdraw == None %}0{% else %}{{ withdraw.ratio_withdraw }}{% endif %}%)
+                        </td>
                       </tr>
                     {% endfor %}
                     <tr class="thtd bg-light">
@@ -640,7 +651,8 @@
                       <td class="text-right">{% if companyTotalWithdraw.total_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_sum_withdraw | intcomma }}
                         <span style="display: inline-block; width: 60px;"></span>{% endif %}</td>
                       <td class="text-right">{% if companyTotalWithdraw.total_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_filter_withdraw | intcomma }}{% endif %}<br>
-                        ({% if companyTotalWithdraw.total_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_ratio_withdraw }}{% endif %}%)</td>
+                        ({% if companyTotalWithdraw.total_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_ratio_withdraw }}{% endif %}%)
+                      </td>
 
                     </tr>
                     </tbody>
@@ -859,9 +871,9 @@
                   $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
 
                   {% if revenueId %}
-                  if (aData.revenueId === {{ revenueId }}) {
-                      $(nRow).css('background-color', '#ffffcc');
-                  }
+                      if (aData.revenueId === {{ revenueId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
                   {% endif %}
               },
               "footerCallback": function () {
@@ -949,9 +961,9 @@
                   $('td:eq(4)', nRow).text(replaceDate(aData.withdrawDate, null, "-", ".", null, 10));
 
                   {% if purchaseId %}
-                  if (aData.purchaseId === {{ purchaseId }}) {
-                      $(nRow).css('background-color', '#ffffcc');
-                  }
+                      if (aData.purchaseId === {{ purchaseId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
                   {% endif %}
               },
               "footerCallback": function () {
@@ -1037,9 +1049,9 @@
                   $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
 
                   {% if revenueId %}
-                  if (aData.revenueId === {{ revenueId }}) {
-                      $(nRow).css('background-color', '#ffffcc');
-                  }
+                      if (aData.revenueId === {{ revenueId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
                   {% endif %}
               },
               "footerCallback": function () {
@@ -1127,9 +1139,9 @@
                   $('td:eq(4)', nRow).text(replaceDate(aData.withdrawDate, null, "-", ".", null, 10));
 
                   {% if purchaseId %}
-                  if (aData.purchaseId === {{ purchaseId }}) {
-                      $(nRow).css('background-color', '#ffffcc');
-                  }
+                      if (aData.purchaseId === {{ purchaseId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
                   {% endif %}
               },
               "footerCallback": function () {
