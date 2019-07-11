@@ -56,6 +56,10 @@ def post_contract(request):
             idx = 0
             for revenue in jsonRevenue:
                 idx += 1
+                if int(revenue["revenuePrice"]) == 0:
+                    revenueProfitRatio = 0
+                else:
+                    revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
                 Revenue.objects.create(
                     contractId=post,
                     billingTime=str(idx) + '/' + str(len(jsonRevenue)),
@@ -66,7 +70,7 @@ def post_contract(request):
                     revenueCompany=Company.objects.filter(companyNameKo=revenue["revenueCompany"]).first(),
                     revenuePrice=int(revenue["revenuePrice"]),
                     revenueProfitPrice=int(revenue["revenueProfitPrice"]),
-                    revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100)),
+                    revenueProfitRatio=revenueProfitRatio,
                     comment=revenue["revenueComment"],
                 )
 
@@ -213,6 +217,10 @@ def modify_contract(request, contractId):
             for revenue in jsonRevenue:
                 idx += 1
                 if revenue['revenueId'] == '추가':
+                    if int(revenue["revenuePrice"]) == 0:
+                        revenueProfitRatio = 0
+                    else:
+                        revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
                     Revenue.objects.create(
                         contractId=post,
                         billingTime=str(idx) + '/' + str(len(jsonRevenue)),
@@ -223,7 +231,7 @@ def modify_contract(request, contractId):
                         revenueCompany=Company.objects.filter(companyNameKo=revenue["revenueCompany"]).first(),
                         revenuePrice=int(revenue["revenuePrice"]),
                         revenueProfitPrice=int(revenue["revenueProfitPrice"]),
-                        revenueProfitRatio=round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100)),
+                        revenueProfitRatio=revenueProfitRatio,
                         comment=revenue["revenueComment"],
                     )
                 else:
@@ -237,7 +245,10 @@ def modify_contract(request, contractId):
                     revenueInstance.revenueCompany = Company.objects.filter(companyNameKo=revenue["revenueCompany"]).first()
                     revenueInstance.revenuePrice = int(revenue["revenuePrice"])
                     revenueInstance.revenueProfitPrice = int(revenue["revenueProfitPrice"])
-                    revenueInstance.revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
+                    if int(revenue["revenuePrice"]) == 0:
+                        revenueInstance.revenueProfitRatio = 0
+                    else:
+                        revenueInstance.revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
                     revenueInstance.comment = revenue["revenueComment"]
                     revenueInstance.save()
                     jsonRevenueId.append(int(revenue["revenueId"]))

@@ -40,7 +40,8 @@ def viewContract(contractId):
     sumPurchasePrice = purchases.aggregate(sum_purchasePrice=Coalesce(Sum('purchasePrice'), 0))['sum_purchasePrice']
 
     # 연도 별 매출·이익 기여도
-    yearList = list(set([i['predictBillingDate'].year for i in list(revenues.values('predictBillingDate'))]))
+    yearList = list(set([i['predictBillingDate'].year for i in list(revenues.values('predictBillingDate'))]) |
+                    set([i['predictBillingDate'].year for i in list(purchases.values('predictBillingDate'))]))
     yearSummary = []
     for year in yearList:
         temp = {
@@ -48,8 +49,8 @@ def viewContract(contractId):
             'revenuePrice': revenues.aggregate(revenuePrice=Coalesce(Sum('revenuePrice', filter=Q(predictBillingDate__year=year)), 0))['revenuePrice'],
             'purchasePrice': purchases.aggregate(purchasePrice=Coalesce(Sum('purchasePrice', filter=Q(predictBillingDate__year=year)), 0))['purchasePrice'],
             'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Coalesce(Sum('revenueProfitPrice', filter=Q(predictBillingDate__year=year)), 0))['revenueProfitPrice'],
-            'depositPrice': revenues.aggregate(depositPrice=Coalesce(Sum('revenuePrice', filter=Q(predictBillingDate__year=year) & Q(depositDate__isnull=False)), 0))['depositPrice'],
-            'withdrawPrice': purchases.aggregate(withdrawPrice=Coalesce(Sum('purchasePrice', filter=Q(predictBillingDate__year=year) & Q(withdrawDate__isnull=False)), 0))['withdrawPrice'],
+            'depositPrice': revenues.aggregate(depositPrice=Coalesce(Sum('revenuePrice', filter=Q(depositDate__year=year)), 0))['depositPrice'],
+            'withdrawPrice': purchases.aggregate(withdrawPrice=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__year=year)), 0))['withdrawPrice'],
         }
         if temp['revenuePrice'] == 0:
             temp['revenueProfitRatio'] = '-'
