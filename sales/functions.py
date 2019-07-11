@@ -39,9 +39,13 @@ def viewContract(contractId):
         sumRevenueProfitRatio = 0
     sumPurchasePrice = purchases.aggregate(sum_purchasePrice=Coalesce(Sum('purchasePrice'), 0))['sum_purchasePrice']
 
+    print(list(revenues.values('predictDepositDate')))
+
     # 연도 별 매출·이익 기여도
     yearList = list(set([i['predictBillingDate'].year for i in list(revenues.values('predictBillingDate'))]) |
-                    set([i['predictBillingDate'].year for i in list(purchases.values('predictBillingDate'))]))
+                    set([i['predictBillingDate'].year for i in list(purchases.values('predictBillingDate'))]) |
+                    set([i['predictDepositDate'].year for i in list(revenues.values('predictDepositDate')) if i['predictDepositDate']]) |
+                    set([i['predictWithdrawDate'].year for i in list(purchases.values('predictWithdrawDate')) if i['predictWithdrawDate']]))
     yearSummary = []
     for year in yearList:
         temp = {
