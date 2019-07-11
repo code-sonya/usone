@@ -319,7 +319,7 @@
               매출세부정보
             </b></h5>
             <div class="table-responsive" id="revenuesdiv">
-              <table id="revenues" class="cell-border pc-table" width="100%" style="width: 100%;">
+              <table id="revenues" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
                 <thead>
                 <tr class="bg-primary">
                   <td class="text-gray-100" width="5%">회차</td>
@@ -359,7 +359,7 @@
               매입세부정보
             </b></h5>
             <div class="table-responsive" id="purchasesdiv">
-              <table id="purchases" class="cell-border pc-table" width="100%" style="width: 100%;">
+              <table id="purchases" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
                 <thead>
                 <tr class="bg-primary">
                   <td class="text-gray-100" width="5%">회차</td>
@@ -933,12 +933,12 @@
 
                   $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
 
-                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "접수", 7));
                   if (aData.billingDate != null) {
                       $('td:eq(1)', nRow).css('color', '#b7b9cc');
                   }
                   $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
-                  $('td:eq(3)', nRow).text(replaceDate(aData.predictWithdrawDate, aData.withdrawDate, "-", ".", "수금", 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictWithdrawDate, aData.withdrawDate, "-", ".", "지급", 10));
                   if (aData.withdrawDate != null) {
                       $('td:eq(3)', nRow).css('color', '#b7b9cc');
                   }
@@ -1105,12 +1105,12 @@
 
                   $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
 
-                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "접수", 7));
                   if (aData.billingDate != null) {
                       $('td:eq(1)', nRow).css('color', '#b7b9cc');
                   }
                   $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
-                  $('td:eq(3)', nRow).text(replaceDate(aData.predictWithdrawDate, aData.withdrawDate, "-", ".", "수금", 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictWithdrawDate, aData.withdrawDate, "-", ".", "지급", 10));
                   if (aData.withdrawDate != null) {
                       $('td:eq(3)', nRow).css('color', '#b7b9cc');
                   }
