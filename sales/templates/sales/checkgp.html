@@ -59,13 +59,14 @@
                   <td colspan="2">매출-매입</td>
                   <td colspan="2">GP</td>
                   <td colspan="2">차액</td>
+                  <td colspan="1">수정대상</td>
                 </tr>
                 </thead>
                 <tbody>
                 {% for i in contractFalse %}
                   {% for c in contracts %}
                     {% if i.id == c.contractId %}
-                      <tr>
+                      <tr {% if c.modifyContractPaper == 'Y' %}style="background-color: #fff7fb"{% endif %}>
                         <td colspan="2"><a href="/sales/viewcontract/{{ i.id }}/" target="_blank">{{ i.code }}</a></td>
                         <td colspan="5" class="text-left">{{ i.name }}</td>
                         <td colspan="2">{{ i.reason }}</td>
@@ -74,6 +75,7 @@
                         <td colspan="2" class="text-right">{{ i.gap|intcomma }}</td>
                         <td colspan="2" class="text-right">{{ c.profitPrice|intcomma }}</td>
                         <td colspan="2" class="text-right">{{ i.gap_gp|intcomma }}</td>
+                        <td colspan="1" >{{ c.modifyContractPaper}}</td>
                       </tr>
                     {% endif %}
                   {% endfor %}
