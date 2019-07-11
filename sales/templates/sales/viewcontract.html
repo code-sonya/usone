@@ -842,9 +842,9 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-
                   $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
                   $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
 
                   $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
                   if (aData.billingDate != null) {
@@ -856,7 +856,12 @@
                       $('td:eq(3)', nRow).css('color', '#b7b9cc');
                   }
                   $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
-                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  {% if revenueId %}
+                  if (aData.revenueId === {{ revenueId }}) {
+                      $(nRow).css('background-color', '#ffffcc');
+                  }
+                  {% endif %}
               },
               "footerCallback": function () {
                   var api = this.api(), data;
@@ -930,8 +935,8 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-
                   $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
 
                   $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "접수", 7));
                   if (aData.billingDate != null) {
@@ -943,9 +948,12 @@
                       $('td:eq(3)', nRow).css('color', '#b7b9cc');
                   }
                   $('td:eq(4)', nRow).text(replaceDate(aData.withdrawDate, null, "-", ".", null, 10));
-                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
 
-
+                  {% if purchaseId %}
+                  if (aData.purchaseId === {{ purchaseId }}) {
+                      $(nRow).css('background-color', '#ffffcc');
+                  }
+                  {% endif %}
               },
               "footerCallback": function () {
                   var api = this.api(), data;
@@ -1014,9 +1022,9 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-
                   $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
                   $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
 
                   $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
                   if (aData.billingDate != null) {
@@ -1028,7 +1036,12 @@
                       $('td:eq(3)', nRow).css('color', '#b7b9cc');
                   }
                   $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
-                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  {% if revenueId %}
+                  if (aData.revenueId === {{ revenueId }}) {
+                      $(nRow).css('background-color', '#ffffcc');
+                  }
+                  {% endif %}
               },
               "footerCallback": function () {
                   var api = this.api(), data;
@@ -1102,8 +1115,8 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-
                   $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
 
                   $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "접수", 7));
                   if (aData.billingDate != null) {
@@ -1115,9 +1128,12 @@
                       $('td:eq(3)', nRow).css('color', '#b7b9cc');
                   }
                   $('td:eq(4)', nRow).text(replaceDate(aData.withdrawDate, null, "-", ".", null, 10));
-                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
 
-
+                  {% if purchaseId %}
+                  if (aData.purchaseId === {{ purchaseId }}) {
+                      $(nRow).css('background-color', '#ffffcc');
+                  }
+                  {% endif %}
               },
               "footerCallback": function () {
                   var api = this.api(), data;
