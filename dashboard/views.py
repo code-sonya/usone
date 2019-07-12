@@ -310,7 +310,6 @@ def dashboard_quarter(request):
     # 월별 매출금액 & 이익금액
 
     monthRevenues = firmRevenuePrice.values('predictBillingDate__month').annotate(sumPrice=Sum('revenuePrice')).annotate(sumProfitPrice=Sum('revenueProfitPrice')).order_by('predictBillingDate__month')
-    print(monthRevenues)
 
     for i in salesteamList:
         monthList = [i for i in range(1, 13)]
