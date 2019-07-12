@@ -283,24 +283,34 @@ def dashboard_quarter(request):
     quarterOpptyProfit = [0 if quarterOpptyProfitSum[i] == None else quarterOpptyProfitSum[i] for i in range(len(quarterOpptyProfitSum))]
 
     # 분기 Firm
-    quarter1Firm = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end'])).aggregate(sum=Sum('revenuePrice'))
-    quarter2Firm = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_end']) & Q(predictBillingDate__lt=dict_quarter['q2_end'])).aggregate(sum=Sum('revenuePrice'))
-    quarter3Firm = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q2_end']) & Q(predictBillingDate__lt=dict_quarter['q3_end'])).aggregate(sum=Sum('revenuePrice'))
-    quarter4Firm = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end'])).aggregate(sum=Sum('revenuePrice'))
+    quarter1Firm = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end'])).aggregate(sum=Sum('revenuePrice'),
+                                                                                                                                                             sum_profit=Sum('revenueProfitPrice'))
+    quarter2Firm = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q1_end']) & Q(predictBillingDate__lt=dict_quarter['q2_end'])).aggregate(sum=Sum('revenuePrice'),
+                                                                                                                                                           sum_profit=Sum('revenueProfitPrice'))
+    quarter3Firm = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q2_end']) & Q(predictBillingDate__lt=dict_quarter['q3_end'])).aggregate(sum=Sum('revenuePrice'),
+                                                                                                                                                           sum_profit=Sum('revenueProfitPrice'))
+    quarter4Firm = firmRevenuePrice.filter(Q(predictBillingDate__gte=dict_quarter['q3_end']) & Q(predictBillingDate__lt=dict_quarter['q4_end'])).aggregate(sum=Sum('revenuePrice'),
+                                                                                                                                                           sum_profit=Sum('revenueProfitPrice'))
     quarterFirmSum = [quarter1Firm['sum'], quarter2Firm['sum'], quarter3Firm['sum'], quarter4Firm['sum']]
+    quarterFirmProfitSum = [quarter1Firm['sum_profit'], quarter2Firm['sum_profit'], quarter3Firm['sum_profit'], quarter4Firm['sum_profit']]
     quarterFirm = [0 if quarterFirmSum[i] == None else quarterFirmSum[i] for i in range(len(quarterFirmSum))]
 
-    ### 해당 분기 누적 opp&firm
+    # 해당 분기 누적 opp&firm
     quarterOpptyFirm = [sum(quarterOppty[0:todayQuarter]), sum(quarterFirm[0:todayQuarter])]
 
-    ###월별 팀 매출 금액
+    # 월별 팀 매출 금액
     salesteamList = Employee.objects.values('empDeptName').filter(Q(empStatus='Y')).distinct()
     salesteamList = [x['empDeptName'] for x in salesteamList if "영업" in x['empDeptName']]
 
-    ###월별 팀 매출 금액
+    # 월별 팀 매출 금액
     teamRevenues = firmRevenuePrice.values('predictBillingDate__month', 'contractId__empDeptName'
                                            ).annotate(Sum('revenuePrice')).order_by('contractId__empDeptName', 'predictBillingDate__month')
     teamRevenues = list(teamRevenues)
+
+    # 월별 매출금액 & 이익금액
+
+    monthRevenues = firmRevenuePrice.values('predictBillingDate__month').annotate(sumPrice=Sum('revenuePrice')).annotate(sumProfitPrice=Sum('revenueProfitPrice')).order_by('predictBillingDate__month')
+    print(monthRevenues)
 
     for i in salesteamList:
         monthList = [i for i in range(1, 13)]
@@ -368,6 +378,7 @@ def dashboard_quarter(request):
         "quarter_opp_firm_profits_rate": round(quarterOpptyFirmProfits / profitQuarterTarget * 100, 2),
         "quarter_opp": quarterOppty,
         "quarter_firm": quarterFirm,
+        "quarterFirmProfitSum":quarterFirmProfitSum,
         "team_revenues": teamRevenues,
         "quarter_opp_Firm": quarterOpptyFirm,
         'startdate': startdate,
@@ -381,6 +392,7 @@ def dashboard_quarter(request):
         'maincategoryRevenuePrice': maincategoryRevenuePrice,
         'salesindustryRevenuePrice': salesindustryRevenuePrice,
         'salestypeRevenuePrice': salestypeRevenuePrice,
+        'monthRevenues': monthRevenues,
     }
     return HttpResponse(template.render(context, request))
 
