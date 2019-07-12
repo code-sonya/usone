@@ -608,7 +608,7 @@ def quarter_asjson(request):
     if salestype:
         dataFirm = dataFirm.filter(Q(contractId__saleType=salestype))
 
-    dataFirm = dataFirm.values('predictBillingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
+    dataFirm = dataFirm.values('predictBillingDate', 'billingDate', 'contractId__contractCode', 'contractId__contractName', 'contractId__saleCompanyName__companyName', 'revenuePrice', 'revenueProfitPrice',
                                'contractId__empName', 'contractId__empDeptName', 'revenueId')
 
     structureStep = json.dumps(list(dataFirm), cls=DjangoJSONEncoder)
@@ -638,7 +638,7 @@ def dashboard_credit(request):
     purchasesTotal = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False))\
                                      .aggregate(accountsPayablesTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True )),0)
                                               , amountPaidTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)),0))
-    print(purchasesTotal)
+
     revenueMonth=[]
     for m in range(1,13):
         rMonth = {'predictDepositDate__month': m, 'outstandingCollectionsMonth': 0, 'collectionofMoneyMonth': 0}
@@ -673,7 +673,6 @@ def cashflow_asjson(request):
     outstandingCollections = request.POST['outstandingCollections']
     accountsPayables = request.POST['accountsPayables']
     month = request.POST['month'][:-1]
-    print(request.POST)
 
     if outstandingCollections:
         cashflow = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(predictDepositDate__month=month) & Q(billingDate__isnull=False) & Q(depositDate__isnull=True))

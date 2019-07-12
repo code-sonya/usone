@@ -168,13 +168,15 @@
             <table id="showFirms1" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>영업부서</th>
-                <th>영업담당</th>
+                <th>관리번호</th>
+                <th>소속</th>
+                <th>영업대표</th>
                 <th>계약명</th>
-                <th>거래처</th>
+                <th>매출처</th>
                 <th>매출금액</th>
                 <th>이익금액</th>
-                <th>빌링일자</th>
+                <th>매출예정일</th>
+                <th>매출일</th>
                 <th class="d-none">revenueId</th>
               </tr>
               </thead>
@@ -226,13 +228,15 @@
             <table id="showFirms2" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>영업부서</th>
-                <th>영업담당</th>
+                <th>관리번호</th>
+                <th>소속</th>
+                <th>영업대표</th>
                 <th>계약명</th>
-                <th>거래처</th>
+                <th>매출처</th>
                 <th>매출금액</th>
                 <th>이익금액</th>
-                <th>빌링일자</th>
+                <th>매출예정일</th>
+                <th>매출일</th>
                 <th class="d-none">revenueId</th>
               </tr>
               </thead>
@@ -286,13 +290,15 @@
             <table id="showFirms3" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>영업부서</th>
-                <th>영업담당</th>
+                <th>관리번호</th>
+                <th>소속</th>
+                <th>영업대표</th>
                 <th>계약명</th>
-                <th>거래처</th>
+                <th>매출처</th>
                 <th>매출금액</th>
                 <th>이익금액</th>
-                <th>빌링일자</th>
+                <th>매출예정일</th>
+                <th>매출일</th>
                 <th class="d-none">revenueId</th>
               </tr>
               </thead>
@@ -895,29 +901,28 @@
           firmTable1 = $('#showFirms1').DataTable({
               "processing": true,
               "columns": [
-                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__contractCode'},
                   {data: 'contractId__empName'},
-                  {
-                      data: 'contractId__contractName',
-                      render: function (data, type, row) {
-                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
-                      }
-                  },
+                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__contractName'},
                   {data: 'contractId__saleCompanyName__companyName'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
                   {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, visible: false}
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -937,7 +942,7 @@
                       footer: true
                   }
               ],
-              "order": [[6, 'desc']],
+              "order": [[7, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -954,53 +959,52 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString());
-                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString());
-                  $('td:eq(6)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+                  $('td:eq(5)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
               },
               "footerCallback": function () {
                   var api = this.api(), data;
 
                   var revenueResult = 0;
-                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(4).footer()).html(revenueResult.toLocaleString());
+                  $(api.column(5).footer()).html(revenueResult.toLocaleString());
 
                   var profitResult = 0;
-                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(5).footer()).html(profitResult.toLocaleString());
+                  $(api.column(6).footer()).html(profitResult.toLocaleString());
               },
           });
 
           firmTable2 = $('#showFirms2').DataTable({
               "processing": true,
               "columns": [
-                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__contractCode'},
                   {data: 'contractId__empName'},
-                  {
-                      data: 'contractId__contractName',
-                      render: function (data, type, row) {
-                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
-                      }
-                  },
+                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__contractName'},
                   {data: 'contractId__saleCompanyName__companyName'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
                   {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, visible: false}
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -1020,7 +1024,7 @@
                       footer: true
                   }
               ],
-              "order": [[6, 'desc']],
+              "order": [[7, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -1037,53 +1041,52 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString());
-                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString());
-                  $('td:eq(6)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+                  $('td:eq(5)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
               },
               "footerCallback": function () {
                   var api = this.api(), data;
 
                   var revenueResult = 0;
-                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(4).footer()).html(revenueResult.toLocaleString());
+                  $(api.column(5).footer()).html(revenueResult.toLocaleString());
 
                   var profitResult = 0;
-                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(5).footer()).html(profitResult.toLocaleString());
+                  $(api.column(6).footer()).html(profitResult.toLocaleString());
               },
           });
 
           firmTable3 = $('#showFirms3').DataTable({
               "processing": true,
               "columns": [
-                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__contractCode'},
                   {data: 'contractId__empName'},
-                  {
-                      data: 'contractId__contractName',
-                      render: function (data, type, row) {
-                          return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
-                      }
-                  },
+                  {data: 'contractId__empDeptName'},
+                  {data: 'contractId__contractName'},
                   {data: 'contractId__saleCompanyName__companyName'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
                   {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, visible: false}
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -1103,7 +1106,7 @@
                       footer: true
                   }
               ],
-              "order": [[6, 'desc']],
+              "order": [[7, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -1120,24 +1123,24 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(4)', nRow).text(aData.revenuePrice.toLocaleString());
-                  $('td:eq(5)', nRow).text(aData.revenueProfitPrice.toLocaleString());
-                  $('td:eq(6)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
+                  $('td:eq(5)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(6)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(replaceAll(aData.predictBillingDate, "-", "."));
               },
               "footerCallback": function () {
                   var api = this.api(), data;
 
                   var revenueResult = 0;
-                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(4).footer()).html(revenueResult.toLocaleString());
+                  $(api.column(5).footer()).html(revenueResult.toLocaleString());
 
                   var profitResult = 0;
-                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(5).footer()).html(profitResult.toLocaleString());
+                  $(api.column(6).footer()).html(profitResult.toLocaleString());
               },
           });
 

@@ -246,14 +246,15 @@
             <table id="showFirms1" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
+                <th>관리번호</th>
                 <th>소속</th>
                 <th>영업대표</th>
-                <th>관리번호</th>
                 <th>계약명</th>
-                <th>거래처</th>
+                <th>매출처</th>
                 <th>매출금액</th>
                 <th>이익금액</th>
-                <th>빌링일자</th>
+                <th>매출예정일</th>
+                <th>매출일</th>
                 <th class="d-none">revenueId</th>
               </tr>
               </thead>
@@ -323,14 +324,15 @@
             <table id="showFirms2" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
+                <th>관리번호</th>
                 <th>소속</th>
                 <th>영업대표</th>
-                <th>관리번호</th>
                 <th>계약명</th>
-                <th>거래처</th>
+                <th>매출처</th>
                 <th>매출금액</th>
                 <th>이익금액</th>
-                <th>빌링일자</th>
+                <th>매출예정일</th>
+                <th>매출일</th>
                 <th class="d-none">revenueId</th>
               </tr>
               </thead>
@@ -382,14 +384,15 @@
             <table id="showFirms3" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
+                <th>관리번호</th>
                 <th>소속</th>
                 <th>영업대표</th>
-                <th>관리번호</th>
                 <th>계약명</th>
-                <th>거래처</th>
+                <th>매출처</th>
                 <th>매출금액</th>
                 <th>이익금액</th>
-                <th>빌링일자</th>
+                <th>매출예정일</th>
+                <th>매출일</th>
                 <th class="d-none">revenueId</th>
               </tr>
               </thead>
@@ -457,14 +460,15 @@
             <table id="showFirms4" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
+                <th>관리번호</th>
                 <th>소속</th>
                 <th>영업대표</th>
-                <th>관리번호</th>
                 <th>계약명</th>
-                <th>거래처</th>
+                <th>매출처</th>
                 <th>매출금액</th>
                 <th>이익금액</th>
-                <th>빌링일자</th>
+                <th>매출예정일</th>
+                <th>매출일</th>
                 <th class="d-none">revenueId</th>
               </tr>
               </thead>
@@ -531,14 +535,15 @@
             <table id="showFirms5" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
+                <th>관리번호</th>
                 <th>소속</th>
                 <th>영업대표</th>
-                <th>관리번호</th>
                 <th>계약명</th>
-                <th>거래처</th>
+                <th>매출처</th>
                 <th>매출금액</th>
                 <th>이익금액</th>
-                <th>빌링일자</th>
+                <th>매출예정일</th>
+                <th>매출일</th>
                 <th class="d-none">revenueId</th>
               </tr>
               </thead>
@@ -1524,26 +1529,28 @@
               "autoWidth": false,
               "processing": true,
               "columns": [
-                  {data: 'contractId__empDeptName'},
-                  {data: 'contractId__empName'},
                   {data: 'contractId__contractCode'},
+                  {data: 'contractId__empName'},
+                  {data: 'contractId__empDeptName'},
                   {data: 'contractId__contractName'},
                   {data: 'contractId__saleCompanyName__companyName'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
                   {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, visible: false}
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, visible: false}
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -1606,26 +1613,28 @@
               "autoWidth": false,
               "processing": true,
               "columns": [
-                  {data: 'contractId__empDeptName'},
-                  {data: 'contractId__empName'},
                   {data: 'contractId__contractCode'},
+                  {data: 'contractId__empName'},
+                  {data: 'contractId__empDeptName'},
                   {data: 'contractId__contractName'},
                   {data: 'contractId__saleCompanyName__companyName'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
                   {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, visible: false}
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, visible: false}
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -1688,26 +1697,28 @@
               "autoWidth": false,
               "processing": true,
               "columns": [
-                  {data: 'contractId__empDeptName'},
-                  {data: 'contractId__empName'},
                   {data: 'contractId__contractCode'},
+                  {data: 'contractId__empName'},
+                  {data: 'contractId__empDeptName'},
                   {data: 'contractId__contractName'},
                   {data: 'contractId__saleCompanyName__companyName'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
                   {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, visible: false}
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, visible: false}
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -1763,7 +1774,6 @@
                   });
                   $(api.column(6).footer()).html(profitResult.toLocaleString());
               },
-
           });
 
           firmTable4 = $('#showFirms4').DataTable({
@@ -1771,26 +1781,28 @@
               "autoWidth": false,
               "processing": true,
               "columns": [
-                  {data: 'contractId__empDeptName'},
-                  {data: 'contractId__empName'},
                   {data: 'contractId__contractCode'},
+                  {data: 'contractId__empName'},
+                  {data: 'contractId__empDeptName'},
                   {data: 'contractId__contractName'},
                   {data: 'contractId__saleCompanyName__companyName'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
                   {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, visible: false}
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, visible: false}
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -1853,26 +1865,28 @@
               "autoWidth": false,
               "processing": true,
               "columns": [
-                  {data: 'contractId__empDeptName'},
-                  {data: 'contractId__empName'},
                   {data: 'contractId__contractCode'},
+                  {data: 'contractId__empName'},
+                  {data: 'contractId__empDeptName'},
                   {data: 'contractId__contractName'},
                   {data: 'contractId__saleCompanyName__companyName'},
                   {data: 'revenuePrice'},
                   {data: 'revenueProfitPrice'},
                   {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
                   {data: 'revenueId'},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, visible: false}
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, visible: false}
               ],
               dom: 'Blfrtip',
               buttons: [
