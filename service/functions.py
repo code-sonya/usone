@@ -124,7 +124,7 @@ def dayreport_query2(empDeptName, day):
 
     serviceDept = Servicereport.objects.filter(
         Q(empDeptName=empDeptName) & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
-    )
+    ).order_by('serviceStartDatetime')
 
     vacationDept = Vacation.objects.filter(
         Q(empDeptName=empDeptName) & Q(vacationDate=Date)
@@ -243,8 +243,10 @@ def link_callback(uri, rel):
 
 
 def num_to_str_position(num):
-    if num == 1 or num == '1':
+    if num == 0 or num == '0':
         return '임원'
+    elif num == 1 or num == '1':
+        return '이사'
     elif num == 2 or num == '2':
         return '부장'
     elif num == 3 or num == '3':
