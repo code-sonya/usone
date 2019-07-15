@@ -22,7 +22,7 @@ def scheduler(request):
     empId = request.user.employee.empId
     empName = request.user.employee.empName
     empDeptName = request.user.employee.empDeptName
-    DeptList = ['임원', '경영지원본부', '영업1팀', '영업2팀', '영업3팀', '인프라서비스사업팀', '솔루션지원팀', 'DB지원팀', '미정']
+    DeptList = ['경영지원본부', '영업1팀', '영업2팀', '인프라서비스사업팀', '솔루션지원팀', 'DB지원팀']
 
     # event
     holiday = Eventday.objects.filter(eventType="휴일")
@@ -49,7 +49,7 @@ def scheduler(request):
             'myCalendar': myCalendar,
             'teamVacation': teamVacation,
             'myVacation': myVacation,
-            'DeptList': DeptList[1:-1],
+            'DeptList': DeptList,
             'holiday': holiday,
             'event': event
         }
@@ -75,7 +75,7 @@ def scheduler(request):
             'myCalendar': myCalendar,
             'teamVacation': teamVacation,
             'myVacation': myVacation,
-            'DeptList': DeptList[1:-1],
+            'DeptList': DeptList,
             'holiday': holiday,
             'event': event
         }

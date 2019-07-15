@@ -555,7 +555,6 @@ def quarter_asjson(request):
                     "q2_end": "{}-07-01".format(todayYear),
                     "q3_end": "{}-10-01".format(todayYear),
                     "q4_end": "{}-01-01".format(todayYear + 1)}
-    print(request.POST)
     step = request.POST['step']
     team = request.POST['team']
     if team == '합계':
@@ -682,7 +681,6 @@ def cashflow_asjson(request):
 
     if accountsPayables:
         cashflow = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(predictWithdrawDate__month=month) & Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
-        print(cashflow)
         cashflow = cashflow.values('contractId__contractName', 'purchaseCompany', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
                                    'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
 
