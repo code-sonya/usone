@@ -34,7 +34,7 @@ def dashboard_service(request):
         startdate = (today - timedelta(days=today.weekday())).date()
         enddate = startdate + timedelta(days=6)
 
-    if request.user.employee.empDeptName == "임원":
+    if  request.user.employee.empDeptName == "임원" or request.user.employee.empDeptName == "경영지원본부":
         all_support_data = Servicereport.objects.filter((Q(serviceDate__gte=startdate) &
                                                          Q(serviceDate__lte=enddate)) & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀'))).exclude(serviceType="교육")
 
@@ -43,22 +43,14 @@ def dashboard_service(request):
         all_support_Overtime = all_support_data.aggregate(Sum('serviceOverHour'))
 
         # 고객사별 지원통계
-        customer_support_time = Servicereport.objects.values('companyName') \
-            .filter(Q(serviceDate__gte=startdate) &
-                    Q(serviceDate__lte=enddate)).exclude(serviceType="교육") \
-            .annotate(sum_supportTime=Sum('serviceHour'))
+        customer_support_time = all_support_data.values('companyName').annotate(sum_supportTime=Sum('serviceHour'))
 
         # 엔지니어별 지원통계
-        emp_support_time = Servicereport.objects.values('empName') \
-            .filter(Q(serviceDate__gte=startdate) &
-                    Q(serviceDate__lte=enddate)).exclude(serviceType="교육") \
-            .annotate(sum_supportTime=Sum('serviceHour')).annotate(sum_supportCount=Count('empName')).annotate(sum_overTime=Sum('serviceOverHour'))
-
+        emp_support_time = all_support_data.values('empName').annotate(sum_supportTime=Sum('serviceHour'))\
+                                                            .annotate(sum_supportCount=Count('empName'))\
+                                                            .annotate(sum_overTime=Sum('serviceOverHour'))
         # 타입별 지원통계
-        type_support_time = Servicereport.objects.values('serviceType') \
-            .filter(Q(serviceDate__gte=startdate) &
-                    Q(serviceDate__lte=enddate)).exclude(serviceType="교육") \
-            .annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType')
+        type_support_time = all_support_data.values('serviceType').annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType')
 
     else:
         # 전체 지원 통계
@@ -71,25 +63,13 @@ def dashboard_service(request):
         all_support_Overtime = all_support_data.aggregate(Sum('serviceOverHour'))
 
         # 고객사별 지원통계
-        customer_support_time = Servicereport.objects.values('companyName') \
-            .filter(Q(serviceDate__gte=startdate) &
-                    Q(serviceDate__lte=enddate) &
-                    Q(empDeptName=request.user.employee.empDeptName)).exclude(serviceType="교육") \
-            .annotate(sum_supportTime=Sum('serviceHour'))
+        customer_support_time = all_support_data.values('companyName').annotate(sum_supportTime=Sum('serviceHour'))
 
         # 엔지니어별 지원통계
-        emp_support_time = Servicereport.objects.values('empName') \
-            .filter(Q(serviceDate__gte=startdate) &
-                    Q(serviceDate__lte=enddate) &
-                    Q(empDeptName=request.user.employee.empDeptName)).exclude(serviceType="교육") \
-            .annotate(sum_supportTime=Sum('serviceHour')).annotate(sum_supportCount=Count('empName')).annotate(sum_overTime=Sum('serviceOverHour'))
+        emp_support_time = all_support_data.values('empName').annotate(sum_supportTime=Sum('serviceHour')).annotate(sum_supportCount=Count('empName')).annotate(sum_overTime=Sum('serviceOverHour'))
 
         # 타입별 지원통계
-        type_support_time = Servicereport.objects.values('serviceType') \
-            .filter(Q(serviceDate__gte=startdate) &
-                    Q(serviceDate__lte=enddate) &
-                    Q(empDeptName=request.user.employee.empDeptName)).exclude(serviceType="교육") \
-            .annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType')
+        type_support_time = all_support_data.annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType')
 
     type_count = [i for i in range(len(type_support_time))]
     multi_type = zip(type_support_time, type_count)
