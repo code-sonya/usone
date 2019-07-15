@@ -370,7 +370,6 @@
                       "previous": "이전"
                   },
               },
-              {% if user.employee.empDeptName == '솔루션지원팀' or user.employee.empDeptName == 'DB지원팀' %}
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   const today = new Date();
                   const startdate = new Date(aData.serviceEndDatetime);
@@ -382,7 +381,6 @@
                       $('td', nRow).css('background-color', '#ffffff');
                   }
               }
-              {% endif %}
           });
 
           var table = $('#showservice').DataTable();

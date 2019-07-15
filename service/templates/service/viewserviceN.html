@@ -201,12 +201,10 @@
                 <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
                 <span class="text"> 수정 </span>
               </a>
-              {% if user.employee.empDeptName == '솔루션지원팀' or user.employee.empDeptName == 'DB지원팀' %}
               <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text"> 완료 </span>
               </a>
-              {% endif %}
             </div>
           {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
             <div class="text-center">
@@ -285,12 +283,10 @@
                 <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
                 <span class="text p-2"> 수정 </span>
               </a>
-              {% if user.employee.empDeptName == '솔루션지원팀' or user.employee.empDeptName == 'DB지원팀' %}
               <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text p-2"> 완료 </span>
               </a>
-              {% endif %}
             </div>
           {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
             <div class="text-center">
