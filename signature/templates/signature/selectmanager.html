@@ -35,7 +35,7 @@
                         <div class="checkbox">
                           <label>
                             <input type="radio" name="customer"
-                                   value={{ customer.customerEmail }} >
+                                   value={{ customer.customerId }} >
                             {{ customer.customerName }}
                           </label>
                         </div>
@@ -44,7 +44,7 @@
                     <a href="#" class="list-group-item">
                       <div class="checkbox">
                         <label>
-                          <input type="radio" name="customer" value="temp" onclick="div_OnOff(this.value,'con');" checked>
+                          <input type="radio" name="customer" value="temp" onclick="div_OnOff(this.value,'con');" >
                           임시 담당자
                         </label>
                         <div id="con" style="display:none">
@@ -52,7 +52,6 @@
                           <label>부&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;서 : <input class="form-control" type="text" name="customerDept"></label><br>
                           <label>이&nbsp;&nbsp;메&nbsp;일 : <input class="form-control" type="text" name="customerEmail"></label><br>
                           <label>휴대전화 : <input class="form-control" type="text" name="customerPhone"></label><br>
-
                         </div>
                       </div>
                     </a>

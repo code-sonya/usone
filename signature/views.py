@@ -23,7 +23,7 @@ def signature(request, serviceId):
             servicereport.save()
 
         else:
-            customerInfo = Customer.objects.get(customerEmail=request.POST["customer"])
+            customerInfo = Customer.objects.get(customerId=request.POST["customer"])
             servicereport.customerName = customerInfo.customerName
             servicereport.customerDeptName = customerInfo.customerDeptName
             servicereport.customerEmail = customerInfo.customerEmail
