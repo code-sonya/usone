@@ -147,6 +147,16 @@
                     <th><i id="addItem" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
                   </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th class="text-right">TOTAL : </th>
+                    <th><span class="totalItemPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
@@ -170,6 +180,20 @@
                     <th><i id="addRevenue" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
                   </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL :</th>
+                    <th><span class="totalRevenuePrice"></span></th>
+                    <th><span class="totalRevenueProfitPrice"></span></th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
@@ -192,6 +216,19 @@
                     <th><i id="addPurchase" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
                   </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL : </th>
+                    <th><span class="totalPurchasePrice"></span></th>
+                    <th></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
                 </table>
               </div>
             </div>
@@ -764,6 +801,14 @@
           $('#' + predictExecutionDate).val(date);
       }
 
+      function totalPrice(inputName, className) {
+          let price = 0;
+          for (var i = 0; i < $('input[name=' + inputName + ']').length; i++) {
+              price += Number($('input[name=' + inputName + ']').eq(i).val().replace(/,/g, ''));
+          }
+          $('.' + className).text(price.toLocaleString());
+      }
+
       $(document).ready(function () {
 
           // 거래처 자동완성
@@ -888,6 +933,9 @@
               ]).draw(false);
               itemCounter++;
               $('.money').simpleMoneyFormat();
+              $('input[name=itemPrice]').on("change keyup paste input", function() {
+                  totalPrice('itemPrice', 'totalItemPrice');
+              });
           });
 
           {% if items %}
@@ -911,8 +959,11 @@
                   $('#item1' + itemCounter).val("{{ item.mainCategory }}").prop("selected", true);
                   itemChangeAdd("item1" + itemCounter, "item2" + itemCounter, "{{ item.subCategory }}", itemCounter);
                   itemCounter++;
-                  $('.money').simpleMoneyFormat();
               {% endfor %}
+              $('.money').simpleMoneyFormat();
+              $('input[name=itemPrice]').on("change keyup paste input", function() {
+                  totalPrice('itemPrice', 'totalItemPrice');
+              });
           {% else %}
               $('#addItem').click();
           {% endif %}
@@ -964,7 +1015,7 @@
                   'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
                   '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" ' +
                   'id="revenue5' + revenueCounter + '" onkeydown="addInput(revenue5' + revenueCounter + ')">',
-                  '<input class="money input-form ee" name="revenuePrice" id="revenue6' + revenueCounter + '">',
+                  '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '">',
                   '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
                   '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '">',
                   '<i class="fas fa-times-circle" name="remove">'
@@ -989,6 +1040,12 @@
                   }
               });
 
+              $('input[name=revenuePrice]').on("change keyup paste input", function() {
+                  totalPrice('revenuePrice', 'totalRevenuePrice');
+              });
+              $('input[name=revenueProfitPrice]').on("change keyup paste input", function() {
+                  totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
+              });
 
               revenueCounter++;
           });
@@ -1031,6 +1088,12 @@
                   });
               }
               $('.money').simpleMoneyFormat();
+              $('input[name=revenuePrice]').on("change keyup paste input", function() {
+                  totalPrice('revenuePrice', 'totalRevenuePrice');
+              });
+              $('input[name=revenueProfitPrice]').on("change keyup paste input", function() {
+                  totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
+              });
           {% else %}
               $('#addRevenue').click();
           {% endif %}
@@ -1103,6 +1166,11 @@
                       inputId = "";
                   }
               });
+
+              $('input[name=purchasePrice]').on("change keyup paste input", function() {
+                  totalPrice('purchasePrice', 'totalPurchasePrice');
+              });
+
               purchaseCounter++;
           });
 
@@ -1144,6 +1212,9 @@
               }
               $('.money').simpleMoneyFormat();
 
+              $('input[name=purchasePrice]').on("change keyup paste input", function() {
+                  totalPrice('purchasePrice', 'totalPurchasePrice');
+              });
           {% else %}
               $('#addPurchase').click();
           {% endif %}
@@ -1161,6 +1232,13 @@
           $('#contractStep').on("propertychange change", function () {
               changeStep(t2, t3);
           });
+
+          // 합계 수동으로 구해서 넣어주는 것
+          totalPrice('itemPrice', 'totalItemPrice');
+          totalPrice('revenuePrice', 'totalRevenuePrice');
+          totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
+          totalPrice('purchasePrice', 'totalPurchasePrice');
+
       })
   </script>
 
