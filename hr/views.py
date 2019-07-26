@@ -46,8 +46,17 @@ def show_punctuality(request, day=None):
     if day is None:
         day = str(datetime.datetime.today())[:10]
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    beforeDate = Date - datetime.timedelta(days=1)
-    afterDate = Date + datetime.timedelta(days=1)
+
+    if datetime.datetime.weekday(Date) == 0 :
+        beforeDate = Date - datetime.timedelta(days=3)
+        afterDate = Date + datetime.timedelta(days=1)
+    elif datetime.datetime.weekday(Date) == 4 :
+        beforeDate = Date - datetime.timedelta(days=1)
+        afterDate = Date + datetime.timedelta(days=3)
+    else:
+        beforeDate = Date - datetime.timedelta(days=1)
+        afterDate = Date + datetime.timedelta(days=1)
+
     year = day[:4]
     month = day[5:7]
 
