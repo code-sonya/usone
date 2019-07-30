@@ -122,15 +122,21 @@ def dayreport_query2(empDeptName, day):
     else:
         holiday = False
 
-    serviceDept = Servicereport.objects.filter(
+    serviceDept = Servicereport.objects.exclude(
+        empId__empPosition=0
+    ).filter(
         Q(empDeptName=empDeptName) & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
     ).order_by('serviceStartDatetime')
 
-    vacationDept = Vacation.objects.filter(
+    vacationDept = Vacation.objects.exclude(
+        empId__empPosition=0
+    ).filter(
         Q(empDeptName=empDeptName) & Q(vacationDate=Date)
     )
 
-    inDept = User.objects.filter(
+    inDept = User.objects.exclude(
+        employee__empPosition=0
+    ).filter(
         Q(employee__empDeptName=empDeptName) & Q(employee__empStatus='Y')
     ).exclude(
         Q(employee__empId__in=serviceDept.values('empId')) | Q(employee__empId__in=vacationDept.values('empId'))
