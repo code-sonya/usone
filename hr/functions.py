@@ -34,7 +34,7 @@ def is_holiday(date):
 
 
 def save_punctuality(dateList):
-    users = User.objects.filter(Q(employee__empStatus='Y')).exclude(Q(employee__empDeptName='임원') | Q(employee__empDeptName='미정')) \
+    users = User.objects.filter(Q(employee__empStatus='Y')).exclude(Q(employee__empPosition=0) | Q(employee__empDeptName='미정')) \
         .values('employee__empId', 'employee__empName', 'employee__empDeptName', 'employee__empPosition', 'employee__empRank', 'employee__dispatchCompany') \
         .order_by('employee__empDeptName', 'employee__empPosition', 'employee__empRank')
 
