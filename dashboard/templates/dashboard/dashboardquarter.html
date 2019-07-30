@@ -1,6 +1,6 @@
 {% extends "dashboard/layout.html" %}
 {% block title %}
-  분기별 영업 실적
+  연간 예상 영업 실적
 {% endblock %}
 {% load humanize %}
 
@@ -28,10 +28,10 @@
 
 {% endblock %}
 {% block content %}
+  <h3 class="mb-2 text-gray-800">연간 예상 영업 실적</h3>
+  <h6 class="mb-3 text-gray-800">[단위 : 백만원]</h6>
 
-  <h1 class="h3 mb-0 text-gray-800">연간 예상 영업 실적</h1><br>
-
-  <div class="row"><p class="text-secondary col-xl-12">▶ Firm (단위 : 백만원)</p></div>
+  <div class="row"><p class="text-secondary col-xl-12">▶ Firm</p></div>
 
   <div class="row">
     <div class="col-xl-3 col-md-6 mb-0">
@@ -115,7 +115,7 @@
 
   <br>
 
-  <div class="row"><p class="text-secondary col-xl-12">▶ Firm, Opportunity (단위 : 백만원)</p></div>
+  <div class="row"><p class="text-secondary col-xl-12">▶ Firm, Opportunity</p></div>
 
   <div class="row">
     <div class="col-xl-3 col-md-6 mb-0">
