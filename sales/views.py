@@ -4,6 +4,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 from django.db.models import Sum, FloatField, F
+from django.db.models.functions import Cast
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
 from django.template.loader import get_template
@@ -11,6 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from hr.models import Employee
+from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase
 from .functions import viewContract, dailyReportRows
@@ -1805,4 +1807,16 @@ def contract_purchases(request):
     purchases = Purchase.objects.filter(Q(contractId__contractId=contractId))
     purchases = purchases.values('billingTime','predictBillingDate','billingDate','predictWithdrawDate','withdrawDate','purchaseCompany__companyNameKo','purchasePrice','comment','purchaseId')
     structure = json.dumps(list(purchases), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+@login_required
+@csrf_exempt
+def contract_services(request):
+    contractId = request.POST['contractId']
+    services = Servicereport.objects.filter(Q(contractId=contractId))
+    services = services.annotate(salary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()))\
+                       .annotate(overSalary=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()))
+    services = services.values('empName', 'serviceType', 'serviceDate', 'serviceTitle', 'serviceHour', 'serviceOverHour', 'salary', 'overSalary', 'serviceId')
+    print(services)
+    structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
