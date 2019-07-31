@@ -2,6 +2,7 @@
 from django.db import models
 from hr.models import Employee
 from client.models import Company, Customer
+from sales.models import Contract
 
 
 class Servicereport(models.Model):
@@ -25,6 +26,7 @@ class Servicereport(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'))
 
     serviceId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
     serviceDate = models.DateField()
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     empName = models.CharField(max_length=10)

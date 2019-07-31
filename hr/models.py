@@ -3,6 +3,15 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+class Position(models.Model):
+    positionId = models.IntegerField(primary_key=True)
+    positionName = models.CharField(max_length=10)
+    positionSalary = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.positionName
+
+
 class Employee(models.Model):
     empPositionChoices = ((0, '임원'), (1, '이사'), (2, '부장'), (3, '차장'), (4, '과장'), (5, '대리'), (6, '사원'))
     empDeptNameChoices = (
@@ -22,7 +31,7 @@ class Employee(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     empCode = models.CharField(max_length=20, null=True, blank=True)
     empName = models.CharField(max_length=10)
-    empPosition = models.IntegerField(choices=empPositionChoices, default=6)
+    empPosition = models.ForeignKey(Position, on_delete=models.PROTECT)
     empManager = models.CharField(max_length=1, choices=statusChoices, default='N')
     empPhone = models.CharField(max_length=20)
     empEmail = models.EmailField(max_length=254)
@@ -31,6 +40,9 @@ class Employee(models.Model):
     message = models.CharField(max_length=200, default='내근 업무 내용을 작성해 주세요.', help_text='내근 업무 내용을 작성해 주세요.')
     empAuth = models.CharField(max_length=10, default='일반')
     empRank = models.IntegerField(default=10)
+    empSalary = models.IntegerField(default=0)
+    empStartDate = models.DateField(null=True, blank=True)
+    empEndDate = models.DateField(null=True, blank=True)
     empStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     def __str__(self):
