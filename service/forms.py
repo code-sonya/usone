@@ -13,12 +13,13 @@ class ServicereportForm(forms.ModelForm):
 
     class Meta:
         model = Servicereport
-        fields = ('companyName', 'serviceType',
+        fields = ('contractId', 'companyName', 'serviceType',
                   'startdate', 'starttime', 'enddate', 'endtime',
                   'serviceLocation', 'directgo', 'coWorkers', 'serviceTitle', 'serviceDetails')
 
         widgets = {
-            'companyName': forms.TextInput(attrs={'class': 'form-control magicsearch', 'id': 'companyName', 'autocomplete': 'off', 'onkeydown': 'addInput(companyName)'}),
+            'contractId': forms.TextInput(attrs={'class': 'form-control magicsearch', 'id': 'contractId', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(contractId)'}),
+            'companyName': forms.TextInput(attrs={'class': 'form-control magicsearch', 'id': 'companyName', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(companyName)'}),
             'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType"}),
             'serviceLocation': forms.Select(attrs={'class': 'form-control', 'id': 'serviceLocation'}),
             'directgo': forms.Select(attrs={'class': 'form-control', 'id': 'directgo'}),

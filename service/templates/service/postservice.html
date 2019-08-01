@@ -57,6 +57,11 @@
 
             {% csrf_token %}
             <div class="form-group row">
+              <div class="col-12">
+                <label for="contractId" class="font-weight-bold text-secondary"> 계약명 </label> {{ form.contractId }}
+              </div>
+            </div>
+            <div class="form-group row">
               <div class="col-6">
                 <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
               </div>
@@ -231,24 +236,37 @@
       }
 
       var value = "";
-      var inputId = "";
 
-      function addInput(input) {
-          if (window.event.keyCode == 9) {
-              value = $(input).attr('data-id');
-              inputId = $(input).attr('id');
-          }
+      function magicsearchtab(input) {
+          value = $(input).attr('data-id');
+          $(input).blur(function() {
+              if (value !== "") {
+                  $(input).trigger('set', {id: value});
+              }
+          });
       }
 
-      $('#serviceType').focus(function () {
-          if (value !== "") {
-              $('#companyName').trigger('set', {id: value});
-              value = "";
-              inputId = "";
-          }
-      });
-
       $(document).ready(function () {
+          const contractId = document.getElementById('contractId');
+
+          {% if contractId %}
+              contractId.setAttribute("data-id", "{{ contractId }}");
+          {% endif %}
+
+          $('#contractId').magicsearch({
+              dataSource: {{ contracts|safe }},
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              noResult: '검색결과없음',
+              focusShow: true,
+              success:function($input, data) {
+                  $('#companyName').trigger('set', {id: data.company});
+              }
+          });
+          contractId.removeAttribute("style");
+          contractId.parentElement.removeAttribute("style");
+
           const companyName = document.getElementById('companyName');
           {% if companyName %}
               companyName.setAttribute("data-id", "{{ companyName }}");

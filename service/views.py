@@ -14,6 +14,7 @@ import json
 from hr.models import Employee
 from client.models import Company
 from noticeboard.models import Board
+from sales.models import Contract
 from .forms import ServicereportForm, ServiceformForm
 from .functions import *
 from .models import Serviceform
@@ -199,11 +200,18 @@ def post_service(request, postdate):
         form.fields['endtime'].initial = "18:00"
         serviceforms = Serviceform.objects.filter(empId=empId)
 
-        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
-        empNames = []
-        for emp in empList:
-            temp = {'id': emp.empId, 'value': emp.empName}
-            empNames.append(temp)
+        contractList = Contract.objects.filter(
+            Q(endCompanyName__isnull=False) & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+        )
+        contracts = []
+        for contract in contractList:
+            temp = {
+                'id': contract.pk,
+                'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
+                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + str(contract.contractEndDate)[2:].replace('-', '.') + ')',
+                'company': contract.endCompanyName.pk
+            }
+            contracts.append(temp)
 
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
@@ -211,12 +219,19 @@ def post_service(request, postdate):
             temp = {'id': company.pk, 'value': company.pk}
             companyNames.append(temp)
 
+        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {'id': emp.empId, 'value': emp.empName}
+            empNames.append(temp)
+
         context = {
             'form': form,
             'postdate': postdate,
             'serviceforms': serviceforms,
-            'empNames': empNames,
+            'contracts': contracts,
             'companyNames': companyNames,
+            'empNames': empNames,
         }
         return render(request, 'service/postservice.html', context)
 
