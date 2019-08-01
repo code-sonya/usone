@@ -65,6 +65,9 @@
               <div class="float-right">
                 <button class="btn btn-danger" id="saveRevenueTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
               </div>
+              <div class="float-right">
+                <input type="date" id="copyDate" max="9999-12-31" class="input-form mr-3" value="{{ copyDate }}">
+              </div>
             {% endif %}
           {% endif %}
         
@@ -255,6 +258,11 @@
           outstandingcollection.setAttribute("name", "outstandingcollection");
           outstandingcollection.setAttribute("value", '{{ outstandingcollection }}');
           filterForm.appendChild(outstandingcollection);
+          let copyDate = document.createElement("input");
+          copyDate.setAttribute("type", "hidden");
+          copyDate.setAttribute("name", "copyDate");
+          copyDate.setAttribute("value", '{{ copyDate }}');
+          filterForm.appendChild(copyDate);
           filterForm.submit();
       }
 
@@ -339,6 +347,14 @@
           }
       }
 
+      function CopyDate(id) {
+          const copyDate = $('#copyDate').val();
+          if(copyDate!=''){
+              $('#' + id).val(copyDate);
+              $('#' + id).css('background-color', '#fffde7');
+          }
+      }
+
       $(document).ready(function () {
           $('#showrevenues').dataTable({
               "scrollX": true,
@@ -400,7 +416,7 @@
                       {% if modifyMode == 'Y' %}
                       "render": function (data, type, row) {
                           return '<input type="date" max="9999-12-31" id="billingDate' + row["revenueId"] + '" ' +
-                              'name="billingDate" class="input-form" value="' + row["billingDate"] + '" ' +
+                              'name="billingDate" onclick="CopyDate(this.id)" class="input-form" value="' + row["billingDate"] + '" ' +
                               'onchange="changeBillingDates(\'billingDate' + row["revenueId"] + '\', \'predictBillingDate' + row["revenueId"] + '\', ' +
                               '\'predictDepositDate' + row["revenueId"] + '\', \'' + row["contractId__depositCondition"] + '\', \'' + row["contractId__depositConditionDay"] + '\')" />'
                       },
@@ -420,7 +436,7 @@
                       {% if modifyMode == 'Y' %}
                       "render": function (data, type, row) {
                           return '<input type="date" max="9999-12-31" id="depositDate' + row["revenueId"] + '" ' +
-                              'name="depositDate" class="input-form" value="' + row["depositDate"] + '" ' +
+                              'name="depositDate" onclick="CopyDate(this.id)" class="input-form" value="' + row["depositDate"] + '" ' +
                               'onchange="changeExecutionDates(\'depositDate' + row["revenueId"] + '\', \'predictDepositDate' + row["revenueId"] + '\')" />'
                       },
                       {% endif %}
@@ -553,6 +569,8 @@
                       const revenueForm = document.getElementById("revenueForm");
                       const search = document.getElementsByClassName('form-control form-control-sm')[1].value;
                       let startdate = document.createElement("input");
+                      const copy = document.getElementById("copyDate").value;
+
                       startdate.setAttribute("type", "hidden");
                       startdate.setAttribute("name", "startdate");
                       startdate.setAttribute("value", '{{ startdate }}');
@@ -602,6 +620,11 @@
                       searchText.setAttribute("name", "searchText");
                       searchText.setAttribute("value", search);
                       revenueForm.appendChild(searchText);
+                      let copyDate = document.createElement("input");
+                      copyDate.setAttribute("type", "hidden");
+                      copyDate.setAttribute("name", "copyDate");
+                      copyDate.setAttribute("value", copy);
+                      revenueForm.appendChild(copyDate);
 
                       const lengthRevenue = $('[name="revenueId"]').length;
                       for (var i = 0; i <= lengthRevenue - 1; i++) {

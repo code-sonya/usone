@@ -373,7 +373,7 @@ def show_revenues(request):
         'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
         'maincategory': maincategory,
-        'issued': issued
+        'issued': issued,
     }
 
     return render(request, 'sales/showrevenues.html', context)
@@ -845,6 +845,7 @@ def save_purchasetable(request):
     issued = request.GET['issued']
     modifyMode = request.GET['modifyMode']
     searchText = request.GET['searchText']
+    copyDate = request.GET['copyDate']
 
     for a, b, c, d, e, f in zip(purchaseId, predictBillingDate, billingDate, predictWithdrawDate, withdrawDate, comment):
         purchase = Purchase.objects.get(purchaseId=a)
@@ -870,6 +871,7 @@ def save_purchasetable(request):
         'maincategory': maincategory,
         'issued': issued,
         'searchText': searchText,
+        'copyDate': copyDate,
     }
     if accountspayable == 'Y':
         return render(request, 'sales/showaccountspayables.html', context)
@@ -968,7 +970,7 @@ def save_revenuetable(request):
     outstandingcollection = request.GET['outstandingcollection']
     modifyMode = request.GET['modifyMode']
     searchText = request.GET['searchText']
-    print("request.GET", request.GET)
+    copyDate = request.GET['copyDate']
 
     for a, b, c, d, e, f in zip(revenueId, predictBillingDate, billingDate, predictDepositDate, depositDate, comment):
         revenue = Revenue.objects.get(revenueId=a)
@@ -991,6 +993,7 @@ def save_revenuetable(request):
         'outstandingcollection': outstandingcollection,
         'modifyMode': modifyMode,
         'searchText': searchText,
+        'copyDate': copyDate,
     }
     if outstandingcollection == 'Y':
         return render(request, 'sales/showoutstandingcollections.html', context)

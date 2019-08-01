@@ -11,23 +11,24 @@
   <style type="text/css">
 
     .table {
-      color: #333333;
+      color: #585858;
+      font-weight: normal;
     }
 
     .table td, .table th {
       padding: .75rem;
       vertical-align: middle;
-      border-top: 1px solid #e3e6f0;
-      text-align: center;
+      border-top: 1px solid #ffffff;
       white-space: normal;
     }
 
     .a {
-      background-color: #f2f9f9;
+      background-color: #e4f1f8;
+      text-align: center;
     }
 
     .c {
-      font-size: 0.9vw;
+      font-size: 0.8vw;
 
     }
 
@@ -91,13 +92,13 @@
               <td class="col-10">
                 <table class="table table" style="margin-bottom: 0px">
                   <thead>
-                  <tr class="row">
+                  <tr class="row" style="text-align: center;">
                     <td class="col-6"><B>DB지원팀</B></td>
                     <td class="col-6"><B>SOLUTION지원</B></td>
                   </tr>
                   </thead>
                   <tbody>
-                  <tr class="row">
+                  <tr class="row" style="text-align: center;">
                     <td class="col-6">{% if company.dbContractEndDate %}{{ company.dbContractEndDate }}{% else %}-{% endif %}</td>
                     <td class="col-6">{% if company.solutionContractEndDate %}{{ company.solutionContractEndDate }}{% else %}-{% endif %}</td>
                   </tr>
@@ -127,7 +128,7 @@
               <td class="col-10">
                 <table class="table table" style="margin-bottom: 0px">
                   <thead>
-                  <tr class="row">
+                  <tr class="row" style="text-align: center;">
                     <td class="col-3"><B>DB 담당자(정)</B></td>
                     <td class="col-3"><B>DB 담당자(부)</B></td>
                     <td class="col-3"><B>SYSTEM 담당자(정)</B></td>
@@ -135,7 +136,7 @@
                   </tr>
                   </thead>
                   <tbody>
-                  <tr class="row">
+                  <tr class="row" style="text-align: center;">
                     <td class="col-3">{% if company.dbMainEmpId %}{{ company.dbMainEmpId.empName }}{% else %}-{% endif %}</td>
                     <td class="col-3">{% if company.dbSubEmpId %}{{ company.dbSubEmpId.empName }}{% else %}-{% endif %}</td>
                     <td class="col-3">{% if company.solutionMainEmpId %}{{ company.solutionMainEmpId.empName }}{% else %}-{% endif %}</td>
@@ -228,58 +229,72 @@
       </div>
 
       {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
-      <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">계약 이력</h6>
+        <div class="card shadow mb-4">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 h3 text-gray-700">계약 이력</h6>
+          </div>
+          <div class="card-body">
+            <table id="showcontracts" class="mb-0 text-gray-600" width="100%">
+              <thead>
+              <tr class="bg-light">
+                <th>단계</th>
+                <th>영업부서</th>
+                <th>영업담당</th>
+                <th>계약명</th>
+                <th>거래처</th>
+                <th>매출금액</th>
+                <th>이익금액</th>
+                <th>계약일</th>
+                <th class="d-none">contractId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>TOTAL :</th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>
+              </tfoot>
+            </table>
+          </div>
         </div>
-        <div class="card-body">
-          <table id="showcontracts" class="table mb-0" width="100%" style="width: 100%;">
-            <thead>
-            <tr>
-              <th>단계</th>
-              <th>영업부서</th>
-              <th>영업담당</th>
-              <th>계약명</th>
-              <th>거래처</th>
-              <th>매출금액</th>
-              <th>이익금액</th>
-              <th>계약일</th>
-              <th class="d-none">contractId</th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th>TOTAL :</th>
-              <th></th>
-              <th></th>
-              <th></th>
-            </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
       {% endif %}
 
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">지원 이력</h6>
+          <h6 class="m-0 h3 text-gray-700">지원 이력</h6>
         </div>
         <div class="card-body">
-          <table id="showclients" class="table mb-0" width="100%" style="color:black">
+          <table id="showclients" class="mb-0 text-gray-600" width="100%">
             <thead>
-            <tr>
+            <tr class="bg-light">
               <th>날짜</th>
               <th>성함</th>
               <th>부서</th>
               <th>구분</th>
+              <th>지원시간</th>
+              <th>초과근무</th>
               <th>내용</th>
               <th class="d-none">serviceId</th>
             </tr>
             </thead>
+            <tfoot>
+              <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>TOTAL :</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>
+              </tfoot>
           </table>
         </div>
       </div>
@@ -336,7 +351,7 @@
                       "contractName": "",
                       "mainCategory": "",
                       "drops": "N",
-                      "modifyContractPaper":"",
+                      "modifyContractPaper": "",
                   },
                   "url": "{% url 'sales:contracts_ajax_url' %}",
                   "dataSrc": ""
@@ -436,16 +451,20 @@
                   {data: "empName"},
                   {data: "empDeptName"},
                   {data: "serviceType"},
+                  {data: "serviceHour"},
+                  {data: "serviceOverHour"},
                   {data: "serviceTitle"},
                   {data: "serviceId"},
               ],
               "columnDefs": [
-                  {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 4, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 5, className: "d-none"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 6, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 7, className: "d-none"},
               ],
               "deferRender": true,
               "order": [[0, 'desc']],
@@ -464,7 +483,22 @@
                       "next": "다음",
                       "previous": "이전"
                   },
-              }
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var hour = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      hour += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(hour.toLocaleString());
+
+                  var overhour = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      overhour += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(overhour.toLocaleString());
+              },
           });
 
           var table = $('#showclients').DataTable();

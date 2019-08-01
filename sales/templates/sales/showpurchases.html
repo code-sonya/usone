@@ -86,6 +86,9 @@
               <div class="float-right">
                 <button class="btn btn-danger" id="savePurchaseTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
               </div>
+              <div class="float-right">
+                <input type="date" id="copyDate" max="9999-12-31" class="input-form mr-3" value="{{ copyDate }}">
+              </div>
             {% endif %}
             {% if accountspayable == 'N' and modifyMode == 'N' %}
               <div class="float-right" style="margin-right: 10px;">
@@ -360,6 +363,11 @@
           accountspayable.setAttribute("name", "accountspayable");
           accountspayable.setAttribute("value", '{{ accountspayable }}');
           filterForm.appendChild(accountspayable);
+          let copyDate = document.createElement("input");
+          copyDate.setAttribute("type", "hidden");
+          copyDate.setAttribute("name", "copyDate");
+          copyDate.setAttribute("value", '{{ copyDate }}');
+          filterForm.appendChild(copyDate);
           filterForm.submit();
       }
 
@@ -443,6 +451,15 @@
           }
       }
 
+      function CopyDate(id) {
+          const copyDate = $('#copyDate').val();
+          if(copyDate!=''){
+              $('#' + id).val(copyDate);
+              $('#' + id).css('background-color', '#fffde7');
+          }
+      }
+
+
       $(document).ready(function () {
           $('#showrevenues').dataTable({
               "scrollX": true,
@@ -503,7 +520,7 @@
                       {% if modifyMode == 'Y' %}
                           "render": function (data, type, row) {
                               return '<input type="date" max="9999-12-31" id="billingDate' + row["purchaseId"] + '" ' +
-                                  'name="billingDate" class="input-form" onchange="changeBillingDates(\'billingDate' + row["purchaseId"] + '\', \'predictBillingDate' + row["purchaseId"] + '\')" ' +
+                                  'name="billingDate" class="input-form" onclick="CopyDate(this.id)" onchange="changeBillingDates(\'billingDate' + row["purchaseId"] + '\', \'predictBillingDate' + row["purchaseId"] + '\')" ' +
                                   'value="' + row["billingDate"] + '" />'
                           },
                       {% endif %}
@@ -522,7 +539,7 @@
                       {% if modifyMode == 'Y' %}
                           "render": function (data, type, row) {
                               return ' <input type="date" max="9999-12-31" id="withdrawDate' + row["purchaseId"] + '" ' +
-                                  'name="withdrawDate" class="input-form" onchange="changeExecutionDates(\'withdrawDate' + row["purchaseId"] + '\', \'predictWithdrawDate' + row["purchaseId"] + '\')" ' +
+                                  'name="withdrawDate" class="input-form" onclick="CopyDate(this.id)" onchange="changeExecutionDates(\'withdrawDate' + row["purchaseId"] + '\', \'predictWithdrawDate' + row["purchaseId"] + '\')" ' +
                                   'value="' + row["withdrawDate"] + '" />'
 
                           },
@@ -640,6 +657,8 @@
                   if (nullcheck == true) {
                       const purchaseForm = document.getElementById("purchaseForm");
                       const search = document.getElementsByClassName('form-control form-control-sm')[1].value;
+                      const copy = document.getElementById("copyDate").value;
+
                       let startdate = document.createElement("input");
                       startdate.setAttribute("type", "hidden");
                       startdate.setAttribute("name", "startdate");
@@ -705,6 +724,11 @@
                       searchText.setAttribute("name", "searchText");
                       searchText.setAttribute("value", search);
                       purchaseForm.appendChild(searchText);
+                      let copyDate = document.createElement("input");
+                      copyDate.setAttribute("type", "hidden");
+                      copyDate.setAttribute("name", "copyDate");
+                      copyDate.setAttribute("value", copy);
+                      purchaseForm.appendChild(copyDate);
 
                       const lengthPurchase = $('[name="purchaseId"]').length;
                       for (var i = 0; i <= lengthPurchase - 1; i++) {
