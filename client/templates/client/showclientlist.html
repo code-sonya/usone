@@ -18,8 +18,8 @@
 {% block content %}
 
   <div class="row">
-
-    <div class="col-xl-12">
+    <div class="col-xl-1"></div>
+    <div class="col-xl-10">
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -48,22 +48,18 @@
                 <th>[영업] 고객사 명</th>
                 <th>[기술] 고객사 명</th>
                 <th>영업대표</th>
-                <th>[DB] 정</th>
-                <th>[DB] 부</th>
-                <th>[솔루션] 정</th>
-                <th>[솔루션] 부</th>
-                <th>DB 계약만료</th>
-                <th>솔루션 계약만료</th>
+                <th>[DB] 정 담당자</th>
+                <th>[DB] 부 담당자</th>
+                <th>[솔루션] 정 담당자</th>
+                <th>[솔루션] 부 담당자</th>
               </tr>
               </thead>
             </table>
           </div>
-
         </div>
-
       </div>
     </div>
-
+    <div class="col-xl-1"></div>
   </div>
 
   <!-- Filter Modal -->
@@ -136,19 +132,15 @@
                   {data: "dbSubEmpId__empName"},
                   {data: "solutionMainEmpId__empName"},
                   {data: "solutionSubEmpId__empName"},
-                  {data: "dbContractEndDate"},
-                  {data: "solutionContractEndDate"},
               ],
               columnDefs: [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "8%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
               "searching": true,
               "paging": true,
@@ -168,8 +160,8 @@
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   if (aData.companyName != "") {
-                      $('td:eq(0)', nRow).css('color', '#4e73df');
-                      {#$('td:eq(0)', nRow).css('color', '#4e73df').css('font-weight','bold');#}
+                      $('td:eq(0)', nRow).addClass('text-primary');
+                      $('td:eq(1)', nRow).addClass('text-danger');
                   }
               }
           });

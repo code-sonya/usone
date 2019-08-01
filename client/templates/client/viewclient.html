@@ -88,22 +88,15 @@
             </tr>
 
             <tr class="row">
-              <th class="col-2 a">계약만료일</th>
+              <th class="col-2 a">진행계약</th>
               <td class="col-10">
-                <table class="table table" style="margin-bottom: 0px">
-                  <thead>
-                  <tr class="row" style="text-align: center;">
-                    <td class="col-6"><B>DB지원팀</B></td>
-                    <td class="col-6"><B>SOLUTION지원</B></td>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr class="row" style="text-align: center;">
-                    <td class="col-6">{% if company.dbContractEndDate %}{{ company.dbContractEndDate }}{% else %}-{% endif %}</td>
-                    <td class="col-6">{% if company.solutionContractEndDate %}{{ company.solutionContractEndDate }}{% else %}-{% endif %}</td>
-                  </tr>
-                  </tbody>
-                </table>
+                {% if contracts %}
+                  {% for contract in contracts %}
+                    <span>[{{ contract.contractCode }}]</span>
+                    <span>{{ contract.contractName }}</span>
+                    ({{ contract.contractStartDate }} ~ {{ contract.contractEndDate }})
+                  {% endfor %}
+                {% endif %}
               </td>
             </tr>
             <tr class="row">
