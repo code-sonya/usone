@@ -851,8 +851,6 @@ def save_purchasetable(request):
         purchase.billingDate = c or None
         purchase.predictWithdrawDate = d or None
         purchase.withdrawDate = e or None
-        if f == 'null' or 'None' or None:
-            f = ''
         purchase.comment = f
         purchase.save()
 
@@ -978,8 +976,6 @@ def save_revenuetable(request):
         revenue.billingDate = c or None
         revenue.predictDepositDate = d or None
         revenue.depositDate = e or None
-        if f == 'null' or 'None' or None:
-            f = ''
         revenue.comment = f
         revenue.save()
 
