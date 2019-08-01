@@ -458,8 +458,10 @@
 
       function CopyDate(id) {
           const copyDate = $('#copyDate').val();
-          $('#' + id).val(copyDate);
-          $('#' + id).css('background-color', '#fffde7');
+          if(copyDate!=''){
+              $('#' + id).val(copyDate);
+              $('#' + id).css('background-color', '#fffde7');
+          }
       }
 
       $(document).ready(function () {

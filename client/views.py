@@ -17,7 +17,7 @@ from hr.models import Employee
 @csrf_exempt
 def client_asjson(request):
     companyName = request.POST['companyName']
-    services = Servicereport.objects.filter(companyName=companyName).values('serviceId', 'serviceDate', 'empName', 'empDeptName', 'serviceType', 'serviceTitle')
+    services = Servicereport.objects.filter(companyName=companyName).values('serviceId', 'serviceDate', 'empName', 'empDeptName', 'serviceType', 'serviceHour', 'serviceOverHour', 'serviceTitle')
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
