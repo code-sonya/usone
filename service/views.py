@@ -362,6 +362,13 @@ def show_services(request):
 def view_service(request, serviceId):
     service = Servicereport.objects.get(serviceId=serviceId)
 
+    if service.contractId:
+        contractName = service.contractId.contractName\
+                       + ' (' + str(service.contractId.contractStartDate)[2:].replace('-', '.')\
+                       + ' ~ ' + str(service.contractId.contractEndDate)[2:].replace('-', '.') + ')'
+        if contractName.split(' ')[0] == service.companyName.companyName:
+            contractName = ' '.join(contractName.split(' ')[1:])
+
     if service.coWorker:
         coWorker = []
         for coWorkerId in service.coWorker.split(','):
@@ -376,6 +383,7 @@ def view_service(request, serviceId):
 
     context = {
         'service': service,
+        'contractName': contractName,
         'board': board,
         'coWorker': coWorker,
     }
