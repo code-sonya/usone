@@ -68,6 +68,7 @@ def post_service(request, postdate):
 
         if form.is_valid():
             post = form.save(commit=False)
+            post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
@@ -100,6 +101,7 @@ def post_service(request, postdate):
                         post.serviceRegHour = post.serviceHour - post.serviceOverHour
                         timeCalculateFlag = False
                     Servicereport.objects.create(
+                        contractId = post.contractId,
                         serviceDate=post.serviceDate,
                         empId=post.empId,
                         empName=post.empName,
@@ -136,6 +138,7 @@ def post_service(request, postdate):
                             post.serviceRegHour = post.serviceHour - post.serviceOverHour
                             timeCalculateFlag = False
                         Servicereport.objects.create(
+                            contractId=post.contractId,
                             serviceDate=post.serviceDate,
                             empId=post.empId,
                             empName=post.empName,
@@ -171,6 +174,7 @@ def post_service(request, postdate):
                         post.serviceRegHour = post.serviceHour - post.serviceOverHour
                         timeCalculateFlag = False
                     Servicereport.objects.create(
+                        contractId=post.contractId,
                         serviceDate=post.serviceDate,
                         empId=post.empId,
                         empName=post.empName,
@@ -200,6 +204,7 @@ def post_service(request, postdate):
         form.fields['endtime'].initial = "18:00"
         serviceforms = Serviceform.objects.filter(empId=empId)
 
+        # 계약명 자동완성
         contractList = Contract.objects.filter(
             Q(endCompanyName__isnull=False) & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
         )
@@ -213,12 +218,14 @@ def post_service(request, postdate):
             }
             contracts.append(temp)
 
+        # 고객사명 자동완성
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
         for company in companyList:
             temp = {'id': company.pk, 'value': company.pk}
             companyNames.append(temp)
-
+            
+        # 동행자 자동완성
         empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
         empNames = []
         for emp in empList:
@@ -408,6 +415,7 @@ def modify_service(request, serviceId):
 
         if form.is_valid():
             post = form.save(commit=False)
+            post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
@@ -428,14 +436,23 @@ def modify_service(request, serviceId):
         form.fields['enddate'].initial = str(instance.serviceEndDatetime)[:10]
         form.fields['endtime'].initial = str(instance.serviceEndDatetime)[11:16]
 
-        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
-        empNames = []
-        for emp in empList:
-            temp = {'id': emp.empId, 'value': emp.empName}
-            empNames.append(temp)
+        # 계약명 자동완성
+        contractList = Contract.objects.filter(
+            Q(endCompanyName__isnull=False) & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+        )
+        contracts = []
+        for contract in contractList:
+            temp = {
+                'id': contract.pk,
+                'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
+                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + str(contract.contractEndDate)[2:].replace('-', '.') + ')',
+                'company': contract.endCompanyName.pk
+            }
+            contracts.append(temp)
 
-        coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+        contractId = Servicereport.objects.get(serviceId=serviceId).contractId.contractId
 
+        # 고객사명 자동완성
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
         for company in companyList:
@@ -444,12 +461,23 @@ def modify_service(request, serviceId):
 
         companyName = Servicereport.objects.get(serviceId=serviceId).companyName
 
+        # 동생자 자동완성
+        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {'id': emp.empId, 'value': emp.empName}
+            empNames.append(temp)
+
+        coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+
         context = {
             'form': form,
-            'empNames': empNames,
-            'coWorkers': coWorkers,
+            'contracts': contracts,
             'companyNames': companyNames,
+            'empNames': empNames,
+            'contractId': contractId,
             'companyName': companyName,
+            'coWorkers': coWorkers,
         }
         return render(request, 'service/postservice.html', context)
 

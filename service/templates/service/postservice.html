@@ -19,36 +19,36 @@
 
           <h6 class="m-0 h3 text-gray-800">일정{% if form.serviceTitle.value == None %} 등록{% else %} 수정{% endif %}</h6>
 
-          {% if form.serviceTitle.value == None %} <!-- 일정 등록 화면과 일정 수정 화면 구분 -->
-            <div class="dropdown no-arrow">
-              <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                 aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                   aria-labelledby="dropdownMenuLink" x-placement="bottom-end"
-                   style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-156px, 19px, 0px);">
-                <div class="dropdown-header" id="myForm"> 내 양식:</div>
-                {% for serviceform in serviceforms %}
-                  <a class="dropdown-item" href="#" onclick="applyform(
-                      '{{ serviceform.companyName.companyName }}',
-                      '{{ serviceform.serviceType }}',
-                      '{{ serviceform.serviceStartTime | time:"H:i"}}',
-                      '{{ serviceform.serviceEndTime | time:"H:i"}}',
-                      '{{ serviceform.serviceLocation }}',
-                      '{{ serviceform.directgo }}',
-                      '{{ serviceform.serviceTitle }}',
-                      '{{ serviceform.serviceDetails }}')">
-                    {{ serviceform.serviceTitle | truncatechars:"15" }}
-                  </a>
-                {% endfor %}
-                <div class="dropdown-divider"></div>
-                <div class="dropdown-header" id="myForm"> 관리:</div>
-                <a class="dropdown-item" href="/service/showserviceforms/"> 양식관리 </a>
-              </div>
-            </div>
-          {% endif %}
-
+{#          양식 기능 비활성화#}
+{#          {% if form.serviceTitle.value == None %} <!-- 일정 등록 화면과 일정 수정 화면 구분 -->#}
+{#            <div class="dropdown no-arrow">#}
+{#              <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"#}
+{#                 aria-haspopup="true" aria-expanded="false">#}
+{#                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>#}
+{#              </a>#}
+{#              <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"#}
+{#                   aria-labelledby="dropdownMenuLink" x-placement="bottom-end"#}
+{#                   style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-156px, 19px, 0px);">#}
+{#                <div class="dropdown-header" id="myForm"> 내 양식:</div>#}
+{#                {% for serviceform in serviceforms %}#}
+{#                  <a class="dropdown-item" href="#" onclick="applyform(#}
+{#                      '{{ serviceform.companyName.companyName }}',#}
+{#                      '{{ serviceform.serviceType }}',#}
+{#                      '{{ serviceform.serviceStartTime | time:"H:i"}}',#}
+{#                      '{{ serviceform.serviceEndTime | time:"H:i"}}',#}
+{#                      '{{ serviceform.serviceLocation }}',#}
+{#                      '{{ serviceform.directgo }}',#}
+{#                      '{{ serviceform.serviceTitle }}',#}
+{#                      '{{ serviceform.serviceDetails }}')">#}
+{#                    {{ serviceform.serviceTitle | truncatechars:"15" }}#}
+{#                  </a>#}
+{#                {% endfor %}#}
+{#                <div class="dropdown-divider"></div>#}
+{#                <div class="dropdown-header" id="myForm"> 관리:</div>#}
+{#                <a class="dropdown-item" href="/service/showserviceforms/"> 양식관리 </a>#}
+{#              </div>#}
+{#            </div>#}
+{#          {% endif %}#}
         </div>
 
         <div class="card-body">
@@ -58,7 +58,7 @@
             {% csrf_token %}
             <div class="form-group row">
               <div class="col-12">
-                <label for="contractId" class="font-weight-bold text-secondary"> 계약명 </label> {{ form.contractId }}
+                <label for="contracts" class="font-weight-bold text-secondary"> 계약명 </label> {{ form.contracts }}
               </div>
             </div>
             <div class="form-group row">
@@ -185,6 +185,13 @@
           coWorkerInput.setAttribute("value", coWorkers);
           Form.appendChild(coWorkerInput);
 
+          const contracts = document.getElementById('contracts').getAttribute('data-id');
+          let contractInput = document.createElement("input");
+          contractInput.setAttribute("type", "hidden");
+          contractInput.setAttribute("name", "contractId");
+          contractInput.setAttribute("value", contracts);
+          Form.appendChild(contractInput);
+
           if (document.getElementById("companyName").value === '') {
               alert("고객사 명을 입력해주세요.");
               return false;
@@ -247,13 +254,13 @@
       }
 
       $(document).ready(function () {
-          const contractId = document.getElementById('contractId');
+          const contracts = document.getElementById('contracts');
 
           {% if contractId %}
-              contractId.setAttribute("data-id", "{{ contractId }}");
+              contracts.setAttribute("data-id", "{{ contractId }}");
           {% endif %}
 
-          $('#contractId').magicsearch({
+          $('#contracts').magicsearch({
               dataSource: {{ contracts|safe }},
               fields: 'value',
               id: 'id',
@@ -264,8 +271,8 @@
                   $('#companyName').trigger('set', {id: data.company});
               }
           });
-          contractId.removeAttribute("style");
-          contractId.parentElement.removeAttribute("style");
+          contracts.removeAttribute("style");
+          contracts.parentElement.removeAttribute("style");
 
           const companyName = document.getElementById('companyName');
           {% if companyName %}

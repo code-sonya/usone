@@ -10,6 +10,9 @@ class ServicereportForm(forms.ModelForm):
     enddate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'date', "max": '9999-12-31', 'id': 'enddate'}))
     endtime = forms.CharField(max_length=16, widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time', 'id': 'endtime'}))
     coWorkers = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'magicsearch form-control', 'id': 'coWorkers', 'autocomplete': 'off'}))
+    contracts = forms.CharField(max_length=300, required=False, widget=forms.TextInput(
+        attrs={'class': 'magicsearch form-control', 'id': 'contracts', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(contracts)'}
+    ))
 
     class Meta:
         model = Servicereport
@@ -18,7 +21,6 @@ class ServicereportForm(forms.ModelForm):
                   'serviceLocation', 'directgo', 'coWorkers', 'serviceTitle', 'serviceDetails')
 
         widgets = {
-            'contractId': forms.TextInput(attrs={'class': 'form-control magicsearch', 'id': 'contractId', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(contractId)'}),
             'companyName': forms.TextInput(attrs={'class': 'form-control magicsearch', 'id': 'companyName', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(companyName)'}),
             'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType"}),
             'serviceLocation': forms.Select(attrs={'class': 'form-control', 'id': 'serviceLocation'}),
