@@ -8,9 +8,12 @@ from django.template import loader
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from service.models import Servicereport
+from sales.models import Contract
 from .models import Company, Customer
 from .forms import CompanyForm, CustomerForm
 from hr.models import Employee
+
+import datetime
 
 
 @login_required
@@ -96,10 +99,15 @@ def view_client(request, companyName):
     template = loader.get_template('client/viewclient.html')
     company = Company.objects.get(companyName=companyName)
     customers = Customer.objects.filter(companyName=companyName)
+    contracts = Contract.objects.filter(
+        Q(endCompanyName=companyName) & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+    )
+
     try:
         dbms = json.loads(company.companyDbms)
     except:
         dbms = "{}"
+
     if request.method == 'POST':
         try:
             company.dbComment = request.POST["dbtextArea"]
@@ -111,6 +119,7 @@ def view_client(request, companyName):
     context = {
         'company': company,
         'customers': customers,
+        'contracts': contracts,
         'dbms': dbms,
     }
     return HttpResponse(template.render(context, request))
