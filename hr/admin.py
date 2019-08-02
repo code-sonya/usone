@@ -1,7 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Employee, Attendance, Punctuality
+from .models import Position, Employee, Attendance, Punctuality
+
+
+@admin.register(Position)
+class PositionAdmin(admin.ModelAdmin):
+    list_display = ('positionId', 'positionName', 'positionSalary')
+    list_filter = ('positionId', 'positionName', 'positionSalary')
+    list_display_links = ['positionId', 'positionName', 'positionSalary']
 
 
 class EmployeeInline(admin.StackedInline):

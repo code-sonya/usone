@@ -14,7 +14,7 @@ from django.db.models.functions import Coalesce
 from hr.models import Employee
 from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase
-from service.models import Company, Customer
+from service.models import Company, Customer, Servicereport
 from django.db.models import Q
 from datetime import datetime, timedelta
 import pandas as pd
@@ -28,6 +28,7 @@ def viewContract(contractId):
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
+    services = Servicereport.objects.filter(Q(contractId=contractId)&Q(serviceStatus='Y')&(Q(empDeptName='DB지원팀')|Q(empDeptName='솔루션지원팀')))
     contractPaper = str(contract.contractPaper).split('/')[-1]
     orderPaper = str(contract.orderPaper).split('/')[-1]
 
@@ -136,6 +137,7 @@ def viewContract(contractId):
         'purchaseId': '',
         # 계약, 세부사항, 매출, 매입, 계약서 명, 수주통보서 명
         'contract': contract,
+        'services': services,
         'items': items,
         'revenues': revenues.order_by('predictBillingDate'),
         'sumRevenuePrice': sumRevenuePrice,

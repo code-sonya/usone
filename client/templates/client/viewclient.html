@@ -92,9 +92,15 @@
               <td class="col-10">
                 {% if contracts %}
                   {% for contract in contracts %}
-                    <span>[{{ contract.contractCode }}]</span>
+
+                    {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' %}
+                      <span>[<a class='text-info' href="/sales/viewcontract/{{ contract.contractId }}/">{{ contract.contractCode }}</a>]</span>
+                    {% else %}
+                      <span>[{{ contract.contractCode }}]</span>
+                    {% endif %}
                     <span>{{ contract.contractName }}</span>
                     ({{ contract.contractStartDate }} ~ {{ contract.contractEndDate }})
+                    <br>
                   {% endfor %}
                 {% endif %}
               </td>
@@ -277,17 +283,17 @@
             </tr>
             </thead>
             <tfoot>
-              <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th>TOTAL :</th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-              </tr>
-              </tfoot>
+            <tr>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>TOTAL :</th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+            </tr>
+            </tfoot>
           </table>
         </div>
       </div>

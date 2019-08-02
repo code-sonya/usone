@@ -19,11 +19,12 @@
     }
 
     .mobile-table td, .mobile-table th{
-      padding: 4px;
       vertical-align: middle;
-      font-size: 16px;
       border-top: 1px dotted #858796a3;
     }
+
+    @media (max-width:1199px){.mobile-table td, .mobile-table th{font-size: 16px; padding: 4px;}}
+    @media (min-width:1200px){.mobile-table td, .mobile-table th{font-size: 18px; padding: 8px;}}
 
   </style>
 
@@ -35,194 +36,7 @@
   <div class="row">
     <div class="col-xl-2"></div>
 
-    <!-- PC화면-->
-    <div class="col-xl-8 d-none d-xl-block">
-      <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
-        </div>
-
-        <div class="card-body">
-          {% csrf_token %}
-          <div class="form-group row">
-            <div class="col-xl-6 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">성함</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="empName">{{ service.empName }}{% if service.directgo == "Y" %} (직출){% endif %}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-6 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">동행자</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="coWorker">
-                        {% if coWorker %}{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}{% endif %}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <div class="col-xl-6 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">고객사</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="companyName">{{ service.companyName }} ({{ service.serviceLocation }})</div>
-                    </div>
-                    <div class="col-auto">
-                      <a href="{% url 'client:view_client' service.companyName %}"><i class="fas fa-building fa-2x text-gray-300"></i></a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-6 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">일정구분</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceType">{{ service.serviceType }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <div class="col-xl-6 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">시작시간</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceStartDatetime">
-                        {{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:":12"}}) {{ service.serviceStartDatetime | time:"H:i"}}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-6 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">종료시간</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceEndDatetime">
-                        {{ service.serviceEndDatetime | date:"Y.m.d(D" | slice:":12"}}) {{ service.serviceEndDatetime | time:"H:i"}}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <div class="col-xl-6 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">소요시간</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceHour">{{ service.serviceHour }} 시간</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-xl-6 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">초과근무</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceOverHour">{{ service.serviceOverHour }} 시간</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <div class="col-xl-12 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">제목</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceTitle">{{ service.serviceTitle }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group row">
-            <div class="col-xl-12 mb-3 mb-sm-0">
-              <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                  <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                      <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">내용</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800" id="serviceDetails">{{ service.serviceDetails | linebreaksbr }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {% if service.empId.empId == user.employee.empId and service.serviceStatus == 'N' %}
-            <div class="text-center">
-              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
-                <span class="text"> 삭제 </span>
-              </a>
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-                <span class="text"> 수정 </span>
-              </a>
-              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
-                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-                <span class="text"> 완료 </span>
-              </a>
-            </div>
-          {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
-            <div class="text-center">
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_copy()">
-                <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
-                <span class="text"> 복사 </span>
-              </a>
-            </div>
-          {% endif %}
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- 모바일 화면 -->
-    <div class="col-xl-8 d-block d-xl-none">
+    <div class="col-xl-8">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
@@ -231,43 +45,49 @@
           <table class="mobile-table">
             <tbody>
             <tr>
-              <td style="width: 30%; border-top: 0px;"><b>성함</b></td>
+              <td style="width: 30%; border-top: 0px;" class="text-center"><b>성&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp함</b></td>
               <td style="width: 70%; border-top: 0px;">{{ service.empName }} {% if service.directgo == "Y" %}(직출){% endif %}</td>
             </tr>
             {% if coWorker %}
             <tr>
-              <td><b>동행자</b></td>
+              <td class="text-center"><b>동&nbsp&nbsp행&nbsp&nbsp자</b></td>
               <td>{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}</td>
             </tr>
             {% endif %}
+            {% if contractName %}
             <tr>
-              <td><b>고객사</b></td>
+              <td class="text-center"><b>계&nbsp&nbsp약&nbsp&nbsp명</b></td>
+              <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ contractName }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+              <td class="text-center"><b>고&nbsp&nbsp객&nbsp&nbsp사</b></td>
               <td><b class="text-primary">{{ service.companyName }}</b> ({{ service.serviceLocation }})
                 <i class="fas fa-search text-gray-600" onclick="location.href='/client/viewclient/{{ service.companyName }}/'"></i>
               </td>
             </tr>
             <tr>
-              <td><b>일정구분</b></td>
+              <td class="text-center"><b>일정구분</b></td>
               <td>{{ service.serviceType }}</td>
             </tr>
             <tr>
-              <td><b>시작시간</b></td>
-              <td>{{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:"0:12" }}) {{ service.serviceStartDatetime | date:"H:i" }}</td>
+              <td class="text-center"><b>시작일시</b></td>
+              <td>{{ service.serviceStartDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceStartDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
-              <td><b>종료시간</b></td>
-              <td>{{ service.serviceEndDatetime | date:"Y.m.d(D" | slice:"0:12" }}) {{ service.serviceEndDatetime | date:"H:i" }}</td>
+              <td class="text-center"><b>종료일시</b></td>
+              <td>{{ service.serviceEndDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceEndDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
-              <td><b>소요시간</b></td>
+              <td class="text-center"><b>소요시간</b></td>
               <td>{{ service.serviceHour }} 시간 {% if service.serviceOverHour > 0 %}<b class="text-danger">({{ service.serviceOverHour }} 초과근무)</b>{% endif %}</td>
             </tr>
             <tr>
-              <td><b>제목</b></td>
+              <td class="text-center"><b>제&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp목</b></td>
               <td>{{ service.serviceTitle }}</td>
             </tr>
             <tr>
-              <td><b>내용</b></td>
+              <td class="text-center"><b>내&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp용</b></td>
               <td>{{ service.serviceDetails | linebreaksbr }}</td>
             </tr>
             </tbody>

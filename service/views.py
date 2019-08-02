@@ -14,6 +14,7 @@ import json
 from hr.models import Employee
 from client.models import Company
 from noticeboard.models import Board
+from sales.models import Contract
 from .forms import ServicereportForm, ServiceformForm
 from .functions import *
 from .models import Serviceform
@@ -50,7 +51,8 @@ def service_asjson(request):
         services = Servicereport.objects.filter(empId=request.user.employee.empId)
 
     services = services.values('serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType', 'serviceStartDatetime', 'serviceEndDatetime',
-                               'serviceHour', 'serviceOverHour', 'serviceDetails', 'serviceStatus', 'serviceId')
+                               'serviceHour', 'serviceOverHour', 'serviceDetails', 'serviceStatus', 'contractId__contractName', 'serviceId')
+
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -67,6 +69,10 @@ def post_service(request, postdate):
 
         if form.is_valid():
             post = form.save(commit=False)
+            if request.POST['contractId']:
+                post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
+            else:
+                post.contractId = None
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
@@ -99,6 +105,7 @@ def post_service(request, postdate):
                         post.serviceRegHour = post.serviceHour - post.serviceOverHour
                         timeCalculateFlag = False
                     Servicereport.objects.create(
+                        contractId = post.contractId,
                         serviceDate=post.serviceDate,
                         empId=post.empId,
                         empName=post.empName,
@@ -135,6 +142,7 @@ def post_service(request, postdate):
                             post.serviceRegHour = post.serviceHour - post.serviceOverHour
                             timeCalculateFlag = False
                         Servicereport.objects.create(
+                            contractId=post.contractId,
                             serviceDate=post.serviceDate,
                             empId=post.empId,
                             empName=post.empName,
@@ -170,6 +178,7 @@ def post_service(request, postdate):
                         post.serviceRegHour = post.serviceHour - post.serviceOverHour
                         timeCalculateFlag = False
                     Servicereport.objects.create(
+                        contractId=post.contractId,
                         serviceDate=post.serviceDate,
                         empId=post.empId,
                         empName=post.empName,
@@ -199,24 +208,41 @@ def post_service(request, postdate):
         form.fields['endtime'].initial = "18:00"
         serviceforms = Serviceform.objects.filter(empId=empId)
 
+        # 계약명 자동완성
+        contractList = Contract.objects.filter(
+            Q(endCompanyName__isnull=False) & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+        )
+        contracts = []
+        for contract in contractList:
+            temp = {
+                'id': contract.pk,
+                'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
+                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + str(contract.contractEndDate)[2:].replace('-', '.') + ')',
+                'company': contract.endCompanyName.pk
+            }
+            contracts.append(temp)
+
+        # 고객사명 자동완성
+        companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
+        companyNames = []
+        for company in companyList:
+            temp = {'id': company.pk, 'value': company.pk}
+            companyNames.append(temp)
+            
+        # 동행자 자동완성
         empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
         empNames = []
         for emp in empList:
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
 
-        companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
-        companyNames = []
-        for company in companyList:
-            temp = {'id': company.pk, 'value': company.pk}
-            companyNames.append(temp)
-
         context = {
             'form': form,
             'postdate': postdate,
             'serviceforms': serviceforms,
-            'empNames': empNames,
+            'contracts': contracts,
             'companyNames': companyNames,
+            'empNames': empNames,
         }
         return render(request, 'service/postservice.html', context)
 
@@ -340,6 +366,15 @@ def show_services(request):
 def view_service(request, serviceId):
     service = Servicereport.objects.get(serviceId=serviceId)
 
+    if service.contractId:
+        contractName = service.contractId.contractName\
+                       + ' (' + str(service.contractId.contractStartDate)[2:].replace('-', '.')\
+                       + ' ~ ' + str(service.contractId.contractEndDate)[2:].replace('-', '.') + ')'
+        if contractName.split(' ')[0] == service.companyName.companyName:
+            contractName = ' '.join(contractName.split(' ')[1:])
+    else:
+        contractName = ''
+
     if service.coWorker:
         coWorker = []
         for coWorkerId in service.coWorker.split(','):
@@ -354,6 +389,7 @@ def view_service(request, serviceId):
 
     context = {
         'service': service,
+        'contractName': contractName,
         'board': board,
         'coWorker': coWorker,
     }
@@ -393,6 +429,10 @@ def modify_service(request, serviceId):
 
         if form.is_valid():
             post = form.save(commit=False)
+            if request.POST['contractId']:
+                post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
+            else:
+                post.contractId = None
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
@@ -413,14 +453,26 @@ def modify_service(request, serviceId):
         form.fields['enddate'].initial = str(instance.serviceEndDatetime)[:10]
         form.fields['endtime'].initial = str(instance.serviceEndDatetime)[11:16]
 
-        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
-        empNames = []
-        for emp in empList:
-            temp = {'id': emp.empId, 'value': emp.empName}
-            empNames.append(temp)
+        # 계약명 자동완성
+        contractList = Contract.objects.filter(
+            Q(endCompanyName__isnull=False) & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+        )
+        contracts = []
+        for contract in contractList:
+            temp = {
+                'id': contract.pk,
+                'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
+                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + str(contract.contractEndDate)[2:].replace('-', '.') + ')',
+                'company': contract.endCompanyName.pk
+            }
+            contracts.append(temp)
 
-        coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+        if Servicereport.objects.get(serviceId=serviceId).contractId:
+            contractId = Servicereport.objects.get(serviceId=serviceId).contractId.contractId
+        else:
+            contractId = ''
 
+        # 고객사명 자동완성
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
         for company in companyList:
@@ -429,12 +481,25 @@ def modify_service(request, serviceId):
 
         companyName = Servicereport.objects.get(serviceId=serviceId).companyName
 
+        # 동생자 자동완성
+        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {'id': emp.empId, 'value': emp.empName}
+            empNames.append(temp)
+
+        coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+        serviceStatus = Servicereport.objects.get(serviceId=serviceId).serviceStatus
+
         context = {
             'form': form,
-            'empNames': empNames,
-            'coWorkers': coWorkers,
+            'contracts': contracts,
             'companyNames': companyNames,
+            'empNames': empNames,
+            'contractId': contractId,
             'companyName': companyName,
+            'coWorkers': coWorkers,
+            'serviceStatus': serviceStatus,
         }
         return render(request, 'service/postservice.html', context)
 
