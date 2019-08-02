@@ -207,7 +207,7 @@
                   if (data.type == 'X') {
                       tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.vacationType + '] ' + data.name + '</b></div>';
                   } else {
-                      tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br>' + data.start.format('YYYY/MM/DD HH:mm') + '~' + data.end.format('YYYY/MM/DD HH:mm') + '<br>' + data.detail + '</div>';
+                      tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br><span class="text-primary">'+data.contractName+'</span><br>' + data.start.format('YYYY/MM/DD HH:mm') + '~' + data.end.format('YYYY/MM/DD HH:mm') + '<br>' + data.detail + '</div>';
                   }
                   $("body").append(tooltip);
                   $(this).mouseover(function (e) {
@@ -338,6 +338,7 @@
                               company: '{{ i.companyName|linebreaksbr }}',
                               service_type: '{{ i.serviceType }}',
                               className: 'me',
+                              contractName:'{{ i.contractId }}',
                               {#직출 여부#}
                               {% if i.directgo == 'Y' %}
                                   imageurl: '/media/icon/jigchul.png',
@@ -396,6 +397,7 @@
                               company: '{{ i.companyName|linebreaksbr }}',
                               service_type: '{{ i.serviceType }}',
                               className: 'team',
+                              contractName:{% if i.contractId != None %}'{{ i.contractId }}'{% else %}'-'{% endif %},
                               {#직출 여부#}
                               {% if i.directgo == 'Y' %}
                                   imageurl: '/media/icon/jigchul.png',
