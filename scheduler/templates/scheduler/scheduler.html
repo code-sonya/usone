@@ -338,7 +338,7 @@
                               company: '{{ i.companyName|linebreaksbr }}',
                               service_type: '{{ i.serviceType }}',
                               className: 'me',
-                              contractName:'{{ i.contractId }}',
+                              contractName:{% if i.contractId != None %}'{{ i.contractId }}'{% else %}'-'{% endif %},
                               {#직출 여부#}
                               {% if i.directgo == 'Y' %}
                                   imageurl: '/media/icon/jigchul.png',
