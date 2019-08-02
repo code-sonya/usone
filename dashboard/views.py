@@ -191,7 +191,7 @@ def dashboard_quarter(request):
                     "q3_end": "{}-10-01".format(todayYear),
                     "q4_end": "{}-01-01".format(todayYear + 1)}
 
-    # 목표 매출금액 & 이익금액
+    # 해당 분기 목표 누적 매출금액 & 이익금액
     goal = Goal.objects.filter(year=todayYear)
     salesTarget = goal.aggregate(sum=Sum('yearSalesSum'))['sum']
     profitTarget = goal.aggregate(sum=Sum('yearProfitSum'))['sum']
@@ -208,8 +208,16 @@ def dashboard_quarter(request):
         salesQuarterTarget += goal.aggregate(sum=Sum('salesq4'))['sum']
         profitQuarterTarget += goal.aggregate(sum=Sum('profitq4'))['sum']
 
+    # 분기별/월별 목표 매출&이익 금액
+    goalsSum = goal.aggregate(sum_yearSales=Sum('yearSalesSum'), sum_yearProfit=Sum('yearProfitSum'), sum_salesq1=Sum('salesq1'), sum_salesq2=Sum('salesq2'),sum_salesq3=Sum('salesq3'),
+                              sum_salesq4=Sum('salesq3'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'), sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'),
+                              sum_sales1=Sum('sales1'), sum_sales2=Sum('sales2'), sum_sales3=Sum('sales3'), sum_sales4=Sum('sales4'), sum_sales5=Sum('sales5'), sum_sales6=Sum('sales6'),
+                              sum_sales7=Sum('sales7'), sum_sales8=Sum('sales8'), sum_sales9=Sum('sales9'), sum_sales10=Sum('sales10'), sum_sales11=Sum('sales11'), sum_sales12=Sum('sales12'),
+                              sum_profit1=Sum('profit1'), sum_profit2=Sum('profit2'), sum_profit3=Sum('profit3'), sum_profit4=Sum('profit4'), sum_profit5=Sum('profit5'), sum_profit6=Sum('profit6'),
+                              sum_profit7=Sum('profit7'), sum_profit8=Sum('profit8'), sum_profit9=Sum('profit9'), sum_profit10=Sum('profit10'), sum_profit11=Sum('profit11'),
+                              sum_profit12=Sum('profit12'),)
+
     # 매출
-    contract = Contract.objects.all()
     revenues = Revenue.objects.all()
 
     firmRevenuePrice = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']) & Q(contractId__contractStep='Firm'))
@@ -372,6 +380,7 @@ def dashboard_quarter(request):
         'salesindustryRevenuePrice': salesindustryRevenuePrice,
         'salestypeRevenuePrice': salestypeRevenuePrice,
         'monthRevenues': monthRevenues,
+        'goalsSum': goalsSum,
     }
     return HttpResponse(template.render(context, request))
 
