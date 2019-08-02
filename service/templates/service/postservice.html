@@ -19,36 +19,36 @@
 
           <h6 class="m-0 h3 text-gray-800">일정{% if form.serviceTitle.value == None %} 등록{% else %} 수정{% endif %}</h6>
 
-{#          양식 기능 비활성화#}
-{#          {% if form.serviceTitle.value == None %} <!-- 일정 등록 화면과 일정 수정 화면 구분 -->#}
-{#            <div class="dropdown no-arrow">#}
-{#              <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"#}
-{#                 aria-haspopup="true" aria-expanded="false">#}
-{#                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>#}
-{#              </a>#}
-{#              <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"#}
-{#                   aria-labelledby="dropdownMenuLink" x-placement="bottom-end"#}
-{#                   style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-156px, 19px, 0px);">#}
-{#                <div class="dropdown-header" id="myForm"> 내 양식:</div>#}
-{#                {% for serviceform in serviceforms %}#}
-{#                  <a class="dropdown-item" href="#" onclick="applyform(#}
-{#                      '{{ serviceform.companyName.companyName }}',#}
-{#                      '{{ serviceform.serviceType }}',#}
-{#                      '{{ serviceform.serviceStartTime | time:"H:i"}}',#}
-{#                      '{{ serviceform.serviceEndTime | time:"H:i"}}',#}
-{#                      '{{ serviceform.serviceLocation }}',#}
-{#                      '{{ serviceform.directgo }}',#}
-{#                      '{{ serviceform.serviceTitle }}',#}
-{#                      '{{ serviceform.serviceDetails }}')">#}
-{#                    {{ serviceform.serviceTitle | truncatechars:"15" }}#}
-{#                  </a>#}
-{#                {% endfor %}#}
-{#                <div class="dropdown-divider"></div>#}
-{#                <div class="dropdown-header" id="myForm"> 관리:</div>#}
-{#                <a class="dropdown-item" href="/service/showserviceforms/"> 양식관리 </a>#}
-{#              </div>#}
-{#            </div>#}
-{#          {% endif %}#}
+          {#          양식 기능 비활성화#}
+          {#          {% if form.serviceTitle.value == None %} <!-- 일정 등록 화면과 일정 수정 화면 구분 -->#}
+          {#            <div class="dropdown no-arrow">#}
+          {#              <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"#}
+          {#                 aria-haspopup="true" aria-expanded="false">#}
+          {#                <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>#}
+          {#              </a>#}
+          {#              <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in"#}
+          {#                   aria-labelledby="dropdownMenuLink" x-placement="bottom-end"#}
+          {#                   style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(-156px, 19px, 0px);">#}
+          {#                <div class="dropdown-header" id="myForm"> 내 양식:</div>#}
+          {#                {% for serviceform in serviceforms %}#}
+          {#                  <a class="dropdown-item" href="#" onclick="applyform(#}
+          {#                      '{{ serviceform.companyName.companyName }}',#}
+          {#                      '{{ serviceform.serviceType }}',#}
+          {#                      '{{ serviceform.serviceStartTime | time:"H:i"}}',#}
+          {#                      '{{ serviceform.serviceEndTime | time:"H:i"}}',#}
+          {#                      '{{ serviceform.serviceLocation }}',#}
+          {#                      '{{ serviceform.directgo }}',#}
+          {#                      '{{ serviceform.serviceTitle }}',#}
+          {#                      '{{ serviceform.serviceDetails }}')">#}
+          {#                    {{ serviceform.serviceTitle | truncatechars:"15" }}#}
+          {#                  </a>#}
+          {#                {% endfor %}#}
+          {#                <div class="dropdown-divider"></div>#}
+          {#                <div class="dropdown-header" id="myForm"> 관리:</div>#}
+          {#                <a class="dropdown-item" href="/service/showserviceforms/"> 양식관리 </a>#}
+          {#              </div>#}
+          {#            </div>#}
+          {#          {% endif %}#}
         </div>
 
         <div class="card-body">
@@ -160,6 +160,31 @@
 
   <script type="text/javascript">
 
+      {% if serviceStatus == 'Y' %}
+          $('#companyName').attr('readonly', '');
+          $('#companyName').css("pointer-events", "none");
+          $('#serviceType').attr('readonly', '');
+          $('#serviceType').css("pointer-events", "none");
+          $('#startdate').attr('readonly', '');
+          $('#startdate').css("pointer-events", "none");
+          $('#starttime').attr('readonly', '');
+          $('#starttime').css("pointer-events", "none");
+          $('#enddate').attr('readonly', '');
+          $('#enddate').css("pointer-events", "none");
+          $('#endtime').attr('readonly', '');
+          $('#endtime').css("pointer-events", "none");
+          $('#serviceLocation').attr('readonly', '');
+          $('#serviceLocation').css("pointer-events", "none");
+          $('#directgo').attr('readonly', '');
+          $('#directgo').css("pointer-events", "none");
+          $('#coWorkers').attr('readonly', '');
+          $('#coWorkers').css("pointer-events", "none");
+          $('#serviceTitle').attr('readonly', '');
+          $('#serviceTitle').css("pointer-events", "none");
+          $('#serviceDetails').attr('readonly', '');
+          $('#serviceDetails').css("pointer-events", "none");
+      {% endif%}
+
       function showVal(newVal) {
           $('#enddate').val(newVal);
       }
@@ -173,9 +198,9 @@
       }
 
       function btn_save() {
-          const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g,'/') + ' ' + document.getElementById("starttime").value);
-          const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g,'/') + ' ' + document.getElementById("endtime").value);
-          const diff = ((serviceEndDatetime - serviceStartDatetime)/3600000).toFixed(1);
+          const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g, '/') + ' ' + document.getElementById("starttime").value);
+          const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g, '/') + ' ' + document.getElementById("endtime").value);
+          const diff = ((serviceEndDatetime - serviceStartDatetime) / 3600000).toFixed(1);
 
           let Form = document.getElementById("ServicereportForm");
           const coWorkers = document.getElementById('coWorkers').getAttribute('data-id');
@@ -246,7 +271,7 @@
 
       function magicsearchtab(input) {
           value = $(input).attr('data-id');
-          $(input).blur(function() {
+          $(input).blur(function () {
               if (value !== "") {
                   $(input).trigger('set', {id: value});
               }
@@ -267,9 +292,11 @@
               format: '%value%',
               noResult: '검색결과없음',
               focusShow: true,
-              success:function($input, data) {
-                  $('#companyName').trigger('set', {id: data.company});
-              }
+              {% if serviceStatus != 'Y' %}
+                  success: function ($input, data) {
+                      $('#companyName').trigger('set', {id: data.company});
+                  }
+              {% endif %}
           });
           contracts.removeAttribute("style");
           contracts.parentElement.removeAttribute("style");

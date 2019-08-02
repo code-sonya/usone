@@ -10,7 +10,7 @@
 
   <style type="text/css">
 
-    .table{
+    .table {
       color: #333333;
       table-layout: fixed;
       border: 2px solid black;
@@ -20,7 +20,7 @@
       background-color: #ffffff;
     }
 
-    .table td, .table th{
+    .table td, .table th {
       padding: 0px;
       vertical-align: middle;
       border: 2px solid black;
@@ -28,7 +28,7 @@
       font-size: 16px;
     }
 
-    .mobile-table{
+    .mobile-table {
       color: #333333;
       table-layout: fixed;
       width: 100%;
@@ -36,7 +36,7 @@
       margin-bottom: 1rem;
     }
 
-    .mobile-table td, .mobile-table th{
+    .mobile-table td, .mobile-table th {
       padding: 4px;
       vertical-align: middle;
       font-size: 16px;
@@ -55,14 +55,14 @@
     <div class="col-xl-8 d-none d-xl-block" style="z-index: 2">
       <div class="text-right mb-3" style="min-width: 1000px">
         {% if service.empId.empId == user.employee.empId %}
-        <a href="#" class="btn btn-warning" style="width: 50px; height: 42px;" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-          <i class="fas fa-edit text-gray-100" style="font-size: 1.5em;"></i>
-        </a>
-        &nbsp;&nbsp;
-        <a href="#" class="btn btn-info" style="width: 50px; height: 42px;" onclick="location.href='/mail/{{ service.serviceId }}'">
-          <i class="fas fa-envelope text-gray-100" style="font-size: 1.5em;"></i>
-        </a>
-        &nbsp;&nbsp;
+          <a href="#" class="btn btn-warning" style="width: 50px; height: 42px;" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+            <i class="fas fa-edit text-gray-100" style="font-size: 1.5em;"></i>
+          </a>
+          &nbsp;&nbsp;
+          <a href="#" class="btn btn-info" style="width: 50px; height: 42px;" onclick="location.href='/mail/{{ service.serviceId }}'">
+            <i class="fas fa-envelope text-gray-100" style="font-size: 1.5em;"></i>
+          </a>
+          &nbsp;&nbsp;
         {% endif %}
         <a href="#" class="btn btn-danger" style="width: 50px; height: 42px;" onclick="location.href='/service/viewservicepdf/{{ service.serviceId }}'">
           <i class="fas fa-file-pdf text-gray-100" style="font-size: 1.5em;"></i>
@@ -98,10 +98,10 @@
             {{ service.serviceType }}
           </td>
           <td style="width: 205px; text-align: center;" colspan="2">
-            {{ service.serviceStartDatetime | date:"Y년 m월 d일 H:i"}}
+            {{ service.serviceStartDatetime | date:"Y년 m월 d일 H:i" }}
           </td>
           <td style="width: 205px; text-align: center;" colspan="2">
-            {{ service.serviceEndDatetime | date:"Y년 m월 d일 H:i"}}
+            {{ service.serviceEndDatetime | date:"Y년 m월 d일 H:i" }}
           </td>
           <td style="width: 195px; text-align: center;" colspan="2">
             {{ service.serviceHour }} 시간
@@ -111,11 +111,16 @@
           <td style="width: 1000px; vertical-align: top; white-space: normal" colspan="10">
             <p>&nbsp;</p>&nbsp;&nbsp;&nbsp;&nbsp;
             <strong>내 용 :</strong>
-            <p><div style="padding-left: 40px">{{ service.serviceTitle }}</div></p>
-            <p><div style="padding-left: 40px">{{ service.serviceDetails|linebreaksbr }}</div></p>
+            <p>
+            <div style="padding-left: 40px">{{ service.serviceTitle }}</div>
+            </p>
+            <p>
+            <div style="padding-left: 40px">{{ service.serviceDetails|linebreaksbr }}</div>
+            </p>
             {% if coWorker %}
               <br><br>
-              <p><div style="padding-left: 40px">
+              <p>
+              <div style="padding-left: 40px">
                 # 서비스 지원 동행 : 유니원아이앤씨
                 {% for name in coWorker %}
                   {% if forloop.last %}
@@ -209,6 +214,10 @@
             <span class="text text-white">게시글 보기</span>
           </a>
         {% endif %}
+        <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+          <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+          <span class="text p-2"> 수정 </span>
+        </a>
       </div>
     </div>
     <!-- 모바일화면 -->
@@ -236,16 +245,16 @@
               <td style="width: 70%; border-top: 0px;">{{ service.empName }} {% if service.directgo == "Y" %}<b>(직출)<b>{% endif %}</td>
             </tr>
             {% if coWorker %}
-            <tr>
-              <td><b>동행자</b></td>
-              <td>{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}</td>
-            </tr>
+              <tr>
+                <td><b>동행자</b></td>
+                <td>{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}</td>
+              </tr>
             {% endif %}
             {% if contractName %}
-            <tr>
-              <td class="text-center"><b>계&nbsp&nbsp약&nbsp&nbsp명</b></td>
-              <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ contractName }}</td>
-            </tr>
+              <tr>
+                <td class="text-center"><b>계&nbsp&nbsp약&nbsp&nbsp명</b></td>
+                <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ contractName }}</td>
+              </tr>
             {% endif %}
             <tr>
               <td><b>고객사</b></td>
@@ -296,9 +305,11 @@
               </a>
             {% endif %}
           </div>
-
+          <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+            <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+            <span class="text p-2"> 수정 </span>
+          </a>
         </div>
-
       </div>
     </div>
     <div class="col-xl-2"></div>
@@ -312,8 +323,14 @@
 
   <script type="text/javascript">
 
-      function btn_board(){
-          location.href = '/noticeboard/postboard/' + {{ service.serviceId }} + '/';
+      function btn_board() {
+          location.href = '/noticeboard/postboard/' + {{ service.serviceId }} +'/';
+      }
+
+      function btn_modify() {
+          if (confirm("일정을 수정 하시겠습니까?") === true) {
+              location.href = '/service/modifyservice/' + {{ service.serviceId }} +'/';
+          }
       }
 
   </script>

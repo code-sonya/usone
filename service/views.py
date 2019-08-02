@@ -51,7 +51,8 @@ def service_asjson(request):
         services = Servicereport.objects.filter(empId=request.user.employee.empId)
 
     services = services.values('serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType', 'serviceStartDatetime', 'serviceEndDatetime',
-                               'serviceHour', 'serviceOverHour', 'serviceDetails', 'serviceStatus', 'serviceId')
+                               'serviceHour', 'serviceOverHour', 'serviceDetails', 'serviceStatus', 'contractId__contractName', 'serviceId')
+
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -488,6 +489,7 @@ def modify_service(request, serviceId):
             empNames.append(temp)
 
         coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+        serviceStatus = Servicereport.objects.get(serviceId=serviceId).serviceStatus
 
         context = {
             'form': form,
@@ -497,6 +499,7 @@ def modify_service(request, serviceId):
             'contractId': contractId,
             'companyName': companyName,
             'coWorkers': coWorkers,
+            'serviceStatus': serviceStatus,
         }
         return render(request, 'service/postservice.html', context)
 
