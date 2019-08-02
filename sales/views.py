@@ -1816,10 +1816,9 @@ def contract_purchases(request):
 @csrf_exempt
 def contract_services(request):
     contractId = request.POST['contractId']
-    services = Servicereport.objects.filter(Q(contractId=contractId))
+    services = Servicereport.objects.filter(Q(contractId=contractId)&Q(serviceStatus='Y')&(Q(empDeptName='DB지원팀')|Q(empDeptName='솔루션지원팀')))
     services = services.annotate(salary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()))\
                        .annotate(overSalary=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()))
     services = services.values('empName', 'serviceType', 'serviceDate', 'serviceTitle', 'serviceHour', 'serviceOverHour', 'salary', 'overSalary', 'serviceId')
-    print(services)
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
