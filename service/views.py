@@ -68,7 +68,10 @@ def post_service(request, postdate):
 
         if form.is_valid():
             post = form.save(commit=False)
-            post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
+            if request.POST['contractId']:
+                post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
+            else:
+                post.contractId = None
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
@@ -368,6 +371,8 @@ def view_service(request, serviceId):
                        + ' ~ ' + str(service.contractId.contractEndDate)[2:].replace('-', '.') + ')'
         if contractName.split(' ')[0] == service.companyName.companyName:
             contractName = ' '.join(contractName.split(' ')[1:])
+    else:
+        contractName = ''
 
     if service.coWorker:
         coWorker = []
@@ -423,7 +428,10 @@ def modify_service(request, serviceId):
 
         if form.is_valid():
             post = form.save(commit=False)
-            post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
+            if request.POST['contractId']:
+                post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
+            else:
+                post.contractId = None
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
@@ -458,7 +466,10 @@ def modify_service(request, serviceId):
             }
             contracts.append(temp)
 
-        contractId = Servicereport.objects.get(serviceId=serviceId).contractId.contractId
+        if Servicereport.objects.get(serviceId=serviceId).contractId:
+            contractId = Servicereport.objects.get(serviceId=serviceId).contractId.contractId
+        else:
+            contractId = ''
 
         # 고객사명 자동완성
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
