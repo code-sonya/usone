@@ -12,7 +12,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from hr.models import Employee
 from .forms import ContractForm, GoalForm, PurchaseForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost
 from .functions import viewContract, dailyReportRows
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
@@ -87,6 +87,18 @@ def post_contract(request):
                     purchasePrice=int(purchase["purchasePrice"]),
                     comment=purchase["purchaseComment"],
                 )
+
+            jsonCost = json.loads(request.POST['jsonCost'])
+            for cost in jsonCost:
+                Cost.objects.create(
+                    contractId=post,
+                    costCompany=cost["costCompany"],
+                    costPrice=int(cost["costPrice"]),
+                    billingTime=None,
+                    billingDate=None,
+                    comment=cost["costComment"],
+                )
+
             return redirect('sales:showcontracts')
 
     else:
@@ -103,10 +115,21 @@ def post_contract(request):
         for emp in empList:
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
+
+        costCompany = [
+            {'id': '법인카드', 'value': '법인카드'},
+            {'id': '이자비용', 'value': '이자비용'},
+            {'id': '지원금', 'value': '지원금'},
+            {'id': '인건비', 'value': '인건비'},
+            {'id': '교육비', 'value': '교육비'},
+            {'id': '미정', 'value': '미정'},
+        ]
+
         context = {
             'form': form,
             'companyNames': companyNames,
             'empNames': empNames,
+            'costCompany': costCompany,
         }
         return render(request, 'sales/postcontract.html', context)
 
@@ -171,6 +194,7 @@ def modify_contract(request, contractId):
         form = ContractForm(request.POST, request.FILES, instance=contractInstance)
 
         if form.is_valid():
+            # 계약내용 수정
             post = form.save(commit=False)
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
@@ -184,6 +208,7 @@ def modify_contract(request, contractId):
             post.subCategory = json.loads(request.POST['jsonItem'])[0]['subCategory']
             post.save()
 
+            # 세부사항 수정
             jsonItem = json.loads(request.POST['jsonItem'])
             itemId = list(i[0] for i in Contractitem.objects.filter(contractId=contractId).values_list('contractItemId'))
             jsonItemId = []
@@ -212,6 +237,7 @@ def modify_contract(request, contractId):
                 for Id in delItemId:
                     Contractitem.objects.filter(contractItemId=Id).delete()
 
+            # 매출세부정보 수정
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
             jsonRevenue = sorted(jsonRevenue, key=lambda x: x['predictBillingDate'])
             idx = 0
@@ -262,6 +288,7 @@ def modify_contract(request, contractId):
                 for Id in delRevenueId:
                     Revenue.objects.filter(revenueId=Id).delete()
 
+            # 매입세부정보 수정
             jsonPurchase = json.loads(request.POST['jsonPurchase'])
             purchaseId = list(i[0] for i in Purchase.objects.filter(contractId=contractId).values_list('purchaseId'))
             jsonPurchaseId = []
@@ -298,6 +325,37 @@ def modify_contract(request, contractId):
                 for Id in delPurchaseId:
                     Purchase.objects.filter(purchaseId=Id).delete()
 
+            # 원가세부정보 수정
+            jsonCost = json.loads(request.POST['jsonCost'])
+            costId = list(i[0] for i in Cost.objects.filter(contractId=contractId).values_list('costId'))
+            jsonCostId = []
+            for cost in jsonCost:
+                if cost['costId'] == '추가':
+                    Cost.objects.create(
+                        contractId=post,
+                        costCompany=cost["costCompany"],
+                        costPrice=int(cost["costPrice"]),
+                        billingTime=None,
+                        billingDate=None,
+                        comment=cost["costComment"],
+                    )
+                else:
+                    costInstance = Cost.objects.get(costId=int(cost["costId"]))
+                    costInstance.contractId = post
+                    costInstance.costCompany = cost["costCompany"]
+                    costInstance.costPrice = int(cost["costPrice"])
+                    costInstance.billingTime = None
+                    costInstance.billingDate = None
+                    costInstance.comment = cost["costComment"]
+                    costInstance.save()
+                    jsonCostId.append(int(cost["costId"]))
+
+            delCostId = list(set(costId) - set(jsonCostId))
+
+            if delCostId:
+                for Id in delCostId:
+                    Cost.objects.filter(costId=Id).delete()
+
             return redirect('sales:viewcontract', str(contractId))
 
     else:
@@ -305,6 +363,7 @@ def modify_contract(request, contractId):
         items = Contractitem.objects.filter(contractId=contractId)
         revenues = Revenue.objects.filter(contractId=contractId)
         purchases = Purchase.objects.filter(contractId=contractId)
+        costs = Cost.objects.filter(contractId=contractId)
         saleCompanyNames = Contract.objects.get(contractId=contractId).saleCompanyName
         endCompanyNames = Contract.objects.get(contractId=contractId).endCompanyName
         contractPaper = str(form.save(commit=False).contractPaper).split('/')[-1]
@@ -316,16 +375,34 @@ def modify_contract(request, contractId):
             temp = {'id': company.pk, 'value': company.companyNameKo}
             companyNames.append(temp)
 
+        empList = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {'id': emp.empId, 'value': emp.empName}
+            empNames.append(temp)
+
+        costCompany = [
+            {'id': '법인카드', 'value': '법인카드'},
+            {'id': '이자비용', 'value': '이자비용'},
+            {'id': '지원금', 'value': '지원금'},
+            {'id': '인건비', 'value': '인건비'},
+            {'id': '교육비', 'value': '교육비'},
+            {'id': '미정', 'value': '미정'},
+        ]
+
         context = {
             'form': form,
             'items': items,
             'revenues': revenues.order_by('predictBillingDate'),
             'purchases': purchases.order_by('predictBillingDate'),
+            'costs': costs,
             'saleCompanyNames': saleCompanyNames,
             'endCompanyNames': endCompanyNames,
             'contractPaper': contractPaper,
             'orderPaper': orderPaper,
-            'companyNames': companyNames
+            'companyNames': companyNames,
+            'empNames': empNames,
+            'costCompany': costCompany,
         }
         return render(request, 'sales/postcontract.html', context)
 
@@ -1562,39 +1639,38 @@ def outstanding_asjson(request):
 @login_required
 @csrf_exempt
 def check_gp(request):
-    revenues = Revenue.objects.values('contractId', 'contractId__contractCode', 'contractId__contractName').annotate(sum_price=Sum('revenuePrice'), sum_profit=Sum('revenueProfitPrice'))
-    purchases = Purchase.objects.values('contractId').annotate(sum_price=Sum('purchasePrice'))
-    contractTrue = []
-    contractFalse = []
     contracts = Contract.objects.all()
-    for i in contracts:
-        for r in revenues:
-            if i.contractId == r['contractId']:
-                if i.salePrice == r['sum_price']:
-                    if i.profitPrice == r['sum_profit']:
-                        contractTrue.append({"id": i.contractId, 'code': i.contractCode, 'reason': '일치'})
-                    else:
-                        contractFalse.append({"id": i.contractId, 'code': i.contractCode, 'name': i.contractName, 'reason': '이익합계불일치'})
-                else:
-                    contractFalse.append({"id": i.contractId, 'code': i.contractCode, 'reason': '메출합계불일치'})
+    revenues = Revenue.objects.values('contractId').annotate(sum_price=Sum('revenuePrice'), sum_profit=Sum('revenueProfitPrice'))
+    purchases = Purchase.objects.values('contractId').annotate(sum_price=Sum('purchasePrice'))
+    costs = Cost.objects.values('contractId').annotate(sum_price=Sum('costPrice'))
+    contractFalse = []
 
-        if purchases.filter(contractId=i.contractId).first() is None:
-            if revenues.filter(contractId=i.contractId).first()['sum_price'] != revenues.filter(contractId=i.contractId).first()['sum_profit']:
-                contractFalse.append({"id": i.contractId, 'code': revenues.filter(contractId=i.contractId).first()['contractId__contractCode'],
-                                      'name': revenues.filter(contractId=i.contractId).first()['contractId__contractName'],
-                                      'reason': 'GP불일치', 'revenueprice': revenues.filter(contractId=i.contractId).first()['sum_price'], 'purchaseprice': 0,
-                                      'gap': revenues.filter(contractId=i.contractId).first()['sum_price'] - 0,
-                                      'gap_gp': (revenues.filter(contractId=i.contractId).first()['sum_price'] - 0) - i.profitPrice})
+    for contract in contracts:
+        revenue = revenues.get(contractId=contract.contractId)
+        revenuePrice = revenue['sum_price']
+        revenueProfit = revenue['sum_profit']
+        try:
+            purchasePrice = purchases.get(contractId=contract.contractId)['sum_price']
+        except:
+            purchasePrice = 0
+        try:
+            costPrice = costs.get(contractId=contract.contractId)['sum_price']
+        except:
+            costPrice = 0
 
-    for r in revenues:
-        for p in purchases:
-            if r['contractId'] == p['contractId']:
-                if (r['sum_price'] - p['sum_price']) == r['sum_profit']:
-                    contractTrue.append({"id": r['contractId'], 'code': r['contractId__contractCode'], 'reason': '일치'})
-                else:
-                    contractFalse.append({"id": r['contractId'], 'code': r['contractId__contractCode'], 'name': r['contractId__contractName'],
-                                          'reason': 'GP불일치', 'revenueprice': r['sum_price'], 'purchaseprice': p['sum_price'], 'gap': r['sum_price'] - p['sum_price'],
-                                          'gap_gp': (r['sum_price'] - p['sum_price']) - r['sum_profit']})
+        if contract.salePrice != revenuePrice:
+            contractFalse.append({"id": contract.contractId, 'code': contract.contractCode, 'name': contract.contractName, 'reason': '메출합계불일치'})
+        if contract.profitPrice != revenueProfit:
+            contractFalse.append({"id": contract.contractId, 'code': contract.contractCode, 'name': contract.contractName, 'reason': '이익합계불일치'})
+        if revenuePrice - (purchasePrice + costPrice) != revenueProfit:
+            contractFalse.append({
+                "id": contract.contractId, 'code': contract.contractCode, 'name': contract.contractName, 'reason': 'GP불일치',
+                'revenuePrice': revenuePrice,
+                'purchasePrice': purchasePrice,
+                'costPrice': costPrice,
+                'gap': revenuePrice - (purchasePrice + costPrice),
+                'gap_gp': revenuePrice - (purchasePrice + costPrice) - revenueProfit,
+            })
 
     context = {
         'contractFalse': contractFalse,

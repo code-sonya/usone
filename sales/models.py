@@ -75,6 +75,16 @@ class Purchase(models.Model):
     comment = models.CharField(max_length=200, null=True, blank=True)
 
 
+class Cost(models.Model):
+    costId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    costCompany = models.CharField(max_length=20)
+    costPrice = models.BigIntegerField(default=0)
+    billingDate = models.DateField(null=True, blank=True)
+    billingTime = models.CharField(max_length=10, null=True, blank=True)
+    comment = models.CharField(max_length=200, null=True, blank=True)
+
+
 class Category(models.Model):
     categoryId = models.AutoField(primary_key=True)
     mainCategory = models.CharField(max_length=50)

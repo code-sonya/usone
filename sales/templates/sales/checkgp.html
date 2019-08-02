@@ -52,11 +52,12 @@
                 <thead>
                 <tr class="bg-secondary text-white">
                   <td colspan="2">계약코드</td>
-                  <td colspan="5">계약명</td>
+                  <td colspan="3">계약명</td>
                   <td colspan="2">상태</td>
                   <td colspan="2">매출</td>
                   <td colspan="2">매입</td>
-                  <td colspan="2">매출-매입</td>
+                  <td colspan="2">원가</td>
+                  <td colspan="2">매출-(매입+원가)</td>
                   <td colspan="2">GP</td>
                   <td colspan="2">차액</td>
                   <td colspan="1">수정대상</td>
@@ -68,10 +69,11 @@
                     {% if i.id == c.contractId %}
                       <tr {% if c.modifyContractPaper == 'Y' %}style="background-color: #fff7fb"{% endif %}>
                         <td colspan="2"><a href="/sales/viewcontract/{{ i.id }}/" target="_blank">{{ i.code }}</a></td>
-                        <td colspan="5" class="text-left">{{ i.name }}</td>
+                        <td colspan="3" class="text-left">{{ i.name }}</td>
                         <td colspan="2">{{ i.reason }}</td>
-                        <td colspan="2" class="text-right">{{ i.revenueprice|intcomma }}</td>
-                        <td colspan="2" class="text-right">{{ i.purchaseprice|intcomma }}</td>
+                        <td colspan="2" class="text-right">{{ i.revenuePrice|intcomma }}</td>
+                        <td colspan="2" class="text-right">{{ i.purchasePrice|intcomma }}</td>
+                        <td colspan="2" class="text-right">{{ i.costPrice|intcomma }}</td>
                         <td colspan="2" class="text-right">{{ i.gap|intcomma }}</td>
                         <td colspan="2" class="text-right">{{ c.profitPrice|intcomma }}</td>
                         <td colspan="2" class="text-right">{{ i.gap_gp|intcomma }}</td>
