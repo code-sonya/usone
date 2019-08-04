@@ -97,7 +97,7 @@ def post_contract(request):
                     costCompany=cost["costCompany"],
                     costPrice=int(cost["costPrice"]),
                     billingTime=None,
-                    billingDate=None,
+                    billingDate=datetime(year=int(cost["costDate"]), month=12, day=31),
                     comment=cost["costComment"],
                 )
 
@@ -338,7 +338,7 @@ def modify_contract(request, contractId):
                         costCompany=cost["costCompany"],
                         costPrice=int(cost["costPrice"]),
                         billingTime=None,
-                        billingDate=None,
+                        billingDate=datetime(year=int(cost["costDate"]), month=12, day=31),
                         comment=cost["costComment"],
                     )
                 else:
@@ -347,7 +347,8 @@ def modify_contract(request, contractId):
                     costInstance.costCompany = cost["costCompany"]
                     costInstance.costPrice = int(cost["costPrice"])
                     costInstance.billingTime = None
-                    costInstance.billingDate = None
+                    costInstance.billingDate = datetime(year=int(cost["costDate"]), month=12, day=31)
+                    print(costInstance.billingDate)
                     costInstance.comment = cost["costComment"]
                     costInstance.save()
                     jsonCostId.append(int(cost["costId"]))
@@ -1887,6 +1888,17 @@ def contract_purchases(request):
     purchases = purchases.values('billingTime','predictBillingDate','billingDate','predictWithdrawDate','withdrawDate','purchaseCompany__companyNameKo','purchasePrice','comment','purchaseId')
     structure = json.dumps(list(purchases), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def contract_costs(request):
+    contractId = request.POST['contractId']
+    costs = Cost.objects.filter(Q(contractId__contractId=contractId))
+    costs = costs.values('billingTime', 'billingDate', 'costCompany', 'costPrice', 'comment', 'costId')
+    structure = json.dumps(list(costs), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
 
 @login_required
 @csrf_exempt

@@ -51,5 +51,6 @@ urlpatterns = [
     url(r'^showrevenueinadvance/', views.show_revenueinadvance, name='showrevenueinadvance'),
     url(r'^contractrevenues/$', views.contract_revenues, name='contractrevenues'),
     url(r'^contractpurchases/$', views.contract_purchases, name='contractpurchases'),
+    url(r'^contractcosts/$', views.contract_costs, name='contractcosts'),
     url(r'^contractservices/$', views.contract_services, name='contractservices')
 ]

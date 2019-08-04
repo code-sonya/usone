@@ -13,7 +13,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from hr.models import Employee
 from .forms import ContractForm, GoalForm, PurchaseForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost
 from service.models import Company, Customer, Servicereport
 from django.db.models import Q
 from datetime import datetime, timedelta
@@ -28,7 +28,8 @@ def viewContract(contractId):
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
-    services = Servicereport.objects.filter(Q(contractId=contractId)&Q(serviceStatus='Y')&(Q(empDeptName='DB지원팀')|Q(empDeptName='솔루션지원팀')))
+    costs = Cost.objects.filter(contractId=contractId)
+    services = Servicereport.objects.filter(Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
     contractPaper = str(contract.contractPaper).split('/')[-1]
     orderPaper = str(contract.orderPaper).split('/')[-1]
 
@@ -40,19 +41,19 @@ def viewContract(contractId):
         sumRevenueProfitRatio = 0
     sumPurchasePrice = purchases.aggregate(sum_purchasePrice=Coalesce(Sum('purchasePrice'), 0))['sum_purchasePrice']
 
-    print(list(revenues.values('predictDepositDate')))
-
     # 연도 별 매출·이익 기여도
     yearList = list(set([i['predictBillingDate'].year for i in list(revenues.values('predictBillingDate'))]) |
                     set([i['predictBillingDate'].year for i in list(purchases.values('predictBillingDate'))]) |
                     set([i['predictDepositDate'].year for i in list(revenues.values('predictDepositDate')) if i['predictDepositDate']]) |
-                    set([i['predictWithdrawDate'].year for i in list(purchases.values('predictWithdrawDate')) if i['predictWithdrawDate']]))
+                    set([i['predictWithdrawDate'].year for i in list(purchases.values('predictWithdrawDate')) if i['predictWithdrawDate']]) |
+                    set([i['billingDate'].year for i in list(costs.values('billingDate'))]))
     yearSummary = []
     for year in yearList:
         temp = {
             'year': str(year),
             'revenuePrice': revenues.aggregate(revenuePrice=Coalesce(Sum('revenuePrice', filter=Q(predictBillingDate__year=year)), 0))['revenuePrice'],
-            'purchasePrice': purchases.aggregate(purchasePrice=Coalesce(Sum('purchasePrice', filter=Q(predictBillingDate__year=year)), 0))['purchasePrice'],
+            'purchasePrice': purchases.aggregate(purchasePrice=Coalesce(Sum('purchasePrice', filter=Q(predictBillingDate__year=year)), 0))['purchasePrice'] +
+                             costs.aggregate(costPrice=Coalesce(Sum('costPrice', filter=Q(billingDate__year=year)), 0))['costPrice'],
             'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Coalesce(Sum('revenueProfitPrice', filter=Q(predictBillingDate__year=year)), 0))['revenueProfitPrice'],
             'depositPrice': revenues.aggregate(depositPrice=Coalesce(Sum('revenuePrice', filter=Q(depositDate__year=year)), 0))['depositPrice'],
             'withdrawPrice': purchases.aggregate(withdrawPrice=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__year=year)), 0))['withdrawPrice'],
@@ -73,7 +74,8 @@ def viewContract(contractId):
     yearSum = {
         'year': '합계',
         'revenuePrice': revenues.aggregate(revenuePrice=Coalesce(Sum('revenuePrice'), 0))['revenuePrice'],
-        'purchasePrice': purchases.aggregate(purchasePrice=Coalesce(Sum('purchasePrice'), 0))['purchasePrice'],
+        'purchasePrice': purchases.aggregate(purchasePrice=Coalesce(Sum('purchasePrice'), 0))['purchasePrice'] +
+                         costs.aggregate(costPrice=Coalesce(Sum('costPrice'), 0))['costPrice'],
         'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Coalesce(Sum('revenueProfitPrice'), 0))['revenueProfitPrice'],
         'depositPrice': revenues.aggregate(depositPrice=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0))['depositPrice'],
         'withdrawPrice': purchases.aggregate(withdrawPrice=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0))['withdrawPrice'],
@@ -125,7 +127,7 @@ def viewContract(contractId):
         .annotate(sum_withdraw=Coalesce(Sum('purchasePrice'), 0)) \
         .annotate(filter_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)) \
         .annotate(ratio_withdraw=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0) * 100 / Coalesce(Sum('purchasePrice'), 0)) \
-        .annotate(sum_ratio_withdraw=Coalesce(Sum('purchasePrice'), 0)*100/companyTotalWithdraw['total_sum_withdraw'])
+        .annotate(sum_ratio_withdraw=Coalesce(Sum('purchasePrice'), 0) * 100 / companyTotalWithdraw['total_sum_withdraw'])
 
     if (companyTotalWithdraw['total_sum_withdraw']) == 0:
         companyTotalWithdraw['total_sum_withdraw'] = '0'
@@ -135,7 +137,7 @@ def viewContract(contractId):
     context = {
         'revenueId': '',
         'purchaseId': '',
-        # 계약, 세부사항, 매출, 매입, 계약서 명, 수주통보서 명
+        # 계약, 세부사항, 매출, 매입, 원가, 계약서 명, 수주통보서 명
         'contract': contract,
         'services': services,
         'items': items,
@@ -145,6 +147,7 @@ def viewContract(contractId):
         'sumRevenueProfitRatio': sumRevenueProfitRatio,
         'purchases': purchases.order_by('predictBillingDate'),
         'sumPurchasePrice': sumPurchasePrice,
+        'costs': costs.order_by('billingDate'),
         'contractPaper': contractPaper,
         'orderPaper': orderPaper,
         # 연도 별 매출·이익 기여도
@@ -177,22 +180,22 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
 
     goal = Goal.objects.filter(Q(year=year))
     if quarter == 1:
-        teamGoal = goal.values('empDeptName')\
+        teamGoal = goal.values('empDeptName') \
             .annotate(revenueTarget=F('salesq1'),
                       profitTarget=F('profitq1'))
         revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end']))
     elif quarter == 2:
-        teamGoal = goal.values('empDeptName')\
+        teamGoal = goal.values('empDeptName') \
             .annotate(revenueTarget=F('salesq1') + F('salesq2'),
                       profitTarget=F('profitq1') + F('profitq2'))
         revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q2_end']))
     elif quarter == 3:
-        teamGoal = goal.values('empDeptName')\
+        teamGoal = goal.values('empDeptName') \
             .annotate(revenueTarget=F('salesq1') + F('salesq2') + F('salesq3'),
                       profitTarget=F('profitq1') + F('profitq2') + F('profitq3'))
         revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q3_end']))
     else:
-        teamGoal = goal.values('empDeptName')\
+        teamGoal = goal.values('empDeptName') \
             .annotate(revenueTarget=F('salesq1') + F('salesq2') + F('salesq3') + F('salesq4'),
                       profitTarget=F('profitq1') + F('profitq2') + F('profitq3') + F('profitq4'))
         revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))

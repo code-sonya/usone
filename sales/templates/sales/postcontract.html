@@ -201,7 +201,7 @@
             <hr class="divider">
             <div class="form-group row" id="purchasediv">
               <div class="col-xl-12">
-                <h5 class="text-dark mb-3"><b>▼ 매입세부정보</b></h5>
+                <h5 class="text-dark mb-3"><b>▼ 매입세부정보 (세금계산서 접수항목)</b></h5>
                 <table id="purchase" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
@@ -236,7 +236,7 @@
             <hr class="divider">
             <div class="form-group row" id="costdiv">
               <div class="col-xl-12">
-                <h5 class="text-dark mb-3"><b>▼ 원가세부정보</b></h5>
+                <h5 class="text-dark mb-3"><b>▼ 매입세부정보 (세금계산서 미접수항목)</b></h5>
                 <table id="cost" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
@@ -244,9 +244,9 @@
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th></th>
-                    <th class="font-weight-bold text-primary">원가항목</th>
-                    <th class="font-weight-bold text-primary">원가금액</th>
+                    <th class="font-weight-bold text-primary">매입연도</th>
+                    <th class="font-weight-bold text-primary">매입내역</th>
+                    <th class="font-weight-bold text-primary">매입금액</th>
                     <th>비고</th>
                     <th><i id="addCost" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
@@ -638,6 +638,10 @@
           const lengthCost = $('[name="costId"]').length;
           const listCost = new Array();
           for (var i = 0; i <= lengthCost - 1; i++) {
+              if ($('input[name="costDate"]').eq(i).val() == '') {
+                  alert("원가세부정보의 매입연도를 입력해주세요.");
+                  return false;
+              }
               if ($('input[name="costCompany"]').eq(i).val() == '') {
                   alert("원가세부정보의 원가항목을 입력해주세요.");
                   return false;
@@ -648,6 +652,7 @@
               }
               var data = new Object();
               data.costId = $('div[name="costId"]').eq(i).text();
+              data.costDate = $('input[name="costDate"]').eq(i).val();
               data.costCompany = $('input[name="costCompany"]').eq(i).val();
               data.costPrice = $('input[name="costPrice"]').eq(i).val();
               data.costComment = $('input[name="costComment"]').eq(i).val();
@@ -1137,7 +1142,7 @@
                   .draw();
           });
 
-          // 매입세부정보
+          // 매입세부정보 (세금계산서 접수항목)
           var t3 = $('#purchase').DataTable({
               "autoWidth": true,
               "searching": false,
@@ -1243,7 +1248,7 @@
                   .draw();
           });
 
-          // 원가세부정보
+          // 매입세부정보 (세금계산서 미접수항목)
           var t4 = $('#cost').DataTable({
               "autoWidth": true,
               "searching": false,
@@ -1278,8 +1283,7 @@
                   '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost2' + costCounter + '" ' +
                   'onchange="changeBillingDates(\'cost2' + costCounter + '\',\'cost1' + costCounter + '\')">',
                   '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost3' + costCounter + '">',
-                  '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost4' + costCounter + '" ' +
-                  'onchange="changeExecutionDates(\'cost4' + costCounter + '\',\'cost3' + costCounter + '\')">',
+                  '<input class="input-form" type="number" min="1000" max="9999" name="costDate" id="cost4' + costCounter + '">',
                   '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="costCompany" ' +
                   'id="cost5' + costCounter + '" onkeydown="magicsearchtab(cost5' + costCounter + ')">',
                   '<input class="money input-form" style="width: 255px;"  name="costPrice" id="cost6' + costCounter + '">',
@@ -1312,8 +1316,7 @@
                       '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost2' + costCounter + '" value="" ' +
                       'onchange="changeBillingDates(\'cost2' + costCounter + '\',\'cost1' + costCounter + '\')">',
                       '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost3' + costCounter + '" value="">',
-                      '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost4' + costCounter + '" value="" ' +
-                      'onchange="changeExecutionDates(\'cost4' + costCounter + '\',\'cost3' + costCounter + '\')">',
+                      '<input class="input-form" type="number" min="1000" max="9999" name="costDate" id="cost4' + costCounter + '" value="{{ cost.billingDate | date:"Y" }}">',
                       '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="costCompany" id="cost5' + costCounter + '" data-id="{{ cost.costCompany }}" onkeydown="magicsearchtab(cost5' + costCounter + ')">',
                       '<input class="money input-form" style="width: 255px;" name="costPrice" id="cost6' + costCounter + '" value="{{ cost.costPrice }}">',
                       '<input class="input-form" type="text" name="costComment" id="cost7' + costCounter + '" value="{{ cost.comment }}">',
