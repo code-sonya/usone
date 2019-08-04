@@ -210,7 +210,7 @@ def post_service(request, postdate):
 
         # 계약명 자동완성
         contractList = Contract.objects.filter(
-            Q(endCompanyName__isnull=False) & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+            Q(endCompanyName__isnull=False) #& Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
         )
         contracts = []
         for contract in contractList:
@@ -455,7 +455,7 @@ def modify_service(request, serviceId):
 
         # 계약명 자동완성
         contractList = Contract.objects.filter(
-            Q(endCompanyName__isnull=False) & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+            Q(endCompanyName__isnull=False) #& Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
         )
         contracts = []
         for contract in contractList:
