@@ -357,7 +357,7 @@
             </div>
           {% endif %}
 
-          {% if purchases %}
+          {% if purchases or costs %}
             <br>
             <h5 class="text-dark mb-3"><b>
               <span id="purchasesDown" onclick="downClick('purchasesdiv', 'purchasesUp', 'purchasesDown')">▼</span>
@@ -776,7 +776,7 @@
             </div>
           {% endif %}
 
-          {% if purchases %}
+          {% if purchases or costs %}
             <br>
             <h5 class="text-dark mb-3"><b>
               <span id="purchasesDownMobile" onclick="downClick('purchasesdivMobile', 'purchasesUpMobile', 'purchasesDownMobile')">▼</span>
