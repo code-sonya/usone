@@ -292,6 +292,7 @@
               format: '%value%',
               noResult: '검색결과없음',
               focusShow: true,
+              maxShow: 100,
               {% if serviceStatus != 'Y' %}
                   success: function ($input, data) {
                       $('#companyName').trigger('set', {id: data.company});
