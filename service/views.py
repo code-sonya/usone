@@ -29,6 +29,12 @@ def service_asjson(request):
     empName = request.POST['empName']
     companyName = request.POST['companyName']
     serviceType = request.POST['serviceType']
+    contractName = request.POST['contractName']
+    if 'contractCheck' not in request.POST.keys():
+        contractCheck = 0
+    else:
+        contractCheck = int(request.POST['contractCheck'])
+    print(request.POST)
     serviceTitle = request.POST['serviceTitle']
 
     if startdate or enddate or empDeptName or empName or companyName or serviceType or serviceTitle:
@@ -45,6 +51,11 @@ def service_asjson(request):
             services = services.filter(companyName__companyName__icontains=companyName)
         if serviceType:
             services = services.filter(serviceType__icontains=serviceType)
+        if contractCheck == 0:
+            if contractName:
+                services = services.filter(contractId__contractName__icontains=contractName)
+        elif contractCheck == 1:
+            services = services.filter(contractId__isnull=True)
         if serviceTitle:
             services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
     else:
@@ -228,7 +239,7 @@ def post_service(request, postdate):
         for company in companyList:
             temp = {'id': company.pk, 'value': company.pk}
             companyNames.append(temp)
-            
+
         # 동행자 자동완성
         empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
         empNames = []
@@ -308,12 +319,18 @@ def post_serviceform(request):
 @login_required
 def show_services(request):
     if request.method == "POST":
+        # filter values
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
         empDeptName = request.POST['empDeptName']
-        empName = request.POST['empName']
+        empName = request.POST['empName'] or request.user.employee.empName
         companyName = request.POST['companyName']
         serviceType = request.POST['serviceType']
+        contractName = request.POST['contractName']
+        if 'contractCheck' not in request.POST.keys():
+            contractCheck = 0
+        else:
+            contractCheck = 1
         serviceTitle = request.POST['serviceTitle']
 
         services = Servicereport.objects.all()
@@ -329,37 +346,46 @@ def show_services(request):
             services = services.filter(companyName__companyName__icontains=companyName)
         if serviceType:
             services = services.filter(serviceType__icontains=serviceType)
+        if contractCheck == 0:
+            if contractName:
+                services = services.filter(contractId__contractName__icontains=contractName)
+        elif contractCheck == 1:
+            services = services.filter(contractId__isnull=True)
         if serviceTitle:
             services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
-
-        context = {
-            'filter': 'Y',
-            'countServices': services.count() or 0,
-            'today': datetime.datetime.today(),
-            'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'],
-            'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0,
-            'startdate': startdate,
-            'enddate': enddate,
-            'empDeptName': empDeptName,
-            'empName': empName,
-            'companyName': companyName,
-            'serviceType': serviceType,
-            'serviceTitle': serviceTitle,
-        }
-        return render(request, 'service/showservices.html', context)
 
     else:
         empId = Employee(empId=request.user.employee.empId)
         services = Servicereport.objects.filter(empId=empId)
 
-        context = {
-            'filter': 'N',
-            'countServices': services.count() or 0,
-            'today': datetime.datetime.today(),
-            'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'] or 0,
-            'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0
-        }
-        return render(request, 'service/showservices.html', context)
+        # filter values
+        startdate = ""
+        enddate = ""
+        empDeptName = ""
+        empName = request.user.employee.empName
+        companyName = ""
+        serviceType = ""
+        contractName = ""
+        contractCheck = 0
+        serviceTitle = ""
+
+    context = {
+        'today': datetime.datetime.today(),
+        'countServices': services.count() or 0,
+        'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'] or 0,
+        'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0,
+        # filter values
+        'startdate': startdate,
+        'enddate': enddate,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'companyName': companyName,
+        'serviceType': serviceType,
+        'contractName': contractName,
+        'contractCheck': contractCheck,
+        'serviceTitle': serviceTitle,
+    }
+    return render(request, 'service/showservices.html', context)
 
 
 @login_required
