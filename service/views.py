@@ -100,11 +100,13 @@ def post_service(request, postdate):
                 post.serviceOverHour = overtime(post.serviceStartDatetime, post.serviceEndDatetime)
                 post.serviceRegHour = post.serviceHour - post.serviceOverHour
                 post.save()
-                return redirect('scheduler')
+                return redirect('scheduler', str(post.serviceStartDatetime)[:10])
 
             # 매월반복
             elif for_status == 'for_my':
                 dateRange = month_list(form.clean()['startdate'], form.clean()['enddate'])
+                firstDate = str(dateRange[0])[:10]
+                print(firstDate)
                 timeCalculateFlag = True
                 for date in dateRange:
                     post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
@@ -136,11 +138,12 @@ def post_service(request, postdate):
                         serviceDetails=post.serviceDetails,
                         serviceStatus=post.serviceStatus,
                     )
-                return redirect('scheduler')
+                return redirect('scheduler', firstDate)
 
             # 기간(휴일제외)
             elif for_status == 'for_hn':
                 dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
+                firstDate = str(dateRange[0])[:10]
                 timeCalculateFlag = True
                 for date in dateRange:
                     if not Eventday.objects.filter(eventDate=date) and date.weekday() != 5 and date.weekday() != 6:
@@ -173,11 +176,12 @@ def post_service(request, postdate):
                             serviceDetails=post.serviceDetails,
                             serviceStatus=post.serviceStatus,
                         )
-                return redirect('scheduler')
+                return redirect('scheduler', firstDate)
 
             # 기간(휴일포함)
             elif for_status == 'for_hy':
                 dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
+                firstDate = str(dateRange[0])[:10]
                 timeCalculateFlag = True
                 for date in dateRange:
                     post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
@@ -209,7 +213,7 @@ def post_service(request, postdate):
                         serviceDetails=post.serviceDetails,
                         serviceStatus=post.serviceStatus,
                     )
-                return redirect('scheduler')
+                return redirect('scheduler', firstDate)
 
     else:
         form = ServicereportForm()
@@ -286,7 +290,7 @@ def post_vacation(request):
                 vacationDate=vacationDate,
                 vacationType=vacationType
             )
-        return redirect('scheduler')
+        return redirect('scheduler', dateArray[0])
 
     else:
         context = {}
@@ -439,7 +443,7 @@ def save_service(request, serviceId):
 @login_required
 def delete_service(request, serviceId):
     Servicereport.objects.filter(serviceId=serviceId).delete()
-    return redirect('scheduler')
+    return redirect('scheduler', str(datetime.datetime.today())[:10])
 
 
 @login_required
@@ -471,7 +475,7 @@ def modify_service(request, serviceId):
             post.serviceRegHour = post.serviceHour - post.serviceOverHour
             post.coWorker = request.POST['coWorkerId']
             post.save()
-            return redirect('scheduler')
+            return redirect('scheduler', str(post.serviceStartDatetime)[:10])
     else:
         form = ServicereportForm(instance=instance)
         form.fields['startdate'].initial = str(instance.serviceStartDatetime)[:10]
@@ -556,7 +560,7 @@ def copy_service(request, serviceId):
         serviceDetails=instance.serviceDetails,
         serviceStatus=instance.serviceStatus,
     )
-    return redirect('scheduler')
+    return redirect('scheduler', instance.serviceDate)
 
 
 @login_required
