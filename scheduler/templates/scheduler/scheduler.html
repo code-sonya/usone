@@ -52,7 +52,7 @@
     @media only screen and (max-width: 765px) {
 
       body {
-      overflow-y:hidden;
+        overflow-y: hidden;
       }
 
       .fc-day-grid-event .fc-time {
@@ -69,15 +69,15 @@
         right: 0px;
         height: 400px;
       }
-      #calendar-container{
+
+      #calendar-container {
         margin-bottom: 200px;
       }
-      #footer{
+
+      #footer {
         visibility: hidden;
       }
     }
-
-
 
 
   </style>
@@ -99,15 +99,27 @@
               <form name="DeptCheck" id="DeptCheck" method="post">
                 {% csrf_token %}
                 <div class="h6 mb-0 font-weight-bold text-gray-800" style="align:center;margin-left: 30px">
-                  {% for i in DeptList %}
-                    <div class="row">
-                      {% if i == empDeptName %}
-                        <label><input type="checkbox" name="ckdept" value="{{ i }}" checked> {{ i }} </label>
-                      {% else %}
-                        <label><input type="checkbox" name="ckdept" value="{{ i }}"> {{ i }} </label>
-                      {% endif %}
-                    </div>
-                  {% endfor %}
+                  {% if postDeptList %}
+                    {% for i in DeptList %}
+                      <div class="row">
+                        {% if i in postDeptList %}
+                          <label><input type="checkbox" name="ckdept" value="{{ i }}" checked> {{ i }} </label>
+                        {% else %}
+                          <label><input type="checkbox" name="ckdept" value="{{ i }}"> {{ i }} </label>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  {% else %}
+                    {% for i in DeptList %}
+                      <div class="row">
+                        {% if i == empDeptName %}
+                          <label><input type="checkbox" name="ckdept" value="{{ i }}" checked> {{ i }} </label>
+                        {% else %}
+                          <label><input type="checkbox" name="ckdept" value="{{ i }}"> {{ i }} </label>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  {% endif %}
 
                 </div>
                 <div class="text-center">
@@ -131,6 +143,7 @@
   <div id='calendar-container'>
     <div id='calendar'></div>
   </div>
+
 {% endblock %}
 
 
@@ -146,7 +159,7 @@
       }
 
       function btnSubmit() {
-          let form_check = document.getElementById('DeptCheck');
+          const form_check = document.getElementById('DeptCheck');
           form_check.submit();
       }
 
@@ -155,6 +168,12 @@
       }
 
       $(document).ready(function () {
+          const year = '{{ Date | date:'Y' }}';
+          const month = '{{ Date | date:'m' }}';
+          const date = '{{ Date | date:'d' }}';
+          const currentDate = new Date(year, month - 1, date);
+          console.log(currentDate);
+
           $('#calendar').fullCalendar({
               customButtons: {
                   id: 'test',
@@ -188,14 +207,32 @@
                           $('#calendar').fullCalendar('removeEvents', teamRemove);
 
                       }
-                  }
+                  },
+                  addprev: {
+                      text: '＜',
+                      click: function () {
+                          const nextForm = document.getElementById('DeptCheck');
+                          nextForm.action = '/scheduler/scheduler/{{ beforeMonth | date:'Y-m-d' }}/';
+                          nextForm.method = "post";
+                          nextForm.submit();
 
+                      }
+                  },
+                  addnext: {
+                      text: '＞',
+                      click: function () {
+                          const nextForm = document.getElementById('DeptCheck');
+                          nextForm.action = '/scheduler/scheduler/{{ afterMonth | date:'Y-m-d' }}/';
+                          nextForm.method = "post";
+                          nextForm.submit();
+                      }
+                  },
               },
               header: {
-                  left: 'addCalendar prev,next',
+                  left: 'addCalendar addprev,addnext',
                   center: 'title',
                   right: 'mySchedule addEvent'
-              }, defaultDate: new Date(),
+              }, defaultDate: currentDate,
               contentHeight: "auto",
               locale: 'ko',
               selectable: false,
@@ -207,7 +244,7 @@
                   if (data.type == 'X') {
                       tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.vacationType + '] ' + data.name + '</b></div>';
                   } else {
-                      tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br><span class="text-primary">'+data.contractName+'</span><br>' + data.start.format('YYYY/MM/DD HH:mm') + '~' + data.end.format('YYYY/MM/DD HH:mm') + '<br>' + data.detail + '</div>';
+                      tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br><span class="text-primary">' + data.contractName + '</span><br>' + data.start.format('YYYY/MM/DD HH:mm') + '~' + data.end.format('YYYY/MM/DD HH:mm') + '<br>' + data.detail + '</div>';
                   }
                   $("body").append(tooltip);
                   $(this).mouseover(function (e) {
@@ -272,7 +309,6 @@
                       revertFunc()
                   }
               },
-
               dayClick: function (date, jsEvent, view) {
                   if (~jsEvent.target.className.indexOf('fc-day-number')) {
                       if (confirm(date.format() + "에 일정을 등록 할까요?") == true) {
@@ -280,7 +316,8 @@
                           location.href = server_url;
                       }
                   }
-              }
+              },
+              {#eventClick: function (info) {alert('Event: ' + info.event.title);},#}
 
           });
 
@@ -316,7 +353,7 @@
                   ],
                   backgroundColor: '#FFFF0000',
                   borderColor: '#FFFF0000',
-                  textColor : '#1cc88a'
+                  textColor: '#1cc88a'
                   {#textColor: '#3dbd9a'#}
               },
           );
@@ -338,7 +375,7 @@
                               company: '{{ i.companyName|linebreaksbr }}',
                               service_type: '{{ i.serviceType }}',
                               className: 'me',
-                              contractName:{% if i.contractId != None %}'{{ i.contractId }}'{% else %}'-'{% endif %},
+                              contractName: {% if i.contractId != None %}'{{ i.contractId }}'{% else %}'-'{% endif %},
                               {#직출 여부#}
                               {% if i.directgo == 'Y' %}
                                   imageurl: '/media/icon/jigchul.png',
@@ -397,7 +434,7 @@
                               company: '{{ i.companyName|linebreaksbr }}',
                               service_type: '{{ i.serviceType }}',
                               className: 'team',
-                              contractName:{% if i.contractId != None %}'{{ i.contractId }}'{% else %}'-'{% endif %},
+                              contractName: {% if i.contractId != None %}'{{ i.contractId }}'{% else %}'-'{% endif %},
                               {#직출 여부#}
                               {% if i.directgo == 'Y' %}
                                   imageurl: '/media/icon/jigchul.png',
@@ -452,9 +489,9 @@
                           },
                       {% endfor %}
                   ]
-                    ,color: "#fbc9d3"
-                    ,textColor: "#ff2121"
-                    ,borderColor: "#e6e6e6"
+                  , color: "#fbc9d3"
+                  , textColor: "#ff2121"
+                  , borderColor: "#e6e6e6"
               },
           );
           $('#calendar').fullCalendar('addEventSource',
@@ -474,11 +511,12 @@
                           },
                       {% endfor %}
                   ]
-                    , color: "#fffcb4"
-                    , textColor: "#85680f"
-                    , borderColor: "#fbe261"
+                  , color: "#fffcb4"
+                  , textColor: "#85680f"
+                  , borderColor: "#fbe261"
               },
           );
+
       });
   </script>
 

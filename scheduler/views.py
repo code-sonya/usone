@@ -17,7 +17,16 @@ from .models import Eventday
 
 @login_required
 @csrf_exempt
-def scheduler(request):
+def scheduler(request, day=None):
+    #
+    if day is None:
+        day = str(datetime.datetime.today())[:10]
+    Date = datetime.datetime(int(day[:4]), int(day[5:7]), 1)
+    beforeMonth = Date - relativedelta(months=1)
+    afterMonth = Date + relativedelta(months=1)
+    print(Date, beforeMonth, afterMonth)
+    #
+
     template = loader.get_template('scheduler/scheduler.html')
     empId = request.user.employee.empId
     empName = request.user.employee.empName
@@ -28,18 +37,22 @@ def scheduler(request):
     holiday = Eventday.objects.filter(eventType="휴일")
     event = Eventday.objects.filter(eventType="사내일정")
 
+    services = Servicereport.objects.filter(Q(serviceDate__gte=Date) & Q(serviceDate__lt=afterMonth))
+    vacations = Vacation.objects.filter(Q(vacationDate__gte=Date) & Q(vacationDate__lt=afterMonth))
+
     # 1.선택한 부서만
     if request.method == "POST":
+        print('post')
         postDeptList = request.POST.getlist('ckdept')
+        print(postDeptList)
 
         # 일정(한달치)
-        teamCalendar = Servicereport.objects.filter(Q(empDeptName__in=postDeptList) &
-                                                    Q(serviceStartDatetime__gte=datetime.date.today() - relativedelta(months=1))).exclude(empId=empId)
-        myCalendar = Servicereport.objects.filter(Q(empDeptName__in=postDeptList) & Q(empName=empName))
+        teamCalendar = services.filter(Q(empDeptName__in=postDeptList)).exclude(empId=empId)
+        myCalendar = services.filter(Q(empDeptName__in=postDeptList) & Q(empId=empId))
 
         # 휴가(전체)
-        teamVacation = Vacation.objects.filter(Q(empDeptName__in=postDeptList)).exclude(empId=empId)
-        myVacation = Vacation.objects.filter(Q(empDeptName__in=postDeptList) & Q(empId=empId))
+        teamVacation = vacations.filter(Q(empDeptName__in=postDeptList)).exclude(empId=empId)
+        myVacation = vacations.filter(Q(empDeptName__in=postDeptList) & Q(empId=empId))
 
         context = {
             'today': str(datetime.date.today()),
@@ -51,21 +64,24 @@ def scheduler(request):
             'myVacation': myVacation,
             'DeptList': DeptList,
             'holiday': holiday,
-            'event': event
+            'event': event,
+            'beforeMonth': beforeMonth,
+            'afterMonth': afterMonth,
+            'Date': Date,
+            'postDeptList': postDeptList,
         }
         return HttpResponse(template.render(context, request))
 
     # 2.소속된 부서만
     else:
 
-        # 일정(한달치)
-        teamCalendar = Servicereport.objects.filter(Q(empDeptName=empDeptName) &
-                                                    Q(serviceStartDatetime__gte=datetime.date.today() - relativedelta(months=1))).exclude(empId=empId)
-        myCalendar = Servicereport.objects.filter(empName=empName)
+        # 일정
+        teamCalendar = services.filter(Q(empDeptName=empDeptName)).exclude(empId=empId)
+        myCalendar = services.filter(Q(empId=empId))
 
         # 휴가(전체)
-        teamVacation = Vacation.objects.filter(Q(empDeptName=empDeptName)).exclude(empId=empId)
-        myVacation = Vacation.objects.filter(Q(empId=empId))
+        teamVacation = vacations.filter(Q(empDeptName=empDeptName)).exclude(empId=empId)
+        myVacation = vacations.filter(Q(empId=empId))
 
         context = {
             'today': str(datetime.date.today()),
@@ -77,7 +93,10 @@ def scheduler(request):
             'myVacation': myVacation,
             'DeptList': DeptList,
             'holiday': holiday,
-            'event': event
+            'event': event,
+            'beforeMonth': beforeMonth,
+            'afterMonth': afterMonth,
+            'Date': Date,
         }
         return HttpResponse(template.render(context, request))
 
