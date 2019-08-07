@@ -543,6 +543,7 @@ def copy_service(request, serviceId):
     empDeptName = request.user.employee.empDeptName
     Servicereport.objects.create(
         serviceDate=instance.serviceDate,
+        contractId=instance.contractId,
         empId=empId,
         empName=empName,
         empDeptName=empDeptName,
