@@ -37,8 +37,8 @@ def scheduler(request, day=None):
     holiday = Eventday.objects.filter(eventType="휴일")
     event = Eventday.objects.filter(eventType="사내일정")
 
-    services = Servicereport.objects.filter(Q(serviceDate__gte=Date) & Q(serviceDate__lt=afterMonth))
-    vacations = Vacation.objects.filter(Q(vacationDate__gte=Date) & Q(vacationDate__lt=afterMonth))
+    services = Servicereport.objects.filter(Q(serviceDate__gte=Date - datetime.timedelta(days=7)) & Q(serviceDate__lt=afterMonth + datetime.timedelta(days=7)))
+    vacations = Vacation.objects.filter(Q(vacationDate__gte=Date - datetime.timedelta(days=7)) & Q(vacationDate__lt=afterMonth + datetime.timedelta(days=7)))
 
     # 1.선택한 부서만
     if request.method == "POST":
