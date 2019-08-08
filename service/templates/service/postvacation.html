@@ -161,7 +161,7 @@
 
       function btn_cancel() {
           if (confirm("취소하시겠습니까?") === true) {
-              location.href = "/scheduler/"
+              history.back();
           } else {
               return false;
           }
