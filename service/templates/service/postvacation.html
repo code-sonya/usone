@@ -47,6 +47,7 @@
                     <th>일차</th>
                     <th>오전</th>
                     <th>오후</th>
+                    <th>삭제</th>
                   </tr>
                   </thead>
                 </table>
@@ -83,12 +84,18 @@
 
   <script type="text/javascript">
 
+      function dayOfWeek(date) {
+          var week = ['일', '월', '화', '수', '목', '금', '토'];
+          return week[date.getDay()];
+      }
+
       function showTable() {
           if ($.fn.dataTable.isDataTable('#vacation')) {
               $('#vacation').DataTable().destroy();
           }
 
           const convertDay = 24 * 60 * 60 * 1000;
+
           const strStart = document.getElementById("startdate").value;
           const strEnd = document.getElementById("enddate").value;
           const arrStart = strStart.split('-');
@@ -96,13 +103,15 @@
           const dateStart = new Date(arrStart[0], arrStart[1] - 1, arrStart[2]);
           const dateEnd = new Date(arrEnd[0], arrEnd[1] - 1, arrEnd[2]);
           const intDiffDay = parseInt((dateEnd - dateStart) / convertDay);
+          console.log(dayOfWeek(dateStart));
 
           let data = [
               {
-                  "휴가일": strStart,
+                  "휴가일": strStart + ' (' + dayOfWeek(dateStart) + ')',
                   "일차": '<input type="radio" name=' + strStart + ' value="all" checked>',
                   "오전": '<input type="radio" name=' + strStart + ' value="am">',
-                  "오후": '<input type="radio" name=' + strStart + ' value="pm">'
+                  "오후": '<input type="radio" name=' + strStart + ' value="pm">',
+                  "삭제": '<i class="fas fa-times-circle" name="remove" >'
               }
           ];
 
@@ -113,30 +122,36 @@
                   (dateTemp.getDate() > 9 ? '' : '0') + dateTemp.getDate()].join('-');
               data.push(
                   {
-                      "휴가일": strTemp,
+                      "휴가일": strTemp + ' (' + dayOfWeek(dateTemp) + ')',
                       "일차": '<input type="radio" name=' + strTemp + ' value="all" checked>',
                       "오전": '<input type="radio" name=' + strTemp + ' value="am">',
-                      "오후": '<input type="radio" name=' + strTemp + ' value="pm">'
+                      "오후": '<input type="radio" name=' + strTemp + ' value="pm">',
+                      "삭제": '<i class="fas fa-times-circle" name="remove" >'
                   }
               )
           }
 
-          $('#vacation').DataTable({
+          var v = $('#vacation').DataTable({
               data: data,
               columns: [
                   {data: '휴가일'},
                   {data: '일차'},
                   {data: '오전'},
-                  {data: '오후'}
+                  {data: '오후'},
+                  {data: '삭제'}
               ],
               columnDefs: [
                   {targets: [0], width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap"},
-                  {targets: [1, 2, 3], width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap"},
+                  {targets: [1, 2, 3, 4], width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap"},
               ],
               "ordering": false,
               "searching": false,
               "paging": false,
               "info": false,
+          });
+
+          $('#vacation').on('click', 'i', function () {
+              v.row($(this).parents('tr')).remove().draw();
           });
       }
 
