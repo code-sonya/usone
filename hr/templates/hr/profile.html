@@ -72,19 +72,7 @@
                 <tr>
                   <td width="10%" style="text-align:center"><b>직&nbsp; &nbsp; &nbsp; &nbsp;급</b></td>
                   <td width="10%" style="text-align:center"><b>
-                    {% if user.employee.empPosition == 1 %}
-                      임원
-                    {% elif user.employee.empPosition == 2 %}
-                      부장
-                    {% elif user.employee.empPosition == 3 %}
-                      차장
-                    {% elif user.employee.empPosition == 4 %}
-                      과장
-                    {% elif user.employee.empPosition == 5 %}
-                      대리
-                    {% else %}
-                      사원
-                    {% endif %}
+                    {{ user.employee.empPosition }}
                   </b></td>
                 </tr>
                 <tr>
