@@ -920,13 +920,21 @@
           $('#salePrice').on("propertychange change keyup paste input", function () {
               const salePrice = $('#salePrice').val().replace(/,/g, '');
               const profitPrice = $('#profitPrice').val().replace(/,/g, '');
-              $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(0));
+              if (salePrice === '0') {
+                  $('#profitRatio').val(0);
+              } else {
+                  $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(0));
+              }
           });
 
           $('#profitPrice').on("propertychange change keyup paste input", function () {
               const salePrice = $('#salePrice').val().replace(/,/g, '');
               const profitPrice = $('#profitPrice').val().replace(/,/g, '');
-              $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(0));
+              if (salePrice === '0') {
+                  $('#profitRatio').val(0);
+              } else {
+                  $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(0));
+              }
           });
 
           // 계약종료일 자동입력
