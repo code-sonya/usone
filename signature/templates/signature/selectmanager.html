@@ -88,7 +88,22 @@
       }
 
       function btn_save() {
-          $("#managerForm").submit();
+          const chk_radio = document.getElementsByName('customer');
+          let sel_type = null;
+
+          for (let i = 0; i < chk_radio.length; i++) {
+              if (chk_radio[i].checked == true) {
+                  sel_type = chk_radio[i].value;
+              }
+          }
+
+          if (sel_type == null) {
+              alert("담당자를 선택하세요 :)");
+              return false;
+          }else{
+              $("#managerForm").submit();
+          }
+
       }
   </script>
 

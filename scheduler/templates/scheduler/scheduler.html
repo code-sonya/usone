@@ -242,9 +242,9 @@
               timeFormat: 'HH:mm',
               eventMouseover: function (data, event, view) {
                   if (data.type == 'X') {
-                      tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.vacationType + '] ' + data.name + '</b></div>';
+                      tooltip = '<div class="tooltiptopicevent" style="color:black;width:auto;height:auto;background:#cceeee;position:absolute;z-index:10001;padding:10px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' + '<b>' + '[' + data.vacationType + '] ' + data.name + '</b></div>';
                   } else {
-                      tooltip = '<div class="tooltiptopicevent" style="width:auto;height:auto;background:#E9F5F5;position:absolute;z-index:10001;padding:5px 5px 5px 5px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid grey;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br><span class="text-primary">' + data.contractName + '</span><br>' + data.start.format('YYYY/MM/DD HH:mm') + '~' + data.end.format('YYYY/MM/DD HH:mm') + '<br>' + data.detail + '</div>';
+                      tooltip = '<div class="tooltiptopicevent" style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br><span class="text-primary">' + data.contractName + '</span><br>' + data.start.format('HH:mm') + ' ~ ' + data.end.format('HH:mm') + '<br>' + data.service_title + '</div>';
                   }
                   $("body").append(tooltip);
                   $(this).mouseover(function (e) {
@@ -371,6 +371,7 @@
                               url: '{% url 'service:viewservice' i.serviceId %}',
                               service_id: '{{ i.serviceId }}',
                               name: '{{ i.empName }}',
+                              service_title: '{{ i.serviceTitle }}',
                               detail: '{{ i.serviceDetails|linebreaksbr }}',
                               company: '{{ i.companyName|linebreaksbr }}',
                               service_type: '{{ i.serviceType }}',
@@ -430,6 +431,7 @@
                               url: '{% url 'service:viewservice' i.serviceId %}',
                               service_id: '{{ i.serviceId }}',
                               name: '{{ i.empName }}',
+                              service_title: '{{ i.serviceTitle }}',
                               detail: '{{ i.serviceDetails|linebreaksbr }}',
                               company: '{{ i.companyName|linebreaksbr }}',
                               service_type: '{{ i.serviceType }}',
