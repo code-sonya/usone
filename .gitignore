@@ -57,10 +57,7 @@ coverage.xml
 *.log
 local_settings.py
 db.sqlite3
-media/images/signature/
-media/board/
-media/json/
-media/pdf/
+media/
 mail/mailInfo.py
 *.json
 
