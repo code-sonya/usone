@@ -1747,9 +1747,12 @@ def inadvance_asjson(request):
         contractRevenues = revenues.filter(contractId=contract['contractId'])
         billingContractRevenues = contractRevenues.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
         sumContractRevenues = contractRevenues.aggregate(sum=Sum('revenuePrice'))['sum'] or 0
-        ratioContractRevenues = billingContractRevenues / sumContractRevenues
+        if sumContractRevenues:
+            ratioContractRevenues = billingContractRevenues / sumContractRevenues
+        else:
+            ratioContractRevenues = 0
 
-        # 계약 별 매입접수비율
+            # 계약 별 매입접수비율
         contractPurchases = purchases.filter(contractId=contract['contractId'])
         billingContractPurchases = contractPurchases.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
         sumContractPurchases = contractPurchases.aggregate(sum=Sum('purchasePrice'))['sum'] or 0
@@ -1760,9 +1763,12 @@ def inadvance_asjson(request):
 
         # 계약 별 수금비율
         depositContractRevenues = contractRevenues.filter(Q(depositDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
-        depositRatioContractRevenues = depositContractRevenues / sumContractRevenues
+        if sumContractRevenues:
+            depositRatioContractRevenues = depositContractRevenues / sumContractRevenues
+        else:
+            depositRatioContractRevenues = 0
 
-        # 계약 별 지급비율
+            # 계약 별 지급비율
         withdrawContractPurchases = contractPurchases.filter(Q(withdrawDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
         if sumContractPurchases:
             withdrawRatioContractPurchases = withdrawContractPurchases / sumContractPurchases
