@@ -11,19 +11,15 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'gc418^thjvw80=t9bd$vxd(uv2+$clkzmtl0yf7d$_3amx+*%n'
-
-# SECURITY WARNING: don't run with  turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = '*'
 
@@ -84,10 +80,20 @@ WSGI_APPLICATION = 'usone.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'sqlite3': {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
+    },
+    'mysql': {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'django',
+            'USER': 'django',
+            'PASSWORD': 'django',
+        }
+    },
 }
 
 # Password validation
