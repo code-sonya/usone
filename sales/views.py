@@ -1915,6 +1915,6 @@ def contract_services(request):
     services = Servicereport.objects.filter(Q(contractId=contractId)&Q(serviceStatus='Y')&(Q(empDeptName='DB지원팀')|Q(empDeptName='솔루션지원팀')))
     services = services.annotate(salary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()))\
                        .annotate(overSalary=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()))
-    services = services.values('empName', 'serviceType', 'serviceDate', 'serviceTitle', 'serviceHour', 'serviceOverHour', 'salary', 'overSalary', 'serviceId')
+    services = services.values('empName', 'serviceType', 'serviceDate', 'serviceTitle', 'serviceHour', 'serviceRegHour', 'serviceOverHour', 'salary', 'overSalary', 'serviceId')
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
