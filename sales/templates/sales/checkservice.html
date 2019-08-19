@@ -1,0 +1,102 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+{% block title %}
+  계약별투입원가
+{% endblock %}
+
+{% block css %}
+  <style type="text/css">
+    .mobile-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 4px 10px;
+      vertical-align: middle;
+      font-size: 16px;
+      border-top: 1px dotted #858796a3;
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-xl-12">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> 계약별 투입원가 ({{ services|length }}건)</h6>
+        </div>
+
+        <div class="card-body">
+
+          <div class="row">
+            <div class="col-xl-0"></div>
+            <div class="col-xl-12">
+              <table class="mobile-table">
+                <thead>
+                <tr class="bg-secondary text-white">
+                  <td colspan="2">계약코드</td>
+                  <td colspan="3">계약명</td>
+                  <td colspan="2">계약기간</td>
+                  <td colspan="2">기본근무수당</td>
+                  <td colspan="2">시간외수당</td>
+                  <td colspan="2">매출</td>
+                  <td colspan="2">GP</td>
+                  <td colspan="2">매출-투입원가</td>
+                  <td colspan="2">GP-(매출-투입원가)</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in services %}
+                  <tr>
+                    <td colspan="2"><a class="text-info" href="/sales/viewcontract/{{ i.contractId_id }}/" target="_blank">{{ i.contractId__contractCode }}</a></td>
+                    <td colspan="3" class="text-left">{{ i.contractId__contractName }}</td>
+                    <td colspan="2">{{ i.contractId__contractStartDate }} ~ {{ i.contractId__contractStartDate }} </td>
+                    <td colspan="2" class="text-right">{{ i.salary|intcomma }}</td>
+                    <td colspan="2" class="text-right">{{ i.overSalary|intcomma }}</td>
+                    <td colspan="2" class="text-right">{{ i.contractId__salePrice|intcomma }}</td>
+                    <td colspan="2" class="text-right">{{ i.contractId__profitPrice|intcomma }}</td>
+                    <td colspan="2" class="text-right">{{ i.revenueSalary|intcomma }}</td>
+                    {% if i.gpSalary > 0 %}
+                      <td colspan="2" class="text-right text-danger">+{{ i.gpSalary|intcomma }}</td>
+                    {% elif i.gpSalary == 0 %}
+                      <td colspan="2" class="text-right">{{ i.gpSalary|intcomma }}</td>
+                    {% else %}
+                      <td colspan="2" class="text-right text-primary">{{ i.gpSalary|intcomma }}</td>
+                    {% endif %}
+                  </tr>
+                {% endfor %}
+                </tbody>
+
+              </table>
+            </div>
+            <div class="col-xl-0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+
+{% endblock %}
