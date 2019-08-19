@@ -1692,6 +1692,35 @@ def check_gp(request):
 
 @login_required
 @csrf_exempt
+def check_service(request):
+    contracts = Contract.objects.all()
+    services = Servicereport.objects.filter(Q(contractId__isnull=False) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
+
+    services = services.values('contractId').annotate(salary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()),
+                                                      overSalary=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()),
+                                                      sumRegHour=Sum('serviceRegHour'),
+                                                      sumOverHour=Sum('serviceOverHour'),
+                                                      sumSalary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()) +
+                                                                Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()))
+
+    services = services.values('contractId_id', 'contractId__contractCode', 'contractId__contractName', 'contractId__contractStartDate', 'contractId__contractEndDate', 'contractId__salePrice',
+                               'contractId__profitPrice', 'sumRegHour', 'sumOverHour', 'salary', 'overSalary', 'sumSalary')
+
+
+    for service in services:
+        service['revenueSalary'] = service['contractId__salePrice'] - service['sumSalary']
+        service['gpSalary'] = service['contractId__profitPrice'] - service['revenueSalary']
+
+    print(services)
+
+    context = {
+        'services': services,
+    }
+    return render(request, 'sales/checkservice.html', context)
+
+
+@login_required
+@csrf_exempt
 def inadvance_asjson(request):
     user = Employee.objects.get(empId=request.POST['userId'])
     startdate = request.POST["startdate"]
@@ -1736,7 +1765,7 @@ def inadvance_asjson(request):
     revenues = Revenue.objects.all()
     purchases = Purchase.objects.all()
 
-    contracts = contracts.values('contractStep', 'contractCode', 'empDeptName', 'empName',  'contractName', 'saleCompanyName__companyNameKo', 'endCompanyName__companyNameKo',
+    contracts = contracts.values('contractStep', 'contractCode', 'empDeptName', 'empName', 'contractName', 'saleCompanyName__companyNameKo', 'endCompanyName__companyNameKo',
                                  'contractDate', 'contractId', 'salePrice', 'profitPrice', 'mainCategory', 'subCategory', 'saleIndustry', 'saleType', 'comment',
                                  'contractStartDate', 'contractEndDate', 'depositCondition', 'depositConditionDay')
 
@@ -1786,7 +1815,7 @@ def inadvance_asjson(request):
         else:
             contract['withdrawInadvance'] = 0
             contract['depositInadvance'] = 0
-        if contract['billingInadvance'] != 0 or contract['withdrawInadvance'] != 0 or contract['depositInadvance'] !=0:
+        if contract['billingInadvance'] != 0 or contract['withdrawInadvance'] != 0 or contract['depositInadvance'] != 0:
             if title == '선매입관리':
                 if ratioContractRevenues <= ratioContractPurchases:
                     purchaseinadvanceList.append(contract)
@@ -1889,7 +1918,8 @@ def show_revenueinadvance(request):
 def contract_revenues(request):
     contractId = request.POST['contractId']
     revenues = Revenue.objects.filter(Q(contractId__contractId=contractId))
-    revenues = revenues.values('billingTime','predictBillingDate','billingDate','predictDepositDate','depositDate','revenueCompany__companyNameKo','revenuePrice','revenueProfitPrice','comment','revenueId')
+    revenues = revenues.values('billingTime', 'predictBillingDate', 'billingDate', 'predictDepositDate', 'depositDate', 'revenueCompany__companyNameKo', 'revenuePrice', 'revenueProfitPrice',
+                               'comment', 'revenueId')
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1899,7 +1929,7 @@ def contract_revenues(request):
 def contract_purchases(request):
     contractId = request.POST['contractId']
     purchases = Purchase.objects.filter(Q(contractId__contractId=contractId))
-    purchases = purchases.values('billingTime','predictBillingDate','billingDate','predictWithdrawDate','withdrawDate','purchaseCompany__companyNameKo','purchasePrice','comment','purchaseId')
+    purchases = purchases.values('billingTime', 'predictBillingDate', 'billingDate', 'predictWithdrawDate', 'withdrawDate', 'purchaseCompany__companyNameKo', 'purchasePrice', 'comment', 'purchaseId')
     structure = json.dumps(list(purchases), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1918,9 +1948,9 @@ def contract_costs(request):
 @csrf_exempt
 def contract_services(request):
     contractId = request.POST['contractId']
-    services = Servicereport.objects.filter(Q(contractId=contractId)&Q(serviceStatus='Y')&(Q(empDeptName='DB지원팀')|Q(empDeptName='솔루션지원팀')))
-    services = services.annotate(salary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()))\
-                       .annotate(overSalary=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()))
+    services = Servicereport.objects.filter(Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
+    services = services.annotate(salary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField())) \
+        .annotate(overSalary=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()))
     services = services.values('empName', 'serviceType', 'serviceDate', 'serviceTitle', 'serviceHour', 'serviceRegHour', 'serviceOverHour', 'salary', 'overSalary', 'serviceId')
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

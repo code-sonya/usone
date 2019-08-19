@@ -44,15 +44,15 @@
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#" onclick="btn_dayreport('/service/dayreport/')">
       <div class="sidebar-brand-text mx-4">USONE</div>
     </a>
-  
+
     {% if user.employee.empId == 2 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-    <li class="nav-item">
-      <a class="nav-link" href="/sales/dailyreport/">
-        <i class="fas fa-fw fa-newspaper text-white"></i>
-        <span class="text-white">데일리리포트</span></a>
-    </li>
-    <!-- Divider -->
-    <hr class="sidebar-divider my-0">
+      <li class="nav-item">
+        <a class="nav-link" href="/sales/dailyreport/">
+          <i class="fas fa-fw fa-newspaper text-white"></i>
+          <span class="text-white">데일리리포트</span></a>
+      </li>
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
     {% endif %}
 
     {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
@@ -95,13 +95,14 @@
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/showgoals/">목표관리</a>
             {% if user.is_staff %}
-            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
-            <a class="collapse-item" href="/sales/transfercontract/">계약이관</a>
-            <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
+              <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
+              <a class="collapse-item" href="/sales/transfercontract/">계약이관</a>
+              <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
             {% endif %}
             {% if user.employee.empDeptName == '경영지원본부' %}
-            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
-            <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
+              <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
+              <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
+              <a class="collapse-item" href="/sales/checkservice/">계약별투입원가</a>
             {% endif %}
           </div>
         </div>

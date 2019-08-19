@@ -46,6 +46,7 @@ urlpatterns = [
     url(r'^dailyreport/', views.daily_report, name='dailyreport'),
     url(r'^outstandingasjson/$', views.outstanding_asjson, name='outstanding_ajax_url'),
     url(r'^checkgp/$', views.check_gp, name='checkgp'),
+    url(r'^checkservice/$', views.check_service, name='checkservice'),
     url(r'^inadvanceasjson/$', views.inadvance_asjson, name='inadvance_ajax_url'),
     url(r'^showpurchaseinadvance/', views.show_purchaseinadvance, name='showpurchaseinadvance'),
     url(r'^showrevenueinadvance/', views.show_revenueinadvance, name='showrevenueinadvance'),
