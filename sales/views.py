@@ -18,7 +18,7 @@ from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, C
 from .functions import viewContract, dailyReportRows
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import pandas as pd
 from xhtml2pdf import pisa
 from service.functions import link_callback
@@ -1693,7 +1693,8 @@ def check_gp(request):
 @login_required
 @csrf_exempt
 def check_service(request):
-    contracts = Contract.objects.all()
+    today = datetime.today()
+    print(today)  # 2015-04-19
     services = Servicereport.objects.filter(Q(contractId__isnull=False) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
 
     services = services.values('contractId').annotate(salary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()),
@@ -1707,10 +1708,12 @@ def check_service(request):
 
     for service in services:
         service['gpSalary'] = service['contractId__profitPrice'] - service['sumSalary']
-
+        if datetime.date(today) > service['contractId__contractEndDate']:
+            service['status'] = '계약만료'
 
     context = {
         'services': services,
+        'today': today,
     }
     return render(request, 'sales/checkservice.html', context)
 
