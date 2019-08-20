@@ -1696,22 +1696,19 @@ def check_service(request):
     contracts = Contract.objects.all()
     services = Servicereport.objects.filter(Q(contractId__isnull=False) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
 
-    services = services.values('contractId').annotate(salary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()),
-                                                      overSalary=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()),
-                                                      sumRegHour=Sum('serviceRegHour'),
-                                                      sumOverHour=Sum('serviceOverHour'),
-                                                      sumSalary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()) +
-                                                                Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()))
+    services = services.values('contractId').annotate(salary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()),
+                                                      overSalary=Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()),
+                                                      sumSalary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()) +
+                                                                Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()))
 
     services = services.values('contractId_id', 'contractId__contractCode', 'contractId__contractName', 'contractId__contractStartDate', 'contractId__contractEndDate', 'contractId__salePrice',
-                               'contractId__profitPrice', 'sumRegHour', 'sumOverHour', 'salary', 'overSalary', 'sumSalary')
+                               'contractId__profitPrice', 'salary', 'overSalary', 'sumSalary')
 
 
     for service in services:
         service['revenueSalary'] = service['contractId__salePrice'] - service['sumSalary']
         service['gpSalary'] = service['contractId__profitPrice'] - service['revenueSalary']
 
-    print(services)
 
     context = {
         'services': services,
