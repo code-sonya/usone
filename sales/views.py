@@ -1706,8 +1706,7 @@ def check_service(request):
 
 
     for service in services:
-        service['revenueSalary'] = service['contractId__salePrice'] - service['sumSalary']
-        service['gpSalary'] = service['contractId__profitPrice'] - service['revenueSalary']
+        service['gpSalary'] = service['contractId__profitPrice'] - service['sumSalary']
 
 
     context = {

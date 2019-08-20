@@ -56,10 +56,10 @@
                   <td colspan="2">계약기간</td>
                   <td colspan="2">기본근무수당</td>
                   <td colspan="2">시간외수당</td>
+                  <td colspan="2">투입원가(기본근무수당+시간외수당)</td>
                   <td colspan="2">매출</td>
                   <td colspan="2">GP</td>
-                  <td colspan="2">매출-투입원가</td>
-                  <td colspan="2">GP-(매출-투입원가)</td>
+                  <td colspan="2">GP-투입원가</td>
                 </tr>
                 </thead>
                 <tbody>
@@ -68,17 +68,17 @@
                     <td colspan="2"><a class="text-info" href="/sales/viewcontract/{{ i.contractId_id }}/" target="_blank">{{ i.contractId__contractCode }}</a></td>
                     <td colspan="3" class="text-left">{{ i.contractId__contractName }}</td>
                     <td colspan="2">{{ i.contractId__contractStartDate }} ~ {{ i.contractId__contractStartDate }} </td>
-                    <td colspan="2" class="text-right">{{ i.salary|intcomma }}</td>
-                    <td colspan="2" class="text-right">{{ i.overSalary|intcomma }}</td>
-                    <td colspan="2" class="text-right">{{ i.contractId__salePrice|intcomma }}</td>
-                    <td colspan="2" class="text-right">{{ i.contractId__profitPrice|intcomma }}</td>
-                    <td colspan="2" class="text-right">{{ i.revenueSalary|intcomma }}</td>
+                    <td colspan="2" class="text-right">{{ i.salary|floatformat|intcomma }}</td>
+                    <td colspan="2" class="text-right">{{ i.overSalary|floatformat|intcomma }}</td>
+                    <td colspan="2" class="text-right">{{ i.sumSalary|floatformat|intcomma }}</td>
+                    <td colspan="2" class="text-right">{{ i.contractId__salePrice|floatformat|intcomma }}</td>
+                    <td colspan="2" class="text-right">{{ i.contractId__profitPrice|floatformat|intcomma }}</td>
                     {% if i.gpSalary > 0 %}
-                      <td colspan="2" class="text-right text-danger">+{{ i.gpSalary|intcomma }}</td>
+                      <td colspan="2" class="text-right text-danger">+{{ i.gpSalary|floatformat|intcomma }}</td>
                     {% elif i.gpSalary == 0 %}
-                      <td colspan="2" class="text-right">{{ i.gpSalary|intcomma }}</td>
+                      <td colspan="2" class="text-right">{{ i.gpSalary|floatformat|intcomma }}</td>
                     {% else %}
-                      <td colspan="2" class="text-right text-primary">{{ i.gpSalary|intcomma }}</td>
+                      <td colspan="2" class="text-right text-primary">{{ i.gpSalary|floatformat|intcomma }}</td>
                     {% endif %}
                   </tr>
                 {% endfor %}
