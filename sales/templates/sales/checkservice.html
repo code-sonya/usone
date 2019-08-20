@@ -54,7 +54,7 @@
                   <td colspan="2">계약코드</td>
                   <td colspan="3">계약명</td>
                   <td colspan="2">계약기간</td>
-                  <td colspan="2">계약상태</td>
+{#                  <td colspan="2">계약상태</td>#}
                   <td colspan="2">기본근무수당</td>
                   <td colspan="2">시간외수당</td>
                   <td colspan="2">매출</td>
@@ -69,7 +69,7 @@
                     <td colspan="2"><a class="text-info" href="/sales/viewcontract/{{ i.contractId_id }}/" target="_blank">{{ i.contractId__contractCode }}</a></td>
                     <td colspan="3" class="text-left">{{ i.contractId__contractName }}</td>
                     <td colspan="2">{{ i.contractId__contractStartDate }} ~ {{ i.contractId__contractEndDate }} </td>
-                    <td colspan="2" class="text-secondary">{{ i.status }}</td>
+{#                    <td colspan="2" class="text-secondary">{{ i.status }}</td>#}
                     <td colspan="2" class="text-right">{{ i.salary|floatformat|intcomma }}</td>
                     <td colspan="2" class="text-right">{{ i.overSalary|floatformat|intcomma }}</td>
                     <td colspan="2" class="text-right">{{ i.contractId__salePrice|floatformat|intcomma }}</td>
