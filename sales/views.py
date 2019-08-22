@@ -1693,7 +1693,6 @@ def check_gp(request):
 @login_required
 @csrf_exempt
 def check_service(request):
-    today = datetime.today()
     services = Servicereport.objects.filter(Q(contractId__isnull=False) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
 
     services = services.values('contractId').annotate(salary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()),
@@ -1707,12 +1706,10 @@ def check_service(request):
 
     for service in services:
         service['gpSalary'] = service['contractId__profitPrice'] - service['sumSalary']
-        # if datetime.date(today) > service['contractId__contractEndDate']:
-        #     service['status'] = '계약만료'
+
 
     context = {
         'services': services,
-        'today': today,
     }
     return render(request, 'sales/checkservice.html', context)
 

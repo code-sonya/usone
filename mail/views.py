@@ -36,7 +36,12 @@ def selectreceiver(request, serviceId):
     deptmanager = Employee.objects.filter(Q(empManager="Y") &
                                           Q(empDeptName=request.user.employee.empDeptName))
     company = Company.objects.get(companyName=servicereport.companyName)
-    sales = Employee.objects.get(empId=company.saleEmpId.empId)
+
+    try:
+        sales = Employee.objects.get(empId=company.saleEmpId.empId)
+    except:
+        sales = ''
+
 
     context = {
         'serviceId': serviceId,

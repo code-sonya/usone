@@ -4,13 +4,14 @@
 {% endblock %}
 {% block css %}
   <style type="text/css">
-   #wrapLoading {
-     position:relative;
-     left:50%;
-     margin-left:-25px;
-     top:45%;
-     z-index:1000;
-     visibility:hidden}
+    #wrapLoading {
+      position: relative;
+      left: 50%;
+      margin-left: -25px;
+      top: 45%;
+      z-index: 1000;
+      visibility: hidden
+    }
   </style>
 {% endblock %}
 {% block content %}
@@ -18,7 +19,7 @@
 
     <div class="col-xl-2"></div>
     <div class="col-xl-8">
-       <div id="wrapLoading" ><img src="/media/icon/Loading.gif" width="50px"></div>
+      <div id="wrapLoading"><img src="/media/icon/Loading.gif" width="50px"></div>
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -53,14 +54,17 @@
                     </div>
                   </div>
 
-                  <div class="list-group-item">
-                    <div class="checkbox">
-                      <label><input type="checkbox" id="sales" value="{{ sales.empEmail }}"
-                                    name="email">{{ sales.empName }} (UnioneI&C) </label>
+                  {% if sales %}
+
+                    <div class="list-group-item">
+                      <div class="checkbox">
+                        <label><input type="checkbox" id="sales" value="{{ sales.empEmail }}"
+                                      name="email">{{ sales.empName }} (UnioneI&C) </label>
+                      </div>
                     </div>
-                  </div>
+                  {% endif %}
 
-
+                  {% if servicereport.customerEmail %}
                   {# 임시 담당자 있을 경우 출력 #}
                   <a href="#" class="list-group-item">
                     <div class="checkbox">
@@ -71,6 +75,7 @@
                       </label>
                     </div>
                   </a>
+                  {% endif %}
 
                   {% for customer in customers %}
                     {% if servicereport.customerEmail != customer.customerEmail %}
@@ -119,9 +124,10 @@
           link_url = "/service/showservices/";
           location.href = link_url
       }
+
       function btnSubmit() {
           let img = document.getElementById("wrapLoading");
-		  img.style.visibility="visible";
+          img.style.visibility = "visible";
           let arrsize = document.getElementsByName("email").length;
           let arrList = new Array();
           //check이름을 가진 check중에서 체크된 것만 값 가져오기
