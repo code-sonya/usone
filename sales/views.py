@@ -3,7 +3,7 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
-from django.db.models import Sum, FloatField, F
+from django.db.models import Sum, FloatField, F, Case, When
 from django.db.models.functions import Cast
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
@@ -1944,8 +1944,19 @@ def contract_costs(request):
 def contract_services(request):
     contractId = request.POST['contractId']
     services = Servicereport.objects.filter(Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
-    services = services.annotate(salary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField())) \
-        .annotate(overSalary=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()))
+    services = services.annotate(
+        salary=Case(
+            When(serviceType='상주', then=Value(0)),
+            default=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()),
+            output_field=FloatField(),
+        )
+    ).annotate(
+        overSalary=Case(
+            When(serviceType='상주', then=Value(0)),
+            default=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()),
+            output_field=FloatField(),
+        )
+    )
     services = services.values('empName', 'serviceType', 'serviceDate', 'serviceTitle', 'serviceHour', 'serviceRegHour', 'serviceOverHour', 'salary', 'overSalary', 'serviceId')
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
