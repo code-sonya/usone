@@ -172,11 +172,9 @@
           const month = '{{ Date | date:'m' }}';
           const date = '{{ Date | date:'d' }}';
           const currentDate = new Date(year, month - 1, date);
-          console.log(currentDate);
 
           $('#calendar').fullCalendar({
               customButtons: {
-                  id: 'test',
                   addEvent: {
                       text: '+일정',
                       click: function () {
@@ -205,7 +203,6 @@
                       text: '내 일정',
                       click: function () {
                           $('#calendar').fullCalendar('removeEvents', teamRemove);
-
                       }
                   },
                   addprev: {
@@ -215,7 +212,6 @@
                           nextForm.action = '/scheduler/scheduler/{{ beforeMonth | date:'Y-m-d' }}/';
                           nextForm.method = "post";
                           nextForm.submit();
-
                       }
                   },
                   addnext: {
@@ -326,7 +322,7 @@
               {#1.내휴가&팀휴가#}
               {
                   events: [
-                      {% for i in myVacation %}
+                      {% for i in myVacations %}
                           {
                               title: '[{{ i.vacationType }}] {{ i.empName }}',
                               start: '{{ i.vacationDate|date:"Y-m-d" }}',
@@ -338,7 +334,7 @@
                               className: 'me'
                           },
                       {% endfor %}
-                      {% for i in teamVacation %}
+                      {% for i in teamVacations %}
                           {
                               title: '[{{ i.vacationType }}] {{ i.empName }}',
                               start: '{{ i.vacationDate|date:"Y-m-d" }}',
@@ -363,7 +359,7 @@
               {#2.내 일정#}
               {
                   events: [
-                      {% for i in myCalendar %}
+                      {% for i in myServices %}
                           {
                               title: '{{ i.empName }}',
                               start: '{{ i.serviceStartDatetime|date:"Y-m-d" }}T{{ i.serviceStartDatetime|time:"H:i" }}:00',
@@ -423,7 +419,7 @@
               {#3.팀 일정#}
               {
                   events: [
-                      {% for i in teamCalendar %}
+                      {% for i in teamServices %}
                           {
                               title: '{{ i.empName }}',
                               start: '{{ i.serviceStartDatetime|date:"Y-m-d" }}T{{ i.serviceStartDatetime|time:"H:i" }}:00',

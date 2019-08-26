@@ -18,87 +18,76 @@ from .models import Eventday
 @login_required
 @csrf_exempt
 def scheduler(request, day=None):
-    #
     if day is None:
         day = str(datetime.datetime.today())[:10]
+
+    # 날짜
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), 1)
     beforeMonth = Date - relativedelta(months=1)
     afterMonth = Date + relativedelta(months=1)
-    print(Date, beforeMonth, afterMonth)
-    #
+    startDate = Date - datetime.timedelta(days=7)
+    endDate = afterMonth + datetime.timedelta(days=7)
 
-    template = loader.get_template('scheduler/scheduler.html')
+    # 로그인 유저, 부서 정보
     empId = request.user.employee.empId
     empName = request.user.employee.empName
     empDeptName = request.user.employee.empDeptName
     DeptList = ['경영지원본부', '영업1팀', '영업2팀', '인프라서비스사업팀', '솔루션지원팀', 'DB지원팀']
 
-    # event
-    holiday = Eventday.objects.filter(eventType="휴일")
-    event = Eventday.objects.filter(eventType="사내일정")
-
-    services = Servicereport.objects.filter(Q(serviceDate__gte=Date - datetime.timedelta(days=7)) & Q(serviceDate__lt=afterMonth + datetime.timedelta(days=7)))
-    vacations = Vacation.objects.filter(Q(vacationDate__gte=Date - datetime.timedelta(days=7)) & Q(vacationDate__lt=afterMonth + datetime.timedelta(days=7)))
-
-    # 1.선택한 부서만
+    # 선택한 부서의 일정, 휴가 (기본값은 로그인 사용자의 부서)
     if request.method == "POST":
-        print('post')
         postDeptList = request.POST.getlist('ckdept')
-        print(postDeptList)
-
-        # 일정(한달치)
-        teamCalendar = services.filter(Q(empDeptName__in=postDeptList)).exclude(empId=empId)
-        myCalendar = services.filter(Q(empDeptName__in=postDeptList) & Q(empId=empId))
-
-        # 휴가(전체)
-        teamVacation = vacations.filter(Q(empDeptName__in=postDeptList)).exclude(empId=empId)
-        myVacation = vacations.filter(Q(empDeptName__in=postDeptList) & Q(empId=empId))
-
-        context = {
-            'today': str(datetime.date.today()),
-            'empName': empName,
-            'empDeptName': empDeptName,
-            'teamCalendar': teamCalendar,
-            'myCalendar': myCalendar,
-            'teamVacation': teamVacation,
-            'myVacation': myVacation,
-            'DeptList': DeptList,
-            'holiday': holiday,
-            'event': event,
-            'beforeMonth': beforeMonth,
-            'afterMonth': afterMonth,
-            'Date': Date,
-            'postDeptList': postDeptList,
-        }
-        return HttpResponse(template.render(context, request))
-
-    # 2.소속된 부서만
     else:
+        postDeptList = [empDeptName]
 
-        # 일정
-        teamCalendar = services.filter(Q(empDeptName=empDeptName)).exclude(empId=empId)
-        myCalendar = services.filter(Q(empId=empId))
+    # 일정, 휴가, 휴일, 사내일정 (한달)
+    services = Servicereport.objects.filter(
+        Q(serviceDate__gte=startDate) &
+        Q(serviceDate__lte=endDate) &
+        Q(empDeptName__in=postDeptList)
+    )
+    vacations = Vacation.objects.filter(
+        Q(vacationDate__gte=startDate) &
+        Q(vacationDate__lte=endDate) &
+        Q(empDeptName__in=postDeptList)
+    )
+    holiday = Eventday.objects.filter(
+        Q(eventType="휴일") &
+        Q(eventDate__gte=startDate) &
+        Q(eventDate__lte=endDate)
+    )
+    event = Eventday.objects.filter(
+        Q(eventType="사내일정") &
+        Q(eventDate__gte=startDate) &
+        Q(eventDate__lte=endDate)
+    )
 
-        # 휴가(전체)
-        teamVacation = vacations.filter(Q(empDeptName=empDeptName)).exclude(empId=empId)
-        myVacation = vacations.filter(Q(empId=empId))
+    # 내 일정, 팀 일정
+    myServices = services.filter(empId=empId)
+    teamServices = services.exclude(empId=empId)
 
-        context = {
-            'today': str(datetime.date.today()),
-            'empName': empName,
-            'empDeptName': empDeptName,
-            'teamCalendar': teamCalendar,
-            'myCalendar': myCalendar,
-            'teamVacation': teamVacation,
-            'myVacation': myVacation,
-            'DeptList': DeptList,
-            'holiday': holiday,
-            'event': event,
-            'beforeMonth': beforeMonth,
-            'afterMonth': afterMonth,
-            'Date': Date,
-        }
-        return HttpResponse(template.render(context, request))
+    # 내 휴가, 팀 휴가
+    myVacations = vacations.filter(empId=empId)
+    teamVacations = vacations.exclude(empId=empId)
+
+    context = {
+        'today': str(datetime.date.today()),
+        'empName': empName,
+        'empDeptName': empDeptName,
+        'myServices': myServices,
+        'teamServices': teamServices,
+        'myVacations': myVacations,
+        'teamVacations': teamVacations,
+        'DeptList': DeptList,
+        'holiday': holiday,
+        'event': event,
+        'beforeMonth': beforeMonth,
+        'afterMonth': afterMonth,
+        'Date': Date,
+        'postDeptList': postDeptList,
+    }
+    template = loader.get_template('scheduler/scheduler.html')
+    return HttpResponse(template.render(context, request))
 
 
 @login_required
