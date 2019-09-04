@@ -204,6 +204,32 @@ def dayreport_query2(empDeptName, day):
                 'sortKey': vacation.empId.empRank,
             })
 
+            if vacation.vacationType != '일차' and vacation.empId.empId not in serviceDept.values_list('empId', flat=True):
+                if vacation.empId.dispatchCompany == '내근':
+                    flag = ''
+                else:
+                    flag = '상주'
+
+                if vacation.vacationType == '오전반차':
+                    startDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 14, 0)
+                    endDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0)
+                elif vacation.vacationType == '오후반차':
+                    startDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0)
+                    endDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 14, 0)
+
+                listService.append({
+                    'serviceId': '',
+                    'flag': flag,
+                    'empName': vacation.empName,
+                    'serviceStartDatetime': startDateTime,
+                    'serviceEndDatetime': endDateTime,
+                    'serviceStatus': '',
+                    'companyName': vacation.empId.dispatchCompany,
+                    'serviceType': '',
+                    'serviceTitle': vacation.empId.message,
+                    'sortKey': vacation.empId.empRank,
+                })
+
     listService.sort(key=lambda x: x['sortKey'])
     listEducation.sort(key=lambda x: x['sortKey'])
     listVacation.sort(key=lambda x: x['sortKey'])
