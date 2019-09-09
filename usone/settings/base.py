@@ -132,6 +132,9 @@ USE_TZ = False
 
 DATE_FORMAT = "Y.m.d"
 
+SESSION_COOKIE_AGE = 7200
+SESSION_SAVE_EVERY_REQUEST = True
+
 STATIC_URL = '/static/'
 STATIC_ROOT = join(BASE_DIR, 'static')
 
