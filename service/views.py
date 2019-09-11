@@ -436,8 +436,7 @@ def save_service(request, serviceId):
     service.serviceStatus = 'Y'
     service.serviceFinishDatetime = datetime.datetime.now()
     service.save()
-
-    return HttpResponse("일정 완료. 메일 연결")
+    return redirect('scheduler', str(datetime.datetime.today())[:10])
 
 
 @login_required

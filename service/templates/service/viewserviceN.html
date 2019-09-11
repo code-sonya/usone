@@ -104,7 +104,13 @@
                 <span class="text p-2"> 수정 </span>
               </a>
               {% if user.employee.empDeptName == '솔루션지원팀' or user.employee.empDeptName == 'DB지원팀' %}
-              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+              <a href="#" class="btn btn-warning btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-pen"> </i> </span>
+                <span class="text p-2"> 서명후완료 </span>
+              </a>
+              {% endif %}
+              {% if user.employee.empDeptName == '솔루션지원팀' or user.employee.empDeptName == 'DB지원팀' %}
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_direct()">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text p-2"> 완료 </span>
               </a>
@@ -135,8 +141,14 @@
   <script type="text/javascript">
 
       function btn_save(){
-          if (confirm("일정을 완료 하시겠습니까?") === true) {
+          if (confirm("서명 후 일정을 완료 하시겠습니까?") === true) {
               location.href = '/signature/selectmanager/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_direct(){
+          if (confirm("일정을 완료 하시겠습니까?") === true) {
+              location.href = '/service/saveservice/' + {{ service.serviceId }} + '/';
           }
       }
 
