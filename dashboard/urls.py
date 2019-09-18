@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^quarterasjson/$', views.quarter_asjson, name='quarter_ajax_url'),
     url(r'^cashflowasjson/$', views.cashflow_asjson, name='cashflow_ajax_url'),
     url(r'^serviceasjson/$', views.service_asjson, name='service_ajax_url'),
+    url(r'^location/$', views.dashboard_location, name='dashboardlocation'),
 ]

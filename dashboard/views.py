@@ -11,7 +11,7 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
-from service.models import Servicereport
+from service.models import Servicereport, Geolocation
 from sales.models import Contract, Category, Contractitem, Revenue, Goal, Purchase
 from hr.models import Employee
 from django.db.models import functions
@@ -708,3 +708,15 @@ def service_asjson(request):
 
     structureStep = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')
+
+@login_required
+@csrf_exempt
+def dashboard_location(request):
+    template = loader.get_template('dashboard/dashboardlocation.html')
+    today = datetime.today()
+    location = Geolocation.objects.filter(Q(startLatitude__isnull=False)&Q(endLatitude__isnull=True))
+    print(location)
+    context={'today':today,
+             'location':location}
+
+    return HttpResponse(template.render(context, request))
