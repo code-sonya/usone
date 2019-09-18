@@ -17,7 +17,7 @@ from noticeboard.models import Board
 from sales.models import Contract
 from .forms import ServicereportForm, ServiceformForm
 from .functions import *
-from .models import Serviceform
+from .models import Serviceform, Geolocation
 
 
 @login_required
@@ -417,11 +417,21 @@ def view_service(request, serviceId):
     except:
         board = None
 
+    try:
+        geo = Geolocation.objects.get(serviceId__serviceId=serviceId)
+        if geo.endLatitude:
+            geo = None
+        else:
+            geo = 'end'
+    except:
+        geo = 'start'
+
     context = {
         'service': service,
         'contractName': contractName,
         'board': board,
         'coWorker': coWorker,
+        'geo': geo,
     }
 
     if service.serviceStatus == "N":
@@ -708,3 +718,21 @@ def view_service_pdf(request, serviceId):
     if pisaStatus.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
+
+
+@login_required
+def post_geolocation(request, serviceId, status, latitude, longitude):
+    if status == "start":
+        Geolocation.objects.create(
+            serviceId=Servicereport.objects.get(serviceId=serviceId),
+            startLatitude=float(latitude),
+            startLongitude=float(longitude),
+        )
+
+    elif status == "end":
+        post = Geolocation.objects.get(serviceId=serviceId)
+        post.endLatitude = latitude
+        post.endLongitude = longitude
+        post.save()
+
+    return redirect('service:viewservice', serviceId)

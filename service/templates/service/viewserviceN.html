@@ -108,12 +108,23 @@
                 <span class="icon text-white-50"> <i class="fas fa-pen"> </i> </span>
                 <span class="text p-2"> 서명후완료 </span>
               </a>
-              {% endif %}
-              {% if user.employee.empDeptName == '솔루션지원팀' or user.employee.empDeptName == 'DB지원팀' %}
               <a href="#" class="btn btn-success btn-icon-split" onclick="btn_direct()">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text p-2"> 완료 </span>
               </a>
+                {% if geo == 'start' %}
+                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_start()">
+                  <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                  <span class="text p-2"> 시작 </span>
+                </a>
+                {% elif geo == 'end' %}
+                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_end()">
+                  <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                  <span class="text p-2"> 종료 </span>
+                </a>
+                {% else %}
+
+                {% endif %}
               {% endif %}
             </div>
           {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
@@ -138,7 +149,6 @@
 {% block script %}
 
   <script type="text/javascript">
-
       function btn_save(){
           if (confirm("서명 후 일정을 완료 하시겠습니까?") === true) {
               location.href = '/signature/selectmanager/' + {{ service.serviceId }} + '/';
@@ -166,6 +176,24 @@
       function btn_copy(){
           if (confirm("일정을 복사 하시겠습니까?") === true) {
               location.href = '/service/copyservice/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_start(){
+          if (confirm("일정을 시작 하시겠습니까?") === true) {
+              navigator.geolocation.getCurrentPosition(function(pos) {
+                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/start/'
+                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
+              });
+          }
+      }
+
+      function btn_end(){
+          if (confirm("일정을 종료 하시겠습니까?") === true) {
+              navigator.geolocation.getCurrentPosition(function(pos) {
+                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/end/'
+                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
+              });
           }
       }
 
