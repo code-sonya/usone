@@ -106,3 +106,14 @@ class Vacation(models.Model):
 
     def __str__(self):
         return 'Vacation : {}'.format(self.empName)
+
+class Geolocation(models.Model):
+    geolocationId = models.AutoField(primary_key=True)
+    serviceId = models.ForeignKey(Servicereport, on_delete=models.CASCADE)
+    startLatitude = models.FloatField()
+    startLongitude = models.FloatField()
+    endLatitude = models.FloatField()
+    endLongitude = models.FloatField()
+
+    def __str__(self):
+        return str(self.serviceId)
