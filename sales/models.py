@@ -148,3 +148,13 @@ class Goal(models.Model):
 
     def __str__(self):
         return '{}년 {} 목표'.format(self.year, self.empName)
+
+
+class Expense(models.Model):
+    date = models.DateField()
+    title = models.CharField(max_length=100, default='판관비')
+    money = models.IntegerField(default=0)
+    comment = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.title
