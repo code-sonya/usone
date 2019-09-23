@@ -52,7 +52,7 @@ class GoalAdmin(admin.ModelAdmin):
 
 
 @admin.register(Expense)
-class ExpensesAdmin(admin.ModelAdmin):
+class ExpenseAdmin(admin.ModelAdmin):
     list_display = ('date', 'title', 'money', 'comment')
     list_filter = ('date', 'title', 'money', 'comment')
     list_display_links = ['date', 'title', 'money', 'comment']
