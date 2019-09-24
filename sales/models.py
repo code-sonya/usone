@@ -151,10 +151,14 @@ class Goal(models.Model):
 
 
 class Expense(models.Model):
-    date = models.DateField()
-    title = models.CharField(max_length=100, default='판관비')
-    money = models.IntegerField(default=0)
-    comment = models.CharField(max_length=100)
+    expenseId = models.AutoField(primary_key=True)
+    expenseType = models.CharField(max_length=20, null=True, blank=True)
+    expenseDept = models.CharField(max_length=20, null=True, blank=True)
+    expenseMain = models.CharField(max_length=50, null=True, blank=True)
+    expenseSub = models.CharField(max_length=50, null=True, blank=True)
+    expenseMoney = models.IntegerField(default=0)
+    expenseDate = models.DateField(null=True, blank=True)
+    comment = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
-        return self.title
+        return self.expenseDept + self.expenseMain + self.expenseSub
