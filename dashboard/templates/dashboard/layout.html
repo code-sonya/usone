@@ -93,6 +93,9 @@
             <a class="collapse-item" href="/sales/showpurchaseinadvance/">선매입관리</a>
             <a class="collapse-item" href="/sales/showrevenueinadvance/">미접수관리</a>
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
+            {% if user.employee.empDeptName == '영업1팀' or user.employee.empDeptName == '영업2팀'%}
+            <a class="collapse-item" href="/sales/viewincentive/">인센티브관리</a>
+            {% endif %}
             <a class="collapse-item" href="/sales/showgoals/">목표관리</a>
             {% if user.is_staff %}
               <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
@@ -114,6 +117,18 @@
       </li>
     {% endif %}
 
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInsentive" aria-expanded="true" aria-controls="collapseUtilities">
+          <i class="fas fa-fw fa-money-bill-alt text-white"></i>
+          <span class="text-white">인센티브</span>
+        </a>
+        <div id="collapseInsentive" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <a class="collapse-item" href="/sales/uploadprofitloss/">손익/원가데이터업로드</a>
+          </div>
+        </div>
+      </li>
+
     {% if user.employee.empDeptName == '경영지원본부' %}
       <!-- Nav Item - 초과근무 -->
       <li class="nav-item">
@@ -133,7 +148,7 @@
             <a class="collapse-item" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">근태현황</a>
             <a class="collapse-item" href="#" onclick="btn_yearreport('/hr/showyearpunctuality/')">연간지각현황</a>
             <a class="collapse-item" href="/hr/showabsence/">지각관리</a>
-            <a class="collapse-item" href="/hr/uploadcaps/">데이터업로드</a>
+            <a class="collapse-item" href="/hr/uploadcaps/">CAPS데이터업로드</a>
           </div>
         </div>
       </li>

@@ -53,5 +53,9 @@ urlpatterns = [
     url(r'^contractrevenues/$', views.contract_revenues, name='contractrevenues'),
     url(r'^contractpurchases/$', views.contract_purchases, name='contractpurchases'),
     url(r'^contractcosts/$', views.contract_costs, name='contractcosts'),
-    url(r'^contractservices/$', views.contract_services, name='contractservices')
+    url(r'^contractservices/$', views.contract_services, name='contractservices'),
+    url(r'^viewincentive/$', views.view_incentive, name='viewincentive'),
+    url(r'^uploadprofitloss/', views.upload_profitloss, name='uploadprofitloss'),
+    url(r'^saveprofitloss/$', views.save_profitloss, name='saveprofitloss'),
+    url(r'^savecost/$', views.save_cost, name='savecost'),
 ]

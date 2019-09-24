@@ -14,7 +14,7 @@ from django.db.models.functions import Coalesce
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense
 from .functions import viewContract, dailyReportRows
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
@@ -1619,8 +1619,26 @@ def daily_report(request):
     # 3. 조정사항 반영 후 잔액
     money['AmF'] = money['A'] - money['F']
 
+    # 4. 순이익
+    netProfit = dict()
+    # 판관비
+    expenses = Expense.objects.filter(date__year=todayYear).aggregate(Sum('money'))
+    netProfit['expenses'] = expenses['money__sum'] or 0
+    if todayMonth != 12:
+        netRevenues = revenues.filter(Q(billingDate__isnull=False) & Q(billingDate__lt='{}-{}-01'.format(todayYear,str(todayMonth+1).zfill(2))))\
+                              .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+    else:
+        netRevenues = revenues.filter(Q(billingDate__isnull=False) & Q(billingDate__lt='{}-{}-01'.format(todayYear+1, '01')))\
+                              .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+
+    netProfit['revenuePrice'] = netRevenues['revenuePrice']
+    netProfit['revenueProfitPrice'] = netRevenues['revenueProfitPrice']
+    netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
+    netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
+
     context = {
         'todayYear': todayYear,
+        'todayMonth': todayMonth,
         'todayQuarter': str(todayQuarter) + 'Q',
         'today': datetime.today(),
         'before': datetime.today() - timedelta(days=180),
@@ -1629,6 +1647,7 @@ def daily_report(request):
         'rowsFOY': rowsFOY,
         'rowsFOQ': rowsFOQ,
         'money': money,
+        'netProfit': netProfit,
     }
 
     return render(request, 'sales/dailyreport.html', context)
@@ -1960,3 +1979,61 @@ def contract_services(request):
     services = services.values('empName', 'serviceType', 'serviceDate', 'serviceTitle', 'serviceHour', 'serviceRegHour', 'serviceOverHour', 'salary', 'overSalary', 'serviceId')
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def view_incentive(request):
+    context = {}
+    return render(request, 'sales/viewincentive.html', context)
+
+
+@login_required
+@csrf_exempt
+def upload_profitloss(request):
+    context = {}
+    return render(request, 'sales/uploadprofitloss.html', context)
+
+
+@login_required
+def save_profitloss(request):
+    today = datetime.today()
+    profitloss_file = request.FILES["profitloss_file"]
+    xl_file = pd.ExcelFile(profitloss_file)
+    data = pd.read_excel(xl_file, index_col=0)
+    data = data.fillna(0)
+    select_col = ['합    계']
+    status = False
+    for index, rows in data[select_col].iterrows():
+
+        if "".join(index.split()) == 'Ⅴ.영업이익':
+            break
+
+        if status == True:
+            nindex = index.replace('▷', '')
+
+            # 같은 날짜의 원가 계정 값 확인
+            expenses = Expense.objects.filter(
+                Q(expenseDate=today) & Q(expenseType='원가') & Q(expenseDept='전사') & Q(expenseMain='판관비') & Q(
+                    expenseSub="".join(nindex.split())))
+            if expenses.first() == None:
+                Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept='전사', expenseMain='판관비', expenseSub="".join(nindex.split()), expenseMoney=rows[0])
+            else:
+                expenses.delete() 
+                Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept='전사', expenseMain='판관비',
+                                       expenseSub="".join(nindex.split()), expenseMoney=rows[0])
+
+
+        if "".join(index.split()) == 'Ⅳ.판매비와관리비':
+            status = True
+
+    return redirect('sales:uploadprofitloss')
+
+
+@login_required
+def save_cost(request):
+
+    return redirect('sales:uploadprofitloss')
+
+
+

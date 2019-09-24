@@ -1,0 +1,1566 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+{% block title %}
+  인센티브현황
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .pc-table-main {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table-main td, .pc-table-main th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 18px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .mobile-table {
+      color: #333333;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 5px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="d-none d-lg-block">
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h3 class="m-0 text-gray-800"> {{ user.employee.empName }}님의 인센티브 현황 </h3>
+        </div>
+
+        <div class="card-body">
+           <h5 class="text-dark mb-3"><b>
+              <span id="ItemDown" onclick="downClick('Item', 'ItemUp', 'ItemDown')">▼</span>
+              <span id="ItemUp" class="d-none" onclick="upClick('Item', 'ItemUp', 'ItemDown')">▶</span>
+              SALARY 기준
+            </b></h5>
+          <table class="pc-table" id="contract">
+            <tbody>
+            <tr>
+              <td class="bg-light" style="width: 20%; border-top: 0px;">FULL SALARY</td>
+              <td style="width: 30%; border-top: 0px;" class="text-left pl-4">
+              </td>
+              <td class="bg-light" style="width: 20%; border-top: 0px;">BETTING PERCENT</td>
+              <td style="width: 30%; border-top: 0px;" class="text-left pl-4"></td>
+            </tr>
+            <tr>
+              <td class="bg-light">BASIC SALARY</td>
+              <td class="text-left pl-4"></td>
+              <td class="bg-light">BETTING SALARY</td>
+              <td class="text-left pl-4"></td>
+            </tr>
+            </tbody>
+          </table>
+
+
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="yearSummaryDown" onclick="downClick('yearSummary', 'yearSummaryUp', 'yearSummaryDown')">▼</span>
+              <span id="yearSummaryUp" class="d-none" onclick="upClick('yearSummary', 'yearSummaryUp', 'yearSummaryDown')">▶</span>
+              분기별 실적 달성 현황
+            </b></h5>
+            <table class="pc-table">
+              <thead>
+              <tr class="bg-primary">
+                <td class="text-gray-100" colspan="2"></td>
+                <td class="text-gray-100"></td>
+                <td class="text-gray-100" colspan="2">1Q</td>
+                <td class="text-gray-100" colspan="2">2Q</td>
+                <td class="text-gray-100" colspan="2">3Q</td>
+                <td class="text-gray-100" colspan="2">4Q</td>
+                <td class="text-gray-100" colspan="2">달성률</td>
+              </tr>
+              </thead>
+              <tbody>
+               <tr class="thtd">
+                  <td rowspan="2" colspan="2">목표실적</td>
+                  <td>매출</td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                </tr>
+                <tr class="thtd">
+                  <td>이익</td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                </tr>
+                <tr class="thtd">
+                  <td rowspan="2" colspan="2">회의실적</td>
+                  <td>매출</td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                </tr>
+                <tr class="thtd">
+                  <td>이익</td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                </tr>
+                <tr class="thtd">
+                  <td rowspan="2" colspan="2"><span class="text-warning">인센티브</span>실적</td>
+                  <td>매출</td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                </tr>
+              <tr class="thtd">
+                  <td>이익</td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                  <td colspan="2"></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="cashDown" onclick="downClick('cash', 'cashUp', 'cashDown')">▼</span>
+              <span id="cashUp" class="d-none" onclick="upClick('cash', 'cashUp', 'cashDown')">▶</span>
+              입출금정보 (세금계산서 발행 및 접수 내역만 표기)
+            </b></h5>
+            <div id="cash">
+              <table style="margin-left:20px">
+                <tbody>
+                <tr>
+                  <td style="width: 40%;">총 수금액</td>
+                  <td style="width: 40%; text-align: right;">{{ totalDeposit | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td style="width: 40%;">총 지급액</td>
+                  <td style="width: 40%; text-align: right;">{{ totalWithdraw | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td style="width: 40%;">총 집행률</td>
+                  <td style="width: 40%; text-align: right;">{{ totalRatio }}%</td>
+                </tr>
+                </tbody>
+              </table>
+              <br>
+              <div class="row">
+                <div class="col-xl-6">
+                  <table class="pc-table">
+                    <thead>
+                    <tr class="bg-secondary">
+                      <td class="text-gray-100" width="30%">매출처</td>
+                      <td class="text-gray-100" width="25%">매출금액</td>
+                      <td class="text-gray-100" width="25%">수금액</td>
+                      <td class="text-gray-100" width="20%">수금률</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for deposit in companyDeposit %}
+                      <tr class="thtd">
+                        <td>{% if deposit.revenueCompany__companyNameKo == None %}-{% else %}{{ deposit.revenueCompany__companyNameKo }}{% endif %}</td>
+                        <td>{% if deposit.sum_deposit == None %}0{% else %}{{ deposit.sum_deposit | intcomma }} {% endif %}</td>
+                        <td>{% if deposit.filter_deposit == None %}0{% else %}{{ deposit.filter_deposit | intcomma }} {% endif %}</td>
+                        <td>{% if deposit.ratio_deposit == None %}0{% else %}{{ deposit.ratio_deposit }}{% endif %}%</td>
+                      </tr>
+                    {% endfor %}
+                    <tr class="thtd bg-light">
+                      <td>합계</td>
+                      <td>{% if companyTotalDeposit.total_sum_deposit == None %}0{% else %}{{ companyTotalDeposit.total_sum_deposit | intcomma }} {% endif %}</td>
+                      <td>{% if companyTotalDeposit.total_filter_deposit == None %}0{% else %}{{ companyTotalDeposit.total_filter_deposit | intcomma }} {% endif %}</td>
+                      <td>{% if companyTotalDeposit.total_ratio_deposit == None %}0{% else %}{{ companyTotalDeposit.total_ratio_deposit }}{% endif %}%</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="col-xl-6">
+                  <table class="pc-table">
+                    <thead>
+                    <tr class="bg-secondary">
+                      <td class="text-gray-100" width="30%">매입처</td>
+                      <td class="text-gray-100" width="27%">매입금액</td>
+                      <td class="text-gray-100" width="23%">지급액</td>
+                      <td class="text-gray-100" width="20%">지급률</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for withdraw in companyWithdraw %}
+                      <tr class="thtd">
+                        <td class="text-left">{% if withdraw.purchaseCompany__companyNameKo == None %}-{% else %}{{ withdraw.purchaseCompany__companyNameKo }}{% endif %}</td>
+                        <td class="text-right">{% if withdraw.sum_withdraw == None %}0{% else %}{{ withdraw.sum_withdraw | intcomma }}
+                          <span style="display: inline-block; width: 60px;">({{ withdraw.sum_ratio_withdraw }}%)</span>{% endif %}</td>
+                        <td class="text-right">{% if withdraw.filter_withdraw == None %}0{% else %}{{ withdraw.filter_withdraw | intcomma }} {% endif %}</td>
+                        <td>{% if withdraw.ratio_withdraw == None %}0{% else %}{{ withdraw.ratio_withdraw }}{% endif %}%</td>
+                      </tr>
+                    {% endfor %}
+                    <tr class="thtd bg-light">
+                      <td>합계</td>
+                      <td class="text-right">{% if companyTotalWithdraw.total_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_sum_withdraw | intcomma }}
+                        <span style="display: inline-block; width: 60px;"></span>{% endif %}</td>
+                      <td class="text-right">{% if companyTotalWithdraw.total_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_filter_withdraw | intcomma }}{% endif %}</td>
+                      <td>{% if companyTotalWithdraw.total_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_ratio_withdraw }}{% endif %}%</td>
+                    </tr>
+                    </tbody>
+                  </table>
+                  ※ 세금계산서 접수 내역만 표기 (제외항목 : 인건비, 프로젝트비용 등)<br>
+                  연도 별 매출·이익 기여도의 매입금액 합계와 입출금정보 매입처 지급액 합계는 오차가 발생할 수 있음.
+                </div>
+              </div>
+            </div>
+
+
+          {% if revenues %}
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="revenuesDown" onclick="downClick('revenuesdiv', 'revenuesUp', 'revenuesDown')">▼</span>
+              <span id="revenuesUp" class="d-none" onclick="upClick('revenuesdiv', 'revenuesUp', 'revenuesDown')">▶</span>
+              매출세부정보
+            </b></h5>
+            <div class="table-responsive" id="revenuesdiv">
+              <table id="revenues" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
+                <thead>
+                <tr class="bg-primary">
+                  <td class="text-gray-100" width="5%">회차</td>
+                  <td class="text-gray-100" width="10%">매출예정일</td>
+                  <td class="text-gray-100" width="10%">매출일</td>
+                  <td class="text-gray-100" width="10%">수금예정일</td>
+                  <td class="text-gray-100" width="10%">수금일</td>
+                  <td class="text-gray-100" width="15%">매출처</td>
+                  <td class="text-gray-100" width="12%">매출금액</td>
+                  <td class="text-gray-100" width="13%">이익금액</td>
+                  <td class="text-gray-100" width="15%">비고</td>
+                  <th class="d-none">revenueId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                </tr>
+                </tfoot>
+              </table>
+            </div>
+          {% endif %}
+
+          {% if purchases or costs %}
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="purchasesDown" onclick="downClick('purchasesdiv', 'purchasesUp', 'purchasesDown')">▼</span>
+              <span id="purchasesUp" class="d-none" onclick="upClick('purchasesdiv', 'purchasesUp', 'purchasesDown')">▶</span>
+              매입세부정보
+            </b></h5>
+            <div class="table-responsive" id="purchasesdiv">
+              <h5 class="text-dark mb-3"><b>(세금계산서 접수항목)</b></h5>
+              <table id="purchases" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
+                <thead>
+                <tr class="bg-primary">
+                  <td class="text-gray-100" width="5%">회차</td>
+                  <td class="text-gray-100" width="10%">매입예정일</td>
+                  <td class="text-gray-100" width="10%">매입일</td>
+                  <td class="text-gray-100" width="10%">지급예정일</td>
+                  <td class="text-gray-100" width="10%">지급일</td>
+                  <td class="text-gray-100" width="15%">매입처</td>
+                  <td class="text-gray-100" width="12%">매입금액</td>
+                  <td class="text-gray-100" width="15%">비고</td>
+                  <th class="d-none">purchaseId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                </tr>
+                </tfoot>
+              </table>
+
+              {% if costs %}
+              <h5 class="text-dark mb-3"><b>(세금계산서 미접수항목)</b></h5>
+              <table id="costs" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
+                <thead>
+                <tr class="bg-primary">
+                  <td class="text-gray-100" width="5%"></td>
+                  <td class="text-gray-100" width="10%"></td>
+                  <td class="text-gray-100" width="10%"></td>
+                  <td class="text-gray-100" width="10%"></td>
+                  <td class="text-gray-100" width="10%">연도</td>
+                  <td class="text-gray-100" width="15%">매입항목</td>
+                  <td class="text-gray-100" width="12%">매입금액</td>
+                  <td class="text-gray-100" width="15%">비고</td>
+                  <th class="d-none">costId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                </tr>
+                </tfoot>
+              </table>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if services %}
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="servicesDown" onclick="downClick('servicesdiv', 'servicesUp', 'servicesDown')">▼</span>
+              <span id="servicesUp" class="d-none" onclick="upClick('servicesdiv', 'servicesUp', 'servicesDown')">▶</span>
+              엔지니어 지원 이력
+            </b></h5>
+            <div class="table-responsive" id="servicesdiv">
+              <table id="services" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
+                <thead>
+                <tr class="bg-info">
+                  <th class="text-gray-100 font-weight-normal" >엔지니어</th>
+                  <th class="text-gray-100 font-weight-normal" >구분</th>
+                  <th class="text-gray-100 font-weight-normal" >날짜</th>
+                  <th class="text-gray-100 font-weight-normal" >작업내용</th>
+                  <th class="text-gray-100 font-weight-normal" >일반근무시간</th>
+                  <th class="text-gray-100 font-weight-normal" >초과근무시간</th>
+                  <th class="text-gray-100 font-weight-normal" >기본수당</th>
+                  <th class="text-gray-100 font-weight-normal" >시간외수당</th>
+                  <th class="d-none">serviceId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                  <th style="padding: 8px 10px; text-align: center"></th>
+                  <th style="padding: 8px 10px; text-align: center"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                </tr>
+                </tfoot>
+              </table>
+            </div>
+          {% endif %}
+        </div>
+
+
+      {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+        <div class="text-center" style="padding: 0px 20px 20px 20px">
+          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+            <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+            <span class="text"> 삭제 </span>
+          </a>
+          <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+            <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+            <span class="text"> 수정 </span>
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="d-lg-none">
+    <div class="card shadow mb-4">
+      <div id="pdf">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h3 class="m-0 text-gray-800">{{ contract.contractName }}</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="mobile-table" id="contractMobile">
+            <tbody>
+            <tr>
+              <td class="bg-light" style="width: 40%; border-top: 0px;">FULL SALARY</td>
+              <td style="width: 60%; border-top: 0px;" class="text-left pl-3">
+                {% if contract.contractStep == "Firm" %}
+                  <div class="text-primary"> {{ contract.contractStep }}</div>
+                {% elif contract.contractStep == "Drop" %}
+                  <div class="text-danger"> {{ contract.contractStep }}</div>
+                {% else %}
+                  <div class="text-success"> {{ contract.contractStep }}</div>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-light" style="width: 20%; border-top: 0px;">영&nbsp; 업&nbsp; &nbsp;담&nbsp; 당</td>
+              <td style="width: 30%; border-top: 0px;" class="text-left pl-3">{{ contract.empName }} ({{ contract.empDeptName }})</td>
+            </tr>
+            <tr>
+              <td class="bg-light">판&nbsp; 매&nbsp; &nbsp;유&nbsp; 형</td>
+              <td class="text-left pl-3">{{ contract.saleType }}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">산&nbsp; &nbsp; &nbsp;업&nbsp; &nbsp; &nbsp;군</td>
+              <td class="text-left pl-3">{{ contract.saleIndustry }}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">대&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
+              <td class="text-left pl-3">{{ contract.mainCategory }}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">소&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
+              <td class="text-left pl-3">{{ contract.subCategory }}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">거&nbsp; &nbsp; &nbsp;래&nbsp; &nbsp; &nbsp;처</td>
+              <td class="text-left pl-3">
+                <a href="/client/viewclient/{{ contract.saleCompanyName.companyName }}" class="text-dark">
+                  {{ contract.saleCompanyName.companyNameKo }}
+                </a>
+                <a href="/client/viewcustomer/{{ contract.saleCustomerId.customerId }}" class="text-dark">
+                  {% if contract.saleCustomerName %} ({{ contract.saleCustomerName }}){% endif %}
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-light">최 종 고 객 사</td>
+              <td class="text-left pl-3">
+                <a href="/client/viewclient/{{ contract.endCompanyName.companyName }}" class="text-dark">
+                  {{ contract.endCompanyName.companyNameKo }}
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td class="bg-light">계&nbsp; 약&nbsp; &nbsp;금&nbsp; 액</td>
+              <td class="text-primary font-weight-bold text-left pl-3">{{ contract.salePrice | intcomma }}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">이&nbsp; 익&nbsp; &nbsp;금&nbsp; 액</td>
+              <td class="text-danger font-weight-bold text-left pl-3">{{ contract.profitPrice | intcomma }} ({{ contract.profitRatio | floatformat }}%)</td>
+            </tr>
+            <tr>
+              <td class="bg-light">계&nbsp; &nbsp; &nbsp;약&nbsp; &nbsp; &nbsp;일</td>
+              <td class="text-left pl-3">{{ contract.contractDate }}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">계&nbsp; 약&nbsp; &nbsp;기&nbsp; 간</td>
+              <td class="text-left pl-3">
+                {% if contract.contractStep == 'Firm' and contract.contractStartDate %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">수&nbsp; 금&nbsp; &nbsp;조&nbsp; 건</td>
+              <td class="text-left pl-3">{{ contract.depositCondition }}{% if contract.depositCondition == '계산서 발행 후' %}<br> {{ contract.depositConditionDay }}일 이내{% endif %}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">수 주 통 보 서</td>
+              <td class="text-left pl-3"><a href="/media/{{ contract.orderPaper }}" download>{{ orderPaper }}</a></td>
+              {#              계약서는 추후 필요시 오픈#}
+              {#              <td class="bg-light">첨&nbsp; 부&nbsp; &nbsp;파&nbsp; 일</td>#}
+              {#              <td><a href="/media/{{ contract.contractPaper }}" download>{{ contractPaper }}</a><br><a href="/media/{{ contract.orderPaper }}" download>{{ orderPaper }}</a></td>#}
+            </tr>
+            <tr>
+              <td class="bg-light">수&nbsp; 정&nbsp; &nbsp;대&nbsp; 상</td>
+              <td class="text-left pl-3">{{ contract.modifyContractPaper }}</td>
+            </tr>
+            <tr>
+              <td class="bg-light">참&nbsp; 고&nbsp; &nbsp;사&nbsp; 항</td>
+              <td colspan="3" style="padding-left: 20px;" class="text-left pl-3">{% if contract.comment == None %} {% else %}{{ contract.comment }}{% endif %}</td>
+            </tr>
+            </tbody>
+          </table>
+
+          {% if items %}
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="categoryItemDownMobile" onclick="downClick('categoryItemMobile', 'categoryItemUpMobile', 'categoryItemDownMobile')">▼</span>
+              <span id="categoryItemUpMobile" class="d-none" onclick="upClick('categoryItemMobile', 'categoryItemUpMobile', 'categoryItemDownMobile')">▶</span>
+              세부사항
+            </b></h5>
+            <table class="mobile-table" id="categoryItemMobile" style="table-layout:fixed">
+              <thead>
+              <tr class="bg-secondary">
+                <td class="text-gray-100" width="50%">대분류<br>(소분류)</td>
+                <td class="text-gray-100" width="50%">가격</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% for item in items %}
+                <tr class="thtd">
+                  <td style="text-overflow: ellipsis; overflow:hidden; white-space: nowrap;">{{ item.mainCategory }}<br>({{ item.subCategory }})</td>
+                  <td>{{ item.itemPrice | intcomma }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+
+          {% if contract.contractStep != 'Drop' %}
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="yearSummaryDownMobile" onclick="downClick('yearSummaryMobile', 'yearSummaryUpMobile', 'yearSummaryDownMobile')">▼</span>
+              <span id="yearSummaryUpMobile" class="d-none" onclick="upClick('yearSummaryMobile', 'yearSummaryUpMobile', 'yearSummaryDownMobile')">▶</span>
+              연도 별 매출·이익 기여도
+            </b></h5>
+            <table class="mobile-table" id="yearSummaryMobile">
+              <thead>
+              <tr class="bg-secondary">
+                <td class="text-gray-100" width="24%">연도</td>
+                <td class="text-gray-100" width="38%">매출금액</td>
+                <td class="text-gray-100" width="38%">이익금액<br>(이익률)</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% for summary in yearSummary %}
+                <tr class="thtd">
+                  <td>{{ summary.year }}</td>
+                  <td class="text-right">{{ summary.revenuePrice | intcomma }}</td>
+                  <td class="text-right">{{ summary.revenueProfitPrice | intcomma }}<br>({{ summary.revenueProfitRatio }}%)</td>
+                </tr>
+              {% endfor %}
+              <tr class="thtd bg-light">
+                <td>{{ yearSum.year }}</td>
+                <td class="text-primary text-right">{{ yearSum.revenuePrice | intcomma }}</td>
+                <td class="text-danger text-right">{{ yearSum.revenueProfitPrice | intcomma }}<br>({{ yearSum.revenueProfitRatio }}%)</td>
+              </tr>
+              </tbody>
+            </table>
+
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="cashDown" onclick="downClick('cash', 'cashUp', 'cashDown')">▼</span>
+              <span id="cashUp" class="d-none" onclick="upClick('cash', 'cashUp', 'cashDown')">▶</span>
+              입출금정보 <br> (세금계산서 발행 및 접수 내역만 표기)
+            </b></h5>
+            <div id="cash">
+              <table style="margin-left:20px">
+                <tbody>
+                <tr>
+                  <td style="width: 40%;">총 수금액</td>
+                  <td style="width: 40%; text-align: right;">{{ totalDeposit | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td style="width: 40%;">총 지급액</td>
+                  <td style="width: 40%; text-align: right;">{{ totalWithdraw | intcomma }}</td>
+                </tr>
+                <tr>
+                  <td style="width: 40%;">총 집행률</td>
+                  <td style="width: 40%; text-align: right;">{{ totalRatio }}%</td>
+                </tr>
+                </tbody>
+              </table>
+              <br>
+              <div class="row">
+                <div class="col-xl-6">
+                  <table class="mobile-table" style="table-layout:fixed">
+                    <thead>
+                    <tr class="bg-secondary">
+                      <td class="text-gray-100" width="24%">매출처</td>
+                      <td class="text-gray-100" width="38%">매출금액</td>
+                      <td class="text-gray-100" width="38%">수금액<br>(수금률)</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for deposit in companyDeposit %}
+                      <tr class="thtd">
+                        <td class="text-left" style="text-overflow: ellipsis; overflow:hidden; white-space: nowrap;">{% if deposit.revenueCompany__companyNameKo == None %}-{% else %}
+                          {{ deposit.revenueCompany__companyNameKo }}{% endif %}</td>
+                        <td class="text-right">{% if deposit.sum_deposit == None %}0{% else %}{{ deposit.sum_deposit | intcomma }}{% endif %}</td>
+                        <td class="text-right">{% if deposit.filter_deposit == None %}0{% else %}{{ deposit.filter_deposit | intcomma }}{% endif %}<br>
+                          ({% if deposit.ratio_deposit == None %}0{% else %}{{ deposit.ratio_deposit }}{% endif %}%)
+                        </td>
+                        <td></td>
+                      </tr>
+                    {% endfor %}
+                    <tr class="thtd bg-light">
+                      <td>합계</td>
+                      <td class="text-right">{% if companyTotalDeposit.total_sum_deposit == None %}0{% else %}{{ companyTotalDeposit.total_sum_deposit | intcomma }}{% endif %}</td>
+                      <td class="text-right">{% if companyTotalDeposit.total_filter_deposit == None %}0{% else %}{{ companyTotalDeposit.total_filter_deposit | intcomma }}{% endif %}<br>
+                        ({% if companyTotalDeposit.total_ratio_deposit == None %}0{% else %}{{ companyTotalDeposit.total_ratio_deposit }}{% endif %}%)
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="col-xl-6">
+                  <table class="mobile-table" style="table-layout:fixed">
+                    <thead>
+                    <tr class="bg-secondary">
+                      <td class="text-gray-100" width="24%">매입처</td>
+                      <td class="text-gray-100" width="38%">매입금액</td>
+                      <td class="text-gray-100" width="38%">지급액<br>(지급률)</td>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for withdraw in companyWithdraw %}
+                      <tr class="thtd">
+                        <td class="text-left" style="text-overflow: ellipsis; overflow:hidden; white-space: nowrap;">{% if withdraw.purchaseCompany__companyNameKo == None %}-{% else %}
+                          {{ withdraw.purchaseCompany__companyNameKo }}{% endif %}</td>
+                        <td class="text-right">{% if withdraw.sum_withdraw == None %}0{% else %}{{ withdraw.sum_withdraw | intcomma }}
+                          <span style="display: inline-block; width: 60px;">({{ withdraw.sum_ratio_withdraw }}%)</span>{% endif %}</td>
+                        <td class="text-right">{% if withdraw.filter_withdraw == None %}0{% else %}{{ withdraw.filter_withdraw | intcomma }}{% endif %}<br>
+                          ({% if withdraw.ratio_withdraw == None %}0{% else %}{{ withdraw.ratio_withdraw }}{% endif %}%)
+                        </td>
+                      </tr>
+                    {% endfor %}
+                    <tr class="thtd bg-light">
+                      <td>합계</td>
+                      <td class="text-right">{% if companyTotalWithdraw.total_sum_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_sum_withdraw | intcomma }}
+                        <span style="display: inline-block; width: 60px;"></span>{% endif %}</td>
+                      <td class="text-right">{% if companyTotalWithdraw.total_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_filter_withdraw | intcomma }}{% endif %}<br>
+                        ({% if companyTotalWithdraw.total_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_ratio_withdraw }}{% endif %}%)
+                      </td>
+
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          {% if revenues %}
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="revenuesDownMobile" onclick="downClick('revenuesdivMobile', 'revenuesUpMobile', 'revenuesDownMobile')">▼</span>
+              <span id="revenuesUpMobile" class="d-none" onclick="upClick('revenuesdivMobile', 'revenuesUpMobile', 'revenuesDownMobile')">▶</span>
+              매출세부정보
+            </b></h5>
+            <div class="table-responsive" id="revenuesdivMobile">
+              <table id="revenuesMobile" class="cell-border mobile-table" width="100%" style="width: 100%;">
+                <thead>
+                <tr class="bg-primary">
+                  <td class="text-gray-100" width="5%">회차</td>
+                  <td class="text-gray-100" width="10%">매출예정일</td>
+                  <td class="text-gray-100" width="10%">매출일</td>
+                  <td class="text-gray-100" width="10%">수금예정일</td>
+                  <td class="text-gray-100" width="10%">수금일</td>
+                  <td class="text-gray-100" width="15%">매출처</td>
+                  <td class="text-gray-100" width="12%">매출금액</td>
+                  <td class="text-gray-100" width="13%">이익금액</td>
+                  <td class="text-gray-100" width="15%">비고</td>
+                  <th class="d-none">revenueId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                </tr>
+                </tfoot>
+              </table>
+            </div>
+          {% endif %}
+
+          {% if purchases or costs %}
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="purchasesDownMobile" onclick="downClick('purchasesdivMobile', 'purchasesUpMobile', 'purchasesDownMobile')">▼</span>
+              <span id="purchasesUpMobile" class="d-none" onclick="upClick('purchasesdivMobile', 'purchasesUpMobile', 'purchasesDownMobile')">▶</span>
+              매입세부정보
+            </b></h5>
+            <div class="table-responsive" id="purchasesdivMobile">
+              <h5 class="text-dark mb-3"><b>(세금계산서 접수항목)</b></h5>
+              <table id="purchasesMobile" class="cell-border mobile-table" width="100%" style="width: 100%;">
+                <thead>
+                <tr class="bg-primary">
+                  <td class="text-gray-100" width="5%">회차</td>
+                  <td class="text-gray-100" width="10%">매입예정일</td>
+                  <td class="text-gray-100" width="10%">매입일</td>
+                  <td class="text-gray-100" width="10%">지급예정일</td>
+                  <td class="text-gray-100" width="10%">지급일</td>
+                  <td class="text-gray-100" width="15%">매입처</td>
+                  <td class="text-gray-100" width="12%">매입금액</td>
+                  <td class="text-gray-100" width="15%">비고</td>
+                  <th class="d-none">purchaseId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                </tr>
+                </tfoot>
+              </table>
+
+              {% if costs %}
+              <h5 class="text-dark mb-3"><b>(세금계산서 미접수항목)</b></h5>
+              <table id="costsMobile" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
+                <thead>
+                <tr class="bg-primary">
+                  <td class="text-gray-100" width="10%">연도</td>
+                  <td class="text-gray-100" width="15%">매입항목</td>
+                  <td class="text-gray-100" width="12%">매입금액</td>
+                  <td class="text-gray-100" width="15%">비고</td>
+                  <th class="d-none">costId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                </tr>
+                </tfoot>
+              </table>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          {% if services %}
+            <br>
+            <h5 class="text-dark mb-3"><b>
+              <span id="servicesDownMobile" onclick="downClick('servicesdivMobile', 'servicesUpMobile', 'servicesDownMobile')">▼</span>
+              <span id="servicesUpMobile" class="d-none" onclick="upClick('servicesdivMobile', 'servicesUpMobile', 'servicesDownMobile')">▶</span>
+              엔지니어 지원 이력
+            </b></h5>
+            <div class="table-responsive" id="servicesdivMobile">
+              <table id="servicesMobile" class="cell-border mobile-table" width="100%" style="width: 100%; table-layout: auto;">
+                <thead>
+                <tr class="bg-info">
+                  <th class="text-gray-100 font-weight-normal" >엔지니어</th>
+                  <th class="text-gray-100 font-weight-normal" >구분</th>
+                  <th class="text-gray-100 font-weight-normal" >날짜</th>
+                  <th class="text-gray-100 font-weight-normal" >작업내용</th>
+                  <th class="text-gray-100 font-weight-normal" >일반근무시간</th>
+                  <th class="text-gray-100 font-weight-normal" >초과근무시간</th>
+                  <th class="text-gray-100 font-weight-normal" >기본수당</th>
+                  <th class="text-gray-100 font-weight-normal" >시간외수당</th>
+                  <th class="d-none">serviceId</th>
+                </tr>
+                </thead>
+                <tfoot>
+                <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                  <th style="padding: 8px 10px; text-align: center"></th>
+                  <th style="padding: 8px 10px; text-align: center"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                  <th style="padding: 8px 10px; text-align: right"></th>
+                </tr>
+                </tfoot>
+              </table>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+        <div class="text-center" style="padding: 0px 20px 20px 20px">
+          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+            <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+            <span class="text"> 삭제 </span>
+          </a>
+          <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+            <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+            <span class="text"> 수정 </span>
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_modify() {
+          location.href = '/sales/modifycontract/' + {{ contract.contractId }} +'/';
+      }
+
+      function btn_delete() {
+          if (confirm("계약 삭제시, 매출 정보까지 함께 삭제됩니다.\n삭제 하시겠습니까?") === true) {
+              location.href = '/sales/deletecontract/' + {{ contract.contractId }} +'/';
+          }
+      }
+
+      function downClick(table, up, down) {
+          $('#' + table).addClass('d-none');
+          $('#' + up).removeClass('d-none');
+          $('#' + down).addClass('d-none');
+      }
+
+      function upClick(table, up, down) {
+          $('#' + table).removeClass('d-none');
+          $('#' + up).addClass('d-none');
+          $('#' + down).removeClass('d-none');
+      }
+
+      function replaceDate(predictStr, executionStr, searchStr, replaceStr, complete, idx) {
+          let newStr;
+
+          if (executionStr != null) {
+              newStr = complete + '완료';
+          } else if (predictStr != null) {
+              newStr = predictStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, idx);
+          } else {
+              newStr = '-'
+          }
+          return newStr
+      }
+
+      $(document).ready(function () {
+          $('#revenues').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractrevenues' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'predictDepositDate'},
+                  {data: 'depositDate'},
+                  {data: 'revenueCompany__companyNameKo'},
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'comment'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[1, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                  if (aData.billingDate != null) {
+                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
+                  if (aData.depositDate != null) {
+                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
+
+                  {% if revenueId %}
+                      if (aData.revenueId === {{ revenueId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
+                  {% endif %}
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(profitResult.toLocaleString());
+              },
+          });
+
+          $('#purchases').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractpurchases' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'predictWithdrawDate'},
+                  {data: 'withdrawDate'},
+                  {data: 'purchaseCompany__companyNameKo'},
+                  {data: 'purchasePrice'},
+                  {data: 'comment'},
+                  {data: 'purchaseId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[1, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "접수", 7));
+                  if (aData.billingDate != null) {
+                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictWithdrawDate, aData.withdrawDate, "-", ".", "지급", 10));
+                  if (aData.withdrawDate != null) {
+                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(4)', nRow).text(replaceDate(aData.withdrawDate, null, "-", ".", null, 10));
+
+                  {% if purchaseId %}
+                      if (aData.purchaseId === {{ purchaseId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
+                  {% endif %}
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+
+              },
+          });
+
+          $('#costs').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractcosts' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'billingDate'},
+                  {data: 'billingDate'},
+                  {data: 'billingDate'},
+                  {data: 'billingDate'},
+                  {data: 'costCompany'},
+                  {data: 'costPrice'},
+                  {data: 'comment'},
+                  {data: 'costId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[4, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(1)', nRow).text('');
+                  $('td:eq(2)', nRow).text('');
+                  $('td:eq(3)', nRow).text('');
+                  $('td:eq(4)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", "", 4));
+                  $('td:eq(6)', nRow).text(aData.costPrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var costResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      costResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(costResult.toLocaleString());
+              },
+          });
+
+          $('#services').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractservices' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'empName'},
+                  {data: 'serviceType'},
+                  {data: 'serviceDate'},
+                  {data: 'serviceTitle'},
+                  {data: 'serviceRegHour'},
+                  {data: 'serviceOverHour'},
+                  {data: 'salary'},
+                  {data: 'overSalary'},
+                  {data: 'serviceId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[2, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.salary.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.overSalary.toLocaleString());
+
+                  $('td:eq(2)', nRow).text(replaceDate(aData.serviceDate, null, "-", ".", null, 10));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var hourresult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      hourresult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(hourresult.toLocaleString());
+
+                   var overHourresult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      overHourresult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(overHourresult.toLocaleString());
+
+                  var salaryresult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      salaryresult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(salaryresult.toLocaleString());
+
+                   var overSalaryresult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      overSalaryresult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(overSalaryresult.toLocaleString());
+              },
+          });
+
+          $('#revenuesMobile').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractrevenues' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'predictDepositDate'},
+                  {data: 'depositDate'},
+                  {data: 'revenueCompany__companyNameKo'},
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'comment'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[1, 'asc']],
+              "searching": false,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                  if (aData.billingDate != null) {
+                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
+                  if (aData.depositDate != null) {
+                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
+
+                  {% if revenueId %}
+                      if (aData.revenueId === {{ revenueId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
+                  {% endif %}
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(profitResult.toLocaleString());
+              },
+          });
+
+          $('#purchasesMobile').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractpurchases' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'predictWithdrawDate'},
+                  {data: 'withdrawDate'},
+                  {data: 'purchaseCompany__companyNameKo'},
+                  {data: 'purchasePrice'},
+                  {data: 'comment'},
+                  {data: 'purchaseId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[1, 'asc']],
+              "searching": false,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "접수", 7));
+                  if (aData.billingDate != null) {
+                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictWithdrawDate, aData.withdrawDate, "-", ".", "지급", 10));
+                  if (aData.withdrawDate != null) {
+                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(4)', nRow).text(replaceDate(aData.withdrawDate, null, "-", ".", null, 10));
+
+                  {% if purchaseId %}
+                      if (aData.purchaseId === {{ purchaseId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
+                  {% endif %}
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+
+              },
+          });
+
+          $('#costsMobile').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractcosts' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingDate'},
+                  {data: 'costCompany'},
+                  {data: 'costPrice'},
+                  {data: 'comment'},
+                  {data: 'costId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[0, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(0)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", "", 4));
+                  $('td:eq(2)', nRow).text(aData.costPrice.toLocaleString());
+                  $('td:eq(3)', nRow).text(aData.comment).css('color', '#e74a3b');
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var costResult = 0;
+                  api.column(2, {search: 'applied'}).data().each(function (data, index) {
+                      costResult += parseFloat(data);
+                  });
+                  $(api.column(2).footer()).html(costResult.toLocaleString());
+              },
+          });
+
+          $('#servicesMobile').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractservices' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'empName'},
+                  {data: 'serviceType'},
+                  {data: 'serviceDate'},
+                  {data: 'serviceTitle'},
+                  {data: 'serviceRegHour'},
+                  {data: 'serviceOverHour'},
+                  {data: 'salary'},
+                  {data: 'overSalary'},
+                  {data: 'serviceId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[2, 'desc']],
+              "searching": false,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.salary.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.overSalary.toLocaleString());
+
+                  $('td:eq(2)', nRow).text(replaceDate(aData.serviceDate, null, "-", ".", null, 10));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var hourresult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      hourresult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(hourresult.toLocaleString());
+
+                   var overHourresult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      overHourresult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(overHourresult.toLocaleString());
+
+                  var salaryresult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      salaryresult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(salaryresult.toLocaleString());
+
+                   var overSalaryresult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      overSalaryresult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(overSalaryresult.toLocaleString());
+              },
+          });
+
+      });
+
+
+  </script>
+
+{% endblock %}

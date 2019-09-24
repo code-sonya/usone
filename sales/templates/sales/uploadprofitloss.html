@@ -1,0 +1,133 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+{% block title %}
+  손익/원가 데이터 업로드
+{% endblock %}
+
+
+{% block css %}
+
+<style type="text/css" xmlns:sales="http://www.w3.org/1999/xhtml" xmlns:sales="http://www.w3.org/1999/xhtml"
+       xmlns:sales="http://www.w3.org/1999/xhtml">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 15px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .pc-table-main {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table-main td, .pc-table-main th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 18px;
+      border-top: 1px dotted #858796a3;
+    }
+
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-1"></div>
+
+    <!-- PC화면-->
+    <div class="col-xl-10">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h3 class="m-0 text-gray-800"> 손익/원가 데이터 업로드 </h3>
+        </div>
+
+        <div class="card-body">
+          <span class="text-primary">1. 현장프로젝트부서손익안분</span>
+          <div class="center">
+            <form id="profitlossForm" action="{% url "sales:saveprofitloss" %}" method="POST" enctype="multipart/form-data" class="form-horizontal center">
+              {% csrf_token %}
+              <div class="form-group">
+                <div class="row">
+                  <label for="name" class="col-md-12 control-label">파일 첨부 : </label>
+                  <div class="col-md-10">
+                    <input type="file" name="profitloss_file" id="profitloss_file" required="True" class="form-control">
+                  </div>
+                  <div class="col-md-2 right">
+                    <button class="btn btn-primary" onclick="data_save()"><span class="glyphicon glyphicon-upload" style="margin-right:5px;"></span>upload</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card-body">
+          <span class="text-primary">2. 현장프로젝트부서원가안분</span>
+          <div class="center">
+            <form id="costForm" action="{% url "sales:savecost" %}" method="POST" enctype="multipart/form-data" class="form-horizontal center">
+              {% csrf_token %}
+              <div class="form-group">
+                <div class="row">
+                  <label for="name" class="col-md-12 control-label">파일 첨부 : </label>
+                  <div class="col-md-10">
+                    <input type="file" name="cost_file" id="cost_file" required="True" class="form-control">
+                  </div>
+                  <div class="col-md-2 right">
+                    <button class="btn btn-primary" onclick="cost_save()"><span class="glyphicon glyphicon-upload" style="margin-right:5px;"></span>upload</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-1"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+
+      function data_save() {
+          const profitlossForm = document.getElementById("profitlossForm");
+
+          if (confirm("현장프로젝트부서손익안분 데이터를 업로드 하시겠습니까??") === true) {
+              profitlossForm.submit()
+          }
+      }
+
+      function cost_save() {
+          const costForm = document.getElementById("costForm");
+
+          if (confirm("현장프로젝트부서원가안분 데이터를 업로드 하시겠습니까?") === true) {
+              costForm.submit()
+          }
+      }
+
+  </script>
+
+{% endblock %}
