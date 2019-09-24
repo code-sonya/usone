@@ -2017,12 +2017,12 @@ def save_profitloss(request):
                 Q(expenseDate=today) & Q(expenseType='원가') & Q(expenseDept='전사') & Q(expenseMain='판관비') & Q(
                     expenseSub="".join(nindex.split())))
             if expenses.first() == None:
-                Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept='전사', expenseMain='판관비', expenseSub="".join(nindex.split()), expenseMoney=rows[0])
+                Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept='전사', expenseMain='판관비',
+                                       expenseSub="".join(nindex.split()), expenseMoney=rows[0])
             else:
                 expenses.delete() 
                 Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept='전사', expenseMain='판관비',
                                        expenseSub="".join(nindex.split()), expenseMoney=rows[0])
-
 
         if "".join(index.split()) == 'Ⅳ.판매비와관리비':
             status = True
@@ -2032,6 +2032,49 @@ def save_profitloss(request):
 
 @login_required
 def save_cost(request):
+    today = datetime.today()
+    cost_file = request.FILES["cost_file"]
+    xl_file = pd.ExcelFile(cost_file)
+    data = pd.read_excel(xl_file, index_col=0)
+    data = data.fillna(0)
+    select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
+
+    main_cate = ''
+    for index, rows in data[select_col].iterrows():
+        nindex = index.replace('▶', '')
+        if index == 'Ⅰ.노무비':
+            main_cate = '노무비'
+        elif index == 'Ⅱ.경비':
+            main_cate = '경비'
+        elif index == 'Ⅲ.당기총공사비용':
+            main_cate = '당기총공사비용'
+            sub_cate='당기총공사비용'
+            for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
+                expenses = Expense.objects.filter(
+                    Q(expenseDate=today) & Q(expenseType='손익') & Q(expenseDept=v) & Q(expenseMain=main_cate) & Q(
+                        expenseSub=sub_cate))
+                if expenses.first() == None:
+                    Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain=main_cate,
+                                           expenseSub=sub_cate, expenseMoney=rows[i])
+                else:
+                    expenses.delete()
+                    Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain=main_cate,
+                                           expenseSub=sub_cate, expenseMoney=rows[i])
+            break
+        else:
+            if main_cate != '':
+
+                for i,v in enumerate(['솔루션지원팀', 'DB지원팀']):
+                    expenses = Expense.objects.filter(
+                        Q(expenseDate=today) & Q(expenseType='손익') & Q(expenseDept=v) & Q(expenseMain=main_cate) & Q(
+                            expenseSub="".join(nindex.split())))
+                    if expenses.first() == None:
+                        Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain=main_cate,
+                                               expenseSub="".join(nindex.split()), expenseMoney=rows[i])
+                    else:
+                        expenses.delete()
+                        Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain=main_cate,
+                                               expenseSub="".join(nindex.split()), expenseMoney=rows[i])
 
     return redirect('sales:uploadprofitloss')
 
