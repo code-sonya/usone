@@ -159,6 +159,7 @@ class Expense(models.Model):
     expenseMoney = models.IntegerField(default=0)
     expenseDate = models.DateField(null=True, blank=True)
     comment = models.CharField(max_length=100, null=True, blank=True)
+    expenseStatus = models.CharField(max_length=1, default='Y')
 
     def __str__(self):
         return self.expenseDept + self.expenseMain + self.expenseSub
