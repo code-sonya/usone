@@ -15,8 +15,8 @@ from django.db.models.functions import Coalesce
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense
-from .functions import viewContract, dailyReportRows, incentive
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
+from .functions import viewContract, dailyReportRows, cal_incentive
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta, date
@@ -77,8 +77,8 @@ def post_contract(request):
                     comment=revenue["revenueComment"],
                 )
                 revenueInstance = Revenue.objects.get(revenueId=int(instance.revenueId))
-                revenueInstance.incentivePrice = incentive(int(instance.revenueId))[0]
-                revenueInstance.incentiveProfitPrice = incentive(int(instance.revenueId))[1]
+                revenueInstance.incentivePrice = cal_incentive(int(instance.revenueId))[0]
+                revenueInstance.incentiveProfitPrice = cal_incentive(int(instance.revenueId))[1]
                 revenueInstance.save()
 
             jsonPurchase = json.loads(request.POST['jsonPurchase'])
@@ -272,8 +272,8 @@ def modify_contract(request, contractId):
                         comment=revenue["revenueComment"],
                     )
                     revenueInstance = Revenue.objects.get(revenueId=int(instance.revenueId))
-                    revenueInstance.incentivePrice = incentive(int(instance.revenueId))[0]
-                    revenueInstance.incentiveProfitPrice = incentive(int(instance.revenueId))[1]
+                    revenueInstance.incentivePrice = cal_incentive(int(instance.revenueId))[0]
+                    revenueInstance.incentiveProfitPrice = cal_incentive(int(instance.revenueId))[1]
                     revenueInstance.save()
                 else:
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
@@ -294,8 +294,8 @@ def modify_contract(request, contractId):
                     revenueInstance.save()
 
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
-                    revenueInstance.incentivePrice = incentive(int(revenue["revenueId"]))[0]
-                    revenueInstance.incentiveProfitPrice = incentive(int(revenue["revenueId"]))[1]
+                    revenueInstance.incentivePrice = cal_incentive(int(revenue["revenueId"]))[0]
+                    revenueInstance.incentiveProfitPrice = cal_incentive(int(revenue["revenueId"]))[1]
                     revenueInstance.save()
 
                     jsonRevenueId.append(int(revenue["revenueId"]))
@@ -1077,8 +1077,8 @@ def save_revenuetable(request):
         revenue.save()
 
         revenue = Revenue.objects.get(revenueId=a)
-        revenue.incentivePrice = incentive(a)[0]
-        revenue.incentiveProfitPrice = incentive(a)[1]
+        revenue.incentivePrice = cal_incentive(a)[0]
+        revenue.incentiveProfitPrice = cal_incentive(a)[1]
         revenue.save()
 
 
@@ -2007,8 +2007,99 @@ def contract_services(request):
 
 @login_required
 @csrf_exempt
-def view_incentive(request):
-    context = {}
+def view_incentive(request, empId):
+    year = str(datetime.today().year)
+    empName = Employee.objects.get(empId=empId).empName
+    empDeptName = Employee.objects.get(empId=empId).empDeptName
+    incentive = Incentive.objects.filter(empId=empId)
+    goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=datetime.today().year))
+    revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
+    revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
+    revenue2 = revenues.filter(Q(billingDate__gte=year + '-04-01') & Q(billingDate__lt=year + '-07-01'))
+    revenue3 = revenues.filter(Q(billingDate__gte=year + '-07-01') & Q(billingDate__lt=year + '-10-01'))
+    revenue4 = revenues.filter(Q(billingDate__gte=year + '-10-01') & Q(billingDate__lte=year + '-12-31'))
+
+    table1 = [
+        {
+            'name': 'FULL SALARY',
+            'q1': int(incentive.get(quarter=1).salary),
+            'q2': int(incentive.get(quarter=2).salary),
+            'q3': int(incentive.get(quarter=3).salary),
+            'q4': int(incentive.get(quarter=4).salary),
+        },
+        {
+            'name': 'BETTING PERCENT',
+            'q1': str(incentive.get(quarter=1).bettingRatio) + '%',
+            'q2': str(incentive.get(quarter=2).bettingRatio) + '%',
+            'q3': str(incentive.get(quarter=3).bettingRatio) + '%',
+            'q4': str(incentive.get(quarter=4).bettingRatio) + '%',
+        },
+        {
+            'name': 'BASIC SALARY',
+            'q1': int(incentive.get(quarter=1).basicSalary),
+            'q2': int(incentive.get(quarter=2).basicSalary),
+            'q3': int(incentive.get(quarter=3).basicSalary),
+            'q4': int(incentive.get(quarter=4).basicSalary),
+        },
+        {
+            'name': 'BETTING SALARY',
+            'q1': int(incentive.get(quarter=1).bettingSalary),
+            'q2': int(incentive.get(quarter=2).bettingSalary),
+            'q3': int(incentive.get(quarter=3).bettingSalary),
+            'q4': int(incentive.get(quarter=4).bettingSalary),
+        },
+    ]
+
+    table2 = {
+        'target': {
+            'revenue': {
+                'q1': goal.salesq1,
+                'q2': goal.salesq2,
+                'q3': goal.salesq3,
+                'q4': goal.salesq4,
+            },
+            'profit': {
+                'q1': goal.profitq1,
+                'q2': goal.profitq2,
+                'q3': goal.profitq3,
+                'q4': goal.profitq4,
+            }
+        },
+        'real': {
+            'revenue': {
+                'q1': revenue1.aggregate(sum=Sum('revenuePrice'))['sum'] or 0,
+                'q2': revenue2.aggregate(sum=Sum('revenuePrice'))['sum'] or 0,
+                'q3': revenue3.aggregate(sum=Sum('revenuePrice'))['sum'] or 0,
+                'q4': revenue4.aggregate(sum=Sum('revenuePrice'))['sum'] or 0,
+            },
+            'profit': {
+                'q1': revenue1.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0,
+                'q2': revenue2.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0,
+                'q3': revenue3.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0,
+                'q4': revenue4.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0,
+            }
+        },
+        'incentive': {
+            'revenue': {
+                'q1': revenue1.aggregate(sum=Sum('incentivePrice'))['sum'] or 0,
+                'q2': revenue2.aggregate(sum=Sum('incentivePrice'))['sum'] or 0,
+                'q3': revenue3.aggregate(sum=Sum('incentivePrice'))['sum'] or 0,
+                'q4': revenue4.aggregate(sum=Sum('incentivePrice'))['sum'] or 0,
+            },
+            'profit': {
+                'q1': revenue1.aggregate(sum=Sum('incentiveProfitPrice'))['sum'] or 0,
+                'q2': revenue2.aggregate(sum=Sum('incentiveProfitPrice'))['sum'] or 0,
+                'q3': revenue3.aggregate(sum=Sum('incentiveProfitPrice'))['sum'] or 0,
+                'q4': revenue4.aggregate(sum=Sum('incentiveProfitPrice'))['sum'] or 0,
+            }
+        }
+    }
+
+    context = {
+        'empName': empName,
+        'table1': table1,
+        'table2': table2,
+    }
     return render(request, 'sales/viewincentive.html', context)
 
 
