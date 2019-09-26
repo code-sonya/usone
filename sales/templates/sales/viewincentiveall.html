@@ -1,0 +1,886 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+{% block title %}
+  인센티브현황
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .pc-table-main td, .pc-table-main th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 18px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .mobile-table {
+      color: #333333;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 5px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="d-none d-lg-block">
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h3 class="m-0 text-gray-800"> {{ todayYear }}년도 인센티브 현황 </h3>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="card-body">
+           <h5 class="text-dark mb-3"><b>
+              <span id="ItemDown" onclick="downClick('Item', 'ItemUp', 'ItemDown')">▼</span>
+              <span id="ItemUp" class="d-none" onclick="upClick('Item', 'ItemUp', 'ItemDown')">▶</span>
+              {{ todayYear }}년 {{ todayQuarter }}분기 인센티브
+            </b></h5>
+          <table class="pc-table" id="contract">
+            <thead class="bg-light thtd">
+            <tr class="thtd">
+              <td class="thtd" colspan="3">구분</td>
+              <td class="thtd" colspan="6">{{ todayQuarter }}분기 누계 급여 정보</td>
+              <td class="thtd" colspan="4">인센티브 산출</td>
+              <td class="thtd" colspan="4">인센티브</td>
+              <td class="thtd" colspan="2"></td>
+              <td class="thtd" colspan="2"></td>
+            </tr>
+            <tr class="thtd">
+              <td class="thtd" rowspan="2">직급</td>
+              <td class="thtd" rowspan="2">성명</td>
+              <td class="thtd" rowspan="2">목표달성율</td>
+              <td class="thtd" colspan="2">연봉</td>
+              <td class="thtd" colspan="2">기본급</td>
+              <td class="thtd" colspan="2">베팅액</td>
+              <td class="thtd">인정율</td>
+              <td class="thtd" rowspan="2">ACC</td>
+              <td class="thtd" colspan="2">{{ todayQuarter }}분기누계인센</td>
+              <td class="thtd" colspan="2">{{ todayQuarter }}분기누계</td>
+              <td class="thtd" colspan="2">{{ beforeQuarter }}분기누계지급</td>
+              <td class="thtd" colspan="2">{{ nextMonth }}월급여대장</td>
+              <td class="thtd" colspan="2" rowspan="2">AWARD</td>
+            </tr>
+            <tr class="thtd">
+              <td class="thtd" colspan="2">A</td>
+              <td class="thtd" colspan="2">B</td>
+              <td class="thtd" colspan="2">C</td>
+              <td class="thtd">D</td>
+              <td class="thtd" colspan="2">(C*D)-C=E</td>
+              <td class="thtd" colspan="2">C-E=F</td>
+              <td class="thtd" colspan="2">G</td>
+              <td class="thtd" colspan="2">F-G=H</td>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+          </table>
+        </div>
+    </div>
+  </div>
+
+<!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" action="/sales/viewincentiveall/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="quarter" class="text-primary">분기</label>
+                <select class="form-control" id="quarter" name="quarter" >
+                  <option value="">------</option>
+                  <option value="1">1분기</option>
+                  <option value="2">2분기</option>
+                  <option value="3">3분기</option>
+                  <option value="4">4분기</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info text-white" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_filter() {
+          const filterForm = document.getElementById("filterForm");
+          filterForm.submit();
+      }
+
+      function downClick(table, up, down) {
+          $('#' + table).addClass('d-none');
+          $('#' + up).removeClass('d-none');
+          $('#' + down).addClass('d-none');
+      }
+
+      function upClick(table, up, down) {
+          $('#' + table).removeClass('d-none');
+          $('#' + up).addClass('d-none');
+          $('#' + down).removeClass('d-none');
+      }
+
+      function replaceDate(predictStr, executionStr, searchStr, replaceStr, complete, idx) {
+          let newStr;
+
+          if (executionStr != null) {
+              newStr = complete + '완료';
+          } else if (predictStr != null) {
+              newStr = predictStr.split(searchStr).join(replaceStr).split("T").join(" ").slice(0, idx);
+          } else {
+              newStr = '-'
+          }
+          return newStr
+      }
+
+      $(document).ready(function () {
+          $('#revenues').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractrevenues' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'predictDepositDate'},
+                  {data: 'depositDate'},
+                  {data: 'revenueCompany__companyNameKo'},
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'comment'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[1, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                  if (aData.billingDate != null) {
+                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
+                  if (aData.depositDate != null) {
+                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
+
+                  {% if revenueId %}
+                      if (aData.revenueId === {{ revenueId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
+                  {% endif %}
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(profitResult.toLocaleString());
+              },
+          });
+
+          $('#purchases').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractpurchases' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'predictWithdrawDate'},
+                  {data: 'withdrawDate'},
+                  {data: 'purchaseCompany__companyNameKo'},
+                  {data: 'purchasePrice'},
+                  {data: 'comment'},
+                  {data: 'purchaseId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[1, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "접수", 7));
+                  if (aData.billingDate != null) {
+                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictWithdrawDate, aData.withdrawDate, "-", ".", "지급", 10));
+                  if (aData.withdrawDate != null) {
+                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(4)', nRow).text(replaceDate(aData.withdrawDate, null, "-", ".", null, 10));
+
+                  {% if purchaseId %}
+                      if (aData.purchaseId === {{ purchaseId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
+                  {% endif %}
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+
+              },
+          });
+
+          $('#costs').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractcosts' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'billingDate'},
+                  {data: 'billingDate'},
+                  {data: 'billingDate'},
+                  {data: 'billingDate'},
+                  {data: 'costCompany'},
+                  {data: 'costPrice'},
+                  {data: 'comment'},
+                  {data: 'costId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[4, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(1)', nRow).text('');
+                  $('td:eq(2)', nRow).text('');
+                  $('td:eq(3)', nRow).text('');
+                  $('td:eq(4)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", "", 4));
+                  $('td:eq(6)', nRow).text(aData.costPrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var costResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      costResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(costResult.toLocaleString());
+              },
+          });
+
+          $('#services').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractservices' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'empName'},
+                  {data: 'serviceType'},
+                  {data: 'serviceDate'},
+                  {data: 'serviceTitle'},
+                  {data: 'serviceRegHour'},
+                  {data: 'serviceOverHour'},
+                  {data: 'salary'},
+                  {data: 'overSalary'},
+                  {data: 'serviceId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[2, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.salary.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.overSalary.toLocaleString());
+
+                  $('td:eq(2)', nRow).text(replaceDate(aData.serviceDate, null, "-", ".", null, 10));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var hourresult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      hourresult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(hourresult.toLocaleString());
+
+                   var overHourresult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      overHourresult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(overHourresult.toLocaleString());
+
+                  var salaryresult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      salaryresult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(salaryresult.toLocaleString());
+
+                   var overSalaryresult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      overSalaryresult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(overSalaryresult.toLocaleString());
+              },
+          });
+
+          $('#revenuesMobile').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractrevenues' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'predictDepositDate'},
+                  {data: 'depositDate'},
+                  {data: 'revenueCompany__companyNameKo'},
+                  {data: 'revenuePrice'},
+                  {data: 'revenueProfitPrice'},
+                  {data: 'comment'},
+                  {data: 'revenueId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[1, 'asc']],
+              "searching": false,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                  if (aData.billingDate != null) {
+                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
+                  if (aData.depositDate != null) {
+                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
+
+                  {% if revenueId %}
+                      if (aData.revenueId === {{ revenueId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
+                  {% endif %}
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+
+                  var profitResult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      profitResult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(profitResult.toLocaleString());
+              },
+          });
+
+          $('#purchasesMobile').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractpurchases' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingTime'},
+                  {data: 'predictBillingDate'},
+                  {data: 'billingDate'},
+                  {data: 'predictWithdrawDate'},
+                  {data: 'withdrawDate'},
+                  {data: 'purchaseCompany__companyNameKo'},
+                  {data: 'purchasePrice'},
+                  {data: 'comment'},
+                  {data: 'purchaseId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[1, 'asc']],
+              "searching": false,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.purchasePrice.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.comment).css('color', '#e74a3b');
+
+                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "접수", 7));
+                  if (aData.billingDate != null) {
+                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.predictWithdrawDate, aData.withdrawDate, "-", ".", "지급", 10));
+                  if (aData.withdrawDate != null) {
+                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                  }
+                  $('td:eq(4)', nRow).text(replaceDate(aData.withdrawDate, null, "-", ".", null, 10));
+
+                  {% if purchaseId %}
+                      if (aData.purchaseId === {{ purchaseId }}) {
+                          $(nRow).css('background-color', '#ffffcc');
+                      }
+                  {% endif %}
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var revenueResult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      revenueResult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+
+              },
+          });
+
+          $('#costsMobile').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractcosts' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'billingDate'},
+                  {data: 'costCompany'},
+                  {data: 'costPrice'},
+                  {data: 'comment'},
+                  {data: 'costId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[0, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(0)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", "", 4));
+                  $('td:eq(2)', nRow).text(aData.costPrice.toLocaleString());
+                  $('td:eq(3)', nRow).text(aData.comment).css('color', '#e74a3b');
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var costResult = 0;
+                  api.column(2, {search: 'applied'}).data().each(function (data, index) {
+                      costResult += parseFloat(data);
+                  });
+                  $(api.column(2).footer()).html(costResult.toLocaleString());
+              },
+          });
+
+          $('#servicesMobile').dataTable({
+              "autoWidth": true,
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'contractId': '{{ contract.contractId }}'
+                  },
+                  "url": "{% url 'sales:contractservices' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: 'empName'},
+                  {data: 'serviceType'},
+                  {data: 'serviceDate'},
+                  {data: 'serviceTitle'},
+                  {data: 'serviceRegHour'},
+                  {data: 'serviceOverHour'},
+                  {data: 'salary'},
+                  {data: 'overSalary'},
+                  {data: 'serviceId'},
+              ],
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "d-none"},
+              ],
+              "deferRender": true,
+              "order": [[2, 'desc']],
+              "searching": false,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(6)', nRow).text(aData.salary.toLocaleString());
+                  $('td:eq(7)', nRow).text(aData.overSalary.toLocaleString());
+
+                  $('td:eq(2)', nRow).text(replaceDate(aData.serviceDate, null, "-", ".", null, 10));
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var hourresult = 0;
+                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                      hourresult += parseFloat(data);
+                  });
+                  $(api.column(4).footer()).html(hourresult.toLocaleString());
+
+                   var overHourresult = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      overHourresult += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(overHourresult.toLocaleString());
+
+                  var salaryresult = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      salaryresult += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(salaryresult.toLocaleString());
+
+                   var overSalaryresult = 0;
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                      overSalaryresult += parseFloat(data);
+                  });
+                  $(api.column(7).footer()).html(overSalaryresult.toLocaleString());
+              },
+          });
+
+      });
+
+
+  </script>
+
+{% endblock %}

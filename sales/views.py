@@ -2086,5 +2086,44 @@ def save_cost(request):
 
     return redirect('sales:uploadprofitloss')
 
+@login_required
+def view_incentiveall(request):
+    todayYear = datetime.today().year
+    if request.method == "POST":
+        todayQuarter = int(request.POST["quarter"])
+        if todayQuarter == 4:
+            nextMonth = 1
+        else:
+            nextMonth = todayQuarter*3+1
+    else:
+        todayMonth = datetime.today().month
+        # 현재 분기
+        if todayMonth in [1, 2, 3]:
+            todayQuarter = 1
+            nextMonth = 4
+        elif todayMonth in [4, 5, 6]:
+            todayQuarter = 2
+            nextMonth = 7
+        elif todayMonth in [7, 8, 9]:
+            todayQuarter = 3
+            nextMonth = 10
+        elif todayMonth in [10, 11, 12]:
+            todayQuarter = 4
+            nextMonth = 1
+
+    # 이전 분기
+    if todayQuarter == 1:
+        beforeQuarter = '-'
+    else:
+        beforeQuarter = todayQuarter-1
+
+    context = {'todayYear': todayYear,
+               'todayQuarter': todayQuarter,
+               'beforeQuarter': beforeQuarter,
+               'nextMonth': nextMonth}
+    
+    return render(request, 'sales/viewincentiveall.html', context)
+
+
 
 
