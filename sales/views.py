@@ -1622,7 +1622,7 @@ def daily_report(request):
     # 4. 순이익
     netProfit = dict()
     # 판관비
-
+    expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup').annotate(expenseMoney__sum=Sum('expenseMoney')).order_by('-expenseMoney__sum')
     expenses = Expense.objects.filter(expenseStatus='Y').aggregate(expenseMoney__sum=Sum('expenseMoney'))
     netProfit['expenses'] = expenses['expenseMoney__sum'] or 0
     if todayMonth != 12:
@@ -1648,6 +1648,7 @@ def daily_report(request):
         'rowsFOQ': rowsFOQ,
         'money': money,
         'netProfit': netProfit,
+        'expenseDetail': expenseDetail,
     }
 
     return render(request, 'sales/dailyreport.html', context)
@@ -2012,8 +2013,15 @@ def save_profitloss(request):
 
         if status == True:
             nindex = index.replace('▷', '')
+            sub = "".join(nindex.split())
+            if sub in ['임원급여','직원급여']:
+                group = '급여'
+            elif sub in ['인센티브','상여금','특별인센티브']:
+                group = '상여금'
+            else:
+                group = sub
             Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept='전사', expenseMain='판관비',
-                                   expenseSub="".join(nindex.split()), expenseMoney=rows[0])
+                                   expenseSub=sub, expenseMoney=rows[0], expenseGroup=group)
 
         if "".join(index.split()) == 'Ⅳ.판매비와관리비':
             status = True
@@ -2034,6 +2042,13 @@ def save_cost(request):
     main_cate = ''
     for index, rows in data[select_col].iterrows():
         nindex = index.replace('▶', '')
+        sub = "".join(nindex.split())
+        if sub in ['급여']:
+            group = '급여'
+        elif sub in ['상여금']:
+            group = '상여금'
+        else:
+            group = sub
         if index == 'Ⅰ.노무비':
             main_cate = '노무비'
         elif index == 'Ⅱ.경비':
@@ -2044,7 +2059,7 @@ def save_cost(request):
             if main_cate != '':
                 for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
                     Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
-                                           expenseSub="".join(nindex.split()), expenseMoney=rows[i])
+                                           expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
     return redirect('sales:uploadprofitloss')
 
