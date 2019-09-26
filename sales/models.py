@@ -158,6 +158,7 @@ class Expense(models.Model):
     expenseDept = models.CharField(max_length=20, null=True, blank=True)
     expenseMain = models.CharField(max_length=50, null=True, blank=True)
     expenseSub = models.CharField(max_length=50, null=True, blank=True)
+    expenseGroup = models.CharField(max_length=50, null=True, blank=True)
     expenseMoney = models.IntegerField(default=0)
     expenseDate = models.DateField(null=True, blank=True)
     comment = models.CharField(max_length=100, null=True, blank=True)
