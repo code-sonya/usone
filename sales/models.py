@@ -51,6 +51,8 @@ class Revenue(models.Model):
     revenuePrice = models.BigIntegerField()
     revenueProfitPrice = models.BigIntegerField()
     revenueProfitRatio = models.FloatField()
+    incentivePrice = models.BigIntegerField(default=0)
+    incentiveProfitPrice = models.BigIntegerField(default=0)
     predictBillingDate = models.DateField(null=True, blank=True)
     billingDate = models.DateField(null=True, blank=True)
     predictDepositDate = models.DateField(null=True, blank=True)

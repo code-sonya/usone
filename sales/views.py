@@ -16,7 +16,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense
-from .functions import viewContract, dailyReportRows
+from .functions import viewContract, dailyReportRows, incentive
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta, date
@@ -63,7 +63,7 @@ def post_contract(request):
                     revenueProfitRatio = 0
                 else:
                     revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
-                Revenue.objects.create(
+                instance = Revenue.objects.create(
                     contractId=post,
                     billingTime=str(idx) + '/' + str(len(jsonRevenue)),
                     predictBillingDate=revenue["billingDate"] or revenue["predictBillingDate"] + '-01' or None,
@@ -76,6 +76,10 @@ def post_contract(request):
                     revenueProfitRatio=revenueProfitRatio,
                     comment=revenue["revenueComment"],
                 )
+                revenueInstance = Revenue.objects.get(revenueId=int(instance.revenueId))
+                revenueInstance.incentivePrice = incentive(int(instance.revenueId))[0]
+                revenueInstance.incentiveProfitPrice = incentive(int(instance.revenueId))[1]
+                revenueInstance.save()
 
             jsonPurchase = json.loads(request.POST['jsonPurchase'])
             for purchase in jsonPurchase:
@@ -254,7 +258,7 @@ def modify_contract(request, contractId):
                         revenueProfitRatio = 0
                     else:
                         revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
-                    Revenue.objects.create(
+                    instance = Revenue.objects.create(
                         contractId=post,
                         billingTime=str(idx) + '/' + str(len(jsonRevenue)),
                         predictBillingDate=revenue["billingDate"] or revenue["predictBillingDate"] + '-01' or None,
@@ -267,6 +271,10 @@ def modify_contract(request, contractId):
                         revenueProfitRatio=revenueProfitRatio,
                         comment=revenue["revenueComment"],
                     )
+                    revenueInstance = Revenue.objects.get(revenueId=int(instance.revenueId))
+                    revenueInstance.incentivePrice = incentive(int(instance.revenueId))[0]
+                    revenueInstance.incentiveProfitPrice = incentive(int(instance.revenueId))[1]
+                    revenueInstance.save()
                 else:
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
                     revenueInstance.contractId = post
@@ -284,6 +292,12 @@ def modify_contract(request, contractId):
                         revenueInstance.revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
                     revenueInstance.comment = revenue["revenueComment"]
                     revenueInstance.save()
+
+                    revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
+                    revenueInstance.incentivePrice = incentive(int(revenue["revenueId"]))[0]
+                    revenueInstance.incentiveProfitPrice = incentive(int(revenue["revenueId"]))[1]
+                    revenueInstance.save()
+
                     jsonRevenueId.append(int(revenue["revenueId"]))
 
             delRevenueId = list(set(revenueId) - set(jsonRevenueId))
@@ -1061,6 +1075,13 @@ def save_revenuetable(request):
         revenue.depositDate = e or None
         revenue.comment = f
         revenue.save()
+
+        revenue = Revenue.objects.get(revenueId=a)
+        revenue.incentivePrice = incentive(a)[0]
+        revenue.incentiveProfitPrice = incentive(a)[1]
+        revenue.save()
+
+
 
     context = {
         'employees': employees,
