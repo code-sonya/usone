@@ -3,6 +3,7 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
+
 from django.db.models import Sum, FloatField, F, Case, When
 from django.db.models.functions import Cast
 from django.http import HttpResponse, HttpResponseRedirect
@@ -1636,7 +1637,7 @@ def daily_report(request):
     netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
     netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
     expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup')\
-        .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=F('expenseMoney__sum') * 100.0 / float(netProfit['expenses'])).order_by('-expenseMoney__sum')
+        .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / netProfit['expenses'], FloatField())).order_by('-expenseMoney__sum')
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,

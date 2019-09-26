@@ -111,7 +111,7 @@
                   {% for expense in expenseDetail %}
                    <tr class="expense">
                      <td>{{ expense.expenseGroup }}</td>
-                     <td class="text-right">{{ expense.expenseMoney__sum |intcomma }} ({{ expense.expensePercent }}%)</td>
+                     <td class="text-right">{{ expense.expenseMoney__sum |intcomma }} ({{ expense.expensePercent |floatformat:2}}%)</td>
                   </tr>
                   {% endfor %}
                   </tbody>
