@@ -1,0 +1,214 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+ 인센티브관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+      .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> 인센티브관리 </h6>
+          <div class="dropdown no-arrow">
+             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-plus fa-fw text-gray-400"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="card-body">
+          {% csrf_token %}
+
+          <div class="table-responsive">
+            <table id="showincentives" class="hover row-border" width="100%" style="width: 100%;">
+              <thead class="bg-light">
+              <tr>
+                <th>목표년도</th>
+                <th>영업부서</th>
+                <th>영업담당</th>
+                <th>분기</th>
+                <th>연봉</th>
+                <th>베팅률(%)</th>
+                <th>기본급</th>
+                <th>베팅금액</th>
+                <th>지급인센티브</th>
+                <th>지급AWARD</th>
+                <th class="d-none">incentiveId</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">인센티브 베팅 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm"  method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="empId" class="text-primary">영업대표</label>
+                <select class="form-control" id="empId" name="empId" >
+                  <option value="">------</option>
+                  {% for emp in employee %}
+                  <option value="{{ emp.empId }}">{{ emp.empName }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="quarter" class="text-primary">분기</label>
+                <select class="form-control" id="quarter" name="quarter" >
+                  <option value="">------</option>
+                  <option value=1>1분기</option>
+                  <option value=2>2분기</option>
+                  <option value=3>3분기</option>
+                  <option value=4>4분기</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="salary" class="text-primary">연봉</label>
+                <input class="form-control" id="salary" name="salary" type="number">
+              </div>
+              <div class="col-6">
+                <label for="betting" class="text-primary">베팅률(%)</label>
+                <input class="form-control" id="betting" name="betting" type="number">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info text-white" onclick="btn_post()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      function btn_post(){
+          const filterForm = document.getElementById("filterForm");
+          filterForm.submit();
+      }
+
+
+      $(document).ready(function () {
+
+          $('#showincentives').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "url": "{% url 'sales:incentives_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: "year"},
+                  {data: "empId__empDeptName"},
+                  {data: "empId__empName"},
+                  {data: "quarter"},
+                  {data: "salary"},
+                  {data: "bettingRatio"},
+                  {data: "basicSalary"},
+                  {data: "bettingSalary"},
+                  {data: "achieveIncentive"},
+                  {data: "achieveAward"},
+                  {data: "incentiveId"},
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, width: "5%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 10, visible: false}
+              ],
+              "order": [[0, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                     $('td:eq(4)', nRow).text(aData.salary.toLocaleString());
+                     $('td:eq(6)', nRow).text(aData.basicSalary.toLocaleString());
+                     $('td:eq(7)', nRow).text(aData.bettingSalary.toLocaleString());
+                     $('td:eq(8)', nRow).text(aData.achieveIncentive.toLocaleString());
+                     $('td:eq(9)', nRow).text(aData.achieveAward.toLocaleString());
+
+
+              },
+              "footerCallback": function () {
+
+
+              },
+          });
+
+          // var table = $('#showincentives').DataTable();
+          //
+          // $("#showincentives").on("click", 'tr', function () {
+          //     const data = table.row(this).data();
+          //     location.href = '/sales/viewgoal/' + data.goalId + '/'
+          // });
+      });
+
+  </script>
+
+{% endblock %}

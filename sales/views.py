@@ -15,7 +15,7 @@ from django.db.models.functions import Coalesce
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Incentive
 from .functions import viewContract, dailyReportRows, incentive
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
@@ -2121,8 +2121,46 @@ def view_incentiveall(request):
                'todayQuarter': todayQuarter,
                'beforeQuarter': beforeQuarter,
                'nextMonth': nextMonth}
-    
+
     return render(request, 'sales/viewincentiveall.html', context)
+
+
+@login_required
+def show_incentives(request):
+    if request.method == "POST":
+        todayYear=datetime.today().year
+        quarter = int(request.POST["quarter"])
+        empId = int(request.POST["empId"])
+        salary = int(request.POST["salary"])
+        betting = int(request.POST["betting"])
+
+        employee = Employee.objects.get(Q(empId=empId))
+        incentives = Incentive.objects.filter(Q(empId=empId) & Q(quarter=quarter))
+        if incentives.first() != None:
+            return HttpResponse("해당 분기에 이미 등록된 정보가 있습니다.")
+        else:
+            bettingSalary = salary * betting / 100.0
+            basicSalary = salary - bettingSalary
+            Incentive.objects.create(empId=employee, year=todayYear, quarter=quarter, salary=salary, bettingRatio=betting, basicSalary=basicSalary, bettingSalary=bettingSalary)
+
+
+    employee = Employee.objects.filter(Q(empDeptName__icontains='영업')&Q(empStatus='Y'))
+    context = {
+        'employee': employee
+    }
+    return render(request, 'sales/showincentives.html', context)
+
+@login_required
+@csrf_exempt
+def incentives_asjson(request):
+    incentives = Incentive.objects.all()
+    incentives = incentives.values('year', 'empId__empDeptName', 'empId__empName','quarter', 'salary', 'bettingRatio',
+                                   'basicSalary', 'bettingSalary','achieveIncentive', 'achieveAward', 'incentiveId')
+
+    structure = json.dumps(list(incentives), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
 
 
 

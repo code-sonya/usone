@@ -59,4 +59,6 @@ urlpatterns = [
     url(r'^uploadprofitloss/', views.upload_profitloss, name='uploadprofitloss'),
     url(r'^saveprofitloss/$', views.save_profitloss, name='saveprofitloss'),
     url(r'^savecost/$', views.save_cost, name='savecost'),
+    url(r'^showincentives/$', views.show_incentives, name='showincentives'),
+    url(r'^incentivesasjson/$', views.incentives_asjson, name='incentives_ajax_url'),
 ]
