@@ -37,12 +37,25 @@
 
         <div class="card-body">
           {% csrf_token %}
+          {% if modifyMode == 'N' %}
+              <div class="float-right">
+                <div class="btn btn-success" id="modifyMode" onclick="btn_modifyMode()">수정하기 <i class="fas fa-table fa-fw text-white"></i></div>
+              </div>
+            {% endif %}
+            {% if modifyMode == 'Y' %}
+              <div class="float-right">
+                <button class="btn btn-danger" id="saveRevenueTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
+              </div>
+              <div class="float-right">
+                <input type="date" id="copyDate" max="9999-12-31" class="input-form mr-3" value="{{ copyDate }}">
+              </div>
+            {% endif %}
 
-          <div class="table-responsive">
+          <div class="table-responsive pt-2">
             <table id="showincentives" class="hover row-border" width="100%" style="width: 100%;">
               <thead class="bg-light">
               <tr>
-                <th>목표년도</th>
+                <th>년도</th>
                 <th>영업부서</th>
                 <th>영업담당</th>
                 <th>분기</th>
@@ -57,9 +70,7 @@
               </thead>
             </table>
           </div>
-
         </div>
-
       </div>
     </div>
   </div>
@@ -128,9 +139,23 @@
   <script type="text/javascript">
       function btn_post(){
           const filterForm = document.getElementById("filterForm");
+          let modifyMode = document.createElement("input");
+          modifyMode.setAttribute("type", "hidden");
+          modifyMode.setAttribute("name", "modifyMode");
+          modifyMode.setAttribute("value", '{{ modifyMode }}');
+          filterForm.appendChild(modifyMode);
           filterForm.submit();
       }
 
+      function btn_modifyMode() {
+          const filterForm = document.getElementById("filterForm");
+          let modifyMode = document.createElement("input");
+          modifyMode.setAttribute("type", "hidden");
+          modifyMode.setAttribute("name", "modifyMode");
+          modifyMode.setAttribute("value", 'Y');
+          filterForm.appendChild(modifyMode);
+          filterForm.submit();
+      }
 
       $(document).ready(function () {
 
@@ -139,6 +164,7 @@
               "ajax": {
                   "processing": true,
                   "type": 'POST',
+                  "data": { "modifyMode": "{{ modifyMode }}",},
                   "url": "{% url 'sales:incentives_ajax_url' %}",
                   "dataSrc": ""
               },
@@ -192,21 +218,11 @@
                      $('td:eq(7)', nRow).text(aData.bettingSalary.toLocaleString());
                      $('td:eq(8)', nRow).text(aData.achieveIncentive.toLocaleString());
                      $('td:eq(9)', nRow).text(aData.achieveAward.toLocaleString());
-
-
               },
               "footerCallback": function () {
 
-
               },
           });
-
-          // var table = $('#showincentives').DataTable();
-          //
-          // $("#showincentives").on("click", 'tr', function () {
-          //     const data = table.row(this).data();
-          //     location.href = '/sales/viewgoal/' + data.goalId + '/'
-          // });
       });
 
   </script>

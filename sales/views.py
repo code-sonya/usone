@@ -2133,6 +2133,7 @@ def show_incentives(request):
         empId = int(request.POST["empId"])
         salary = int(request.POST["salary"])
         betting = int(request.POST["betting"])
+        modifyMode = request.POST["modifyMode"]
 
         employee = Employee.objects.get(Q(empId=empId))
         incentives = Incentive.objects.filter(Q(empId=empId) & Q(quarter=quarter))
@@ -2142,11 +2143,14 @@ def show_incentives(request):
             bettingSalary = salary * betting / 100.0
             basicSalary = salary - bettingSalary
             Incentive.objects.create(empId=employee, year=todayYear, quarter=quarter, salary=salary, bettingRatio=betting, basicSalary=basicSalary, bettingSalary=bettingSalary)
+    else:
+        modifyMode = 'N'
 
 
     employee = Employee.objects.filter(Q(empDeptName__icontains='영업')&Q(empStatus='Y'))
     context = {
-        'employee': employee
+        'employee': employee,
+        'modifyMode':modifyMode,
     }
     return render(request, 'sales/showincentives.html', context)
 
