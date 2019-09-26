@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, date
 import pandas as pd
 from xhtml2pdf import pisa
 from service.functions import link_callback
-
+from django.db.models import Max
 
 @login_required
 def post_contract(request):
@@ -1622,20 +1622,20 @@ def daily_report(request):
     # 4. 순이익
     netProfit = dict()
     # 판관비
-    expenses = Expense.objects.filter(date__year=todayYear).aggregate(Sum('money'))
-    netProfit['expenses'] = expenses['money__sum'] or 0
+
+    expenses = Expense.objects.filter(expenseStatus='Y').aggregate(expenseMoney__sum=Sum('expenseMoney'))
+    netProfit['expenses'] = expenses['expenseMoney__sum'] or 0
     if todayMonth != 12:
-        netRevenues = revenues.filter(Q(billingDate__isnull=False) & Q(billingDate__lt='{}-{}-01'.format(todayYear,str(todayMonth+1).zfill(2))))\
-                              .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth+1).zfill(2))))\
+            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
     else:
-        netRevenues = revenues.filter(Q(billingDate__isnull=False) & Q(billingDate__lt='{}-{}-01'.format(todayYear+1, '01')))\
-                              .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear+1, '01')))\
+            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
 
     netProfit['revenuePrice'] = netRevenues['revenuePrice']
     netProfit['revenueProfitPrice'] = netRevenues['revenueProfitPrice']
     netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
     netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
-
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,
@@ -2004,6 +2004,7 @@ def save_profitloss(request):
     data = data.fillna(0)
     select_col = ['합    계']
     status = False
+    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='손익')).update(expenseStatus='N')
     for index, rows in data[select_col].iterrows():
 
         if "".join(index.split()) == 'Ⅴ.영업이익':
@@ -2011,18 +2012,8 @@ def save_profitloss(request):
 
         if status == True:
             nindex = index.replace('▷', '')
-
-            # 같은 날짜의 원가 계정 값 확인
-            expenses = Expense.objects.filter(
-                Q(expenseDate=today) & Q(expenseType='원가') & Q(expenseDept='전사') & Q(expenseMain='판관비') & Q(
-                    expenseSub="".join(nindex.split())))
-            if expenses.first() == None:
-                Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept='전사', expenseMain='판관비',
-                                       expenseSub="".join(nindex.split()), expenseMoney=rows[0])
-            else:
-                expenses.delete() 
-                Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept='전사', expenseMain='판관비',
-                                       expenseSub="".join(nindex.split()), expenseMoney=rows[0])
+            Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept='전사', expenseMain='판관비',
+                                   expenseSub="".join(nindex.split()), expenseMoney=rows[0])
 
         if "".join(index.split()) == 'Ⅳ.판매비와관리비':
             status = True
@@ -2038,6 +2029,7 @@ def save_cost(request):
     data = pd.read_excel(xl_file, index_col=0)
     data = data.fillna(0)
     select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
+    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가')).update(expenseStatus='N')
 
     main_cate = ''
     for index, rows in data[select_col].iterrows():
@@ -2047,34 +2039,12 @@ def save_cost(request):
         elif index == 'Ⅱ.경비':
             main_cate = '경비'
         elif index == 'Ⅲ.당기총공사비용':
-            main_cate = '당기총공사비용'
-            sub_cate='당기총공사비용'
-            for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
-                expenses = Expense.objects.filter(
-                    Q(expenseDate=today) & Q(expenseType='손익') & Q(expenseDept=v) & Q(expenseMain=main_cate) & Q(
-                        expenseSub=sub_cate))
-                if expenses.first() == None:
-                    Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain=main_cate,
-                                           expenseSub=sub_cate, expenseMoney=rows[i])
-                else:
-                    expenses.delete()
-                    Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain=main_cate,
-                                           expenseSub=sub_cate, expenseMoney=rows[i])
             break
         else:
             if main_cate != '':
-
-                for i,v in enumerate(['솔루션지원팀', 'DB지원팀']):
-                    expenses = Expense.objects.filter(
-                        Q(expenseDate=today) & Q(expenseType='손익') & Q(expenseDept=v) & Q(expenseMain=main_cate) & Q(
-                            expenseSub="".join(nindex.split())))
-                    if expenses.first() == None:
-                        Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain=main_cate,
-                                               expenseSub="".join(nindex.split()), expenseMoney=rows[i])
-                    else:
-                        expenses.delete()
-                        Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain=main_cate,
-                                               expenseSub="".join(nindex.split()), expenseMoney=rows[i])
+                for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
+                    Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
+                                           expenseSub="".join(nindex.split()), expenseMoney=rows[i])
 
     return redirect('sales:uploadprofitloss')
 
