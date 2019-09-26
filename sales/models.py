@@ -166,3 +166,35 @@ class Expense(models.Model):
 
     def __str__(self):
         return self.expenseDept + self.expenseMain + self.expenseSub
+
+
+class Acceleration(models.Model):
+    accelerationId = models.AutoField(primary_key=True)
+    accelerationYear = models.IntegerField()
+    accelerationQuarter = models.IntegerField(default=0)
+    accelerationMin = models.IntegerField()
+    accelerationMax = models.IntegerField()
+    accelerationRatio = models.IntegerField()
+    accelerationAcc = models.FloatField()
+
+    def __str__(self):
+        return str(self.accelerationYear) + '년' + str(self.accelerationMin) + '% ~ ' + str(self.accelerationMax) + '%'
+
+
+class Incentive(models.Model):
+    statusChoices = (('N', 'N'), ('Y', 'Y'))
+
+    incentiveId = models.AutoField(primary_key=True)
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    year = models.IntegerField()
+    quarter = models.IntegerField()
+    salary = models.BigIntegerField()
+    bettingRatio = models.IntegerField()
+    basicSalary = models.BigIntegerField()
+    bettingSalary = models.BigIntegerField()
+    achieveIncentive = models.BigIntegerField(default=0)
+    achieveAward = models.BigIntegerField(default=0)
+    incentiveStatus = models.CharField(max_length=1, choices=statusChoices, default='N')
+
+    def __str__(self):
+        return str(self.empId.empName) + str(self.year) + '년 ' + str(self.quarter) + '분기 인센티브'

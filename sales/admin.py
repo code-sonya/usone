@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense
+from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive
 
 
 @admin.register(Contract)
@@ -56,3 +56,17 @@ class ExpenseAdmin(admin.ModelAdmin):
     list_display = ('expenseType', 'expenseDept', 'expenseMain', 'expenseSub', 'expenseMoney')
     list_filter = ('expenseType', 'expenseDept', 'expenseMain', 'expenseSub', 'expenseMoney')
     list_display_links = ['expenseType', 'expenseDept', 'expenseMain', 'expenseSub', 'expenseMoney']
+
+
+@admin.register(Acceleration)
+class AccelerationAdmin(admin.ModelAdmin):
+    list_display = ('accelerationYear', 'accelerationQuarter', 'accelerationMin', 'accelerationMax', 'accelerationRatio', 'accelerationAcc')
+    list_filter = ('accelerationYear', 'accelerationQuarter', 'accelerationMin', 'accelerationMax', 'accelerationRatio', 'accelerationAcc')
+    list_display_links = ('accelerationYear', 'accelerationQuarter', 'accelerationMin', 'accelerationMax', 'accelerationRatio', 'accelerationAcc')
+
+
+@admin.register(Incentive)
+class IncentiveAdmin(admin.ModelAdmin):
+    list_display = ('empId', 'year', 'quarter')
+    list_filter = ('empId', 'year', 'quarter')
+    list_display_links = ('empId', 'year', 'quarter')
