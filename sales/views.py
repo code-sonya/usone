@@ -1626,17 +1626,16 @@ def daily_report(request):
     expenses = Expense.objects.filter(expenseStatus='Y').aggregate(expenseMoney__sum=Sum('expenseMoney'))
     netProfit['expenses'] = expenses['expenseMoney__sum'] or 0
     if todayMonth != 12:
-        netRevenues = revenues.filter(Q(billingDate__isnull=False) & Q(billingDate__lt='{}-{}-01'.format(todayYear,str(todayMonth+1).zfill(2))))\
-                              .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth+1).zfill(2))))\
+            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
     else:
-        netRevenues = revenues.filter(Q(billingDate__isnull=False) & Q(billingDate__lt='{}-{}-01'.format(todayYear+1, '01')))\
-                              .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear+1, '01')))\
+            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
 
     netProfit['revenuePrice'] = netRevenues['revenuePrice']
     netProfit['revenueProfitPrice'] = netRevenues['revenueProfitPrice']
     netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
     netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
-
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,
@@ -2040,11 +2039,6 @@ def save_cost(request):
         elif index == 'Ⅱ.경비':
             main_cate = '경비'
         elif index == 'Ⅲ.당기총공사비용':
-            main_cate = '당기총공사비용'
-            sub_cate='당기총공사비용'
-            for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
-                Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept= v, expenseMain=main_cate,
-                                       expenseSub=sub_cate, expenseMoney=rows[i])
             break
         else:
             if main_cate != '':
