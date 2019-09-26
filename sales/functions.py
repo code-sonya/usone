@@ -245,7 +245,7 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
     return rows
 
 
-def incentive(revenueId):
+def cal_incentive(revenueId):
     revenue = Revenue.objects.get(revenueId=revenueId)
     contract = Contract.objects.get(contractId=int(revenue.contractId.contractId))
 
