@@ -1622,7 +1622,6 @@ def daily_report(request):
     # 4. 순이익
     netProfit = dict()
     # 판관비
-    expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup').annotate(expenseMoney__sum=Sum('expenseMoney')).order_by('-expenseMoney__sum')
     expenses = Expense.objects.filter(expenseStatus='Y').aggregate(expenseMoney__sum=Sum('expenseMoney'))
     netProfit['expenses'] = expenses['expenseMoney__sum'] or 0
     if todayMonth != 12:
@@ -1636,6 +1635,8 @@ def daily_report(request):
     netProfit['revenueProfitPrice'] = netRevenues['revenueProfitPrice']
     netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
     netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
+    expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup')\
+        .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=F('expenseMoney__sum') * 100.0 / float(netProfit['expenses'])).order_by('-expenseMoney__sum')
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,
