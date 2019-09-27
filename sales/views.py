@@ -2013,7 +2013,7 @@ def view_incentive(request, empId):
     year = str(datetime.today().year)
     empName = Employee.objects.get(empId=empId).empName
     empDeptName = Employee.objects.get(empId=empId).empDeptName
-    incentive = Incentive.objects.filter(empId=empId)
+    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
     goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=datetime.today().year))
     revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
     revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
@@ -2309,11 +2309,6 @@ def view_incentive(request, empId):
             'q3': int(incentive.get(quarter=3).achieveIncentive),
             'q4': int(incentive.get(quarter=4).achieveIncentive),
         },
-        # {
-        #     'name': '분기인센티브',
-        #     'q1':
-        #     'q2':
-        # }
     ]
 
     context = {
@@ -2402,38 +2397,77 @@ def save_cost(request):
 @login_required
 def view_incentiveall(request):
     todayYear = datetime.today().year
+
+    # 조회 분기 (기본값은 현재 분기)
     if request.method == "POST":
         todayQuarter = int(request.POST["quarter"])
-        if todayQuarter == 4:
-            nextMonth = 1
-        else:
-            nextMonth = todayQuarter*3+1
     else:
         todayMonth = datetime.today().month
-        # 현재 분기
-        if todayMonth in [1, 2, 3]:
-            todayQuarter = 1
-            nextMonth = 4
-        elif todayMonth in [4, 5, 6]:
-            todayQuarter = 2
-            nextMonth = 7
-        elif todayMonth in [7, 8, 9]:
-            todayQuarter = 3
-            nextMonth = 10
-        elif todayMonth in [10, 11, 12]:
-            todayQuarter = 4
-            nextMonth = 1
+        todayQuarter = ((todayMonth + 2) // 3)
+
+    # 다음 월
+    if todayQuarter == 4:
+        nextMonth = 1
+    else:
+        nextMonth = todayQuarter * 3 + 1
 
     # 이전 분기
     if todayQuarter == 1:
-        beforeQuarter = '-'
+        beforeQuarter = 0
     else:
         beforeQuarter = todayQuarter-1
 
-    context = {'todayYear': todayYear,
-               'todayQuarter': todayQuarter,
-               'beforeQuarter': beforeQuarter,
-               'nextMonth': nextMonth}
+    emps = Incentive.objects.filter(
+        Q(year=datetime.today().year) &
+        Q(quarter__lte=todayQuarter)
+    ).values('empId').distinct()
+
+    basic = Incentive.objects.filter(
+        Q(year=datetime.today().year) &
+        Q(quarter__lte=todayQuarter)
+    ).values('empId', 'empId__empPosition__positionName', 'empId__empName').annotate(
+        empPosition=F('empId__empPosition__positionName'),
+        empName=F('empId__empName'),
+        sum_salary=Sum('salary'),
+        sum_basicSalary=Sum('basicSalary'),
+        sum_bettingSalary=Sum('bettingSalary'),
+    )
+
+    before = Incentive.objects.filter(
+        Q(year=datetime.today().year) &
+        Q(quarter__lte=beforeQuarter)
+    ).values('empId').annotate(
+        sum_achieveIncentive=Sum('achieveIncentive'),
+        sum_achieveAward=Sum('achieveAward'),
+    )
+
+    current = Incentive.objects.filter(
+        Q(year=datetime.today().year) &
+        Q(quarter=todayQuarter)
+    ).values('empId', 'achieveIncentive', 'achieveAward')
+
+    table = []
+
+    for emp in emps:
+        tmp_basic = basic.get(empId=emp['empId'])
+        tmp_before = before.get(empId=emp['empId'])
+        tmp_current = current.get(empId=emp['empId'])
+        table.append({
+            'empPosition': tmp_basic['empPosition'],
+            'empName': tmp_basic['empName'],
+            'sum_salary': tmp_basic['sum_salary'],
+            'sum_basicSalary': tmp_basic['sum_basicSalary'],
+            'sum_bettingSalary': tmp_basic['sum_bettingSalary'],
+            'before_achieve': tmp_before['sum_achieveIncentive'],
+            'achieveIncentive': tmp_current['achieveIncentive']
+        })
+    context = {
+        'todayYear': todayYear,
+        'todayQuarter': todayQuarter,
+        'beforeQuarter': beforeQuarter,
+        'nextMonth': nextMonth,
+        'table': table,
+    }
 
     return render(request, 'sales/viewincentiveall.html', context)
 
