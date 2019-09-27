@@ -16,7 +16,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
-from .functions import viewContract, dailyReportRows, cal_incentive
+from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta, date
@@ -77,8 +77,8 @@ def post_contract(request):
                     comment=revenue["revenueComment"],
                 )
                 revenueInstance = Revenue.objects.get(revenueId=int(instance.revenueId))
-                revenueInstance.incentivePrice = cal_incentive(int(instance.revenueId))[0]
-                revenueInstance.incentiveProfitPrice = cal_incentive(int(instance.revenueId))[1]
+                revenueInstance.incentivePrice = cal_revenue_incentive(int(instance.revenueId))[0]
+                revenueInstance.incentiveProfitPrice = cal_revenue_incentive(int(instance.revenueId))[1]
                 revenueInstance.save()
 
             jsonPurchase = json.loads(request.POST['jsonPurchase'])
@@ -272,8 +272,8 @@ def modify_contract(request, contractId):
                         comment=revenue["revenueComment"],
                     )
                     revenueInstance = Revenue.objects.get(revenueId=int(instance.revenueId))
-                    revenueInstance.incentivePrice = cal_incentive(int(instance.revenueId))[0]
-                    revenueInstance.incentiveProfitPrice = cal_incentive(int(instance.revenueId))[1]
+                    revenueInstance.incentivePrice = cal_revenue_incentive(int(instance.revenueId))[0]
+                    revenueInstance.incentiveProfitPrice = cal_revenue_incentive(int(instance.revenueId))[1]
                     revenueInstance.save()
                 else:
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
@@ -294,8 +294,8 @@ def modify_contract(request, contractId):
                     revenueInstance.save()
 
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
-                    revenueInstance.incentivePrice = cal_incentive(int(revenue["revenueId"]))[0]
-                    revenueInstance.incentiveProfitPrice = cal_incentive(int(revenue["revenueId"]))[1]
+                    revenueInstance.incentivePrice = cal_revenue_incentive(int(revenue["revenueId"]))[0]
+                    revenueInstance.incentiveProfitPrice = cal_revenue_incentive(int(revenue["revenueId"]))[1]
                     revenueInstance.save()
 
                     jsonRevenueId.append(int(revenue["revenueId"]))
@@ -1077,8 +1077,8 @@ def save_revenuetable(request):
         revenue.save()
 
         revenue = Revenue.objects.get(revenueId=a)
-        revenue.incentivePrice = cal_incentive(a)[0]
-        revenue.incentiveProfitPrice = cal_incentive(a)[1]
+        revenue.incentivePrice = cal_revenue_incentive(a)[0]
+        revenue.incentiveProfitPrice = cal_revenue_incentive(a)[1]
         revenue.save()
 
 
@@ -2092,13 +2092,233 @@ def view_incentive(request, empId):
                 'q3': revenue3.aggregate(sum=Sum('incentiveProfitPrice'))['sum'] or 0,
                 'q4': revenue4.aggregate(sum=Sum('incentiveProfitPrice'))['sum'] or 0,
             }
-        }
+        },
     }
+    table2['achieve'] = {
+        'revenue': {
+            'q1': round(table2['incentive']['revenue']['q1'] / table2['target']['revenue']['q1'] * 100),
+            'q2': round(table2['incentive']['revenue']['q2'] / table2['target']['revenue']['q2'] * 100),
+            'q3': round(table2['incentive']['revenue']['q3'] / table2['target']['revenue']['q3'] * 100),
+            'q4': round(table2['incentive']['revenue']['q4'] / table2['target']['revenue']['q4'] * 100),
+        },
+        'profit': {
+            'q1': round(table2['incentive']['profit']['q1'] / table2['target']['profit']['q1'] * 100),
+            'q2': round(table2['incentive']['profit']['q2'] / table2['target']['profit']['q2'] * 100),
+            'q3': round(table2['incentive']['profit']['q3'] / table2['target']['profit']['q3'] * 100),
+            'q4': round(table2['incentive']['profit']['q4'] / table2['target']['profit']['q4'] * 100),
+        },
+    }
+    table2['achieve']['total'] = {
+        'q1': round((table2['achieve']['revenue']['q1'] * 0.3) + (table2['achieve']['profit']['q1'] * 0.7)),
+        'q2': round((table2['achieve']['revenue']['q2'] * 0.3) + (table2['achieve']['profit']['q2'] * 0.7)),
+        'q3': round((table2['achieve']['revenue']['q3'] * 0.3) + (table2['achieve']['profit']['q3'] * 0.7)),
+        'q4': round((table2['achieve']['revenue']['q4'] * 0.3) + (table2['achieve']['profit']['q4'] * 0.7)),
+    }
+    table2['target']['cumulation'] = {
+        'revenue': {
+            'q1': table2['target']['revenue']['q1'],
+            'q2': table2['target']['revenue']['q1'] + table2['target']['revenue']['q2'],
+            'q3': table2['target']['revenue']['q1'] + table2['target']['revenue']['q2'] +
+                  table2['target']['revenue']['q3'],
+            'q4': table2['target']['revenue']['q1'] + table2['target']['revenue']['q2'] +
+                  table2['target']['revenue']['q3'] + table2['target']['revenue']['q4'],
+        },
+        'profit': {
+            'q1': table2['target']['profit']['q1'],
+            'q2': table2['target']['profit']['q1'] + table2['target']['profit']['q2'],
+            'q3': table2['target']['profit']['q1'] + table2['target']['profit']['q2'] +
+                  table2['target']['profit']['q3'],
+            'q4': table2['target']['profit']['q1'] + table2['target']['profit']['q2'] +
+                  table2['target']['profit']['q3'] + table2['target']['profit']['q4'],
+        },
+    }
+    table2['real']['cumulation'] = {
+        'revenue': {
+            'q1': table2['real']['revenue']['q1'],
+            'q2': table2['real']['revenue']['q1'] + table2['real']['revenue']['q2'],
+            'q3': table2['real']['revenue']['q1'] + table2['real']['revenue']['q2'] +
+                  table2['real']['revenue']['q3'],
+            'q4': table2['real']['revenue']['q1'] + table2['real']['revenue']['q2'] +
+                  table2['real']['revenue']['q3'] + table2['real']['revenue']['q4'],
+        },
+        'profit': {
+            'q1': table2['real']['profit']['q1'],
+            'q2': table2['real']['profit']['q1'] + table2['real']['profit']['q2'],
+            'q3': table2['real']['profit']['q1'] + table2['real']['profit']['q2'] +
+                  table2['real']['profit']['q3'],
+            'q4': table2['real']['profit']['q1'] + table2['real']['profit']['q2'] +
+                  table2['real']['profit']['q3'] + table2['real']['profit']['q4'],
+        },
+    }
+    table2['incentive']['cumulation'] = {
+        'revenue': {
+            'q1': table2['incentive']['revenue']['q1'],
+            'q2': table2['incentive']['revenue']['q1'] + table2['incentive']['revenue']['q2'],
+            'q3': table2['incentive']['revenue']['q1'] + table2['incentive']['revenue']['q2'] +
+                  table2['incentive']['revenue']['q3'],
+            'q4': table2['incentive']['revenue']['q1'] + table2['incentive']['revenue']['q2'] +
+                  table2['incentive']['revenue']['q3'] + table2['incentive']['revenue']['q4'],
+        },
+        'profit': {
+            'q1': table2['incentive']['profit']['q1'],
+            'q2': table2['incentive']['profit']['q1'] + table2['incentive']['profit']['q2'],
+            'q3': table2['incentive']['profit']['q1'] + table2['incentive']['profit']['q2'] +
+                  table2['incentive']['profit']['q3'],
+            'q4': table2['incentive']['profit']['q1'] + table2['incentive']['profit']['q2'] +
+                  table2['incentive']['profit']['q3'] + table2['incentive']['profit']['q4'],
+        },
+    }
+    table2['achieve']['cumulation'] = {
+        'revenue': {
+            'q1': round(table2['incentive']['cumulation']['revenue']['q1'] /
+                        table2['target']['cumulation']['revenue']['q1'] * 100),
+            'q2': round(table2['incentive']['cumulation']['revenue']['q2'] /
+                        table2['target']['cumulation']['revenue']['q2'] * 100),
+            'q3': round(table2['incentive']['cumulation']['revenue']['q3'] /
+                        table2['target']['cumulation']['revenue']['q3'] * 100),
+            'q4': round(table2['incentive']['cumulation']['revenue']['q1'] /
+                        table2['target']['cumulation']['revenue']['q4'] * 100),
+        },
+        'profit': {
+            'q1': round(table2['incentive']['cumulation']['profit']['q1'] /
+                        table2['target']['cumulation']['profit']['q1'] * 100),
+            'q2': round(table2['incentive']['cumulation']['profit']['q2'] /
+                        table2['target']['cumulation']['profit']['q2'] * 100),
+            'q3': round(table2['incentive']['cumulation']['profit']['q3'] /
+                        table2['target']['cumulation']['profit']['q3'] * 100),
+            'q4': round(table2['incentive']['cumulation']['profit']['q4'] /
+                        table2['target']['cumulation']['profit']['q4'] * 100),
+        },
+    }
+    table2['achieve']['cumulation']['total'] = {
+        'q1': round((table2['achieve']['cumulation']['revenue']['q1'] * 0.3) +
+                    (table2['achieve']['cumulation']['profit']['q1'] * 0.7)),
+        'q2': round((table2['achieve']['cumulation']['revenue']['q2'] * 0.3) +
+                    (table2['achieve']['cumulation']['profit']['q2'] * 0.7)),
+        'q3': round((table2['achieve']['cumulation']['revenue']['q3'] * 0.3) +
+                    (table2['achieve']['cumulation']['profit']['q3'] * 0.7)),
+        'q4': round((table2['achieve']['cumulation']['revenue']['q4'] * 0.3) +
+                    (table2['achieve']['cumulation']['profit']['q4'] * 0.7)),
+    }
+
+    table3 = [
+        {
+            'name': '목표 달성률',
+            'q1': str(table2['achieve']['cumulation']['total']['q1']) + '%',
+            'q2': str(table2['achieve']['cumulation']['total']['q2']) + '%',
+            'q3': str(table2['achieve']['cumulation']['total']['q3']) + '%',
+            'q4': str(table2['achieve']['cumulation']['total']['q4']) + '%',
+        },
+        {
+            'name': '급여',
+            'q1': int(incentive.get(quarter=1).salary),
+            'q2': int(incentive.get(quarter=1).salary) + int(incentive.get(quarter=2).salary),
+            'q3': int(incentive.get(quarter=1).salary) + int(incentive.get(quarter=2).salary) +
+                  int(incentive.get(quarter=3).salary),
+            'q4': int(incentive.get(quarter=1).salary) + int(incentive.get(quarter=2).salary) +
+                  int(incentive.get(quarter=3).salary) + int(incentive.get(quarter=4).salary),
+        },
+        {
+            'name': '기본급',
+            'q1': int(incentive.get(quarter=1).basicSalary),
+            'q2': int(incentive.get(quarter=2).basicSalary),
+            'q3': int(incentive.get(quarter=3).basicSalary),
+            'q4': int(incentive.get(quarter=4).basicSalary),
+        },
+        {
+            'name': '배팅액',
+            'q1': int(incentive.get(quarter=1).bettingSalary),
+            'q2': int(incentive.get(quarter=2).bettingSalary),
+            'q3': int(incentive.get(quarter=3).bettingSalary),
+            'q4': int(incentive.get(quarter=4).bettingSalary),
+        },
+        {
+            'name': '인정률',
+            'q1': str(cal_acc(table2['achieve']['cumulation']['total']['q1'])[0]) + '%',
+            'q2': str(cal_acc(table2['achieve']['cumulation']['total']['q2'])[0]) + '%',
+            'q3': str(cal_acc(table2['achieve']['cumulation']['total']['q3'])[0]) + '%',
+            'q4': str(cal_acc(table2['achieve']['cumulation']['total']['q4'])[0]) + '%',
+        },
+        {
+            'name': 'ACC',
+            'q1': cal_acc(table2['achieve']['cumulation']['total']['q1'])[1],
+            'q2': cal_acc(table2['achieve']['cumulation']['total']['q2'])[1],
+            'q3': cal_acc(table2['achieve']['cumulation']['total']['q3'])[1],
+            'q4': cal_acc(table2['achieve']['cumulation']['total']['q4'])[1],
+        },
+        {
+            'name': '예상누적인센티브',
+            'q1': cal_emp_incentive(
+                int(incentive.get(quarter=1).bettingSalary),
+                cal_acc(table2['achieve']['cumulation']['total']['q1'])[0],
+                cal_acc(table2['achieve']['cumulation']['total']['q1'])[1]
+            ),
+            'q2': cal_emp_incentive(
+                int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary),
+                cal_acc(table2['achieve']['cumulation']['total']['q2'])[0],
+                cal_acc(table2['achieve']['cumulation']['total']['q2'])[1]
+            ),
+            'q3': cal_emp_incentive(
+                int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
+                int(incentive.get(quarter=3).bettingSalary),
+                cal_acc(table2['achieve']['cumulation']['total']['q3'])[0],
+                cal_acc(table2['achieve']['cumulation']['total']['q3'])[1]
+            ),
+            'q4': cal_emp_incentive(
+                int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
+                int(incentive.get(quarter=3).bettingSalary) + int(incentive.get(quarter=4).bettingSalary),
+                cal_acc(table2['achieve']['cumulation']['total']['q4'])[0],
+                cal_acc(table2['achieve']['cumulation']['total']['q4'])[1]
+            ),
+        },
+        {
+            'name': '예상분기인센티브',
+            'q1': cal_emp_incentive(
+                int(incentive.get(quarter=1).bettingSalary),
+                cal_acc(table2['achieve']['cumulation']['total']['q1'])[0],
+                cal_acc(table2['achieve']['cumulation']['total']['q1'])[1]
+            ),
+            'q2': cal_emp_incentive(
+                int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) -
+                int(incentive.get(quarter=1).achieveIncentive),
+                cal_acc(table2['achieve']['cumulation']['total']['q2'])[0],
+                cal_acc(table2['achieve']['cumulation']['total']['q2'])[1]
+            ),
+            'q3': cal_emp_incentive(
+                int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
+                int(incentive.get(quarter=3).bettingSalary) - int(incentive.get(quarter=1).achieveIncentive) -
+                int(incentive.get(quarter=2).achieveIncentive),
+                cal_acc(table2['achieve']['cumulation']['total']['q3'])[0],
+                cal_acc(table2['achieve']['cumulation']['total']['q3'])[1]
+            ),
+            'q4': cal_emp_incentive(
+                int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
+                int(incentive.get(quarter=3).bettingSalary) + int(incentive.get(quarter=4).bettingSalary) -
+                int(incentive.get(quarter=1).achieveIncentive) - int(incentive.get(quarter=2).achieveIncentive) -
+                int(incentive.get(quarter=3).achieveIncentive),
+                cal_acc(table2['achieve']['cumulation']['total']['q4'])[0],
+                cal_acc(table2['achieve']['cumulation']['total']['q4'])[1]
+            ),
+        },
+        {
+            'name': '확정지급액',
+            'q1': int(incentive.get(quarter=1).achieveIncentive),
+            'q2': int(incentive.get(quarter=2).achieveIncentive),
+            'q3': int(incentive.get(quarter=3).achieveIncentive),
+            'q4': int(incentive.get(quarter=4).achieveIncentive),
+        },
+        # {
+        #     'name': '분기인센티브',
+        #     'q1':
+        #     'q2':
+        # }
+    ]
 
     context = {
         'empName': empName,
         'table1': table1,
         'table2': table2,
+        'table3': table3,
     }
     return render(request, 'sales/viewincentive.html', context)
 
@@ -2241,6 +2461,7 @@ def show_incentives(request):
     }
     return render(request, 'sales/showincentives.html', context)
 
+
 @login_required
 @csrf_exempt
 def incentives_asjson(request):
@@ -2252,7 +2473,16 @@ def incentives_asjson(request):
     return HttpResponse(structure, content_type='application/json')
 
 
+@login_required
+@csrf_exempt
+def change_incentive_all(request):
+    revenues = Revenue.objects.all()
 
+    for revenue in revenues:
+        revenue.incentivePrice = cal_revenue_incentive(revenue.revenueId)[0]
+        revenue.incentiveProfitPrice = cal_revenue_incentive(revenue.revenueId)[1]
+        revenue.save()
 
+    return HttpResponse('성공?')
 
 

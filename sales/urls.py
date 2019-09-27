@@ -61,4 +61,5 @@ urlpatterns = [
     url(r'^savecost/$', views.save_cost, name='savecost'),
     url(r'^showincentives/$', views.show_incentives, name='showincentives'),
     url(r'^incentivesasjson/$', views.incentives_asjson, name='incentives_ajax_url'),
+    url(r'^changeincentiveall/$', views.change_incentive_all, name='changeincentiveall'),
 ]

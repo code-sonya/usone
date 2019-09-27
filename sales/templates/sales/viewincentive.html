@@ -77,8 +77,9 @@
         </div>
 
         <div class="card-body">
-          <h5 class="text-dark mb-3"><b>▼ SALARY 기준</b></h5>
-          <table class="pc-table">
+          {#언제쓸지 몰라 숨겨놓음#}
+          <h5 class="text-dark mb-3 d-none"><b>▼ SALARY</b></h5>
+          <table class="pc-table d-none">
             <thead>
             <tr class="bg-primary">
               <td class="text-gray-100" colspan="3">항목</td>
@@ -101,9 +102,33 @@
             </tbody>
           </table>
 
+          <h5 class="text-dark mb-3"><b>▼ 인센티브 금액</b></h5>
+          <table class="pc-table">
+            <thead>
+            <tr class="bg-primary">
+              <td class="text-gray-100" colspan="3">항목</td>
+              <td class="text-gray-100" colspan="2">1분기</td>
+              <td class="text-gray-100" colspan="2">2분기</td>
+              <td class="text-gray-100" colspan="2">3분기</td>
+              <td class="text-gray-100" colspan="2">4분기</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for t3 in table3 %}
+            <tr>
+              <td colspan="3">{{ t3.name }}</td>
+              <td class="text-right pr-4" colspan="2">{{ t3.q1 | intcomma }}</td>
+              <td class="text-right pr-4" colspan="2">{{ t3.q2 | intcomma }}</td>
+              <td class="text-right pr-4" colspan="2">{{ t3.q3 | intcomma }}</td>
+              <td class="text-right pr-4" colspan="2">{{ t3.q4 | intcomma }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+
           <br>
 
-          <h5 class="text-dark mb-3"><b>▼ 분기별 실적 달성 현황 (팀 단위)</b></h5>
+          <h5 class="text-dark mb-3"><b>▼ 분기별 팀 실적</b></h5>
           <table class="pc-table">
             <thead>
             <tr class="bg-primary">
@@ -118,48 +143,178 @@
             <tbody>
             <tr class="thtd">
               <td rowspan="2" colspan="2">목표실적</td>
-              <td>매출</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.target.revenue.q1 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.target.revenue.q2 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.target.revenue.q3 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.target.revenue.q4 | intcomma }}</td>
+              <td>매출<br>(누적)</td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.target.revenue.q1 | intcomma }} <br>
+                ({{ table2.target.cumulation.revenue.q1 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.target.revenue.q2 | intcomma }} <br>
+                ({{ table2.target.cumulation.revenue.q2 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.target.revenue.q3 | intcomma }} <br>
+                ({{ table2.target.cumulation.revenue.q3 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.target.revenue.q4 | intcomma }} <br>
+                ({{ table2.target.cumulation.revenue.q4 | intcomma }})
+              </td>
             </tr>
             <tr class="thtd">
-              <td>이익</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.target.profit.q1 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.target.profit.q2 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.target.profit.q3 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.target.profit.q4 | intcomma }}</td>
+              <td>GP<br>(누적)</td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.target.profit.q1 | intcomma }} <br>
+                ({{ table2.target.cumulation.profit.q1 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.target.profit.q2 | intcomma }} <br>
+                ({{ table2.target.cumulation.profit.q2 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.target.profit.q3 | intcomma }} <br>
+                ({{ table2.target.cumulation.profit.q3 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.target.profit.q4 | intcomma }} <br>
+                ({{ table2.target.cumulation.profit.q4 | intcomma }})
+              </td>
             </tr>
             <tr class="thtd">
               <td rowspan="2" colspan="2">회의실적</td>
-              <td>매출</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.real.revenue.q1 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.real.revenue.q2 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.real.revenue.q3 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.real.revenue.q4 | intcomma }}</td>
+              <td>매출<br>(누적)</td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.real.revenue.q1 | intcomma }} <br>
+                ({{ table2.real.cumulation.revenue.q1 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.real.revenue.q2 | intcomma }} <br>
+                ({{ table2.real.cumulation.revenue.q2 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.real.revenue.q3 | intcomma }} <br>
+                ({{ table2.real.cumulation.revenue.q3 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.real.revenue.q4 | intcomma }} <br>
+                ({{ table2.real.cumulation.revenue.q4 | intcomma }})
+              </td>
             </tr>
             <tr class="thtd">
-              <td>이익</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.real.profit.q1 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.real.profit.q2 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.real.profit.q3 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.real.profit.q4 | intcomma }}</td>
+              <td>GP</td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.real.profit.q1 | intcomma }} <br>
+                ({{ table2.real.cumulation.profit.q1 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.real.profit.q2 | intcomma }} <br>
+                ({{ table2.real.cumulation.profit.q2 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.real.profit.q3 | intcomma }} <br>
+                ({{ table2.real.cumulation.profit.q3 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.real.profit.q4 | intcomma }} <br>
+                ({{ table2.real.cumulation.profit.q4 | intcomma }})
+              </td>
             </tr>
             <tr class="thtd">
               <td rowspan="2" colspan="2"><span class="text-warning">인센티브</span>실적</td>
-              <td>매출</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.incentive.revenue.q1 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.incentive.revenue.q2 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.incentive.revenue.q3 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.incentive.revenue.q4 | intcomma }}</td>
+              <td>매출<br>(누적)</td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.incentive.revenue.q1 | intcomma }} <br>
+                ({{ table2.incentive.cumulation.revenue.q1 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.incentive.revenue.q2 | intcomma }} <br>
+                ({{ table2.incentive.cumulation.revenue.q2 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.incentive.revenue.q3 | intcomma }} <br>
+                ({{ table2.incentive.cumulation.revenue.q3 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.incentive.revenue.q4 | intcomma }} <br>
+                ({{ table2.incentive.cumulation.revenue.q4 | intcomma }})
+              </td>
             </tr>
             <tr class="thtd">
-              <td>이익</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.incentive.profit.q1 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.incentive.profit.q2 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.incentive.profit.q3 | intcomma }}</td>
-              <td colspan="2" class="text-right pr-4">{{ table2.incentive.profit.q4 | intcomma }}</td>
+              <td>GP<br>(누적)</td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.incentive.profit.q1 | intcomma }} <br>
+                ({{ table2.incentive.cumulation.profit.q1 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.incentive.profit.q2 | intcomma }} <br>
+                ({{ table2.incentive.cumulation.profit.q2 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.incentive.profit.q3 | intcomma }} <br>
+                ({{ table2.incentive.cumulation.profit.q3 | intcomma }})
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.incentive.profit.q4 | intcomma }} <br>
+                ({{ table2.incentive.cumulation.profit.q4 | intcomma }})
+              </td>
+            </tr>
+            <tr class="thtd">
+              <td rowspan="3" colspan="2"><span class="text-danger">목표</span>달성률</td>
+              <td>매출<br>(누적)</td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.revenue.q1 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.revenue.q1 | intcomma }}%)
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.revenue.q2 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.revenue.q2 | intcomma }}%)
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.revenue.q3 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.revenue.q3 | intcomma }}%)
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.revenue.q4 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.revenue.q4 | intcomma }}%)
+              </td>
+            </tr>
+            <tr class="thtd">
+              <td>GP<br>(누적)</td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.profit.q1 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.profit.q1 | intcomma }}%)
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.profit.q2 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.profit.q2 | intcomma }}%)
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.profit.q3 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.profit.q3 | intcomma }}%)
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.profit.q4 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.profit.q4 | intcomma }}%)
+              </td>
+            </tr>
+            <tr class="thtd">
+              <td>종합<br>(누적)</td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.total.q1 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.total.q1 | intcomma }}%)
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.total.q2 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.total.q2 | intcomma }}%)
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.total.q3 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.total.q3 | intcomma }}%)
+              </td>
+              <td colspan="2" class="text-right pr-4">
+                {{ table2.achieve.total.q4 | intcomma }}% <br>
+                ({{ table2.achieve.cumulation.total.q4 | intcomma }}%)
+              </td>
             </tr>
             </tbody>
           </table>

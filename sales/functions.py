@@ -13,7 +13,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from hr.models import Employee
 from .forms import ContractForm, GoalForm, PurchaseForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration
 from service.models import Company, Customer, Servicereport
 from django.db.models import Q
 from datetime import datetime, timedelta, date
@@ -245,7 +245,7 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
     return rows
 
 
-def cal_incentive(revenueId):
+def cal_revenue_incentive(revenueId):
     revenue = Revenue.objects.get(revenueId=revenueId)
     contract = Contract.objects.get(contractId=int(revenue.contractId.contractId))
 
@@ -282,3 +282,22 @@ def cal_incentive(revenueId):
         incentiveProfit = 0
 
     return incentiveRevenue, incentiveProfit
+
+
+def cal_acc(ratio):
+    if ratio <= 94:
+        return ratio, 0
+    elif ratio < 120:
+        return (
+            Acceleration.objects.get(Q(accelerationMin__lte=ratio) & Q(accelerationMax__gte=ratio)).accelerationRatio,
+            Acceleration.objects.get(Q(accelerationMin__lte=ratio) & Q(accelerationMax__gte=ratio)).accelerationAcc
+        )
+    else:
+        return 140, 4
+
+
+def cal_emp_incentive(salary, achieve, acc):
+    if achieve < 100:
+        return round(salary * (achieve / 100))
+    else:
+        return (((salary * (achieve / 100)) - salary) * acc) + salary
