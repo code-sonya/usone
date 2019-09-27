@@ -44,17 +44,15 @@
             {% endif %}
             {% if modifyMode == 'Y' %}
               <div class="float-right">
-                <button class="btn btn-danger" id="saveRevenueTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
-              </div>
-              <div class="float-right">
-                <input type="date" id="copyDate" max="9999-12-31" class="input-form mr-3" value="{{ copyDate }}">
+                <button class="btn btn-danger" id="saveIncentiveTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
               </div>
             {% endif %}
 
           <div class="table-responsive pt-2">
-            <table id="showincentives" class="hover row-border" width="100%" style="width: 100%;">
-              <thead class="bg-light">
-              <tr>
+            <form id="incentiveForm" action="/sales/saveincentivetable/">
+              <table id="showincentives" class="hover row-border" width="100%" style="width: 100%;">
+                <thead class="bg-light">
+                <tr>
                 <th>년도</th>
                 <th>영업부서</th>
                 <th>영업담당</th>
@@ -66,9 +64,10 @@
                 <th>지급인센티브</th>
                 <th>지급AWARD</th>
                 <th class="d-none">incentiveId</th>
-              </tr>
-              </thead>
-            </table>
+                </tr>
+                </thead>
+              </table>
+            </form>
           </div>
         </div>
       </div>
@@ -88,7 +87,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="filterForm"  method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+          <form id="filterForm"  action="/sales/showincentives/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6">
@@ -190,9 +189,26 @@
                   {targets: 5, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 6, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 9, width: "5%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 10, visible: false}
+                  {
+                      {% if modifyMode == 'Y' %}
+                          "render": function (data, type, row) {
+                              return '<input type="number" name="achieveIncentive" class="input-form"  value="' + data + '" />'
+                          },
+                      {% endif %}
+                      targets: 8, width: "15%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {
+                       {% if modifyMode == 'Y' %}
+                          "render": function (data, type, row) {
+                              return '<input type="number" name="achieveAward" class="input-form"  value="' + data + '" />'
+                          },
+                      {% endif %}
+                      targets: 9, width: "5%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"
+                  },
+                  {
+                       "render": function (data, type, row) {
+                          return '<div name="incentiveId" >' + data + '</div>'
+                      },
+                      targets: 10, className: "d-none"}
               ],
               "order": [[0, 'desc']],
               "searching": true,
@@ -215,14 +231,38 @@
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                      $('td:eq(4)', nRow).text(aData.salary.toLocaleString());
                      $('td:eq(6)', nRow).text(aData.basicSalary.toLocaleString());
-                     $('td:eq(7)', nRow).text(aData.bettingSalary.toLocaleString());
+                     $('td:eq(7)', nRow).text(aData.bettingSalary.toLocaleString())
+                    {% if modifyMode == 'N' %}
                      $('td:eq(8)', nRow).text(aData.achieveIncentive.toLocaleString());
                      $('td:eq(9)', nRow).text(aData.achieveAward.toLocaleString());
+                    {% endif %}
               },
               "footerCallback": function () {
 
               },
           });
+
+          {% if modifyMode == 'Y' %}
+              $('#saveIncentiveTable').click(function () {
+                  const incentiveForm = document.getElementById("incentiveForm");
+                  let modifyMode = document.createElement("input");
+                  modifyMode.setAttribute("type", "hidden");
+                  modifyMode.setAttribute("name", "modifyMode");
+                  modifyMode.setAttribute("value", '{{ modifyMode }}');
+                  incentiveForm.appendChild(modifyMode);
+
+                  const lengthIncentive = $('[name="incentiveId"]').length;
+                  for (var i = 0; i <= lengthIncentive - 1; i++) {
+                      const incentive = document.createElement("input");
+                      const data = $('div[name="incentiveId"]').eq(i).text();
+                      incentive.setAttribute("type", "hidden");
+                      incentive.setAttribute("name", "incentiveId");
+                      incentive.setAttribute("value", data);
+                      incentiveForm.appendChild(incentive);
+                  }
+                  incentiveForm.submit();
+              });
+          {% endif %}
       });
 
   </script>
