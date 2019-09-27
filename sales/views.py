@@ -12,6 +12,8 @@ from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
+from django.views.decorators.http import require_POST
+
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
@@ -2438,26 +2440,32 @@ def view_incentiveall(request):
 
 @login_required
 def show_incentives(request):
+
     if request.method == "POST":
         todayYear=datetime.today().year
-        quarter = int(request.POST["quarter"])
-        empId = int(request.POST["empId"])
-        salary = int(request.POST["salary"])
-        betting = int(request.POST["betting"])
-
-        employee = Employee.objects.get(Q(empId=empId))
-        incentives = Incentive.objects.filter(Q(empId=empId) & Q(quarter=quarter))
-        if incentives.first() != None:
-            return HttpResponse("해당 분기에 이미 등록된 정보가 있습니다.")
+        if request.POST["quarter"] != '':
+            quarter = int(request.POST["quarter"])
+            empId = int(request.POST["empId"])
+            salary = int(request.POST["salary"])
+            betting = int(request.POST["betting"])
+            modifyMode = request.POST["modifyMode"]
+            employee = Employee.objects.get(Q(empId=empId))
+            incentives = Incentive.objects.filter(Q(empId=empId) & Q(quarter=quarter))
+            if incentives.first() != None:
+                return HttpResponse("해당 분기에 이미 등록된 정보가 있습니다.")
+            else:
+                bettingSalary = salary * betting / 100.0
+                basicSalary = salary - bettingSalary
+                Incentive.objects.create(empId=employee, year=todayYear, quarter=quarter, salary=salary, bettingRatio=betting, basicSalary=basicSalary, bettingSalary=bettingSalary)
         else:
-            bettingSalary = salary * betting / 100.0
-            basicSalary = salary - bettingSalary
-            Incentive.objects.create(empId=employee, year=todayYear, quarter=quarter, salary=salary, bettingRatio=betting, basicSalary=basicSalary, bettingSalary=bettingSalary)
+            modifyMode = 'Y'
+    else:
+        modifyMode = 'N'
 
-
-    employee = Employee.objects.filter(Q(empDeptName__icontains='영업')&Q(empStatus='Y'))
+    employee = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y'))
     context = {
-        'employee': employee
+        'employee': employee,
+        'modifyMode': modifyMode,
     }
     return render(request, 'sales/showincentives.html', context)
 
@@ -2472,6 +2480,37 @@ def incentives_asjson(request):
     structure = json.dumps(list(incentives), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+@login_required
+@csrf_exempt
+def save_incentivetable(request):
+    employee = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y'))
+    achieveIncentive = request.GET.getlist('achieveIncentive')
+    achieveAward = request.GET.getlist('achieveAward')
+    incentiveId = request.GET.getlist('incentiveId')
+    modifyMode = request.GET['modifyMode']
+
+    for a, b, c in zip(incentiveId, achieveIncentive, achieveAward):
+        incentive = Incentive.objects.get(incentiveId=a)
+        incentive.achieveIncentive = b or 0
+        incentive.achieveAward = c or 0
+        incentive.save()
+
+    context = {
+        'employee': employee,
+        'modifyMode': modifyMode,
+    }
+    return render(request, 'sales/showincentives.html', context)
+
+
+@login_required
+@csrf_exempt
+@require_POST
+def delete_incentive(request):
+    if request.method == 'POST' and request.is_ajax():
+        incentiveId = request.POST.get('incentiveId', None)
+        print(incentiveId)
+        Incentive.objects.filter(incentiveId=incentiveId).delete()
+        return HttpResponse(json.dumps({'incentiveId': incentiveId}), content_type="application/json")
 
 @login_required
 @csrf_exempt
