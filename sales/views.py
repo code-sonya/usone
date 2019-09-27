@@ -2021,6 +2021,7 @@ def view_incentive(request, empId):
     revenue3 = revenues.filter(Q(billingDate__gte=year + '-07-01') & Q(billingDate__lt=year + '-10-01'))
     revenue4 = revenues.filter(Q(billingDate__gte=year + '-10-01') & Q(billingDate__lte=year + '-12-31'))
 
+
     table1 = [
         {
             'name': 'FULL SALARY',
@@ -2316,11 +2317,18 @@ def view_incentive(request, empId):
         # }
     ]
 
+    #누적 인센티브&어워드 확정 금액
+    sumachieveIncentive = incentive.filter(year=year).aggregate(Sum('achieveIncentive'))
+    sumachieveAward = incentive.filter(year=year).aggregate(Sum('achieveAward'))
+    print(sumachieveIncentive)
+
     context = {
         'empName': empName,
         'table1': table1,
         'table2': table2,
         'table3': table3,
+        'sumachieveIncentive': sumachieveIncentive,
+        'sumachieveAward': sumachieveAward,
     }
     return render(request, 'sales/viewincentive.html', context)
 
@@ -2508,7 +2516,6 @@ def save_incentivetable(request):
 def delete_incentive(request):
     if request.method == 'POST' and request.is_ajax():
         incentiveId = request.POST.get('incentiveId', None)
-        print(incentiveId)
         Incentive.objects.filter(incentiveId=incentiveId).delete()
         return HttpResponse(json.dumps({'incentiveId': incentiveId}), content_type="application/json")
 
