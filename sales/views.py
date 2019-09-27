@@ -12,6 +12,8 @@ from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
+from django.views.decorators.http import require_POST
+
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
@@ -2277,6 +2279,18 @@ def save_incentivetable(request):
         'modifyMode': modifyMode,
     }
     return render(request, 'sales/showincentives.html', context)
+
+
+@login_required
+@csrf_exempt
+@require_POST
+def delete_incentive(request):
+    if request.method == 'POST' and request.is_ajax():
+        incentiveId = request.POST.get('incentiveId', None)
+        print(incentiveId)
+        Incentive.objects.filter(incentiveId=incentiveId).delete()
+        return HttpResponse(json.dumps({'incentiveId': incentiveId}), content_type="application/json")
+
 
 
 

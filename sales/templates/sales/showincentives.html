@@ -63,6 +63,7 @@
                 <th>베팅금액</th>
                 <th>지급인센티브</th>
                 <th>지급AWARD</th>
+                <th><i class="fas fa-trash"></i></th>
                 <th class="d-none">incentiveId</th>
                 </tr>
                 </thead>
@@ -112,12 +113,12 @@
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="salary" class="text-primary">연봉</label>
+                <label for="salary" class="text-primary">급여</label>
                 <input class="form-control" id="salary" name="salary" type="number">
               </div>
               <div class="col-6">
                 <label for="betting" class="text-primary">베팅률(%)</label>
-                <input class="form-control" id="betting" name="betting" type="number">
+                <input class="form-control" id="betting" name="betting" type="number" max="100">
               </div>
             </div>
           </form>
@@ -179,6 +180,7 @@
                   {data: "achieveIncentive"},
                   {data: "achieveAward"},
                   {data: "incentiveId"},
+                  {data: "incentiveId"},
               ],
               "columnDefs": [
                   {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
@@ -206,9 +208,14 @@
                   },
                   {
                        "render": function (data, type, row) {
-                          return '<div name="incentiveId" >' + data + '</div>'
+                          return '<i class="fas fa-times-circle" name="remove">'
                       },
-                      targets: 10, className: "d-none"}
+                      targets: 10, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                       "render": function (data, type, row) {
+                          return '<div name="incentiveId">' + data + '</div>'
+                      },
+                      targets: 11, className: "d-none"}
               ],
               "order": [[0, 'desc']],
               "searching": true,
@@ -241,6 +248,40 @@
 
               },
           });
+
+          var table = $('#showincentives').DataTable();
+
+          $('#showincentives').on('click', 'i', function () {
+              const tr = $(this).closest('tr');
+              const row = table.row( tr );
+              const incentiveId = row.data().incentiveId;
+              const empName = row.data().empId__empName;
+              const quarter = row.data().quarter;
+
+              if (confirm(empName+"님의 "+quarter+"분기 인센티브 정보를 삭제하시겠습니까?") == true) {
+                  table
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+                  $.ajax({
+                              type: "POST",
+                              url: "/sales/deleteincentive/",
+                              data: {'incentiveId': incentiveId},
+                              dataType: "json",
+                              success: function (response) {
+                                  // table
+                                  //     .row($(this).parents('tr'))
+                                  //     .remove()
+                                  //     .draw();
+                                  alert('인센티브 정보가 삭제되었습니다.')
+                              },
+                              error: function (request, status, error) {
+                                  alert('인센티브 정보가 삭제되었습니다.')
+                              },
+                          });
+              }
+          });
+
 
           {% if modifyMode == 'Y' %}
               $('#saveIncentiveTable').click(function () {
