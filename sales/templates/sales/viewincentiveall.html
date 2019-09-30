@@ -114,16 +114,17 @@
             <tr class="thtd">
               <td class="thtd" colspan="1">{{ row.empPosition }}</td>
               <td class="thtd" colspan="1">{{ row.empName }}</td>
-              <td class="thtd" colspan="1">??</td>
+              <td class="thtd" colspan="1">{{ row.achieveRatio }}</td>
               <td class="thtd" colspan="2">{{ row.sum_salary | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.sum_basicSalary | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.sum_bettingSalary | intcomma }}</td>
-              <td class="thtd" colspan="1">??</td>
-              <td class="thtd" colspan="1">??</td>
+              <td class="thtd" colspan="1">{{ row.creditRatio }}</td>
+              <td class="thtd" colspan="1">{{ row.ACC }}</td>
               <td class="thtd" colspan="2">??</td>
-              <td class="thtd" colspan="2">??</td>
+              <td class="thtd" colspan="2">{{ row.cumulateIncentive | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.before_achieve | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.achieveIncentive | intcomma }}</td>
+              <td class="thtd" colspan="2">{{ row.achieveAward | intcomma }}</td>
             </tr>
             {% endfor %}
             </tbody>
