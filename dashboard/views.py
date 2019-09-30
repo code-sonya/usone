@@ -714,9 +714,36 @@ def service_asjson(request):
 def dashboard_location(request):
     template = loader.get_template('dashboard/dashboardlocation.html')
     today = datetime.today()
-    location = Geolocation.objects.filter(Q(startLatitude__isnull=False)&Q(endLatitude__isnull=True))
-    print(location)
-    context={'today':today,
-             'location':location}
+    day = str(today)[:10]
+    location = Geolocation.objects.filter(Q(startLatitude__isnull=False) & Q(endLatitude__isnull=True))
+    services = Servicereport.objects.filter(serviceId__in=location.values('serviceId'))
+    tables = [
+        {
+            'team': '영업1팀',
+            'services': services.filter(empDeptName='영업1팀')
+        },
+        {
+            'team': '영업2팀',
+            'services': services.filter(empDeptName='영업2팀')
+        },
+        {
+            'team': '인프라서비스사업팀',
+            'services': services.filter(empDeptName='인프라서비스사업팀')
+        },
+        {
+            'team': '솔루션지원팀',
+            'services': services.filter(empDeptName='솔루션지원팀')
+        },
+        {
+            'team': 'DB지원팀',
+            'services': services.filter(empDeptName='DB지원팀')
+        },
+    ]
+    context = {
+        'today': today,
+        'day': day,
+        'location': location,
+        'tables': tables,
+    }
 
     return HttpResponse(template.render(context, request))
