@@ -2013,6 +2013,14 @@ def view_incentive(request, empId):
     year = str(datetime.today().year)
     empName = Employee.objects.get(empId=empId).empName
     table1, table2, table3 = empIncentive(year, empId)
+    empDeptName = Employee.objects.get(empId=empId).empDeptName
+    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
+    goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=datetime.today().year))
+    revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
+    revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
+    revenue2 = revenues.filter(Q(billingDate__gte=year + '-04-01') & Q(billingDate__lt=year + '-07-01'))
+    revenue3 = revenues.filter(Q(billingDate__gte=year + '-07-01') & Q(billingDate__lt=year + '-10-01'))
+    revenue4 = revenues.filter(Q(billingDate__gte=year + '-10-01') & Q(billingDate__lte=year + '-12-31'))
 
     # AWARD BONUS
     skewBonusMoney = 1000000
@@ -2039,21 +2047,24 @@ def view_incentive(request, empId):
     new_profitratio = 10
     q1NewCount = revenue1.filter(
         Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
-            contractId__profitRatio__gte=new_profitratio)).aggregate(count=Count('revenueId'))['count'] or 0
+            contractId__profitRatio__gte=new_profitratio))
     q2NewCount = revenue2.filter(
         Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
-            contractId__profitRatio__gte=new_profitratio)).aggregate(count=Count('revenueId'))['count'] or 0
+            contractId__profitRatio__gte=new_profitratio))
     q3NewCount = revenue3.filter(
         Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
-            contractId__profitRatio__gte=new_profitratio)).aggregate(count=Count('revenueId'))['count'] or 0
+            contractId__profitRatio__gte=new_profitratio))
     q4NewCount = revenue4.filter(
         Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
-            contractId__profitRatio__gte=new_profitratio)).aggregate(count=Count('revenueId'))['count'] or 0
+            contractId__profitRatio__gte=new_profitratio))
 
-    q1New = (q1NewCount) // 3
-    q2New = (q1NewCount + q2NewCount) // 3  - q1New
-    q3New = (q1NewCount + q2NewCount + q3NewCount) // 3  - q2New
-    q4New = (q1NewCount + q2NewCount + q3NewCount + q4NewCount) // 3  - q3New
+    newCount = [q1NewCount, q2NewCount, q3NewCount, q4NewCount]
+    print(newCount)
+
+    q1New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3
+    q2New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3  - q1New
+    q3New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q3NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3  - q2New
+    q4New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q3NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q4NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3  - q3New
 
     # Over Gp Bonus
     gp_standard = 50000000
@@ -2073,11 +2084,15 @@ def view_incentive(request, empId):
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
             contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
 
+    overGp = [q1OverGp, q2OverGp, q3OverGp, q4OverGp]
+    print(overGp)
+
     table4 = [
         {
             'name': 'Skew Bonus',
             'condition': '분기 목표 달성 시',
             'for': '팀',
+            'id': 'skew',
             'q1': int(q1Skew),
             'q2': int(q2Skew),
             'q3': int(q3Skew),
@@ -2087,6 +2102,7 @@ def view_incentive(request, empId):
             'name': 'Over GP Bonus',
             'condition': '상품의 마진률 15% 이상 Over 시(매출 5천만원 이상 건)',
             'for': '개인',
+            'id': 'over',
             'q1': int(cal_over_gp(q1OverGp) or 0),
             'q2': int(cal_over_gp(q2OverGp) or 0),
             'q3': int(cal_over_gp(q3OverGp) or 0),
@@ -2096,6 +2112,7 @@ def view_incentive(request, empId):
             'name': 'New Account Bonus',
             'condition': '신규 고객 3개 업체 마진률 10% 이상 계약 시(매출 5천만원 이상 건)',
             'for': '개인',
+            'id': 'new',
             'q1': q1New*newAccountBonusMoney,
             'q2': q2New*newAccountBonusMoney,
             'q3': q3New*newAccountBonusMoney,
@@ -2105,6 +2122,7 @@ def view_incentive(request, empId):
             'name': '합계',
             'condition': '예상분기AWARD',
             'for': '전체',
+            'id': 'expect',
             'q1': int(q1Skew+(cal_over_gp(q1OverGp) or 0)+q1New*newAccountBonusMoney),
             'q2': int(q2Skew+(cal_over_gp(q2OverGp) or 0)+q2New*newAccountBonusMoney),
             'q3': int(q3Skew+(cal_over_gp(q3OverGp) or 0)+q3New*newAccountBonusMoney),
@@ -2114,6 +2132,7 @@ def view_incentive(request, empId):
             'name': '',
             'condition': '확정지급액',
             'for': '전체',
+            'id': 'acheive',
             'q1': int(incentive.get(quarter=1).achieveAward),
             'q2': int(incentive.get(quarter=2).achieveAward),
             'q3': int(incentive.get(quarter=3).achieveAward),
@@ -2135,6 +2154,8 @@ def view_incentive(request, empId):
         'sumachieveIncentive': sumachieveIncentive,
         'sumachieveAward': sumachieveAward,
         'GPachieve': GPachieve,
+        'newCount': newCount,
+        'overGp': overGp,
     }
     return render(request, 'sales/viewincentive.html', context)
 
