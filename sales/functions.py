@@ -301,3 +301,14 @@ def cal_emp_incentive(salary, achieve, acc):
         return round(salary * (achieve / 100))
     else:
         return (((salary * (achieve / 100)) - salary) * acc) + salary
+
+def cal_over_gp(revenue):
+    max = 500000
+    sum = 0
+    for r in revenue:
+        if (r.contractId.profitPrice - r.contractId.salePrice/100*15)/100*10 > max:
+            sum += max
+        else:
+            sum += (r.contractId.profitPrice - r.contractId.salePrice/100*15)/100*10
+    return sum
+
