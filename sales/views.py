@@ -4,7 +4,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 
-from django.db.models import Sum, FloatField, F, Case, When
+from django.db.models import Sum, FloatField, F, Case, When, Count
 from django.db.models.functions import Cast
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
@@ -18,7 +18,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
-from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, empIncentive
+from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta, date
@@ -2014,6 +2014,113 @@ def view_incentive(request, empId):
     empName = Employee.objects.get(empId=empId).empName
     table1, table2, table3 = empIncentive(year, empId)
 
+    # AWARD BONUS
+    skewBonusMoney = 1000000
+    newAccountBonusMoney = 500000
+    q1Skew, q2Skew, q3Skew, q4Skew = 0, 0, 0, 0
+    GPachieve = 0
+
+    # GP achieve
+    if (revenues.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0)  >= goal.yearProfitSum:
+        GPachieve = 2000000
+
+    # Skew Bonus
+    if (revenue1.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq1 and (revenue1.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq1:
+        q1Skew=skewBonusMoney
+    if (revenue2.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq2 and (revenue2.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq2:
+        q2Skew=skewBonusMoney
+    if (revenue3.aggregate(sum=Sum('revenuePrice'))['sum'] or 0)>= goal.salesq3 and (revenue3.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq3:
+        q3Skew=skewBonusMoney
+    if (revenue4.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq4 and (revenue4.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq4:
+        q4Skew=skewBonusMoney
+
+    # New Account Bonus
+    new_standard = 50000000
+    new_profitratio = 10
+    q1NewCount = revenue1.filter(
+        Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
+            contractId__profitRatio__gte=new_profitratio)).aggregate(count=Count('revenueId'))['count'] or 0
+    q2NewCount = revenue2.filter(
+        Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
+            contractId__profitRatio__gte=new_profitratio)).aggregate(count=Count('revenueId'))['count'] or 0
+    q3NewCount = revenue3.filter(
+        Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
+            contractId__profitRatio__gte=new_profitratio)).aggregate(count=Count('revenueId'))['count'] or 0
+    q4NewCount = revenue4.filter(
+        Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
+            contractId__profitRatio__gte=new_profitratio)).aggregate(count=Count('revenueId'))['count'] or 0
+
+    q1New = (q1NewCount) // 3
+    q2New = (q1NewCount + q2NewCount) // 3  - q1New
+    q3New = (q1NewCount + q2NewCount + q3NewCount) // 3  - q2New
+    q4New = (q1NewCount + q2NewCount + q3NewCount + q4NewCount) // 3  - q3New
+
+    # Over Gp Bonus
+    gp_standard = 50000000
+    gp_profitratio = 15
+    gp_maincategory = '상품'
+
+    q1OverGp = revenue1.filter(
+        Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
+            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+    q2OverGp = revenue2.filter(
+        Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
+            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+    q3OverGp = revenue3.filter(
+        Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
+            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+    q4OverGp = revenue4.filter(
+        Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
+            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+
+    table4 = [
+        {
+            'name': 'Skew Bonus',
+            'condition': '분기 목표 달성 시',
+            'for': '팀',
+            'q1': int(q1Skew),
+            'q2': int(q2Skew),
+            'q3': int(q3Skew),
+            'q4': int(q4Skew),
+        },
+        {
+            'name': 'Over GP Bonus',
+            'condition': '상품의 마진률 15% 이상 Over 시(매출 5천만원 이상 건)',
+            'for': '개인',
+            'q1': int(cal_over_gp(q1OverGp) or 0),
+            'q2': int(cal_over_gp(q2OverGp) or 0),
+            'q3': int(cal_over_gp(q3OverGp) or 0),
+            'q4': int(cal_over_gp(q4OverGp) or 0),
+        },
+        {
+            'name': 'New Account Bonus',
+            'condition': '신규 고객 3개 업체 마진률 10% 이상 계약 시(매출 5천만원 이상 건)',
+            'for': '개인',
+            'q1': q1New*newAccountBonusMoney,
+            'q2': q2New*newAccountBonusMoney,
+            'q3': q3New*newAccountBonusMoney,
+            'q4': q4New*newAccountBonusMoney,
+        },
+        {
+            'name': '합계',
+            'condition': '예상분기AWARD',
+            'for': '전체',
+            'q1': int(q1Skew+(cal_over_gp(q1OverGp) or 0)+q1New*newAccountBonusMoney),
+            'q2': int(q2Skew+(cal_over_gp(q2OverGp) or 0)+q2New*newAccountBonusMoney),
+            'q3': int(q3Skew+(cal_over_gp(q3OverGp) or 0)+q3New*newAccountBonusMoney),
+            'q4': int(q4Skew+(cal_over_gp(q4OverGp) or 0)+q4New*newAccountBonusMoney),
+        },
+        {
+            'name': '',
+            'condition': '확정지급액',
+            'for': '전체',
+            'q1': int(incentive.get(quarter=1).achieveAward),
+            'q2': int(incentive.get(quarter=2).achieveAward),
+            'q3': int(incentive.get(quarter=3).achieveAward),
+            'q4': int(incentive.get(quarter=4).achieveAward),
+        },
+    ]
+
     #누적 인센티브&어워드 확정 금액
     incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
     sumachieveIncentive = incentive.filter(year=year).aggregate(Sum('achieveIncentive'))
@@ -2024,8 +2131,10 @@ def view_incentive(request, empId):
         'table1': table1,
         'table2': table2,
         'table3': table3,
+        'table4': table4,
         'sumachieveIncentive': sumachieveIncentive,
         'sumachieveAward': sumachieveAward,
+        'GPachieve': GPachieve,
     }
     return render(request, 'sales/viewincentive.html', context)
 

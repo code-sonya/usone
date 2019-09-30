@@ -10,6 +10,7 @@ class Contract(models.Model):
     contractStepChoices = (('Opportunity', 'Opportunity'), ('Firm', 'Firm'), ('Drop', 'Drop'))
     depositConditionChoices = (('계산서 발행 후', '계산서 발행 후'), ('당월', '당월'), ('익월', '익월'), ('당월 말', '당월 말'), ('익월 초', '익월 초'), ('익월 말', '익월 말'))
     modifyContractPaperChoices = (('N', 'N'), ('Y', 'Y'))
+    newCompanyChoices = (('N', 'N'), ('Y', 'Y'))
 
     contractId = models.AutoField(primary_key=True)
     contractCode = models.CharField(max_length=30)
@@ -17,6 +18,7 @@ class Contract(models.Model):
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     empName = models.CharField(max_length=10)
     empDeptName = models.CharField(max_length=30)
+    newCompany = models.CharField(max_length=10, choices=newCompanyChoices, default='N')
     saleCompanyName = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='saleCompanyName')
     saleCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleCustomerId', null=True, blank=True)
     saleCustomerName = models.CharField(max_length=10, null=True, blank=True)

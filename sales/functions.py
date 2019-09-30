@@ -604,3 +604,14 @@ def empIncentive(year, empId):
     ]
 
     return table1, table2, table3
+
+
+def cal_over_gp(revenue):
+    max = 500000
+    sum = 0
+    for r in revenue:
+        if (r.contractId.profitPrice - r.contractId.salePrice/100*15)/100*10 > max:
+            sum += max
+        else:
+            sum += (r.contractId.profitPrice - r.contractId.salePrice/100*15)/100*10
+    return sum
