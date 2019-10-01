@@ -2045,6 +2045,7 @@ def view_incentive(request, empId):
     # New Account Bonus
     new_standard = 50000000
     new_profitratio = 10
+
     q1NewCount = revenue1.filter(
         Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
             contractId__profitRatio__gte=new_profitratio))
@@ -2058,8 +2059,7 @@ def view_incentive(request, empId):
         Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
             contractId__profitRatio__gte=new_profitratio))
 
-    newCount = [q1NewCount, q2NewCount, q3NewCount, q4NewCount]
-    print(newCount)
+    newCount = [q1NewCount or None, q2NewCount or None, q3NewCount or None, q4NewCount or None]
 
     q1New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3
     q2New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3  - q1New
@@ -2084,8 +2084,29 @@ def view_incentive(request, empId):
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
             contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
 
-    overGp = [q1OverGp, q2OverGp, q3OverGp, q4OverGp]
-    print(overGp)
+    overGp = [q1OverGp or None, q2OverGp or None, q3OverGp or None, q4OverGp or None]
+    if newCount == [None, None, None, None]:
+        newCount = ''
+    if overGp == [None, None, None, None]:
+        overGp = ''
+
+
+    #constraint
+    q1constraint, q2constraint, q3constraint, q4constraint = 'X', 'X', 'X', 'X'
+    q1expect, q2expect, q3expect, q4expect = 0, 0, 0, 0
+    if table2['achieve']['total']['q1'] >= 80:
+        q1constraint = 'O'
+        q1expect = int(q1Skew+(cal_over_gp(q1OverGp) or 0)+q1New*newAccountBonusMoney)
+    if table2['achieve']['total']['q2'] >= 80:
+        q2constraint = 'O'
+        q2expect = int(q2Skew+(cal_over_gp(q2OverGp) or 0)+q2New*newAccountBonusMoney)
+    if table2['achieve']['total']['q3'] >= 80:
+        q3constraint = 'O'
+        q3expect = int(q3Skew+(cal_over_gp(q3OverGp) or 0)+q3New*newAccountBonusMoney)
+    if table2['achieve']['total']['q4'] >= 80:
+        q4constraint = 'O'
+        q4expect = int(q4Skew+(cal_over_gp(q4OverGp) or 0)+q4New*newAccountBonusMoney)
+
 
     table4 = [
         {
@@ -2119,19 +2140,29 @@ def view_incentive(request, empId):
             'q4': q4New*newAccountBonusMoney,
         },
         {
+            'name': '제약조건',
+            'condition': '누적분기80%이상',
+            'for': '',
+            'id': 'constraint',
+            'q1': q1constraint,
+            'q2': q2constraint,
+            'q3': q3constraint,
+            'q4': q4constraint,
+        },
+        {
             'name': '합계',
             'condition': '예상분기AWARD',
-            'for': '전체',
+            'for': '',
             'id': 'expect',
-            'q1': int(q1Skew+(cal_over_gp(q1OverGp) or 0)+q1New*newAccountBonusMoney),
-            'q2': int(q2Skew+(cal_over_gp(q2OverGp) or 0)+q2New*newAccountBonusMoney),
-            'q3': int(q3Skew+(cal_over_gp(q3OverGp) or 0)+q3New*newAccountBonusMoney),
-            'q4': int(q4Skew+(cal_over_gp(q4OverGp) or 0)+q4New*newAccountBonusMoney),
+            'q1': q1expect,
+            'q2': q2expect,
+            'q3': q3expect,
+            'q4': q4expect,
         },
         {
             'name': '',
             'condition': '확정지급액',
-            'for': '전체',
+            'for': '',
             'id': 'acheive',
             'q1': int(incentive.get(quarter=1).achieveAward),
             'q2': int(incentive.get(quarter=2).achieveAward),
@@ -2145,6 +2176,10 @@ def view_incentive(request, empId):
     sumachieveIncentive = incentive.filter(year=year).aggregate(Sum('achieveIncentive'))
     sumachieveAward = incentive.filter(year=year).aggregate(Sum('achieveAward'))
 
+    #인센티브 실적 상세 내역
+    incentiveRevenues = revenues.filter(~Q(revenuePrice= F('incentivePrice')) or ~Q(revenueProfitPrice=F('incentiveProfitPrice')))
+    print(incentiveRevenues)
+
     context = {
         'empName': empName,
         'table1': table1,
@@ -2156,6 +2191,7 @@ def view_incentive(request, empId):
         'GPachieve': GPachieve,
         'newCount': newCount,
         'overGp': overGp,
+        'incentiveRevenues': incentiveRevenues,
     }
     return render(request, 'sales/viewincentive.html', context)
 
