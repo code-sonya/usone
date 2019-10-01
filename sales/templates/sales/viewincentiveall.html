@@ -63,52 +63,52 @@
   <div class="d-none d-lg-block">
     <div class="card shadow mb-4">
 
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h3 class="m-0 text-gray-800"> {{ todayYear }}년 {{ todayQuarter }}분기 인센티브 현황 </h3>
-          <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-              <i class="fas fa-filter fa-fw text-gray-400"></i>
-            </a>
-          </div>
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h3 class="m-0 text-gray-800"> {{ todayYear }}년 {{ todayQuarter }}분기 인센티브 현황 </h3>
+        <div class="dropdown no-arrow">
+          <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+            <i class="fas fa-filter fa-fw text-gray-400"></i>
+          </a>
         </div>
+      </div>
 
-        <div class="card-body">
-          <table class="pc-table" id="contract">
-            <thead class="bg-light thtd">
-            <tr class="thtd">
-              <td class="thtd" colspan="3">구분</td>
-              <td class="thtd" colspan="6">{{ todayQuarter }}분기 누계 급여 정보</td>
-              <td class="thtd" colspan="2">인센티브 산출</td>
-              <td class="thtd" colspan="4">인센티브</td>
-              <td class="thtd" colspan="2"></td>
-              <td class="thtd" colspan="2"></td>
-            </tr>
-            <tr class="thtd">
-              <td class="thtd" rowspan="2">직급</td>
-              <td class="thtd" rowspan="2">성명</td>
-              <td class="thtd" rowspan="2">목표<br>달성율</td>
-              <td class="thtd" colspan="2">연봉</td>
-              <td class="thtd" colspan="2">기본급</td>
-              <td class="thtd" colspan="2">베팅액</td>
-              <td class="thtd">인정율</td>
-              <td class="thtd" rowspan="2">ACC</td>
-              <td class="thtd" colspan="2">{{ todayQuarter }}분기누계</td>
-              <td class="thtd" colspan="2">{{ beforeQuarter }}분기누계지급</td>
-              <td class="thtd" colspan="2">{{ nextMonth }}월급여대장</td>
-              <td class="thtd" colspan="2" rowspan="2">AWARD</td>
-            </tr>
-            <tr class="thtd">
-              <td class="thtd" colspan="2">A</td>
-              <td class="thtd" colspan="2">B</td>
-              <td class="thtd" colspan="2">C</td>
-              <td class="thtd">D</td>
-              <td class="thtd" colspan="2">C-E=F</td>
-              <td class="thtd" colspan="2">G</td>
-              <td class="thtd" colspan="2">F-G=H</td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for row in table %}
+      <div class="card-body">
+        <table class="pc-table" id="contract">
+          <thead class="bg-light thtd">
+          <tr class="thtd">
+            <td class="thtd" colspan="3">구분</td>
+            <td class="thtd" colspan="6">{{ todayQuarter }}분기 누계 급여 정보</td>
+            <td class="thtd" colspan="2">인센티브 산출</td>
+            <td class="thtd" colspan="4">인센티브</td>
+            <td class="thtd" colspan="2"></td>
+            <td class="thtd" colspan="2"></td>
+          </tr>
+          <tr class="thtd">
+            <td class="thtd" rowspan="2">직급</td>
+            <td class="thtd" rowspan="2">성명</td>
+            <td class="thtd" rowspan="2">목표<br>달성율</td>
+            <td class="thtd" colspan="2">연봉</td>
+            <td class="thtd" colspan="2">기본급</td>
+            <td class="thtd" colspan="2">베팅액</td>
+            <td class="thtd">인정율</td>
+            <td class="thtd" rowspan="2">ACC</td>
+            <td class="thtd" colspan="2">{{ todayQuarter }}분기누계</td>
+            <td class="thtd" colspan="2">{{ beforeQuarter }}분기누계지급</td>
+            <td class="thtd" colspan="2">{{ nextMonth }}월급여대장</td>
+            <td class="thtd" colspan="2" rowspan="2">AWARD</td>
+          </tr>
+          <tr class="thtd">
+            <td class="thtd" colspan="2">A</td>
+            <td class="thtd" colspan="2">B</td>
+            <td class="thtd" colspan="2">C</td>
+            <td class="thtd">D</td>
+            <td class="thtd" colspan="2">C-E=F</td>
+            <td class="thtd" colspan="2">G</td>
+            <td class="thtd" colspan="2">F-G=H</td>
+          </tr>
+          </thead>
+          <tbody>
+          {% for row in table %}
             <tr class="thtd">
               <td class="thtd" colspan="1">{{ row.empPosition }}</td>
               <td class="thtd" colspan="1">{{ row.empName }}</td>
@@ -123,10 +123,22 @@
               <td class="thtd" colspan="2">{{ row.achieveIncentive | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.achieveAward | intcomma }}</td>
             </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
+          {% endfor %}
+          <tr class="thtd bg-light">
+            <td class="thtd" colspan="3">합계</td>
+            <td class="thtd" colspan="2"></td>
+            <td class="thtd" colspan="2"></td>
+            <td class="thtd bg-warning" colspan="2">{{ sumBetting | intcomma }}</td>
+            <td class="thtd" colspan="1"></td>
+            <td class="thtd" colspan="1"></td>
+            <td class="thtd" colspan="2"></td>
+            <td class="thtd" colspan="2"></td>
+            <td class="thtd bg-warning" colspan="2">{{ sumAcheive | intcomma }}</td>
+            <td class="thtd" colspan="2"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -148,7 +160,7 @@
             <div class="row mb-1">
               <div class="col-12">
                 <label for="quarter" class="text-primary">분기</label>
-                <select class="form-control" id="quarter" name="quarter" >
+                <select class="form-control" id="quarter" name="quarter">
                   <option value="">------</option>
                   <option value="1">1분기</option>
                   <option value="2">2분기</option>
