@@ -78,7 +78,7 @@
             <tr class="thtd">
               <td class="thtd" colspan="3">구분</td>
               <td class="thtd" colspan="6">{{ todayQuarter }}분기 누계 급여 정보</td>
-              <td class="thtd" colspan="4">인센티브 산출</td>
+              <td class="thtd" colspan="2">인센티브 산출</td>
               <td class="thtd" colspan="4">인센티브</td>
               <td class="thtd" colspan="2"></td>
               <td class="thtd" colspan="2"></td>
@@ -93,7 +93,6 @@
               <td class="thtd">인정율</td>
               <td class="thtd" rowspan="2">ACC</td>
               <td class="thtd" colspan="2">{{ todayQuarter }}분기누계</td>
-              <td class="thtd" colspan="2">{{ todayQuarter }}분기누계</td>
               <td class="thtd" colspan="2">{{ beforeQuarter }}분기누계지급</td>
               <td class="thtd" colspan="2">{{ nextMonth }}월급여대장</td>
               <td class="thtd" colspan="2" rowspan="2">AWARD</td>
@@ -103,7 +102,6 @@
               <td class="thtd" colspan="2">B</td>
               <td class="thtd" colspan="2">C</td>
               <td class="thtd">D</td>
-              <td class="thtd" colspan="2">(C*D)-C=E</td>
               <td class="thtd" colspan="2">C-E=F</td>
               <td class="thtd" colspan="2">G</td>
               <td class="thtd" colspan="2">F-G=H</td>
@@ -120,7 +118,6 @@
               <td class="thtd" colspan="2">{{ row.sum_bettingSalary | intcomma }}</td>
               <td class="thtd" colspan="1">{{ row.creditRatio }}</td>
               <td class="thtd" colspan="1">{{ row.ACC }}</td>
-              <td class="thtd" colspan="2">??</td>
               <td class="thtd" colspan="2">{{ row.cumulateIncentive | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.before_achieve | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.achieveIncentive | intcomma }}</td>
