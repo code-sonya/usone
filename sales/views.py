@@ -2058,8 +2058,7 @@ def view_incentive(request, empId):
         Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
             contractId__profitRatio__gte=new_profitratio))
 
-    newCount = [q1NewCount, q2NewCount, q3NewCount, q4NewCount]
-    print(newCount)
+    newCount = [q1NewCount or None, q2NewCount or None, q3NewCount or None, q4NewCount or None]
 
     q1New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3
     q2New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3  - q1New
@@ -2084,8 +2083,11 @@ def view_incentive(request, empId):
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
             contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
 
-    overGp = [q1OverGp, q2OverGp, q3OverGp, q4OverGp]
-    print(overGp)
+    overGp = [q1OverGp or None, q2OverGp or None, q3OverGp or None, q4OverGp or None]
+    if newCount == [None, None, None, None]:
+        newCount = ''
+    if overGp == [None, None, None, None]:
+        overGp = ''
 
     table4 = [
         {
