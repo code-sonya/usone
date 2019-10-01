@@ -79,8 +79,7 @@
             <td class="thtd" colspan="3">구분</td>
             <td class="thtd" colspan="6">{{ todayQuarter }}분기 누계 급여 정보</td>
             <td class="thtd" colspan="2">인센티브 산출</td>
-            <td class="thtd" colspan="4">인센티브</td>
-            <td class="thtd" colspan="2"></td>
+            <td class="thtd" colspan="8">인센티브</td>
             <td class="thtd" colspan="2"></td>
           </tr>
           <tr class="thtd">
@@ -95,16 +94,19 @@
             <td class="thtd" colspan="2">{{ todayQuarter }}분기누계</td>
             <td class="thtd" colspan="2">{{ beforeQuarter }}분기누계지급</td>
             <td class="thtd" colspan="2">{{ nextMonth }}월급여대장</td>
-            <td class="thtd" colspan="2" rowspan="2">AWARD</td>
+            <td class="thtd" colspan="2">{{ todayQuarter }}분기AWARD</td>
+            <td class="thtd" colspan="2">급여증감액</td>
           </tr>
           <tr class="thtd">
             <td class="thtd" colspan="2">A</td>
             <td class="thtd" colspan="2">B</td>
             <td class="thtd" colspan="2">C</td>
             <td class="thtd">D</td>
-            <td class="thtd" colspan="2">C-E=F</td>
+            <td class="thtd" colspan="2">C-((C*D)-C)=F</td>
             <td class="thtd" colspan="2">G</td>
             <td class="thtd" colspan="2">F-G=H</td>
+            <td class="thtd" colspan="2">I</td>
+            <td class="thtd" colspan="2">C-F-I</td>
           </tr>
           </thead>
           <tbody>
@@ -122,20 +124,13 @@
               <td class="thtd" colspan="2">{{ row.before_achieve | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.achieveIncentive | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.achieveAward | intcomma }}</td>
+              {% if row.compareIncentive > 0 %}
+                <td class="thtd text-danger" colspan="2">{{ row.compareIncentive | intcomma }}</td>
+              {% else %}
+                <td class="thtd text-primary" colspan="2">{{ row.compareIncentive | intcomma }}</td>
+              {% endif %}
             </tr>
           {% endfor %}
-          <tr class="thtd bg-light">
-            <td class="thtd" colspan="3">합계</td>
-            <td class="thtd" colspan="2"></td>
-            <td class="thtd" colspan="2"></td>
-            <td class="thtd bg-warning" colspan="2">{{ sumBetting | intcomma }}</td>
-            <td class="thtd" colspan="1"></td>
-            <td class="thtd" colspan="1"></td>
-            <td class="thtd" colspan="2"></td>
-            <td class="thtd" colspan="2"></td>
-            <td class="thtd bg-warning" colspan="2">{{ sumAcheive | intcomma }}</td>
-            <td class="thtd" colspan="2"></td>
-          </tr>
           </tbody>
         </table>
       </div>

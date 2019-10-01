@@ -2326,20 +2326,16 @@ def view_incentiveall(request):
     ).values('empId', 'achieveIncentive', 'achieveAward')
 
     table = []
-    sumBetting = 0
-    sumAcheive = 0
 
     for emp in emps:
         _, _, tmp_table3 = empIncentive(str(todayYear), int(emp['empId']))
         tmp_basic = basic.get(empId=emp['empId'])
-        sumBetting += tmp_basic['sum_bettingSalary']
 
         if beforeQuarter:
             tmp_before = before.get(empId=emp['empId'])
         else:
             tmp_before = {'sum_achieveIncentive': 0}
         tmp_current = current.get(empId=emp['empId'])
-        sumAcheive += tmp_current['achieveIncentive']
 
         achieveRatio = 0
         creditRatio = 0
@@ -2367,7 +2363,8 @@ def view_incentiveall(request):
             'cumulateIncentive': cumulateIncentive,
             'before_achieve': tmp_before['sum_achieveIncentive'],
             'achieveIncentive': tmp_current['achieveIncentive'],
-            'achieveAward': tmp_current['achieveAward']
+            'achieveAward': tmp_current['achieveAward'],
+            'compareIncentive': tmp_basic['sum_bettingSalary'] - cumulateIncentive - tmp_current['achieveAward'],
         })
 
     context = {
@@ -2376,8 +2373,6 @@ def view_incentiveall(request):
         'beforeQuarter': beforeQuarter,
         'nextMonth': nextMonth,
         'table': table,
-        'sumBetting': sumBetting,
-        'sumAcheive': sumAcheive,
     }
 
     return render(request, 'sales/viewincentiveall.html', context)
