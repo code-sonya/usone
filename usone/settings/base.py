@@ -143,5 +143,8 @@ LOGIN_REDIRECT_URL = '/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = join(BASE_DIR, 'media')
 
+SSL_URL = '/.well-known/'
+SSL_ROOT = join(BASE_DIR, '.well-known')
+
 # post data limit(The number of GET/POST parameters exceeded)
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
