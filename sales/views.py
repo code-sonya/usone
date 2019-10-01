@@ -2178,7 +2178,7 @@ def view_incentive(request, empId):
 
     #인센티브 실적 상세 내역
     incentiveRevenues = revenues.filter(~Q(revenuePrice= F('incentivePrice')) or ~Q(revenueProfitPrice=F('incentiveProfitPrice')))
-    print(incentiveRevenues)
+    incentiveRevenues = incentiveRevenues.annotate(comparePrice=F('revenuePrice')-F('incentivePrice'), compareProfitPrice=F('revenueProfitPrice')-F('incentiveProfitPrice'))
 
     context = {
         'empName': empName,
@@ -2341,6 +2341,7 @@ def view_incentiveall(request):
         creditRatio = 0
         ACC = 0
         cumulateIncentive = 0
+
         for t in tmp_table3:
             if t['name'] == '목표 달성률':
                 achieveRatio = t['q'+str(todayQuarter)]

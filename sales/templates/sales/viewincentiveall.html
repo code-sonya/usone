@@ -90,7 +90,7 @@
             <td class="thtd" colspan="2">기본급</td>
             <td class="thtd" colspan="2">베팅액</td>
             <td class="thtd">인정율</td>
-            <td class="thtd" rowspan="2">ACC</td>
+            <td class="thtd">ACC</td>
             <td class="thtd" colspan="2">{{ todayQuarter }}분기누계</td>
             <td class="thtd" colspan="2">{{ beforeQuarter }}분기누계지급</td>
             <td class="thtd" colspan="2">{{ nextMonth }}월급여대장</td>
@@ -102,11 +102,12 @@
             <td class="thtd" colspan="2">B</td>
             <td class="thtd" colspan="2">C</td>
             <td class="thtd">D</td>
-            <td class="thtd" colspan="2">C-((C*D)-C)=F</td>
+            <td class="thtd">E</td>
+            <td class="thtd" colspan="2"><div class="text-xs">D가100%미만:C*D=F</div><div class="text-xs">그외:((C*D)-C)*E+C=F</div></td>
             <td class="thtd" colspan="2">G</td>
             <td class="thtd" colspan="2">F-G=H</td>
             <td class="thtd" colspan="2">I</td>
-            <td class="thtd" colspan="2">C-F-I</td>
+            <td class="thtd" colspan="2"></td>
           </tr>
           </thead>
           <tbody>
