@@ -413,23 +413,23 @@ def empIncentive(year, empId):
     }
     table2['achieve'] = {
         'revenue': {
-            'q1': round(table2['incentive']['revenue']['q1'] / table2['target']['revenue']['q1'] * 100),
-            'q2': round(table2['incentive']['revenue']['q2'] / table2['target']['revenue']['q2'] * 100),
-            'q3': round(table2['incentive']['revenue']['q3'] / table2['target']['revenue']['q3'] * 100),
-            'q4': round(table2['incentive']['revenue']['q4'] / table2['target']['revenue']['q4'] * 100),
+            'q1': round((table2['incentive']['revenue']['q1'] / table2['target']['revenue']['q1'] * 100), 1),
+            'q2': round((table2['incentive']['revenue']['q2'] / table2['target']['revenue']['q2'] * 100), 1),
+            'q3': round((table2['incentive']['revenue']['q3'] / table2['target']['revenue']['q3'] * 100), 1),
+            'q4': round((table2['incentive']['revenue']['q4'] / table2['target']['revenue']['q4'] * 100), 1),
         },
         'profit': {
-            'q1': round(table2['incentive']['profit']['q1'] / table2['target']['profit']['q1'] * 100),
-            'q2': round(table2['incentive']['profit']['q2'] / table2['target']['profit']['q2'] * 100),
-            'q3': round(table2['incentive']['profit']['q3'] / table2['target']['profit']['q3'] * 100),
-            'q4': round(table2['incentive']['profit']['q4'] / table2['target']['profit']['q4'] * 100),
+            'q1': round((table2['incentive']['profit']['q1'] / table2['target']['profit']['q1'] * 100), 1),
+            'q2': round((table2['incentive']['profit']['q2'] / table2['target']['profit']['q2'] * 100), 1),
+            'q3': round((table2['incentive']['profit']['q3'] / table2['target']['profit']['q3'] * 100), 1),
+            'q4': round((table2['incentive']['profit']['q4'] / table2['target']['profit']['q4'] * 100), 1),
         },
     }
     table2['achieve']['total'] = {
-        'q1': round((table2['achieve']['revenue']['q1'] * 0.3) + (table2['achieve']['profit']['q1'] * 0.7)),
-        'q2': round((table2['achieve']['revenue']['q2'] * 0.3) + (table2['achieve']['profit']['q2'] * 0.7)),
-        'q3': round((table2['achieve']['revenue']['q3'] * 0.3) + (table2['achieve']['profit']['q3'] * 0.7)),
-        'q4': round((table2['achieve']['revenue']['q4'] * 0.3) + (table2['achieve']['profit']['q4'] * 0.7)),
+        'q1': round(((table2['achieve']['revenue']['q1'] * 0.3) + (table2['achieve']['profit']['q1'] * 0.7)), 1),
+        'q2': round(((table2['achieve']['revenue']['q2'] * 0.3) + (table2['achieve']['profit']['q2'] * 0.7)), 1),
+        'q3': round(((table2['achieve']['revenue']['q3'] * 0.3) + (table2['achieve']['profit']['q3'] * 0.7)), 1),
+        'q4': round(((table2['achieve']['revenue']['q4'] * 0.3) + (table2['achieve']['profit']['q4'] * 0.7)), 1),
     }
     table2['target']['cumulation'] = {
         'revenue': {
@@ -487,35 +487,35 @@ def empIncentive(year, empId):
     }
     table2['achieve']['cumulation'] = {
         'revenue': {
-            'q1': round(table2['incentive']['cumulation']['revenue']['q1'] /
-                        table2['target']['cumulation']['revenue']['q1'] * 100),
-            'q2': round(table2['incentive']['cumulation']['revenue']['q2'] /
-                        table2['target']['cumulation']['revenue']['q2'] * 100),
-            'q3': round(table2['incentive']['cumulation']['revenue']['q3'] /
-                        table2['target']['cumulation']['revenue']['q3'] * 100),
-            'q4': round(table2['incentive']['cumulation']['revenue']['q1'] /
-                        table2['target']['cumulation']['revenue']['q4'] * 100),
+            'q1': round((table2['incentive']['cumulation']['revenue']['q1'] /
+                        table2['target']['cumulation']['revenue']['q1'] * 100), 1),
+            'q2': round((table2['incentive']['cumulation']['revenue']['q2'] /
+                        table2['target']['cumulation']['revenue']['q2'] * 100), 1),
+            'q3': round((table2['incentive']['cumulation']['revenue']['q3'] /
+                        table2['target']['cumulation']['revenue']['q3'] * 100), 1),
+            'q4': round((table2['incentive']['cumulation']['revenue']['q1'] /
+                        table2['target']['cumulation']['revenue']['q4'] * 100), 1),
         },
         'profit': {
-            'q1': round(table2['incentive']['cumulation']['profit']['q1'] /
-                        table2['target']['cumulation']['profit']['q1'] * 100),
-            'q2': round(table2['incentive']['cumulation']['profit']['q2'] /
-                        table2['target']['cumulation']['profit']['q2'] * 100),
-            'q3': round(table2['incentive']['cumulation']['profit']['q3'] /
-                        table2['target']['cumulation']['profit']['q3'] * 100),
-            'q4': round(table2['incentive']['cumulation']['profit']['q4'] /
-                        table2['target']['cumulation']['profit']['q4'] * 100),
+            'q1': round((table2['incentive']['cumulation']['profit']['q1'] /
+                        table2['target']['cumulation']['profit']['q1'] * 100), 1),
+            'q2': round((table2['incentive']['cumulation']['profit']['q2'] /
+                        table2['target']['cumulation']['profit']['q2'] * 100), 1),
+            'q3': round((table2['incentive']['cumulation']['profit']['q3'] /
+                        table2['target']['cumulation']['profit']['q3'] * 100), 1),
+            'q4': round((table2['incentive']['cumulation']['profit']['q4'] /
+                        table2['target']['cumulation']['profit']['q4'] * 100), 1),
         },
     }
     table2['achieve']['cumulation']['total'] = {
-        'q1': round((table2['achieve']['cumulation']['revenue']['q1'] * 0.3) +
-                    (table2['achieve']['cumulation']['profit']['q1'] * 0.7)),
-        'q2': round((table2['achieve']['cumulation']['revenue']['q2'] * 0.3) +
-                    (table2['achieve']['cumulation']['profit']['q2'] * 0.7)),
-        'q3': round((table2['achieve']['cumulation']['revenue']['q3'] * 0.3) +
-                    (table2['achieve']['cumulation']['profit']['q3'] * 0.7)),
-        'q4': round((table2['achieve']['cumulation']['revenue']['q4'] * 0.3) +
-                    (table2['achieve']['cumulation']['profit']['q4'] * 0.7)),
+        'q1': round(((table2['achieve']['cumulation']['revenue']['q1'] * 0.3) +
+                    (table2['achieve']['cumulation']['profit']['q1'] * 0.7)), 1),
+        'q2': round(((table2['achieve']['cumulation']['revenue']['q2'] * 0.3) +
+                    (table2['achieve']['cumulation']['profit']['q2'] * 0.7)), 1),
+        'q3': round(((table2['achieve']['cumulation']['revenue']['q3'] * 0.3) +
+                    (table2['achieve']['cumulation']['profit']['q3'] * 0.7)), 1),
+        'q4': round(((table2['achieve']['cumulation']['revenue']['q4'] * 0.3) +
+                    (table2['achieve']['cumulation']['profit']['q4'] * 0.7)), 1),
     }
 
     table3 = [
