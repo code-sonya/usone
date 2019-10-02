@@ -81,6 +81,7 @@ def post_contract(request):
                 revenueInstance = Revenue.objects.get(revenueId=int(instance.revenueId))
                 revenueInstance.incentivePrice = cal_revenue_incentive(int(instance.revenueId))[0]
                 revenueInstance.incentiveProfitPrice = cal_revenue_incentive(int(instance.revenueId))[1]
+                revenueInstance.incentiveReason = cal_revenue_incentive(int(instance.revenueId))[2]
                 revenueInstance.save()
 
             jsonPurchase = json.loads(request.POST['jsonPurchase'])
@@ -276,6 +277,7 @@ def modify_contract(request, contractId):
                     revenueInstance = Revenue.objects.get(revenueId=int(instance.revenueId))
                     revenueInstance.incentivePrice = cal_revenue_incentive(int(instance.revenueId))[0]
                     revenueInstance.incentiveProfitPrice = cal_revenue_incentive(int(instance.revenueId))[1]
+                    revenueInstance.incentiveReason = cal_revenue_incentive(int(instance.revenueId))[2]
                     revenueInstance.save()
                 else:
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
@@ -298,6 +300,7 @@ def modify_contract(request, contractId):
                     revenueInstance = Revenue.objects.get(revenueId=int(revenue["revenueId"]))
                     revenueInstance.incentivePrice = cal_revenue_incentive(int(revenue["revenueId"]))[0]
                     revenueInstance.incentiveProfitPrice = cal_revenue_incentive(int(revenue["revenueId"]))[1]
+                    revenueInstance.incentiveReason = cal_revenue_incentive(int(revenue["revenueId"]))[2]
                     revenueInstance.save()
 
                     jsonRevenueId.append(int(revenue["revenueId"]))
@@ -1081,6 +1084,7 @@ def save_revenuetable(request):
         revenue = Revenue.objects.get(revenueId=a)
         revenue.incentivePrice = cal_revenue_incentive(a)[0]
         revenue.incentiveProfitPrice = cal_revenue_incentive(a)[1]
+        revenue.incentiveReason = cal_revenue_incentive(a)[2]
         revenue.save()
 
 
@@ -2090,8 +2094,7 @@ def view_incentive(request, empId):
     if overGp == [None, None, None, None]:
         overGp = ''
 
-
-    #constraint
+    # constraint
     q1constraint, q2constraint, q3constraint, q4constraint = 'X', 'X', 'X', 'X'
     q1expect, q2expect, q3expect, q4expect = 0, 0, 0, 0
     if table2['achieve']['total']['q1'] >= 80:
@@ -2106,7 +2109,6 @@ def view_incentive(request, empId):
     if table2['achieve']['total']['q4'] >= 80:
         q4constraint = 'O'
         q4expect = int(q4Skew+(cal_over_gp(q4OverGp) or 0)+q4New*newAccountBonusMoney)
-
 
     table4 = [
         {
@@ -2171,14 +2173,23 @@ def view_incentive(request, empId):
         },
     ]
 
-    #누적 인센티브&어워드 확정 금액
+    # 누적 인센티브&어워드 확정 금액
     incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
     sumachieveIncentive = incentive.filter(year=year).aggregate(Sum('achieveIncentive'))
     sumachieveAward = incentive.filter(year=year).aggregate(Sum('achieveAward'))
 
-    #인센티브 실적 상세 내역
-    incentiveRevenues = revenues.filter(~Q(revenuePrice= F('incentivePrice')) or ~Q(revenueProfitPrice=F('incentiveProfitPrice')))
-    incentiveRevenues = incentiveRevenues.annotate(comparePrice=F('revenuePrice')-F('incentivePrice'), compareProfitPrice=F('revenueProfitPrice')-F('incentiveProfitPrice'))
+    # 인센티브 실적 상세 내역
+    incentiveRevenues = revenues.filter(
+        Q(billingDate__isnull=False) &
+        (
+            ~Q(revenuePrice=F('incentivePrice')) |
+            ~Q(revenueProfitPrice=F('incentiveProfitPrice'))
+        )
+    )
+    incentiveRevenues = incentiveRevenues.annotate(
+        comparePrice=F('revenuePrice')-F('incentivePrice'),
+        compareProfitPrice=F('revenueProfitPrice')-F('incentiveProfitPrice')
+    )
 
     context = {
         'empName': empName,
@@ -2307,6 +2318,8 @@ def view_incentiveall(request):
         sum_salary=Sum('salary'),
         sum_basicSalary=Sum('basicSalary'),
         sum_bettingSalary=Sum('bettingSalary'),
+        sum_achieveIncentive=Sum('achieveIncentive'),
+        sum_achieveAward=Sum('achieveAward'),
     )
 
     if beforeQuarter:
@@ -2350,9 +2363,10 @@ def view_incentiveall(request):
             if t['name'] == 'ACC':
                 ACC = t['q'+str(todayQuarter)]
             if t['name'] == '예상누적인센티브':
-                cumulateIncentive= t['q'+str(todayQuarter)]
+                cumulateIncentive = t['q'+str(todayQuarter)]
 
         table.append({
+            'empId': emp['empId'],
             'empPosition': tmp_basic['empPosition'],
             'empName': tmp_basic['empName'],
             'achieveRatio': achieveRatio,
@@ -2365,7 +2379,7 @@ def view_incentiveall(request):
             'before_achieve': tmp_before['sum_achieveIncentive'],
             'achieveIncentive': tmp_current['achieveIncentive'],
             'achieveAward': tmp_current['achieveAward'],
-            'compareIncentive': tmp_basic['sum_bettingSalary'] - cumulateIncentive - tmp_current['achieveAward'],
+            'compareIncentive': tmp_basic['sum_bettingSalary'] - cumulateIncentive - tmp_basic['sum_achieveAward'],
         })
 
     context = {
@@ -2461,6 +2475,7 @@ def change_incentive_all(request):
     for revenue in revenues:
         revenue.incentivePrice = cal_revenue_incentive(revenue.revenueId)[0]
         revenue.incentiveProfitPrice = cal_revenue_incentive(revenue.revenueId)[1]
+        revenue.incentiveReason = cal_revenue_incentive(revenue.revenueId)[2]
         revenue.save()
 
     return HttpResponse('성공!')

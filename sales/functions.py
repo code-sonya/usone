@@ -254,34 +254,34 @@ def cal_revenue_incentive(revenueId):
 
         # 매출일로부터 4개월 경과된 매수채권은 인센티브에 포함하지 않음
         if revenue.depositDate is None and (date.today() - revenue.billingDate) > timedelta(120):
-            print('1')
             incentiveRevenue = 0
             incentiveProfit = 0
+            incentiveReason = '4개월 미수채권'
 
         # GP가 마이너스(0원 미만)일 경우 인센티브 매출, GP는 0원
         elif contract.profitPrice < 0:
-            print('2')
             incentiveRevenue = 0
             incentiveProfit = 0
+            incentiveReason = '마이너스 GP'
 
         # 계약의 GP가 3% 미만이면 해당 계약의 매출과 GP는 50%만 인정
         elif contract.profitRatio < 3:
-            print('3')
             incentiveRevenue = int(revenue.revenuePrice * 0.5)
             incentiveProfit = int(revenue.revenueProfitPrice * 0.5)
+            incentiveReason = 'GP 3% 미만'
 
         else:
-            print('4')
             incentiveRevenue = int(revenue.revenuePrice)
             incentiveProfit = int(revenue.revenueProfitPrice)
+            incentiveReason = '정상'
 
     # 세금계산서 발행 안 된 매출은 인센티브 0
     else:
-        print('5')
         incentiveRevenue = 0
         incentiveProfit = 0
+        incentiveReason = '계산서미발행'
 
-    return incentiveRevenue, incentiveProfit
+    return incentiveRevenue, incentiveProfit, incentiveReason
 
 
 def cal_acc(ratio):

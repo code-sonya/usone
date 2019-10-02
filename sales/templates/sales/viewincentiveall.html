@@ -114,7 +114,7 @@
           {% for row in table %}
             <tr class="thtd">
               <td class="thtd" colspan="1">{{ row.empPosition }}</td>
-              <td class="thtd" colspan="1">{{ row.empName }}</td>
+              <td class="thtd" colspan="1"><a href="/sales/viewincentive/{{ row.empId }}/">{{ row.empName }}</a></td>
               <td class="thtd" colspan="1">{{ row.achieveRatio }}</td>
               <td class="thtd" colspan="2">{{ row.sum_salary | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.sum_basicSalary | intcomma }}</td>
