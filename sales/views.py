@@ -2016,10 +2016,16 @@ def contract_services(request):
 def view_incentive(request, empId):
     year = str(datetime.today().year)
     empName = Employee.objects.get(empId=empId).empName
-    table1, table2, table3 = empIncentive(year, empId)
     empDeptName = Employee.objects.get(empId=empId).empDeptName
     incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
+    if not incentive:
+        msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName,})
     goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=datetime.today().year))
+    if not goal:
+        msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName,})
+    table1, table2, table3 = empIncentive(year, empId)
     revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
     revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
     revenue2 = revenues.filter(Q(billingDate__gte=year + '-04-01') & Q(billingDate__lt=year + '-07-01'))
@@ -2379,6 +2385,7 @@ def view_incentiveall(request):
             'before_achieve': tmp_before['sum_achieveIncentive'],
             'achieveIncentive': tmp_current['achieveIncentive'],
             'achieveAward': tmp_current['achieveAward'],
+            'sum_achieveAward': tmp_basic['sum_achieveAward'],
             'compareIncentive': tmp_basic['sum_bettingSalary'] - cumulateIncentive - tmp_basic['sum_achieveAward'],
         })
 
