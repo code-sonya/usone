@@ -596,26 +596,23 @@ def empIncentive(year, empId):
                 cal_acc(table2['achieve']['cumulation']['total']['q1'])[1]
             ),
             'q2': cal_emp_incentive(
-                int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) -
-                int(incentive.get(quarter=1).achieveIncentive),
+                int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q2'])[0],
                 cal_acc(table2['achieve']['cumulation']['total']['q2'])[1]
-            ),
+            ) - int(incentive.get(quarter=1).achieveIncentive),
             'q3': cal_emp_incentive(
                 int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
-                int(incentive.get(quarter=3).bettingSalary) - int(incentive.get(quarter=1).achieveIncentive) -
-                int(incentive.get(quarter=2).achieveIncentive),
+                int(incentive.get(quarter=3).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q3'])[0],
                 cal_acc(table2['achieve']['cumulation']['total']['q3'])[1]
-            ),
+            ) - (int(incentive.get(quarter=1).achieveIncentive) + int(incentive.get(quarter=2).achieveIncentive)),
             'q4': cal_emp_incentive(
                 int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
-                int(incentive.get(quarter=3).bettingSalary) + int(incentive.get(quarter=4).bettingSalary) -
-                int(incentive.get(quarter=1).achieveIncentive) - int(incentive.get(quarter=2).achieveIncentive) -
-                int(incentive.get(quarter=3).achieveIncentive),
+                int(incentive.get(quarter=3).bettingSalary) + int(incentive.get(quarter=4).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q4'])[0],
                 cal_acc(table2['achieve']['cumulation']['total']['q4'])[1]
-            ),
+            ) - (int(incentive.get(quarter=1).achieveIncentive) + int(incentive.get(quarter=2).achieveIncentive) +
+                 int(incentive.get(quarter=3).achieveIncentive)),
         },
         {
             'name': '확정지급액',
