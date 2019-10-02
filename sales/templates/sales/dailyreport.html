@@ -62,7 +62,7 @@
         <div class="card-body">
           <div class="row ml-1 mr-1 mb-2 justify-content-between">
             <span class="font-weight-bold text-dark h5">1. {{ todayYear }}년 손익 현황</span>
-            <span>[단위 : 원]</span>
+            <span>[단위 : 백만원]</span>
           </div>
          {% if user.employee.empDeptName == '경영지원본부' %}
             <div class="float-right">
@@ -83,23 +83,23 @@
                   <tbody>
                    <tr>
                      <td>매출</td>
-                     <td class="text-right">{{ netProfit.revenuePrice |intcomma }}</td>
+                     <td class="text-right">{{ netProfit.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
                   </tr>
                    <tr>
                      <td>매출원가</td>
-                       <td class="text-right">{{ netProfit.revenuePrice |intcomma }}</td>
+                       <td class="text-right">{{ netProfit.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
                    </tr>
                    <tr>
                      <td>GP</td>
-                        <td class="text-right">{{ netProfit.revenueProfitPrice |intcomma }}</td>
+                        <td class="text-right">{{ netProfit.revenueProfitPrice |slugify|slice:"0:-6"|intcomma }}</td>
                    </tr>
                    <tr>
                      <td>판관비</td>
-                        <td class="text-right">{{ netProfit.expenses |intcomma }}</td>
+                        <td class="text-right">{{ netProfit.expenses |slugify|slice:"0:-6"|intcomma }}</td>
                    </tr>
                     <tr class="bg-light">
                      <td>영업이익</td>
-                       <td class="text-right">{{ netProfit.netProfit |intcomma  }}</td>
+                       <td class="text-right">{{ netProfit.netProfit |slugify|slice:"0:-6"|intcomma  }}</td>
                    </tr>
                   </tbody>
                 </table>
@@ -117,7 +117,7 @@
                   {% for expense in expenseDetail %}
                    <tr class="expense">
                      <td>{{ expense.expenseGroup }}</td>
-                     <td class="text-right">{{ expense.expenseMoney__sum |intcomma }} ({{ expense.expensePercent |floatformat:2}}%)</td>
+                     <td class="text-right">{{ expense.expenseMoney__sum |slugify|slice:"0:-6"|intcomma }} ({{ expense.expensePercent |floatformat:0}}%)</td>
                   </tr>
                   {% endfor %}
                   </tbody>
