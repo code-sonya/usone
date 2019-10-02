@@ -64,6 +64,12 @@
             <span class="font-weight-bold text-dark h5">1. {{ todayYear }}년 손익 현황</span>
             <span>[단위 : 원]</span>
           </div>
+         {% if user.employee.empDeptName == '경영지원본부' %}
+            <div class="float-right">
+            <i class="fas fa-upload"><a href="/sales/uploadprofitloss/"> 손익/원가데이터업로드</a></i>
+            </div>
+            <br>
+        {% endif %}
             <div class="row">
               <div class="col-6">
                 <span class="ml-3">① <span class="text-warning font-weight-bold">{{ todayMonth }}월</span> 손익계산서</span>
