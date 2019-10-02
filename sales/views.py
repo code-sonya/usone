@@ -2386,7 +2386,7 @@ def view_incentiveall(request):
             'achieveIncentive': tmp_current['achieveIncentive'],
             'achieveAward': tmp_current['achieveAward'],
             'sum_achieveAward': tmp_basic['sum_achieveAward'],
-            'compareIncentive': tmp_basic['sum_bettingSalary'] - cumulateIncentive - tmp_basic['sum_achieveAward'],
+            'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward'])-tmp_basic['sum_bettingSalary'],
         })
 
     context = {
