@@ -1,5 +1,6 @@
 import datetime
 import os
+import math
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
@@ -283,3 +284,21 @@ def num_to_str_position(num):
         return '대리'
     elif num == 6 or num == '6':
         return '사원'
+
+
+def latlng_distance(lat1, lng1, lat2, lng2, unit='m'):
+    deg2rad = lambda deg: deg * math.pi / 180.0
+    rad2deg = lambda rad: rad * 180 / math.pi
+
+    theta = lng1 - lng2
+    dist1 = math.sin(deg2rad(lat1)) * math.sin(deg2rad(lat2))
+    dist2 = math.cos(deg2rad(lat1)) * math.cos(deg2rad(lat2)) * math.cos(deg2rad(theta))
+    dist = math.acos(dist1 + dist2)
+    dist = rad2deg(dist) * 60 * 1.1515
+
+    if unit == "km":
+        dist *= 1.609344
+    elif unit == 'm':
+        dist *= 1609.344
+
+    return dist

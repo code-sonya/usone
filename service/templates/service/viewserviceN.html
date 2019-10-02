@@ -103,18 +103,19 @@
                 <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
                 <span class="text p-2"> 수정 </span>
               </a>
-              {% if user.employee.empDeptName == '솔루션지원팀' or user.employee.empDeptName == 'DB지원팀' %}
-              <a href="#" class="btn btn-warning btn-icon-split" onclick="btn_save()">
-                <span class="icon text-white-50"> <i class="fas fa-pen"> </i> </span>
-                <span class="text p-2"> 서명후완료 </span>
-              </a>
-              {% endif %}
-              {% if user.employee.empDeptName == '솔루션지원팀' or user.employee.empDeptName == 'DB지원팀' %}
-              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_direct()">
+
+              {% if geoStatus == 'start' %}
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_start()">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-                <span class="text p-2"> 완료 </span>
+                <span class="text p-2"> 시작 </span>
+              </a>
+              {% elif geoStatus == 'end' %}
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_end()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text p-2"> 종료 </span>
               </a>
               {% endif %}
+
             </div>
           {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
             <div class="text-center">
@@ -126,7 +127,6 @@
           {% endif %}
 
         </div>
-
       </div>
     </div>
 
@@ -139,18 +139,6 @@
 {% block script %}
 
   <script type="text/javascript">
-
-      function btn_save(){
-          if (confirm("서명 후 일정을 완료 하시겠습니까?") === true) {
-              location.href = '/signature/selectmanager/' + {{ service.serviceId }} + '/';
-          }
-      }
-
-      function btn_direct(){
-          if (confirm("일정을 완료 하시겠습니까?") === true) {
-              location.href = '/service/saveservice/' + {{ service.serviceId }} + '/';
-          }
-      }
 
       function btn_modify(){
           if (confirm("일정을 수정 하시겠습니까?") === true) {
@@ -168,6 +156,47 @@
           if (confirm("일정을 복사 하시겠습니까?") === true) {
               location.href = '/service/copyservice/' + {{ service.serviceId }} + '/';
           }
+      }
+
+      function btn_start(){
+          if (confirm("일정을 시작 하시겠습니까?") === true) {
+              navigator.geolocation.getCurrentPosition(function(pos) {
+                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/start/'
+                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
+              });
+          }
+      }
+
+      {% if geoStatus == 'end' %}
+      function btn_end(){
+          if (confirm("일정을 종료 하시겠습니까?") === true) {
+              navigator.geolocation.getCurrentPosition(function(pos) {
+                  if (latlng_distance({{ geo.startLatitude }}, {{ geo.startLongitude }}, pos.coords.latitude, pos.coords.longitude) < 1000) {
+                      location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/end/'
+                          + pos.coords.latitude + '/' + pos.coords.longitude + '/';
+                  } else {
+                      alert('시작지점과 1km 이상 떨어져있습니다.');
+                  }
+              });
+          }
+      }
+      {% endif %}
+
+      function deg2rad(deg) {
+          return deg * Math.PI / 180.0;
+      }
+
+      function rad2deg(rad) {
+          return rad * 180 / Math.PI;
+      }
+
+      function latlng_distance(lat1, lng1, lat2, lng2) {
+          let theta = lng1 - lng2;
+          let dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) +
+              Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+          dist = Math.acos(dist);
+          dist = rad2deg(dist) * 60 * 1.1515 * 1609.344;
+          return dist;
       }
 
   </script>

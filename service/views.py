@@ -17,7 +17,7 @@ from noticeboard.models import Board
 from sales.models import Contract
 from .forms import ServicereportForm, ServiceformForm
 from .functions import *
-from .models import Serviceform
+from .models import Serviceform, Geolocation
 
 
 @login_required
@@ -417,11 +417,23 @@ def view_service(request, serviceId):
     except:
         board = None
 
+    try:
+        geo = Geolocation.objects.get(serviceId__serviceId=serviceId)
+        if geo.endLatitude:
+            geoStatus = None
+        else:
+            geoStatus = 'end'
+    except:
+        geo = None
+        geoStatus = 'start'
+
     context = {
         'service': service,
         'contractName': contractName,
         'board': board,
         'coWorker': coWorker,
+        'geo': geo,
+        'geoStatus': geoStatus,
     }
 
     if service.serviceStatus == "N":
@@ -738,3 +750,37 @@ def view_service_pdf(request, serviceId):
     if pisaStatus.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
+
+
+@login_required
+def post_geolocation(request, serviceId, status, latitude, longitude):
+    service = Servicereport.objects.get(serviceId=serviceId)
+    if status == "start":
+        Geolocation.objects.create(
+            serviceId=Servicereport.objects.get(serviceId=serviceId),
+            startLatitude=float(latitude),
+            startLongitude=float(longitude),
+        )
+        service.serviceStartDatetime = datetime.datetime.now()
+        service.serviceFinishDatetime = datetime.datetime.now()
+        service.serviceDate = str(service.serviceStartDatetime)[:10]
+        service.serviceHour = str_to_timedelta_hour(str(service.serviceEndDatetime), str(service.serviceStartDatetime))
+        service.serviceOverHour = overtime(str(service.serviceStartDatetime), str(service.serviceEndDatetime))
+        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.save()
+
+    elif status == "end":
+        post = Geolocation.objects.get(serviceId=serviceId)
+        post.endLatitude = float(latitude)
+        post.endLongitude = float(longitude)
+        post.save()
+        service.serviceEndDatetime = datetime.datetime.now()
+        service.serviceFinishDatetime = datetime.datetime.now()
+        service.serviceDate = str(service.serviceStartDatetime)[:10]
+        service.serviceHour = str_to_timedelta_hour(str(service.serviceEndDatetime), str(service.serviceStartDatetime))
+        service.serviceOverHour = overtime(str(service.serviceStartDatetime), str(service.serviceEndDatetime))
+        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.serviceStatus = 'Y'
+        service.save()
+
+    return redirect('service:viewservice', serviceId)

@@ -11,7 +11,7 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
-from service.models import Servicereport
+from service.models import Servicereport, Geolocation
 from sales.models import Contract, Category, Contractitem, Revenue, Goal, Purchase
 from hr.models import Employee
 from django.db.models import functions
@@ -708,3 +708,42 @@ def service_asjson(request):
 
     structureStep = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')
+
+@login_required
+@csrf_exempt
+def dashboard_location(request):
+    template = loader.get_template('dashboard/dashboardlocation.html')
+    today = datetime.today()
+    day = str(today)[:10]
+    location = Geolocation.objects.filter(Q(startLatitude__isnull=False) & Q(endLatitude__isnull=True))
+    services = Servicereport.objects.filter(serviceId__in=location.values('serviceId'))
+    tables = [
+        {
+            'team': '영업1팀',
+            'services': services.filter(empDeptName='영업1팀')
+        },
+        {
+            'team': '영업2팀',
+            'services': services.filter(empDeptName='영업2팀')
+        },
+        {
+            'team': '인프라서비스사업팀',
+            'services': services.filter(empDeptName='인프라서비스사업팀')
+        },
+        {
+            'team': '솔루션지원팀',
+            'services': services.filter(empDeptName='솔루션지원팀')
+        },
+        {
+            'team': 'DB지원팀',
+            'services': services.filter(empDeptName='DB지원팀')
+        },
+    ]
+    context = {
+        'today': today,
+        'day': day,
+        'location': location,
+        'tables': tables,
+    }
+
+    return HttpResponse(template.render(context, request))

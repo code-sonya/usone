@@ -28,7 +28,7 @@
       font-size: 16px;
     }
 
-    .mobile-table {
+    .mobile-table{
       color: #333333;
       table-layout: fixed;
       width: 100%;
@@ -36,13 +36,13 @@
       margin-bottom: 1rem;
     }
 
-    .mobile-table td, .mobile-table th {
-      padding: 4px;
+    .mobile-table td, .mobile-table th{
       vertical-align: middle;
-      font-size: 16px;
       border-top: 1px dotted #858796a3;
     }
 
+    @media (max-width:1199px){.mobile-table td, .mobile-table th{font-size: 16px; padding: 4px;}}
+    @media (min-width:1200px){.mobile-table td, .mobile-table th{font-size: 18px; padding: 8px;}}
   </style>
 
 {% endblock %}
@@ -51,8 +51,8 @@
 {% block content %}
   <div class="row">
     <div class="col-xl-2"></div>
-    <!-- PC화면 -->
-    <div class="col-xl-8 d-none d-xl-block" style="z-index: 2">
+    <!-- SERVICE REPORT -->
+    <div id="serviceReport" class="col-xl-8 d-none" style="z-index: 2">
       <div class="text-right mb-3" style="min-width: 1000px">
         {% if service.empId.empId == user.employee.empId %}
           <a href="#" class="btn btn-warning" style="width: 50px; height: 42px;" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
@@ -220,18 +220,23 @@
         </a>
       </div>
     </div>
-    <!-- 모바일화면 -->
-    <div class="col-xl-8 d-block d-xl-none">
+
+    <!-- SERVICE SUMMARY -->
+    <div id="serviceSummary" class="col-xl-8">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
-            <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-              <i class="fas fa-edit text-gray-100"></i>
-            </a>
+            {% if service.empId.empId == user.employee.empId %}
+              {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
+              <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+                <i class="fas fa-edit text-gray-100"></i>
+              </a>
+              {% endif %}
             <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
               <i class="fas fa-envelope text-gray-100"></i>
             </a>
+            {% endif %}
             <a href="#" class="btn btn-danger" onclick="location.href='/service/viewservicepdf/{{ service.serviceId }}'">
               <i class="fas fa-file-pdf text-gray-100"></i>
             </a>
@@ -241,49 +246,49 @@
           <table class="mobile-table">
             <tbody>
             <tr>
-              <td style="width: 30%; border-top: 0px;"><b>성함</b></td>
-              <td style="width: 70%; border-top: 0px;">{{ service.empName }} {% if service.directgo == "Y" %}<b>(직출)<b>{% endif %}</td>
+              <td style="width: 30%; border-top: 0px;" class="text-center"><b>성&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp함</b></td>
+              <td style="width: 70%; border-top: 0px;">{{ service.empName }} {% if service.directgo == "Y" %}(직출){% endif %}</td>
             </tr>
             {% if coWorker %}
-              <tr>
-                <td><b>동행자</b></td>
-                <td>{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}</td>
-              </tr>
+            <tr>
+              <td class="text-center"><b>동&nbsp&nbsp행&nbsp&nbsp자</b></td>
+              <td>{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}</td>
+            </tr>
             {% endif %}
             {% if contractName %}
-              <tr>
-                <td class="text-center"><b>계&nbsp&nbsp약&nbsp&nbsp명</b></td>
-                <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ contractName }}</td>
-              </tr>
+            <tr>
+              <td class="text-center"><b>계&nbsp&nbsp약&nbsp&nbsp명</b></td>
+              <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ contractName }}</td>
+            </tr>
             {% endif %}
             <tr>
-              <td><b>고객사</b></td>
+              <td class="text-center"><b>고&nbsp&nbsp객&nbsp&nbsp사</b></td>
               <td><b class="text-primary">{{ service.companyName }}</b> ({{ service.serviceLocation }})
                 <i class="fas fa-search text-gray-600" onclick="location.href='/client/viewclient/{{ service.companyName }}/'"></i>
               </td>
             </tr>
             <tr>
-              <td><b>일정구분</b></td>
+              <td class="text-center"><b>일정구분</b></td>
               <td>{{ service.serviceType }}</td>
             </tr>
             <tr>
-              <td><b>시작시간</b></td>
-              <td>{{ service.serviceStartDatetime | date:"Y.m.d(D" | slice:"0:12" }}) {{ service.serviceStartDatetime | date:"H:i" }}</td>
+              <td class="text-center"><b>시작일시</b></td>
+              <td>{{ service.serviceStartDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceStartDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
-              <td><b>종료시간</b></td>
-              <td>{{ service.serviceEndDatetime | date:"Y.m.d(D" | slice:"0:12" }}) {{ service.serviceEndDatetime | date:"H:i" }}</td>
+              <td class="text-center"><b>종료일시</b></td>
+              <td>{{ service.serviceEndDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceEndDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
-              <td><b>소요시간</b></td>
+              <td class="text-center"><b>소요시간</b></td>
               <td>{{ service.serviceHour }} 시간 {% if service.serviceOverHour > 0 %}<b class="text-danger">({{ service.serviceOverHour }} 초과근무)</b>{% endif %}</td>
             </tr>
             <tr>
-              <td><b>제목</b></td>
+              <td class="text-center"><b>제&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp목</b></td>
               <td>{{ service.serviceTitle }}</td>
             </tr>
             <tr>
-              <td><b>내용</b></td>
+              <td class="text-center"><b>내&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp용</b></td>
               <td>{{ service.serviceDetails | linebreaksbr }}</td>
             </tr>
             </tbody>
@@ -304,11 +309,12 @@
                 <span class="text text-white">게시글 보기</span>
               </a>
             {% endif %}
+            <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+              <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+              <span class="text p-2"> 계약명 수정 </span>
+            </a>
           </div>
-          <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-            <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-            <span class="text p-2"> 수정 </span>
-          </a>
+
         </div>
       </div>
     </div>
