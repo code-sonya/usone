@@ -150,14 +150,14 @@
                 </thead>
                 <tbody>
                 {% for row in rowsFY %}
-                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                  <tr {% if forloop.last %}class="bg-light"{% endif %} style="background-color: {{ row.background }}">
                     <td>{{ row.empDeptName }}</td>
                     <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.profitTarget |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.profitPrice |slugify|slice:"0:-6"|intcomma }}</td>
-                    <td class="text-right">{{ row.revenueRatio }}%</td>
-                    <td class="text-right">{{ row.profitRatio }}%</td>
+                    <td class="text-right">{{ row.revenueRatio }}</td>
+                    <td class="text-right">{{ row.profitRatio }}</td>
                   </tr>
                 {% endfor %}
                 </tbody>
@@ -184,14 +184,14 @@
                 </thead>
                 <tbody>
                 {% for row in rowsFQ %}
-                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                  <tr {% if forloop.last %}class="bg-light"{% endif %} style="background-color: {{ row.background }}">
                     <td>{{ row.empDeptName }}</td>
                     <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.profitTarget |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.profitPrice |slugify|slice:"0:-6"|intcomma }}</td>
-                    <td class="text-right">{{ row.revenueRatio }}%</td>
-                    <td class="text-right">{{ row.profitRatio }}%</td>
+                    <td class="text-right">{{ row.revenueRatio }}</td>
+                    <td class="text-right">{{ row.profitRatio }}</td>
                   </tr>
                 {% endfor %}
                 </tbody>
@@ -222,14 +222,14 @@
                 </thead>
                 <tbody>
                 {% for row in rowsFOY %}
-                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                  <tr {% if forloop.last %}class="bg-light"{% endif %} style="background-color: {{ row.background }}">
                     <td>{{ row.empDeptName }}</td>
                     <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.profitTarget |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.profitPrice |slugify|slice:"0:-6"|intcomma }}</td>
-                    <td class="text-right">{{ row.revenueRatio }}%</td>
-                    <td class="text-right">{{ row.profitRatio }}%</td>
+                    <td class="text-right">{{ row.revenueRatio }}</td>
+                    <td class="text-right">{{ row.profitRatio }}</td>
                   </tr>
                 {% endfor %}
                 </tbody>
@@ -256,14 +256,14 @@
                 </thead>
                 <tbody>
                 {% for row in rowsFOQ %}
-                  <tr {% if forloop.last %}class="bg-light"{% endif %}>
+                  <tr {% if forloop.last %}class="bg-light"{% endif %} style="background-color: {{ row.background }}">
                     <td>{{ row.empDeptName }}</td>
                     <td class="text-right">{{ row.revenueTarget |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.profitTarget |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
                     <td class="text-right">{{ row.profitPrice |slugify|slice:"0:-6"|intcomma }}</td>
-                    <td class="text-right">{{ row.revenueRatio }}%</td>
-                    <td class="text-right">{{ row.profitRatio }}%</td>
+                    <td class="text-right">{{ row.revenueRatio }}</td>
+                    <td class="text-right">{{ row.profitRatio }}</td>
                   </tr>
                 {% endfor %}
 

@@ -208,8 +208,18 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
     elif contractStep == 'FO' or contractStep == 'OF':
         revenue = revenue.filter(Q(contractId__contractStep='Opportunity') | Q(contractId__contractStep='Firm'))
 
-    teamRevenue = list(revenue.values('contractId__empDeptName').annotate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice')))
-    sumRevenue = revenue.aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+    teamRevenue = list(revenue.values('contractId__empDeptName').annotate(
+        revenuePrice=Sum('revenuePrice'),
+        revenueProfitPrice=Sum('revenueProfitPrice'))
+    )
+    personRevenue = revenue.values('contractId__empId', 'contractId__empName', 'contractId__empDeptName').annotate(
+        revenuePrice=Sum('revenuePrice'),
+        revenueProfitPrice=Sum('revenueProfitPrice')
+    )
+    sumRevenue = revenue.aggregate(
+        revenuePrice=Sum('revenuePrice'),
+        revenueProfitPrice=Sum('revenueProfitPrice')
+    )
 
     rows = []
     teams = teamGoal.values('empDeptName').distinct()
@@ -224,10 +234,23 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
             'profitTarget': teamGoal.filter(empDeptName=team)[0]['profitTarget'],
             'revenuePrice': revenuePrice[0],
             'profitPrice': profitPrice[0],
+            'background': '#ffffec',
         }
-        row['revenueRatio'] = round(row['revenuePrice'] / row['revenueTarget'] * 100)
-        row['profitRatio'] = round(row['profitPrice'] / row['profitTarget'] * 100)
+        row['revenueRatio'] = str(round(row['revenuePrice'] / row['revenueTarget'] * 100)) + '%'
+        row['profitRatio'] = str(round(row['profitPrice'] / row['profitTarget'] * 100)) + '%'
         rows.append(row)
+
+        for person in list(personRevenue.filter(contractId__empDeptName=team)):
+            row = {
+                'empDeptName': person['contractId__empName'],
+                'revenueTarget': '',
+                'profitTarget': '',
+                'revenuePrice': person['revenuePrice'],
+                'profitPrice': person['revenueProfitPrice'],
+                'revenueRatio': '',
+                'profitRatio': '',
+            }
+            rows.append(row)
 
     revenuePrice = sumRevenue['revenuePrice'] or 0
     profitPrice = sumRevenue['revenueProfitPrice'] or 0
