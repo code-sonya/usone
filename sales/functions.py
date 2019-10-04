@@ -321,7 +321,13 @@ def cal_acc(ratio):
 
 def cal_emp_incentive(empId, table2, quarter):
     incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
-    if int(incentive.get(quarter=quarter).bettingSalary) == 0:
+
+    if quarter > 1:
+        incentiveZero = incentive.get(quarter=quarter - 1).bettingSalary != incentive.get(quarter=quarter).bettingSalary
+    else:
+        incentiveZero = False
+
+    if int(incentive.get(quarter=quarter).bettingSalary) == 0 or incentiveZero:
         if quarter == 1:
             return 0
         else:
