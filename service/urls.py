@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^viewservicepdf/(?P<serviceId>.+)/$', views.view_service_pdf, name='viewservicepdf'),
     url(r'^postgeolocation/(?P<serviceId>.+)/(?P<status>.+)/(?P<latitude>.+)/(?P<longitude>.+)/$',
         views.post_geolocation, name='postgeolocation'),
+    url(r'^changecontractsname/', views.change_contracts_name, name='changecontractsname'),
 ]

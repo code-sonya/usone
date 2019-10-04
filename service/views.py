@@ -34,35 +34,48 @@ def service_asjson(request):
         contractCheck = 0
     else:
         contractCheck = int(request.POST['contractCheck'])
-    print(request.POST)
+    selectType = request.POST['selectType']
+
     serviceTitle = request.POST['serviceTitle']
 
-    if startdate or enddate or empDeptName or empName or companyName or serviceType or serviceTitle:
-        services = Servicereport.objects.all()
-        if startdate:
-            services = services.filter(serviceDate__gte=startdate)
-        if enddate:
-            services = services.filter(serviceDate__lte=enddate)
-        if empDeptName:
-            services = services.filter(empDeptName__icontains=empDeptName)
-        if empName:
-            services = services.filter(empName__icontains=empName)
+    if selectType == 'show':
+        if startdate or enddate or empDeptName or empName or companyName or serviceType or serviceTitle:
+            services = Servicereport.objects.all()
+            if startdate:
+                services = services.filter(serviceDate__gte=startdate)
+            if enddate:
+                services = services.filter(serviceDate__lte=enddate)
+            if empDeptName:
+                services = services.filter(empDeptName__icontains=empDeptName)
+            if empName:
+                services = services.filter(empName__icontains=empName)
+            if companyName:
+                services = services.filter(companyName__companyName__icontains=companyName)
+            if serviceType:
+                services = services.filter(serviceType__icontains=serviceType)
+            if contractCheck == 0:
+                if contractName:
+                    services = services.filter(contractId__contractName__icontains=contractName)
+            elif contractCheck == 1:
+                services = services.filter(contractId__isnull=True)
+            if serviceTitle:
+                services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
+        else:
+            services = Servicereport.objects.filter(empId=request.user.employee.empId)
+            if contractCheck == 1:
+                services = services.filter(contractId__isnull=True)
+    elif selectType == 'change':
+        services = Servicereport.objects.filter(empId=request.user.employee.empId)
         if companyName:
             services = services.filter(companyName__companyName__icontains=companyName)
-        if serviceType:
-            services = services.filter(serviceType__icontains=serviceType)
-        if contractCheck == 0:
-            if contractName:
-                services = services.filter(contractId__contractName__icontains=contractName)
-        elif contractCheck == 1:
+        if contractCheck == 1:
             services = services.filter(contractId__isnull=True)
-        if serviceTitle:
-            services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
-    else:
-        services = Servicereport.objects.filter(empId=request.user.employee.empId)
 
-    services = services.values('serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType', 'serviceStartDatetime', 'serviceEndDatetime',
-                               'serviceHour', 'serviceOverHour', 'serviceDetails', 'serviceStatus', 'contractId__contractName', 'serviceId')
+    services = services.values(
+        'serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType',
+        'serviceStartDatetime', 'serviceEndDatetime', 'serviceHour', 'serviceOverHour', 'serviceDetails',
+        'serviceStatus', 'contractId__contractName', 'serviceId'
+    )
 
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -373,6 +386,22 @@ def show_services(request):
         contractCheck = 0
         serviceTitle = ""
 
+    # 계약명 자동완성
+    contractList = Contract.objects.filter(
+        Q(endCompanyName__isnull=False)
+        # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+    )
+    contracts = []
+    for contract in contractList:
+        temp = {
+            'id': contract.pk,
+            'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
+                     str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
+                     str(contract.contractEndDate)[2:].replace('-', '.') + ')',
+            'company': contract.endCompanyName.pk
+        }
+        contracts.append(temp)
+
     context = {
         'today': datetime.datetime.today(),
         'countServices': services.count() or 0,
@@ -388,6 +417,8 @@ def show_services(request):
         'contractName': contractName,
         'contractCheck': contractCheck,
         'serviceTitle': serviceTitle,
+        # contracts
+        'contracts': contracts,
     }
     return render(request, 'service/showservices.html', context)
 
@@ -784,3 +815,15 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         service.save()
 
     return redirect('service:viewservice', serviceId)
+
+
+def change_contracts_name(request):
+    serviceIds = json.loads(request.POST['serviceId'])
+    contractId = request.POST['contractId']
+
+    for serviceId in serviceIds:
+        temp = Servicereport.objects.get(serviceId=serviceId)
+        temp.contractId = Contract.objects.get(contractId=contractId)
+        temp.save()
+
+    return redirect('service:showservices')
