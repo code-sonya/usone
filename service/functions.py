@@ -142,7 +142,9 @@ def dayreport_query2(empDeptName, day):
     listVacation = []
 
     for service in serviceDept:
-        if service.directgo == 'Y':
+        if service.serviceType == '상주':
+            flag = '상주'
+        elif service.directgo == 'Y':
             flag = '직출'
         else:
             flag = ''
@@ -174,13 +176,9 @@ def dayreport_query2(empDeptName, day):
 
     if not holiday:
         for emp in inDept:
-            if emp.employee.dispatchCompany == '내근':
-                flag = ''
-            else:
-                flag = '상주'
             listService.append({
                 'serviceId': '',
-                'flag': flag,
+                'flag': '',
                 'empName': emp.employee.empName,
                 'serviceStartDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
                 'serviceEndDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),

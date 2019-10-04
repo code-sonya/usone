@@ -319,7 +319,25 @@ def cal_acc(ratio):
         return 140, 4
 
 
-def cal_emp_incentive(salary, achieve, acc):
+def cal_emp_incentive(empId, table2, quarter, salary, achieve, acc):
+    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
+    if int(incentive.get(quarter=quarter).bettingSalary) == 0:
+        if quarter == 1:
+            return 0
+        else:
+            tempQuarter = 1
+            tempSalary = 0
+            while tempQuarter <= quarter - 1:
+                tempSalary += int(incentive.get(quarter=tempQuarter).bettingSalary)
+                tempQuarter += 1
+
+            return cal_emp_incentive(
+                empId, table2, quarter - 1,
+                tempSalary,
+                cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter - 1)])[0],
+                cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter - 1)])[1]
+            )
+
     if achieve < 100:
         return round(salary * (achieve / 100))
     else:
@@ -566,51 +584,59 @@ def empIncentive(year, empId):
         {
             'name': '예상누적인센티브',
             'q1': cal_emp_incentive(
+                empId, table2, 1,
                 int(incentive.get(quarter=1).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q1'])[0],
-                cal_acc(table2['achieve']['cumulation']['total']['q1'])[1]
+                cal_acc(table2['achieve']['cumulation']['total']['q1'])[1],
             ),
             'q2': cal_emp_incentive(
+                empId, table2, 2,
                 int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q2'])[0],
-                cal_acc(table2['achieve']['cumulation']['total']['q2'])[1]
+                cal_acc(table2['achieve']['cumulation']['total']['q2'])[1],
             ),
             'q3': cal_emp_incentive(
+                empId, table2, 3,
                 int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
                 int(incentive.get(quarter=3).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q3'])[0],
-                cal_acc(table2['achieve']['cumulation']['total']['q3'])[1]
+                cal_acc(table2['achieve']['cumulation']['total']['q3'])[1],
             ),
             'q4': cal_emp_incentive(
+                empId, table2, 4,
                 int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
                 int(incentive.get(quarter=3).bettingSalary) + int(incentive.get(quarter=4).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q4'])[0],
-                cal_acc(table2['achieve']['cumulation']['total']['q4'])[1]
+                cal_acc(table2['achieve']['cumulation']['total']['q4'])[1],
             ),
         },
         {
             'name': '예상분기인센티브',
             'q1': cal_emp_incentive(
+                empId, table2, 1,
                 int(incentive.get(quarter=1).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q1'])[0],
-                cal_acc(table2['achieve']['cumulation']['total']['q1'])[1]
+                cal_acc(table2['achieve']['cumulation']['total']['q1'])[1],
             ),
             'q2': cal_emp_incentive(
+                empId, table2, 2,
                 int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q2'])[0],
-                cal_acc(table2['achieve']['cumulation']['total']['q2'])[1]
+                cal_acc(table2['achieve']['cumulation']['total']['q2'])[1],
             ) - int(incentive.get(quarter=1).achieveIncentive),
             'q3': cal_emp_incentive(
+                empId, table2, 3,
                 int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
                 int(incentive.get(quarter=3).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q3'])[0],
-                cal_acc(table2['achieve']['cumulation']['total']['q3'])[1]
+                cal_acc(table2['achieve']['cumulation']['total']['q3'])[1],
             ) - (int(incentive.get(quarter=1).achieveIncentive) + int(incentive.get(quarter=2).achieveIncentive)),
             'q4': cal_emp_incentive(
+                empId, table2, 4,
                 int(incentive.get(quarter=1).bettingSalary) + int(incentive.get(quarter=2).bettingSalary) +
                 int(incentive.get(quarter=3).bettingSalary) + int(incentive.get(quarter=4).bettingSalary),
                 cal_acc(table2['achieve']['cumulation']['total']['q4'])[0],
-                cal_acc(table2['achieve']['cumulation']['total']['q4'])[1]
+                cal_acc(table2['achieve']['cumulation']['total']['q4'])[1],
             ) - (int(incentive.get(quarter=1).achieveIncentive) + int(incentive.get(quarter=2).achieveIncentive) +
                  int(incentive.get(quarter=3).achieveIncentive)),
         },
