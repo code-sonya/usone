@@ -258,7 +258,7 @@ def post_service(request, postdate):
             companyNames.append(temp)
 
         # 동행자 자동완성
-        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+        empList = Employee.objects.filter(Q(empStatus='Y'))
         empNames = []
         for emp in empList:
             temp = {'id': emp.empId, 'value': emp.empName}
@@ -554,7 +554,7 @@ def modify_service(request, serviceId):
         companyName = Servicereport.objects.get(serviceId=serviceId).companyName
 
         # 동생자 자동완성
-        empList = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y'))
+        empList = Employee.objects.filter(Q(empStatus='Y'))
         empNames = []
         for emp in empList:
             temp = {'id': emp.empId, 'value': emp.empName}

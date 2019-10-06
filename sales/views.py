@@ -1665,7 +1665,10 @@ def daily_report(request):
     netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
     expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup')\
         .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / netProfit['expenses'], FloatField())).order_by('-expenseMoney__sum')
-    expenseDate = Expense.objects.filter(expenseStatus='Y').values('expenseDate').distinct()[0]['expenseDate']
+    try:
+        expenseDate = Expense.objects.filter(expenseStatus='Y').values('expenseDate').distinct()[0]['expenseDate']
+    except:
+        expenseDate = '-'
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,
