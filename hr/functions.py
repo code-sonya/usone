@@ -57,7 +57,8 @@ def save_punctuality(dateList):
                 # 업로드된 데이터 날짜의 employee 첫번째 지문 기록
                 attendance = Attendance.objects.filter(Q(attendanceDate=date) & Q(empId_id=user['employee__empId'])).order_by('attendanceTime').first()
                 service = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='Y') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
-
+                sangju = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(serviceType='상주') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
+                # print("service:", service, "sangju:", sangju)
                 # 휴가
                 if vacation:
                     # 일차 or 오전반차
@@ -66,43 +67,46 @@ def save_punctuality(dateList):
 
                     # 오후반차
                     else:
-                        print("service:",service)
                         # service = Servicereport.objects.filter(Q(serviceDate=date) & Q(empId=user['employee__empId']) & Q(directgo='Y')).first()
-                        # 오후반차이고 직출일 떄
-                        if service:
+                        # 오후반차이고 상주일때
+                        if sangju:
+                            if sangju.first().serviceType == '상주':
+                                user['status'] = '상주'
+                                user['comment'] = str(sangju.first().companyName) + ' / 오후반차'
+
+                        elif service:
+                            # 오후반차이고 직출 교육일때
                             user['status'] = '직출'
-                            user['comment'] = str(service.first().companyName)+' / 오후반차'
-                            # 오후반차이고 직출 교육일
                             if service.first().serviceType == '교육':
                                 user['comment'] = '교육 / 오후반차'
-                        # 오후반차이고 직출 아닐 때
-                        else:
-                            # 오후반차 낸 사람이 상주인 경우
-                            if user['employee__dispatchCompany'] != '내근':
-                                user['status'] = '상주'
-                                user['comment'] = user['employee__dispatchCompany']+' / 오후반차'
-                            # 상주가 아닌 경우
+                            # 오후반차이고 직출일때
                             else:
-                                # 첫번째 지문기록이 있을 때
-                                if attendance:
-                                    if attendance.attendanceTime >= datetime.time(9, 1, 0):
-                                        user['status'] = '지각'
-                                        user['comment'] = '오후반차'
-                                    else:
-                                        user['status'] = '출근'
-                                        user['comment'] = '오후반차'
+                                user['comment'] = str(service.first().companyName) + ' / 오후반차'
 
-                # 상주
-                elif user['employee__dispatchCompany'] != '내근':
-                    user['status'] = '상주'
-                    user['comment'] = user['employee__dispatchCompany']
+                        # 오후반차이고 직출이나 상주가 아닐 때
+                        else:
+                            # 첫번째 지문기록이 있을 때
+                            if attendance:
+                                if attendance.attendanceTime >= datetime.time(9, 1, 0):
+                                    user['status'] = '지각'
+                                    user['comment'] = '오후반차'
+                                else:
+                                    user['status'] = '출근'
+                                    user['comment'] = '오후반차'
 
                 else:
-                    if service:
+                    if sangju:
+                        if sangju.first().serviceType == '상주':
+                            user['status'] = '상주'
+                            user['comment'] = str(sangju.first().companyName)
+                    elif service:
+                        # 오후반차이고 직출 교육일때
                         user['status'] = '직출'
-                        user['comment'] = str(service.first().companyName)
                         if service.first().serviceType == '교육':
                             user['comment'] = '교육'
+                        # 오후반차이고 직출일때
+                        else:
+                            user['comment'] = str(service.first().companyName)
                     else:
                         # 첫번째 지문기록이 있을 때
                         if attendance:
