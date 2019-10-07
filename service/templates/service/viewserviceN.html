@@ -171,12 +171,16 @@
       function btn_end(){
           if (confirm("일정을 종료 하시겠습니까?") === true) {
               navigator.geolocation.getCurrentPosition(function(pos) {
+                  /* // 시작위치와 종료위치 1km 제한.
                   if (latlng_distance({{ geo.startLatitude }}, {{ geo.startLongitude }}, pos.coords.latitude, pos.coords.longitude) < 1000) {
                       location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/end/'
                           + pos.coords.latitude + '/' + pos.coords.longitude + '/';
                   } else {
                       alert('시작지점과 1km 이상 떨어져있습니다.');
                   }
+                  */
+                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/end/'
+                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
               });
           }
       }
