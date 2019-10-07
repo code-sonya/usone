@@ -2493,3 +2493,54 @@ def change_incentive_all(request):
     return HttpResponse('성공!')
 
 
+@login_required
+@csrf_exempt
+def monthly_bill(request):
+    todayYear = datetime.today().year
+    todayMonth = datetime.today().month
+    if todayMonth in [1, 2, 3]:
+        todayQuarter = 1
+    elif todayMonth in [4, 5, 6]:
+        todayQuarter = 2
+    elif todayMonth in [7, 8, 9]:
+        todayQuarter = 3
+    elif todayMonth in [10, 11, 12]:
+        todayQuarter = 4
+    revenues = Revenue.objects.all()
+    # 4. 순이익
+    netProfit = dict()
+    # 판관비
+    expenses = Expense.objects.filter(expenseStatus='Y').aggregate(expenseMoney__sum=Sum('expenseMoney'))
+    netProfit['expenses'] = expenses['expenseMoney__sum'] or 0
+    if todayMonth != 12:
+        netRevenues = revenues.filter(
+            Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))) \
+            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+    else:
+        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))) \
+            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+
+    netProfit['revenuePrice'] = netRevenues['revenuePrice']
+    netProfit['revenueProfitPrice'] = netRevenues['revenueProfitPrice']
+    netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
+    netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
+    expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup') \
+        .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / netProfit['expenses'], FloatField())).order_by('-expenseMoney__sum')
+    try:
+        expenseDate = Expense.objects.filter(expenseStatus='Y').values('expenseDate').distinct()[0]['expenseDate']
+    except:
+        expenseDate = '-'
+
+    context = {
+        'todayYear': todayYear,
+        'todayMonth': todayMonth,
+        'todayQuarter': str(todayQuarter) + 'Q',
+        'today': datetime.today(),
+        'before': datetime.today() - timedelta(days=180),
+        'netProfit': netProfit,
+        'expenseDetail': expenseDetail,
+        'expenseDate': expenseDate,
+    }
+    return render(request, 'sales/monthlybill.html', context)
+
+
