@@ -159,7 +159,7 @@ def post_service(request, postdate):
                 firstDate = str(dateRange[0])[:10]
                 timeCalculateFlag = True
                 for date in dateRange:
-                    if not Eventday.objects.filter(eventDate=date) and date.weekday() != 5 and date.weekday() != 6:
+                    if not Eventday.objects.filter(Q(eventDate=date) & Q(eventType='휴일')) and date.weekday() != 5 and date.weekday() != 6:
                         post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
                         post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
                         post.serviceDate = str(post.serviceStartDatetime)[:10]
