@@ -57,7 +57,7 @@ def save_punctuality(dateList):
                 # 업로드된 데이터 날짜의 employee 첫번째 지문 기록
                 attendance = Attendance.objects.filter(Q(attendanceDate=date) & Q(empId_id=user['employee__empId'])).order_by('attendanceTime').first()
                 service = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='Y') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
-                sangju = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(serviceType='상주') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
+                sangju = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='N') & Q(serviceType__icontains='상주') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
                 # print("service:", service, "sangju:", sangju)
                 # 휴가
                 if vacation:

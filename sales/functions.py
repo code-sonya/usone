@@ -29,7 +29,7 @@ def viewContract(contractId):
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
     costs = Cost.objects.filter(contractId=contractId)
-    services = Servicereport.objects.filter(Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
+    services = Servicereport.objects.filter(Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
     contractPaper = str(contract.contractPaper).split('/')[-1]
     orderPaper = str(contract.orderPaper).split('/')[-1]
 
