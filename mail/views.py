@@ -23,7 +23,7 @@ from hr.models import Employee
 from service.functions import link_callback, num_to_str_position
 from service.models import Servicereport
 from .functions import servicereporthtml
-from .mailInfo import smtp_server, port, userid, passwd
+from usone.security import smtp_server, smtp_port, userid, passwd
 
 
 @login_required
@@ -119,7 +119,7 @@ def sendmail(request, serviceId):
             pdffile.add_header("Content-Disposition", "attachment", filename=title + '.pdf')
             msg.attach(pdffile)
 
-        smtp = smtplib.SMTP(smtp_server, port)
+        smtp = smtplib.SMTP(smtp_server, smtp_port)
         smtp.login(userid, passwd)
         smtp.sendmail(empEmail, emailList, msg.as_string())
         smtp.close()

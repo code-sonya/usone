@@ -17,6 +17,7 @@ from sales.models import Contract, Category, Contractitem, Revenue, Goal, Purcha
 from hr.models import Employee
 from django.db.models import functions
 from django.db.models.functions import Coalesce
+from usone.security import MAP_KEY
 
 
 @login_required
@@ -841,6 +842,7 @@ def dashboard_location(request):
         'tables': tables,
         'Date': Date,
         'rows': rows,
+        'MAP_KEY': MAP_KEY,
     }
 
     return HttpResponse(template.render(context, request))

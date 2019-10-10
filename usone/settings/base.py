@@ -11,11 +11,12 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 from os.path import dirname, abspath, join
+from usone.security import SECRET_KEY
 
 BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'gc418^thjvw80=t9bd$vxd(uv2+$clkzmtl0yf7d$_3amx+*%n'
+SECRET_KEY = SECRET_KEY
 
 ALLOWED_HOSTS = '*'
 
