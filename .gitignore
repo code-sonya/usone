@@ -55,11 +55,10 @@ coverage.xml
 
 # Django stuff:
 *.log
-local_settings.py
+*.json
 db.sqlite3
 media/
-mail/mailInfo.py
-*.json
+usone/security.py
 
 # Flask stuff:
 instance/
