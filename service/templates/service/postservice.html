@@ -198,8 +198,10 @@
       }
 
       function btn_save() {
-          const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g, '/') + ' ' + document.getElementById("starttime").value);
-          const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g, '/') + ' ' + document.getElementById("endtime").value);
+          const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g, '/') +
+              ' ' + document.getElementById("starttime").value);
+          const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g, '/') +
+              ' ' + document.getElementById("endtime").value);
           const diff = ((serviceEndDatetime - serviceStartDatetime) / 3600000).toFixed(1);
 
           let Form = document.getElementById("ServicereportForm");
@@ -241,10 +243,9 @@
               if (confirm("일정이 12시간 이상입니다.\n반복 일정은 반복 등록 기능을 사용해주세요.\n일정 등록 하시겠습니까?") === true) {
                   Form.submit();
               }
-          } else {
-              if (confirm("일정 등록 하시겠습니까?") === true) {
-                  Form.submit();
-              }
+          }
+          if (confirm("일정 등록 하시겠습니까?") === true) {
+              Form.submit();
           }
       }
 
@@ -361,6 +362,12 @@
           $('#serviceDetails').on("propertychange change keyup paste input", function () {
               document.getElementById("serviceDetails").style.backgroundColor = "#fff";
           });
+
+          {% if form.serviceTitle.value and serviceStatus != 'N' %}
+              $('#startdate').attr('readonly', '');
+              $('#starttime').attr('readonly', '');
+          {% endif %}
+
       });
 
   </script>

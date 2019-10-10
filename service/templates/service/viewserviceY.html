@@ -98,10 +98,10 @@
             {{ service.serviceType }}
           </td>
           <td style="width: 205px; text-align: center;" colspan="2">
-            {{ service.serviceStartDatetime | date:"Y년 m월 d일 H:i" }}
+            {{ service.serviceBeginDatetime | date:"Y년 m월 d일 H:i" }}
           </td>
           <td style="width: 205px; text-align: center;" colspan="2">
-            {{ service.serviceEndDatetime | date:"Y년 m월 d일 H:i" }}
+            {{ service.serviceFinishDatetime | date:"Y년 m월 d일 H:i" }}
           </td>
           <td style="width: 195px; text-align: center;" colspan="2">
             {{ service.serviceHour }} 시간
@@ -273,11 +273,11 @@
             </tr>
             <tr>
               <td class="text-center"><b>시작일시</b></td>
-              <td>{{ service.serviceStartDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceStartDatetime | date:"H:i" }}</td>
+              <td>{{ service.serviceBeginDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceBeginDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
               <td class="text-center"><b>종료일시</b></td>
-              <td>{{ service.serviceEndDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceEndDatetime | date:"H:i" }}</td>
+              <td>{{ service.serviceFinishDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceFinishDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
               <td class="text-center"><b>소요시간</b></td>
@@ -334,7 +334,7 @@
       }
 
       function btn_modify() {
-          if (confirm("일정을 수정 하시겠습니까?") === true) {
+          if (confirm("계약명을 수정 하시겠습니까?") === true) {
               location.href = '/service/modifyservice/' + {{ service.serviceId }} +'/';
           }
       }

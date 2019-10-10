@@ -71,10 +71,10 @@
         {{ service.serviceType }}
       </td>
       <td style="width: 200px; text-align: center;" colspan="2">
-        {{ service.serviceStartDatetime | date:"Y년 m월 d일 H:i"}}
+        {{ service.serviceBeginDatetime | date:"Y년 m월 d일 H:i"}}
       </td>
       <td style="width: 200px; text-align: center;" colspan="2">
-        {{ service.serviceEndDatetime | date:"Y년 m월 d일 H:i"}}
+        {{ service.serviceFinishDatetime | date:"Y년 m월 d일 H:i"}}
       </td>
       <td style="width: 200px; text-align: center;" colspan="2">
         {{ service.serviceHour }} 시간

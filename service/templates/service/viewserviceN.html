@@ -72,11 +72,11 @@
             </tr>
             <tr>
               <td class="text-center"><b>시작일시</b></td>
-              <td>{{ service.serviceStartDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceStartDatetime | date:"H:i" }}</td>
+              <td>{{ service.serviceBeginDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceBeginDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
               <td class="text-center"><b>종료일시</b></td>
-              <td>{{ service.serviceEndDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceEndDatetime | date:"H:i" }}</td>
+              <td>{{ service.serviceFinishDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceFinishDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
               <td class="text-center"><b>소요시간</b></td>
@@ -93,7 +93,7 @@
             </tbody>
           </table>
 
-          {% if service.empId.empId == user.employee.empId and service.serviceStatus == 'N' %}
+          {% if service.empId.empId == user.employee.empId and service.serviceStatus != 'Y' %}
             <div class="text-center">
               <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
                 <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
@@ -104,18 +104,27 @@
                 <span class="text p-2"> 수정 </span>
               </a>
 
-              {% if geoStatus == 'start' %}
+              {% if service.serviceStatus == 'N' %}
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_begin()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text p-2"> 출발 </span>
+              </a>
+              {% elif service.serviceStatus == 'B' %}
               <a href="#" class="btn btn-success btn-icon-split" onclick="btn_start()">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text p-2"> 시작 </span>
               </a>
-              {% elif geoStatus == 'end' %}
+              {% elif service.serviceStatus == 'S' %}
               <a href="#" class="btn btn-success btn-icon-split" onclick="btn_end()">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text p-2"> 종료 </span>
               </a>
+              {% elif service.serviceStatus == 'E' %}
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_finish()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text p-2"> 도착 </span>
+              </a>
               {% endif %}
-
             </div>
           {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
             <div class="text-center">
@@ -158,8 +167,17 @@
           }
       }
 
+      function btn_begin(){
+          if (confirm("출발 하시겠습니까?") === true) {
+              navigator.geolocation.getCurrentPosition(function(pos) {
+                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/begin/'
+                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
+              });
+          }
+      }
+
       function btn_start(){
-          if (confirm("일정을 시작 하시겠습니까?") === true) {
+          if (confirm("시작 하시겠습니까?") === true) {
               navigator.geolocation.getCurrentPosition(function(pos) {
                   location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/start/'
                       + pos.coords.latitude + '/' + pos.coords.longitude + '/';
@@ -167,9 +185,8 @@
           }
       }
 
-      {% if geoStatus == 'end' %}
       function btn_end(){
-          if (confirm("일정을 종료 하시겠습니까?") === true) {
+          if (confirm("종료 하시겠습니까?") === true) {
               navigator.geolocation.getCurrentPosition(function(pos) {
                   /* // 시작위치와 종료위치 1km 제한.
                   if (latlng_distance({{ geo.startLatitude }}, {{ geo.startLongitude }}, pos.coords.latitude, pos.coords.longitude) < 1000) {
@@ -184,7 +201,15 @@
               });
           }
       }
-      {% endif %}
+
+      function btn_finish(){
+          if (confirm("도착 하셨습니까?") === true) {
+              navigator.geolocation.getCurrentPosition(function(pos) {
+                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/finish/'
+                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
+              });
+          }
+      }
 
       function deg2rad(deg) {
           return deg * Math.PI / 180.0;

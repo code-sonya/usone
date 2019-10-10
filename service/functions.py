@@ -124,8 +124,8 @@ def dayreport_query2(empDeptName, day):
         holiday = False
 
     serviceDept = Servicereport.objects.filter(
-        Q(empDeptName=empDeptName) & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
-    ).order_by('serviceStartDatetime')
+        Q(empDeptName=empDeptName) & (Q(serviceBeginDatetime__lte=Date_max) & Q(serviceFinishDatetime__gte=Date_min))
+    ).order_by('serviceBeginDatetime')
 
     vacationDept = Vacation.objects.filter(
         Q(empDeptName=empDeptName) & Q(vacationDate=Date)
@@ -154,8 +154,8 @@ def dayreport_query2(empDeptName, day):
                 'serviceId': service.serviceId,
                 'flag': flag,
                 'empName': service.empName,
-                'serviceStartDatetime': service.serviceStartDatetime,
-                'serviceEndDatetime': service.serviceEndDatetime,
+                'serviceBeginDatetime': service.serviceBeginDatetime,
+                'serviceFinishDatetime': service.serviceFinishDatetime,
                 'serviceStatus': service.serviceStatus,
                 'serviceTitle': service.serviceTitle,
                 'sortKey': service.empId.empRank,
@@ -165,8 +165,8 @@ def dayreport_query2(empDeptName, day):
                 'serviceId': service.serviceId,
                 'flag': flag,
                 'empName': service.empName,
-                'serviceStartDatetime': service.serviceStartDatetime,
-                'serviceEndDatetime': service.serviceEndDatetime,
+                'serviceBeginDatetime': service.serviceBeginDatetime,
+                'serviceFinishDatetime': service.serviceFinishDatetime,
                 'serviceStatus': service.serviceStatus,
                 'companyName': service.companyName,
                 'serviceType': service.serviceType,
@@ -180,8 +180,8 @@ def dayreport_query2(empDeptName, day):
                 'serviceId': '',
                 'flag': '',
                 'empName': emp.employee.empName,
-                'serviceStartDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
-                'serviceEndDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
+                'serviceBeginDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
+                'serviceFinishDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
                 'serviceStatus': '',
                 'companyName': emp.employee.dispatchCompany,
                 'serviceType': '',
@@ -192,7 +192,7 @@ def dayreport_query2(empDeptName, day):
         for vacation in vacationDept:
             listVacation.append({
                 'empName': vacation.empName,
-                'serviceStartDatetime': Date,
+                'serviceBeginDatetime': Date,
                 'vacationType': vacation.vacationType[:2],
                 'sortKey': vacation.empId.empRank,
             })
@@ -214,8 +214,8 @@ def dayreport_query2(empDeptName, day):
                     'serviceId': '',
                     'flag': flag,
                     'empName': vacation.empName,
-                    'serviceStartDatetime': startDateTime,
-                    'serviceEndDatetime': endDateTime,
+                    'serviceBeginDatetime': startDateTime,
+                    'serviceFinishDatetime': endDateTime,
                     'serviceStatus': '',
                     'companyName': vacation.empId.dispatchCompany,
                     'serviceType': '',

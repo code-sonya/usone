@@ -34,9 +34,10 @@ class Servicereport(models.Model):
     empDeptName = models.CharField(max_length=30)
     companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
     serviceType = models.CharField(max_length=30, choices=serviceTypeChoices)
-    serviceStartDatetime = models.DateTimeField()
-    serviceEndDatetime = models.DateTimeField()
-    serviceFinishDatetime = models.DateTimeField()
+    serviceBeginDatetime = models.DateTimeField(null=True, blank=True)
+    serviceStartDatetime = models.DateTimeField(null=True, blank=True)
+    serviceEndDatetime = models.DateTimeField(null=True, blank=True)
+    serviceFinishDatetime = models.DateTimeField(null=True, blank=True)
     serviceHour = models.FloatField()
     serviceOverHour = models.FloatField()
     serviceRegHour = models.FloatField()
@@ -50,7 +51,7 @@ class Servicereport(models.Model):
     customerPhone = models.CharField(max_length=20, null=True, blank=True)
     customerEmail = models.EmailField(max_length=254, null=True, blank=True)
     serviceSignPath = models.CharField(max_length=254, default='/media/images/signature/nosign.jpg')
-    serviceStatus = models.CharField(max_length=1, choices=statusChoices, default='N')
+    serviceStatus = models.CharField(max_length=1, default='N')
 
     def __str__(self):
         return 'Servicereport : {} {}'.format(self.serviceId, self.empName)
@@ -75,7 +76,7 @@ class Serviceform(models.Model):
         ('프리세일즈', '프리세일즈'),
     )
     serviceLocationChoices = (('서울', '서울'), ('경기', '경기'), ('기타', '기타'))
-    statusChoices = (('Y', 'Y'), ('N', 'N'))
+    statusChoices = (('N', 'N'), ('B', 'B'), ('S', 'S'), ('E', 'E'), ('Y', 'Y'))
 
     serviceFormId = models.AutoField(primary_key=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
@@ -113,10 +114,14 @@ class Vacation(models.Model):
 class Geolocation(models.Model):
     geolocationId = models.AutoField(primary_key=True)
     serviceId = models.ForeignKey(Servicereport, on_delete=models.CASCADE)
-    startLatitude = models.FloatField()
-    startLongitude = models.FloatField()
+    beginLatitude = models.FloatField(null=True, blank=True)
+    beginLongitude = models.FloatField(null=True, blank=True)
+    startLatitude = models.FloatField(null=True, blank=True)
+    startLongitude = models.FloatField(null=True, blank=True)
     endLatitude = models.FloatField(null=True, blank=True)
     endLongitude = models.FloatField(null=True, blank=True)
+    finishLatitude = models.FloatField(null=True, blank=True)
+    finishLongitude = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return str(self.serviceId)

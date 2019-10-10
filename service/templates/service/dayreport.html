@@ -75,16 +75,19 @@
                   </td>
                   <td>{% ifchanged q.empName %}<b>{{ q.empName }}</b><br>{% endifchanged %}</td>
                   <td>
-                    {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+                    {{ q.serviceBeginDatetime|time:"H:i" }} ~ {{ q.serviceFinishDatetime|time:"H:i" }}
 
-                    {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
-                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
-                      <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
-                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
-                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% if q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" == day %}
+                      <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    {% elif q.serviceBeginDatetime.date|date:"Y-m-d" == day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
+                      <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceFinishDatetime|date:"d" }}일)
+                    {% elif q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
+                      <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceFinishDatetime|date:"d" }}일)
                     {% endif %}
 
+                    {% if q.serviceStatus == 'B' %}<div style="color: red">(이동중)</div>{% endif %}
+                    {% if q.serviceStatus == 'S' %}<div style="color: red">(업무중)</div>{% endif %}
+                    {% if q.serviceStatus == 'E' %}<div style="color: red">(이동중)</div>{% endif %}
                     {% if q.serviceStatus == 'Y' %}<div style="color: red">(완료)</div>{% endif %}
                   </td>
                   <td>
@@ -115,16 +118,19 @@
                     {% if q.flag == '상주' %} <b style="color: #333333">(상주)</b> {% endif %}
                   </td>
                   <td>
-                    {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+                    {{ q.serviceBeginDatetime|time:"H:i" }} ~ {{ q.serviceFinishDatetime|time:"H:i" }}
 
-                    {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
-                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
-                      <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
-                    {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
-                      <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                    {% if q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" == day %}
+                      <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                    {% elif q.serviceBeginDatetime.date|date:"Y-m-d" == day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
+                      <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceFinishDatetime|date:"d" }}일)
+                    {% elif q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
+                      <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceFinishDatetime|date:"d" }}일)
                     {% endif %}
 
+                    {% if q.serviceStatus == 'B' %}<div style="color: red">(이동중)</div>{% endif %}
+                    {% if q.serviceStatus == 'S' %}<div style="color: red">(업무중)</div>{% endif %}
+                    {% if q.serviceStatus == 'E' %}<div style="color: red">(이동중)</div>{% endif %}
                     {% if q.serviceStatus == 'Y' %}<div style="color:red">(완료)</div>{% endif %}
                   </td>
                   <td>
@@ -161,19 +167,20 @@
                     <td class="d-none d-xl-table-cell">{% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}</td>
                     <td>{% ifchanged q.empName %}<b>{{ q.empName }}</b><br>{% endifchanged %}</td>
                     <td>
-                      {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+                      {{ q.serviceBeginDatetime|time:"H:i" }} ~ {{ q.serviceFinishDatetime|time:"H:i" }}
 
-                      {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
-                        <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-                      {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
-                        <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
-                      {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
-                        <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                      {% if q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" == day %}
+                        <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                      {% elif q.serviceBeginDatetime.date|date:"Y-m-d" == day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
+                        <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceFinishDatetime|date:"d" }}일)
+                      {% elif q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
+                        <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceFinishDatetime|date:"d" }}일)
                       {% endif %}
 
-                      {% if q.serviceStatus == 'Y' %}
-                        <div style="color:red">(완료)</div>
-                      {% endif %}
+                      {% if q.serviceStatus == 'B' %}<div style="color: red">(이동중)</div>{% endif %}
+                      {% if q.serviceStatus == 'S' %}<div style="color: red">(업무중)</div>{% endif %}
+                      {% if q.serviceStatus == 'E' %}<div style="color: red">(이동중)</div>{% endif %}
+                      {% if q.serviceStatus == 'Y' %}<div style="color:red">(완료)</div>{% endif %}
                     </td>
                     <td style="white-space: normal">{{ q.serviceTitle }}</td>
                   </tr>
@@ -197,19 +204,20 @@
                       {% if q.flag == '직출' %} <b class="d-xl-none" style="color: #4e73df">(직출)</b> {% endif %}
                     </td>
                     <td>
-                      {{ q.serviceStartDatetime|time:"H:i" }} ~ {{ q.serviceEndDatetime|time:"H:i" }}
+                      {{ q.serviceBeginDatetime|time:"H:i" }} ~ {{ q.serviceFinishDatetime|time:"H:i" }}
 
-                      {% if q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" == day %}
-                        <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
-                      {% elif q.serviceStartDatetime.date|date:"Y-m-d" == day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
-                        <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
-                      {% elif q.serviceStartDatetime.date|date:"Y-m-d" != day and q.serviceEndDatetime.date|date:"Y-m-d" != day %}
-                        <br>({{ q.serviceStartDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceEndDatetime|date:"d" }}일)
+                      {% if q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" == day %}
+                        <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                      {% elif q.serviceBeginDatetime.date|date:"Y-m-d" == day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
+                        <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp ({{ q.serviceFinishDatetime|date:"d" }}일)
+                      {% elif q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
+                        <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceFinishDatetime|date:"d" }}일)
                       {% endif %}
 
-                      {% if q.serviceStatus == 'Y' %}
-                        <div style="color:red">(완료)</div>
-                      {% endif %}
+                      {% if q.serviceStatus == 'B' %}<div style="color: red">(이동중)</div>{% endif %}
+                      {% if q.serviceStatus == 'S' %}<div style="color: red">(업무중)</div>{% endif %}
+                      {% if q.serviceStatus == 'E' %}<div style="color: red">(이동중)</div>{% endif %}
+                      {% if q.serviceStatus == 'Y' %}<div style="color:red">(완료)</div>{% endif %}
                     </td>
                   </tr>
                   <tr>
