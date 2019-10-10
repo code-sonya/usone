@@ -1747,7 +1747,7 @@ def check_gp(request):
 @login_required
 @csrf_exempt
 def check_service(request):
-    services = Servicereport.objects.filter(Q(contractId__isnull=False) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
+    services = Servicereport.objects.filter(Q(contractId__isnull=False) & Q(serviceStatus='Y') & ~Q(serviceType__icontains='상주') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
 
     services = services.values('contractId').annotate(salary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()),
                                                       overSalary=Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()),
@@ -2350,6 +2350,8 @@ def view_incentiveall(request):
     ).values('empId', 'achieveIncentive', 'achieveAward')
 
     table = []
+    sum_table = {'sum_salary': 0, 'sum_basicSalary': 0, 'sum_bettingSalary': 0, 'sum_cumulateIncentive': 0, 'sum_achieveIncentive': 0, 'achieveIncentive': 0, 'achieveAward': 0,
+                 'sum_achieveAward': 0, 'compareIncentive': 0}
 
     for emp in emps:
         _, _, tmp_table3 = empIncentive(str(todayYear), int(emp['empId']))
@@ -2376,6 +2378,16 @@ def view_incentiveall(request):
             if t['name'] == '예상누적인센티브':
                 cumulateIncentive = t['q'+str(todayQuarter)]
 
+        sum_table['sum_salary']+=tmp_basic['sum_salary']
+        sum_table['sum_basicSalary'] += tmp_basic['sum_basicSalary']
+        sum_table['sum_bettingSalary'] += tmp_basic['sum_bettingSalary']
+        sum_table['sum_cumulateIncentive'] += cumulateIncentive
+        sum_table['sum_achieveIncentive'] += tmp_before['sum_achieveIncentive']
+        sum_table['achieveIncentive'] += tmp_current['achieveIncentive']
+        sum_table['sum_achieveAward'] += tmp_basic['sum_achieveAward']
+        sum_table['achieveAward'] += tmp_current['achieveAward']
+        sum_table['compareIncentive'] += (cumulateIncentive + tmp_basic['sum_achieveAward'])-tmp_basic['sum_bettingSalary']
+
         table.append({
             'empId': emp['empId'],
             'empPosition': tmp_basic['empPosition'],
@@ -2400,6 +2412,7 @@ def view_incentiveall(request):
         'beforeQuarter': beforeQuarter,
         'nextMonth': nextMonth,
         'table': table,
+        'sum_table':sum_table,
     }
 
     return render(request, 'sales/viewincentiveall.html', context)
