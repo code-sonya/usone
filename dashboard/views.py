@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import json
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.db.models import Q, F, Case, When, Value, CharField
 from django.db.models import Sum, Count
 from django.http import HttpResponse
 from django.template import loader
@@ -716,8 +716,23 @@ def dashboard_location(request):
     template = loader.get_template('dashboard/dashboardlocation.html')
     today = datetime.today()
     day = str(today)[:10]
-    location = Geolocation.objects.filter(Q(startLatitude__isnull=False) & Q(endLatitude__isnull=True))
-    services = Servicereport.objects.filter(serviceId__in=location.values('serviceId'))
+    location = Geolocation.objects.filter(Q(startLatitude__isnull=False) & Q(endLatitude__isnull=True)).select_related('serviceId')
+    services = location.annotate(
+        flag=Case(
+            When(serviceId__serviceType=Value('상주'), then=Value('상주')),
+            When(serviceId__serviceType=Value('직출'), then=Value('직출')),
+            default=Value(''),
+            output_field=CharField()
+        ),
+        empName=F('serviceId__empName'),
+        empDeptName=F('serviceId__empDeptName'),
+        serviceStartDatetime=F('serviceId__serviceStartDatetime'),
+        serviceEndDatetime=F('serviceId__serviceEndDatetime'),
+        serviceStatus=F('serviceId__serviceStatus'),
+        companyName=F('serviceId__companyName__companyName'),
+        serviceType=F('serviceId__serviceType'),
+        serviceTitle=F('serviceId__serviceTitle'),
+    )
     tables = [
         {
             'team': '영업1팀',
@@ -743,8 +758,6 @@ def dashboard_location(request):
 
     # 일일업무보고
     Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    beforeDate = Date - timedelta(days=1)
-    afterDate = Date + timedelta(days=1)
 
     solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
     db = dayreport_query2(empDeptName="DB지원팀", day=day)
