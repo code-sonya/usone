@@ -18,7 +18,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
-from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill
+from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta, date
@@ -2243,7 +2243,9 @@ def save_profitloss(request):
     xl_file = pd.ExcelFile(profitloss_file)
     data = pd.read_excel(xl_file, index_col=0)
     data = data.fillna(0)
-    select_col = ['합    계']
+    select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
+                  '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
+                  '솔루션지원팀(5100)', 'DB지원팀(5300)', '인턴(5400)']
     status = False
     Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='손익') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
     for index, rows in data[select_col].iterrows():
@@ -2260,8 +2262,11 @@ def save_profitloss(request):
                 group = '상여금'
             else:
                 group = sub
-            Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept='전사', expenseMain='판관비',
-                                   expenseSub=sub, expenseMoney=rows[0], expenseGroup=group)
+
+            for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
+                                   '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀', '인턴']):
+                Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
+                                       expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
         if "".join(index.split()) == 'Ⅳ.판매비와관리비':
             status = True
@@ -2530,7 +2535,6 @@ def change_incentive_all(request):
 @login_required
 @csrf_exempt
 def monthly_bill(request):
-    # 1. 해당 월 누적 손익 계산서 현황
     todayYear = datetime.today().year
     todayMonth = datetime.today().month
     if todayMonth in [1, 2, 3]:
@@ -2541,6 +2545,12 @@ def monthly_bill(request):
         todayQuarter = 3
     elif todayMonth in [10, 11, 12]:
         todayQuarter = 4
+
+    try:
+        expenseDate = Expense.objects.filter(expenseStatus='Y').aggregate(expenseDate=Max('expenseDate'))
+        expenseDate = expenseDate['expenseDate']
+    except:
+        expenseDate = '-'
 
     # 2.월별 예상 손익 계산서 현황
     month_table = cal_monthlybill(todayYear)
@@ -2564,12 +2574,28 @@ def monthly_bill(request):
             for m in range(1, todayMonth+1):
                 todayMonth_table['profit'] += month['month{}'.format(m)]
 
-    expenseDetail = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).values('expenseGroup') \
+    expenseDetail = Expense.objects.filter(Q(expenseStatus='Y')).exclude(expenseDept='전사').values('expenseGroup') \
         .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / todayMonth_table['expenses'], FloatField())).order_by('-expenseMoney__sum')
-    try:
-        expenseDate = Expense.objects.filter(expenseStatus='Y').values('expenseDate').distinct()[0]['expenseDate']
-    except:
-        expenseDate = '-'
+
+    # 3.월별 예상 손익 계산서 현황
+    # 인프라솔루션사업부문
+    businessAll, sum_businessAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스'], todayYear)
+    businessExecutives, sum_businessExecutives = cal_profitloss(['인프라솔루션_임원'], todayYear)
+    businessSales1, sum_businessSales1 = cal_profitloss(['영업1팀'], todayYear)
+    businessSales2, sum_businessSales2 = cal_profitloss(['영업2팀'], todayYear)
+    businessInfra, sum_businessInfra = cal_profitloss(['인프라서비스'], todayYear)
+    # # 고객서비스부문
+    serviceAll, sum_serviceAll = cal_profitloss(['고객서비스_임원', '솔루션지원팀', 'DB지원팀'], todayYear)
+    serviceExecutives, sum_serviceExecutives = cal_profitloss(['고객서비스_임원'], todayYear)
+    serviceSolution, sum_serviceSolution = cal_profitloss(['솔루션지원팀'], todayYear)
+    serviceDB, sum_serviceDB = cal_profitloss(['DB지원팀'], todayYear)
+    # # 경영지원
+    supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+    # supportCEO = cal_profitloss(['대표이사'], todayYear)
+    # supportPresident = cal_profitloss(['사장'], todayYear)
+    # supportAuditingDirector = cal_profitloss(['감사'], todayYear)
+    # supportAdvisingDirector = cal_profitloss(['고문'], todayYear)
+    # supportManagement = cal_profitloss(['경영지원본부'], todayYear)
 
     context = {
         'todayYear': todayYear,
@@ -2581,9 +2607,19 @@ def monthly_bill(request):
         'expenseDate': expenseDate,
         'todayMonth_table': todayMonth_table,
         'month_table': month_table,
+        'business': [{'name': '1) 인프라솔루션사업부문', 'expense': businessAll, 'sum': sum_businessAll},
+                     {'name': '① 임원', 'expense': businessExecutives, 'sum': sum_businessExecutives},
+                     {'name': '② 영업1팀', 'expense': businessSales1, 'sum': sum_businessSales1},
+                     {'name': '③ 영업2팀', 'expense': businessSales2, 'sum': sum_businessSales2},
+                     {'name': '④ 인프라서비스사업팀', 'expense': businessInfra, 'sum': sum_businessInfra},
+                     {'name': '2) 고객서비스부문', 'expense': serviceAll, 'sum': sum_serviceAll},
+                     {'name': '① 임원', 'expense': serviceExecutives, 'sum': sum_serviceExecutives},
+                     {'name': '② 솔루션지원팀', 'expense': serviceSolution, 'sum': sum_serviceSolution},
+                     {'name': '③ DB지원팀', 'expense': serviceDB, 'sum': sum_serviceDB},
+                     {'name': '3) 경영지원', 'expense': supportAll, 'sum': sum_supportAll},
+                     ],
     }
     return render(request, 'sales/monthlybill.html', context)
-
 
 @login_required
 def view_incentive_pdf(request, quarter):
@@ -2758,7 +2794,6 @@ def view_salaryall(request):
 
         table.append(emp_quarter)
 
-    print(table)
     context = {'todayYear': todayYear,
                'table': table,
                'sum_table': sum_table}

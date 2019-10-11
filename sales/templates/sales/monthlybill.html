@@ -126,7 +126,7 @@
           </div>
           <div class="row ml-1 mr-1 mb-2 justify-content-between">
             <span class="font-weight-bold text-dark h5">2. {{ todayYear }}년 월별 손익 계산서 현황</span>
-            <span>[단위 : 백만원]</span>
+            <span>[단위 : 원]</span>
           </div>
           <div class="row">
             <table class="pc-table ml-2">
@@ -145,7 +145,7 @@
                 <td>10월</td>
                 <td>11월</td>
                 <td>12월</td>
-                <td>힙계</td>
+                <td>합계</td>
               </tr>
               </thead>
               <tbody>
@@ -173,10 +173,11 @@
           <br>
           <div class="row ml-1 mr-1 mb-2 justify-content-between">
             <span class="font-weight-bold text-dark h5">3. 판관비 세부내역</span>
-            <span>[단위 : 백만원]</span>
+            <span>[단위 : 원]</span>
           </div>
+        {% for lst in business %}
           <div class="row">
-            <span class="ml-3"> 1)인프라솔루션사업부</span>
+            <span class="ml-3"> {{ lst.name }}</span>
             <br>
             <table class="pc-table ml-2">
               <thead>
@@ -194,29 +195,50 @@
                 <td>10월</td>
                 <td>11월</td>
                 <td>12월</td>
-                <td>힙계</td>
+                <td>합계</td>
               </tr>
               </thead>
               <tbody>
-              <tr class="">
-                <td class="bg-light">메츨엑</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
-                <td>??</td>
+              {% for row in lst.expense %}
+              <tr>
+                <td class="bg-light">{{ row.expenseSub }}</td>
+                <td>{% if row.month1_expense != None %}{{ row.month1_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month2_expense != None %}{{ row.month2_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month3_expense != None %}{{ row.month3_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month4_expense != None %}{{ row.month4_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month5_expense != None %}{{ row.month5_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month6_expense != None %}{{ row.month6_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month7_expense != None %}{{ row.month7_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month8_expense != None %}{{ row.month8_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month9_expense != None %}{{ row.month9_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month10_expense != None %}{{ row.month10_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month11_expense != None %}{{ row.month11_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month12_expense != None %}{{ row.month12_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month_expense != None %}{{ row.month_expense |intcomma }}{% else %}-{% endif %}</td>
               </tr>
+              {% endfor %}
+              {% for row in lst.sum %}
+              <tr>
+                <td class="bg-light">합계</td>
+                <td>{% if row.month1_expense != None %}{{ row.month1_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month2_expense != None %}{{ row.month2_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month3_expense != None %}{{ row.month3_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month4_expense != None %}{{ row.month4_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month5_expense != None %}{{ row.month5_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month6_expense != None %}{{ row.month6_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month7_expense != None %}{{ row.month7_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month8_expense != None %}{{ row.month8_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month9_expense != None %}{{ row.month9_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month10_expense != None %}{{ row.month10_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month11_expense != None %}{{ row.month11_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month12_expense != None %}{{ row.month12_expense |intcomma }}{% else %}-{% endif %}</td>
+                <td>{% if row.month_expense != None %}{{ row.month_expense |intcomma }}{% else %}-{% endif %}</td>
+              </tr>
+              {% endfor %}
               </tbody>
             </table>
           </div>
+        {% endfor %}
         </div>
       </div>
     </div>
@@ -225,7 +247,7 @@
 {% endblock %}
 
 
-{% block script %}
+|intcomma {% block script %}
 
   <script>
       $('.expense:gt(4)').hide().last().after(
