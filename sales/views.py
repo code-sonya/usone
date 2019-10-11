@@ -2317,7 +2317,8 @@ def view_incentiveall(request):
 
     emps = Incentive.objects.filter(
         Q(year=datetime.today().year) &
-        Q(quarter__lte=todayQuarter)
+        Q(quarter__lte=todayQuarter) &
+        Q(empId__empStatus='Y')
     ).values('empId').distinct()
 
     basic = Incentive.objects.filter(
@@ -2556,4 +2557,137 @@ def monthly_bill(request):
     }
     return render(request, 'sales/monthlybill.html', context)
 
+@login_required
+def view_incentive_pdf(request, quarter):
+    todayYear = datetime.today().year
+
+    # 조회 분기 (기본값은 현재 분기)
+    todayQuarter = int(quarter)
+
+    # 다음 월
+    if todayQuarter == 4:
+        nextMonth = 1
+    else:
+        nextMonth = todayQuarter * 3 + 1
+
+    # 이전 분기
+    if todayQuarter == 1:
+        beforeQuarter = 0
+    else:
+        beforeQuarter = todayQuarter - 1
+
+    emps = Incentive.objects.filter(Q(year=datetime.today().year) & Q(quarter__lte=todayQuarter) & Q(empId__empStatus='Y')).values('empId').distinct()
+
+    basic = Incentive.objects.filter(
+        Q(year=datetime.today().year) &
+        Q(quarter__lte=todayQuarter)
+    ).values('empId', 'empId__empPosition__positionName', 'empId__empName').annotate(
+        empPosition=F('empId__empPosition__positionName'),
+        empName=F('empId__empName'),
+        sum_salary=Sum('salary'),
+        sum_basicSalary=Sum('basicSalary'),
+        sum_bettingSalary=Sum('bettingSalary'),
+        sum_achieveIncentive=Sum('achieveIncentive'),
+        sum_achieveAward=Sum('achieveAward'),
+    )
+
+    if beforeQuarter:
+        before = Incentive.objects.filter(
+            Q(year=datetime.today().year) &
+            Q(quarter__lte=beforeQuarter)
+        ).values('empId').annotate(
+            sum_achieveIncentive=Sum('achieveIncentive'),
+            sum_achieveAward=Sum('achieveAward'),
+        )
+    else:
+        before = []
+
+    current = Incentive.objects.filter(
+        Q(year=datetime.today().year) &
+        Q(quarter=todayQuarter)
+    ).values('empId', 'achieveIncentive', 'achieveAward')
+
+    table = []
+    sum_table = {'sum_salary': 0, 'sum_basicSalary': 0, 'sum_bettingSalary': 0, 'sum_cumulateIncentive': 0, 'sum_achieveIncentive': 0, 'achieveIncentive': 0, 'achieveAward': 0,
+                 'sum_achieveAward': 0}
+
+    for emp in emps:
+        _, _, tmp_table3 = empIncentive(str(todayYear), int(emp['empId']))
+        tmp_basic = basic.get(empId=emp['empId'])
+
+        if beforeQuarter:
+            tmp_before = before.get(empId=emp['empId'])
+        else:
+            tmp_before = {'sum_achieveIncentive': 0}
+        tmp_current = current.get(empId=emp['empId'])
+
+        achieveRatio = 0
+        creditRatio = 0
+        ACC = 0
+        cumulateIncentive = 0
+
+        for t in tmp_table3:
+            if t['name'] == '목표 달성률':
+                achieveRatio = t['q'+str(todayQuarter)]
+            if t['name'] == '인정률':
+                creditRatio = t['q'+str(todayQuarter)]
+            if t['name'] == 'ACC':
+                ACC = t['q'+str(todayQuarter)]
+            if t['name'] == '예상누적인센티브':
+                cumulateIncentive = t['q'+str(todayQuarter)]
+
+        sum_table['sum_salary'] += tmp_basic['sum_salary']
+        sum_table['sum_basicSalary'] += tmp_basic['sum_basicSalary']
+        sum_table['sum_bettingSalary'] += tmp_basic['sum_bettingSalary']
+        sum_table['sum_cumulateIncentive'] += cumulateIncentive
+        sum_table['sum_achieveIncentive'] += tmp_before['sum_achieveIncentive']
+        sum_table['achieveIncentive'] += tmp_current['achieveIncentive']
+        sum_table['sum_achieveAward'] += tmp_basic['sum_achieveAward']
+        sum_table['achieveAward'] += tmp_current['achieveAward']
+
+        table.append({
+            'empId': emp['empId'],
+            'empPosition': tmp_basic['empPosition'],
+            'empName': tmp_basic['empName'],
+            'achieveRatio': achieveRatio,
+            'sum_salary': tmp_basic['sum_salary'],
+            'sum_basicSalary': tmp_basic['sum_basicSalary'],
+            'sum_bettingSalary': tmp_basic['sum_bettingSalary'],
+            'creditRatio': creditRatio,
+            'ACC': ACC,
+            'cumulateIncentive': cumulateIncentive,
+            'before_achieve': tmp_before['sum_achieveIncentive'],
+            'achieveIncentive': tmp_current['achieveIncentive'],
+            'achieveAward': tmp_current['achieveAward'],
+            'sum_achieveAward': tmp_basic['sum_achieveAward'],
+            'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward'])-tmp_basic['sum_bettingSalary'],
+        })
+
+    context = {
+        'todayYear':todayYear,
+        'todayQuarter': quarter,
+        'beforeQuarter': beforeQuarter,
+        'nextMonth': nextMonth,
+        'table': table,
+        'sum_table':sum_table,
+        'pagesize': 'A4'
+    }
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="incentive_{}분기.pdf"'.format(quarter)
+
+    template = get_template('sales/viewincentivepdf.html')
+    html = template.render(context, request)
+    # create a pdf
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+@login_required
+def view_salaryall(request):
+    todayYear = datetime.today().year
+    context = {'todayYear':todayYear}
+    return render(request, 'sales/viewsalaryall.html', context)
 

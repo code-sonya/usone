@@ -65,4 +65,6 @@ urlpatterns = [
     url(r'^saveincentivetable/$', views.save_incentivetable, name='saveincentivetable'),
     url(r'^deleteincentive/$', views.delete_incentive, name='deleteincentive'),
     url(r'^monthlybill/$', views.monthly_bill, name='monthlybill'),
+    url(r'^viewincentivepdf/(?P<quarter>.+)/$', views.view_incentive_pdf, name='viewincentivepdf'),
+    url(r'^viewsalaryall/$', views.view_salaryall, name='viewsalaryall'),
 ]

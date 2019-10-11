@@ -1,0 +1,161 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+{% block title %}
+  급여증감현황
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .pc-table-main td, .pc-table-main th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 18px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .mobile-table {
+      color: #333333;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 5px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="d-none d-lg-block">
+    <div class="card shadow mb-4">
+
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h3 class="m-0 text-gray-800"> {{ todayYear }}년 급여증감현황 </h3>
+        <div class="dropdown no-arrow">
+        </div>
+      </div>
+
+      <div class="card-body">
+        <table class="pc-table" id="contract">
+          <thead class="bg-light thtd">
+          <tr class="thtd">
+            <td class="thtd" colspan="2">구분</td>
+            <td class="thtd" colspan="8">베팅액</td>
+            <td class="thtd" colspan="8">기본급 + 인센티브 + Award</td>
+            <td class="thtd" colspan="8">프로그램 시행에 따른 급여 증가액</td>
+          </tr>
+          <tr class="thtd">
+            <td class="thtd" rowspan="2">직급</td>
+            <td class="thtd" rowspan="2">성명</td>
+            <td class="thtd" colspan="2">1Q누계</td>
+            <td class="thtd" colspan="2">2Q누계</td>
+            <td class="thtd" colspan="2">3Q누계</td>
+            <td class="thtd" colspan="2">4Q누계</td>
+            <td class="thtd" colspan="2">1Q누계</td>
+            <td class="thtd" colspan="2">2Q누계</td>
+            <td class="thtd" colspan="2">3Q누계</td>
+            <td class="thtd" colspan="2">4Q누계</td>
+            <td class="thtd" colspan="2">1Q누계</td>
+            <td class="thtd" colspan="2">2Q누계</td>
+            <td class="thtd" colspan="2">3Q누계</td>
+            <td class="thtd" colspan="2">4Q누계</td>
+          </tr>
+          </thead>
+          <tbody>
+          {% for row in table %}
+            <tr class="thtd">
+              <td class="thtd" colspan="1">{{ row.empPosition }}</td>
+              <td class="thtd" colspan="1"><a href="/sales/viewincentive/{{ row.empId }}/">{{ row.empName }}</a></td>
+              <td class="thtd" colspan="1">{{ row.achieveRatio }}</td>
+              <td class="thtd" colspan="2">{{ row.sum_salary | intcomma }}</td>
+              <td class="thtd" colspan="2">{{ row.sum_basicSalary | intcomma }}</td>
+              <td class="thtd" colspan="2">{{ row.sum_bettingSalary | intcomma }}</td>
+              <td class="thtd" colspan="1">{{ row.creditRatio }}</td>
+              <td class="thtd" colspan="1">{{ row.ACC }}</td>
+              <td class="thtd" colspan="2">{{ row.cumulateIncentive | intcomma }}</td>
+              <td class="thtd" colspan="2">{{ row.before_achieve | intcomma }}</td>
+              <td class="thtd" colspan="2">{{ row.achieveIncentive | intcomma }}</td>
+              <td class="thtd" colspan="2">{{ row.sum_achieveAward | intcomma }}</td>
+              <td class="thtd" colspan="2">{{ row.achieveAward | intcomma }}</td>
+              {#              {% if row.compareIncentive > 0 %}#}
+              {#                <td class="thtd text-danger" colspan="2">{{ row.compareIncentive | intcomma }}</td>#}
+              {#              {% else %}#}
+              {#                <td class="thtd text-primary" colspan="2">{{ row.compareIncentive | intcomma }}</td>#}
+              {#              {% endif %}#}
+            </tr>
+          {% endfor %}
+          <tr class="thtd bg-light">
+            <td class="thtd" colspan="2">합계</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_salary | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_basicSalary | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_bettingSalary | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_cumulateIncentive | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_achieveIncentive | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.achieveIncentive | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_achieveAward | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.achieveAward | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.achieveAward | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.achieveAward | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.achieveAward | intcomma }}</td>
+              <td class="thtd" colspan="2">{{ sum_table.achieveAward | intcomma }}</td>
+            {#            {% if sum_table.compareIncentive > 0 %}#}
+            {#              <td class="thtd text-danger" colspan="2">{{ sum_table.compareIncentive | intcomma }}</td>#}
+            {#            {% else %}#}
+            {#              <td class="thtd text-primary" colspan="2">{{ sum_table.compareIncentive | intcomma }}</td>#}
+            {#            {% endif %}#}
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_filter() {
+          const filterForm = document.getElementById("filterForm");
+          filterForm.submit();
+      }
+
+  </script>
+
+{% endblock %}
