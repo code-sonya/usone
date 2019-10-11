@@ -12,7 +12,7 @@ from xhtml2pdf import pisa
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from hr.models import Employee
-from .forms import ContractForm, GoalForm, PurchaseForm
+from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive
 from service.models import Company, Customer, Servicereport
 from django.db.models import Q

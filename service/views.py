@@ -17,7 +17,7 @@ from noticeboard.models import Board
 from sales.models import Contract
 from .forms import ServicereportForm, ServiceformForm
 from .functions import *
-from .models import Serviceform, Geolocation
+from .models import Serviceform, Geolocation, Car
 
 
 @login_required
@@ -856,3 +856,39 @@ def change_contracts_name(request):
         temp.save()
 
     return redirect('service:showservices')
+
+
+def post_car(request):
+    cars = Car.objects.all().order_by('oilType', 'carType')
+
+    if request.method == "POST":
+        jsonCar = json.loads(request.POST['jsonCar'])
+        carId = [i[0] for i in cars.values_list('carId')]
+        jsonCarId = []
+        for car in jsonCar:
+            if car["carId"] == "추가":
+                Car.objects.create(
+                    oilType=car["oilType"],
+                    carType=car["carType"],
+                    comment=car["comment"],
+                    kpl=car["kpl"],
+                )
+            else:
+                carInstance = cars.get(carId=int(car["carId"]))
+                carInstance.oilType = car["oilType"]
+                carInstance.carType = car["carType"]
+                carInstance.comment = car["comment"]
+                carInstance.kpl = car["kpl"]
+                carInstance.save()
+                jsonCarId.append(int(car["carId"]))
+
+        delCarId = list(set(carId) - set(jsonCarId))
+        if delCarId:
+            for Id in delCarId:
+                Car.objects.filter(carId=Id).delete()
+
+    context = {
+        'cars': cars,
+    }
+
+    return render(request, 'service/postcar.html', context)

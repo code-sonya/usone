@@ -16,7 +16,7 @@ from django.views.decorators.http import require_POST
 
 from hr.models import Employee
 from service.models import Servicereport
-from .forms import ContractForm, GoalForm, PurchaseForm
+from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive
 from service.models import Company, Customer
