@@ -876,6 +876,7 @@
               multiStyle: {space: 5, width: 80},
               noResult: '검색결과없음',
               focusShow: true,
+              maxShow: 100,
               success: function ($input, data) {
                   $.ajax({
                       url: "{% url 'sales:salemanager_ajax_url' %}",
@@ -912,6 +913,7 @@
               multiStyle: {space: 5, width: 80},
               noResult: '검색결과없음',
               focusShow: true,
+              maxShow: 100,
           });
           endCompanyNames.removeAttribute("style");
           endCompanyNames.parentElement.removeAttribute("style");
