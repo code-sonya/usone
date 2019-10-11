@@ -134,6 +134,9 @@ class Car(models.Model):
     comment = models.CharField(max_length=20, null=True, blank=True)
     kpl = models.FloatField()
 
+    def __str__(self):
+        return self.oilType + ', ' + self.carType
+
 
 class Oil(models.Model):
     oilId = models.AutoField(primary_key=True)
@@ -141,6 +144,9 @@ class Oil(models.Model):
     carId = models.ForeignKey(Car, on_delete=models.CASCADE)
     oilMoney = models.FloatField()
     mpk = models.IntegerField()
+
+    def __str__(self):
+        return str(self.oilDate) + ', ' + str(self.carId)
 
 
 class Fuel(models.Model):
@@ -151,3 +157,6 @@ class Fuel(models.Model):
     totalDistance = models.FloatField()
     fuelMoney = models.IntegerField(null=True, blank=True)
     fuelStatus = models.CharField(max_length=1, default='N')
+
+    def __str__(self):
+        return str(self.fuelId)

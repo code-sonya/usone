@@ -1,0 +1,85 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  유류비 관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .table {
+      color: #333333;
+    }
+
+    .table td, .table th {
+      padding: .75rem;
+      vertical-align: middle;
+      border: 1px solid #e3e6f0;
+      font-size: 14px;
+      text-align: center;
+      white-space: nowrap;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> 유류비 관리 </h6>
+        </div>
+        <div class="card-body">
+          <table id="car" class="table">
+            <thead>
+            <tr class="bg-light">
+              <th style="vertical-align: middle;">종류</th>
+              <th style="vertical-align: middle;" colspan="2">차량구분</th>
+              <th style="vertical-align: middle;">km당 청구액<br>(전월)</th>
+              <th style="vertical-align: middle;">km당 청구액<br>(당월)</th>
+              <th style="vertical-align: middle;">L당 거리</th>
+              <th style="vertical-align: middle;">L당 금액</th>
+              <th style="vertical-align: middle;">전월대비<br>증감액</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for oil in oils %}
+            <tr>
+              <td>{{ oil.carId.oilType }}</td>
+              <td>{{ oil.carId.carType }}</td>
+              <td>{{ oil.carId.comment }}</td>
+              <td>-원</td>
+              <td>{{ oil.mpk }}원</td>
+              <td>{{ oil.carId.kpl }} km</td>
+              <td>{{ oil.oilMoney }}원</td>
+              <td>-원</td>
+
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      $(document).ready(function () {
+
+      })
+  </script>
+
+{% endblock %}

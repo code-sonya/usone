@@ -23,4 +23,5 @@ urlpatterns = [
         views.post_geolocation, name='postgeolocation'),
     url(r'^changecontractsname/', views.change_contracts_name, name='changecontractsname'),
     url(r'^postcar/', views.post_car, name='postcar'),
+    url(r'^showoils/', views.show_oils, name='showoils'),
 ]
