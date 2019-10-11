@@ -18,7 +18,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm, PurchaseForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
-from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive
+from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta, date
@@ -26,6 +26,7 @@ import pandas as pd
 from xhtml2pdf import pisa
 from service.functions import link_callback
 from django.db.models import Max
+
 
 @login_required
 def post_contract(request):
@@ -1087,8 +1088,6 @@ def save_revenuetable(request):
         revenue.incentiveReason = cal_revenue_incentive(a)[2]
         revenue.save()
 
-
-
     context = {
         'employees': employees,
         'startdate': startdate,
@@ -1653,17 +1652,18 @@ def daily_report(request):
     expenses = Expense.objects.filter(expenseStatus='Y').aggregate(expenseMoney__sum=Sum('expenseMoney'))
     netProfit['expenses'] = expenses['expenseMoney__sum'] or 0
     if todayMonth != 12:
-        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth+1).zfill(2))))\
+        netRevenues = revenues.filter(
+            Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))) \
             .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
     else:
-        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear+1, '01')))\
+        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))) \
             .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
 
     netProfit['revenuePrice'] = netRevenues['revenuePrice']
     netProfit['revenueProfitPrice'] = netRevenues['revenueProfitPrice']
     netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
     netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
-    expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup')\
+    expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup') \
         .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / netProfit['expenses'], FloatField())).order_by('-expenseMoney__sum')
     try:
         expenseDate = Expense.objects.filter(expenseStatus='Y').values('expenseDate').distinct()[0]['expenseDate']
@@ -1747,7 +1747,8 @@ def check_gp(request):
 @login_required
 @csrf_exempt
 def check_service(request):
-    services = Servicereport.objects.filter(Q(contractId__isnull=False) & Q(serviceStatus='Y') & ~Q(serviceType__icontains='상주') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
+    services = Servicereport.objects.filter(
+        Q(contractId__isnull=False) & Q(serviceStatus='Y') & ~Q(serviceType__icontains='상주') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
 
     services = services.values('contractId').annotate(salary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()),
                                                       overSalary=Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()),
@@ -1757,10 +1758,8 @@ def check_service(request):
     services = services.values('contractId_id', 'contractId__contractCode', 'contractId__contractName', 'contractId__contractStartDate', 'contractId__contractEndDate', 'contractId__salePrice',
                                'contractId__profitPrice', 'salary', 'overSalary', 'sumSalary')
 
-
     for service in services:
         service['gpSalary'] = service['contractId__profitPrice'] - service['sumSalary']
-
 
     context = {
         'services': services,
@@ -2000,7 +1999,7 @@ def contract_services(request):
     services = Servicereport.objects.filter(Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
     services = services.annotate(
         salary=Case(
-            When(serviceType='상주' or '프로젝트상주' , then=Value(0)),
+            When(serviceType='상주' or '프로젝트상주', then=Value(0)),
             default=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()),
             output_field=FloatField(),
         ),
@@ -2025,11 +2024,11 @@ def view_incentive(request, empId):
     incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
     if not incentive:
         msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName,})
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, })
     goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=datetime.today().year))
     if not goal:
         msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName,})
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, })
     table1, table2, table3 = empIncentive(year, empId)
     revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
     revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
@@ -2044,18 +2043,18 @@ def view_incentive(request, empId):
     GPachieve = 0
 
     # GP achieve
-    if (revenues.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0)  >= goal.yearProfitSum:
+    if (revenues.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.yearProfitSum:
         GPachieve = 2000000
 
     # Skew Bonus
     if (revenue1.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq1 and (revenue1.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq1:
-        q1Skew=skewBonusMoney
+        q1Skew = skewBonusMoney
     if (revenue2.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq2 and (revenue2.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq2:
-        q2Skew=skewBonusMoney
-    if (revenue3.aggregate(sum=Sum('revenuePrice'))['sum'] or 0)>= goal.salesq3 and (revenue3.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq3:
-        q3Skew=skewBonusMoney
+        q2Skew = skewBonusMoney
+    if (revenue3.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq3 and (revenue3.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq3:
+        q3Skew = skewBonusMoney
     if (revenue4.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq4 and (revenue4.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq4:
-        q4Skew=skewBonusMoney
+        q4Skew = skewBonusMoney
 
     # New Account Bonus
     new_standard = 50000000
@@ -2077,9 +2076,11 @@ def view_incentive(request, empId):
     newCount = [q1NewCount or None, q2NewCount or None, q3NewCount or None, q4NewCount or None]
 
     q1New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3
-    q2New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3  - q1New
-    q3New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q3NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3  - q2New
-    q4New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q3NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q4NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3  - q3New
+    q2New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3 - q1New
+    q3New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q3NewCount.aggregate(count=Count('revenueId'))[
+        'count'] or 0) // 3 - q2New
+    q4New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q3NewCount.aggregate(count=Count('revenueId'))[
+        'count'] or 0 + q4NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3 - q3New
 
     # Over Gp Bonus
     gp_standard = 50000000
@@ -2110,16 +2111,16 @@ def view_incentive(request, empId):
     q1expect, q2expect, q3expect, q4expect = 0, 0, 0, 0
     if table2['achieve']['total']['q1'] >= 80:
         q1constraint = 'O'
-        q1expect = int(q1Skew+(cal_over_gp(q1OverGp) or 0)+q1New*newAccountBonusMoney)
+        q1expect = int(q1Skew + (cal_over_gp(q1OverGp) or 0) + q1New * newAccountBonusMoney)
     if table2['achieve']['total']['q2'] >= 80:
         q2constraint = 'O'
-        q2expect = int(q2Skew+(cal_over_gp(q2OverGp) or 0)+q2New*newAccountBonusMoney)
+        q2expect = int(q2Skew + (cal_over_gp(q2OverGp) or 0) + q2New * newAccountBonusMoney)
     if table2['achieve']['total']['q3'] >= 80:
         q3constraint = 'O'
-        q3expect = int(q3Skew+(cal_over_gp(q3OverGp) or 0)+q3New*newAccountBonusMoney)
+        q3expect = int(q3Skew + (cal_over_gp(q3OverGp) or 0) + q3New * newAccountBonusMoney)
     if table2['achieve']['total']['q4'] >= 80:
         q4constraint = 'O'
-        q4expect = int(q4Skew+(cal_over_gp(q4OverGp) or 0)+q4New*newAccountBonusMoney)
+        q4expect = int(q4Skew + (cal_over_gp(q4OverGp) or 0) + q4New * newAccountBonusMoney)
 
     table4 = [
         {
@@ -2147,10 +2148,10 @@ def view_incentive(request, empId):
             'condition': '신규 고객 3개 업체 마진률 10% 이상 계약 시(매출 5천만원 이상 건)',
             'for': '개인',
             'id': 'new',
-            'q1': q1New*newAccountBonusMoney,
-            'q2': q2New*newAccountBonusMoney,
-            'q3': q3New*newAccountBonusMoney,
-            'q4': q4New*newAccountBonusMoney,
+            'q1': q1New * newAccountBonusMoney,
+            'q2': q2New * newAccountBonusMoney,
+            'q3': q3New * newAccountBonusMoney,
+            'q4': q4New * newAccountBonusMoney,
         },
         {
             'name': '제약조건',
@@ -2193,13 +2194,13 @@ def view_incentive(request, empId):
     incentiveRevenues = revenues.filter(
         Q(billingDate__isnull=False) &
         (
-            ~Q(revenuePrice=F('incentivePrice')) |
-            ~Q(revenueProfitPrice=F('incentiveProfitPrice'))
+                ~Q(revenuePrice=F('incentivePrice')) |
+                ~Q(revenueProfitPrice=F('incentiveProfitPrice'))
         )
     )
     incentiveRevenues = incentiveRevenues.annotate(
-        comparePrice=F('revenuePrice')-F('incentivePrice'),
-        compareProfitPrice=F('revenueProfitPrice')-F('incentiveProfitPrice')
+        comparePrice=F('revenuePrice') - F('incentivePrice'),
+        compareProfitPrice=F('revenueProfitPrice') - F('incentiveProfitPrice')
     )
 
     context = {
@@ -2227,14 +2228,24 @@ def upload_profitloss(request):
 
 @login_required
 def save_profitloss(request):
-    today = datetime.today()
+    todayYear = datetime.today().year
+    todayMonth = datetime.today().month
+
+    if request.POST["month"] == str(todayMonth):
+        today = datetime.today()
+
+    else:
+        today = datetime(todayYear, int(request.POST["month"]), 1)
+        todayMonth = request.POST["month"]
+
+
     profitloss_file = request.FILES["profitloss_file"]
     xl_file = pd.ExcelFile(profitloss_file)
     data = pd.read_excel(xl_file, index_col=0)
     data = data.fillna(0)
     select_col = ['합    계']
     status = False
-    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='손익')).update(expenseStatus='N')
+    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='손익') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
     for index, rows in data[select_col].iterrows():
 
         if "".join(index.split()) == 'Ⅴ.영업이익':
@@ -2243,9 +2254,9 @@ def save_profitloss(request):
         if status == True:
             nindex = index.replace('▷', '')
             sub = "".join(nindex.split())
-            if sub in ['임원급여','직원급여']:
+            if sub in ['임원급여', '직원급여']:
                 group = '급여'
-            elif sub in ['인센티브','상여금','특별인센티브']:
+            elif sub in ['인센티브', '상여금', '특별인센티브']:
                 group = '상여금'
             else:
                 group = sub
@@ -2260,13 +2271,21 @@ def save_profitloss(request):
 
 @login_required
 def save_cost(request):
-    today = datetime.today()
+    todayYear = datetime.today().year
+    todayMonth = datetime.today().month
+
+    if request.POST["month"] == str(todayMonth):
+        today = datetime.today()
+
+    else:
+        today = datetime(todayYear, int(request.POST["month"]), 1)
+        todayMonth = request.POST["month"]
     cost_file = request.FILES["cost_file"]
     xl_file = pd.ExcelFile(cost_file)
     data = pd.read_excel(xl_file, index_col=0)
     data = data.fillna(0)
     select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
-    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가')).update(expenseStatus='N')
+    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
 
     main_cate = ''
     for index, rows in data[select_col].iterrows():
@@ -2292,6 +2311,7 @@ def save_cost(request):
 
     return redirect('sales:uploadprofitloss')
 
+
 @login_required
 def view_incentiveall(request):
     todayYear = datetime.today().year
@@ -2313,7 +2333,7 @@ def view_incentiveall(request):
     if todayQuarter == 1:
         beforeQuarter = 0
     else:
-        beforeQuarter = todayQuarter-1
+        beforeQuarter = todayQuarter - 1
 
     emps = Incentive.objects.filter(
         Q(year=datetime.today().year) &
@@ -2371,15 +2391,15 @@ def view_incentiveall(request):
 
         for t in tmp_table3:
             if t['name'] == '목표 달성률':
-                achieveRatio = t['q'+str(todayQuarter)]
+                achieveRatio = t['q' + str(todayQuarter)]
             if t['name'] == '인정률':
-                creditRatio = t['q'+str(todayQuarter)]
+                creditRatio = t['q' + str(todayQuarter)]
             if t['name'] == 'ACC':
-                ACC = t['q'+str(todayQuarter)]
+                ACC = t['q' + str(todayQuarter)]
             if t['name'] == '예상누적인센티브':
-                cumulateIncentive = t['q'+str(todayQuarter)]
+                cumulateIncentive = t['q' + str(todayQuarter)]
 
-        sum_table['sum_salary']+=tmp_basic['sum_salary']
+        sum_table['sum_salary'] += tmp_basic['sum_salary']
         sum_table['sum_basicSalary'] += tmp_basic['sum_basicSalary']
         sum_table['sum_bettingSalary'] += tmp_basic['sum_bettingSalary']
         sum_table['sum_cumulateIncentive'] += cumulateIncentive
@@ -2387,7 +2407,7 @@ def view_incentiveall(request):
         sum_table['achieveIncentive'] += tmp_current['achieveIncentive']
         sum_table['sum_achieveAward'] += tmp_basic['sum_achieveAward']
         sum_table['achieveAward'] += tmp_current['achieveAward']
-        sum_table['compareIncentive'] += (cumulateIncentive + tmp_basic['sum_achieveAward'])-tmp_basic['sum_bettingSalary']
+        sum_table['compareIncentive'] += (cumulateIncentive + tmp_basic['sum_achieveAward']) - tmp_basic['sum_bettingSalary']
 
         table.append({
             'empId': emp['empId'],
@@ -2404,7 +2424,7 @@ def view_incentiveall(request):
             'achieveIncentive': tmp_current['achieveIncentive'],
             'achieveAward': tmp_current['achieveAward'],
             'sum_achieveAward': tmp_basic['sum_achieveAward'],
-            'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward'])-tmp_basic['sum_bettingSalary'],
+            'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward']) - tmp_basic['sum_bettingSalary'],
         })
 
     context = {
@@ -2413,7 +2433,7 @@ def view_incentiveall(request):
         'beforeQuarter': beforeQuarter,
         'nextMonth': nextMonth,
         'table': table,
-        'sum_table':sum_table,
+        'sum_table': sum_table,
     }
 
     return render(request, 'sales/viewincentiveall.html', context)
@@ -2421,9 +2441,8 @@ def view_incentiveall(request):
 
 @login_required
 def show_incentives(request):
-
     if request.method == "POST":
-        todayYear=datetime.today().year
+        todayYear = datetime.today().year
         if request.POST["quarter"] != '':
             quarter = int(request.POST["quarter"])
             empId = int(request.POST["empId"])
@@ -2455,11 +2474,12 @@ def show_incentives(request):
 @csrf_exempt
 def incentives_asjson(request):
     incentives = Incentive.objects.all()
-    incentives = incentives.values('year', 'empId__empDeptName', 'empId__empName','quarter', 'salary', 'bettingRatio',
-                                   'basicSalary', 'bettingSalary','achieveIncentive', 'achieveAward', 'incentiveId')
+    incentives = incentives.values('year', 'empId__empDeptName', 'empId__empName', 'quarter', 'salary', 'bettingRatio',
+                                   'basicSalary', 'bettingSalary', 'achieveIncentive', 'achieveAward', 'incentiveId')
 
     structure = json.dumps(list(incentives), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
 
 @login_required
 @csrf_exempt
@@ -2510,6 +2530,7 @@ def change_incentive_all(request):
 @login_required
 @csrf_exempt
 def monthly_bill(request):
+    # 1. 해당 월 누적 손익 계산서 현황
     todayYear = datetime.today().year
     todayMonth = datetime.today().month
     if todayMonth in [1, 2, 3]:
@@ -2520,26 +2541,31 @@ def monthly_bill(request):
         todayQuarter = 3
     elif todayMonth in [10, 11, 12]:
         todayQuarter = 4
-    revenues = Revenue.objects.all()
-    # 4. 순이익
-    netProfit = dict()
-    # 판관비
-    expenses = Expense.objects.filter(expenseStatus='Y').aggregate(expenseMoney__sum=Sum('expenseMoney'))
-    netProfit['expenses'] = expenses['expenseMoney__sum'] or 0
-    if todayMonth != 12:
-        netRevenues = revenues.filter(
-            Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))) \
-            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
-    else:
-        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))) \
-            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
 
-    netProfit['revenuePrice'] = netRevenues['revenuePrice']
-    netProfit['revenueProfitPrice'] = netRevenues['revenueProfitPrice']
-    netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
-    netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
-    expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup') \
-        .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / netProfit['expenses'], FloatField())).order_by('-expenseMoney__sum')
+    # 2.월별 예상 손익 계산서 현황
+    month_table = cal_monthlybill(todayYear)
+
+    # 1. 해당 월 누적 손익 계산서 현황
+    todayMonth_table = {'revenuePrice': 0, 'revenueProfitPrice': 0, 'cogs': 0, 'expenses': 0, 'profit': 0}
+    for month in month_table:
+        if month['name']=='매출액':
+            for m in range(1, todayMonth+1):
+                todayMonth_table['revenuePrice'] += month['month{}'.format(m)]
+        if month['name']=='매출원가':
+            for m in range(1, todayMonth+1):
+                todayMonth_table['cogs'] += month['month{}'.format(m)]
+        if month['name']=='GP':
+            for m in range(1, todayMonth+1):
+                todayMonth_table['revenueProfitPrice'] += month['month{}'.format(m)]
+        if month['name']=='판관비':
+            for m in range(1, todayMonth+1):
+                todayMonth_table['expenses'] += month['month{}'.format(m)]
+        if month['name']=='영업이익':
+            for m in range(1, todayMonth+1):
+                todayMonth_table['profit'] += month['month{}'.format(m)]
+
+    expenseDetail = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).values('expenseGroup') \
+        .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / todayMonth_table['expenses'], FloatField())).order_by('-expenseMoney__sum')
     try:
         expenseDate = Expense.objects.filter(expenseStatus='Y').values('expenseDate').distinct()[0]['expenseDate']
     except:
@@ -2551,11 +2577,13 @@ def monthly_bill(request):
         'todayQuarter': str(todayQuarter) + 'Q',
         'today': datetime.today(),
         'before': datetime.today() - timedelta(days=180),
-        'netProfit': netProfit,
         'expenseDetail': expenseDetail,
         'expenseDate': expenseDate,
+        'todayMonth_table': todayMonth_table,
+        'month_table': month_table,
     }
     return render(request, 'sales/monthlybill.html', context)
+
 
 @login_required
 def view_incentive_pdf(request, quarter):
@@ -2628,13 +2656,13 @@ def view_incentive_pdf(request, quarter):
 
         for t in tmp_table3:
             if t['name'] == '목표 달성률':
-                achieveRatio = t['q'+str(todayQuarter)]
+                achieveRatio = t['q' + str(todayQuarter)]
             if t['name'] == '인정률':
-                creditRatio = t['q'+str(todayQuarter)]
+                creditRatio = t['q' + str(todayQuarter)]
             if t['name'] == 'ACC':
-                ACC = t['q'+str(todayQuarter)]
+                ACC = t['q' + str(todayQuarter)]
             if t['name'] == '예상누적인센티브':
-                cumulateIncentive = t['q'+str(todayQuarter)]
+                cumulateIncentive = t['q' + str(todayQuarter)]
 
         sum_table['sum_salary'] += tmp_basic['sum_salary']
         sum_table['sum_basicSalary'] += tmp_basic['sum_basicSalary']
@@ -2660,16 +2688,16 @@ def view_incentive_pdf(request, quarter):
             'achieveIncentive': tmp_current['achieveIncentive'],
             'achieveAward': tmp_current['achieveAward'],
             'sum_achieveAward': tmp_basic['sum_achieveAward'],
-            'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward'])-tmp_basic['sum_bettingSalary'],
+            'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward']) - tmp_basic['sum_bettingSalary'],
         })
 
     context = {
-        'todayYear':todayYear,
+        'todayYear': todayYear,
         'todayQuarter': quarter,
         'beforeQuarter': beforeQuarter,
         'nextMonth': nextMonth,
         'table': table,
-        'sum_table':sum_table,
+        'sum_table': sum_table,
     }
 
     response = HttpResponse(content_type='application/pdf')
@@ -2683,6 +2711,7 @@ def view_incentive_pdf(request, quarter):
     if pisaStatus.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
+
 
 @login_required
 def view_salaryall(request):
@@ -2701,18 +2730,18 @@ def view_salaryall(request):
         sum_achieveAward=Sum('achieveAward'),
     )
     sum_table = {'sum_quarter1_bettingSalary': 0, 'sum_quarter2_bettingSalary': 0, 'sum_quarter3_bettingSalary': 0, 'sum_quarter4_bettingSalary': 0,
-                 'sum_quarter1_achieveIncentiveAward': 0, 'sum_quarter2_achieveIncentiveAward':0, 'sum_quarter3_achieveIncentiveAward': 0, 'sum_quarter4_achieveIncentiveAward':0,
+                 'sum_quarter1_achieveIncentiveAward': 0, 'sum_quarter2_achieveIncentiveAward': 0, 'sum_quarter3_achieveIncentiveAward': 0, 'sum_quarter4_achieveIncentiveAward': 0,
                  'sum_quarter1_salaryIncreaseDecrease': 0, 'sum_quarter2_salaryIncreaseDecrease': 0, 'sum_quarter3_salaryIncreaseDecrease': 0, 'sum_quarter4_salaryIncreaseDecrease': 0}
     for emp in emps:
         emp_quarter = {}
-        for q in range(1,5):
-            tmp_quarter = basic.get(Q(empId=emp['empId'])&Q(quarter__lte=q))
-            emp_quarter['empId']= emp['empId']
-            emp_quarter['empPosition']= tmp_quarter['empPosition']
-            emp_quarter['empName']= tmp_quarter['empName']
-            emp_quarter['quarter{}_bettingSalary'.format(str(q))] =  tmp_quarter['sum_bettingSalary']
+        for q in range(1, 5):
+            tmp_quarter = basic.get(Q(empId=emp['empId']) & Q(quarter__lte=q))
+            emp_quarter['empId'] = emp['empId']
+            emp_quarter['empPosition'] = tmp_quarter['empPosition']
+            emp_quarter['empName'] = tmp_quarter['empName']
+            emp_quarter['quarter{}_bettingSalary'.format(str(q))] = tmp_quarter['sum_bettingSalary']
             emp_quarter['quarter{}_achieveIncentiveAward'.format(str(q))] = tmp_quarter['sum_achieveIncentive'] + tmp_quarter['sum_achieveAward']
-            emp_quarter['quarter{}_salaryIncreaseDecrease'.format(str(q))] = (tmp_quarter['sum_achieveIncentive'] + tmp_quarter['sum_achieveAward'])- tmp_quarter['sum_bettingSalary']
+            emp_quarter['quarter{}_salaryIncreaseDecrease'.format(str(q))] = (tmp_quarter['sum_achieveIncentive'] + tmp_quarter['sum_achieveAward']) - tmp_quarter['sum_bettingSalary']
 
         sum_table['sum_quarter1_bettingSalary'] += emp_quarter['quarter1_bettingSalary']
         sum_table['sum_quarter2_bettingSalary'] += emp_quarter['quarter2_bettingSalary']
@@ -2734,4 +2763,3 @@ def view_salaryall(request):
                'table': table,
                'sum_table': sum_table}
     return render(request, 'sales/viewsalaryall.html', context)
-

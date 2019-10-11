@@ -13,7 +13,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from hr.models import Employee
 from .forms import ContractForm, GoalForm, PurchaseForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense
 from service.models import Company, Customer, Servicereport
 from django.db.models import Q
 from datetime import datetime, timedelta, date
@@ -630,3 +630,53 @@ def cal_over_gp(revenue):
         else:
             sum += (r.contractId.profitPrice - r.contractId.salePrice/100*15)/100*10
     return sum
+
+
+def cal_monthlybill(todayYear):
+    # 월별 매출액
+    revenue_month = {'name': '매출액','sum': 0}
+    # 월별 매출원가
+    cost_month = {'name': '매출원가','sum': 0}
+    # 월별 GP
+    gp_month = {'name': 'GP','sum': 0}
+    # 월별 판관비
+    expense_month = {'name': '판관비','sum': 0}
+    # 월별 영업 이익
+    profit_month = {'name': '영업이익','sum': 0}
+    table = []
+    for todayMonth in range(1, 13):
+        if todayMonth != 12:
+            revenues = Revenue.objects.filter(
+                Q(contractId__contractStep='Firm') &
+                Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2))) &
+                Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))) \
+                .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+            expenses = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).aggregate(expenseMoney__sum=Sum('expenseMoney'))
+
+
+        else:
+            revenues = Revenue.objects.filter(
+                Q(contractId__contractStep='Firm') &
+                Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2)))&
+                Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))) \
+                .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+            expenses = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).aggregate(expenseMoney__sum=Sum('expenseMoney'))
+
+        revenue_month['month{}'.format(str(todayMonth))] = revenues['revenuePrice']
+        revenue_month['sum'] += revenues['revenuePrice']
+        gp_month['month{}'.format(str(todayMonth))] = revenues['revenueProfitPrice']
+        gp_month['sum'] += revenues['revenueProfitPrice']
+        cost_month['month{}'.format(str(todayMonth))] = revenues['revenuePrice'] - revenues['revenueProfitPrice']
+        cost_month['sum'] += revenues['revenuePrice'] - revenues['revenueProfitPrice']
+        expense_month['month{}'.format(str(todayMonth))] = expenses['expenseMoney__sum'] or 0
+        expense_month['sum'] += expenses['expenseMoney__sum'] or 0
+        profit_month['month{}'.format(str(todayMonth))] = revenues['revenueProfitPrice'] - (expenses['expenseMoney__sum'] or 0)
+        profit_month['sum'] += revenues['revenueProfitPrice'] - (expenses['expenseMoney__sum'] or 0)
+
+    table.append(revenue_month)
+    table.append(cost_month)
+    table.append(gp_month)
+    table.append(expense_month)
+    table.append(profit_month)
+
+    return table

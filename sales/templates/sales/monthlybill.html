@@ -64,66 +64,159 @@
             <span class="font-weight-bold text-dark h5">1. {{ todayYear }}년 손익 현황</span>
             <span>[단위 : 백만원]</span>
           </div>
-         {% if user.employee.empDeptName == '경영지원본부' %}
+          {% if user.employee.empDeptName == '경영지원본부' %}
             <div class="float-right">
-            <i class="fas fa-upload"><a href="/sales/uploadprofitloss/"> 손익/원가데이터업로드</a></i>
+              <i class="fas fa-upload"><a href="/sales/uploadprofitloss/"> 손익/원가데이터업로드</a></i>
             </div>
             <br>
-        {% endif %}
-            <div class="row">
-              <div class="col-sm-12 col-xl-6">
-                <span class="ml-3">① <span class="text-warning font-weight-bold">{{ todayMonth }}월</span> 손익계산서</span>
-                <table class="pc-table ml-2">
-                  <thead>
-                  <tr class="bg-light">
-                     <td>계정과목</td>
-                     <td>금액</td>
-                  </tr>
-                  </thead>
-                  <tbody>
-                   <tr>
-                     <td>매출</td>
-                     <td class="text-right">{{ netProfit.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
-                  </tr>
-                   <tr>
-                     <td>매출원가</td>
-                       <td class="text-right">{{ netProfit.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
-                   </tr>
-                   <tr>
-                     <td>GP</td>
-                        <td class="text-right">{{ netProfit.revenueProfitPrice |slugify|slice:"0:-6"|intcomma }}</td>
-                   </tr>
-                   <tr>
-                     <td>판관비</td>
-                        <td class="text-right">{{ netProfit.expenses |slugify|slice:"0:-6"|intcomma }}</td>
-                   </tr>
-                    <tr class="bg-light">
-                     <td>영업이익</td>
-                       <td class="text-right">{{ netProfit.netProfit |slugify|slice:"0:-6"|intcomma  }}</td>
-                   </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="col-sm-12 col-xl-6">
-                <span class="ml-3">② <span class="text-primary">판관비</span> 상세 내역 [업로드일자:{{ expenseDate }}]</span>
-                <table class="pc-table">
-                  <thead>
-                  <tr class="bg-light">
-                     <td>계정과목</td>
-                     <td>금액</td>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  {% for expense in expenseDetail %}
-                   <tr class="expense">
-                     <td>{{ expense.expenseGroup }}</td>
-                     <td class="text-right">{{ expense.expenseMoney__sum |slugify|slice:"0:-6"|intcomma }} ({{ expense.expensePercent |floatformat:0}}%)</td>
-                  </tr>
-                  {% endfor %}
-                  </tbody>
-                </table>
-              </div>
+          {% endif %}
+          <div class="row">
+            <div class="col-sm-12 col-xl-6">
+              <span class="ml-3">① <span class="text-warning font-weight-bold">{{ todayMonth }}월</span> 손익계산서</span>
+              <table class="pc-table ml-2">
+                <thead>
+                <tr class="bg-light">
+                  <td>계정과목</td>
+                  <td>금액</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>매출</td>
+                  <td class="text-right">{{ todayMonth_table.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                <tr>
+                  <td>매출원가</td>
+                  <td class="text-right">{{ todayMonth_table.cogs |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                <tr>
+                  <td>GP</td>
+                  <td class="text-right">{{ todayMonth_table.revenueProfitPrice |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                <tr>
+                  <td>판관비</td>
+                  <td class="text-right">{{ todayMonth_table.expenses |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                <tr class="bg-light">
+                  <td>영업이익</td>
+                  <td class="text-right">{{ todayMonth_table.profit |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                </tbody>
+              </table>
             </div>
+            <div class="col-sm-12 col-xl-6">
+              <span class="ml-3">② <span class="text-primary">판관비</span> 상세 내역 [업로드일자:{{ expenseDate }}]</span>
+              <table class="pc-table">
+                <thead>
+                <tr class="bg-light">
+                  <td>계정과목</td>
+                  <td>금액</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for expense in expenseDetail %}
+                  <tr class="expense">
+                    <td>{{ expense.expenseGroup }}</td>
+                    <td class="text-right">{{ expense.expenseMoney__sum |slugify|slice:"0:-6"|intcomma }} ({{ expense.expensePercent |floatformat:0 }}%)</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="row ml-1 mr-1 mb-2 justify-content-between">
+            <span class="font-weight-bold text-dark h5">2. {{ todayYear }}년 월별 손익 계산서 현황</span>
+            <span>[단위 : 백만원]</span>
+          </div>
+          <div class="row">
+            <table class="pc-table ml-2">
+              <thead>
+              <tr class="bg-light">
+                <td>계정과목</td>
+                <td>1월</td>
+                <td>2월</td>
+                <td>3월</td>
+                <td>4월</td>
+                <td>5월</td>
+                <td>6월</td>
+                <td>7월</td>
+                <td>8월</td>
+                <td>9월</td>
+                <td>10월</td>
+                <td>11월</td>
+                <td>12월</td>
+                <td>힙계</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% for row in month_table %}
+                <tr class="">
+                  <td class="bg-light">{{ row.name }}</td>
+                  <td>{{ row.month1 | intcomma }}</td>
+                  <td>{{ row.month2 | intcomma }}</td>
+                  <td>{{ row.month3 | intcomma }}</td>
+                  <td>{{ row.month4 | intcomma }}</td>
+                  <td>{{ row.month5 | intcomma }}</td>
+                  <td>{{ row.month6 | intcomma }}</td>
+                  <td>{{ row.month7 | intcomma }}</td>
+                  <td>{{ row.month8 | intcomma }}</td>
+                  <td>{{ row.month9 | intcomma }}</td>
+                  <td>{{ row.month10 | intcomma }}</td>
+                  <td>{{ row.month11 | intcomma }}</td>
+                  <td>{{ row.month12 | intcomma }}</td>
+                  <td>{{ row.sum | intcomma }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <br>
+          <div class="row ml-1 mr-1 mb-2 justify-content-between">
+            <span class="font-weight-bold text-dark h5">3. 판관비 세부내역</span>
+            <span>[단위 : 백만원]</span>
+          </div>
+          <div class="row">
+            <span class="ml-3"> 1)인프라솔루션사업부</span>
+            <br>
+            <table class="pc-table ml-2">
+              <thead>
+              <tr class="bg-light">
+                <td>계정과목</td>
+                <td>1월</td>
+                <td>2월</td>
+                <td>3월</td>
+                <td>4월</td>
+                <td>5월</td>
+                <td>6월</td>
+                <td>7월</td>
+                <td>8월</td>
+                <td>9월</td>
+                <td>10월</td>
+                <td>11월</td>
+                <td>12월</td>
+                <td>힙계</td>
+              </tr>
+              </thead>
+              <tbody>
+              <tr class="">
+                <td class="bg-light">메츨엑</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+                <td>??</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -135,14 +228,15 @@
 {% block script %}
 
   <script>
-    $('.expense:gt(4)').hide().last().after(
-                  $('<a />').attr('href','#').text('더보기').click(function(){
-                      var a = this;
-                      $('.expense:not(:visible):lt(50)').fadeIn(function(){
-                       if ($('.expense:not(:visible)').length == 0) $(a).remove();
-                      }); return false;
-                  })
-              );
+      $('.expense:gt(4)').hide().last().after(
+          $('<a />').attr('href', '#').text('더보기').click(function () {
+              var a = this;
+              $('.expense:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.expense:not(:visible)').length == 0) $(a).remove();
+              });
+              return false;
+          })
+      );
 
   </script>
 
