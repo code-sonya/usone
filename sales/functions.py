@@ -215,7 +215,7 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
     personRevenue = revenue.values('contractId__empId', 'contractId__empName', 'contractId__empDeptName').annotate(
         revenuePrice=Sum('revenuePrice'),
         revenueProfitPrice=Sum('revenueProfitPrice')
-    )
+    ).order_by('-revenuePrice', '-revenueProfitPrice')
     sumRevenue = revenue.aggregate(
         revenuePrice=Sum('revenuePrice'),
         revenueProfitPrice=Sum('revenueProfitPrice')
