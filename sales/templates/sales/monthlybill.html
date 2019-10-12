@@ -17,7 +17,7 @@
     .pc-table td, .pc-table th {
       padding: 5px 10px;
       vertical-align: middle;
-      font-size: 16px;
+      font-size: 13px;
       text-align: center;
       border: 1px solid lightgray;
       border-collapse: collapse;
@@ -72,8 +72,8 @@
           {% endif %}
           <div class="row">
             <div class="col-sm-12 col-xl-6">
-              <span class="ml-3">① <span class="text-warning font-weight-bold">{{ todayMonth }}월</span> 손익계산서</span>
-              <table class="pc-table ml-2">
+              <span>① <span class="text-warning font-weight-bold">{{ todayMonth }}월</span> 손익계산서</span>
+              <table class="pc-table">
                 <thead>
                 <tr class="bg-light">
                   <td>계정과목</td>
@@ -105,7 +105,7 @@
               </table>
             </div>
             <div class="col-sm-12 col-xl-6">
-              <span class="ml-3">② <span class="text-primary">판관비</span> 상세 내역 [업로드일자:{{ expenseDate }}]</span>
+              <span>② <span class="text-primary">판관비</span> 상세 내역 [업로드일자:{{ expenseDate }}]</span>
               <table class="pc-table">
                 <thead>
                 <tr class="bg-light">
@@ -128,12 +128,14 @@
               </table>
             </div>
           </div>
+        <br>
+        <div class="d-none d-xl-block">
           <div class="row ml-1 mr-1 mb-2 justify-content-between">
             <span class="font-weight-bold text-dark h5">2. {{ todayYear }}년 월별 손익 계산서 현황</span>
             <span>[단위 : 원]</span>
           </div>
           <div class="row">
-            <table class="pc-table ml-2">
+            <table class="pc-table ml-3 mr-3">
               <thead>
               <tr class="bg-light">
                 <td>계정과목</td>
@@ -254,7 +256,7 @@
           <div class="row">
             <span class="ml-3"> {{ lst.name }}</span>
             <br>
-            <table class="pc-table ml-2">
+            <table class="pc-table ml-3 mr-3">
               <thead>
               <tr class="bg-light">
                 <td>계정과목</td>
@@ -314,6 +316,8 @@
             </table>
           </div>
         {% endfor %}
+          </div>
+          <div class="d-xl-none text-center">※ 상세 내역은 <span class="text-primary">PC화면</span>에서 확인 가능합니다.</div>
         </div>
       </div>
     </div>
