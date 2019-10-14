@@ -278,7 +278,7 @@
               <tbody>
               {% for row in lst.expense %}
               <tr class="{{ lst.class }}">
-                <td class="bg-light">{{ row.expenseSub }}</td>
+                <td class="bg-light">{{ row.expenseGroup }}</td>
                 <td>{% if row.month1_expense != None %}{{ row.month1_expense |intcomma }}{% else %}-{% endif %}</td>
                 <td>{% if row.month2_expense != None %}{{ row.month2_expense |intcomma }}{% else %}-{% endif %}</td>
                 <td>{% if row.month3_expense != None %}{{ row.month3_expense |intcomma }}{% else %}-{% endif %}</td>

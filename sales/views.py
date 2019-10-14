@@ -2582,7 +2582,7 @@ def monthly_bill(request):
     else:
         expenseDetail = Expense.objects.filter(Q(expenseStatus='Y') &
                                                Q(expenseDate__gte='{}-01-01'.format(todayYear)) &
-                                               Q(expenseDate__lt='{}-{}-01'.format(todayYear,+todayMonth+1))).exclude(expenseDept='전사').values('expenseGroup') \
+                                               Q(expenseDate__lt='{}-{}-01'.format(todayYear, todayMonth+1))).exclude(expenseDept='전사').values('expenseGroup') \
             .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / todayMonth_table['expenses'], FloatField())).order_by('-expenseMoney__sum')
         sum_expenseDetail = expenseDetail.aggregate(sum_expenseDetail=Sum('expenseMoney__sum'), sum_expensePercent=Sum('expensePercent'))
 
@@ -2602,11 +2602,11 @@ def monthly_bill(request):
     serviceDB, sum_serviceDB = cal_profitloss(['DB지원팀'], todayYear)
     # 경영지원
     supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
-    # supportCEO = cal_profitloss(['대표이사'], todayYear)
-    # supportPresident = cal_profitloss(['사장'], todayYear)
-    # supportAuditingDirector = cal_profitloss(['감사'], todayYear)
-    # supportAdvisingDirector = cal_profitloss(['고문'], todayYear)
-    # supportManagement = cal_profitloss(['경영지원본부'], todayYear)
+    supportCEO = cal_profitloss(['대표이사'], todayYear)
+    supportPresident = cal_profitloss(['사장'], todayYear)
+    supportAuditingDirector = cal_profitloss(['감사'], todayYear)
+    supportAdvisingDirector = cal_profitloss(['고문'], todayYear)
+    supportManagement = cal_profitloss(['경영지원본부'], todayYear)
 
     context = {
         'todayYear': todayYear,
