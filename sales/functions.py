@@ -685,7 +685,7 @@ def cal_monthlybill(todayYear):
 
 def cal_profitloss(dept, todayYear):
     # 계정과목 월별
-    expenses1 = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__year=todayYear) & Q(expenseDept__in=dept) & Q(expenseMoney__gt=0)).values('expenseSub') \
+    expenses1 = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__year=todayYear) & Q(expenseDept__in=dept) & Q(expenseMoney__gt=0)).order_by('-expenseMoney').values('expenseSub') \
         .annotate(month1_expense=Sum('expenseMoney', filter=Q(expenseDate__month=1)))\
         .annotate(month2_expense=Sum('expenseMoney', filter=Q(expenseDate__month=2)))\
         .annotate(month3_expense=Sum('expenseMoney', filter=Q(expenseDate__month=3)))\
