@@ -8,6 +8,7 @@ class OverHour(models.Model):
     overHourDate = models.DateField()
     sumOverHour = models.FloatField(null=True, blank=True)
     compensatedHour = models.FloatField(null=True, blank=True)
+    payHour = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return str(self.overHourId)

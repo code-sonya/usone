@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.template import loader
 from service.models import Servicereport
+from .models import OverHour
 from django.db.models import Q, F, Case, When, Value, CharField
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -16,20 +17,17 @@ def over_hour(request):
     template = loader.get_template('extrapay/overhourlist.html')
 
     if request.method == "POST":
-        startdate = request.POST['startdate']
-        enddate = request.POST['enddate']
+        searchdate = request.POST['searchdate']
         filter = 'Y'
 
 
     else:
-        startdate = ''
-        enddate = ''
+        searchdate = ''
         filter = 'N'
 
     context = {
         'filter': filter,
-        'startdate': startdate,
-        'enddate': enddate,
+        'searchdate': searchdate,
     }
 
     return HttpResponse(template.render(context, request))
@@ -38,14 +36,15 @@ def over_hour(request):
 @login_required
 @csrf_exempt
 def over_asjson(request):
-    startdate = request.POST['startdate']
-    enddate = request.POST['enddate']
-    overHour = Servicereport.objects.filter(Q(serviceOverHour__gt=0) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')))
-    if startdate:
-        overHour = overHour.filter(Q(serviceDate__gte=startdate))
-    if enddate:
-        overHour = overHour.filter(Q(serviceDate__lte=enddate))
+    searchdate = request.POST['searchdate']
+    searchYear = searchdate[:4]
+    searchMonth = searchdate[5:7]
 
-    overHourlist = overHour.values('serviceStartDatetime', 'serviceEndDatetime', 'empName', 'empDeptName', 'companyName', 'serviceOverHour', 'serviceId')
+    overHour = OverHour.objects.all()
+    if searchdate:
+        overHour = overHour.filter(Q(overHourDate__year=searchYear) & Q(overHourDate__month=searchMonth))
+
+    overHourlist = overHour.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'payHour', 'overHourId')
+    print(overHourlist)
     structure = json.dumps(list(overHourlist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
