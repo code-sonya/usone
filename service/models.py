@@ -127,39 +127,3 @@ class Geolocation(models.Model):
 
     def __str__(self):
         return str(self.serviceId)
-
-
-class Car(models.Model):
-    carId = models.AutoField(primary_key=True)
-    oilType = models.CharField(max_length=10)
-    carType = models.CharField(max_length=10)
-    comment = models.CharField(max_length=20, null=True, blank=True)
-    kpl = models.FloatField()
-
-    def __str__(self):
-        return self.oilType + ', ' + self.carType
-
-
-class Oil(models.Model):
-    oilId = models.AutoField(primary_key=True)
-    oilDate = models.DateField()
-    carId = models.ForeignKey(Car, on_delete=models.CASCADE)
-    oilMoney = models.FloatField()
-    mpk = models.IntegerField()
-
-    def __str__(self):
-        return str(self.oilDate) + ', ' + str(self.carId)
-
-
-class Fuel(models.Model):
-    fuelId = models.AutoField(primary_key=True)
-    serviceId = models.ForeignKey(Servicereport, on_delete=models.CASCADE)
-    distance1 = models.FloatField(default=0)
-    distance2 = models.FloatField(default=0)
-    distance3 = models.FloatField(default=0)
-    totalDistance = models.FloatField()
-    fuelMoney = models.IntegerField(null=True, blank=True)
-    fuelStatus = models.CharField(max_length=1, default='N')
-
-    def __str__(self):
-        return str(self.fuelId)

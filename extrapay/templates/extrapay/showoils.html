@@ -118,7 +118,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="postForm" action="/service/postoils/" method="POST" onkeydown="javascript: if (event.keyCode == 13) { btn_post() }">
+          <form id="postForm" action="/extrapay/postoils/" method="POST" onkeydown="javascript: if (event.keyCode == 13) { btn_post() }">
             {% csrf_token %}
             <label for="oilDate" class="font-weight-bold text-primary">날짜</label>
             <input class="form-control" id="oilDate" name="oilDate" type="month" max="9999-12">

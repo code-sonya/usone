@@ -22,10 +22,4 @@ urlpatterns = [
     url(r'^postgeolocation/(?P<serviceId>.+)/(?P<status>.+)/(?P<latitude>.+)/(?P<longitude>.+)/$',
         views.post_geolocation, name='postgeolocation'),
     url(r'^changecontractsname/', views.change_contracts_name, name='changecontractsname'),
-    url(r'^postcar/', views.post_car, name='postcar'),
-    url(r'^showoils/', views.show_oils, name='showoils'),
-    url(r'^postoils/', views.post_oils, name='postoils'),
-    url(r'^showfuel/', views.show_fuel, name='showfuel'),
-    url(r'^postfuel/', views.post_fuel, name='postfuel'),
-    url(r'^fuelasjson/$', views.fuel_asjson, name='fuelasjson'),
 ]
