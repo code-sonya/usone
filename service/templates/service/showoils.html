@@ -19,7 +19,6 @@
       border: 1px solid #e3e6f0;
       font-size: 14px;
       text-align: center;
-      white-space: nowrap;
     }
   </style>
 
@@ -33,7 +32,16 @@
     <div class="col-xl-8">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 유류비 관리 </h6>
+          <h6 class="m-0 h3 text-gray-800"> {{ selectMonth | date:'Y.m' }} 유류비 현황 </h6>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            </a>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a class="dropdown-toggle" href="#" role="button" id="postLink" data-toggle="modal" data-target="#postModal">
+              <i class="fas fa-plus fa-fw text-gray-400"></i>
+            </a>
+          </div>
         </div>
         <div class="card-body">
           <table id="car" class="table">
@@ -49,16 +57,16 @@
             </tr>
             </thead>
             <tbody>
-            {% for oil in oils %}
+            {% for oil in joinOils %}
             <tr>
-              <td>{{ oil.carId.oilType }}</td>
-              <td>{{ oil.carId.carType }}</td>
-              <td>{{ oil.carId.comment }}</td>
-              <td>-원</td>
-              <td>{{ oil.mpk }}원</td>
-              <td>{{ oil.carId.kpl }} km</td>
+              <td>{{ oil.oilType }}</td>
+              <td>{{ oil.carType }}</td>
+              <td>{{ oil.carComment }}</td>
+              <td>{{ oil.lastmpk }}원</td>
+              <td class="bg-light font-weight-bold">{{ oil.mpk }}원</td>
+              <td>{{ oil.kpl }} km</td>
               <td>{{ oil.oilMoney }}원</td>
-              <td>-원</td>
+              <td>{{ oil.iad }}</td>
 
             </tr>
             {% endfor %}
@@ -70,16 +78,115 @@
     <div class="col-xl-2"></div>
   </div>
 
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <label for="findDate" class="font-weight-light text-primary">검색 일자</label>
+            <input type="month" max="9999-12" class="form-control" id="findDate" name="findDate" value="{{ selectMonth | date:'Y-m' }}">
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- post modal -->
+  <div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="postModalLabel">유류비 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="postForm" action="/service/postoils/" method="POST" onkeydown="javascript: if (event.keyCode == 13) { btn_post() }">
+            {% csrf_token %}
+            <label for="oilDate" class="font-weight-bold text-primary">날짜</label>
+            <input class="form-control" id="oilDate" name="oilDate" type="month" max="9999-12">
+            <label for="gasoline" class="font-weight-bold text-primary">휘발유</label>
+            <input class="form-control" id="gasoline" name="gasoline">
+            <label for="diesel" class="font-weight-bold text-primary">경유</label>
+            <input class="form-control" id="diesel" name="diesel">
+            <label for="lpg" class="font-weight-bold text-primary">LPG</label>
+            <input class="form-control" id="lpg" name="lpg">
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_post()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
 {% block script %}
 
   <script type="text/javascript">
+    function btn_filter() {
+        const filterForm = document.getElementById('filterForm');
+        filterForm.submit();
+    }
 
-      $(document).ready(function () {
+    function btn_post() {
+        const postForm = document.getElementById('postForm');
+        const oilDate = document.getElementById("oilDate").value;
+        const gasoline = document.getElementById("gasoline").value;
+        const diesel = document.getElementById("diesel").value;
+        const lpg = document.getElementById("lpg").value;
 
-      })
+        if (oilDate === '') {
+            alert("날짜를 입력해 주세요.");
+            return false;
+        }
+        if (gasoline === '') {
+            alert("휘발유 가격을 입력해 주세요.");
+            return false;
+        } else if (isNaN(gasoline)) {
+            alert("휘발유 가격을 숫자로 입력해 주세요.");
+            return false;
+        }
+        if (diesel === '') {
+            alert("경유 가격을 입력해 주세요.");
+            return false;
+        } else if (isNaN(diesel)) {
+            alert("경유 가격을 숫자로 입력해 주세요.");
+            return false;
+        }
+        if (lpg === '') {
+            alert("LPG 가격을 입력해 주세요.");
+            return false;
+        } else if (isNaN(lpg)) {
+            alert("LPG 가격을 숫자로 입력해 주세요.");
+            return false;
+        }
+
+        if (confirm("유류비 등록 하시겠습니까?")) {
+            postForm.submit();
+        }
+    }
   </script>
 
 {% endblock %}
