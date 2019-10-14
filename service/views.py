@@ -2,7 +2,7 @@
 
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
-from django.db.models import Sum, Max, F, Subquery
+from django.db.models import Sum, Max, F, Value, FloatField
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import get_template
@@ -19,7 +19,7 @@ from noticeboard.models import Board
 from sales.models import Contract
 from .forms import ServicereportForm, ServiceformForm
 from .functions import *
-from .models import Serviceform, Geolocation, Car, Oil
+from .models import Serviceform, Geolocation, Car, Oil, Fuel
 
 
 @login_required
@@ -37,7 +37,6 @@ def service_asjson(request):
     else:
         contractCheck = int(request.POST['contractCheck'])
     selectType = request.POST['selectType']
-
     serviceTitle = request.POST['serviceTitle']
 
     if selectType == 'show':
@@ -66,6 +65,7 @@ def service_asjson(request):
             services = Servicereport.objects.filter(empId=request.user.employee.empId)
             if contractCheck == 1:
                 services = services.filter(contractId__isnull=True)
+
     elif selectType == 'change':
         services = Servicereport.objects.filter(empId=request.user.employee.empId)
         if companyName:
@@ -790,6 +790,7 @@ def view_service_pdf(request, serviceId):
 
 
 @login_required
+@csrf_exempt
 def post_geolocation(request, serviceId, status, latitude, longitude):
     service = Servicereport.objects.get(serviceId=serviceId)
     if service.empId.empId != request.user.employee.empId:
@@ -848,6 +849,8 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
     return redirect('service:viewservice', serviceId)
 
 
+@login_required
+@csrf_exempt
 def change_contracts_name(request):
     serviceIds = json.loads(request.POST['serviceId'])
     contractId = request.POST['contractId']
@@ -860,6 +863,8 @@ def change_contracts_name(request):
     return redirect('service:showservices')
 
 
+@login_required
+@csrf_exempt
 def post_car(request):
     cars = Car.objects.all().order_by('-oilType', 'carType')
 
@@ -896,6 +901,8 @@ def post_car(request):
     return render(request, 'service/postcar.html', context)
 
 
+@login_required
+@csrf_exempt
 def show_oils(request):
     if request.POST:
         selectMonth = datetime.datetime(int(request.POST['findDate'][:4]), int(request.POST['findDate'][5:7]), 1).date()
@@ -947,6 +954,8 @@ def show_oils(request):
     return render(request, 'service/showoils.html', context)
 
 
+@login_required
+@csrf_exempt
 def post_oils(request):
     if request.method == "POST":
         cars = Car.objects.all()
@@ -968,3 +977,115 @@ def post_oils(request):
                 mpk=round(oilMoney/car.kpl),
             )
         return redirect('service:showoils')
+
+
+@login_required
+@csrf_exempt
+def show_fuel(request):
+    if request.method == 'POST':
+        y = int(request.POST['findDate'][:4])
+        m = int(request.POST['findDate'][5:7])
+    else:
+        y = datetime.datetime.today().year
+        m = datetime.datetime.today().month
+    startdate = str(datetime.datetime(y, m, 1).date())
+    enddate = str((datetime.datetime(y, m+1, 1) - datetime.timedelta(days=1)).date())
+    context = {
+        'startdate': startdate,
+        'enddate': enddate,
+    }
+    return render(request, 'service/showfuel.html', context)
+
+
+@login_required
+@csrf_exempt
+def post_fuel(request):
+    context = {}
+    if request.method == 'POST':
+        serviceIds = json.loads(request.POST['serviceId'])
+        print(serviceIds)
+        for serviceId in serviceIds:
+            geo = Geolocation.objects.get(serviceId=serviceId)
+            distance1 = latlng_distance(geo.beginLatitude, geo.beginLongitude, geo.startLatitude, geo.startLongitude)
+            distance2 = latlng_distance(geo.startLatitude, geo.startLongitude, geo.endLatitude, geo.endLongitude)
+            distance3 = latlng_distance(geo.endLatitude, geo.endLongitude, geo.finishLatitude, geo.finishLongitude)
+            totalDistance = distance1 + distance2 + distance3
+            Fuel.objects.create(
+                serviceId=Servicereport.objects.get(serviceId=serviceId),
+                distance1=distance1,
+                distance2=distance2,
+                distance3=distance3,
+                totalDistance=totalDistance,
+            )
+    return render(request, 'service/showfuel.html', context)
+
+
+@login_required
+@csrf_exempt
+def fuel_asjson(request):
+    status = request.POST['status']
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+
+    if status == 'post':
+        services = Geolocation.objects.select_related().filter(
+            Q(serviceId__empId=request.user.employee.empId) &
+            Q(serviceId__serviceStatus='Y')
+        ).annotate(
+            serviceDate=F('serviceId__serviceDate'),
+            companyName=F('serviceId__companyName__companyName'),
+            serviceTitle=F('serviceId__serviceTitle'),
+            distance=Value(0, output_field=FloatField()),
+        )
+        if startdate:
+            services = services.filter(serviceDate__gte=startdate)
+        if enddate:
+            services = services.filter(serviceDate__lte=enddate)
+
+        services = services.values(
+            'serviceId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle', 'distance',
+            'beginLatitude', 'beginLongitude', 'startLatitude', 'startLongitude',
+            'endLatitude', 'endLongitude', 'finishLatitude', 'finishLongitude',
+        )
+
+        for service in services:
+            service['distance'] = latlng_distance(
+                service['beginLatitude'],
+                service['beginLongitude'],
+                service['startLatitude'],
+                service['startLongitude'],
+            ) + latlng_distance(
+                service['startLatitude'],
+                service['startLongitude'],
+                service['endLatitude'],
+                service['endLongitude'],
+            ) + latlng_distance(
+                service['endLatitude'],
+                service['endLongitude'],
+                service['finishLatitude'],
+                service['finishLongitude'],
+            )
+
+        structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+
+    elif status == 'show':
+        services = Fuel.objects.select_related().filter(
+            Q(serviceId__empId=request.user.employee.empId) &
+            Q(serviceId__serviceStatus='Y')
+        ).annotate(
+            serviceDate=F('serviceId__serviceDate'),
+            companyName=F('serviceId__companyName__companyName'),
+            serviceTitle=F('serviceId__serviceTitle'),
+        )
+        if startdate:
+            services = services.filter(serviceDate__gte=startdate)
+        if enddate:
+            services = services.filter(serviceDate__lte=enddate)
+
+        services = services.values(
+            'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle', 'totalDistance',
+        )
+
+        structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')

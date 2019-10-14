@@ -1,0 +1,304 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  유류비신청
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> {{ startdate | slice:'0:4' }}년 {{ startdate | slice:'5:7' }}월 유류비신청 </h6>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <h5 class="text-dark font-weight-bold">▼ 신청완료</h5>
+            <table id="showfuel" class="hover row-border" width="100%" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>단계</th>
+                <th>날짜</th>
+                <th>고객사</th>
+                <th>제목</th>
+                <th>이동거리 (km)</th>
+              </tr>
+            </thead>
+            </table>
+          </div>
+          <br>
+
+          <div class="table-responsive">
+            <h5 class="text-dark font-weight-bold">▼ 신청가능 일정</h5>
+            <table id="postfuel" class="hover row-border" width="100%" style="width: 100%;">
+            <thead>
+              <tr>
+                <th><input class="ckbxall" type="checkbox"></th>
+                <th>날짜</th>
+                <th>고객사</th>
+                <th>제목</th>
+                <th>이동거리 (km)</th>
+                <th class="d-none">serviceId</th>
+              </tr>
+            </thead>
+            </table>
+            <br>
+
+            <div class="text-center">
+              <form id="fuelForm" method="POST" action="/service/postfuel/">{% csrf_token %}</form>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_post()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 신청 </span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <label for="findDate" class="font-weight-light text-primary">검색 일자</label>
+            <input type="month" max="9999-12" class="form-control" id="findDate" name="findDate" value="{{ startdate | slice:'0:7' }}">
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+    function btn_filter() {
+        const filterForm = document.getElementById('filterForm');
+        filterForm.submit();
+    }
+
+    function btn_post() {
+        const length = $('.service-id').length;
+        const idList = new Array();
+        for (var i = 2; i <= length - 1; i++) {
+            if ($('.ckbx').eq(i - 2).is(":checked")) {
+                idList.push($('.service-id').eq(i).text());
+            }
+        }
+
+        const fuelForm = document.getElementById('fuelForm');
+
+        const serviceId = document.createElement("input");
+        serviceId.setAttribute("type", "hidden");
+        serviceId.setAttribute("name", "serviceId");
+        serviceId.setAttribute("value", JSON.stringify(idList));
+        fuelForm.appendChild(serviceId);
+
+        fuelForm.submit();
+    }
+
+    $(document).ready(function () {
+        const postfuel = $('#postfuel').DataTable({
+            "processing": true,
+            "ajax": {
+                "processing": true,
+                "type": 'POST',
+                "data": {
+                    "startdate": "{{ startdate }}",
+                    "enddate": "{{ enddate }}",
+                    "status": "post",
+                },
+                "url": "{% url 'service:fuelasjson' %}",
+                "dataSrc": ""
+            },
+            "columnDefs": [
+                {
+                    targets: 0,
+                    width: "5%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    orderable: false,
+                    data: null,
+                    defaultContent: '<input class="ckbx" name="ckbx" type=checkbox></input>',
+                },
+                {
+                    targets: 1,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "serviceDate",
+                },
+                {
+                    targets: 2,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "companyName"
+                },
+                {
+                    targets: 3,
+                    width: "60%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "serviceTitle",
+                },
+                {
+                    targets: 4,
+                    width: "15%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "distance",
+                },
+                {
+                    targets: 5,
+                    orderable: false,
+                    className: "service-id d-none",
+                    data: "serviceId__serviceId",
+                },
+            ],
+            "deferRender": true,
+            "searching": false,
+            "paging": false,
+            "info": false,
+            "scrollY": "50vh",
+            "scrollX": true,
+            "scrollCollapse": true,
+            "order": [[1, 'desc']],
+            "language": {
+                "lengthMenu": "_MENU_ 개씩 보기",
+                "search": "검색:",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "다음",
+                    "previous": "이전"
+                },
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                const today = new Date();
+                const startdate = new Date(aData.serviceEndDatetime);
+                if (startdate <= today && aData.serviceStatus === 'N') {
+                    $('td', nRow).css('background-color', '#fff2f9').css('color', 'red');
+                } else if (aData.serviceStatus === "Y") {
+                    $('td', nRow).css('background-color', '#f2f2f2');
+                } else {
+                    $('td', nRow).css('background-color', '#ffffff');
+                }
+            }
+        });
+
+        $('.ckbxall').click(function () {
+            $('.ckbx').prop('checked', this.checked);
+        });
+
+        const showfuel = $('#showfuel').DataTable({
+            "processing": true,
+            "ajax": {
+                "processing": true,
+                "type": 'POST',
+                "data": {
+                    "startdate": "{{ startdate }}",
+                    "enddate": "{{ enddate }}",
+                    "status": "show",
+                },
+                "url": "{% url 'service:fuelasjson' %}",
+                "dataSrc": ""
+            },
+            "columnDefs": [
+                {
+                    targets: 0,
+                    width: "5%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    orderable: false,
+                    data: null,
+                },
+                {
+                    targets: 1,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "serviceDate",
+                },
+                {
+                    targets: 2,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "companyName"
+                },
+                {
+                    targets: 3,
+                    width: "60%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "serviceTitle",
+                },
+                {
+                    targets: 4,
+                    width: "15%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "totalDistance",
+                },
+            ],
+            "deferRender": true,
+            "searching": false,
+            "paging": false,
+            "info": false,
+            "scrollY": "50vh",
+            "scrollX": true,
+            "scrollCollapse": true,
+            "order": [[1, 'desc']],
+            "language": {
+                "lengthMenu": "_MENU_ 개씩 보기",
+                "search": "검색:",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "다음",
+                    "previous": "이전"
+                },
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                const today = new Date();
+                const startdate = new Date(aData.serviceEndDatetime);
+                if (startdate <= today && aData.serviceStatus === 'N') {
+                    $('td', nRow).css('background-color', '#fff2f9').css('color', 'red');
+                } else if (aData.serviceStatus === "Y") {
+                    $('td', nRow).css('background-color', '#f2f2f2');
+                } else {
+                    $('td', nRow).css('background-color', '#ffffff');
+                }
+            }
+        });
+    })
+
+  </script>
+
+{% endblock %}

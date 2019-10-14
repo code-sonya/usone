@@ -113,7 +113,7 @@ class Vacation(models.Model):
 
 class Geolocation(models.Model):
     geolocationId = models.AutoField(primary_key=True)
-    serviceId = models.ForeignKey(Servicereport, on_delete=models.CASCADE)
+    serviceId = models.OneToOneField(Servicereport, on_delete=models.CASCADE)
     beginLatitude = models.FloatField(null=True, blank=True)
     beginLongitude = models.FloatField(null=True, blank=True)
     startLatitude = models.FloatField(null=True, blank=True)
@@ -152,8 +152,9 @@ class Oil(models.Model):
 class Fuel(models.Model):
     fuelId = models.AutoField(primary_key=True)
     serviceId = models.ForeignKey(Servicereport, on_delete=models.CASCADE)
-    distance1 = models.FloatField()
-    distance2 = models.FloatField()
+    distance1 = models.FloatField(default=0)
+    distance2 = models.FloatField(default=0)
+    distance3 = models.FloatField(default=0)
     totalDistance = models.FloatField()
     fuelMoney = models.IntegerField(null=True, blank=True)
     fuelStatus = models.CharField(max_length=1, default='N')

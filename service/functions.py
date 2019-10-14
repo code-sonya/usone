@@ -284,7 +284,7 @@ def num_to_str_position(num):
         return '사원'
 
 
-def latlng_distance(lat1, lng1, lat2, lng2, unit='m'):
+def latlng_distance(lat1, lng1, lat2, lng2, unit='km'):
     deg2rad = lambda deg: deg * math.pi / 180.0
     rad2deg = lambda rad: rad * 180 / math.pi
 
@@ -296,7 +296,9 @@ def latlng_distance(lat1, lng1, lat2, lng2, unit='m'):
 
     if unit == "km":
         dist *= 1.609344
+        dist = round(dist, 1)
     elif unit == 'm':
         dist *= 1609.344
+        dist = round(dist)
 
     return dist
