@@ -215,7 +215,7 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
     personRevenue = revenue.values('contractId__empId', 'contractId__empName', 'contractId__empDeptName').annotate(
         revenuePrice=Sum('revenuePrice'),
         revenueProfitPrice=Sum('revenueProfitPrice')
-    )
+    ).order_by('-revenuePrice', '-revenueProfitPrice')
     sumRevenue = revenue.aggregate(
         revenuePrice=Sum('revenuePrice'),
         revenueProfitPrice=Sum('revenueProfitPrice')
@@ -681,3 +681,39 @@ def cal_monthlybill(todayYear):
     table.append(profit_month)
 
     return table
+
+
+def cal_profitloss(dept, todayYear):
+    # 계정과목 월별
+    expenses1 = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__year=todayYear) & Q(expenseDept__in=dept) & Q(expenseMoney__gt=0)).values('expenseSub') \
+        .annotate(month1_expense=Sum('expenseMoney', filter=Q(expenseDate__month=1)))\
+        .annotate(month2_expense=Sum('expenseMoney', filter=Q(expenseDate__month=2)))\
+        .annotate(month3_expense=Sum('expenseMoney', filter=Q(expenseDate__month=3)))\
+        .annotate(month4_expense=Sum('expenseMoney', filter=Q(expenseDate__month=4)))\
+        .annotate(month5_expense=Sum('expenseMoney', filter=Q(expenseDate__month=5)))\
+        .annotate(month6_expense=Sum('expenseMoney', filter=Q(expenseDate__month=6)))\
+        .annotate(month7_expense=Sum('expenseMoney', filter=Q(expenseDate__month=7)))\
+        .annotate(month8_expense=Sum('expenseMoney', filter=Q(expenseDate__month=8)))\
+        .annotate(month9_expense=Sum('expenseMoney', filter=Q(expenseDate__month=9)))\
+        .annotate(month10_expense=Sum('expenseMoney', filter=Q(expenseDate__month=10)))\
+        .annotate(month11_expense=Sum('expenseMoney', filter=Q(expenseDate__month=11)))\
+        .annotate(month12_expense=Sum('expenseMoney', filter=Q(expenseDate__month=12)))\
+        .annotate(month_expense=Sum('expenseMoney'))
+    # 합계
+    expenses2 = Expense.objects.filter(
+        Q(expenseStatus='Y') & Q(expenseDate__year=todayYear) & Q(expenseDept__in=dept) & Q(
+            expenseMoney__gt=0)).exclude(expenseDept='전사').values('expenseDate__year') \
+        .annotate(month1_expense=Sum('expenseMoney', filter=Q(expenseDate__month=1))) \
+        .annotate(month2_expense=Sum('expenseMoney', filter=Q(expenseDate__month=2))) \
+        .annotate(month3_expense=Sum('expenseMoney', filter=Q(expenseDate__month=3))) \
+        .annotate(month4_expense=Sum('expenseMoney', filter=Q(expenseDate__month=4))) \
+        .annotate(month5_expense=Sum('expenseMoney', filter=Q(expenseDate__month=5))) \
+        .annotate(month6_expense=Sum('expenseMoney', filter=Q(expenseDate__month=6))) \
+        .annotate(month7_expense=Sum('expenseMoney', filter=Q(expenseDate__month=7))) \
+        .annotate(month8_expense=Sum('expenseMoney', filter=Q(expenseDate__month=8))) \
+        .annotate(month9_expense=Sum('expenseMoney', filter=Q(expenseDate__month=9))) \
+        .annotate(month10_expense=Sum('expenseMoney', filter=Q(expenseDate__month=10))) \
+        .annotate(month11_expense=Sum('expenseMoney', filter=Q(expenseDate__month=11))) \
+        .annotate(month12_expense=Sum('expenseMoney', filter=Q(expenseDate__month=12))) \
+        .annotate(month_expense=Sum('expenseMoney'))
+    return expenses1, expenses2

@@ -21,7 +21,7 @@
       padding: 5px 15px;
       text-align: center;
       vertical-align: middle;
-      font-size: 17px;
+      font-size: 14px;
       border-top: 1px dotted #858796a3;
     }
 
@@ -73,14 +73,14 @@
         <table class="pc-table" id="contract">
           <thead class="bg-light thtd">
           <tr class="thtd">
-            <td class="thtd" colspan="2">구분</td>
+            <td class="thtd" colspan="3">구분</td>
             <td class="thtd" colspan="8">베팅액</td>
             <td class="thtd" colspan="8">인센티브 + Award</td>
             <td class="thtd" colspan="8">프로그램 시행에 따른 급여 증가액</td>
           </tr>
           <tr class="thtd">
             <td class="thtd" rowspan="2">직급</td>
-            <td class="thtd" rowspan="2">성명</td>
+            <td class="thtd" rowspan="2" colspan="2">성명</td>
             <td class="thtd" colspan="2">1Q누계</td>
             <td class="thtd" colspan="2">2Q누계</td>
             <td class="thtd" colspan="2">3Q누계</td>
@@ -99,7 +99,7 @@
           {% for row in table %}
             <tr class="thtd">
               <td class="thtd" colspan="1">{{ row.empPosition }}</td>
-              <td class="thtd" colspan="1"><a href="/sales/viewincentive/{{ row.empId }}/">{{ row.empName }}</a></td>
+              <td class="thtd" colspan="2"><a href="/sales/viewincentive/{{ row.empId }}/">{{ row.empName }}</a></td>
               <td class="thtd" colspan="2">{{ row.quarter1_bettingSalary | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.quarter2_bettingSalary | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.quarter3_bettingSalary | intcomma }}</td>
@@ -131,7 +131,7 @@
             </tr>
           {% endfor %}
           <tr class="thtd bg-light">
-            <td class="thtd" colspan="2">합계</td>
+            <td class="thtd" colspan="3">합계</td>
             <td class="thtd" colspan="2">{{ sum_table.sum_quarter1_bettingSalary | intcomma }}</td>
             <td class="thtd" colspan="2">{{ sum_table.sum_quarter2_bettingSalary | intcomma }}</td>
             <td class="thtd" colspan="2">{{ sum_table.sum_quarter3_bettingSalary | intcomma }}</td>

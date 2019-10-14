@@ -21,7 +21,7 @@
       padding: 5px 15px;
       text-align: center;
       vertical-align: middle;
-      font-size: 17px;
+      font-size: 14px;
       border-top: 1px dotted #858796a3;
     }
 
@@ -66,11 +66,9 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h3 class="m-0 text-gray-800"> {{ todayYear }}년 {{ todayQuarter }}분기 인센티브 현황 </h3>
         <div class="dropdown no-arrow">
-          {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
           <a class="mr-3" onclick="location.href='/sales/viewincentivepdf/{{ todayQuarter }}/'">
             <i class="fas fa-download fa-fw text-gray-400"></i>
           </a>
-          {% endif %}
           <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
             <i class="fas fa-filter fa-fw text-gray-400"></i>
           </a>
