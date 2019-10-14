@@ -2573,10 +2573,19 @@ def monthly_bill(request):
         if month['name']=='영업이익':
             for m in range(1, todayMonth+1):
                 todayMonth_table['profit'] += month['month{}'.format(m)]
+    if todayMonth == 12:
+        expenseDetail = Expense.objects.filter(Q(expenseStatus='Y') &
+                                               Q(expenseDate__gte='{}-01-01'.format(todayYear)) &
+                                               Q(expenseDate__lt='{}-01-01'.format(todayYear+1))).exclude(expenseDept='전사').values('expenseGroup') \
+            .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / todayMonth_table['expenses'], FloatField())).order_by('-expenseMoney__sum')
+        sum_expenseDetail = expenseDetail.aggregate(sum_expenseDetail=Sum('expenseMoney__sum'), sum_expensePercent=Sum('expensePercent'))
+    else:
+        expenseDetail = Expense.objects.filter(Q(expenseStatus='Y') &
+                                               Q(expenseDate__gte='{}-01-01'.format(todayYear)) &
+                                               Q(expenseDate__lt='{}-{}-01'.format(todayYear,+todayMonth+1))).exclude(expenseDept='전사').values('expenseGroup') \
+            .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / todayMonth_table['expenses'], FloatField())).order_by('-expenseMoney__sum')
+        sum_expenseDetail = expenseDetail.aggregate(sum_expenseDetail=Sum('expenseMoney__sum'), sum_expensePercent=Sum('expensePercent'))
 
-    expenseDetail = Expense.objects.filter(Q(expenseStatus='Y')).exclude(expenseDept='전사').values('expenseGroup') \
-        .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / todayMonth_table['expenses'], FloatField())).order_by('-expenseMoney__sum')
-    sum_expenseDetail = expenseDetail.aggregate(sum_expenseDetail=Sum('expenseMoney__sum'), sum_expensePercent=Sum('expensePercent'))
 
 
     # 3.월별 예상 손익 계산서 현황
