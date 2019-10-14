@@ -651,7 +651,7 @@ def cal_monthlybill(todayYear):
                 Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2))) &
                 Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))) \
                 .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
-            expenses = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).aggregate(expenseMoney__sum=Sum('expenseMoney'))
+            expenses = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).exclude(expenseDept='전사').aggregate(expenseMoney__sum=Sum('expenseMoney'))
 
 
         else:
@@ -660,8 +660,9 @@ def cal_monthlybill(todayYear):
                 Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2)))&
                 Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))) \
                 .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
-            expenses = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).aggregate(expenseMoney__sum=Sum('expenseMoney'))
+            expenses = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).exclude(expenseDept='전사').aggregate(expenseMoney__sum=Sum('expenseMoney'))
 
+        print(expenses)
         revenue_month['month{}'.format(str(todayMonth))] = revenues['revenuePrice']
         revenue_month['sum'] += revenues['revenuePrice']
         gp_month['month{}'.format(str(todayMonth))] = revenues['revenueProfitPrice']
