@@ -2245,7 +2245,7 @@ def save_profitloss(request):
     data = data.fillna(0)
     select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
                   '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
-                  '솔루션지원팀(5100)', 'DB지원팀(5300)', '인턴(5400)']
+                  '솔루션지원팀(5100)', 'DB지원팀(5300)']
     status = False
     Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='손익') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
     for index, rows in data[select_col].iterrows():
@@ -2264,7 +2264,7 @@ def save_profitloss(request):
                 group = sub
 
             for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
-                                   '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀', '인턴']):
+                                   '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀']):
                 Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
                                        expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
