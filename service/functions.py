@@ -90,6 +90,7 @@ def overtime(str_start_datetime, str_end_datetime):
             else:
                 d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
 
+
     for i in range(0, work_hours(d_start, d_finish), 1):
         a = (d_start + datetime.timedelta(hours=i))
         event_a = is_holiday(a.date())
@@ -111,7 +112,112 @@ def overtime(str_start_datetime, str_end_datetime):
                         pass
                     else:
                         minute_sum += 60
+
     return round((int(minute_sum) / 60), 1)
+
+
+def overtime_extrapay(str_start_datetime, str_end_datetime):
+    is_holiday_startdate = is_holiday(datetime.datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
+    is_holiday_enddate = is_holiday(datetime.datetime.strptime(str_end_datetime[:10], "%Y-%m-%d").date())
+
+    o_start = pd.Timestamp(str_start_datetime)
+    o_finish = pd.Timestamp(str_end_datetime)
+    d_start = pd.Timestamp(str_start_datetime)
+    d_finish = pd.Timestamp(str_end_datetime)
+
+
+    minute_sum = 0
+
+    s_week = d_start.weekday()
+    f_week = d_finish.weekday()
+
+    if s_week in [5, 6] or is_holiday_startdate != 0:  # 주말이거나 공휴일 일때
+        if d_start.minute != 0:
+            print('1')
+            minute_sum += (60 - d_start.minute)
+            print(minute_sum)
+            d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+            print(d_start)
+
+    else:  # 평일 일때
+        if d_start.minute != 0:  # 정각 시작하지 않은 경우
+            if d_start.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
+                print('2')
+                minute_sum += (60 - d_start.minute)
+                print(minute_sum)
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                print(d_start)
+            else:  # 초과 근무에 해당 하지 않는 경우
+                print('3')
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                print(d_start)
+
+    if f_week in [5, 6] or is_holiday_enddate != 0:  # 주말이거나 공휴일 일때
+        if d_finish.minute != 0:
+            print('4')
+            minute_sum += d_finish.minute
+            print('minute_sum:', minute_sum)
+            d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+            print(d_finish)
+
+    else:  # 평일 일때
+        if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
+            if d_finish.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
+                print('5')
+                minute_sum += d_finish.minute
+                print(minute_sum)
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+                print(d_finish)
+            else:
+                print('6')
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+                print(d_finish)
+
+    min_date = datetime.datetime(3000, 1, 31, 1, 0, 0)
+    max_date = datetime.datetime(1999, 1, 31, 1, 0, 0)
+    for i in range(0, work_hours(d_start, d_finish), 1):
+        a = (d_start + datetime.timedelta(hours=i))
+        event_a = is_holiday(a.date())
+        a_week = a.weekday()
+
+        if d_start <= a <= d_finish:
+            if a_week in [5, 6] or event_a != 0:  # 주말이나 공휴일
+                if d_start.date() == d_finish.date():
+                    minute_sum += int((d_finish - d_start).seconds / 60)
+                    min_date = d_start
+                    max_date = d_finish
+                    break
+                elif d_finish == a:
+                    pass
+                else:
+                    minute_sum += 60
+                    if a < min_date:
+                        min_date = a
+
+                    if a > max_date:
+                        max_date = a
+
+            else:  # 평일
+                if int(a.hour) in [0, 1, 2, 3, 4, 5, 22, 23]:
+                    if d_finish == a:
+                        pass
+                    else:
+                        minute_sum += 60
+                        if a < min_date:
+                            min_date = a
+
+                        if a > max_date:
+                            max_date = a
+
+    if max_date != datetime.datetime(1999, 1, 31, 1, 0, 0):
+        max_date = max_date + datetime.timedelta(minutes=60)
+    if max_date.hour == 5 and o_finish.hour == 5 and o_finish.minute != 0:
+        max_date = o_finish
+    if min_date.hour == 23:
+        if o_start.hour == 22 and o_start.minute != 0:
+            min_date = o_start
+
+    return round((math.trunc(minute_sum * 0.1)*10)/60, 2), round((math.trunc(minute_sum * 0.1)*10)/60, 2), min_date, max_date
 
 
 def dayreport_query2(empDeptName, day):
@@ -302,3 +408,53 @@ def latlng_distance(lat1, lng1, lat2, lng2, unit='km'):
         dist = round(dist)
 
     return dist
+
+
+def cal_foodcost(str_start_datetime, str_end_datetime):
+    print(str_start_datetime, str_end_datetime)
+    is_holiday_startdate = is_holiday(datetime.datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
+    is_holiday_enddate = is_holiday(datetime.datetime.strptime(str_end_datetime[:10], "%Y-%m-%d").date())
+
+    startDate = datetime.datetime(year=int(str_start_datetime[:4]), month=int(str_start_datetime[5:7]), day=int(str_start_datetime[8:10]))
+    endDate = datetime.datetime(year=int(str_end_datetime[:4]), month=int(str_end_datetime[5:7]), day=int(str_end_datetime[8:10]))
+    dateRange = []
+    o_start = pd.Timestamp(str_start_datetime)
+    o_finish = pd.Timestamp(str_end_datetime)
+    for x in range(0, (o_finish - o_start).days + 1):
+        date_dict = {}
+        print('x:',x)
+        year = int(str((startDate + datetime.timedelta(days=x)).date())[:4])
+        month = int(str((startDate + datetime.timedelta(days=x)).date())[5:7])
+        day =int(str((startDate + datetime.timedelta(days=x)).date())[8:10])
+        if (startDate + datetime.timedelta(days=x)).date() == startDate:
+            date_dict['start'] = o_start
+            if (startDate + datetime.timedelta(days=x)).date() == endDate:
+                date_dict['end'] = o_finish
+                dateRange.append(date_dict)
+            else:
+                print((startDate + datetime.timedelta(days=x)).date(),type((startDate + datetime.timedelta(days=x)).date()),str((startDate + datetime.timedelta(days=x)).date()))
+                date_dict['end'] = datetime.datetime(year,month,day,24,0,0)
+                dateRange.append(date_dict)
+        else:
+            print((startDate + datetime.timedelta(days=x)).date(), type((startDate + datetime.timedelta(days=x)).date()), str((startDate + datetime.timedelta(days=x)).date()))
+            date_dict['start'] = datetime.datetime(year,month,day, 0, 0, 0)
+            if (startDate + datetime.timedelta(days=x)).date() == endDate:
+                date_dict['end'] = o_finish
+                dateRange.append(date_dict)
+            else:
+                date_dict['end'] = datetime.datetime(year,month,day, 24, 0, 0)
+                dateRange.append(date_dict)
+    print(dateRange)
+
+    s_week = o_start.weekday()
+    f_week = o_finish.weekday()
+    print('o_start:', o_start, 'o_finish:', o_finish)
+
+
+    # # 주말이거나 공휴일일 때
+    # if s_week in [5, 6] or is_holiday_startdate != 0:
+
+
+
+
+

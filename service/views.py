@@ -114,6 +114,7 @@ def post_service(request, postdate):
                 post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
                 post.serviceRegHour = post.serviceHour - post.serviceOverHour
                 post.save()
+                cal_foodcost(post.serviceBeginDatetime, post.serviceFinishDatetime)
                 return redirect('scheduler', str(post.serviceBeginDatetime)[:10])
 
             # 매월반복
@@ -839,10 +840,12 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         post.save()
         service.serviceFinishDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
-        service.serviceOverHour = overtime(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
+        service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
         service.serviceRegHour = service.serviceHour - service.serviceOverHour
         service.serviceStatus = 'Y'
         service.save()
+
+        # overhour create
 
     return redirect('service:viewservice', serviceId)
 
