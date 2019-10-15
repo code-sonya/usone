@@ -130,6 +130,7 @@ def post_contract(request):
         costCompany = [
             {'id': '법인카드', 'value': '법인카드'},
             {'id': '프로젝트비용', 'value': '프로젝트비용'},
+            {'id': 'OMM', 'value': 'OMM'},
             {'id': '이자비용', 'value': '이자비용'},
             {'id': '지원금', 'value': '지원금'},
             {'id': '인건비', 'value': '인건비'},
