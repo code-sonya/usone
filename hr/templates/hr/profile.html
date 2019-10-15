@@ -30,69 +30,83 @@
             <div class="col-xl-2"></div>
             <div class="col-xl-8">
               <table class="table">
-
                 <thead>
                 <tr>
-                  <td width="10%" style="text-align:center;background-color: #d7d7d7"><b>구&nbsp; &nbsp; &nbsp; &nbsp;분</b></td>
-                  <td width="10%" style="text-align:center;background-color: #d7d7d7"><b>내&nbsp; &nbsp; &nbsp; &nbsp;용</b></td>
+                  <td width="30%" class="text-center bg-gray-400"><b>구&nbsp; &nbsp; &nbsp; &nbsp;분</b></td>
+                  <td width="70%" class="text-center bg-gray-400"><b>내&nbsp; &nbsp; &nbsp; &nbsp;용</b></td>
                 </tr>
                 </thead>
-
                 <tbody>
                 <tr>
-                  <td width="10%" style="text-align:center"><b>아&nbsp; 이&nbsp; 디</b></td>
-                  <td width="10%" style="text-align:center"><b>{{ user.username }}</b></td>
+                  <td class="text-center" style="vertical-align: middle;"><b>아&nbsp; 이&nbsp; 디</b></td>
+                  <td class="text-center"><b>{{ user.username }}</b></td>
                 </tr>
                 <tr>
-                  <td width="10%" style="text-align:center"><b>비밀 번호</b></td>
-                  <td width="10%" style="text-align:center"><b>
-                    <a href="#" class="btn btn-warning btn-icon-split btn-sm" onclick="location.href='/accounts/password_change/'">
-                    <span class="icon text-white-50">
-                      <i class="fas fa-arrow-right"></i>
-                    </span>
+                  <td class="text-center" style="vertical-align: middle;"><b>비밀 번호</b></td>
+                  <td class="text-center">
+                    <b><a href="#" class="btn btn-warning btn-icon-split btn-sm"
+                          onclick="location.href='/accounts/password_change/'">
+                      <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
                       <span class="text">비밀번호 변경</span>
-                    </a></b></td>
-                </tr>
-                <tr>
-                  <td width="10%" style="text-align:center"><b>성&nbsp; &nbsp; &nbsp; &nbsp;함</b></td>
-                  <td width="10%" style="text-align:center"><b>{{ user.employee.empName }}</b></td>
-                </tr>
-                <tr>
-                  <td width="10%" style="text-align:center"><b>전화 번호</b></td>
-                  <td width="10%" style="text-align:center"><b>{{ user.employee.empPhone }}</b></td>
-                </tr>
-                <tr>
-                  <td width="10%" style="text-align:center"><b>이&nbsp; 메&nbsp; 일</b></td>
-                  <td width="10%" style="text-align:center"><b>{{ user.employee.empEmail }}</b></td>
-                </tr>
-                <tr>
-                  <td width="10%" style="text-align:center"><b>부&nbsp; &nbsp; &nbsp; &nbsp;서</b></td>
-                  <td width="10%" style="text-align:center"><b>{{ user.employee.empDeptName }}</b></td>
-                </tr>
-                <tr>
-                  <td width="10%" style="text-align:center"><b>직&nbsp; &nbsp; &nbsp; &nbsp;급</b></td>
-                  <td width="10%" style="text-align:center"><b>
-                    {{ user.employee.empPosition }}
-                  </b></td>
-                </tr>
-                <tr>
-                  <td width="10%" style="text-align:center"><b>상주 회사</b></td>
-                  <td width="10%" style="text-align:center"><b>{{ user.employee.dispatchCompany }}</b></td>
-                </tr>
-                <tr>
-                  <td width="10%" style="text-align:center"><b>내근 문구</b></td>
-                  <td width="10%" style="text-align:center">
-                    <form class="form-group" method="POST">
-                      {% csrf_token %}
-                      <div class="input-group">
-                        <input type="text" class="form-control" name="message" id="message" placeholder="{{ user.employee.message }}" required>
-                        <input type="submit" class="btn btn-success btn" value="변경">
-                      </div>
-                    </form>
+                    </a></b>
                   </td>
                 </tr>
+                <tr>
+                  <td class="text-center" style="vertical-align: middle;"><b>성&nbsp; &nbsp; &nbsp; &nbsp;함</b></td>
+                  <td class="text-center"><b>{{ user.employee.empName }}</b></td>
+                </tr>
+                <tr>
+                  <td class="text-center" style="vertical-align: middle;"><b>부&nbsp; &nbsp; &nbsp; &nbsp;서</b></td>
+                  <td class="text-center"><b>{{ user.employee.empDeptName }}</b></td>
+                </tr>
+                <tr>
+                  <td class="text-center" style="vertical-align: middle;"><b>직&nbsp; &nbsp; &nbsp; &nbsp;급</b></td>
+                  <td class="text-center"><b>{{ user.employee.empPosition }}</b></td>
+                </tr>
+                <form class="form-group" method="POST" id="empForm">
+                {% csrf_token %}
+                  <tr>
+                    <td class="text-center" style="vertical-align: middle;"><b>전화 번호</b></td>
+                    <td>
+                      <input class="form-control" name="empPhone" placeholder="{{ user.employee.empPhone }}">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-center" style="vertical-align: middle;"><b>이&nbsp; 메&nbsp; 일</b></td>
+                    <td>
+                      <input class="form-control" name="empEmail" placeholder="{{ user.employee.empEmail }}">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-center" style="vertical-align: middle;"><b>차&nbsp; &nbsp; &nbsp; &nbsp;량</b></td>
+                    <td>
+                      <select class="form-control" name="carId">
+                        <option value>---------</option>
+                        {% for car in cars %}
+                        <option value="{{ car.carId }}" {% if user.employee.carId.carId == car.carId %}selected{% endif %}>
+                          {{ car.oilType }}, {{ car.carType }}({{ car.comment }})
+                        </option>
+                        {% endfor %}
+                      </select>
+                      ※ 유류비 청구시 기준이 되는 차량입니다.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-center" style="vertical-align: middle;"><b>내근 문구</b></td>
+                    <td>
+                      <input class="form-control" name="message" placeholder="{{ user.employee.message }}">
+                      ※ 일일업무 메뉴에서 내근 시 표기되는 내용입니다.
+                    </td>
+                  </tr>
+                </form>
                 </tbody>
               </table>
+              <div class="text-center">
+                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                  <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                  <span class="text"> 저장 </span>
+                </a>
+              </div>
             </div>
             <div class="col-xl-2"></div>
           </div>
@@ -107,6 +121,10 @@
 
 
 {% block script %}
-
-
+  <script type="text/javascript">
+    function btn_save() {
+        const empForm = document.getElementById('empForm');
+        empForm.submit();
+    }
+  </script>
 {% endblock %}

@@ -193,8 +193,12 @@ def show_fuel(request):
 @login_required
 @csrf_exempt
 def post_fuel(request):
-    context = {}
     if request.method == 'POST':
+        mpk = Oil.objects.filter(
+            Q(oilDate=request.POST['startdate']) &
+            Q(carId=request.user.employee.carId)
+        ).values('mpk')[0]['mpk'] or 0
+
         serviceIds = json.loads(request.POST['serviceId'])
         for serviceId in serviceIds:
             geo = Geolocation.objects.get(serviceId=serviceId)
@@ -202,12 +206,14 @@ def post_fuel(request):
             distance2 = latlng_distance(geo.startLatitude, geo.startLongitude, geo.endLatitude, geo.endLongitude)
             distance3 = latlng_distance(geo.endLatitude, geo.endLongitude, geo.finishLatitude, geo.finishLongitude)
             totalDistance = distance1 + distance2 + distance3
+            fuelMoney = totalDistance * mpk
             Fuel.objects.create(
                 serviceId=Servicereport.objects.get(serviceId=serviceId),
                 distance1=distance1,
                 distance2=distance2,
                 distance3=distance3,
                 totalDistance=totalDistance,
+                fuelMoney=fuelMoney,
             )
     return redirect('extrapay:showfuel')
 
@@ -215,20 +221,27 @@ def post_fuel(request):
 @login_required
 @csrf_exempt
 def fuel_asjson(request):
+    empId = request.user.employee.empId
+    carId = request.user.employee.carId
     status = request.POST['status']
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
 
+    mpk = Oil.objects.filter(
+        Q(oilDate=startdate) &
+        Q(carId=carId)
+    ).values('mpk')[0]['mpk'] or 0
+
     if status == 'post':
         fuels = Fuel.objects.select_related().filter(
-            Q(serviceId__empId=request.user.employee.empId) &
+            Q(serviceId__empId=empId) &
             Q(serviceId__serviceStatus='Y') &
             Q(serviceId__serviceDate__gte=startdate) &
             Q(serviceId__serviceDate__lte=enddate)
         ).values('serviceId__serviceId')
 
         services = Geolocation.objects.select_related().filter(
-            Q(serviceId__empId=request.user.employee.empId) &
+            Q(serviceId__empId=empId) &
             Q(serviceId__serviceStatus='Y') &
             Q(serviceId__serviceDate__gte=startdate) &
             Q(serviceId__serviceDate__lte=enddate)
@@ -244,7 +257,7 @@ def fuel_asjson(request):
         services = services.values(
             'serviceId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle', 'distance',
             'beginLatitude', 'beginLongitude', 'startLatitude', 'startLongitude',
-            'endLatitude', 'endLongitude', 'finishLatitude', 'finishLongitude',
+            'endLatitude', 'endLongitude', 'finishLatitude', 'finishLongitude', 'serviceId__empId__carId'
         )
 
         for service in services:
@@ -264,13 +277,14 @@ def fuel_asjson(request):
                 service['finishLatitude'],
                 service['finishLongitude'],
             )
+            service['fuelMoney'] = service['distance'] * mpk
 
         structure = json.dumps(list(services), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
 
     elif status == 'show':
         services = Fuel.objects.select_related().filter(
-            Q(serviceId__empId=request.user.employee.empId) &
+            Q(serviceId__empId=empId) &
             Q(serviceId__serviceStatus='Y') &
             Q(serviceId__serviceDate__gte=startdate) &
             Q(serviceId__serviceDate__lte=enddate)
@@ -281,7 +295,8 @@ def fuel_asjson(request):
         )
 
         services = services.values(
-            'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle', 'totalDistance',
+            'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
+            'totalDistance', 'fuelMoney', 'fuelStatus',
         )
 
         structure = json.dumps(list(services), cls=DjangoJSONEncoder)
