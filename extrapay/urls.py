@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^showfuel/', views.show_fuel, name='showfuel'),
     url(r'^postfuel/', views.post_fuel, name='postfuel'),
     url(r'^fuelasjson/$', views.fuel_asjson, name='fuelasjson'),
+    url(r'^viewoverhour/(?P<extraPayId>.+)/$', views.view_overhour, name='viewoverhour'),
 ]

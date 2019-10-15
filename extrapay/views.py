@@ -14,7 +14,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from service.models import Servicereport, Geolocation
 from service.functions import latlng_distance
-from .models import OverHour, Car, Oil, Fuel
+from .models import OverHour, Car, Oil, Fuel, ExtraPay
+from .functions import cal_overhour
 
 
 @login_required
@@ -45,13 +46,13 @@ def over_asjson(request):
     searchYear = searchdate[:4]
     searchMonth = searchdate[5:7]
 
-    overHour = OverHour.objects.all()
+    extrapay = ExtraPay.objects.all()
     if searchdate:
-        overHour = overHour.filter(Q(overHourDate__year=searchYear) & Q(overHourDate__month=searchMonth))
+        extrapay = ExtraPay.filter(Q(overHourDate__year=searchYear) & Q(overHourDate__month=searchMonth))
 
-    overHourlist = overHour.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'payHour', 'overHourId')
-    print(overHourlist)
-    structure = json.dumps(list(overHourlist), cls=DjangoJSONEncoder)
+    extrapaylist = extrapay.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'payHour', 'extraPayId')
+    print(extrapaylist)
+    structure = json.dumps(list(extrapaylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
 
@@ -285,3 +286,18 @@ def fuel_asjson(request):
 
         structure = json.dumps(list(services), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
+
+
+
+@login_required
+@csrf_exempt
+def view_overhour(request, extraPayId):
+    extrapay = ExtraPay.objects.filter(Q(extraPayId=extraPayId)).values('overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empDeptName', 'empId__empCode', 'overHourId', 'empId__empPosition_id__positionName')
+
+    # services = cal_overhour(services)
+    context={
+        'services': services,
+        'extrapay': extrapay.first(),
+
+    }
+    return render(request, 'extrapay/viewoverhour.html', context)

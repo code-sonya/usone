@@ -162,7 +162,7 @@
                   {data: "sumOverHour"},
                   {data: "compensatedHour"},
                   {data: "payHour"},
-                  {data: "overHourId"},
+                  {data: "extraPayId"},
               ],
               columnDefs: [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
@@ -195,12 +195,12 @@
               }
           });
 
-          // var table = $('#overhourlist').DataTable();
-          //
-          // $("#overhourlist").on("click", 'tr', function () {
-          //     const data = table.row(this).data();
-          //     location.href = '/service/viewservice/' + data.serviceId + '/'
-          // });
+          var table = $('#overhourlist').DataTable();
+
+          $("#overhourlist").on("click", 'tr', function () {
+              const data = table.row(this).data();
+              location.href = '/extrapay/viewoverhour/' + data.extraPayId + '/'
+          });
 
 
       });

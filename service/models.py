@@ -52,7 +52,6 @@ class Servicereport(models.Model):
     customerPhone = models.CharField(max_length=20, null=True, blank=True)
     customerEmail = models.EmailField(max_length=254, null=True, blank=True)
     serviceSignPath = models.CharField(max_length=254, default='/media/images/signature/nosign.jpg')
-    overHourId = models.ForeignKey(OverHour, on_delete=models.CASCADE, null=True, blank=True)
     serviceStatus = models.CharField(max_length=1, default='N')
 
     def __str__(self):

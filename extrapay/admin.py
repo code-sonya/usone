@@ -1,12 +1,19 @@
 from django.contrib import admin
-from .models import OverHour, Car, Oil, Fuel
+from .models import OverHour, Car, Oil, Fuel, ExtraPay
+
+
+@admin.register(ExtraPay)
+class ExtraPayAdmin(admin.ModelAdmin):
+    list_display = ('extraPayId', 'empName', 'overHourDate', 'compensatedHour', 'payHour', 'payStatus')
+    list_filter = ('empName', 'overHourDate', 'compensatedHour')
+    list_display_links = ['extraPayId', 'empName', 'overHourDate', 'compensatedHour']
 
 
 @admin.register(OverHour)
 class OverHourAdmin(admin.ModelAdmin):
-    list_display = ('overHourId', 'empName', 'overHourDate', 'sumOverHour', 'compensatedHour', 'payHour')
-    list_filter = ('empName', 'overHourDate')
-    list_display_links = ['overHourId', 'empName', 'overHourDate']
+    list_display = ('overHourId', 'empName', 'overHourStartDate', 'overHourEndDate', 'overHour', 'extraPayId')
+    list_filter = ('empName', 'overHourStartDate', 'overHourEndDate')
+    list_display_links = ['overHourId', 'empName', 'overHourStartDate', 'overHourEndDate']
 
 
 @admin.register(Car)
