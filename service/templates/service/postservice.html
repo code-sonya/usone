@@ -243,8 +243,7 @@
               if (confirm("일정이 12시간 이상입니다.\n반복 일정은 반복 등록 기능을 사용해주세요.\n일정 등록 하시겠습니까?") === true) {
                   Form.submit();
               }
-          }
-          if (confirm("일정 등록 하시겠습니까?") === true) {
+          } else if (confirm("일정 등록 하시겠습니까?") === true) {
               Form.submit();
           }
       }

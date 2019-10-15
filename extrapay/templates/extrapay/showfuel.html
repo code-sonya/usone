@@ -39,6 +39,7 @@
                 <th>고객사</th>
                 <th>제목</th>
                 <th>이동거리 (km)</th>
+                <th>유류비</th>
               </tr>
             </thead>
             </table>
@@ -55,6 +56,7 @@
                 <th>고객사</th>
                 <th>제목</th>
                 <th>이동거리 (km)</th>
+                <th>유류비</th>
                 <th class="d-none">serviceId</th>
               </tr>
             </thead>
@@ -62,7 +64,10 @@
             <br>
 
             <div class="text-center">
-              <form id="fuelForm" method="POST" action="/extrapay/postfuel/">{% csrf_token %}</form>
+              <form id="fuelForm" method="POST" action="/extrapay/postfuel/">
+                {% csrf_token %}
+                <input type="date" name="startdate" class="d-none" value="{{ startdate }}">
+              </form>
               <a href="#" class="btn btn-success btn-icon-split" onclick="btn_post()">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text"> 신청 </span>
@@ -169,7 +174,7 @@
                 },
                 {
                     targets: 3,
-                    width: "60%",
+                    width: "45%",
                     className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                     data: "serviceTitle",
                 },
@@ -181,13 +186,19 @@
                 },
                 {
                     targets: 5,
+                    width: "15%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "fuelMoney",
+                },
+                {
+                    targets: 6,
                     orderable: false,
                     className: "service-id d-none",
                     data: "serviceId__serviceId",
                 },
             ],
             "deferRender": true,
-            "searching": false,
+            "searching": true,
             "paging": false,
             "info": false,
             "scrollY": "50vh",
@@ -195,14 +206,16 @@
             "scrollCollapse": true,
             "order": [[1, 'desc']],
             "language": {
-                "lengthMenu": "_MENU_ 개씩 보기",
-                "search": "검색:",
-                "paginate": {
-                    "first": "처음",
-                    "last": "끝",
-                    "next": "다음",
-                    "previous": "이전"
-                },
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 const today = new Date();
@@ -214,6 +227,7 @@
                 } else {
                     $('td', nRow).css('background-color', '#ffffff');
                 }
+                $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             }
         });
 
@@ -240,7 +254,7 @@
                     width: "5%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     orderable: false,
-                    data: null,
+                    data: "fuelStatus",
                 },
                 {
                     targets: 1,
@@ -256,7 +270,7 @@
                 },
                 {
                     targets: 3,
-                    width: "60%",
+                    width: "45%",
                     className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                     data: "serviceTitle",
                 },
@@ -265,6 +279,12 @@
                     width: "15%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     data: "totalDistance",
+                },
+                {
+                    targets: 5,
+                    width: "15%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "fuelMoney",
                 },
             ],
             "deferRender": true,
@@ -276,14 +296,16 @@
             "scrollCollapse": true,
             "order": [[1, 'desc']],
             "language": {
-                "lengthMenu": "_MENU_ 개씩 보기",
-                "search": "검색:",
-                "paginate": {
-                    "first": "처음",
-                    "last": "끝",
-                    "next": "다음",
-                    "previous": "이전"
-                },
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 const today = new Date();
@@ -295,6 +317,16 @@
                 } else {
                     $('td', nRow).css('background-color', '#ffffff');
                 }
+
+                const fuelStatus = aData.fuelStatus;
+                if (fuelStatus === 'N') {
+                    $('td', nRow).eq(0).text('진행');
+                } else if (fuelStatus === 'Y') {
+                    $('td', nRow).eq(0).text('확인');
+                    $('td', nRow).css('background-color', '#f2f2f2');
+                }
+
+                $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             }
         });
     })
