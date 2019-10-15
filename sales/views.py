@@ -2246,6 +2246,10 @@ def save_profitloss(request):
     select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
                   '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
                   '솔루션지원팀(5100)', 'DB지원팀(5300)']
+    index_lst = ["".join(i.split()) for i in data.index]
+    if 'Ⅳ.판매비와관리비' not in index_lst or 'Ⅴ.영업이익' not in index_lst:
+        return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅳ.판매비와관리비 , Ⅴ.영업이익이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
+
     status = False
     Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='손익') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
     for index, rows in data[select_col].iterrows():
@@ -2289,6 +2293,10 @@ def save_cost(request):
     xl_file = pd.ExcelFile(cost_file)
     data = pd.read_excel(xl_file, index_col=0)
     data = data.fillna(0)
+    index_lst = ["".join(i.split()) for i in data.index]
+    if 'Ⅲ.당기총공사비용' not in index_lst or 'Ⅰ.노무비' not in index_lst or 'Ⅱ.경비' not in index_lst:
+        return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅰ.노무비, Ⅱ.경비, Ⅲ.당기총공사비용이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
+
     select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
     Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
 
