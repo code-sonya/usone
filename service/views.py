@@ -15,6 +15,7 @@ from client.models import Company
 from hr.models import Employee
 from noticeboard.models import Board
 from sales.models import Contract
+from extrapay.models import OverHour
 from .forms import ServicereportForm, ServiceformForm
 from .functions import *
 from .models import Serviceform, Geolocation
@@ -114,7 +115,6 @@ def post_service(request, postdate):
                 post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
                 post.serviceRegHour = post.serviceHour - post.serviceOverHour
                 post.save()
-                cal_foodcost(post.serviceBeginDatetime, post.serviceFinishDatetime)
                 return redirect('scheduler', str(post.serviceBeginDatetime)[:10])
 
             # 매월반복
@@ -843,9 +843,28 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
         service.serviceRegHour = service.serviceHour - service.serviceOverHour
         service.serviceStatus = 'Y'
-        service.save()
 
         # overhour create
+        # 석식대
+        foodcosts = cal_foodcost(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
+        print('foodcosts: ', foodcosts)
+        if foodcosts > 0 or overhour > 0:
+            emp = Employee.objects.get(empId=service.empId_id)
+            overhourcost = emp.empSalary*overhour*1.5
+            print('overhourcost: ', overhourcost)
+            ## IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
+            OverHour.objects.create(
+                serviceId=service,
+                empId=service.empId,
+                empName=service.empName,
+                overHourStartDate=min_date,
+                overHourEndDate=max_date,
+                overHour=overhour,
+                overHourCost=overhourcost,
+                foodCost=foodcosts
+            )
+
+        service.save()
 
     return redirect('service:viewservice', serviceId)
 

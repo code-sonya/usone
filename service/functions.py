@@ -211,6 +211,10 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
 
     if max_date != datetime.datetime(1999, 1, 31, 1, 0, 0):
         max_date = max_date + datetime.timedelta(minutes=60)
+    else:
+        max_date = None
+    if min_date == datetime.datetime(3000, 1, 31, 1, 0, 0):
+        min_date = None
     if max_date.hour == 5 and o_finish.hour == 5 and o_finish.minute != 0:
         max_date = o_finish
     if min_date.hour == 23:
@@ -411,48 +415,67 @@ def latlng_distance(lat1, lng1, lat2, lng2, unit='km'):
 
 
 def cal_foodcost(str_start_datetime, str_end_datetime):
-    print(str_start_datetime, str_end_datetime)
+    foodcosts=0
     is_holiday_startdate = is_holiday(datetime.datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
-    is_holiday_enddate = is_holiday(datetime.datetime.strptime(str_end_datetime[:10], "%Y-%m-%d").date())
-
     startDate = datetime.datetime(year=int(str_start_datetime[:4]), month=int(str_start_datetime[5:7]), day=int(str_start_datetime[8:10]))
     endDate = datetime.datetime(year=int(str_end_datetime[:4]), month=int(str_end_datetime[5:7]), day=int(str_end_datetime[8:10]))
     dateRange = []
     o_start = pd.Timestamp(str_start_datetime)
     o_finish = pd.Timestamp(str_end_datetime)
-    for x in range(0, (o_finish - o_start).days + 1):
+    for x in range(0, (o_finish.date() - o_start.date()).days + 1):
+
         date_dict = {}
-        print('x:',x)
         year = int(str((startDate + datetime.timedelta(days=x)).date())[:4])
         month = int(str((startDate + datetime.timedelta(days=x)).date())[5:7])
-        day =int(str((startDate + datetime.timedelta(days=x)).date())[8:10])
-        if (startDate + datetime.timedelta(days=x)).date() == startDate:
+        day = int(str((startDate + datetime.timedelta(days=x)).date())[8:10])
+        next_year = int(str((startDate + datetime.timedelta(days=x+1)).date())[:4])
+        next_month = int(str((startDate + datetime.timedelta(days=x+1)).date())[5:7])
+        next_day = int(str((startDate + datetime.timedelta(days=x+1)).date())[8:10])
+
+        if (startDate + datetime.timedelta(days=x)).date() == startDate.date():
             date_dict['start'] = o_start
-            if (startDate + datetime.timedelta(days=x)).date() == endDate:
+            if (startDate + datetime.timedelta(days=x)).date() == endDate.date():
                 date_dict['end'] = o_finish
                 dateRange.append(date_dict)
             else:
-                print((startDate + datetime.timedelta(days=x)).date(),type((startDate + datetime.timedelta(days=x)).date()),str((startDate + datetime.timedelta(days=x)).date()))
-                date_dict['end'] = datetime.datetime(year,month,day,24,0,0)
+                date_dict['end'] = datetime.datetime(next_year, next_month, next_day, 0, 0, 0)
                 dateRange.append(date_dict)
         else:
-            print((startDate + datetime.timedelta(days=x)).date(), type((startDate + datetime.timedelta(days=x)).date()), str((startDate + datetime.timedelta(days=x)).date()))
-            date_dict['start'] = datetime.datetime(year,month,day, 0, 0, 0)
-            if (startDate + datetime.timedelta(days=x)).date() == endDate:
+            date_dict['start'] = datetime.datetime(year, month, day, 0, 0, 0)
+            if (startDate + datetime.timedelta(days=x)).date() == endDate.date():
                 date_dict['end'] = o_finish
                 dateRange.append(date_dict)
             else:
-                date_dict['end'] = datetime.datetime(year,month,day, 24, 0, 0)
+                date_dict['end'] = datetime.datetime(next_year, next_month, next_day, 0, 0, 0)
                 dateRange.append(date_dict)
-    print(dateRange)
 
-    s_week = o_start.weekday()
-    f_week = o_finish.weekday()
-    print('o_start:', o_start, 'o_finish:', o_finish)
+    for date in dateRange:
+        s_week = date['start'].weekday()
+        start_hour = date['start'].hour
+        end_hour = date['end'].hour
+        if end_hour == 0:
+            end_hour = 24
+
+        # 주말이거나 공휴일일 때
+        if s_week in [5, 6] or is_holiday_startdate != 0:
+            if start_hour <= 7 and 7 <= end_hour:
+                foodcosts += 8000
+
+            if start_hour <= 12 and end_hour >= 13:
+                foodcosts += 8000
+
+            if start_hour <= 18 and end_hour >= 19:
+                foodcosts += 8000
+        else:
+            #평일 석식
+            if 20 <= end_hour:
+                foodcosts += 8000
+
+    return foodcosts
 
 
-    # # 주말이거나 공휴일일 때
-    # if s_week in [5, 6] or is_holiday_startdate != 0:
+
+
 
 
 
