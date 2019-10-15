@@ -6,11 +6,12 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q, F, Value, FloatField, Max
+from django.db.models import Q, F, Value, FloatField, Max, Sum, Case, When, IntegerField, Count
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models.functions import Coalesce, Concat
 
 from service.models import Servicereport, Geolocation
 from service.functions import latlng_distance
@@ -194,11 +195,11 @@ def show_fuel(request):
 @csrf_exempt
 def post_fuel(request):
     if request.method == 'POST':
-        mpk = Oil.objects.filter(
-            Q(oilDate=request.POST['startdate']) &
-            Q(carId=request.user.employee.carId)
-        ).values('mpk')[0]['mpk'] or 0
-
+        mpk = Oil.objects.filter(Q(oilDate=request.POST['startdate']) & Q(carId=request.user.employee.carId))
+        if mpk:
+            mpk = mpk.values('mpk')[0]['mpk']
+        else:
+            mpk = 0
         serviceIds = json.loads(request.POST['serviceId'])
         for serviceId in serviceIds:
             geo = Geolocation.objects.get(serviceId=serviceId)
@@ -218,6 +219,53 @@ def post_fuel(request):
     return redirect('extrapay:showfuel')
 
 
+def admin_fuel(request):
+    if request.method == 'POST':
+        y = int(request.POST['findDate'][:4])
+        m = int(request.POST['findDate'][5:7])
+    else:
+        y = datetime.today().year
+        m = datetime.today().month
+    startdate = str(datetime(y, m, 1).date())
+    enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
+    context = {
+        'startdate': startdate,
+        'enddate': enddate,
+    }
+    return render(request, 'extrapay/adminfuel.html', context)
+
+
+@login_required
+@csrf_exempt
+def adminfuel_asjson(request):
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+
+    fuels = Fuel.objects.select_related().filter(
+        Q(serviceId__serviceStatus='Y') &
+        Q(serviceId__serviceDate__gte=startdate) &
+        Q(serviceId__serviceDate__lte=enddate)
+    ).values('serviceId__empId').annotate(
+        empDeptName=F('serviceId__empId__empDeptName'),
+        empPosition=F('serviceId__empId__empPosition__positionName'),
+        empName=F('serviceId__empId__empName'),
+        car=Concat(F('serviceId__empId__carId__oilType'), Value(', '), F('serviceId__empId__carId__carType')),
+        progress=Count('fuelStatus', filter=Q(fuelStatus='N')),
+        approval=Count('fuelStatus', filter=Q(fuelStatus='Y')),
+        reject=Count('fuelStatus', filter=Q(fuelStatus='R')),
+        sum_distance=Coalesce(Sum('totalDistance', filter=Q(fuelStatus='Y')), 0),
+        sum_fuelMoney=Coalesce(Sum('fuelMoney', filter=Q(fuelStatus='Y')), 0),
+    )
+
+    fuels = fuels.values(
+        'empDeptName', 'empPosition', 'empName', 'car', 'progress', 'approval', 'reject',
+        'sum_distance', 'sum_fuelMoney',
+    )
+
+    structure = json.dumps(list(fuels), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
 @login_required
 @csrf_exempt
 def fuel_asjson(request):
@@ -227,12 +275,13 @@ def fuel_asjson(request):
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
 
-    mpk = Oil.objects.filter(
-        Q(oilDate=startdate) &
-        Q(carId=carId)
-    ).values('mpk')[0]['mpk'] or 0
-
     if status == 'post':
+        mpk = Oil.objects.filter(Q(oilDate=startdate) & Q(carId=carId))
+        if mpk:
+            mpk = mpk.values('mpk')[0]['mpk']
+        else:
+            mpk = 0
+
         fuels = Fuel.objects.select_related().filter(
             Q(serviceId__empId=empId) &
             Q(serviceId__serviceStatus='Y') &
@@ -301,7 +350,6 @@ def fuel_asjson(request):
 
         structure = json.dumps(list(services), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
-
 
 
 @login_required
