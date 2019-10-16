@@ -144,10 +144,17 @@
     {% if user.employee.empDeptName == '경영지원본부' %}
       <!-- Nav Item - 초과근무 -->
       <li class="nav-item">
-        <a class="nav-link" href="/extrapay/overhour/">
-          <i class="fas fa-fw fa-clock text-white"></i>
-          <span class="text-white">시간외수당</span></a>
-      </li>
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOverhour" aria-expanded="true" aria-controls="collapseOverhour">
+            <i class="fas fa-fw fa-clock text-white"></i>
+            <span class="text-white">시간외수당</span>
+          </a>
+          <div id="collapseOverhour" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <a class="collapse-item" href="/extrapay/overhourall/">시간외수당현황</a>
+              <a class="collapse-item" href="/extrapay/overhour/">시간외수당관리</a>
+            </div>
+          </div>
+        </li>
 
       <!-- Nav Item - 유류비 -->
       <li class="nav-item">

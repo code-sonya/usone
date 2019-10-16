@@ -51,7 +51,7 @@ def over_asjson(request):
     if searchdate:
         extrapay = ExtraPay.filter(Q(overHourDate__year=searchYear) & Q(overHourDate__month=searchMonth))
 
-    extrapaylist = extrapay.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'payHour', 'extraPayId')
+    extrapaylist = extrapay.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'payHour', 'compensatedComment', 'extraPayId')
     print(extrapaylist)
     structure = json.dumps(list(extrapaylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -355,12 +355,38 @@ def fuel_asjson(request):
 @login_required
 @csrf_exempt
 def view_overhour(request, extraPayId):
-    extrapay = ExtraPay.objects.filter(Q(extraPayId=extraPayId)).values('overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empDeptName', 'empId__empCode', 'overHourId', 'empId__empPosition_id__positionName')
+    extrapay = ExtraPay.objects.filter(Q(extraPayId=extraPayId))\
+        .values('overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empSalary', 'empId__empDeptName', 'empId__empCode', 'extraPayId', 'empId__empPosition_id__positionName',
+                'compensatedComment', 'compensatedHour').first()
+    overhours = OverHour.objects.filter(Q(extraPayId=extraPayId) & Q(overHour__isnull=False))
+    sum_overhours = overhours.aggregate(sumOverhour=Sum('overHour'), sumServicehour=Sum('serviceId__serviceHour'), sumOverhourCost=Sum('overHourCost'), sumFoodCost=Sum('foodCost'))
+    foodcosts = OverHour.objects.filter(Q(extraPayId=extraPayId) & Q(overHour__isnull=True))
+    sum_foodcosts = foodcosts.aggregate(sumServicehour=Sum('serviceId__serviceHour'), sumFoodCost=Sum('foodCost'))
 
-    # services = cal_overhour(services)
+    sum_costs = {
+        'extraPayDate': '{}.{}'.format(extrapay['overHourDate__year'], extrapay['overHourDate__month']),
+        'overHour': sum_overhours['sumOverhour'],
+        'compensatedHour': extrapay['compensatedHour'],
+        'extraPayHour': sum_overhours['sumOverhour']-extrapay['compensatedHour'],
+        'extraPay': int((sum_overhours['sumOverhour']-extrapay['compensatedHour'])*1.5*extrapay['empId__empSalary']),
+        'foodCost': int(sum_overhours['sumFoodCost']+sum_foodcosts['sumFoodCost']),
+        'sumPay': int((sum_overhours['sumOverhour']-extrapay['compensatedHour'])*1.5*extrapay['empId__empSalary'] + sum_overhours['sumFoodCost']+sum_foodcosts['sumFoodCost'])
+    }
+    print(sum_costs)
+
+
     context={
-        'services': services,
-        'extrapay': extrapay.first(),
-
+        'overhour': overhours,
+        'extrapay': extrapay,
+        'foodcosts': foodcosts,
+        'sum_overhours': sum_overhours,
+        'sum_foodcosts': sum_foodcosts,
+        'sum_costs': sum_costs,
     }
     return render(request, 'extrapay/viewoverhour.html', context)
+
+
+def overhour_all(request):
+    context = {}
+    return render(request, 'extrapay/overhourall.html', context)
+
