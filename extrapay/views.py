@@ -13,6 +13,7 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models.functions import Coalesce, Concat
 
+from hr.models import Employee
 from service.models import Servicereport, Geolocation
 from service.functions import latlng_distance
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
@@ -235,6 +236,75 @@ def admin_fuel(request):
     return render(request, 'extrapay/adminfuel.html', context)
 
 
+def approval_fuel(request, empId):
+    if request.method == 'POST':
+        y = int(request.POST['findDate'][:4])
+        m = int(request.POST['findDate'][5:7])
+    else:
+        y = datetime.today().year
+        m = datetime.today().month
+    startdate = str(datetime(y, m, 1).date())
+    enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
+    empName = Employee.objects.get(empId=empId).empName
+    fuelStatus = Fuel.objects.filter(serviceId__empId=empId).values_list('fuelStatus').distinct()
+    if 'N' in [i[0] for i in fuelStatus]:
+        approvalStatus = 'N'
+    else:
+        approvalStatus = 'Y'
+
+    context = {
+        'startdate': startdate,
+        'enddate': enddate,
+        'empName': empName,
+        'empId': empId,
+        'approvalStatus': approvalStatus,
+    }
+    return render(request, 'extrapay/approvalfuel.html', context)
+
+
+def approval_post_fuel(request):
+    if request.method == 'POST':
+        yid = json.loads(request.POST['yid'])
+        nid = json.loads(request.POST['nid'])
+        for y in yid:
+            instance = Fuel.objects.get(fuelId=y)
+            instance.fuelStatus = 'Y'
+            instance.save()
+        for n in nid:
+            instance = Fuel.objects.get(fuelId=n[0])
+            instance.comment = n[1]
+            instance.fuelStatus = 'R'
+            instance.save()
+        return redirect('extrapay:approvalfuel', request.POST['empId'])
+
+
+@login_required
+@csrf_exempt
+def approvalfuel_asjson(request):
+    empId = request.POST['empId']
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+
+    services = Fuel.objects.select_related().filter(
+        Q(serviceId__empId=empId) &
+        Q(serviceId__serviceStatus='Y') &
+        Q(serviceId__serviceDate__gte=startdate) &
+        Q(serviceId__serviceDate__lte=enddate)
+    ).annotate(
+        serviceDate=F('serviceId__serviceDate'),
+        companyName=F('serviceId__companyName__companyName'),
+        serviceTitle=F('serviceId__serviceTitle'),
+    )
+
+    services = services.values(
+        'fuelId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
+        'totalDistance', 'fuelMoney', 'comment', 'fuelStatus',
+    )
+
+    structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
 @login_required
 @csrf_exempt
 def adminfuel_asjson(request):
@@ -258,7 +328,7 @@ def adminfuel_asjson(request):
     )
 
     fuels = fuels.values(
-        'empDeptName', 'empPosition', 'empName', 'car', 'progress', 'approval', 'reject',
+        'serviceId__empId', 'empDeptName', 'empPosition', 'empName', 'car', 'progress', 'approval', 'reject',
         'sum_distance', 'sum_fuelMoney',
     )
 

@@ -208,18 +208,17 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
 
                         if a > max_date:
                             max_date = a
-
     if max_date != datetime.datetime(1999, 1, 31, 1, 0, 0):
         max_date = max_date + datetime.timedelta(minutes=60)
-    else:
-        max_date = None
-    if min_date == datetime.datetime(3000, 1, 31, 1, 0, 0):
-        min_date = None
     if max_date.hour == 5 and o_finish.hour == 5 and o_finish.minute != 0:
         max_date = o_finish
     if min_date.hour == 23:
         if o_start.hour == 22 and o_start.minute != 0:
             min_date = o_start
+    if max_date == datetime.datetime(1999, 1, 31, 1, 0, 0):
+        max_date = None
+    if min_date == datetime.datetime(3000, 1, 31, 1, 0, 0):
+        min_date = None
 
     return round((math.trunc(minute_sum * 0.1)*10)/60, 2), round((math.trunc(minute_sum * 0.1)*10)/60, 2), min_date, max_date
 

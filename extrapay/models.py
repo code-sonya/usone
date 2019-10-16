@@ -63,6 +63,7 @@ class Fuel(models.Model):
     distance3 = models.FloatField(default=0)
     totalDistance = models.FloatField()
     fuelMoney = models.IntegerField(null=True, blank=True)
+    comment = models.CharField(max_length=200, null=True, blank=True)
     fuelStatus = models.CharField(max_length=1, default='N')
 
     def __str__(self):

@@ -201,6 +201,11 @@
                 }
             }
         });
+
+        $('#adminfuel').on("click", 'tr', function () {
+            const data = adminfuel.row(this).data();
+            location.href = '/extrapay/approvalfuel/' + data.serviceId__empId + '/'
+        });
     })
 
 
