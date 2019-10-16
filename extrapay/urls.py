@@ -4,8 +4,9 @@ from . import views
 app_name = 'extrapay'
 
 urlpatterns = [
-    url(r'^overhour/$', views.over_hour, name='over_hour'),
+    url(r'^overhour/$', views.over_hour, name='overhour'),
     url(r'^overhourall/$', views.overhour_all, name='overhourall'),
+    url(r'^postoverhour/$', views.post_overhour, name='postoverhour'),
     url(r'^overjson/$', views.over_asjson, name='over_ajax_url'),
     url(r'^postcar/', views.post_car, name='postcar'),
     url(r'^showoils/', views.show_oils, name='showoils'),

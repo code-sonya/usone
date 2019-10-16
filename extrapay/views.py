@@ -13,6 +13,7 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models.functions import Coalesce, Concat
 
+from hr.models import Employee
 from service.models import Servicereport, Geolocation
 from service.functions import latlng_distance
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
@@ -32,9 +33,13 @@ def over_hour(request):
         searchdate = ''
         filter = 'N'
 
+    employee = Employee.objects.filter(Q(empStatus='Y'))
+    print(employee)
+
     context = {
         'filter': filter,
         'searchdate': searchdate,
+        'employee': employee,
     }
 
     return HttpResponse(template.render(context, request))
@@ -389,4 +394,78 @@ def view_overhour(request, extraPayId):
 def overhour_all(request):
     context = {}
     return render(request, 'extrapay/overhourall.html', context)
+
+
+def post_overhour(request):
+    if request.method == "POST":
+        overhourDate = request.POST['overhourDate']
+        empType = request.POST['empType']
+        empId = request.POST['empName']
+        hourType = request.POST['hourType']
+        overhour = request.POST['overhour']
+        overhour_weekend = request.POST['overhour_weekend']
+        overhouYear = overhourDate[:4]
+        overhourMonth = overhourDate[5:7]
+
+        if empType == '특수직':
+            status = 'X'
+        else:
+            status = 'N'
+
+        if hourType == '일':
+            if overhour:
+                overhour = float(overhour)*24
+            else:
+                overhour = 0
+
+            if overhour_weekend:
+                overhour_weekend = float(overhour_weekend)*24
+            else:
+                overhour_weekend = 0
+        else:
+            if overhour:
+                overhour = float(overhour)
+            else:
+                overhour = 0
+
+            if overhour_weekend:
+                overhour_weekend = float(overhour_weekend)
+            else:
+                overhour_weekend = 0
+
+
+        ## IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
+        emp = Employee.objects.get(empId=empId)
+        extrapay = ExtraPay.objects.filter(Q(overHourDate__year=overhourMonth) & Q(overHourDate__month=overhourMonth) & Q(empId=emp)).first()
+        print('extrapay:', extrapay)
+        if extrapay:
+            print('exit')
+            sumOverHour = extrapay.sumOverHour
+            payHour = extrapay.payHour
+            extrapay.sumOverHour = float(sumOverHour) + overhour + overhour_weekend
+            extrapay.payHour = payHour + overhour
+            extrapay.save()
+        else:
+            print('new')
+            extrapay = ExtraPay.objects.create(
+                empId=emp,
+                empName=emp.empName,
+                overHourDate='{}-01'.format(overhourDate),
+                sumOverHour=overhour+overhour_weekend,
+                payHour=overhour+overhour_weekend,
+            )
+
+        # OverHour.objects.create(
+        #     empId=emp,
+        #     empName=service.empName,
+        #     overHour=overhour,
+        #     overHourWeekDay=overhour_weekend,
+        #     overHourCost=overhourcost,
+        #     foodCost=foodcosts,
+        #     extraPayId=extrapay,
+        # )
+
+
+        print(request.POST)
+    return redirect('extrapay:overhour')
 

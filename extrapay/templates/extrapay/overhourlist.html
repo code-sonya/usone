@@ -47,6 +47,9 @@
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
             </a>
+            <a class="dropdown-toggle ml-3" href="#" role="button" id="postLink" data-toggle="modal" data-target="#postModal">
+                <i class="fas fa-plus fa-fw text-gray-400"></i>
+            </a>
           </div>
         </div>
         <div class="card-body">
@@ -109,6 +112,74 @@
     </div>
   </div>
 
+  <!-- Post Modal -->
+  <div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="postModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="postModalLabel">초과근무등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="postForm" action='/extrapay/postoverhour/' method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="overhourDate" class="font-weight-light text-primary">일자</label>
+                <input type="month" class="form-control" id="overhourDate" name="overhourDate" required='required'>
+              </div>
+
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="empType" class="font-weight-light text-primary">직원유형</label>
+                <select class="form-control" id="empType" name="empType">
+                  <option value="엔지니어">엔지니어</option>
+                  <option value="특수직">특수직</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="empName" class="font-weight-light text-primary">직원</label>
+                <select class="form-control" id="empName" name="empName">
+                  <option value="">----</option>
+                  {% for emp in employee %}
+                  <option value="{{ emp.empId }}">{{ emp.empName }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="hourType" class="font-weight-light text-primary">시간유형</label>
+                <select class="form-control" id="hourType" name="hourType">
+                  <option value="시간">시간</option>
+                  <option value="일">일</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label for="overhour" class="font-weight-light text-primary">평일초과근무</label>
+                <input class="form-control" id="overhour" name="overhour" type="number" step="0.1" placeholder="0.0">
+              </div>
+               <div class="col-3">
+                <label for="overhour_weekend" class="font-weight-light text-primary">주말초과근무</label>
+                <input class="form-control" id="overhour_weekend" name="overhour_weekend" type="number" step="0.1" placeholder="0.0">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_post()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -117,6 +188,10 @@
 
       function btn_filter() {
           document.getElementById("filterForm").submit();
+      }
+
+      function btn_post() {
+          document.getElementById("postForm").submit();
       }
 
       function replaceAll(str, searchStr, replaceStr) {

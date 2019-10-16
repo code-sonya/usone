@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  초과근무리스트
+  시간외수당현황
 {% endblock %}
 
 
@@ -41,7 +41,7 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">초과근무리스트</h6>
+          <h6 class="m-0 h3 text-gray-800">간외수당현황</h6>
 
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
@@ -56,13 +56,10 @@
             <table id="overhourlist" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>초과근무일자</th>
-                <th>엔지니어부서</th>
-                <th>엔지니어명</th>
-                <th>초과근무시간</th>
-                <th>보상휴가시간</th>
-                <th>시간외수당시간</th>
-                <th>비고(보상휴가시간)</th>
+                <th>일자</th>
+                <th>수당&식대</th>
+                <th>수당외식대</th>
+                <th>시간외수당합계</th>
                 <th class="d-none">overHourId</th>
               </tr>
               </thead>
