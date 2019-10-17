@@ -2,29 +2,34 @@
 
 
 {% block title %}
-  시간외수당현황
+  월별 시간외수당 현황
 {% endblock %}
 
 
 {% block css %}
 
   <style type="text/css">
-    .buttons-copy {
-      background-color: #4e73df;
-      color: white;
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
       margin-bottom: 1rem;
     }
 
-    .buttons-excel {
-      background-color: #36b9cc;
-      color: white;
-      margin-bottom: 1rem;
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 15px;
+      border-top: 1px dotted #858796a3;
     }
 
-    .buttons-print {
-      background-color: #f6c23e;
-      color: white;
-      margin-bottom: 1rem;
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
     }
 
   </style>
@@ -41,7 +46,7 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">시간외수당현황</h6>
+          <h6 class="m-0 h3 text-gray-800">{{ todayYear }}년 {{ todayMonth }}월 시간외수당 근무내역</h6>
 
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
@@ -51,20 +56,56 @@
         </div>
         <div class="card-body">
           {% csrf_token %}
-
-          <div class="table-responsive">
-            <table id="overhourlist" class="hover row-border" width="100%" style="width: 100%;">
-              <thead>
-              <tr>
-                <th>일자</th>
-                <th>수당&식대</th>
-                <th>수당외식대</th>
-                <th>시간외수당합계</th>
-                <th class="d-none">overHourId</th>
+          <table class="pc-table">
+            <thead>
+              <tr class="bg-light thtd">
+                <td>부서</td>
+                <td>직급</td>
+                <td>성명</td>
+                <td>시간외근무시간</td>
+                <td>휴가사용시간</td>
+                <td colspan="2">수당&식대</td>
+                <td colspan="2">수당외식대</td>
+                <td colspan="2">시간외수당합계</td>
               </tr>
-              </thead>
-            </table>
-          </div>
+            </thead>
+            <tbody>
+              <tr class="bg-primary text-white">
+                <td colspan="3">합계</td>
+                <td>??</td>
+                <td>??</td>
+                <td colspan="2">??</td>
+                <td colspan="2">??</td>
+                <td colspan="2">??</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table class="pc-table">
+            <thead>
+              <tr class="bg-light thtd">
+                <td>부서</td>
+                <td>직급</td>
+                <td>성명</td>
+                <td>평일심야근무일수</td>
+                <td>주말근무일수</td>
+                <td colspan="2">평일심야근무수당</td>
+                <td colspan="2">주말근무수당</td>
+                <td colspan="2">시간외수당합계</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="bg-primary text-white">
+                <td colspan="3">합계</td>
+                <td>??</td>
+                <td>??</td>
+                <td colspan="2">??</td>
+                <td colspan="2">??</td>
+                <td colspan="2">??</td>
+              </tr>
+            </tbody>
+          </table>
+
 
         </div>
 
@@ -122,85 +163,6 @@
       }
 
       $(document).ready(function () {
-
-
-          $('#overhourlist').DataTable({
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      "searchdate": {% if searchdate %}"{{ searchdate }}",{% else %}"",{% endif %}
-                  },
-                  "url": "{% url 'extrapay:over_ajax_url' %}",
-                  "dataSrc": ""
-              },
-              dom: 'Blfrtip',
-              buttons: [
-                  {
-                      extend: 'excel',
-                      text: '엑셀',
-                      footer: true
-                  },
-                  {
-                      extend: 'copy',
-                      text: '복사',
-                      footer: true
-                  },
-                  {
-                      extend: 'print',
-                      text: '인쇄',
-                      footer: true
-                  }
-              ],
-              columns: [
-                  {data: "overHourDate"},
-                  {data: "empId__empDeptName"},
-                  {data: "empName"},
-                  {data: "sumOverHour"},
-                  {data: "compensatedHour"},
-                  {data: "payHour"},
-                  {data: "compensatedComment"},
-                  {data: "extraPayId"},
-              ],
-              columnDefs: [
-                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false},
-              ],
-              "searching": true,
-              "paging": true,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollCollapse": true,
-              "order": [[0, 'desc']],
-              "language": {
-                  "lengthMenu": "_MENU_ 개씩 보기",
-                  "search": "검색:",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "다음",
-                      "previous": "이전"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(0)', nRow).text(replaceAll(aData.overHourDate, "-", "."));
-                  $('td:eq(5)', nRow).css('color','red');
-              }
-          });
-
-          var table = $('#overhourlist').DataTable();
-
-          $("#overhourlist").on("click", 'tr', function () {
-              const data = table.row(this).data();
-              location.href = '/extrapay/viewoverhour/' + data.extraPayId + '/'
-          });
 
 
       });

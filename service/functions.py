@@ -235,6 +235,7 @@ def overtime_extrapay_etc(str_start_datetime, str_end_datetime):
 
     minute_sum = 0
     min_date = ''
+    max_date = ''
 
     s_week = d_start.weekday()
     f_week = d_finish.weekday()
@@ -254,7 +255,7 @@ def overtime_extrapay_etc(str_start_datetime, str_end_datetime):
                     minute_temp = (60 - d_start.minute)
                     min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 7, int(d_start.minute), 0)
                     if minute_temp > 30:
-                        minute_temp == 30
+                        minute_temp = 30
                         min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 7, 30, 0)
                     minute_sum += minute_temp
                 else:
@@ -266,6 +267,8 @@ def overtime_extrapay_etc(str_start_datetime, str_end_datetime):
                 else:
                     d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
 
+                if d_finish.hour >= 9:
+                    max_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 9, 0, 0)
 
             else:  # 초과 근무에 해당 하지 않는 경우
                 d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
@@ -301,7 +304,8 @@ def overtime_extrapay_etc(str_start_datetime, str_end_datetime):
 
     if min_date == '':
         min_date = datetime.datetime(3000, 1, 31, 1, 0, 0)
-    max_date = datetime.datetime(1999, 1, 31, 1, 0, 0)
+    if max_date == '':
+        max_date = datetime.datetime(1999, 1, 31, 1, 0, 0)
     for i in range(0, work_hours(d_start, d_finish), 1):
         a = (d_start + datetime.timedelta(hours=i))
         event_a = is_holiday(a.date())
@@ -343,18 +347,17 @@ def overtime_extrapay_etc(str_start_datetime, str_end_datetime):
                     if a > max_date:
                         max_date = a
 
-
     if max_date != datetime.datetime(1999, 1, 31, 1, 0, 0):
         max_date = max_date + datetime.timedelta(minutes=60)
-    else:
-        max_date = None
-    if min_date == datetime.datetime(3000, 1, 31, 1, 0, 0):
-        min_date = None
     if max_date.hour == 5 and o_finish.hour == 5 and o_finish.minute != 0:
         max_date = o_finish
     if min_date.hour == 23:
         if o_start.hour == 22 and o_start.minute != 0:
             min_date = o_start
+    if max_date == datetime.datetime(1999, 1, 31, 1, 0, 0):
+        max_date = None
+    if min_date == datetime.datetime(3000, 1, 31, 1, 0, 0):
+        min_date = None
 
     return round((math.trunc(minute_sum * 0.1) * 10) / 60, 2), round((math.trunc(minute_sum * 0.1) * 10) / 60, 2), min_date, max_date
 
