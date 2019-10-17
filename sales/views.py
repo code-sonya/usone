@@ -2557,7 +2557,7 @@ def monthly_bill(request):
         todayQuarter = 4
 
     try:
-        expenseDate = Expense.objects.filter(expenseStatus='Y').aggregate(expenseDate=Max('expenseDate'))
+        expenseDate = Expense.objects.filter(Q(expenseStatus='Y')&Q(expenseDate__month=todayMonth)).aggregate(expenseDate=Max('expenseDate'))
         expenseDate = expenseDate['expenseDate']
     except:
         expenseDate = '-'
@@ -2597,7 +2597,6 @@ def monthly_bill(request):
         sum_expenseDetail = expenseDetail.aggregate(sum_expenseDetail=Sum('expenseMoney__sum'), sum_expensePercent=Sum('expensePercent'))
 
 
-
     # 3.월별 예상 손익 계산서 현황
     # 인프라솔루션사업부문
     businessAll, sum_businessAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스'], todayYear)
@@ -2612,11 +2611,11 @@ def monthly_bill(request):
     serviceDB, sum_serviceDB = cal_profitloss(['DB지원팀'], todayYear)
     # 경영지원
     supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
-    supportCEO = cal_profitloss(['대표이사'], todayYear)
-    supportPresident = cal_profitloss(['사장'], todayYear)
-    supportAuditingDirector = cal_profitloss(['감사'], todayYear)
-    supportAdvisingDirector = cal_profitloss(['고문'], todayYear)
-    supportManagement = cal_profitloss(['경영지원본부'], todayYear)
+    # supportCEO = cal_profitloss(['대표이사'], todayYear)
+    # supportPresident = cal_profitloss(['사장'], todayYear)
+    # supportAuditingDirector = cal_profitloss(['감사'], todayYear)
+    # supportAdvisingDirector = cal_profitloss(['고문'], todayYear)
+    # supportManagement = cal_profitloss(['경영지원본부'], todayYear)
 
     context = {
         'todayYear': todayYear,
