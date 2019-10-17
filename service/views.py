@@ -840,7 +840,10 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         post.save()
         service.serviceFinishDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
-        service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
+        if service.empName == '이현수':
+            service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay_etc(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
+        else:
+            service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
         service.serviceRegHour = service.serviceHour - service.serviceOverHour
         service.serviceStatus = 'Y'
 
@@ -879,6 +882,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
                 serviceId=service,
                 empId=service.empId,
                 empName=service.empName,
+                overHourTitle=service.serviceTitle,
                 overHourStartDate=min_date,
                 overHourEndDate=max_date,
                 overHour=overhour,

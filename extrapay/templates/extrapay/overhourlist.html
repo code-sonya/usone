@@ -54,22 +54,27 @@
         </div>
         <div class="card-body">
           {% csrf_token %}
+          <div class="float-right">
+            <button class="btn btn-danger" id="saveOverhourTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
+          </div>
 
           <div class="table-responsive">
-            <table id="overhourlist" class="hover row-border" width="100%" style="width: 100%;">
-              <thead>
-              <tr>
-                <th>초과근무일자</th>
-                <th>엔지니어부서</th>
-                <th>엔지니어명</th>
-                <th>초과근무시간</th>
-                <th>보상휴가시간</th>
-                <th>시간외수당시간</th>
-                <th>비고(보상휴가시간)</th>
-                <th class="d-none">overHourId</th>
-              </tr>
-              </thead>
-            </table>
+            <form id="overhourForm" action="/extrapay/saveoverhourtable/">
+              <table id="overhourlist" class="hover row-border" width="100%" style="width: 100%;">
+                <thead>
+                <tr>
+                  <th>초과근무일자</th>
+                  <th>엔지니어부서</th>
+                  <th>엔지니어명</th>
+                  <th>초과근무시간</th>
+                  <th>보상휴가시간</th>
+                  <th>시간외수당시간</th>
+                  <th>비고(보상휴가시간)</th>
+                  <th class="d-none">overHourId</th>
+                </tr>
+                </thead>
+              </table>
+            </form>
           </div>
 
         </div>
@@ -132,13 +137,11 @@
                 <label for="overhourDate" class="font-weight-light text-primary">일자</label>
                 <input type="month" class="form-control" id="overhourDate" name="overhourDate" required='required'>
               </div>
-
             </div>
             <div class="row mb-1">
               <div class="col-6">
                 <label for="empType" class="font-weight-light text-primary">직원유형</label>
                 <select class="form-control" id="empType" name="empType">
-                  <option value="엔지니어">엔지니어</option>
                   <option value="특수직">특수직</option>
                 </select>
               </div>
@@ -156,17 +159,29 @@
               <div class="col-6">
                 <label for="hourType" class="font-weight-light text-primary">시간유형</label>
                 <select class="form-control" id="hourType" name="hourType">
-                  <option value="시간">시간</option>
                   <option value="일">일</option>
+                  <option value="시간">시간</option>
                 </select>
               </div>
               <div class="col-3">
-                <label for="overhour" class="font-weight-light text-primary">평일초과근무</label>
-                <input class="form-control" id="overhour" name="overhour" type="number" step="0.1" placeholder="0.0">
+                <label for="overHourWeekDay" class="font-weight-light text-primary">평일초과근무</label>
+                <input class="form-control" id="overHourWeekDay" name="overHourWeekDay" type="number">
               </div>
                <div class="col-3">
-                <label for="overhour_weekend" class="font-weight-light text-primary">주말초과근무</label>
-                <input class="form-control" id="overhour_weekend" name="overhour_weekend" type="number" step="0.1" placeholder="0.0">
+                <label for="overhour" class="font-weight-light text-primary">주말초과근무</label>
+                <input class="form-control" id="overhour" name="overhour" type="number">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+              </div>
+              <div class="col-3">
+                <label for="overHourCostWeekDay" class="font-weight-light text-primary">평일근무수당</label>
+                <input class="form-control" id="overHourCostWeekDay" name="overHourCostWeekDay" type="number"  placeholder="">
+              </div>
+               <div class="col-3">
+                <label for="overHourCost" class="font-weight-light text-primary">주말근무수당</label>
+                <input class="form-control" id="overHourCost" name="overHourCost" type="number" placeholder="">
               </div>
             </div>
           </form>
@@ -194,10 +209,29 @@
           document.getElementById("postForm").submit();
       }
 
+      function btn_view(extraPayId) {
+          location.href = '/extrapay/viewoverhour/' + extraPayId + '/'
+      }
+
       function replaceAll(str, searchStr, replaceStr) {
           var new_str = str.split(searchStr).join(replaceStr);
           return new_str.split("T").join(" ").slice(0, 7);
       }
+
+      $('#saveOverhourTable').click(function () {
+                  const overhourForm = document.getElementById("overhourForm");
+
+                  const lengthOverhour = $('[name="extraPayId"]').length;
+                  for (var i = 0; i <= lengthOverhour - 1; i++) {
+                      const overHour = document.createElement("input");
+                      const data = $('div[name="extraPayId"]').eq(i).text();
+                      overHour.setAttribute("type", "hidden");
+                      overHour.setAttribute("name", "extraPayId");
+                      overHour.setAttribute("value", data);
+                      overhourForm.appendChild(overHour);
+                  }
+                  overhourForm.submit();
+              });
 
       $(document).ready(function () {
 
@@ -242,14 +276,37 @@
                   {data: "extraPayId"},
               ],
               columnDefs: [
-                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                              return '<a name="empId__empDeptName" class="input-form" onclick="btn_view('+ row["extraPayId"] +')">'+row["empId__empDeptName"]+'</a>'
+                       },
+                      targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                              return '<a name="empName" class="input-form text-primary" onclick="btn_view('+ row["extraPayId"] +')">'+row["empName"]+'</a>'
+                       },
+                      targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                       "render": function (data, type, row) {
+                              return '<input type="number" id="compensatedHour' + row["extraPayId"] + '" ' +
+                                  'name="compensatedHour" class="input-form" step="0.1" value='+row["compensatedHour"]+'>'
+                       },
+                      targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false},
+                  {
+                      "render": function (data, type, row) {
+                              return '<input type="text" id="compensatedComment' + row["extraPayId"] + '" ' +
+                                  'name="compensatedComment" class="input-form" value='+data+'>'
+                       },
+                      targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<div name="extraPayId" >' + data + '</div>'
+                      },
+                      targets: 7, className: "d-none"},
               ],
               "searching": true,
               "paging": true,
@@ -272,14 +329,6 @@
                   $('td:eq(5)', nRow).css('color','red');
               }
           });
-
-          var table = $('#overhourlist').DataTable();
-
-          $("#overhourlist").on("click", 'tr', function () {
-              const data = table.row(this).data();
-              location.href = '/extrapay/viewoverhour/' + data.extraPayId + '/'
-          });
-
 
       });
 

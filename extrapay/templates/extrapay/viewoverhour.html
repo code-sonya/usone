@@ -87,7 +87,7 @@
         </tr>
       </table>
       </div>
-
+      {% if extrapay.payStatus != 'X' %}
       <div class="ml-1 mr-1 mb-2 justify-content-between">
             <span class="font-weight-bold text-dark h5">* 시간외수당</span>
       </div>
@@ -123,7 +123,7 @@
           <td class="thtd" colspan="1">{{ row.overHourStartDate | date:"Y/m/d H:i" }}</td>
           <td class="thtd" colspan="1">{{ row.overHourEndDate | date:"Y/m/d H:i" }}</td>
           <td class="thtd" colspan="1">{{ row.overHour }}</td>
-          <td class="thtd" colspan="3">{{ row.serviceId.serviceTitle }}</td>
+          <td class="thtd" colspan="3">{{ row.overHourTitle }}</td>
           <td class="thtd" colspan="1">{{ row.overHourCost |floatformat:0|intcomma}}</td>
           <td class="thtd" colspan="1">{{ row.foodCost |floatformat:0|intcomma}}</td>
           <td class="thtd" colspan="1">
@@ -146,6 +146,7 @@
         </tr>
         </tbody>
       </table>
+      {% endif %}
 
       {% if extrapay.compensatedHour %}
       <br>
@@ -236,14 +237,10 @@
         <tr class="thtd">
           <td class="thtd" colspan="2">{{ sum_costs.extraPayDate }}</td>
           <td class="thtd" colspan="2">{{ sum_costs.overHour }}</td>
-          <td class="thtd" colspan="2">{{ sum_costs.compensatedHour }}</td>
+          <td class="thtd" colspan="2">{% if sum_costs.compensatedHour %}{{ sum_costs.compensatedHour }}{% else %}-{% endif %}</td>
           <td class="thtd" colspan="2">{{ sum_costs.extraPayHour | intcomma }}</td>
           <td class="thtd" colspan="2">
-            {%if sum_costs.extraPay > 200000 %}
-            200,000
-            {% else %}
             {{ sum_costs.extraPay | intcomma }}
-            {% endif %}
           </td>
           <td class="thtd" colspan="2">{{ sum_costs.foodCost | intcomma }}</td>
           <td class="thtd text-danger" colspan="2">{{ sum_costs.sumPay | intcomma }}</td>

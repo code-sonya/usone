@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^overhour/$', views.over_hour, name='overhour'),
     url(r'^overhourall/$', views.overhour_all, name='overhourall'),
     url(r'^postoverhour/$', views.post_overhour, name='postoverhour'),
+    url(r'^saveoverhourtable/$', views.save_overhourtable, name='saveoverhourtable'),
     url(r'^overjson/$', views.over_asjson, name='over_ajax_url'),
     url(r'^postcar/', views.post_car, name='postcar'),
     url(r'^showoils/', views.show_oils, name='showoils'),
