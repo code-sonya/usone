@@ -1,6 +1,7 @@
 django_mysql
 xhtml2pdf
 xlrd
+pycurl
 certifi==2019.3.9
 chardet==3.0.4
 Django==2.1.7

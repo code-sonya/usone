@@ -4,6 +4,8 @@ from .models import OverHour
 from service.models import Servicereport, Vacation
 from scheduler.models import Eventday
 import datetime
+import pycurl
+
 
 def cal_overhour(services):
     services_lst = []
@@ -14,6 +16,8 @@ def cal_overhour(services):
             pass
         else:
             print()
-
-
     return services_lst
+
+
+# def naver_distance(lat1, lng1, lat2, lng2):
+#

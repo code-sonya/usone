@@ -246,18 +246,18 @@ def approval_fuel(request, empId):
     startdate = str(datetime(y, m, 1).date())
     enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
     empName = Employee.objects.get(empId=empId).empName
-    fuelStatus = Fuel.objects.filter(serviceId__empId=empId).values_list('fuelStatus').distinct()
-    if 'N' in [i[0] for i in fuelStatus]:
-        approvalStatus = 'N'
-    else:
-        approvalStatus = 'Y'
+    # fuelStatus = Fuel.objects.filter(serviceId__empId=empId).values_list('fuelStatus').distinct()
+    # if 'N' in [i[0] for i in fuelStatus]:
+    #     approvalStatus = 'N'
+    # else:
+    #     approvalStatus = 'Y'
 
     context = {
         'startdate': startdate,
         'enddate': enddate,
         'empName': empName,
         'empId': empId,
-        'approvalStatus': approvalStatus,
+        # 'approvalStatus': approvalStatus,
     }
     return render(request, 'extrapay/approvalfuel.html', context)
 
@@ -284,25 +284,49 @@ def approvalfuel_asjson(request):
     empId = request.POST['empId']
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
+    status = request.POST['status']
 
-    services = Fuel.objects.select_related().filter(
-        Q(serviceId__empId=empId) &
-        Q(serviceId__serviceStatus='Y') &
-        Q(serviceId__serviceDate__gte=startdate) &
-        Q(serviceId__serviceDate__lte=enddate)
-    ).annotate(
-        serviceDate=F('serviceId__serviceDate'),
-        companyName=F('serviceId__companyName__companyName'),
-        serviceTitle=F('serviceId__serviceTitle'),
-    )
+    if status == 'N':
+        services = Fuel.objects.select_related().filter(
+            Q(serviceId__empId=empId) &
+            Q(serviceId__serviceStatus='Y') &
+            Q(serviceId__serviceDate__gte=startdate) &
+            Q(serviceId__serviceDate__lte=enddate) &
+            Q(fuelStatus='N')
+        ).annotate(
+            serviceDate=F('serviceId__serviceDate'),
+            companyName=F('serviceId__companyName__companyName'),
+            serviceTitle=F('serviceId__serviceTitle'),
+        )
 
-    services = services.values(
-        'fuelId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
-        'totalDistance', 'fuelMoney', 'comment', 'fuelStatus',
-    )
+        services = services.values(
+            'fuelId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
+            'totalDistance', 'fuelMoney', 'comment', 'fuelStatus',
+        )
 
-    structure = json.dumps(list(services), cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
+        structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+
+    elif status == 'YR':
+        services = Fuel.objects.select_related().filter(
+            Q(serviceId__empId=empId) &
+            Q(serviceId__serviceStatus='Y') &
+            Q(serviceId__serviceDate__gte=startdate) &
+            Q(serviceId__serviceDate__lte=enddate) &
+            Q(fuelStatus__in=['Y', 'R'])
+        ).annotate(
+            serviceDate=F('serviceId__serviceDate'),
+            companyName=F('serviceId__companyName__companyName'),
+            serviceTitle=F('serviceId__serviceTitle'),
+        )
+
+        services = services.values(
+            'fuelId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
+            'totalDistance', 'fuelMoney', 'comment', 'fuelStatus',
+        )
+
+        structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
@@ -415,7 +439,7 @@ def fuel_asjson(request):
 
         services = services.values(
             'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
-            'totalDistance', 'fuelMoney', 'fuelStatus',
+            'totalDistance', 'fuelMoney', 'fuelStatus', 'comment'
         )
 
         structure = json.dumps(list(services), cls=DjangoJSONEncoder)
