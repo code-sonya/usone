@@ -33,9 +33,12 @@ def over_hour(request):
         searchdate = ''
         filter = 'N'
 
+    employee = Employee.objects.filter(Q(empStatus='Y'))
+
     context = {
         'filter': filter,
         'searchdate': searchdate,
+        'employee': employee,
     }
 
     return HttpResponse(template.render(context, request))
@@ -52,7 +55,7 @@ def over_asjson(request):
     if searchdate:
         extrapay = ExtraPay.filter(Q(overHourDate__year=searchYear) & Q(overHourDate__month=searchMonth))
 
-    extrapaylist = extrapay.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'payHour', 'extraPayId')
+    extrapaylist = extrapay.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'payHour', 'compensatedComment', 'extraPayId')
     print(extrapaylist)
     structure = json.dumps(list(extrapaylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -449,12 +452,158 @@ def fuel_asjson(request):
 @login_required
 @csrf_exempt
 def view_overhour(request, extraPayId):
-    extrapay = ExtraPay.objects.filter(Q(extraPayId=extraPayId)).values('overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empDeptName', 'empId__empCode', 'overHourId', 'empId__empPosition_id__positionName')
+    extrapay = ExtraPay.objects.filter(Q(extraPayId=extraPayId))\
+        .values('overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empSalary', 'empId__empDeptName', 'empId__empCode', 'extraPayId', 'empId__empPosition_id__positionName',
+                'compensatedComment', 'compensatedHour', 'payStatus').first()
+    overhours = OverHour.objects.filter(Q(extraPayId=extraPayId) & Q(overHour__isnull=False))
+    sum_overhours = overhours.aggregate(sumOverhour=Sum('overHour'),
+                                        sumOverhourWeekDay=Sum('overHourWeekDay'),
+                                        sumServicehour=Sum('serviceId__serviceHour'),
+                                        sumOverhourCost=Sum('overHourCost'),
+                                        sumOverhourCostWeekDay=Sum('overHourCostWeekDay'),
+                                        sumFoodCost=Sum('foodCost'))
+    foodcosts = OverHour.objects.filter(Q(extraPayId=extraPayId) & Q(overHour__isnull=True))
+    sum_foodcosts = foodcosts.aggregate(sumServicehour=Sum('serviceId__serviceHour'), sumFoodCost=Sum('foodCost'))
 
-    # services = cal_overhour(services)
+
+    if extrapay['payStatus'] == 'N':
+        real_extraPay = int((sum_overhours['sumOverhour']-extrapay['compensatedHour'])*1.5*extrapay['empId__empSalary'])
+        if real_extraPay > 200000:
+            real_extraPay = 200000
+
+        sum_costs = {
+            'extraPayDate': '{}.{}'.format(extrapay['overHourDate__year'], extrapay['overHourDate__month']),
+            'overHour': sum_overhours['sumOverhour'],
+            'compensatedHour': extrapay['compensatedHour'],
+            'extraPayHour': sum_overhours['sumOverhour']-(extrapay['compensatedHour'] or 0),
+            'extraPay': real_extraPay,
+            'foodCost': int(sum_overhours['sumFoodCost']+(sum_foodcosts['sumFoodCost'] or 0)),
+            'sumPay': int(real_extraPay + sum_overhours['sumFoodCost']+(sum_foodcosts['sumFoodCost'] or 0))
+        }
+    else:
+        sum_costs = {
+            'extraPayDate': '{}.{}'.format(extrapay['overHourDate__year'], extrapay['overHourDate__month']),
+            'overHour': sum_overhours['sumOverhour'] + sum_overhours['sumOverhourWeekDay'],
+            'compensatedHour': extrapay['compensatedHour'],
+            'extraPayHour': sum_overhours['sumOverhour'] + sum_overhours['sumOverhourWeekDay']-(extrapay['compensatedHour'] or 0),
+            'extraPay': int(sum_overhours['sumOverhourCost'] + sum_overhours['sumOverhourCostWeekDay']),
+            'foodCost': 0,
+            'sumPay': int(sum_overhours['sumOverhourCost'] + sum_overhours['sumOverhourCostWeekDay']),
+        }
     context={
-        'services': services,
-        'extrapay': extrapay.first(),
-
+        'overhour': overhours,
+        'extrapay': extrapay,
+        'foodcosts': foodcosts,
+        'sum_overhours': sum_overhours,
+        'sum_foodcosts': sum_foodcosts,
+        'sum_costs': sum_costs,
     }
     return render(request, 'extrapay/viewoverhour.html', context)
+
+
+@login_required
+@csrf_exempt
+def overhour_all(request):
+    context = {}
+    return render(request, 'extrapay/overhourall.html', context)
+
+
+@login_required
+@csrf_exempt
+def post_overhour(request):
+    if request.method == "POST":
+        overhourDate = request.POST['overhourDate']
+        empType = request.POST['empType']
+        empId = request.POST['empName']
+        hourType = request.POST['hourType']
+        # 평일
+        overHourWeekDay = request.POST['overHourWeekDay']
+        overHourCostWeekDay = request.POST['overHourCostWeekDay']
+        # 주말
+        overhour = request.POST['overhour']
+        overHourCost = request.POST['overHourCost']
+        overhouYear = overhourDate[:4]
+        overhourMonth = overhourDate[5:7]
+
+        if empType == '특수직':
+            status = 'X'
+
+        if hourType == '일':
+            if overhour:
+                overHourCost = float(overhour) * int(overHourCost)
+                overhour = float(overhour)*24
+            else:
+                overHourCost = 0
+                overhour = 0
+
+            if overHourWeekDay:
+                overHourCostWeekDay = float(overHourWeekDay) * int(overHourCostWeekDay)
+                overHourWeekDay = float(overHourWeekDay)*24
+            else:
+                overHourCostWeekDay = 0
+                overHourWeekDay = 0
+        else:
+            if overhour:
+                overhour = float(overhour)
+                overHourCost = overhour * int(overHourCost)
+            else:
+                overhour = 0
+                overHourCost = 0
+
+            if overHourWeekDay:
+                overHourWeekDay = float(overHourWeekDay)
+                overHourCostWeekDay = overHourWeekDay * int(overHourCostWeekDay)
+            else:
+                overHourWeekDay = 0
+                overHourCostWeekDay = 0
+
+        print(request.POST)
+
+        ## IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
+        emp = Employee.objects.get(empId=empId)
+        extrapay = ExtraPay.objects.filter(Q(overHourDate__year=overhouYear) & Q(overHourDate__month=overhourMonth) & Q(empId=emp)).first()
+
+        if extrapay:
+            sumOverHour = extrapay.sumOverHour
+            payHour = extrapay.payHour
+            extrapay.sumOverHour = float(sumOverHour) + overhour + overHourWeekDay
+            extrapay.payHour = payHour + overhour
+            extrapay.save()
+        else:
+            extrapay = ExtraPay.objects.create(
+                empId=emp,
+                empName=emp.empName,
+                overHourDate='{}-01'.format(overhourDate),
+                sumOverHour=overhour+overHourWeekDay,
+                payHour=overhour+overHourWeekDay,
+                payStatus=status,
+            )
+
+        OverHour.objects.create(
+            empId=emp,
+            empName=emp.empName,
+            overHour=overhour,
+            overHourWeekDay=overHourWeekDay,
+            overHourCost=overHourCost,
+            overHourCostWeekDay=overHourCostWeekDay,
+            extraPayId=extrapay,
+        )
+    return redirect('extrapay:overhour')
+
+
+@login_required
+@csrf_exempt
+def save_overhourtable(request):
+    compensatedHour = request.GET.getlist('compensatedHour')
+    compensatedComment = request.GET.getlist('compensatedComment')
+    extraPayId = request.GET.getlist('extraPayId')
+    print(request.GET)
+
+    for a, b, c in zip(extraPayId, compensatedHour, compensatedComment):
+        extraPay = ExtraPay.objects.get(extraPayId=a)
+        extraPay.compensatedHour = b
+        extraPay.compensatedComment = c
+        extraPay.save()
+
+    return redirect('extrapay:overhour')
+

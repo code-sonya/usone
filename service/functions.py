@@ -223,6 +223,142 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
     return round((math.trunc(minute_sum * 0.1)*10)/60, 2), round((math.trunc(minute_sum * 0.1)*10)/60, 2), min_date, max_date
 
 
+# 이현수대리 조기출근
+def overtime_extrapay_etc(str_start_datetime, str_end_datetime):
+    is_holiday_startdate = is_holiday(datetime.datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
+    is_holiday_enddate = is_holiday(datetime.datetime.strptime(str_end_datetime[:10], "%Y-%m-%d").date())
+
+    o_start = pd.Timestamp(str_start_datetime)
+    o_finish = pd.Timestamp(str_end_datetime)
+    d_start = pd.Timestamp(str_start_datetime)
+    d_finish = pd.Timestamp(str_end_datetime)
+
+    minute_sum = 0
+    min_date = ''
+
+    s_week = d_start.weekday()
+    f_week = d_finish.weekday()
+
+    if s_week in [5, 6] or is_holiday_startdate != 0:  # 주말이거나 공휴일 일때
+        if d_start.minute != 0:
+            minute_sum += (60 - d_start.minute)
+            d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+
+    else:  # 평일 일때
+        if d_start.minute != 0:  # 정각 시작하지 않은 경우
+            if d_start.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
+                minute_sum += (60 - d_start.minute)
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+            elif d_start.hour in [6, 7, 8]:
+                if d_start.hour in [6, 7]:
+                    minute_temp = (60 - d_start.minute)
+                    min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 7, int(d_start.minute), 0)
+                    if minute_temp > 30:
+                        minute_temp == 30
+                        min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 7, 30, 0)
+                    minute_sum += minute_temp
+                else:
+                    minute_sum += (60 - d_start.minute)
+                    min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 8, int(d_start.minute), 0)
+
+                if d_start.hour == 6:
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute) - 60)
+                else:
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+
+
+            else:  # 초과 근무에 해당 하지 않는 경우
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+
+        else:
+            if d_start.hour in [6, 7, 8]:
+                if d_start.hour in [6, 7]:
+                    minute_temp = (60 - d_start.minute)
+                    if minute_temp > 30:
+                        minute_temp == 30
+                    minute_sum += minute_temp
+                else:
+                    minute_sum += (60 - d_start.minute)
+
+                if d_start.hour == 6:
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute) - 60)
+                else:
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+
+
+    if f_week in [5, 6] or is_holiday_enddate != 0:  # 주말이거나 공휴일 일때
+        if d_finish.minute != 0:
+            minute_sum += d_finish.minute
+            d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+
+    else:  # 평일 일때
+        if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
+            if d_finish.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
+                minute_sum += d_finish.minute
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+            else:
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+
+    if min_date == '':
+        min_date = datetime.datetime(3000, 1, 31, 1, 0, 0)
+    max_date = datetime.datetime(1999, 1, 31, 1, 0, 0)
+    for i in range(0, work_hours(d_start, d_finish), 1):
+        a = (d_start + datetime.timedelta(hours=i))
+        event_a = is_holiday(a.date())
+        a_week = a.weekday()
+
+        if d_start <= a <= d_finish:
+            if a_week in [5, 6] or event_a != 0:  # 주말이나 공휴일
+                if d_start.date() == d_finish.date():
+                    minute_sum += int((d_finish - d_start).seconds / 60)
+                    min_date = d_start
+                    max_date = d_finish
+                    break
+                elif d_finish == a:
+                    pass
+                else:
+                    minute_sum += 60
+                    if a < min_date:
+                        min_date = a
+
+                    if a > max_date:
+                        max_date = a
+
+            else:  # 평일
+                if int(a.hour) in [0, 1, 2, 3, 4, 5, 22, 23]:
+                    if d_finish == a:
+                        pass
+                    else:
+                        minute_sum += 60
+                        if a < min_date:
+                            min_date = a
+
+                        if a > max_date:
+                            max_date = a
+                elif int(a.hour) == 8:
+                    minute_sum += 60
+                    if a < min_date:
+                        min_date = a
+
+                    if a > max_date:
+                        max_date = a
+
+
+    if max_date != datetime.datetime(1999, 1, 31, 1, 0, 0):
+        max_date = max_date + datetime.timedelta(minutes=60)
+    else:
+        max_date = None
+    if min_date == datetime.datetime(3000, 1, 31, 1, 0, 0):
+        min_date = None
+    if max_date.hour == 5 and o_finish.hour == 5 and o_finish.minute != 0:
+        max_date = o_finish
+    if min_date.hour == 23:
+        if o_start.hour == 22 and o_start.minute != 0:
+            min_date = o_start
+
+    return round((math.trunc(minute_sum * 0.1) * 10) / 60, 2), round((math.trunc(minute_sum * 0.1) * 10) / 60, 2), min_date, max_date
+
+
 def dayreport_query2(empDeptName, day):
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
     Date_min = datetime.datetime.combine(Date, datetime.datetime.min.time())
@@ -457,7 +593,7 @@ def cal_foodcost(str_start_datetime, str_end_datetime):
 
         # 주말이거나 공휴일일 때
         if s_week in [5, 6] or is_holiday_startdate != 0:
-            if start_hour <= 7 and 7 <= end_hour:
+            if start_hour <= 7 and end_hour >= 7:
                 foodcosts += 8000
 
             if start_hour <= 12 and end_hour >= 13:
@@ -466,9 +602,12 @@ def cal_foodcost(str_start_datetime, str_end_datetime):
             if start_hour <= 18 and end_hour >= 19:
                 foodcosts += 8000
         else:
-            #평일 석식
-            if 20 <= end_hour:
-                foodcosts += 8000
+            # 평일 석식 오후 6시 이후 모두 지급 (단, 오후6~8시 근무자 제외)
+            if end_hour >= 18:
+                if start_hour >= 18 and end_hour < 21:
+                    pass
+                else:
+                    foodcosts += 8000
 
     return foodcosts
 
