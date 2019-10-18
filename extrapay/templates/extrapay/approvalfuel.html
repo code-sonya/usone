@@ -135,6 +135,34 @@
       </div>
     </div>
   </div>
+
+  <!-- Map Modal -->
+  <div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="mapModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="mapForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <label for="findDate" class="font-weight-light text-primary">검색 일자</label>
+            <input type="month" max="9999-12" class="form-control" id="findDate" name="findDate" value="{{ startdate | slice:'0:7' }}">
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 
@@ -186,7 +214,12 @@
         }
     }
 
+    function btn_map() {
+        $('#mapModal').modal('show');
+    }
+
     $(document).ready(function () {
+
         const napprovalfuel = $('#napprovalfuel').DataTable({
             "processing": true,
             "ajax": {
@@ -230,7 +263,7 @@
                     targets: 4,
                     width: "10%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "totalDistance",
+                    data: "distance",
                 },
                 {
                     targets: 5,
@@ -307,7 +340,10 @@
                     $('td', nRow).eq(0).addClass('text-danger font-weight-bold');
                 }
 
-                $('td:eq(4)', nRow).text(aData.totalDistance.toLocaleString() + 'km');
+                $('td:eq(4)', nRow).html(
+                    aData.distance.toLocaleString() + 'km ' +
+                    '<i class="fas fa-map-marked fa-fw text-gray-400" onclick=btn_map()></i>'
+                );
                 $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             },
             "footerCallback": function () {
@@ -317,7 +353,7 @@
                 api.column(4, {search: 'applied'}).data().each(function (data, index) {
                     distanceResult += parseFloat(data);
                 });
-                $(api.column(4).footer()).html(distanceResult.toLocaleString() + 'km');
+                $(api.column(4).footer()).html(distanceResult.toLocaleString() + 'km ');
 
                 let moneyResult = 0;
                 api.column(5, {search: 'applied'}).data().each(function (data, index) {
@@ -370,7 +406,7 @@
                     targets: 4,
                     width: "10%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "totalDistance",
+                    data: "distance",
                 },
                 {
                     targets: 5,
@@ -419,7 +455,7 @@
                     $('td', nRow).eq(0).addClass('text-danger font-weight-bold');
                 }
 
-                $('td:eq(4)', nRow).text(aData.totalDistance.toLocaleString() + 'km');
+                $('td:eq(4)', nRow).text(aData.distance.toLocaleString() + 'km');
                 $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             },
             "footerCallback": function () {

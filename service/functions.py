@@ -1,6 +1,10 @@
 import datetime
 import os
 import math
+import pycurl
+import re
+from io import BytesIO
+import json
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
@@ -10,6 +14,7 @@ from django.db.models import Q
 from django.http import QueryDict
 
 from scheduler.models import Eventday
+from usone.security import naverMapId, naverMapKey
 from .models import Servicereport, Vacation
 
 
@@ -615,10 +620,48 @@ def cal_foodcost(str_start_datetime, str_end_datetime):
     return foodcosts
 
 
+def naver_distance(latlngs):
+    start_lat = str(latlngs[0][0])
+    start_lng = str(latlngs[0][1])
+    goal_lat = str(latlngs[-1][0])
+    goal_lng = str(latlngs[-1][1])
+    waypoints = ""
+    for i in range(1, len(latlngs)-1):
+        waypoints += str(latlngs[i][1]) + ',' + str(latlngs[i][0]) + '|'
+    waypoints = waypoints[:-1]
+    option = [
+        "trafast",          # 실시간 빠른길
+        "tracomfort",       # 실시간 편한길
+        "traoptimal",       # 실시간 최적길
+        "traavoidtoll",     # 무료 우선
+        "traavoidcaronly",  # 자동차 전용도로 회피 우선
+    ]
+    url = "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving" + \
+          "?start=" + start_lng + "," + start_lat + \
+          "&goal=" + goal_lng + "," + goal_lat + \
+          "&waypoints=" + waypoints + \
+          "&option=" + option[1]
+    header = [
+        "X-NCP-APIGW-API-KEY-ID: " + naverMapId,
+        "X-NCP-APIGW-API-KEY: " + naverMapKey,
+    ]
+    buffer = BytesIO()
+    c = pycurl.Curl()
 
+    c.setopt(pycurl.HTTPHEADER, header)
+    c.setopt(c.URL, url)
+    c.setopt(c.WRITEDATA, buffer)
+    c.setopt(c.SSL_VERIFYPEER, False)
+    c.perform()
+    c.close()
 
+    body = buffer.getvalue().decode('utf-8')
+    body = json.loads(body)
+    distanceCode = body['code']
+    if distanceCode > 0:
+        distance = 0
+    else:
+        distance = round((body['route']['tracomfort'][0]['summary']['distance'] / 1000), 1)
+    buffer.close()
 
-
-
-
-
+    return distance, distanceCode
