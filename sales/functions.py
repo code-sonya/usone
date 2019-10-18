@@ -180,25 +180,49 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
 
     goal = Goal.objects.filter(Q(year=year))
     if quarter == 1:
-        teamGoal = goal.values('empDeptName') \
-            .annotate(revenueTarget=F('salesq1'),
-                      profitTarget=F('profitq1'))
-        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end']))
+        teamGoal = goal.values(
+            'empDeptName'
+        ).annotate(
+            revenueTarget=F('salesq1'),
+            profitTarget=F('profitq1')
+        )
+        revenue = Revenue.objects.filter(
+            Q(predictBillingDate__gte=dict_quarter['q1_start']) &
+            Q(predictBillingDate__lt=dict_quarter['q1_end'])
+        ).select_related()
     elif quarter == 2:
-        teamGoal = goal.values('empDeptName') \
-            .annotate(revenueTarget=F('salesq1') + F('salesq2'),
-                      profitTarget=F('profitq1') + F('profitq2'))
-        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q2_end']))
+        teamGoal = goal.values(
+            'empDeptName'
+        ).annotate(
+            revenueTarget=F('salesq1') + F('salesq2'),
+            profitTarget=F('profitq1') + F('profitq2')
+        )
+        revenue = Revenue.objects.filter(
+            Q(predictBillingDate__gte=dict_quarter['q1_start']) &
+            Q(predictBillingDate__lt=dict_quarter['q2_end'])
+        ).select_related()
     elif quarter == 3:
-        teamGoal = goal.values('empDeptName') \
-            .annotate(revenueTarget=F('salesq1') + F('salesq2') + F('salesq3'),
-                      profitTarget=F('profitq1') + F('profitq2') + F('profitq3'))
-        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q3_end']))
+        teamGoal = goal.values(
+            'empDeptName'
+        ).annotate(
+            revenueTarget=F('salesq1') + F('salesq2') + F('salesq3'),
+            profitTarget=F('profitq1') + F('profitq2') + F('profitq3')
+        )
+        revenue = Revenue.objects.filter(
+            Q(predictBillingDate__gte=dict_quarter['q1_start']) &
+            Q(predictBillingDate__lt=dict_quarter['q3_end'])
+        ).select_related()
     else:
-        teamGoal = goal.values('empDeptName') \
-            .annotate(revenueTarget=F('salesq1') + F('salesq2') + F('salesq3') + F('salesq4'),
-                      profitTarget=F('profitq1') + F('profitq2') + F('profitq3') + F('profitq4'))
-        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
+        teamGoal = goal.values(
+            'empDeptName'
+        ).annotate(
+            revenueTarget=F('salesq1') + F('salesq2') + F('salesq3') + F('salesq4'),
+            profitTarget=F('profitq1') + F('profitq2') + F('profitq3') + F('profitq4')
+        )
+        revenue = Revenue.objects.filter(
+            Q(predictBillingDate__gte=dict_quarter['q1_start']) &
+            Q(predictBillingDate__lt=dict_quarter['q4_end'])
+        ).select_related()
     sumGoal = teamGoal.aggregate(revenueTargetSum=Sum('revenueTarget'), profitTargetSum=Sum('profitTarget'))
 
     if contractStep == 'F':
