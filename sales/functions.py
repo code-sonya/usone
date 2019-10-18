@@ -649,20 +649,39 @@ def cal_monthlybill(todayYear):
             revenues = Revenue.objects.filter(
                 Q(contractId__contractStep='Firm') &
                 Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2))) &
-                Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))) \
-                .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
-            expenses = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).exclude(expenseDept='전사').aggregate(expenseMoney__sum=Sum('expenseMoney'))
-
-
+                Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))
+            ).aggregate(
+                revenuePrice=Sum('revenuePrice'),
+                revenueProfitPrice=Sum('revenueProfitPrice')
+            )
+            expenses = Expense.objects.filter(
+                Q(expenseStatus='Y') &
+                Q(expenseDate__year=todayYear) &
+                Q(expenseDate__month=todayMonth)
+            ).exclude(
+                expenseDept='전사'
+            ).aggregate(
+                expenseMoney__sum=Sum('expenseMoney')
+            )
         else:
             revenues = Revenue.objects.filter(
                 Q(contractId__contractStep='Firm') &
                 Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2)))&
-                Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))) \
-                .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
-            expenses = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).exclude(expenseDept='전사').aggregate(expenseMoney__sum=Sum('expenseMoney'))
+                Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))
+            ).aggregate(
+                revenuePrice=Sum('revenuePrice'),
+                revenueProfitPrice=Sum('revenueProfitPrice')
+            )
+            expenses = Expense.objects.filter(
+                Q(expenseStatus='Y') &
+                Q(expenseDate__year=todayYear) &
+                Q(expenseDate__month=todayMonth)
+            ).exclude(
+                expenseDept='전사'
+            ).aggregate(
+                expenseMoney__sum=Sum('expenseMoney')
+            )
 
-        print(expenses)
         revenue_month['month{}'.format(str(todayMonth))] = revenues['revenuePrice']
         revenue_month['sum'] += revenues['revenuePrice']
         gp_month['month{}'.format(str(todayMonth))] = revenues['revenueProfitPrice']
@@ -685,38 +704,49 @@ def cal_monthlybill(todayYear):
 
 def cal_profitloss(dept, todayYear):
     # 계정과목 월별
-    expenses1 = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__year=todayYear) & Q(expenseDept__in=dept) & Q(expenseMoney__gt=0))\
-        .values('expenseGroup') \
-        .annotate(month1_expense=Sum('expenseMoney', filter=Q(expenseDate__month=1)),
-                  month2_expense=Sum('expenseMoney', filter=Q(expenseDate__month=2)),
-                  month3_expense=Sum('expenseMoney', filter=Q(expenseDate__month=3)),
-                  month4_expense=Sum('expenseMoney', filter=Q(expenseDate__month=4)),
-                  month5_expense=Sum('expenseMoney', filter=Q(expenseDate__month=5)),
-                  month6_expense=Sum('expenseMoney', filter=Q(expenseDate__month=6)),
-                  month7_expense=Sum('expenseMoney', filter=Q(expenseDate__month=7)),
-                  month8_expense=Sum('expenseMoney', filter=Q(expenseDate__month=8)),
-                  month9_expense=Sum('expenseMoney', filter=Q(expenseDate__month=9)),
-                  month10_expense=Sum('expenseMoney', filter=Q(expenseDate__month=10)),
-                  month11_expense=Sum('expenseMoney', filter=Q(expenseDate__month=11)),
-                  month12_expense=Sum('expenseMoney', filter=Q(expenseDate__month=12)),
-                  month_expense=Sum('expenseMoney'))
+    expenses1 = Expense.objects.filter(
+        Q(expenseStatus='Y') &
+        Q(expenseDate__year=todayYear) &
+        Q(expenseDept__in=dept)
+    ).values('expenseGroup').annotate(
+        month1_expense=Sum('expenseMoney', filter=Q(expenseDate__month=1)),
+        month2_expense=Sum('expenseMoney', filter=Q(expenseDate__month=2)),
+        month3_expense=Sum('expenseMoney', filter=Q(expenseDate__month=3)),
+        month4_expense=Sum('expenseMoney', filter=Q(expenseDate__month=4)),
+        month5_expense=Sum('expenseMoney', filter=Q(expenseDate__month=5)),
+        month6_expense=Sum('expenseMoney', filter=Q(expenseDate__month=6)),
+        month7_expense=Sum('expenseMoney', filter=Q(expenseDate__month=7)),
+        month8_expense=Sum('expenseMoney', filter=Q(expenseDate__month=8)),
+        month9_expense=Sum('expenseMoney', filter=Q(expenseDate__month=9)),
+        month10_expense=Sum('expenseMoney', filter=Q(expenseDate__month=10)),
+        month11_expense=Sum('expenseMoney', filter=Q(expenseDate__month=11)),
+        month12_expense=Sum('expenseMoney', filter=Q(expenseDate__month=12)),
+        month_expense=Sum('expenseMoney')
+    )
 
     # 합계
     expenses2 = Expense.objects.filter(
-        Q(expenseStatus='Y') & Q(expenseDate__year=todayYear) & Q(expenseDept__in=dept) & Q(
-            expenseMoney__gt=0)).exclude(expenseDept='전사').values('expenseDate__year') \
-        .annotate(month1_expense=Sum('expenseMoney', filter=Q(expenseDate__month=1)),
-                  month2_expense=Sum('expenseMoney', filter=Q(expenseDate__month=2)),
-                  month3_expense=Sum('expenseMoney', filter=Q(expenseDate__month=3)),
-                  month4_expense=Sum('expenseMoney', filter=Q(expenseDate__month=4)),
-                  month5_expense=Sum('expenseMoney', filter=Q(expenseDate__month=5)),
-                  month6_expense=Sum('expenseMoney', filter=Q(expenseDate__month=6)),
-                  month7_expense=Sum('expenseMoney', filter=Q(expenseDate__month=7)),
-                  month8_expense=Sum('expenseMoney', filter=Q(expenseDate__month=8)),
-                  month9_expense=Sum('expenseMoney', filter=Q(expenseDate__month=9)),
-                  month10_expense=Sum('expenseMoney', filter=Q(expenseDate__month=10)),
-                  month11_expense=Sum('expenseMoney', filter=Q(expenseDate__month=11)),
-                  month12_expense=Sum('expenseMoney', filter=Q(expenseDate__month=12)),
-                  month_expense=Sum('expenseMoney'))
+        Q(expenseStatus='Y') &
+        Q(expenseDate__year=todayYear) &
+        Q(expenseDept__in=dept)
+    ).exclude(
+        expenseDept='전사'
+    ).values(
+        'expenseDate__year'
+    ).annotate(
+        month1_expense=Sum('expenseMoney', filter=Q(expenseDate__month=1)),
+        month2_expense=Sum('expenseMoney', filter=Q(expenseDate__month=2)),
+        month3_expense=Sum('expenseMoney', filter=Q(expenseDate__month=3)),
+        month4_expense=Sum('expenseMoney', filter=Q(expenseDate__month=4)),
+        month5_expense=Sum('expenseMoney', filter=Q(expenseDate__month=5)),
+        month6_expense=Sum('expenseMoney', filter=Q(expenseDate__month=6)),
+        month7_expense=Sum('expenseMoney', filter=Q(expenseDate__month=7)),
+        month8_expense=Sum('expenseMoney', filter=Q(expenseDate__month=8)),
+        month9_expense=Sum('expenseMoney', filter=Q(expenseDate__month=9)),
+        month10_expense=Sum('expenseMoney', filter=Q(expenseDate__month=10)),
+        month11_expense=Sum('expenseMoney', filter=Q(expenseDate__month=11)),
+        month12_expense=Sum('expenseMoney', filter=Q(expenseDate__month=12)),
+        month_expense=Sum('expenseMoney')
+    )
 
     return expenses1, expenses2
