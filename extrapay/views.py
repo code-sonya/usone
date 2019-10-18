@@ -17,7 +17,7 @@ from hr.models import Employee
 from service.models import Servicereport, Geolocation
 from service.functions import latlng_distance
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
-from .functions import cal_overhour, naver_distance
+from .functions import cal_overhour, Round, cal_extraPay, naver_distance
 
 
 @login_required
@@ -467,7 +467,7 @@ def view_overhour(request, extraPayId):
     overhours = OverHour.objects.filter(Q(extraPayId=extraPayId) & Q(overHour__isnull=False))
     sum_overhours = overhours.aggregate(sumOverhour=Sum('overHour'),
                                         sumOverhourWeekDay=Sum('overHourWeekDay'),
-                                        sumServicehour=Sum('serviceId__serviceHour'),
+                                        sumServicehour=Round(Sum('serviceId__serviceHour')),
                                         sumOverhourCost=Sum('overHourCost'),
                                         sumOverhourCostWeekDay=Sum('overHourCostWeekDay'),
                                         sumFoodCost=Sum('foodCost'))
@@ -512,8 +512,24 @@ def view_overhour(request, extraPayId):
 
 @login_required
 @csrf_exempt
-def overhour_all(request):
-    context = {}
+def overhour_all(request,searchdate):
+    if request.method == 'POST':
+        todayYear = int(request.POST['searchdate'][:4])
+        todayMonth = int(request.POST['searchdate'][5:7])
+    else:
+        todayYear = datetime.today().year
+        todayMonth = datetime.today().month
+
+    extrapayInfra=cal_extraPay('인프라서비스사업팀', todayYear, todayMonth)
+    extrapaySolution=cal_extraPay('솔루션지원팀', todayYear, todayMonth)
+    extrapayDB=cal_extraPay('DB지원팀', todayYear, todayMonth)
+    extrapaySupport = cal_extraPay('경영지원본부', todayYear, todayMonth)
+
+
+    context = {
+            'todayYear':todayYear,
+            'todayMonth':todayMonth
+               }
     return render(request, 'extrapay/overhourall.html', context)
 
 
