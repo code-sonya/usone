@@ -718,5 +718,5 @@ def cal_profitloss(dept, todayYear):
                   month11_expense=Sum('expenseMoney', filter=Q(expenseDate__month=11)),
                   month12_expense=Sum('expenseMoney', filter=Q(expenseDate__month=12)),
                   month_expense=Sum('expenseMoney'))
-    print(expenses2)
+
     return expenses1, expenses2
