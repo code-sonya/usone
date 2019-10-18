@@ -2622,6 +2622,8 @@ def monthly_bill(request):
     # supportAuditingDirector = cal_profitloss(['감사'], todayYear)
     # supportAdvisingDirector = cal_profitloss(['고문'], todayYear)
     # supportManagement = cal_profitloss(['경영지원본부'], todayYear)
+    # 전체
+    unioneAll, sum_unioneAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
 
     context = {
         'todayYear': todayYear,
@@ -2634,16 +2636,17 @@ def monthly_bill(request):
         'expenseDate': expenseDate,
         'todayMonth_table': todayMonth_table,
         'month_table': month_table,
-        'business': [{'name': '1) 인프라솔루션사업부문', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll},
-                     {'name': '① 임원', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives},
-                     {'name': '② 영업1팀', 'class': 'businessSales1', 'expense': businessSales1, 'sum': sum_businessSales1},
-                     {'name': '③ 영업2팀', 'class': 'businessSales2',  'expense': businessSales2, 'sum': sum_businessSales2},
-                     {'name': '④ 인프라서비스사업팀', 'class': 'businessInfra',  'expense': businessInfra, 'sum': sum_businessInfra},
-                     {'name': '2) 고객서비스부문',  'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll},
-                     {'name': '① 임원', 'class': 'serviceExecutives',  'expense': serviceExecutives, 'sum': sum_serviceExecutives},
-                     {'name': '② 솔루션지원팀', 'class': 'serviceSolution',  'expense': serviceSolution, 'sum': sum_serviceSolution},
-                     {'name': '③ DB지원팀', 'class': 'serviceDB',  'expense': serviceDB, 'sum': sum_serviceDB},
-                     {'name': '3) 경영지원', 'class': 'supportAll',  'expense': supportAll, 'sum': sum_supportAll},
+        'business': [{'name': '1) 인프라솔루션사업부문', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll, 'btn': 'Y'},
+                     {'name': '① 임원', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives, 'btn':'N'},
+                     {'name': '② 영업1팀', 'class': 'businessSales1', 'expense': businessSales1, 'sum': sum_businessSales1, 'btn':'N'},
+                     {'name': '③ 영업2팀', 'class': 'businessSales2',  'expense': businessSales2, 'sum': sum_businessSales2, 'btn':'N'},
+                     {'name': '④ 인프라서비스사업팀', 'class': 'businessInfra',  'expense': businessInfra, 'sum': sum_businessInfra, 'btn':'N'},
+                     {'name': '2) 고객서비스부문',  'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll, 'btn': 'Y'},
+                     {'name': '① 임원', 'class': 'serviceExecutives',  'expense': serviceExecutives, 'sum': sum_serviceExecutives, 'btn':'N'},
+                     {'name': '② 솔루션지원팀', 'class': 'serviceSolution',  'expense': serviceSolution, 'sum': sum_serviceSolution, 'btn':'N'},
+                     {'name': '③ DB지원팀', 'class': 'serviceDB',  'expense': serviceDB, 'sum': sum_serviceDB, 'btn':'N'},
+                     {'name': '3) 경영지원', 'class': 'supportAll',  'expense': supportAll, 'sum': sum_supportAll, 'btn': 'N'},
+                     {'name': '', 'class': 'unioneAll', 'sum': sum_unioneAll, 'btn': 'N'}
                      ],
     }
     return render(request, 'sales/monthlybill.html', context)
