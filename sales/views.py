@@ -1600,8 +1600,18 @@ def daily_report(request):
     money = {}
 
     # 1. 회계기준 기본 잔액
-    money['A'] = revenues.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True)).aggregate(sum=Sum('revenuePrice'))['sum']
-    money['B'] = purchases.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)).aggregate(sum=Sum('purchasePrice'))['sum']
+    money['A'] = revenues.filter(
+        Q(billingDate__isnull=False) &
+        Q(depositDate__isnull=True)
+    ).aggregate(
+        sum=Sum('revenuePrice')
+    )['sum']
+    money['B'] = purchases.filter(
+        Q(billingDate__isnull=False)
+        & Q(withdrawDate__isnull=True)
+    ).aggregate(
+        sum=Sum('purchasePrice')
+    )['sum']
     money['AmB'] = money['A'] - money['B']
 
     # 2. 매입채무 조정
