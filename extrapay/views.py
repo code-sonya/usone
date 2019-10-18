@@ -17,7 +17,7 @@ from hr.models import Employee
 from service.models import Servicereport, Geolocation
 from service.functions import latlng_distance
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
-from .functions import cal_overhour
+from .functions import cal_overhour, naver_distance
 
 
 @login_required
@@ -207,16 +207,23 @@ def post_fuel(request):
         serviceIds = json.loads(request.POST['serviceId'])
         for serviceId in serviceIds:
             geo = Geolocation.objects.get(serviceId=serviceId)
-            distance1 = latlng_distance(geo.beginLatitude, geo.beginLongitude, geo.startLatitude, geo.startLongitude)
-            distance2 = latlng_distance(geo.startLatitude, geo.startLongitude, geo.endLatitude, geo.endLongitude)
-            distance3 = latlng_distance(geo.endLatitude, geo.endLongitude, geo.finishLatitude, geo.finishLongitude)
-            totalDistance = distance1 + distance2 + distance3
+            # distance1 = latlng_distance(geo.beginLatitude, geo.beginLongitude, geo.startLatitude, geo.startLongitude)
+            # distance2 = latlng_distance(geo.startLatitude, geo.startLongitude, geo.endLatitude, geo.endLongitude)
+            # distance3 = latlng_distance(geo.endLatitude, geo.endLongitude, geo.finishLatitude, geo.finishLongitude)
+            # totalDistance = distance1 + distance2 + distance3
+            latlngs = [
+                [str(geo.beginLatitude), str(geo.beginLongitude)],
+                [str(geo.startLatitude), str(geo.startLongitude)],
+                [str(geo.endLatitude), str(geo.endLongitude)],
+                [str(geo.finishLatitude), str(geo.finishLongitude)],
+            ]
+            totalDistance = naver_distance(latlngs)
             fuelMoney = totalDistance * mpk
             Fuel.objects.create(
                 serviceId=Servicereport.objects.get(serviceId=serviceId),
-                distance1=distance1,
-                distance2=distance2,
-                distance3=distance3,
+                # distance1=distance1,
+                # distance2=diatance2,
+                # distance3=distance3,
                 totalDistance=totalDistance,
                 fuelMoney=fuelMoney,
             )
@@ -249,11 +256,6 @@ def approval_fuel(request, empId):
     startdate = str(datetime(y, m, 1).date())
     enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
     empName = Employee.objects.get(empId=empId).empName
-    # fuelStatus = Fuel.objects.filter(serviceId__empId=empId).values_list('fuelStatus').distinct()
-    # if 'N' in [i[0] for i in fuelStatus]:
-    #     approvalStatus = 'N'
-    # else:
-    #     approvalStatus = 'Y'
 
     context = {
         'startdate': startdate,
@@ -407,22 +409,29 @@ def fuel_asjson(request):
         )
 
         for service in services:
-            service['distance'] = latlng_distance(
-                service['beginLatitude'],
-                service['beginLongitude'],
-                service['startLatitude'],
-                service['startLongitude'],
-            ) + latlng_distance(
-                service['startLatitude'],
-                service['startLongitude'],
-                service['endLatitude'],
-                service['endLongitude'],
-            ) + latlng_distance(
-                service['endLatitude'],
-                service['endLongitude'],
-                service['finishLatitude'],
-                service['finishLongitude'],
-            )
+            # service['distance'] = latlng_distance(
+            #     service['beginLatitude'],
+            #     service['beginLongitude'],
+            #     service['startLatitude'],
+            #     service['startLongitude'],
+            # ) + latlng_distance(
+            #     service['startLatitude'],
+            #     service['startLongitude'],
+            #     service['endLatitude'],
+            #     service['endLongitude'],
+            # ) + latlng_distance(
+            #     service['endLatitude'],
+            #     service['endLongitude'],
+            #     service['finishLatitude'],
+            #     service['finishLongitude'],
+            # )
+            latlngs = [
+                [str(service['beginLatitude']), str(service['beginLongitude'])],
+                [str(service['startLatitude']), str(service['startLongitude'])],
+                [str(service['endLatitude']), str(service['endLongitude'])],
+                [str(service['finishLatitude']), str(service['finishLongitude'])],
+            ]
+            service['distance'] = naver_distance(latlngs)
             service['fuelMoney'] = service['distance'] * mpk
 
         structure = json.dumps(list(services), cls=DjangoJSONEncoder)
