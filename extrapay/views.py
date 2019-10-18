@@ -10,14 +10,18 @@ from django.db.models import Q, F, Value, FloatField, Max, Sum, Case, When, Inte
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template import loader
+from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from django.db.models.functions import Coalesce, Concat
+from xhtml2pdf import pisa
+from service.functions import link_callback
 
 from hr.models import Employee
 from service.models import Servicereport, Geolocation
 from service.functions import latlng_distance
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
 from .functions import cal_overhour, Round, cal_extraPay
+
 
 
 @login_required
@@ -56,7 +60,6 @@ def over_asjson(request):
         extrapay = ExtraPay.filter(Q(overHourDate__year=searchYear) & Q(overHourDate__month=searchMonth))
 
     extrapaylist = extrapay.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'payHour', 'compensatedComment', 'extraPayId')
-    print(extrapaylist)
     structure = json.dumps(list(extrapaylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -467,7 +470,7 @@ def view_overhour(request, extraPayId):
 
 
     if extrapay['payStatus'] == 'N':
-        real_extraPay = int((sum_overhours['sumOverhour']-extrapay['compensatedHour'])*1.5*extrapay['empId__empSalary'])
+        real_extraPay = int((sum_overhours['sumOverhour']-(extrapay['compensatedHour'] or 0))*1.5*extrapay['empId__empSalary'])
         if real_extraPay > 200000:
             real_extraPay = 200000
 
@@ -507,20 +510,40 @@ def overhour_all(request,searchdate):
     if request.method == 'POST':
         todayYear = int(request.POST['searchdate'][:4])
         todayMonth = int(request.POST['searchdate'][5:7])
+        today = request.POST['searchdate'][:7]
     else:
         todayYear = datetime.today().year
         todayMonth = datetime.today().month
+        today = '{}-{}'.format(todayYear, todayMonth)
 
-    extrapayInfra=cal_extraPay('인프라서비스사업팀', todayYear, todayMonth)
-    extrapaySolution=cal_extraPay('솔루션지원팀', todayYear, todayMonth)
-    extrapayDB=cal_extraPay('DB지원팀', todayYear, todayMonth)
-    extrapaySupport = cal_extraPay('경영지원본부', todayYear, todayMonth)
+    extrapayInfra, sumInfra = cal_extraPay('인프라서비스사업팀', todayYear, todayMonth)
+    extrapaySolution, sumSolution = cal_extraPay('솔루션지원팀', todayYear, todayMonth)
+    extrapayDB, sumDB = cal_extraPay('DB지원팀', todayYear, todayMonth)
+    extrapaySupport, sumSupport = cal_extraPay('미정', todayYear, todayMonth)
 
+    sumEmp = {'sumoverHour': 0, 'sumcompensatedHour': 0, 'sumoverandfoodCost': 0, 'sumfoodCost': 0, 'sumCost': 0}
 
+    for sum in [sumInfra, sumSolution, sumDB]:
+        sumEmp['sumoverHour'] += sum['sumoverHour']
+        sumEmp['sumcompensatedHour'] += sum['sumcompensatedHour']
+        sumEmp['sumoverandfoodCost'] += sum['sumoverandfoodCost']
+        sumEmp['sumfoodCost'] += sum['sumfoodCost']
+        sumEmp['sumCost'] += sum['sumCost']
+
+    sumAll = (sumEmp['sumCost'] or 0) + (sumSupport['sumCost'] or 0)
+    print('today:', today)
     context = {
-            'todayYear':todayYear,
-            'todayMonth':todayMonth
-               }
+            'today':today,
+            'todayYear': todayYear,
+            'todayMonth': todayMonth,
+            'extrapayInfra': extrapayInfra,
+            'extrapaySolution': extrapaySolution,
+            'extrapayDB': extrapayDB,
+            'extrapaySupport': extrapaySupport,
+            'sumEmp': sumEmp,
+            'sumSupport': sumSupport,
+            'sumAll': sumAll,
+            }
     return render(request, 'extrapay/overhourall.html', context)
 
 
@@ -622,4 +645,50 @@ def save_overhourtable(request):
         extraPay.save()
 
     return redirect('extrapay:overhour')
+
+
+@login_required
+def view_extrapay_pdf(request, yearmonth):
+    todayYear = int(yearmonth[:4])
+    todayMonth = int(yearmonth[5:7])
+
+    extrapayInfra, sumInfra = cal_extraPay('인프라서비스사업팀', todayYear, todayMonth)
+    extrapaySolution, sumSolution = cal_extraPay('솔루션지원팀', todayYear, todayMonth)
+    extrapayDB, sumDB = cal_extraPay('DB지원팀', todayYear, todayMonth)
+    extrapaySupport, sumSupport = cal_extraPay('미정', todayYear, todayMonth)
+
+    sumEmp = {'sumoverHour': 0, 'sumcompensatedHour': 0, 'sumoverandfoodCost': 0, 'sumfoodCost': 0, 'sumCost': 0}
+
+    for sum in [sumInfra, sumSolution, sumDB]:
+        sumEmp['sumoverHour'] += sum['sumoverHour']
+        sumEmp['sumcompensatedHour'] += sum['sumcompensatedHour']
+        sumEmp['sumoverandfoodCost'] += sum['sumoverandfoodCost']
+        sumEmp['sumfoodCost'] += sum['sumfoodCost']
+        sumEmp['sumCost'] += sum['sumCost']
+
+    sumAll = (sumEmp['sumCost'] or 0) + (sumSupport['sumCost'] or 0)
+    context = {
+        'todayYear': todayYear,
+        'todayMonth': todayMonth,
+        'extrapayInfra': extrapayInfra,
+        'extrapaySolution': extrapaySolution,
+        'extrapayDB': extrapayDB,
+        'extrapaySupport': extrapaySupport,
+        'sumEmp': sumEmp,
+        'sumSupport': sumSupport,
+        'sumAll': sumAll,
+    }
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{}년{}월시간외수당근무내역.pdf"'.format(todayYear,todayMonth)
+
+    template = get_template('extrapay/viewextrapaypdf.html')
+    html = template.render(context, request)
+    # create a pdf
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
 

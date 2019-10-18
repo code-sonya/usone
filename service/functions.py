@@ -127,54 +127,46 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
 
 
     minute_sum = 0
+    min_date = ''
+    max_date = ''
 
     s_week = d_start.weekday()
     f_week = d_finish.weekday()
 
     if s_week in [5, 6] or is_holiday_startdate != 0:  # 주말이거나 공휴일 일때
         if d_start.minute != 0:
-            print('1')
             minute_sum += (60 - d_start.minute)
-            print(minute_sum)
             d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-            print(d_start)
+            min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
 
     else:  # 평일 일때
         if d_start.minute != 0:  # 정각 시작하지 않은 경우
             if d_start.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
-                print('2')
                 minute_sum += (60 - d_start.minute)
-                print(minute_sum)
                 d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-                print(d_start)
+                min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
             else:  # 초과 근무에 해당 하지 않는 경우
-                print('3')
                 d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-                print(d_start)
 
     if f_week in [5, 6] or is_holiday_enddate != 0:  # 주말이거나 공휴일 일때
         if d_finish.minute != 0:
-            print('4')
             minute_sum += d_finish.minute
-            print('minute_sum:', minute_sum)
             d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
-            print(d_finish)
+            max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
 
     else:  # 평일 일때
         if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
             if d_finish.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
-                print('5')
                 minute_sum += d_finish.minute
-                print(minute_sum)
                 d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
-                print(d_finish)
+                max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
             else:
-                print('6')
                 d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
-                print(d_finish)
 
-    min_date = datetime.datetime(3000, 1, 31, 1, 0, 0)
-    max_date = datetime.datetime(1999, 1, 31, 1, 0, 0)
+    if min_date == '':
+        min_date = datetime.datetime(3000, 1, 31, 1, 0, 0)
+    if max_date == '':
+        max_date = datetime.datetime(1999, 1, 31, 1, 0, 0)
     for i in range(0, work_hours(d_start, d_finish), 1):
         a = (d_start + datetime.timedelta(hours=i))
         event_a = is_holiday(a.date())

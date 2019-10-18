@@ -1,0 +1,205 @@
+{% load staticfiles %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+  <meta charset="utf-8">
+
+  <style type="text/css">
+    /*@font-face {*/
+      /*font-family: KBIZHanmaumMyungjo;*/
+      /*src: url({% static '/mail/KBIZHanmaumMyungjo.ttf' %});*/
+    /*}*/
+
+    /*html {*/
+      /*font-family: KBIZHanmaumMyungjo, serif;*/
+    /*}*/
+
+    @font-face {
+      font-family: JejuGothic;
+      src: url({% static '/mail/JejuGothic.ttf' %});
+    }
+
+    html {
+      font-family: JejuGothic, serif;
+    }
+
+    @page {
+      size: A4 ;
+      margin-right: 10pt;
+      margin-left:10pt;
+      margin-top: 50pt;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid grey;
+    }
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 11px;
+      /*border-top: 1px dotted #858796a3;*/
+      background-color: #ebfaff;
+    }
+
+
+  </style>
+</head>
+<body>
+<div style="text-align: center;">
+  <strong style="font-size: 35px;">{{ todayYear }}년 {{ todayMonth }}월 시간외수당 근무내역</strong>
+</div>
+<br>
+<br>
+<br>
+<table width="300px" align="right">
+  <tr class="thtd" style="height: 30px">
+    <td class="thtd" rowspan="2" colspan="2" style="background-color:gainsboro">결재</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">담당자</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">팀장</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">사장</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">대표이사</td>
+  </tr>
+  <tr class="thtd" style="height: 70px">
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="2"></td>
+  </tr>
+</table>
+<div style="font-size: 14px">결재일자 : &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;년 &nbsp; &nbsp; &nbsp; &nbsp;월 &nbsp; &nbsp; &nbsp; &nbsp;일</div>
+<table class="pc-table">
+  <thead>
+  <tr class="bg-light thtd">
+    <td class="thtd" colspan="2">부서</td>
+    <td class="thtd">직급</td>
+    <td class="thtd">성명</td>
+    <td class="thtd">시간외근무시간</td>
+    <td class="thtd">휴가신청시간</td>
+    <td class="thtd">수당&식대</td>
+    <td class="thtd">수당외식대</td>
+    <td class="thtd">수당합계</td>
+  </tr>
+  </thead>
+  <tbody>
+  {% if extrapayInfra %}
+  {% for row in extrapayInfra %}
+  <tr class="thtd">
+    <td class="thtd" colspan="2" style="background-color: white">{{ row.empDeptName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
+    <td class="thtd" style="background-color: white">{{ row.compensatedHour }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumCost |floatformat:0|intcomma }}</td>
+  </tr>
+  {% endfor %}
+  {% endif %}
+  {% if extrapaySolution %}
+  {% for row in extrapaySolution %}
+  <tr class="thtd">
+    <td class="thtd" colspan="2" style="background-color: white">{{ row.empDeptName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
+    <td class="thtd" style="background-color: white">{{ row.compensatedHour }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumCost |floatformat:0|intcomma }}</td>
+  </tr>
+  {% endfor %}
+  {% endif %}
+  {% if extrapayDB %}
+  {% for row in extrapayDB %}
+  <tr class="thtd">
+    <td class="thtd" colspan="2" style="background-color: white">{{ row.empDeptName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
+    <td class="thtd" style="background-color: white">{{ row.compensatedHour }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumCost |floatformat:0|intcomma }}</td>
+  </tr>
+  {% endfor %}
+  {% endif %}
+  <tr class="thtd" style="background-color: lightsalmon">
+    <td class="thtd" colspan="4">소계</td>
+    <td class="thtd">{{ sumEmp.sumoverHour }}</td>
+    <td class="thtd">{{ sumEmp.sumcompensatedHour }}</td>
+    <td class="thtd">{{ sumEmp.sumoverandfoodCost |floatformat:0|intcomma }}</td>
+    <td class="thtd">{{ sumEmp.sumfoodCost |floatformat:0|intcomma }}</td>
+    <td class="thtd">{{ sumEmp.sumCost |floatformat:0|intcomma }}</td>
+  </tr>
+  </tbody>
+</table>
+<br>
+<table class="pc-table">
+  <thead>
+  <tr class="bg-light thtd">
+    <td class="thtd" colspan="2">부서</td>
+    <td class="thtd">직급</td>
+    <td class="thtd">성명</td>
+    <td class="thtd">평일심야근무일수</td>
+    <td class="thtd">주말근무일</td>
+    <td class="thtd">평일심야수당</td>
+    <td class="thtd">주말수당</td>
+    <td class="thtd">수당합계</td>
+  </tr>
+  </thead>
+  <tbody>
+  {% if extrapaySupport %}
+  {% for row in extrapaySupport %}
+  <tr class="thtd">
+    <td class="thtd" colspan="2" style="background-color: white">경영지원본부</td>
+    <td class="thtd" style="background-color: white">주임</td>
+    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumOverhourWeekday }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
+    <td class="thtd" style="background-color: white">{{ row.overHourCostWeekDay |floatformat:0|intcomma }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumOverhourCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumCost |floatformat:0|intcomma }}</td>
+  </tr>
+  {% endfor %}
+  {% endif %}
+  {% if extrapaySupport %}
+  {% for row in extrapaySupport %}
+  <tr class="thtd" style="background-color: lightsalmon">
+    <td class="thtd" colspan="4">소계</td>
+    <td class="thtd">{{ row.sumOverhourWeekday }}</td>
+    <td class="thtd">{{ row.sumOverhour }}</td>
+    <td class="thtd">{{ row.overHourCostWeekDay |floatformat:0|intcomma }}</td>
+    <td class="thtd">{{ row.sumOverhourCost |floatformat:0|intcomma }}</td>
+    <td class="thtd">{{ row.sumCost |floatformat:0|intcomma }}</td>
+  </tr>
+  {% endfor %}
+  {% endif %}
+  </tbody>
+</table>
+<br>
+<div class="float-right">
+  <table class="pc-table" style="border-color: white;">
+    <tbody>
+    <tr>
+      <td colspan="10" style="border-color: white;background-color:white"></td>
+      <td class="thtd" colspan="4" style="background-color: lightsalmon">총 합계</td>
+      <td class="thtd" colspan="4" style="background-color: lightsalmon">{{ sumAll |floatformat:0|intcomma }}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

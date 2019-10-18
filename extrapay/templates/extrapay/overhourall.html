@@ -1,6 +1,5 @@
 {% extends "dashboard/layout.html" %}
-
-
+{% load humanize %}
 {% block title %}
   월별 시간외수당 현황
 {% endblock %}
@@ -14,7 +13,6 @@
       color: #333333;
       table-layout: fixed;
       width: 100%;
-      border-collapse: collapse;
       margin-bottom: 1rem;
     }
 
@@ -49,6 +47,10 @@
           <h6 class="m-0 h3 text-gray-800">{{ todayYear }}년 {{ todayMonth }}월 시간외수당 근무내역</h6>
 
           <div class="dropdown no-arrow">
+            <a class="mr-3" onclick="location.href='/extrapay/viewextrapaypdf/{{ today }}/'">
+              <i class="fas fa-download fa-fw text-gray-400"></i>
+            </a>
+
             <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter fa-fw text-gray-400"></i>
             </a>
@@ -59,24 +61,66 @@
           <table class="pc-table">
             <thead>
               <tr class="bg-light thtd">
-                <td>부서</td>
-                <td>직급</td>
-                <td>성명</td>
-                <td>시간외근무시간</td>
-                <td>휴가사용시간</td>
-                <td colspan="2">수당&식대</td>
-                <td colspan="2">수당외식대</td>
-                <td colspan="2">시간외수당합계</td>
+                <td class="thtd">부서</td>
+                <td class="thtd">직급</td>
+                <td class="thtd">성명</td>
+                <td class="thtd">시간외근무시간</td>
+                <td class="thtd">휴가신청시간</td>
+                <td class="thtd">수당&식대</td>
+                <td class="thtd">수당외식대</td>
+                <td class="thtd">시간외수당합계</td>
               </tr>
             </thead>
             <tbody>
-              <tr class="bg-primary text-white">
-                <td colspan="3">합계</td>
-                <td>??</td>
-                <td>??</td>
-                <td colspan="2">??</td>
-                <td colspan="2">??</td>
-                <td colspan="2">??</td>
+            {% if extrapayInfra %}
+              {% for row in extrapayInfra %}
+              <tr class="thtd">
+                <td class="thtd">{{ row.empDeptName }}</td>
+                <td class="thtd">{{ row.empPosition }}</td>
+                <td class="thtd"><a href="/extrapay/viewoverhour/{{ row.extraPayId }}/">{{ row.empName }}</a></td>
+                <td class="thtd">{{ row.sumOverhour }}</td>
+                <td class="thtd">{{ row.compensatedHour }}</td>
+                <td class="thtd">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ row.sumFoodCost |floatformat:0|intcomma  }}</td>
+                <td class="thtd">{{ row.sumCost |floatformat:0|intcomma  }}</td>
+              </tr>
+              {% endfor %}
+            {% endif %}
+            {% if extrapaySolution %}
+              {% for row in extrapaySolution %}
+              <tr class="thtd">
+                <td class="thtd">{{ row.empDeptName }}</td>
+                <td class="thtd">{{ row.empPosition }}</td>
+                <td class="thtd"><a href="/extrapay/viewoverhour/{{ row.extraPayId }}/">{{ row.empName }}</a></td>
+                <td class="thtd">{{ row.sumOverhour }}</td>
+                <td class="thtd">{{ row.compensatedHour }}</td>
+                <td class="thtd">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ row.sumCost |floatformat:0|intcomma }}</td>
+              </tr>
+              {% endfor %}
+            {% endif %}
+            {% if extrapayDB %}
+              {% for row in extrapayDB %}
+              <tr class="thtd">
+                <td class="thtd">{{ row.empDeptName }}</td>
+                <td class="thtd">{{ row.empPosition }}</td>
+                <td class="thtd"><a href="/extrapay/viewoverhour/{{ row.extraPayId }}/">{{ row.empName }}</a></td>
+                <td class="thtd">{{ row.sumOverhour }}</td>
+                <td class="thtd">{{ row.compensatedHour }}</td>
+                <td class="thtd">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ row.sumCost |floatformat:0|intcomma }}</td>
+              </tr>
+              {% endfor %}
+            {% endif %}
+              <tr class="thtd" style="background-color: lightsalmon">
+                <td class="thtd" colspan="3">소계</td>
+                <td class="thtd">{{ sumEmp.sumoverHour }}</td>
+                <td class="thtd">{{ sumEmp.sumcompensatedHour }}</td>
+                <td class="thtd">{{ sumEmp.sumoverandfoodCost |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ sumEmp.sumfoodCost |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ sumEmp.sumCost |floatformat:0|intcomma }}</td>
               </tr>
             </tbody>
           </table>
@@ -84,28 +128,56 @@
           <table class="pc-table">
             <thead>
               <tr class="bg-light thtd">
-                <td>부서</td>
-                <td>직급</td>
-                <td>성명</td>
-                <td>평일심야근무일수</td>
-                <td>주말근무일수</td>
-                <td colspan="2">평일심야근무수당</td>
-                <td colspan="2">주말근무수당</td>
-                <td colspan="2">시간외수당합계</td>
+                <td class="thtd">부서</td>
+                <td class="thtd">직급</td>
+                <td class="thtd">성명</td>
+                <td class="thtd">평일심야근무일수</td>
+                <td class="thtd">주말근무일수</td>
+                <td class="thtd">평일심야근무수당</td>
+                <td class="thtd">주말근무수당</td>
+                <td class="thtd">시간외수당합계</td>
               </tr>
             </thead>
             <tbody>
-              <tr class="bg-primary text-white">
-                <td colspan="3">합계</td>
-                <td>??</td>
-                <td>??</td>
-                <td colspan="2">??</td>
-                <td colspan="2">??</td>
-                <td colspan="2">??</td>
+              {% if extrapaySupport %}
+              {% for row in extrapaySupport %}
+              <tr class="thtd">
+                <td class="thtd">경영지원본부</td>
+                <td class="thtd">주임</td>
+                <td class="thtd"><a href="/extrapay/viewoverhour/{{ row.extraPayId }}/">{{ row.empName }}</a></td>
+                <td class="thtd">{{ row.sumOverhourWeekday }}</td>
+                <td class="thtd">{{ row.sumOverhour }}</td>
+                <td class="thtd">{{ row.overHourCostWeekDay |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ row.sumOverhourCost |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ row.sumCost |floatformat:0|intcomma }}</td>
               </tr>
+              {% endfor %}
+            {% endif %}
+               {% if extrapaySupport %}
+              {% for row in extrapaySupport %}
+              <tr class="thtd" style="background-color: lightsalmon">
+                <td class="thtd" colspan="3">소계</td>
+                <td class="thtd">{{ row.sumOverhourWeekday }}</td>
+                <td class="thtd">{{ row.sumOverhour }}</td>
+                <td class="thtd">{{ row.overHourCostWeekDay |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ row.sumOverhourCost |floatformat:0|intcomma }}</td>
+                <td class="thtd">{{ row.sumCost |floatformat:0|intcomma }}</td>
+              </tr>
+              {% endfor %}
+            {% endif %}
             </tbody>
           </table>
-
+          <div class="float-right">
+            <table class="pc-table" style="border-color: white;">
+              <tbody>
+              <tr>
+                <td colspan="10" style="border-color: white;"></td>
+                <td class="thtd" colspan="2" style="background-color: lightsalmon">총 합계</td>
+                <td class="thtd" colspan="4" style="background-color: lightsalmon">{{ sumAll |floatformat:0|intcomma }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
 
         </div>
 
