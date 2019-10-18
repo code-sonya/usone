@@ -4,8 +4,8 @@ from .models import OverHour, ExtraPay
 from service.models import Servicereport, Vacation
 from scheduler.models import Eventday
 import datetime
+from usone.security import naverMapId, naverMapKey
 from django.db.models import Q, F, Value, FloatField, Max, Sum, Case, When, IntegerField, Count, Func
-# import pycurl
 
 
 def cal_overhour(services):
@@ -90,7 +90,3 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
 class Round(Func):
     function = 'ROUND'
     template='%(function)s(%(expressions)s, 2)'
-
-
-# def naver_distance(lat1, lng1, lat2, lng2):
-#

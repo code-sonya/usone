@@ -837,6 +837,14 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         post = Geolocation.objects.get(serviceId=serviceId)
         post.finishLatitude = float(latitude)
         post.finishLongitude = float(longitude)
+        latlngs = [
+            [post.beginLatitude, post.beginLongitude],
+            [post.startLatitude, post.startLongitude],
+            [post.endLatitude, post.endLongitude],
+            [post.finishLatitude, post.finishLongitude],
+        ]
+        post.distance = naver_distance(latlngs)[0]
+        post.distanceCode = naver_distance(latlngs)[1]
         post.save()
         service.serviceFinishDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))

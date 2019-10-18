@@ -123,6 +123,8 @@ class Geolocation(models.Model):
     endLongitude = models.FloatField(null=True, blank=True)
     finishLatitude = models.FloatField(null=True, blank=True)
     finishLongitude = models.FloatField(null=True, blank=True)
+    distance = models.FloatField(default=0)
+    distanceCode = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.serviceId)

@@ -190,15 +190,14 @@
                   },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                const today = new Date();
-                const startdate = new Date(aData.serviceEndDatetime);
-                if (startdate <= today && aData.serviceStatus === 'N') {
-                    $('td', nRow).css('background-color', '#fff2f9').css('color', 'red');
-                } else if (aData.serviceStatus === "Y") {
-                    $('td', nRow).css('background-color', '#f2f2f2');
-                } else {
-                    $('td', nRow).css('background-color', '#ffffff');
-                }
+                $('td:eq(3)', nRow).text(aData.progress + '건');
+                $('td:eq(3)', nRow).addClass('text-dark font-weight-bold');
+                $('td:eq(4)', nRow).text(aData.approval + '건');
+                $('td:eq(4)', nRow).addClass('text-primary font-weight-bold');
+                $('td:eq(5)', nRow).text(aData.reject + '건');
+                $('td:eq(5)', nRow).addClass('text-danger font-weight-bold');
+                $('td:eq(6)', nRow).text(aData.sum_distance.toLocaleString() + 'km');
+                $('td:eq(8)', nRow).text(aData.sum_fuelMoney.toLocaleString() + '원');
             }
         });
 
