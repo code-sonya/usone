@@ -124,6 +124,7 @@ class Geolocation(models.Model):
     finishLatitude = models.FloatField(null=True, blank=True)
     finishLongitude = models.FloatField(null=True, blank=True)
     distance = models.FloatField(default=0)
+    path = models.TextField(default='')
     distanceCode = models.IntegerField(default=0)
 
     def __str__(self):

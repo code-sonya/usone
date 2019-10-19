@@ -138,27 +138,37 @@
 
   <!-- Map Modal -->
   <div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="mapModalLabel">검색조건</h5>
+          <h5 class="modal-title" id="mapModalLabel">이동경로 확인</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
 
         <div class="modal-body">
-          <form id="mapForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+          <form id="mapForm" method="POST" action="/extrapay/postdistance/" onkeydown="javascript: if (event.keyCode == 13) {btn_post_distance();}">
             {% csrf_token %}
-            <label for="findDate" class="font-weight-light text-primary">검색 일자</label>
-            <input type="month" max="9999-12" class="form-control" id="findDate" name="findDate" value="{{ startdate | slice:'0:7' }}">
+            <input class="d-none" name="empId" value="{{ empId }}">
+            <input class="d-none" id="serviceId" name="serviceId" value="">
+            여기에다가 맵 추가해주면 됨.
+            <div class="row">
+              <div class="col-6">
+                <label for="distance" class="font-weight-light text-primary">거리 수정</label>
+                <input class="form-control" id="distance" name="distance" value="">
+              </div>
+              <div class="col-6">
+                <label for="distanceMessage" class="font-weight-light text-primary">길찾기 상태</label>
+                <div id="distanceMessage"></div>
+              </div>
+            </div>
           </form>
         </div>
 
         <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+          <a class="btn btn-info" href="#" onclick="btn_post_distance()">적용</a>
         </div>
       </div>
     </div>
@@ -172,6 +182,11 @@
     function btn_filter() {
         const filterForm = document.getElementById('filterForm');
         filterForm.submit();
+    }
+
+    function btn_post_distance() {
+        const mapForm = document.getElementById('mapForm');
+        mapForm.submit();
     }
 
     function btn_post() {
@@ -214,7 +229,32 @@
         }
     }
 
-    function btn_map() {
+    function btn_map(serviceId) {
+        console.log(serviceId);
+        $.ajax({
+            url: "{% url 'extrapay:approvalfuelasjson' %}",
+            method: 'GET',
+            cache: false,
+            data: {"serviceId": serviceId},
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData){
+                const beginLatitude = returnData.beginLatitude;
+                const beginLongitude = returnData.beginLongitude;
+                const startLatitude = returnData.startLatitude;
+                const startLongitude = returnData.startLongitude;
+                const endLatitude = returnData.endLatitude;
+                const endLongitude = returnData.endLongitude;
+                const finishLatitude = returnData.finishLatitude;
+                const finishLongitude = returnData.finishLongitude;
+                const distance = returnData.distance;
+                const distanceMessage = returnData.distanceMessage;
+                const serviceId = returnData.serviceId;
+
+                $('#serviceId').val(serviceId);
+                $('#distance').val(distance);
+                $('#distanceMessage').text(distanceMessage);
+            }
+        });
         $('#mapModal').modal('show');
     }
 
@@ -342,7 +382,8 @@
 
                 $('td:eq(4)', nRow).html(
                     aData.distance.toLocaleString() + 'km ' +
-                    '<i class="fas fa-map-marked fa-fw text-gray-400" onclick=btn_map()></i>'
+                    '<i class="fas fa-car-side fa-fw text-warning" ' +
+                    'onclick=btn_map("' + aData.serviceId__serviceId + '")></i>'
                 );
                 $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             },

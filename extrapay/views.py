@@ -210,7 +210,7 @@ def post_fuel(request):
         serviceIds = json.loads(request.POST['serviceId'])
         for serviceId in serviceIds:
             geo = Geolocation.objects.get(serviceId=serviceId)
-            fuelMoney = geo.distance * mpk
+            fuelMoney = geo.distance * 1.2 * mpk
             Fuel.objects.create(
                 serviceId=Servicereport.objects.get(serviceId=serviceId),
                 fuelMoney=fuelMoney,
@@ -274,59 +274,90 @@ def approval_post_fuel(request):
 @login_required
 @csrf_exempt
 def approvalfuel_asjson(request):
-    empId = request.POST['empId']
-    startdate = request.POST['startdate']
-    enddate = request.POST['enddate']
-    status = request.POST['status']
+    if request.method == 'POST':
+        empId = request.POST['empId']
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        status = request.POST['status']
 
-    if status == 'N':
-        services = Fuel.objects.select_related().filter(
-            Q(serviceId__empId=empId) &
-            Q(serviceId__serviceStatus='Y') &
-            Q(serviceId__serviceDate__gte=startdate) &
-            Q(serviceId__serviceDate__lte=enddate) &
-            Q(fuelStatus='N')
-        ).annotate(
-            serviceDate=F('serviceId__serviceDate'),
-            companyName=F('serviceId__companyName__companyName'),
-            serviceTitle=F('serviceId__serviceTitle'),
-        )
+        if status == 'N':
+            services = Fuel.objects.select_related().filter(
+                Q(serviceId__empId=empId) &
+                Q(serviceId__serviceStatus='Y') &
+                Q(serviceId__serviceDate__gte=startdate) &
+                Q(serviceId__serviceDate__lte=enddate) &
+                Q(fuelStatus='N')
+            ).annotate(
+                serviceDate=F('serviceId__serviceDate'),
+                companyName=F('serviceId__companyName__companyName'),
+                serviceTitle=F('serviceId__serviceTitle'),
+            )
 
-        services = services.values(
-            'fuelId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
-            'fuelMoney', 'comment', 'fuelStatus',
-        )
-        for service in services:
-            service['distance'] = Geolocation.objects.get(
-                serviceId=service['serviceId__serviceId']
-            ).distance
+            services = services.values(
+                'fuelId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
+                'fuelMoney', 'comment', 'fuelStatus',
+            )
+            for service in services:
+                service['distance'] = Geolocation.objects.get(
+                    serviceId=service['serviceId__serviceId']
+                ).distance
 
-        structure = json.dumps(list(services), cls=DjangoJSONEncoder)
-        return HttpResponse(structure, content_type='application/json')
+            structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+            return HttpResponse(structure, content_type='application/json')
 
-    elif status == 'YR':
-        services = Fuel.objects.select_related().filter(
-            Q(serviceId__empId=empId) &
-            Q(serviceId__serviceStatus='Y') &
-            Q(serviceId__serviceDate__gte=startdate) &
-            Q(serviceId__serviceDate__lte=enddate) &
-            Q(fuelStatus__in=['Y', 'R'])
-        ).annotate(
-            serviceDate=F('serviceId__serviceDate'),
-            companyName=F('serviceId__companyName__companyName'),
-            serviceTitle=F('serviceId__serviceTitle'),
-        )
+        elif status == 'YR':
+            services = Fuel.objects.select_related().filter(
+                Q(serviceId__empId=empId) &
+                Q(serviceId__serviceStatus='Y') &
+                Q(serviceId__serviceDate__gte=startdate) &
+                Q(serviceId__serviceDate__lte=enddate) &
+                Q(fuelStatus__in=['Y', 'R'])
+            ).annotate(
+                serviceDate=F('serviceId__serviceDate'),
+                companyName=F('serviceId__companyName__companyName'),
+                serviceTitle=F('serviceId__serviceTitle'),
+            )
 
-        services = services.values(
-            'fuelId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
-            'fuelMoney', 'comment', 'fuelStatus',
-        )
-        for service in services:
-            service['distance'] = Geolocation.objects.get(
-                serviceId=service['serviceId__serviceId']
-            ).distance
+            services = services.values(
+                'fuelId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
+                'fuelMoney', 'comment', 'fuelStatus',
+            )
+            for service in services:
+                service['distance'] = Geolocation.objects.get(
+                    serviceId=service['serviceId__serviceId']
+                ).distance
 
-        structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+            structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+            return HttpResponse(structure, content_type='application/json')
+    elif request.method == 'GET':
+        geo = Geolocation.objects.get(serviceId=request.GET['serviceId'])
+        distanceMessage = '정상'
+        if geo.distanceCode == 1:
+            distanceMessage = '출발지와 도착지가 동일'
+        elif geo.distanceCode == 2:
+            distanceMessage = '출발지 또는 도착지가 도로 주변이 아님'
+        elif geo.distanceCode == 3:
+            distanceMessage = '자동차 길찾기 결과 제공 불가'
+        elif geo.distanceCode == 4:
+            distanceMessage = '경유지가 도로 주변이 아님'
+        elif geo.distanceCode == 5:
+            distanceMessage = '요청 경로가 1500km 이상'
+
+        geos = {
+            'beginLatitude': geo.beginLatitude,
+            'beginLongitude': geo.beginLongitude,
+            'startLatitude': geo.startLatitude,
+            'startLongitude': geo.startLongitude,
+            'endLatitude': geo.endLatitude,
+            'endLongitude': geo.endLongitude,
+            'finishLatitude': geo.finishLatitude,
+            'finishLongitude': geo.finishLongitude,
+            'distance': geo.distance,
+            'distanceMessage': distanceMessage,
+            'serviceId': request.GET['serviceId']
+        }
+
+        structure = json.dumps(geos, cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
 
 
@@ -679,3 +710,9 @@ def view_extrapay_pdf(request, yearmonth):
     return response
 
 
+def post_distance(request):
+    if request.method == 'POST':
+        geo = Geolocation.objects.get(serviceId=request.POST['serviceId'])
+        geo.distance = request.POST['distance']
+        geo.save()
+        return redirect('extrapay:approvalfuel', request.POST['empId'])

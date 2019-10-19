@@ -651,9 +651,11 @@ def naver_distance(latlngs):
     body = json.loads(body)
     distanceCode = body['code']
     if distanceCode > 0:
+        path = ''
         distance = 0
     else:
+        path = body['route']['tracomfort'][0]['path']
         distance = round((body['route']['tracomfort'][0]['summary']['distance'] / 1000), 1)
     buffer.close()
 
-    return distance, distanceCode
+    return distance, path, distanceCode
