@@ -8,12 +8,12 @@
 
   <style type="text/css">
     /*@font-face {*/
-      /*font-family: KBIZHanmaumMyungjo;*/
-      /*src: url({% static '/mail/KBIZHanmaumMyungjo.ttf' %});*/
+    /*font-family: KBIZHanmaumMyungjo;*/
+    /*src: url({% static '/mail/KBIZHanmaumMyungjo.ttf' %});*/
     /*}*/
 
     /*html {*/
-      /*font-family: KBIZHanmaumMyungjo, serif;*/
+    /*font-family: KBIZHanmaumMyungjo, serif;*/
     /*}*/
 
     @font-face {
@@ -28,7 +28,7 @@
     @page {
       size: A4 ;
       margin-right: 10pt;
-      margin-left:10pt;
+      margin-left: 10pt;
       margin-top: 50pt;
     }
 
@@ -97,7 +97,11 @@
   {% if extrapayInfra %}
   {% for row in extrapayInfra %}
   <tr class="thtd">
-    <td class="thtd" colspan="2" style="background-color: white">{{ row.empDeptName }}</td>
+    {% ifchanged row.empDeptName %}
+    <td class="thtd" colspan="2">{{ row.empDeptName }}</td>
+    {% else %}
+    <td class="thtd" colspan="2" style="background-color: white"></td>
+    {% endifchanged %}
     <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
     <td class="thtd" style="background-color: white">{{ row.empName }}</td>
     <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
@@ -111,7 +115,11 @@
   {% if extrapaySolution %}
   {% for row in extrapaySolution %}
   <tr class="thtd">
-    <td class="thtd" colspan="2" style="background-color: white">{{ row.empDeptName }}</td>
+    {% ifchanged row.empDeptName %}
+    <td class="thtd" colspan="2">{{ row.empDeptName }}</td>
+    {% else %}
+    <td class="thtd" colspan="2" style="background-color: white"></td>
+    {% endifchanged %}
     <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
     <td class="thtd" style="background-color: white">{{ row.empName }}</td>
     <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
@@ -125,7 +133,11 @@
   {% if extrapayDB %}
   {% for row in extrapayDB %}
   <tr class="thtd">
-    <td class="thtd" colspan="2" style="background-color: white">{{ row.empDeptName }}</td>
+    {% ifchanged row.empDeptName %}
+    <td class="thtd" colspan="2">{{ row.empDeptName }}</td>
+    {% else %}
+    <td class="thtd" colspan="2" style="background-color: white"></td>
+    {% endifchanged %}
     <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
     <td class="thtd" style="background-color: white">{{ row.empName }}</td>
     <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
@@ -164,7 +176,7 @@
   {% if extrapaySupport %}
   {% for row in extrapaySupport %}
   <tr class="thtd">
-    <td class="thtd" colspan="2" style="background-color: white">경영지원본부</td>
+    <td class="thtd" colspan="2" >경영지원본부</td>
     <td class="thtd" style="background-color: white">주임</td>
     <td class="thtd" style="background-color: white">{{ row.empName }}</td>
     <td class="thtd" style="background-color: white">{{ row.sumOverhourWeekday }}</td>
