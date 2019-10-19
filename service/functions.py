@@ -140,9 +140,16 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
 
     if s_week in [5, 6] or is_holiday_startdate != 0:  # 주말이거나 공휴일 일때
         if d_start.minute != 0:
-            minute_sum += (60 - d_start.minute)
-            d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-            min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
+            if d_start.hour == d_finish.hour and d_start.date() == d_finish.date():
+                minute_sum += (d_finish.minute - d_start.minute)
+                min_date = d_start
+                max_date = d_finish
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                d_finish = d_finish + datetime.timedelta(minutes=(60 - d_finish.minute))
+            else:
+                minute_sum += (60 - d_start.minute)
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
 
     else:  # 평일 일때
         if d_start.minute != 0:  # 정각 시작하지 않은 경우
@@ -155,9 +162,10 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
 
     if f_week in [5, 6] or is_holiday_enddate != 0:  # 주말이거나 공휴일 일때
         if d_finish.minute != 0:
-            minute_sum += d_finish.minute
-            d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
-            max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
+            if d_start.hour != d_finish.hour and d_start.date() == d_finish.date():
+                minute_sum += d_finish.minute
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+                max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
 
     else:  # 평일 일때
         if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
@@ -180,10 +188,13 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
         if d_start <= a <= d_finish:
             if a_week in [5, 6] or event_a != 0:  # 주말이나 공휴일
                 if d_start.date() == d_finish.date():
-                    minute_sum += int((d_finish - d_start).seconds / 60)
-                    min_date = d_start
-                    max_date = d_finish
-                    break
+                    if d_start.hour !=d_finish.hour:
+                        break
+                    else:
+                        minute_sum += int((d_finish - d_start).seconds / 60)
+                        min_date = d_start
+                        max_date = d_finish
+                        break
                 elif d_finish == a:
                     pass
                 else:
@@ -205,6 +216,8 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
 
                         if a > max_date:
                             max_date = a
+        else:
+            print('else')
     if max_date != datetime.datetime(1999, 1, 31, 1, 0, 0):
         max_date = max_date + datetime.timedelta(minutes=60)
     if max_date.hour == 5 and o_finish.hour == 5 and o_finish.minute != 0:
