@@ -2,48 +2,48 @@
 
 
 {% block title %}
-  유류비현황
+유류비현황
 {% endblock %}
 
 
 {% block css %}
 
-  <style type="text/css">
+<style type="text/css">
 
-  </style>
+</style>
 
 {% endblock %}
 
 
 {% block content %}
 
-  <div class="row">
-    <div class="col-xl-12">
-      <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">
-            {{ startdate | slice:'0:4' }}년 {{ startdate | slice:'5:7' }}월 {{ empName }}님 유류비 신청현황
-          </h6>
-          <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-              <i class="fas fa-filter fa-fw text-gray-400"></i>
-            </a>
-          </div>
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800">
+          {{ startdate | slice:'0:4' }}년 {{ startdate | slice:'5:7' }}월 {{ empName }}님 유류비 신청현황
+        </h6>
+        <div class="dropdown no-arrow">
+          <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+            <i class="fas fa-filter fa-fw text-gray-400"></i>
+          </a>
         </div>
-        <div class="card-body">
-          <h5 class="text-dark font-weight-bold">▼ 완료</h5>
-          <div class="table-responsive">
-            <table id="yrapprovalfuel" class="hover row-border" width="100%" style="width: 100%;">
+      </div>
+      <div class="card-body">
+        <h5 class="text-dark font-weight-bold">▼ 완료</h5>
+        <div class="table-responsive">
+          <table id="yrapprovalfuel" class="hover row-border" width="100%" style="width: 100%;">
             <thead>
-              <tr>
-                <th>단계</th>
-                <th>날짜</th>
-                <th>고객사</th>
-                <th>제목</th>
-                <th>이동거리</th>
-                <th>유류비</th>
-                <th>반려사유</th>
-              </tr>
+            <tr>
+              <th>단계</th>
+              <th>날짜</th>
+              <th>고객사</th>
+              <th>제목</th>
+              <th>이동거리</th>
+              <th>유류비</th>
+              <th>반려사유</th>
+            </tr>
             </thead>
             <tfoot>
             <tr>
@@ -58,24 +58,24 @@
               </th>
             </tr>
             </tfoot>
-            </table>
-          </div>
-          <h5 class="text-dark font-weight-bold">▼ 진행</h5>
-          <div class="table-responsive">
-            <table id="napprovalfuel" class="hover row-border" width="100%" style="width: 100%;">
+          </table>
+        </div>
+        <h5 class="text-dark font-weight-bold">▼ 진행</h5>
+        <div class="table-responsive">
+          <table id="napprovalfuel" class="hover row-border" width="100%" style="width: 100%;">
             <thead>
-              <tr>
-                <th>단계</th>
-                <th>날짜</th>
-                <th>고객사</th>
-                <th>제목</th>
-                <th>이동거리</th>
-                <th>유류비</th>
-                <th>승인</th>
-                <th>반려</th>
-                <th>반려사유</th>
-                <th class="d-none">fuelId</th>
-              </tr>
+            <tr>
+              <th>단계</th>
+              <th>날짜</th>
+              <th>고객사</th>
+              <th>제목</th>
+              <th>이동거리</th>
+              <th>유류비</th>
+              <th>승인</th>
+              <th>반려</th>
+              <th>반려사유</th>
+              <th class="d-none">fuelId</th>
+            </tr>
             </thead>
             <tfoot>
             <tr>
@@ -90,95 +90,101 @@
               <th style="padding: 8px 10px; text-align: center"></th>
             </tr>
             </tfoot>
-            </table>
-          </div>
-          <br>
-          <div class="text-center">
-            <form id="approvalfuelForm" method="POST" action="/extrapay/approvalpostfuel/">
-            {% csrf_token %}
-              <input class="d-none" name="empId" value="{{ empId }}">
-            </form>
-            <a href="#" class="btn btn-success btn-icon-split" onclick="btn_post()">
-              <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-              <span class="text"> 완료 </span>
-            </a>
-          </div>
+          </table>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filter Modal -->
-  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
-            {% csrf_token %}
-            <label for="findDate" class="font-weight-light text-primary">검색 일자</label>
-            <input type="month" max="9999-12" class="form-control" id="findDate" name="findDate" value="{{ startdate | slice:'0:7' }}">
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Map Modal -->
-  <div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="mapModalLabel">이동경로 확인</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="mapForm" method="POST" action="/extrapay/postdistance/" onkeydown="javascript: if (event.keyCode == 13) {btn_post_distance();}">
+        <br>
+        <div class="text-center">
+          <form id="approvalfuelForm" method="POST" action="/extrapay/approvalpostfuel/">
             {% csrf_token %}
             <input class="d-none" name="empId" value="{{ empId }}">
-            <input class="d-none" id="serviceId" name="serviceId" value="">
-            여기에다가 맵 추가해주면 됨.
-            <div class="row">
-              <div class="col-6">
-                <label for="distance" class="font-weight-light text-primary">거리 수정</label>
-                <input class="form-control" id="distance" name="distance" value="">
-              </div>
-              <div class="col-6">
-                <label for="distanceMessage" class="font-weight-light text-primary">길찾기 상태</label>
-                <div id="distanceMessage"></div>
-              </div>
-            </div>
           </form>
-        </div>
-
-        <div class="modal-footer">
-          <a class="btn btn-info" href="#" onclick="btn_post_distance()">적용</a>
+          <a href="#" class="btn btn-success btn-icon-split" onclick="btn_post()">
+            <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+            <span class="text"> 완료 </span>
+          </a>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header bg-info text-gray-100">
+        <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span class="text-gray-100" aria-hidden="true">×</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+          {% csrf_token %}
+          <label for="findDate" class="font-weight-light text-primary">검색 일자</label>
+          <input type="month" max="9999-12" class="form-control" id="findDate" name="findDate" value="{{ startdate | slice:'0:7' }}">
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+        <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--  Modal -->
+<div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="mapModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header bg-info text-gray-100">
+        <h5 class="modal-title" id="mapModalLabel">이동경로 확인</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span class="text-gray-100" aria-hidden="true">×</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="mapForm" method="POST" action="/extrapay/postdistance/" onkeydown="javascript: if (event.keyCode == 13) {btn_post_distance();}">
+          {% csrf_token %}
+          <input class="d-none" name="empId" value="{{ empId }}">
+          <input class="d-none" id="serviceId" name="serviceId" value="">
+          <div id="map" style="width:100%;height:300px;" class="mb-3"></div>
+          <div class="row">
+            <div class="col-4">
+              <label for="distanceMessage" class="font-weight-light text-primary">길찾기 상태</label>
+              <div id="distanceMessage"></div>
+            </div>
+            <div class="col-4">
+              <label for="distance" class="font-weight-light text-primary">측정 거리(km)</label>
+              <div id="realdistance"></div>
+            </div>
+            <div class="col-4">
+              <label for="distance" class="font-weight-light text-primary">거리 수정(km)</label>
+              <input class="form-control" id="distance" name="distance" value="">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <a class="btn btn-info" href="#" onclick="btn_post_distance()">적용</a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 
 {% block script %}
 
-  <script type="text/javascript">
+<script src="https://maps.google.com/maps/api/js?key={{ testMAP_KEY }}"></script>
+
+<script type="text/javascript">
     function btn_filter() {
         const filterForm = document.getElementById('filterForm');
         filterForm.submit();
@@ -197,7 +203,7 @@
         const yidList = [];
         const nidList = [];
         for (var i = 2; i <= length - 1; i++) {
-            var YN = $(":input:radio[name=rdbt" + fuelId.eq(i).text() +"]:checked").val();
+            var YN = $(":input:radio[name=rdbt" + fuelId.eq(i).text() + "]:checked").val();
             if (YN === 'Y') {
                 yidList.push(fuelId.eq(i).text());
             } else if (YN === 'N') {
@@ -229,15 +235,56 @@
         }
     }
 
+    function initMap(path, pathCenterLat, pathCenterLong) {
+        const path_lst = new Array();
+        for (let i = 0; i < path.length; i++) {
+            path_lst.push({lat: parseFloat(path[i][1]), lng: parseFloat(path[i][0])});
+        }
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: new google.maps.LatLng(pathCenterLat, pathCenterLong),
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            zoom: 13
+        });
+        var flightPlanCoordinates = path_lst;
+        var flightPath = new google.maps.Polyline({
+            path: flightPlanCoordinates,
+            geodesic: true,
+            strokeColor: '#ff2b39',
+            strokeOpacity: 1.0,
+            strokeWeight: 4
+        });
+        flightPath.setMap(map);
+
+        // 마커
+        // let location, msg;
+        // let len = path_lst.length-1;
+        // console.log(len);
+        //
+        // for(let i=0; i<2; i++)
+        // {
+        //     if(i == 0){
+        //         location = new google.maps.LatLng(parseFloat(path_lst[0][1]), parseFloat(path_lst[0][0]));
+        //         msg='출발지'
+        //     }else{
+        //         location = new google.maps.LatLng(parseFloat(path_lst[len][1]), parseFloat(path_lst[len][0]));
+        //         msg='도착지'
+        //     }
+        //     marker = new google.maps.Marker({
+        //         position: location,
+        //     });
+        //     marker.setMap(map);
+        //
+        // }
+    }
+
     function btn_map(serviceId) {
-        console.log(serviceId);
         $.ajax({
             url: "{% url 'extrapay:approvalfuelasjson' %}",
             method: 'GET',
             cache: false,
             data: {"serviceId": serviceId},
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            success: function (returnData){
+            success: function (returnData) {
                 const beginLatitude = returnData.beginLatitude;
                 const beginLongitude = returnData.beginLongitude;
                 const startLatitude = returnData.startLatitude;
@@ -249,9 +296,15 @@
                 const distance = returnData.distance;
                 const distanceMessage = returnData.distanceMessage;
                 const serviceId = returnData.serviceId;
+                const path = returnData.path;
+                const pathCenterLong = returnData.pathCenterLong;
+                const pathCenterLat = returnData.pathCenterLat;
+
+                initMap(path, pathCenterLat, pathCenterLong);
 
                 $('#serviceId').val(serviceId);
                 $('#distance').val(distance);
+                $('#realdistance').text(distance);
                 $('#distanceMessage').text(distanceMessage);
             }
         });
@@ -316,7 +369,7 @@
                     width: "5%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     data: "fuelId",
-                    render: function(data, type, full, meta) {
+                    render: function (data, type, full, meta) {
                         return '<input type="radio" class="rdbt" name="rdbt' + data + '" value="Y" checked ' +
                             'onchange="rdbt_input(input' + data + ', \'attr\')">';
                     },
@@ -326,7 +379,7 @@
                     width: "5%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     data: "fuelId",
-                    render: function(data, type, full, meta) {
+                    render: function (data, type, full, meta) {
                         return '<input type="radio" class="rdbt" name="rdbt' + data + '" value="N" ' +
                             'onchange="rdbt_input(input' + data + ', \'remove\')">';
                     },
@@ -336,7 +389,7 @@
                     width: "20%",
                     className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                     data: "fuelId",
-                    render: function(data, type, full, meta) {
+                    render: function (data, type, full, meta) {
                         return '<input id="input' + data + '" class="form-control" readonly>';
                     },
                 },
@@ -355,16 +408,16 @@
             "scrollCollapse": true,
             "order": [[0, 'desc']],
             "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
+                "lengthMenu": "_MENU_개씩 보기",
+                "search": "검색:",
+                "zeroRecords": "결과 없음",
+                "processing": "로딩중",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "→",
+                    "previous": "←"
+                },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 const fuelStatus = aData.fuelStatus;
@@ -401,7 +454,7 @@
                     moneyResult += parseFloat(data);
                 });
                 $(api.column(5).footer()).html(moneyResult.toLocaleString() + '원');
-              },
+            },
         });
 
         const yrapprovalfuel = $('#yrapprovalfuel').DataTable({
@@ -471,16 +524,16 @@
             "scrollCollapse": true,
             "order": [[0, 'desc']],
             "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
+                "lengthMenu": "_MENU_개씩 보기",
+                "search": "검색:",
+                "zeroRecords": "결과 없음",
+                "processing": "로딩중",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "→",
+                    "previous": "←"
+                },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 const fuelStatus = aData.fuelStatus;
@@ -517,10 +570,10 @@
                     }
                 });
                 $(api.column(5).footer()).html(moneyResult.toLocaleString() + '원');
-              },
+            },
         });
     })
 
-  </script>
+</script>
 
 {% endblock %}

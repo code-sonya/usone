@@ -3,6 +3,7 @@ from django.db import models
 from hr.models import Employee
 from client.models import Company, Customer
 from sales.models import Contract
+# from django_mysql.models import ListTextField, JSONField
 from extrapay.models import OverHour
 
 
@@ -124,7 +125,9 @@ class Geolocation(models.Model):
     finishLatitude = models.FloatField(null=True, blank=True)
     finishLongitude = models.FloatField(null=True, blank=True)
     distance = models.FloatField(default=0)
-    path = models.TextField(default='')
+    path = models.TextField(
+        null=True, blank=True
+    )
     distanceCode = models.IntegerField(default=0)
 
     def __str__(self):

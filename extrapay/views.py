@@ -21,7 +21,7 @@ from service.models import Servicereport, Geolocation
 from service.functions import latlng_distance
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
 from .functions import cal_overhour, Round, cal_extraPay
-
+from usone.security import MAP_KEY, testMAP_KEY
 
 
 @login_required
@@ -250,6 +250,7 @@ def approval_fuel(request, empId):
         'enddate': enddate,
         'empName': empName,
         'empId': empId,
+        'testMAP_KEY': testMAP_KEY,
         # 'approvalStatus': approvalStatus,
     }
     return render(request, 'extrapay/approvalfuel.html', context)
@@ -343,6 +344,9 @@ def approvalfuel_asjson(request):
         elif geo.distanceCode == 5:
             distanceMessage = '요청 경로가 1500km 이상'
 
+        path = [i.split(", ") for i in geo.path[2:-2].split("], [")]
+        pathCenter =len(path)//2
+
         geos = {
             'beginLatitude': geo.beginLatitude,
             'beginLongitude': geo.beginLongitude,
@@ -354,7 +358,10 @@ def approvalfuel_asjson(request):
             'finishLongitude': geo.finishLongitude,
             'distance': geo.distance,
             'distanceMessage': distanceMessage,
-            'serviceId': request.GET['serviceId']
+            'serviceId': request.GET['serviceId'],
+            'path': path,
+            'pathCenterLong': float(path[pathCenter][0]),
+            'pathCenterLat': float(path[pathCenter][1]),
         }
 
         structure = json.dumps(geos, cls=DjangoJSONEncoder)

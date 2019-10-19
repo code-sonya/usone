@@ -655,6 +655,10 @@ def naver_distance(latlngs):
         distance = 0
     else:
         path = body['route']['tracomfort'][0]['path']
+        # path_lst = []
+        # for p in path:
+        #     path_lst.append({'longitude':p[0], 'latitude':p[1]})
+
         distance = round((body['route']['tracomfort'][0]['summary']['distance'] / 1000), 1)
     buffer.close()
 
