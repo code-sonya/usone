@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^adminfuel/', views.admin_fuel, name='adminfuel'),
     url(r'^approvalfuel/(?P<empId>.+)/$', views.approval_fuel, name='approvalfuel'),
     url(r'^postfuel/', views.post_fuel, name='postfuel'),
+    url(r'^delfuel/', views.del_fuel, name='delfuel'),
     url(r'^approvalpostfuel/', views.approval_post_fuel, name='approvalpostfuel'),
     url(r'^adminfuelasjson/$', views.adminfuel_asjson, name='adminfuelasjson'),
     url(r'^approvalfuelasjson/$', views.approvalfuel_asjson, name='approvalfuelasjson'),

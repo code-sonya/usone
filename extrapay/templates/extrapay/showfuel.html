@@ -34,6 +34,7 @@
             <table id="showfuel" class="hover row-border" width="100%" style="width: 100%;">
             <thead>
               <tr>
+                <th></th>
                 <th>단계</th>
                 <th>날짜</th>
                 <th>고객사</th>
@@ -41,10 +42,12 @@
                 <th>이동거리</th>
                 <th>유류비</th>
                 <th>반려사유</th>
+                <th class="d-none">fuelId</th>
               </tr>
             </thead>
             <tfoot>
             <tr>
+              <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
@@ -57,6 +60,15 @@
             </tr>
             </tfoot>
             </table>
+            <div class="text-center">
+              <form id="delFuelForm" method="POST" action="/extrapay/delfuel/">
+                {% csrf_token %}
+              </form>
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+            </div>
           </div>
           <br>
 
@@ -155,6 +167,26 @@
         fuelForm.submit();
     }
 
+    function btn_delete() {
+        const length = $('.fuel-id').length;
+        const idList = new Array();
+        for (var i = 2; i <= length - 1; i++) {
+            if ($('.ckbx2').eq(i - 2).is(":checked")) {
+                idList.push($('.fuel-id').eq(i).text());
+            }
+        }
+
+        const delFuelForm = document.getElementById('delFuelForm');
+
+        const fuelId = document.createElement("input");
+        fuelId.setAttribute("type", "hidden");
+        fuelId.setAttribute("name", "fuelId");
+        fuelId.setAttribute("value", JSON.stringify(idList));
+        delFuelForm.appendChild(fuelId);
+
+        delFuelForm.submit();
+    }
+
     $(document).ready(function () {
         const postfuel = $('#postfuel').DataTable({
             "processing": true,
@@ -216,7 +248,7 @@
                 },
             ],
             "deferRender": true,
-            "searching": true,
+            "searching": false,
             "paging": false,
             "info": false,
             "scrollY": "50vh",
@@ -263,43 +295,57 @@
                     targets: 0,
                     width: "5%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "fuelStatus",
+                    orderable: false,
+                    data: null,
+                    defaultContent: '<input class="ckbx2" name="ckbx" type=checkbox></input>',
                 },
                 {
                     targets: 1,
-                    width: "10%",
+                    width: "5%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "serviceDate",
+                    orderable: false,
+                    data: "fuelStatus",
                 },
                 {
                     targets: 2,
                     width: "10%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "companyName"
+                    data: "serviceDate",
                 },
                 {
                     targets: 3,
-                    width: "25%",
-                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
-                    data: "serviceTitle",
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "companyName"
                 },
                 {
                     targets: 4,
-                    width: "10%",
-                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "distance",
+                    width: "20%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "serviceTitle",
                 },
                 {
                     targets: 5,
                     width: "10%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "fuelMoney",
+                    data: "distance",
                 },
                 {
                     targets: 6,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "fuelMoney",
+                },
+                {
+                    targets: 7,
                     width: "30%",
                     className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                     data: "comment"
+                },
+                {
+                    targets: 8,
+                    className: "d-none fuel-id",
+                    data: "fuelId"
                 },
             ],
             "deferRender": true,
@@ -309,7 +355,7 @@
             "scrollY": "50vh",
             "scrollX": true,
             "scrollCollapse": true,
-            "order": [[0, 'desc']],
+            "order": [[1, 'desc']],
             "language": {
                   "lengthMenu": "_MENU_개씩 보기",
                   "search": "검색:",
@@ -323,41 +369,44 @@
                   },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(4)', nRow).text(aData.distance.toLocaleString() + 'km');
-                $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
                 const fuelStatus = aData.fuelStatus;
                 if (fuelStatus === 'N') {
-                    $('td', nRow).eq(0).text('진행');
-                    $('td', nRow).eq(0).addClass('text-dark font-weight-bold');
-                } else if (fuelStatus === 'Y') {
-                    $('td', nRow).eq(0).text('승인');
-                    $('td', nRow).eq(0).addClass('text-primary font-weight-bold');
-                } else if (fuelStatus === 'R') {
-                    $('td', nRow).eq(0).text('반려');
-                    $('td', nRow).css('background-color', '#f2f2f2');
-                    $('td', nRow).eq(0).addClass('text-danger font-weight-bold');
+                    $('td', nRow).eq(1).text('진행');
+                    $('td', nRow).eq(1).addClass('text-dark font-weight-bold');
                 }
+                else if (fuelStatus === 'Y') {
+                    $('td', nRow).eq(0).on("click", function() {return false;});
+                    $('td', nRow).eq(1).text('승인');
+                    $('td', nRow).eq(1).addClass('text-primary font-weight-bold');
+                } else if (fuelStatus === 'R') {
+                    $('td', nRow).eq(0).on("click", function() {return false;});
+                    $('td', nRow).eq(1).text('반려');
+                    $('td', nRow).eq(1).addClass('text-danger font-weight-bold');
+                }
+                $('td:eq(5)', nRow).text(aData.distance.toLocaleString() + 'km');
+                $('td:eq(6)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             },
             "footerCallback": function () {
                 let api = this.api(), data;
 
                 let distanceResult = 0;
-                api.column(4, {search: 'applied'}).data().each(function (data, index) {
-                    if (api.column(0).data()[index] === 'Y') {
+                api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                    if (api.column(1).data()[index] === 'Y') {
                         distanceResult += parseFloat(data);
                     }
                 });
-                $(api.column(4).footer()).html(distanceResult.toLocaleString() + 'km');
+                $(api.column(5).footer()).html(distanceResult.toLocaleString() + 'km');
 
                 let moneyResult = 0;
-                api.column(5, {search: 'applied'}).data().each(function (data, index) {
-                    if (api.column(0).data()[index] === 'Y') {
+                api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                    if (api.column(1).data()[index] === 'Y') {
                         moneyResult += parseFloat(data);
                     }
                 });
-                $(api.column(5).footer()).html(moneyResult.toLocaleString() + '원');
+                $(api.column(6).footer()).html(moneyResult.toLocaleString() + '원');
             },
         });
+
     })
 
   </script>
