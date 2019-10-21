@@ -860,25 +860,20 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         # overhour create
         # 석식대
         foodcosts = cal_foodcost(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        print('foodcosts: ', foodcosts)
         if foodcosts > 0 or overhour > 0:
             emp = Employee.objects.get(empId=service.empId_id)
             overhourcost = emp.empSalary*overhour*1.5
-            print('overhourcost: ', overhourcost)
-            print('overhour: ', overhour)
-            ## IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
+
+            # IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
             service_month = service.serviceDate.month
             extrapay = ExtraPay.objects.filter(Q(overHourDate__month=service_month) & Q(empId=service.empId_id)).first()
-            print('extrapay:', extrapay)
             if extrapay:
-                print('exit')
                 sumOverHour = extrapay.sumOverHour
                 payHour = extrapay.payHour
                 extrapay.sumOverHour = float(sumOverHour)+float(overhour)
                 extrapay.payHour = float(payHour)+float(overhour)
                 extrapay.save()
             else:
-                print('new')
                 extrapay = ExtraPay.objects.create(
                     empId=service.empId,
                     empName=service.empName,
@@ -886,7 +881,6 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
                     sumOverHour=overhour,
                     payHour=overhour,
                 )
-
 
             OverHour.objects.create(
                 serviceId=service,

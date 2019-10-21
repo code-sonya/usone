@@ -2,60 +2,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>지원 확인 서명</title>
+  <meta charset="utf-8">
+  <title>담당자 서명</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-
-    <link rel="stylesheet" href={% static "signature/css/signature-pad.css" %}>
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href={% static "signature/css/signature-pad.css" %}>
 </head>
+
 <body onselectstart="return false">
 
-<div id="signature-pad" class="signature-pad">
-    <h5>NO.{{ serviceId }} </h5>
-    <textarea id="service_id" style="display: none">{{ serviceId }}</textarea>
+  <div id="signature-pad" class="signature-pad">
+    <h5>No.<span id="service_id">{{ serviceId }}</span></h5>
     <div class="signature-pad--body">
-        <canvas></canvas>
+      <canvas></canvas>
     </div>
     <div class="signature-pad--footer">
-        <div class="description">담당자 서명</div>
+      <div class="description">담당자 서명</div>
 
-        <div class="signature-pad--actions">
-            <div>
-                <a href="/service/showservices/">
-                    <button  class="btn btn-danger" type="button">서명 취소</button>
-                </a>
-            </div>
-            <div>
-                <button type="button" class="btn btn-info" data-action="clear">Clear</button>
-                <button type="button" class="button" data-action="change-color" style="display:none">Change color
-                </button>
-                <button type="button" class="button" data-action="undo" style="display:none">Undo</button>
-
-            </div>
-
-            <div>
-                <button type="button" class="button save" data-action="save-png" style="display:none">Save as PNG
-                </button>
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="button" class="btn btn-success" data-action="save-jpg">서명 완료</button>
-                </form>
-                <button type="button" class="btn btn-success" data-action="save-svg" style="display:none"></button>
-            </div>
+      <div class="signature-pad--actions">
+        <div>
+          <a href="/service/showservices/">
+            <button class="btn btn-danger" type="button">서명 취소</button>
+          </a>
         </div>
+        <div>
+          <button type="button" class="btn btn-info" data-action="clear">Clear</button>
+        </div>
+        <div>
+          <form method="post">
+            {% csrf_token %}
+            <button type="button" class="btn btn-success" data-action="save-jpg">서명 완료</button>
+          </form>
+        </div>
+      </div>
     </div>
-</div>
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script src={% static "signature/js/signature_pad.umd.js" %}></script>
-<script src={% static "signature/js/app.js" %}></script>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src={% static "signature/js/signature_pad.umd.js" %}></script>
+
+  <script type="text/javascript">
+    let wrapper = document.getElementById("signature-pad");
+    let clearButton = wrapper.querySelector("[data-action=clear]");
+    let saveJPGButton = wrapper.querySelector("[data-action=save-jpg]");
+    let canvas = wrapper.querySelector("canvas");
+    let signaturePad = new SignaturePad(canvas, {backgroundColor: 'rgb(255, 255, 255)'});
+    let service_id = document.getElementById("service_id").innerText;
+
+    function resizeCanvas() {
+        var ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
+
+        signaturePad.clear();
+    }
+
+    window.onresize = resizeCanvas;
+    resizeCanvas();
+
+    function dataURLToBlob(dataURL) {
+        let parts = dataURL.split(';base64,');
+        let contentType = parts[0].split(":")[1];
+        let raw = window.atob(parts[1]);
+        let rawLength = raw.length;
+        let uInt8Array = new Uint8Array(rawLength);
+
+        for (var i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+
+        return new Blob([uInt8Array], {type: contentType});
+    }
+
+    function download(dataURL, filename) {
+        let blob = dataURLToBlob(dataURL);
+        let url = window.URL.createObjectURL(blob);  //blob로 서명 데이터 참조를 가리키는 url 객체 : 파일의 전체 내용을 URL 텍스트로 변환한 값
+        let fileName = filename + ".jpg";
+
+        let a = document.createElement("a");
+        a.style = "display: none";
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+
+        let form_data = new FormData();
+        form_data.append('file', blob);
+
+        signatureUrl = '/signature/saveimg/'+  service_id + '/';
+        $.ajax({
+            url: signatureUrl,
+            method: 'POST',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: form_data,
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function () {
+                load_url = "/service/viewservice/" + filename + "/";
+                window.URL.revokeObjectURL(url);
+                location.href = load_url
+            }
+        });
+    }
+
+    clearButton.addEventListener("click", function (event) {
+        signaturePad.clear();
+    });
+
+    saveJPGButton.addEventListener("click", function (event) {
+        if (signaturePad.isEmpty()) {
+            alert("서명을 해주세요.");
+        } else {
+            const dataURL = signaturePad.toDataURL();
+            if (confirm("서명을 완료 하시겠습니까?")) {
+                download(dataURL, service_id);
+            } else {
+                alert("서명 확인이 취소되었습니다");
+            }
+        }
+    });
+  </script>
 </body>
 </html>
