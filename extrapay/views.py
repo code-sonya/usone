@@ -745,7 +745,10 @@ def show_salarys(request):
         empName = ''
         filter = 'N'
 
-    employee = Employee.objects.filter(Q(empStatus='Y') & (Q(empDeptName='솔루션지원팀') | Q(empDeptName='DB지원팀') | Q(empDeptName='경영지원본부') | (Q(empDeptName='인프라서비스사업팀'))))
+    employee = Employee.objects.filter(
+        Q(empStatus='Y') &
+        Q(empSalary=0) &
+        (Q(empDeptName='솔루션지원팀') | Q(empDeptName='DB지원팀') | Q(empDeptName='경영지원본부') | (Q(empDeptName='인프라서비스사업팀'))))
 
     context = {
         'filter': filter,
