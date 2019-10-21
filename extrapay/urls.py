@@ -24,4 +24,8 @@ urlpatterns = [
     url(r'^viewoverhour/(?P<extraPayId>.+)/$', views.view_overhour, name='viewoverhour'),
     url(r'^viewextrapaypdf/(?P<yearmonth>.+)/$', views.view_extrapay_pdf, name='viewextrapaypdf'),
     url(r'^postdistance/$', views.post_distance, name='postdistance'),
+    url(r'^showsalarys/$', views.show_salarys, name='showsalarys'),
+    url(r'^salaryjson/$', views.salary_asjson, name='salary_ajax_url'),
+    url(r'^savesalarytable/$', views.save_salarytable, name='savesalarytable'),
+    url(r'^postsalary/$', views.post_salary, name='postsalary'),
 ]

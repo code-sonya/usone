@@ -154,9 +154,16 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
     else:  # 평일 일때
         if d_start.minute != 0:  # 정각 시작하지 않은 경우
             if d_start.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
-                minute_sum += (60 - d_start.minute)
-                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-                min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
+                if d_start.hour == d_finish.hour and d_start.date() == d_finish.date():
+                    minute_sum += (d_finish.minute - d_start.minute)
+                    min_date = d_start
+                    max_date = d_finish
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                    d_finish = d_finish + datetime.timedelta(minutes=(60 - d_finish.minute))
+                else:
+                    minute_sum += (60 - d_start.minute)
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                    min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
             else:  # 초과 근무에 해당 하지 않는 경우
                 d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
 
@@ -170,9 +177,10 @@ def overtime_extrapay(str_start_datetime, str_end_datetime):
     else:  # 평일 일때
         if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
             if d_finish.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
-                minute_sum += d_finish.minute
-                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
-                max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
+                if d_start.hour != d_finish.hour and d_start.date() == d_finish.date():
+                    minute_sum += d_finish.minute
+                    d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+                    max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
             else:
                 d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
 

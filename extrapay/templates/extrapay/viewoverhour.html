@@ -136,9 +136,9 @@
         <tr class="thtd bg-light">
           <td class="thtd" colspan="3">합계</td>
           <td class="thtd" colspan="2">총 근무시간</td>
-          <td class="thtd">{{ sum_overhours.sumServicehour }}</td>
+          <td class="thtd">{{ sum_overhours.sumServicehour |floatformat:2 }}</td>
           <td class="thtd" colspan="2">총 수당시간</td>
-          <td class="thtd">{{ sum_overhours.sumOverhour }}</td>
+          <td class="thtd">{{ sum_overhours.sumOverhour |floatformat:2 }}</td>
           <td class="thtd" colspan="3">총 수당금액</td>
           <td class="thtd">{{ sum_overhours.sumOverhourCost |floatformat:0|intcomma }}</td>
           <td class="thtd">{{ sum_overhours.sumFoodCost |floatformat:0|intcomma }}</td>
@@ -236,9 +236,9 @@
         <tbody>
         <tr class="thtd">
           <td class="thtd" colspan="2">{{ sum_costs.extraPayDate }}</td>
-          <td class="thtd" colspan="2">{{ sum_costs.overHour }}</td>
-          <td class="thtd" colspan="2">{% if sum_costs.compensatedHour %}{{ sum_costs.compensatedHour }}{% else %}-{% endif %}</td>
-          <td class="thtd" colspan="2">{{ sum_costs.extraPayHour | intcomma }}</td>
+          <td class="thtd" colspan="2">{{ sum_costs.overHour |floatformat:2 }}</td>
+          <td class="thtd" colspan="2">{% if sum_costs.compensatedHour %}{{ sum_costs.compensatedHour |floatformat:2 }}{% else %}-{% endif %}</td>
+          <td class="thtd" colspan="2">{{ sum_costs.extraPayHour |floatformat:2 }}</td>
           <td class="thtd" colspan="2">
             {{ sum_costs.extraPay | intcomma }}
           </td>

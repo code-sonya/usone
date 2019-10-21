@@ -566,7 +566,6 @@ def overhour_all(request,searchdate):
         sumEmp['sumCost'] += sum['sumCost']
 
     sumAll = (sumEmp['sumCost'] or 0) + (sumSupport['sumCost'] or 0)
-    print('today:', today)
     context = {
             'today':today,
             'todayYear': todayYear,
@@ -631,8 +630,6 @@ def post_overhour(request):
                 overHourWeekDay = 0
                 overHourCostWeekDay = 0
 
-        print(request.POST)
-
         ## IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
         emp = Employee.objects.get(empId=empId)
         extrapay = ExtraPay.objects.filter(Q(overHourDate__year=overhouYear) & Q(overHourDate__month=overhourMonth) & Q(empId=emp)).first()
@@ -671,11 +668,11 @@ def save_overhourtable(request):
     compensatedHour = request.GET.getlist('compensatedHour')
     compensatedComment = request.GET.getlist('compensatedComment')
     extraPayId = request.GET.getlist('extraPayId')
-    print(request.GET)
 
     for a, b, c in zip(extraPayId, compensatedHour, compensatedComment):
         extraPay = ExtraPay.objects.get(extraPayId=a)
-        extraPay.compensatedHour = b
+        if b != '':
+            extraPay.compensatedHour = float(b)
         extraPay.compensatedComment = c
         extraPay.save()
 
@@ -727,9 +724,77 @@ def view_extrapay_pdf(request, yearmonth):
     return response
 
 
+@login_required
 def post_distance(request):
     if request.method == 'POST':
         geo = Geolocation.objects.get(serviceId=request.POST['serviceId'])
         geo.distance = request.POST['distance']
         geo.save()
         return redirect('extrapay:approvalfuel', request.POST['empId'])
+
+
+@login_required
+def show_salarys(request):
+    template = loader.get_template('extrapay/showsalarys.html')
+
+    if request.method == "POST":
+        empName = request.POST['empName']
+        filter = 'Y'
+
+    else:
+        empName = ''
+        filter = 'N'
+
+    employee = Employee.objects.filter(Q(empStatus='Y') & (Q(empDeptName='솔루션지원팀') | Q(empDeptName='DB지원팀') | Q(empDeptName='경영지원본부') | (Q(empDeptName='인프라서비스사업팀'))))
+
+    context = {
+        'filter': filter,
+        'empName': empName,
+        'employee': employee,
+    }
+
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def salary_asjson(request):
+
+    empName = request.POST['empName']
+    employee = Employee.objects.filter(Q(empStatus='Y') & (Q(empDeptName='솔루션지원팀') | Q(empDeptName='DB지원팀') | Q(empDeptName='경영지원본부') | (Q(empDeptName='인프라서비스사업팀'))) & Q(empSalary__gt=0))
+    if empName:
+        employee = Employee.objects.filter(Q(empId=empName))
+
+    emplist = employee.values('empDeptName', 'empName', 'empSalary', 'empId')
+    structure = json.dumps(list(emplist), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def save_salarytable(request):
+    empSalary = request.GET.getlist('empSalary')
+    empId = request.GET.getlist('empId')
+
+    for a, b, c in zip(empId, empSalary):
+        employee = Employee.objects.get(empId=a)
+        if b != '':
+            employee.empSalary = float(b)
+            employee.save()
+
+    return redirect('extrapay:showsalarys')
+
+
+@login_required
+def post_salary(request):
+    if request.method == "POST":
+        empId = request.POST['empId']
+        empSalary = request.POST['empSalary']
+
+        employee = Employee.objects.get(empId=empId)
+        if empSalary != '':
+            employee.empSalary = float(empSalary)
+            employee.save()
+
+    return redirect('extrapay:showsalarys')
+
+
