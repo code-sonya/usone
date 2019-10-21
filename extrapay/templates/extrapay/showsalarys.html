@@ -1,0 +1,279 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  수당관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-1"></div>
+
+    <div class="col-xl-10 d-xl-block">
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">수당관리</h6>
+
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            </a>
+            <a class="dropdown-toggle ml-3" href="#" role="button" id="postLink" data-toggle="modal" data-target="#postModal">
+                <i class="fas fa-plus fa-fw text-gray-400"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          {% csrf_token %}
+          <div class="float-right">
+            <button class="btn btn-danger" id="saveSalaryTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
+          </div>
+
+          <div class="table-responsive">
+            <form id="salaryForm" action="/extrapay/savesalarytable/">
+              <table id="salarylist" class="hover row-border" width="100%" style="width: 100%;">
+                <thead>
+                <tr>
+                  <th>엔지니어부서</th>
+                  <th>엔지니어명</th>
+                  <th>수당금액(시간)</th>
+                  <th class="d-none">empId</th>
+                </tr>
+                </thead>
+              </table>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-xl-1"></div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="empName" class="font-weight-light text-primary">직원</label>
+                <select class="form-control" id="empName" name="empName">
+                  <option value="">----</option>
+                  {% for emp in employee %}
+                  <option value="{{ emp.empId }}">{{ emp.empName }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Modal -->
+  <div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="postModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="postModalLabel">수당등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="postForm" action='/extrapay/postsalary/' method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="empId" class="font-weight-light text-primary">직원</label>
+                <select class="form-control" id="empId" name="empId">
+                  <option value="">----</option>
+                  {% for emp in employee %}
+                  <option value="{{ emp.empId }}">{{ emp.empName }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="empSalary" class="font-weight-light text-primary">수당금액(시간)</label>
+                <input class="form-control" id="empSalary" name="empSalary" type="number"  placeholder="">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_post()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+
+      function btn_post() {
+          document.getElementById("postForm").submit();
+      }
+
+
+      $('#saveSalaryTable').click(function () {
+                  const salaryForm = document.getElementById("salaryForm");
+
+                  const lengthSalary = $('[name="empId"]').length;
+                  for (var i = 0; i <= lengthSalary - 1; i++) {
+                      const salary = document.createElement("input");
+                      const data = $('div[name="empId"]').eq(i).text();
+                      salary.setAttribute("type", "hidden");
+                      salary.setAttribute("name", "empId");
+                      salary.setAttribute("value", data);
+                      salaryForm.appendChild(salary);
+                  }
+                  salaryForm.submit();
+              });
+
+      $(document).ready(function () {
+
+
+          $('#salarylist').DataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                  },
+                  "url": "{% url 'extrapay:salary_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              columns: [
+                  {data: "empDeptName"},
+                  {data: "empName"},
+                  {data: "empSalary"},
+                  {data: "empId"},
+              ],
+              columnDefs: [
+                  {
+                      "render": function (data, type, row) {
+                              return '<a name="empDeptName" class="input-form">'+row["empDeptName"]+'</a>'
+                       },
+                      targets: 0, width: "35%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                              return '<a name="empName" class="input-form text-primary">'+row["empName"]+'</a>'
+                       },
+                      targets: 1, width: "35%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                              return '<input type="number" id="empSalary' + row["empId"] + '" ' +
+                                  'name="empSalary" class="input-form" step="1" value='+row["empSalary"]+'>'
+                       },
+                      targets: 2, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<div name="empId" >' + data + '</div>'
+                      },
+                      targets: 3, className: "d-none"},
+              ],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "order": [[0, 'asc']],
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  // $('td:eq(0)', nRow).text(replaceAll(aData.overHourDate, "-", "."));
+                  // $('td:eq(5)', nRow).css('color','red');
+              }
+          });
+
+      });
+
+  </script>
+
+{% endblock %}
