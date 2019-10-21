@@ -355,7 +355,15 @@ def approvalfuel_asjson(request):
             distanceMessage = '요청 경로가 1500km 이상'
 
         path = [i.split(", ") for i in geo.path[2:-2].split("], [")]
-        pathCenter =len(path)//2
+
+        if path[0][0] == '':
+            pathCenterLong = 37.532035
+            pathCenterLat = 126.919545
+        else:
+            pathCenter =len(path)//2
+            pathCenterLong = float(path[pathCenter][0])
+            pathCenterLat = float(path[pathCenter][1])
+
 
         geos = {
             'beginLatitude': geo.beginLatitude,
@@ -370,8 +378,8 @@ def approvalfuel_asjson(request):
             'distanceMessage': distanceMessage,
             'serviceId': request.GET['serviceId'],
             'path': path,
-            'pathCenterLong': float(path[pathCenter][0]),
-            'pathCenterLat': float(path[pathCenter][1]),
+            'pathCenterLong': pathCenterLong,
+            'pathCenterLat': pathCenterLat,
         }
 
         structure = json.dumps(geos, cls=DjangoJSONEncoder)
