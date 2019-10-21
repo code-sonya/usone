@@ -476,8 +476,8 @@ def fuel_asjson(request):
         )
 
         services = services.values(
-            'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
-            'fuelMoney', 'fuelStatus', 'comment', 'fuelId'
+            'fuelId', 'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
+            'fuelMoney', 'fuelStatus', 'comment',
         )
         for service in services:
             service['distance'] = Geolocation.objects.get(
