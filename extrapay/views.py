@@ -218,6 +218,16 @@ def post_fuel(request):
     return redirect('extrapay:showfuel')
 
 
+@login_required
+@csrf_exempt
+def del_fuel(request):
+    if request.method == 'POST':
+        fuelIds = json.loads(request.POST['fuelId'])
+        for fuelId in fuelIds:
+            Fuel.objects.get(fuelId=fuelId).delete()
+    return redirect('extrapay:showfuel')
+
+
 def admin_fuel(request):
     if request.method == 'POST':
         y = int(request.POST['findDate'][:4])
@@ -467,7 +477,7 @@ def fuel_asjson(request):
 
         services = services.values(
             'serviceId__serviceId', 'serviceDate', 'companyName', 'serviceTitle',
-            'fuelMoney', 'fuelStatus', 'comment'
+            'fuelMoney', 'fuelStatus', 'comment', 'fuelId'
         )
         for service in services:
             service['distance'] = Geolocation.objects.get(
