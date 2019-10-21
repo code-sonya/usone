@@ -40,6 +40,19 @@
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
+          <div class="text-right mb-2">
+            {% if service.empId.empId == user.employee.empId %}
+              {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
+                {% if service.serviceStatus != 'N'  %}
+                <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+                  <i class="fas fa-file-signature text-gray-100"></i>
+                </a>
+                {% endif %}
+              {% else %}
+                (서명완료)
+              {% endif %}
+            {% endif %}
+          </div>
         </div>
         <div class="card-body ">
           <table class="mobile-table">
@@ -95,10 +108,12 @@
 
           {% if service.empId.empId == user.employee.empId and service.serviceStatus != 'Y' %}
             <div class="text-center">
+              {% if service.serviceStatus == 'N' %}
               <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
                 <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
                 <span class="text p-2"> 삭제 </span>
               </a>
+              {% endif %}
               <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
                 <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
                 <span class="text p-2"> 수정 </span>
@@ -203,7 +218,13 @@
       }
 
       function btn_finish(){
-          if (confirm("도착 하셨습니까?") === true) {
+          let msg;
+          if ('{{ service.serviceSignPath }}' === '/media/images/signature/nosign.jpg') {
+              msg = '도착 후에는 서명을 받을 수 없습니다.\n계속 하시겠습니까?';
+          } else {
+              msg = '도착 하셨습니까?';
+          }
+          if (confirm(msg) === true) {
               navigator.geolocation.getCurrentPosition(function(pos) {
                   location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/finish/'
                       + pos.coords.latitude + '/' + pos.coords.longitude + '/';
