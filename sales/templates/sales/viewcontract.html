@@ -74,6 +74,14 @@
       <div id="pdf">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h3 class="m-0 text-gray-800"> [{{ contract.contractCode }}] {{ contract.contractName }} </h3>
+          <div style="font-size: 14px">
+            {% if contract.writeEmpId and contract.writeDatetime %}
+            작성 : {{ contract.writeEmpId }} ({{ contract.writeDatetime | date:"Y.m.d H:i" }})<br>
+            {% endif %}
+            {% if contract.editEmpId and contract.editDatetime %}
+            수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
+            {% endif %}
+          </div>
         </div>
 
         <div class="card-body">

@@ -35,6 +35,10 @@ def post_contract(request):
 
         if form.is_valid():
             post = form.save(commit=False)
+            post.writeEmpId = Employee.objects.get(empId=request.user.employee.empId)
+            post.writeDatetime = datetime.now()
+            post.editEmpId = Employee.objects.get(empId=request.user.employee.empId)
+            post.editDatetime = datetime.now()
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
             post.saleCompanyName = Company.objects.filter(companyNameKo=form.clean()['saleCompanyNames']).first()
@@ -209,6 +213,8 @@ def modify_contract(request, contractId):
         if form.is_valid():
             # 계약내용 수정
             post = form.save(commit=False)
+            post.editEmpId = Employee.objects.get(empId=request.user.employee.empId)
+            post.editDatetime = datetime.now()
             post.empName = form.clean()['empId'].empName
             post.empDeptName = form.clean()['empId'].empDeptName
             post.saleCompanyName = Company.objects.filter(companyNameKo=form.clean()['saleCompanyNames']).first()
@@ -1594,8 +1600,18 @@ def daily_report(request):
     money = {}
 
     # 1. 회계기준 기본 잔액
-    money['A'] = revenues.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True)).aggregate(sum=Sum('revenuePrice'))['sum']
-    money['B'] = purchases.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)).aggregate(sum=Sum('purchasePrice'))['sum']
+    money['A'] = revenues.filter(
+        Q(billingDate__isnull=False) &
+        Q(depositDate__isnull=True)
+    ).aggregate(
+        sum=Sum('revenuePrice')
+    )['sum']
+    money['B'] = purchases.filter(
+        Q(billingDate__isnull=False)
+        & Q(withdrawDate__isnull=True)
+    ).aggregate(
+        sum=Sum('purchasePrice')
+    )['sum']
     money['AmB'] = money['A'] - money['B']
 
     # 2. 매입채무 조정
@@ -2557,7 +2573,7 @@ def monthly_bill(request):
         todayQuarter = 4
 
     try:
-        expenseDate = Expense.objects.filter(Q(expenseStatus='Y')&Q(expenseDate__month=todayMonth)).aggregate(expenseDate=Max('expenseDate'))
+        expenseDate = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).aggregate(expenseDate=Max('expenseDate'))
         expenseDate = expenseDate['expenseDate']
     except:
         expenseDate = '-'
