@@ -12,8 +12,9 @@ from xhtml2pdf import pisa
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from hr.models import Employee
+
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense
 from service.models import Company, Customer, Servicereport
 from django.db.models import Q
 from datetime import datetime, timedelta, date
@@ -180,25 +181,49 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
 
     goal = Goal.objects.filter(Q(year=year))
     if quarter == 1:
-        teamGoal = goal.values('empDeptName') \
-            .annotate(revenueTarget=F('salesq1'),
-                      profitTarget=F('profitq1'))
-        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q1_end']))
+        teamGoal = goal.values(
+            'empDeptName'
+        ).annotate(
+            revenueTarget=F('salesq1'),
+            profitTarget=F('profitq1')
+        )
+        revenue = Revenue.objects.filter(
+            Q(predictBillingDate__gte=dict_quarter['q1_start']) &
+            Q(predictBillingDate__lt=dict_quarter['q1_end'])
+        ).select_related()
     elif quarter == 2:
-        teamGoal = goal.values('empDeptName') \
-            .annotate(revenueTarget=F('salesq1') + F('salesq2'),
-                      profitTarget=F('profitq1') + F('profitq2'))
-        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q2_end']))
+        teamGoal = goal.values(
+            'empDeptName'
+        ).annotate(
+            revenueTarget=F('salesq1') + F('salesq2'),
+            profitTarget=F('profitq1') + F('profitq2')
+        )
+        revenue = Revenue.objects.filter(
+            Q(predictBillingDate__gte=dict_quarter['q1_start']) &
+            Q(predictBillingDate__lt=dict_quarter['q2_end'])
+        ).select_related()
     elif quarter == 3:
-        teamGoal = goal.values('empDeptName') \
-            .annotate(revenueTarget=F('salesq1') + F('salesq2') + F('salesq3'),
-                      profitTarget=F('profitq1') + F('profitq2') + F('profitq3'))
-        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q3_end']))
+        teamGoal = goal.values(
+            'empDeptName'
+        ).annotate(
+            revenueTarget=F('salesq1') + F('salesq2') + F('salesq3'),
+            profitTarget=F('profitq1') + F('profitq2') + F('profitq3')
+        )
+        revenue = Revenue.objects.filter(
+            Q(predictBillingDate__gte=dict_quarter['q1_start']) &
+            Q(predictBillingDate__lt=dict_quarter['q3_end'])
+        ).select_related()
     else:
-        teamGoal = goal.values('empDeptName') \
-            .annotate(revenueTarget=F('salesq1') + F('salesq2') + F('salesq3') + F('salesq4'),
-                      profitTarget=F('profitq1') + F('profitq2') + F('profitq3') + F('profitq4'))
-        revenue = Revenue.objects.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']))
+        teamGoal = goal.values(
+            'empDeptName'
+        ).annotate(
+            revenueTarget=F('salesq1') + F('salesq2') + F('salesq3') + F('salesq4'),
+            profitTarget=F('profitq1') + F('profitq2') + F('profitq3') + F('profitq4')
+        )
+        revenue = Revenue.objects.filter(
+            Q(predictBillingDate__gte=dict_quarter['q1_start']) &
+            Q(predictBillingDate__lt=dict_quarter['q4_end'])
+        ).select_related()
     sumGoal = teamGoal.aggregate(revenueTargetSum=Sum('revenueTarget'), profitTargetSum=Sum('profitTarget'))
 
     if contractStep == 'F':
@@ -215,7 +240,7 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
     personRevenue = revenue.values('contractId__empId', 'contractId__empName', 'contractId__empDeptName').annotate(
         revenuePrice=Sum('revenuePrice'),
         revenueProfitPrice=Sum('revenueProfitPrice')
-    )
+    ).order_by('-revenuePrice', '-revenueProfitPrice')
     sumRevenue = revenue.aggregate(
         revenuePrice=Sum('revenuePrice'),
         revenueProfitPrice=Sum('revenueProfitPrice')
@@ -630,3 +655,123 @@ def cal_over_gp(revenue):
         else:
             sum += (r.contractId.profitPrice - r.contractId.salePrice/100*15)/100*10
     return sum
+
+
+def cal_monthlybill(todayYear):
+    # 월별 매출액
+    revenue_month = {'name': '매출액','sum': 0}
+    # 월별 매출원가
+    cost_month = {'name': '매출원가','sum': 0}
+    # 월별 GP
+    gp_month = {'name': 'GP','sum': 0}
+    # 월별 판관비
+    expense_month = {'name': '판관비','sum': 0}
+    # 월별 영업 이익
+    profit_month = {'name': '영업이익','sum': 0}
+    table = []
+    for todayMonth in range(1, 13):
+        if todayMonth != 12:
+            revenues = Revenue.objects.filter(
+                Q(contractId__contractStep='Firm') &
+                Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2))) &
+                Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))
+            ).aggregate(
+                revenuePrice=Sum('revenuePrice'),
+                revenueProfitPrice=Sum('revenueProfitPrice')
+            )
+            expenses = Expense.objects.filter(
+                Q(expenseStatus='Y') &
+                Q(expenseDate__year=todayYear) &
+                Q(expenseDate__month=todayMonth)
+            ).exclude(
+                expenseDept='전사'
+            ).aggregate(
+                expenseMoney__sum=Sum('expenseMoney')
+            )
+        else:
+            revenues = Revenue.objects.filter(
+                Q(contractId__contractStep='Firm') &
+                Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2)))&
+                Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))
+            ).aggregate(
+                revenuePrice=Sum('revenuePrice'),
+                revenueProfitPrice=Sum('revenueProfitPrice')
+            )
+            expenses = Expense.objects.filter(
+                Q(expenseStatus='Y') &
+                Q(expenseDate__year=todayYear) &
+                Q(expenseDate__month=todayMonth)
+            ).exclude(
+                expenseDept='전사'
+            ).aggregate(
+                expenseMoney__sum=Sum('expenseMoney')
+            )
+
+        revenue_month['month{}'.format(str(todayMonth))] = revenues['revenuePrice']
+        revenue_month['sum'] += revenues['revenuePrice']
+        gp_month['month{}'.format(str(todayMonth))] = revenues['revenueProfitPrice']
+        gp_month['sum'] += revenues['revenueProfitPrice']
+        cost_month['month{}'.format(str(todayMonth))] = revenues['revenuePrice'] - revenues['revenueProfitPrice']
+        cost_month['sum'] += revenues['revenuePrice'] - revenues['revenueProfitPrice']
+        expense_month['month{}'.format(str(todayMonth))] = expenses['expenseMoney__sum'] or 0
+        expense_month['sum'] += expenses['expenseMoney__sum'] or 0
+        profit_month['month{}'.format(str(todayMonth))] = revenues['revenueProfitPrice'] - (expenses['expenseMoney__sum'] or 0)
+        profit_month['sum'] += revenues['revenueProfitPrice'] - (expenses['expenseMoney__sum'] or 0)
+
+    table.append(revenue_month)
+    table.append(cost_month)
+    table.append(gp_month)
+    table.append(expense_month)
+    table.append(profit_month)
+
+    return table
+
+
+def cal_profitloss(dept, todayYear):
+    # 계정과목 월별
+    expenses1 = Expense.objects.filter(
+        Q(expenseStatus='Y') &
+        Q(expenseDate__year=todayYear) &
+        Q(expenseDept__in=dept)
+    ).values('expenseGroup').annotate(
+        month1_expense=Sum('expenseMoney', filter=Q(expenseDate__month=1)),
+        month2_expense=Sum('expenseMoney', filter=Q(expenseDate__month=2)),
+        month3_expense=Sum('expenseMoney', filter=Q(expenseDate__month=3)),
+        month4_expense=Sum('expenseMoney', filter=Q(expenseDate__month=4)),
+        month5_expense=Sum('expenseMoney', filter=Q(expenseDate__month=5)),
+        month6_expense=Sum('expenseMoney', filter=Q(expenseDate__month=6)),
+        month7_expense=Sum('expenseMoney', filter=Q(expenseDate__month=7)),
+        month8_expense=Sum('expenseMoney', filter=Q(expenseDate__month=8)),
+        month9_expense=Sum('expenseMoney', filter=Q(expenseDate__month=9)),
+        month10_expense=Sum('expenseMoney', filter=Q(expenseDate__month=10)),
+        month11_expense=Sum('expenseMoney', filter=Q(expenseDate__month=11)),
+        month12_expense=Sum('expenseMoney', filter=Q(expenseDate__month=12)),
+        month_expense=Sum('expenseMoney')
+    )
+
+    # 합계
+    expenses2 = Expense.objects.filter(
+        Q(expenseStatus='Y') &
+        Q(expenseDate__year=todayYear) &
+        Q(expenseDept__in=dept)
+    ).exclude(
+        expenseDept='전사'
+    ).values(
+        'expenseDate__year'
+    ).annotate(
+        month1_expense=Sum('expenseMoney', filter=Q(expenseDate__month=1)),
+        month2_expense=Sum('expenseMoney', filter=Q(expenseDate__month=2)),
+        month3_expense=Sum('expenseMoney', filter=Q(expenseDate__month=3)),
+        month4_expense=Sum('expenseMoney', filter=Q(expenseDate__month=4)),
+        month5_expense=Sum('expenseMoney', filter=Q(expenseDate__month=5)),
+        month6_expense=Sum('expenseMoney', filter=Q(expenseDate__month=6)),
+        month7_expense=Sum('expenseMoney', filter=Q(expenseDate__month=7)),
+        month8_expense=Sum('expenseMoney', filter=Q(expenseDate__month=8)),
+        month9_expense=Sum('expenseMoney', filter=Q(expenseDate__month=9)),
+        month10_expense=Sum('expenseMoney', filter=Q(expenseDate__month=10)),
+        month11_expense=Sum('expenseMoney', filter=Q(expenseDate__month=11)),
+        month12_expense=Sum('expenseMoney', filter=Q(expenseDate__month=12)),
+        month_expense=Sum('expenseMoney')
+    )
+
+    return expenses1, expenses2

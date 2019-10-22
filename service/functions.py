@@ -408,7 +408,7 @@ def dayreport_query2(empDeptName, day):
     listVacation = []
 
     for service in serviceDept:
-        if service.serviceType == '상주':
+        if service.serviceType == '상주' or service.serviceType == '프로젝트상주':
             flag = '상주'
         elif service.directgo == 'Y':
             flag = '직출'

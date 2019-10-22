@@ -876,6 +876,7 @@
               multiStyle: {space: 5, width: 80},
               noResult: '검색결과없음',
               focusShow: true,
+              maxShow: 100,
               success: function ($input, data) {
                   $.ajax({
                       url: "{% url 'sales:salemanager_ajax_url' %}",
@@ -912,6 +913,7 @@
               multiStyle: {space: 5, width: 80},
               noResult: '검색결과없음',
               focusShow: true,
+              maxShow: 100,
           });
           endCompanyNames.removeAttribute("style");
           endCompanyNames.parentElement.removeAttribute("style");
@@ -1090,6 +1092,7 @@
                   multiStyle: {space: 5, width: 80},
                   noResult: '검색결과없음',
                   focusShow: true,
+                  maxShow: 100,
               });
 
               $('input[name=revenuePrice]').on("change keyup paste input", function() {
@@ -1130,6 +1133,7 @@
                       multiStyle: {space: 5, width: 80},
                       noResult: '검색결과없음',
                       focusShow: true,
+                      maxShow: 100,
                   });
               }
               $('.money').simpleMoneyFormat();
@@ -1202,6 +1206,7 @@
                   multiStyle: {space: 5, width: 80},
                   noResult: '검색결과없음',
                   focusShow: true,
+                  maxShow: 100,
               });
 
               $('input[name=purchasePrice]').on("change keyup paste input", function() {
@@ -1238,6 +1243,7 @@
                       multiStyle: {space: 5, width: 80},
                       noResult: '검색결과없음',
                       focusShow: true,
+                      maxShow: 100,
                   });
               }
               $('.money').simpleMoneyFormat();
@@ -1307,6 +1313,7 @@
                   multiStyle: {space: 5, width: 80},
                   noResult: '검색결과없음',
                   focusShow: true,
+                  maxShow: 100,
               });
 
               $('input[name=costPrice]').on("change keyup paste input", function() {
@@ -1342,6 +1349,7 @@
                       multiStyle: {space: 5, width: 80},
                       noResult: '검색결과없음',
                       focusShow: true,
+                      maxShow: 100,
                   });
               }
               $('.money').simpleMoneyFormat();

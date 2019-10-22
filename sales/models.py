@@ -15,7 +15,7 @@ class Contract(models.Model):
     contractId = models.AutoField(primary_key=True)
     contractCode = models.CharField(max_length=30)
     contractName = models.CharField(max_length=200)
-    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE, related_name='saleEmpId')
     empName = models.CharField(max_length=10)
     empDeptName = models.CharField(max_length=30)
     newCompany = models.CharField(max_length=10, choices=newCompanyChoices, default='N')
@@ -41,6 +41,10 @@ class Contract(models.Model):
     orderPaper = models.FileField(null=True, blank=True, upload_to="orderPaper/%Y_%m")
     transferContractId = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
+    writeEmpId = models.ForeignKey(Employee, on_delete=models.SET_NULL, related_name='writeEmpId', null=True, blank=True)
+    writeDatetime = models.DateTimeField(null=True, blank=True)
+    editEmpId = models.ForeignKey(Employee, on_delete=models.SET_NULL, related_name='editEmpId', null=True, blank=True)
+    editDatetime = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.contractName

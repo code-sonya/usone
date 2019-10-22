@@ -17,7 +17,7 @@
     .pc-table td, .pc-table th {
       padding: 5px 10px;
       vertical-align: middle;
-      font-size: 16px;
+      font-size: 13px;
       text-align: center;
       border: 1px solid lightgray;
       border-collapse: collapse;
@@ -58,72 +58,276 @@
           <h6 class="m-0 h3 text-gray-800">손익계산서</h6>
           <span class="text-right">[부가세 별도]</span>
         </div>
+        <div class="row ml-3 mt-3">
+          ※ 본 자료의 매출액과 GP집계는 <span class="text-primary ml-1 mr-1"> Firm </span> 기준으로 <span class="text-success ml-1 mr-1"> Oppt'y</span> 수치가 제외 되어 있음
+        </div>
 
         <div class="card-body">
           <div class="row ml-1 mr-1 mb-2 justify-content-between">
             <span class="font-weight-bold text-dark h5">1. {{ todayYear }}년 손익 현황</span>
             <span>[단위 : 백만원]</span>
           </div>
-         {% if user.employee.empDeptName == '경영지원본부' %}
+          {% if user.employee.empDeptName == '경영지원본부' %}
             <div class="float-right">
-            <i class="fas fa-upload"><a href="/sales/uploadprofitloss/"> 손익/원가데이터업로드</a></i>
+              <i class="fas fa-upload"><a href="/sales/uploadprofitloss/"> 손익/원가데이터업로드</a></i>
             </div>
             <br>
-        {% endif %}
+          {% endif %}
+          <div class="row">
+            <div class="col-sm-12 col-xl-6">
+              <span>① <span class="text-warning font-weight-bold">{{ todayMonth }}월</span> 손익계산서</span>
+              <table class="pc-table">
+                <thead>
+                <tr class="bg-light">
+                  <td>계정과목</td>
+                  <td>금액</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td>매출</td>
+                  <td class="text-right">{{ todayMonth_table.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                <tr>
+                  <td>매출원가</td>
+                  <td class="text-right">{{ todayMonth_table.cogs |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                <tr>
+                  <td>GP</td>
+                  <td class="text-right">{{ todayMonth_table.revenueProfitPrice |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                <tr>
+                  <td>판관비</td>
+                  <td class="text-right">{{ todayMonth_table.expenses |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                <tr class="bg-light">
+                  <td>영업이익</td>
+                  <td class="text-right">{{ todayMonth_table.profit |slugify|slice:"0:-6"|intcomma }}</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-sm-12 col-xl-6">
+            {% if expenseDate %}
+              <span>② <span class="text-primary">판관비</span> 상세 내역 [업로드일자:{{ expenseDate }}]</span>
+            {% else %}
+              <span>② <span class="text-primary">판관비</span></span>
+            {% endif %}
+              <table class="pc-table">
+                <thead>
+                <tr class="bg-light">
+                  <td>계정과목</td>
+                  <td>금액</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for expense in expenseDetail %}
+                  <tr class="expense">
+                    <td>{{ expense.expenseGroup }}</td>
+                    <td class="text-right">{{ expense.expenseMoney__sum |slugify|slice:"0:-6"|intcomma }} ({{ expense.expensePercent |floatformat:0 }}%)</td>
+                  </tr>
+                {% endfor %}
+                <tr class="sum_expense bg-light">
+                  <td>합계</td>
+                  <td class="text-right">{{ sum_expenseDetail.sum_expenseDetail |slugify|slice:"0:-6"|intcomma }} ({{ sum_expenseDetail.sum_expensePercent |floatformat:0 }}%)</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <br>
+          <div class="d-none d-xl-block">
+            <div class="row ml-1 mr-1 mb-2 justify-content-between">
+              <span class="font-weight-bold text-dark h5">2. {{ todayYear }}년 월별 손익 계산서 현황</span>
+              <span>[단위 : 백만원]</span>
+            </div>
             <div class="row">
-              <div class="col-sm-12 col-xl-6">
-                <span class="ml-3">① <span class="text-warning font-weight-bold">{{ todayMonth }}월</span> 손익계산서</span>
-                <table class="pc-table ml-2">
-                  <thead>
-                  <tr class="bg-light">
-                     <td>계정과목</td>
-                     <td>금액</td>
-                  </tr>
-                  </thead>
-                  <tbody>
-                   <tr>
-                     <td>매출</td>
-                     <td class="text-right">{{ netProfit.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
-                  </tr>
-                   <tr>
-                     <td>매출원가</td>
-                       <td class="text-right">{{ netProfit.revenuePrice |slugify|slice:"0:-6"|intcomma }}</td>
-                   </tr>
-                   <tr>
-                     <td>GP</td>
-                        <td class="text-right">{{ netProfit.revenueProfitPrice |slugify|slice:"0:-6"|intcomma }}</td>
-                   </tr>
-                   <tr>
-                     <td>판관비</td>
-                        <td class="text-right">{{ netProfit.expenses |slugify|slice:"0:-6"|intcomma }}</td>
-                   </tr>
+              <table class="pc-table ml-3 mr-3">
+                <thead>
+                <tr class="bg-light">
+                  <td>계정과목</td>
+                  <td>1월</td>
+                  <td>2월</td>
+                  <td>3월</td>
+                  <td>4월</td>
+                  <td>5월</td>
+                  <td>6월</td>
+                  <td>7월</td>
+                  <td>8월</td>
+                  <td>9월</td>
+                  <td>10월</td>
+                  <td>11월</td>
+                  <td>12월</td>
+                  <td>합계</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in month_table %}
+                  {% if row.name == '영업이익' %}
                     <tr class="bg-light">
-                     <td>영업이익</td>
-                       <td class="text-right">{{ netProfit.netProfit |slugify|slice:"0:-6"|intcomma  }}</td>
-                   </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="col-sm-12 col-xl-6">
-                <span class="ml-3">② <span class="text-primary">판관비</span> 상세 내역 [업로드일자:{{ expenseDate }}]</span>
-                <table class="pc-table">
+                      <td class="bg-light">{{ row.name }}</td>
+                      {% if row.month1 > 0 %}
+                        <td class="text-danger">{{ row.month1 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month1 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month2 > 0 %}
+                        <td class="text-danger">{{ row.month2 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month2 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month3 > 0 %}
+                        <td class="text-danger">{{ row.month3 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month3 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month4 > 0 %}
+                        <td class="text-danger">{{ row.month4 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month4 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month5 > 0 %}
+                        <td class="text-danger">{{ row.month5 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month5 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month6 > 0 %}
+                        <td class="text-danger">{{ row.month6 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month6 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month7 > 0 %}
+                        <td class="text-danger">{{ row.month7 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month7 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month8 > 0 %}
+                        <td class="text-danger">{{ row.month8 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month8 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month9 > 0 %}
+                        <td class="text-danger">{{ row.month9 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month9 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month10 > 0 %}
+                        <td class="text-danger">{{ row.month10 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month10 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month11 > 0 %}
+                        <td class="text-danger">{{ row.month11 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month11 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.month12 > 0 %}
+                        <td class="text-danger">{{ row.month12 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary">{{ row.month12 |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                      {% if row.sum > 0 %}
+                        <td class="text-danger font-weight-bold">{{ row.sum |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% else %}
+                        <td class="text-primary font-weight-bold">{{ row.sum |slugify|slice:"0:-6"|intcomma }}</td>
+                      {% endif %}
+                    </tr>
+                  {% else %}
+                    <tr>
+                      <td class="bg-light">{{ row.name }}</td>
+                      <td>{{ row.month1 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month2 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month3 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month4 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month5 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month6 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month7 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month8 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month9 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month10 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month11 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.month12 |slugify|slice:"0:-6"|intcomma }}</td>
+                      <td>{{ row.sum |slugify|slice:"0:-6"|intcomma }}</td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <br>
+            <div class="row ml-1 mr-1 mb-2 justify-content-between">
+              <span class="font-weight-bold text-dark h5">3. 판관비 세부내역</span>
+              <span>[단위 : 백만원]</span>
+            </div>
+            {% for lst in business %}
+              <div class="row" id="{{ lst.class }}">
+                <span class="ml-3"> {{ lst.name }}</span>
+                <br>
+                <table class="pc-table ml-3 mr-3 mb-1">
                   <thead>
                   <tr class="bg-light">
-                     <td>계정과목</td>
-                     <td>금액</td>
+                    <td>계정과목</td>
+                    <td>1월</td>
+                    <td>2월</td>
+                    <td>3월</td>
+                    <td>4월</td>
+                    <td>5월</td>
+                    <td>6월</td>
+                    <td>7월</td>
+                    <td>8월</td>
+                    <td>9월</td>
+                    <td>10월</td>
+                    <td>11월</td>
+                    <td>12월</td>
+                    <td>합계</td>
                   </tr>
                   </thead>
                   <tbody>
-                  {% for expense in expenseDetail %}
-                   <tr class="expense">
-                     <td>{{ expense.expenseGroup }}</td>
-                     <td class="text-right">{{ expense.expenseMoney__sum |slugify|slice:"0:-6"|intcomma }} ({{ expense.expensePercent |floatformat:0}}%)</td>
-                  </tr>
+                  {% for row in lst.expense %}
+                    <tr class="{{ lst.class }}">
+                      <td class="bg-light">{{ row.expenseGroup }}</td>
+                      <td>{% if row.month1_expense != None %}{{ row.month1_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month2_expense != None %}{{ row.month2_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month3_expense != None %}{{ row.month3_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month4_expense != None %}{{ row.month4_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month5_expense != None %}{{ row.month5_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month6_expense != None %}{{ row.month6_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month7_expense != None %}{{ row.month7_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month8_expense != None %}{{ row.month8_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month9_expense != None %}{{ row.month9_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month10_expense != None %}{{ row.month10_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month11_expense != None %}{{ row.month11_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month12_expense != None %}{{ row.month12_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month_expense != None %}{{ row.month_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                    </tr>
+                  {% endfor %}
+                  {% for row in lst.sum %}
+                    <tr class="bg-light">
+                      <td>합계</td>
+                      <td>{% if row.month1_expense != None %}{{ row.month1_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month2_expense != None %}{{ row.month2_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month3_expense != None %}{{ row.month3_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month4_expense != None %}{{ row.month4_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month5_expense != None %}{{ row.month5_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month6_expense != None %}{{ row.month6_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month7_expense != None %}{{ row.month7_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month8_expense != None %}{{ row.month8_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month9_expense != None %}{{ row.month9_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month10_expense != None %}{{ row.month10_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month11_expense != None %}{{ row.month11_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td>{% if row.month12_expense != None %}{{ row.month12_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                      <td class="font-weight-bold">{% if row.month_expense != None %}{{ row.month_expense |slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %}</td>
+                    </tr>
                   {% endfor %}
                   </tbody>
                 </table>
+                {% if lst.btn == 'Y' %}
+                  <div id="more_{{ lst.class }}" class="text-warning ml-3 mb-1" name="down"> ▶ 상세보기</div>
+                {% endif %}
               </div>
-            </div>
+            {% endfor %}
+          </div>
+          <div class="d-xl-none text-center">※ 상세 내역은 <span class="text-primary">PC화면</span>에서 확인 가능합니다.</div>
         </div>
       </div>
     </div>
@@ -132,17 +336,220 @@
 {% endblock %}
 
 
-{% block script %}
+|intcomma {% block script %}
 
   <script>
-    $('.expense:gt(4)').hide().last().after(
-                  $('<a />').attr('href','#').text('더보기').click(function(){
-                      var a = this;
-                      $('.expense:not(:visible):lt(50)').fadeIn(function(){
-                       if ($('.expense:not(:visible)').length == 0) $(a).remove();
-                      }); return false;
-                  })
-              );
+      const etc = '<tr><td>기타</td><td style="text-align:right" class="text-primary"><i class="fas fa-plus-circle" id="btn"> 더보기</td></tr>';
+      const etc_businessAll = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_businessAll"> 더보기</td><td colspan=13></td></tr>';
+      const etc_businessExecutives = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_businessExecutives"> 더보기</td><td colspan=13></td></tr>';
+      const etc_businessSales1 = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_businessSales1"> 더보기</td><td colspan=13></td></tr>';
+      const etc_businessSales2 = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_businessSales2"> 더보기</td><td colspan=13></td></tr>';
+      const etc_businessInfra = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_businessInfra"> 더보기</td><td colspan=13></td></tr>';
+      const etc_serviceAll = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_serviceAll"> 더보기</td><td colspan=13></td></tr>';
+      const etc_serviceExecutives = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_serviceExecutives"> 더보기</td><td colspan=13></td></tr>';
+      const etc_serviceSolution = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_serviceSolution"> 더보기</td><td colspan=13></td></tr>';
+      const etc_serviceDB = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_serviceDB"> 더보기</td><td colspan=13></td></tr>';
+      const etc_supportAll = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_supportAll"> 더보기</td><td colspan=13></td></tr>';
+      $('.expense:gt(2)').hide().last().after(etc);
+      $('.businessAll').hide().last().after(etc_businessAll);
+      $('.businessExecutives').hide().last().after(etc_businessExecutives);
+      $('.businessSales1').hide().last().after(etc_businessSales1);
+      $('.businessSales2').hide().last().after(etc_businessSales2);
+      $('.businessInfra').hide().last().after(etc_businessInfra);
+      $('.serviceAll').hide().last().after(etc_serviceAll);
+      $('.serviceExecutives').hide().last().after(etc_serviceExecutives);
+      $('.serviceSolution').hide().last().after(etc_serviceSolution);
+      $('.serviceDB').hide().last().after(etc_serviceDB);
+      $('.supportAll').hide().last().after(etc_supportAll);
+
+
+      $('#btn').click(function () {
+          let a = this;
+          if ($('#btn').attr('class') == 'fas fa-plus-circle') {
+              $('.expense:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.expense:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.expense:gt(2)').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_businessAll').click(function () {
+          let a = this;
+          if ($('#btn_businessAll').attr('class') == 'fas fa-plus-circle') {
+              $('.businessAll:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.businessAll:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.businessAll').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_businessExecutives').click(function () {
+          let a = this;
+          if ($('#btn_businessExecutives').attr('class') == 'fas fa-plus-circle') {
+              $('.businessExecutives:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.businessExecutives:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.businessExecutives').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_businessSales1').click(function () {
+          let a = this;
+          if ($('#btn_businessSales1').attr('class') == 'fas fa-plus-circle') {
+              $('.businessSales1:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.businessSales1:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.businessSales1').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_businessSales2').click(function () {
+          let a = this;
+          if ($('#btn_businessSales2').attr('class') == 'fas fa-plus-circle') {
+              $('.businessSales2:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.businessSales2:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.businessSales2').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_businessInfra').click(function () {
+          let a = this;
+          if ($('#btn_businessInfra').attr('class') == 'fas fa-plus-circle') {
+              $('.businessInfra:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.businessInfra:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.businessInfra').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_serviceAll').click(function () {
+          let a = this;
+          if ($('#btn_serviceAll').attr('class') == 'fas fa-plus-circle') {
+              $('.serviceAll:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.serviceAll:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.serviceAll').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_serviceExecutives').click(function () {
+          let a = this;
+          if ($('#btn_serviceExecutives').attr('class') == 'fas fa-plus-circle') {
+              $('.serviceExecutives:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.serviceExecutives:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.serviceExecutives').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_serviceSolution').click(function () {
+          let a = this;
+          if ($('#btn_serviceSolution').attr('class') == 'fas fa-plus-circle') {
+              $('.serviceSolution:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.serviceSolution:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.serviceSolution').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_serviceDB').click(function () {
+          let a = this;
+          if ($('#btn_serviceDB').attr('class') == 'fas fa-plus-circle') {
+              $('.serviceDB:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.serviceDB:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.serviceDB').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_supportAll').click(function () {
+          let a = this;
+          if ($('#btn_supportAll').attr('class') == 'fas fa-plus-circle') {
+              $('.supportAll:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.supportAll:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.supportAll').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#more_businessAll').click(function () {
+          let a = this;
+          if($('#more_businessAll').attr('name')=='down'){
+               $('#businessExecutives').show();
+               $('#businessSales1').show();
+               $('#businessSales2').show();
+               $('#businessInfra').show();
+               $(a).attr('name','up').text(' ▼ 접기');
+          }else{
+              $(a).attr('name','down').text(' ▶ 상세보기');
+              $('#businessExecutives').hide();
+              $('#businessSales1').hide();
+              $('#businessSales2').hide();
+              $('#businessInfra').hide();
+          }
+
+      });
+
+      $('#more_serviceAll').click(function () {
+          let a = this;
+          if($('#more_serviceAll').attr('name')=='down'){
+                $('#serviceExecutives').show();
+                $('#serviceSolution').show();
+                $('#serviceDB').show();
+               $(a).attr('name','up').text(' ▼ 접기');
+          }else{
+              $(a).attr('name','down').text(' ▶ 상세보기');
+               $('#serviceExecutives').hide();
+               $('#serviceSolution').hide();
+               $('#serviceDB').hide();
+          }
+
+      });
+
+      $(document).ready(function () {
+          $('#businessExecutives').hide();
+          $('#businessSales1').hide();
+          $('#businessSales2').hide();
+          $('#businessInfra').hide();
+          $('#serviceExecutives').hide();
+          $('#serviceSolution').hide();
+          $('#serviceDB').hide();
+      });
+
 
   </script>
 

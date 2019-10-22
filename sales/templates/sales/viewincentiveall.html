@@ -21,7 +21,7 @@
       padding: 5px 15px;
       text-align: center;
       vertical-align: middle;
-      font-size: 17px;
+      font-size: 14px;
       border-top: 1px dotted #858796a3;
     }
 
@@ -66,6 +66,9 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h3 class="m-0 text-gray-800"> {{ todayYear }}년 {{ todayQuarter }}분기 인센티브 현황 </h3>
         <div class="dropdown no-arrow">
+          <a class="mr-3" onclick="location.href='/sales/viewincentivepdf/{{ todayQuarter }}/'">
+            <i class="fas fa-download fa-fw text-gray-400"></i>
+          </a>
           <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
             <i class="fas fa-filter fa-fw text-gray-400"></i>
           </a>
@@ -73,7 +76,7 @@
       </div>
 
       <div class="card-body">
-        <table class="pc-table" id="contract">
+        <table class="pc-table">
           <thead class="bg-light thtd">
           <tr class="thtd">
             <td class="thtd" colspan="3">구분</td>
@@ -81,7 +84,7 @@
             <td class="thtd" colspan="2">인센티브 산출</td>
             <td class="thtd" colspan="6">인센티브</td>
             <td class="thtd" colspan="4">AWARD</td>
-            <td class="thtd" colspan="2"></td>
+{#            <td class="thtd" colspan="2"></td>#}
           </tr>
           <tr class="thtd">
             <td class="thtd" rowspan="2">직급</td>
@@ -97,7 +100,7 @@
             <td class="thtd" colspan="2">{{ nextMonth }}월급여대장</td>
             <td class="thtd" colspan="2">누계</td>
             <td class="thtd" colspan="2">분기</td>
-            <td class="thtd" colspan="2">급여증감액</td>
+{#            <td class="thtd" colspan="2">급여증감액</td>#}
           </tr>
           <tr class="thtd">
             <td class="thtd" colspan="2">A</td>
@@ -105,12 +108,15 @@
             <td class="thtd" colspan="2">C</td>
             <td class="thtd">D</td>
             <td class="thtd">E</td>
-            <td class="thtd" colspan="2"><div class="text-xs">D가100%미만:C*D=F</div><div class="text-xs">그외:((C*D)-C)*E+C=F</div></td>
+            <td class="thtd" colspan="2">
+              <div class="text-xs">D가100%미만:C*D=F</div>
+              <div class="text-xs">그외:((C*D)-C)*E+C=F</div>
+            </td>
             <td class="thtd" colspan="2">G</td>
             <td class="thtd" colspan="2">F-G=H</td>
             <td class="thtd" colspan="2">I</td>
             <td class="thtd" colspan="2">J</td>
-            <td class="thtd" colspan="2">(F+I)-C</td>
+{#            <td class="thtd" colspan="2">(F+I)-C</td>#}
           </tr>
           </thead>
           <tbody>
@@ -129,13 +135,31 @@
               <td class="thtd" colspan="2">{{ row.achieveIncentive | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.sum_achieveAward | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.achieveAward | intcomma }}</td>
-              {% if row.compareIncentive > 0 %}
-                <td class="thtd text-danger" colspan="2">{{ row.compareIncentive | intcomma }}</td>
-              {% else %}
-                <td class="thtd text-primary" colspan="2">{{ row.compareIncentive | intcomma }}</td>
-              {% endif %}
+{#              {% if row.compareIncentive > 0 %}#}
+{#                <td class="thtd text-danger" colspan="2">{{ row.compareIncentive | intcomma }}</td>#}
+{#              {% else %}#}
+{#                <td class="thtd text-primary" colspan="2">{{ row.compareIncentive | intcomma }}</td>#}
+{#              {% endif %}#}
             </tr>
           {% endfor %}
+          <tr class="thtd bg-light">
+            <td class="thtd" colspan="3">합계</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_salary | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_basicSalary | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_bettingSalary | intcomma }}</td>
+            <td class="thtd"></td>
+            <td class="thtd"></td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_cumulateIncentive | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_achieveIncentive | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.achieveIncentive | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.sum_achieveAward | intcomma }}</td>
+            <td class="thtd" colspan="2">{{ sum_table.achieveAward | intcomma }}</td>
+{#            {% if sum_table.compareIncentive > 0 %}#}
+{#              <td class="thtd text-danger" colspan="2">{{ sum_table.compareIncentive | intcomma }}</td>#}
+{#            {% else %}#}
+{#              <td class="thtd text-primary" colspan="2">{{ sum_table.compareIncentive | intcomma }}</td>#}
+{#            {% endif %}#}
+          </tr>
           </tbody>
         </table>
       </div>
