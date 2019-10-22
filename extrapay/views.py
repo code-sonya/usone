@@ -786,7 +786,7 @@ def save_salarytable(request):
     empSalary = request.GET.getlist('empSalary')
     empId = request.GET.getlist('empId')
 
-    for a, b, c in zip(empId, empSalary):
+    for a, b in zip(empId, empSalary):
         employee = Employee.objects.get(empId=a)
         if b != '':
             employee.empSalary = float(b)
