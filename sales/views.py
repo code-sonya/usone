@@ -1586,18 +1586,28 @@ def daily_report(request):
     #   2-2. 분기 누계 달성 현황
     rowsFOQ = dailyReportRows(todayYear, todayQuarter, 'FO')
 
-    # 채권 및 채무 현황
+    # 3. 채권 및 채무 현황
     contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
     revenues = Revenue.objects.all()
     purchases = Purchase.objects.all()
     money = {}
 
-    # 1. 회계기준 기본 잔액
-    money['A'] = revenues.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True)).aggregate(sum=Sum('revenuePrice'))['sum']
-    money['B'] = purchases.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True)).aggregate(sum=Sum('purchasePrice'))['sum']
+    # 3-1. 회계기준 기본 잔액
+    # 매출채권잔액(A)
+    money['A'] = revenues.filter(
+        Q(billingDate__isnull=False) &
+        Q(depositDate__isnull=True)
+    ).aggregate(sum=Sum('revenuePrice'))['sum']
+    # 매입채무잔액(B)
+    money['B'] = purchases.filter(
+        Q(billingDate__isnull=False) &
+        Q(withdrawDate__isnull=True)
+    ).aggregate(sum=Sum('purchasePrice'))['sum']
+    # A - B
     money['AmB'] = money['A'] - money['B']
 
     # 2. 매입채무 조정
+    # 미접수(C), 선매입(D), 선지급(E)
     money['C'] = 0
     money['D'] = 0
     money['E'] = 0
