@@ -1572,6 +1572,7 @@ def daily_report(request):
     # 연도, 월, 분기
     todayYear = datetime.today().year
     todayMonth = datetime.today().month
+    todayQuarter = 0
     if todayMonth in [1, 2, 3]:
         todayQuarter = 1
     elif todayMonth in [4, 5, 6]:
