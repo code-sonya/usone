@@ -869,9 +869,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
             extrapay = ExtraPay.objects.filter(Q(overHourDate__month=service_month) & Q(empId=service.empId_id)).first()
             if extrapay:
                 sumOverHour = extrapay.sumOverHour
-                payHour = extrapay.payHour
                 extrapay.sumOverHour = float(sumOverHour)+float(overhour)
-                extrapay.payHour = float(payHour)+float(overhour)
                 extrapay.save()
             else:
                 extrapay = ExtraPay.objects.create(
@@ -879,7 +877,6 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
                     empName=service.empName,
                     overHourDate=service.serviceDate,
                     sumOverHour=overhour,
-                    payHour=overhour,
                 )
 
             OverHour.objects.create(

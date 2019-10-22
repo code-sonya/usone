@@ -68,7 +68,6 @@
                   <th>엔지니어명</th>
                   <th>초과근무시간</th>
                   <th>보상휴가시간</th>
-                  <th>시간외수당시간</th>
                   <th>비고(보상휴가시간)</th>
                   <th class="d-none">overHourId</th>
                 </tr>
@@ -271,7 +270,6 @@
                   {data: "empName"},
                   {data: "sumOverHour"},
                   {data: "compensatedHour"},
-                  {data: "payHour"},
                   {data: "compensatedComment"},
                   {data: "extraPayId"},
               ],
@@ -295,18 +293,18 @@
                                   'name="compensatedHour" class="input-form" step="0.1" value='+row["compensatedHour"]+'>'
                        },
                       targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  // {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
                               return '<input type="text" id="compensatedComment' + row["extraPayId"] + '" ' +
                                   'name="compensatedComment" class="input-form" value='+data+'>'
                        },
-                      targets: 6, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
                           return '<div name="extraPayId" >' + data + '</div>'
                       },
-                      targets: 7, className: "d-none"},
+                      targets: 6, className: "d-none"},
               ],
               "searching": true,
               "paging": true,
@@ -326,7 +324,6 @@
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   $('td:eq(0)', nRow).text(replaceAll(aData.overHourDate, "-", "."));
-                  $('td:eq(5)', nRow).css('color','red');
               }
           });
 

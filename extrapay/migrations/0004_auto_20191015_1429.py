@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('overHourDate', models.DateField()),
                 ('sumOverHour', models.FloatField(blank=True, null=True)),
                 ('compensatedHour', models.FloatField(blank=True, null=True)),
-                ('payHour', models.FloatField(blank=True, null=True)),
+                ('', models.FloatField(blank=True, null=True)),
                 ('payStatus', models.CharField(default='N', max_length=10)),
                 ('empId', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='hr.Employee')),
             ],

@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from .models import OverHour, ExtraPay
 from service.models import Servicereport, Vacation
+from hr.models import Employee
 from scheduler.models import Eventday
 import datetime
 from usone.security import naverMapId, naverMapKey
@@ -26,25 +27,32 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
 
     for extrapay in extrapays:
         extrapay_dict = {}
-        if extrapay.payStatus !='X':
-            sum_overhours = OverHour.objects.filter(Q(extraPayId=extrapay.extraPayId) & Q(overHour__gt=0))\
-                                            .aggregate(sumOverhour=Sum('overHour'),
-                                                sumOverhourCost=Sum('overHourCost'),
-                                                sumFoodCost=Sum('foodCost'))
-            sum_foodcosts = OverHour.objects.filter(Q(extraPayId=extrapay.extraPayId) & Q(overHour=0))\
-                                            .aggregate(sumFoodCost=Sum('foodCost'))
+        employee = Employee.objects.get(empId=str(extrapay.empId_id))
+        if extrapay.payStatus == 'N':
+            sum_overhours = OverHour.objects.filter(
+                Q(extraPayId=extrapay.extraPayId) &
+                Q(overHourStatus='Y') &
+                Q(overHour__gt=0)).aggregate(
+                sumOverhour=Sum('overHour'),
+                sumFoodCost=Sum('foodCost'))
 
-            if sum_overhours['sumOverhourCost'] > 200000:
+            sum_foodcosts = OverHour.objects.filter(
+                Q(extraPayId=extrapay.extraPayId) &
+                Q(overHourStatus='Y') &
+                Q(overHour=0)).aggregate(
+                sumFoodCost=Sum('foodCost'))
+
+            if ((sum_overhours['sumOverhour']or 0)-(extrapay.compensatedHour or 0))*1.5*employee.empSalary > 200000:
                 real_cost = 200000
             else:
-                real_cost = sum_overhours['sumOverhourCost']
+                real_cost = ((sum_overhours['sumOverhour']or 0)-(extrapay.compensatedHour or 0))*1.5*employee.empSalary
 
             extrapay_dict['extraPayId'] = extrapay.extraPayId
             extrapay_dict['empDeptName'] = extrapay.empId.empDeptName
             extrapay_dict['empPosition'] = extrapay.empId.empPosition.positionName
             extrapay_dict['empName'] = extrapay.empName
-            extrapay_dict['sumOverhour'] = sum_overhours['sumOverhour']
-            sumEmp['sumoverHour'] += sum_overhours['sumOverhour']
+            extrapay_dict['sumOverhour'] = sum_overhours['sumOverhour'] or 0
+            sumEmp['sumoverHour'] += (sum_overhours['sumOverhour'] or 0)
             extrapay_dict['compensatedHour'] = extrapay.compensatedHour or 0
             sumEmp['sumcompensatedHour'] += extrapay.compensatedHour or 0
             extrapay_dict['sumOverhourFoodCost'] = real_cost + (sum_overhours['sumFoodCost'] or 0)
@@ -55,12 +63,14 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
             sumEmp['sumCost'] += real_cost + (sum_overhours['sumFoodCost'] or 0) + (sum_foodcosts['sumFoodCost'] or 0)
 
         else:
-            sum_overhours = OverHour.objects.filter(Q(extraPayId=extrapay.extraPayId) & Q(overHour__isnull=False)) \
-                .aggregate(
-                           sumOverhour=Sum('overHour'),
-                           sumOverhourWeekday=Sum('overHourWeekDay'),
-                           sumOverhourCost=Sum('overHourCost'),
-                           overHourCostWeekDay=Sum('overHourCostWeekDay'),
+            sum_overhours = OverHour.objects.filter(
+                Q(extraPayId=extrapay.extraPayId) &
+                Q(overHourStatus='Y') &
+                Q(overHour__isnull=False)).aggregate(
+                sumOverhour=Sum('overHour'),
+                sumOverhourWeekday=Sum('overHourWeekDay'),
+                sumOverhourCost=Sum('overHourCost'),
+                overHourCostWeekDay=Sum('overHourCostWeekDay'),
             )
             if sum_overhours['sumOverhour']:
                 sumoverhour = sum_overhours['sumOverhour'] / 24

@@ -4,16 +4,16 @@ from .models import OverHour, Car, Oil, Fuel, ExtraPay
 
 @admin.register(ExtraPay)
 class ExtraPayAdmin(admin.ModelAdmin):
-    list_display = ('extraPayId', 'empName', 'overHourDate', 'compensatedHour', 'payHour', 'payStatus')
-    list_filter = ('empName', 'overHourDate', 'compensatedHour')
-    list_display_links = ['extraPayId', 'empName', 'overHourDate', 'compensatedHour']
+    list_display = ('extraPayId', 'empName', 'overHourDate', 'compensatedHour', 'payStatus')
+    list_filter = ('empName', 'overHourDate', 'compensatedHour', 'payStatus')
+    list_display_links = ['extraPayId', 'empName', 'overHourDate', 'compensatedHour', 'payStatus']
 
 
 @admin.register(OverHour)
 class OverHourAdmin(admin.ModelAdmin):
-    list_display = ('overHourId', 'empName', 'overHourStartDate', 'overHourEndDate', 'overHour', 'extraPayId')
-    list_filter = ('empName', 'overHourStartDate', 'overHourEndDate')
-    list_display_links = ['overHourId', 'empName', 'overHourStartDate', 'overHourEndDate']
+    list_display = ('overHourId', 'empName', 'overHourStartDate', 'overHourEndDate', 'overHour', 'extraPayId', 'overHourStatus')
+    list_filter = ('empName', 'overHourStartDate', 'overHourEndDate', 'overHourStatus')
+    list_display_links = ['overHourId', 'empName', 'overHourStartDate', 'overHourEndDate', 'overHourStatus']
 
 
 @admin.register(Car)

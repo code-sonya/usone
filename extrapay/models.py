@@ -10,7 +10,6 @@ class ExtraPay(models.Model):
     sumOverHour = models.FloatField(null=True, blank=True)
     compensatedHour = models.FloatField(null=True, blank=True, default=0)
     compensatedComment = models.CharField(max_length=30, null=True, blank=True, default='')
-    payHour = models.FloatField(null=True, blank=True)
     payStatus = models.CharField(max_length=10, default='N')
 
     def __str__(self):
@@ -30,6 +29,7 @@ class OverHour(models.Model):
     overHourCost = models.FloatField(null=True, blank=True, default=0)
     overHourCostWeekDay = models.FloatField(null=True, blank=True, default=0)
     foodCost = models.FloatField(null=True, blank=True, default=0)
+    overHourStatus = models.CharField(max_length=10, null=True, blank=True, default='Y')
     extraPayId = models.ForeignKey(ExtraPay, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
