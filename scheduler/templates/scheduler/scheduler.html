@@ -362,8 +362,8 @@
                       {% for i in myServices %}
                           {
                               title: '{{ i.empName }}',
-                              start: '{{ i.serviceStartDatetime|date:"Y-m-d" }}T{{ i.serviceStartDatetime|time:"H:i" }}:00',
-                              end: '{{ i.serviceEndDatetime|date:"Y-m-d" }}T{{ i.serviceEndDatetime|time:"H:i" }}:00',
+                              start: '{{ i.serviceBeginDatetime|date:"Y-m-d" }}T{{ i.serviceBeginDatetime|time:"H:i" }}:00',
+                              end: '{{ i.serviceFinishDatetime|date:"Y-m-d" }}T{{ i.serviceFinishDatetime|time:"H:i" }}:00',
                               url: '{% url 'service:viewservice' i.serviceId %}',
                               service_id: '{{ i.serviceId }}',
                               name: '{{ i.empName }}',
@@ -422,8 +422,8 @@
                       {% for i in teamServices %}
                           {
                               title: '{{ i.empName }}',
-                              start: '{{ i.serviceStartDatetime|date:"Y-m-d" }}T{{ i.serviceStartDatetime|time:"H:i" }}:00',
-                              end: '{{ i.serviceEndDatetime|date:"Y-m-d" }}T{{ i.serviceEndDatetime|time:"H:i" }}:00',
+                              start: '{{ i.serviceBeginDatetime|date:"Y-m-d" }}T{{ i.serviceBeginDatetime|time:"H:i" }}:00',
+                              end: '{{ i.serviceFinishDatetime|date:"Y-m-d" }}T{{ i.serviceFinishDatetime|time:"H:i" }}:00',
                               url: '{% url 'service:viewservice' i.serviceId %}',
                               service_id: '{{ i.serviceId }}',
                               name: '{{ i.empName }}',
