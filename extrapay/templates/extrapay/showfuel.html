@@ -60,6 +60,7 @@
             </tr>
             </tfoot>
             </table>
+            {% if btnStatus == 'Y' %}
             <div class="text-center">
               <form id="delFuelForm" method="POST" action="/extrapay/delfuel/">
                 {% csrf_token %}
@@ -69,6 +70,7 @@
                 <span class="text"> 취소 </span>
               </a>
             </div>
+            {% endif %}
           </div>
           <br>
 
@@ -93,6 +95,7 @@
               <br>2. 차종 입력 (우측 상단 프로필에서 수정)
             </div>
             <br>
+            {% if btnStatus == 'Y' %}
             <div class="text-center">
               <form id="fuelForm" method="POST" action="/extrapay/postfuel/">
                 {% csrf_token %}
@@ -103,6 +106,7 @@
                 <span class="text"> 신청 </span>
               </a>
             </div>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -269,6 +273,10 @@
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(4)', nRow).text(aData.distance.toLocaleString() + 'km');
+                if (aData.distanceCode > 0) {
+                    console.log(aData.distanceCode);
+                    $('td:eq(4)', nRow).addClass('text-danger');
+                }
                 $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             }
         });
@@ -384,6 +392,10 @@
                     $('td', nRow).eq(1).addClass('text-danger font-weight-bold');
                 }
                 $('td:eq(5)', nRow).text(aData.distance.toLocaleString() + 'km');
+                if (aData.distanceCode > 0) {
+                    console.log(aData.distanceCode);
+                    $('td:eq(5)', nRow).addClass('text-danger');
+                }
                 $('td:eq(6)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             },
             "footerCallback": function () {
