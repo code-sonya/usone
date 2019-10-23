@@ -30,4 +30,5 @@ urlpatterns = [
     url(r'^postsalary/$', views.post_salary, name='postsalary'),
     url(r'^viewoverhourpdf/(?P<extraPayId>.+)/$', views.view_overhour_pdf, name='viewoverhourpdf'),
     url(r'^deleteoverhour/$', views.delete_overhour, name='deleteoverhour'),
+    url(r'^viewfuelpdf/(?P<yearmonth>.+)/$', views.view_fuel_pdf, name='viewfuelpdf'),
 ]

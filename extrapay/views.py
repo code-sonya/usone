@@ -240,6 +240,7 @@ def admin_fuel(request):
     startdate = str(datetime(y, m, 1).date())
     enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
     context = {
+        'yearmonth': '{}-{}'.format(y, m),
         'startdate': startdate,
         'enddate': enddate,
     }
@@ -898,10 +899,33 @@ def delete_overhour(request):
             overhour.save()
             return redirect('extrapay:viewoverhour', extraPayId)
         except Exception as e:
+            print(e)
             return redirect('extrapay:viewoverhour', extraPayId)
 
     else:
         print('else')
         return HttpResponse('오류발생! 관리자에게 문의하세요 :(')
+
+
+def view_fuel_pdf(request, yearmonth):
+    todayYear = int(yearmonth[:4])
+    todayMonth = int(yearmonth[5:7])
+    context = {
+        'todayYear': todayYear,
+        'todayMonth': todayMonth,
+    }
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{}년{}월유류비신청현황.pdf"'.format(todayYear, todayMonth)
+
+    template = get_template('extrapay/viewfuelpdf.html')
+    html = template.render(context, request)
+    # create a pdf
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
 
 
