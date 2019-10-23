@@ -51,8 +51,8 @@
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right">(승인) TOTAL :</th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: left">
                 ※ 합계는 <span class="text-primary">승인</span>된 건에 대해서만 계산됩니다.
               </th>
@@ -60,6 +60,7 @@
             </tfoot>
           </table>
         </div>
+        {% if user.employee.empDeptName != '임원' and user.employee.empDeptName != '경영지원본부' or empDeptName == '경영지원본부' and user.employee.empManager == 'Y' %}
         <h5 class="text-dark font-weight-bold">▼ 진행</h5>
         <div class="table-responsive">
           <table id="napprovalfuel" class="hover row-border" width="100%" style="width: 100%;">
@@ -83,8 +84,8 @@
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: center"></th>
               <th style="padding: 8px 10px; text-align: center"></th>
               <th style="padding: 8px 10px; text-align: center"></th>
@@ -93,6 +94,7 @@
           </table>
         </div>
         <br>
+        {% if btnStatus == 'Y' %}
         <div class="text-center">
           <form id="approvalfuelForm" method="POST" action="/extrapay/approvalpostfuel/">
             {% csrf_token %}
@@ -103,6 +105,8 @@
             <span class="text"> 완료 </span>
           </a>
         </div>
+        {% endif %}
+        {% endif %}
       </div>
     </div>
   </div>
@@ -151,6 +155,7 @@
       <div class="modal-body">
         <form id="mapForm" method="POST" action="/extrapay/postdistance/" onkeydown="javascript: if (event.keyCode == 13) {btn_post_distance();}">
           {% csrf_token %}
+          <input class="d-none" name="startdate" value="{{ startdate }}">
           <input class="d-none" name="empId" value="{{ empId }}">
           <input class="d-none" id="serviceId" name="serviceId" value="">
           <div id="map" style="width:100%;height:300px;" class="mb-3"></div>
@@ -160,10 +165,10 @@
               <div id="distanceMessage"></div>
             </div>
             <div class="col-4">
-              <label for="distance" class="font-weight-light text-primary">측정 거리(km)</label>
+              <label for="realdistance" class="font-weight-light text-primary">측정 거리(km)</label>
               <div id="realdistance"></div>
             </div>
-            <div class="col-4">
+            <div class="col-4 map-status">
               <label for="distance" class="font-weight-light text-primary">거리 수정(km)</label>
               <input class="form-control" id="distance" name="distance" value="">
             </div>
@@ -171,7 +176,7 @@
         </form>
       </div>
 
-      <div class="modal-footer">
+      <div class="modal-footer map-status">
         <a class="btn btn-info" href="#" onclick="btn_post_distance()">적용</a>
       </div>
     </div>
@@ -272,7 +277,6 @@
             newlocation.push([parseFloat(endLatitude), parseFloat(endLongitude), '지원종료지점']);
             newlocation.push([parseFloat(finishLatitude), parseFloat(finishLongitude), '도착지']);
             for (let j = 0; j < newlocation.length; j++) {
-                console.log(newlocation[j][0],newlocation[j][1], newlocation[j][2]);
                 location = new google.maps.LatLng(newlocation[j][0], parseFloat(newlocation[j][1]));
                 msg = newlocation[j][2];
                 marker = new google.maps.Marker({
@@ -294,7 +298,7 @@
 
     }
 
-    function btn_map(serviceId) {
+    function btn_map(serviceId, status) {
         $.ajax({
             url: "{% url 'extrapay:approvalfuelasjson' %}",
             method: 'GET',
@@ -316,12 +320,24 @@
                 const path = returnData.path;
                 const pathCenterLong = returnData.pathCenterLong;
                 const pathCenterLat = returnData.pathCenterLat;
-                initMap(path, pathCenterLat, pathCenterLong, beginLatitude, beginLongitude, startLatitude, startLongitude, endLatitude, endLongitude, finishLatitude, finishLongitude);
+                initMap(
+                    path, pathCenterLat, pathCenterLong, beginLatitude, beginLongitude, startLatitude, startLongitude,
+                    endLatitude, endLongitude, finishLatitude, finishLongitude
+                );
 
                 $('#serviceId').val(serviceId);
                 $('#distance').val(distance);
                 $('#realdistance').text(distance);
                 $('#distanceMessage').text(distanceMessage);
+                if (distanceMessage === '정상') {
+                    $('#distance').attr('readonly', 'readonly');
+                }
+
+                if (status === "N") {
+                    $('.map-status').removeClass('d-none');
+                } else if (status === 'YR') {
+                    $('.map-status').addClass('d-none');
+                }
             }
         });
         $('#mapModal').modal('show');
@@ -371,13 +387,13 @@
                 {
                     targets: 4,
                     width: "10%",
-                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
                     data: "distance",
                 },
                 {
                     targets: 5,
                     width: "10%",
-                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
                     data: "fuelMoney",
                 },
                 {
@@ -452,8 +468,11 @@
                 $('td:eq(4)', nRow).html(
                     aData.distance.toLocaleString() + 'km ' +
                     '<i class="fas fa-car-side fa-fw text-warning" ' +
-                    'onclick=btn_map("' + aData.serviceId__serviceId + '")></i>'
+                    'onclick=btn_map("' + aData.serviceId__serviceId + '","N")></i>'
                 );
+                if (aData.distanceCode > 0) {
+                    $('td:eq(4)', nRow).addClass('text-danger');
+                }
                 $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             },
             "footerCallback": function () {
@@ -515,13 +534,13 @@
                 {
                     targets: 4,
                     width: "10%",
-                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
                     data: "distance",
                 },
                 {
                     targets: 5,
                     width: "10%",
-                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
                     data: "fuelMoney",
                 },
                 {
@@ -565,7 +584,14 @@
                     $('td', nRow).eq(0).addClass('text-danger font-weight-bold');
                 }
 
-                $('td:eq(4)', nRow).text(aData.distance.toLocaleString() + 'km');
+                $('td:eq(4)', nRow).html(
+                    aData.distance.toLocaleString() + 'km ' +
+                    '<i class="fas fa-car-side fa-fw text-warning" ' +
+                    'onclick=btn_map("' + aData.serviceId__serviceId + '","YR")></i>'
+                );
+                if (aData.distanceCode > 0) {
+                    $('td:eq(4)', nRow).addClass('text-danger');
+                }
                 $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
             },
             "footerCallback": function () {
