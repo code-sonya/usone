@@ -193,9 +193,14 @@ def show_fuel(request):
         m = datetime.today().month
     startdate = str(datetime(y, m, 1).date())
     enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
+
+    btnStatus = 'N'
+    if datetime(y, m+1, 5) > datetime.today():
+        btnStatus = 'Y'
     context = {
         'startdate': startdate,
         'enddate': enddate,
+        'btnStatus': btnStatus,
     }
     return render(request, 'extrapay/showfuel.html', context)
 
@@ -256,14 +261,20 @@ def approval_fuel(request, empId):
     startdate = str(datetime(y, m, 1).date())
     enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
     empName = Employee.objects.get(empId=empId).empName
+    empDeptName = Employee.objects.get(empId=empId).empDeptName
+
+    btnStatus = 'N'
+    if datetime(y, m+1, 5) > datetime.today():
+        btnStatus = 'Y'
 
     context = {
         'startdate': startdate,
         'enddate': enddate,
         'empName': empName,
+        'empDeptName': empDeptName,
         'empId': empId,
         'testMAP_KEY': testMAP_KEY,
-        # 'approvalStatus': approvalStatus,
+        'btnStatus': btnStatus,
     }
     return render(request, 'extrapay/approvalfuel.html', context)
 
@@ -311,9 +322,9 @@ def approvalfuel_asjson(request):
                 'fuelMoney', 'comment', 'fuelStatus',
             )
             for service in services:
-                service['distance'] = Geolocation.objects.get(
-                    serviceId=service['serviceId__serviceId']
-                ).distance
+                geo = Geolocation.objects.get(serviceId=service['serviceId__serviceId'])
+                service['distance'] = geo.distance
+                service['distanceCode'] = geo.distanceCode
 
             structure = json.dumps(list(services), cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
@@ -336,12 +347,13 @@ def approvalfuel_asjson(request):
                 'fuelMoney', 'comment', 'fuelStatus',
             )
             for service in services:
-                service['distance'] = Geolocation.objects.get(
-                    serviceId=service['serviceId__serviceId']
-                ).distance
+                geo = Geolocation.objects.get(serviceId=service['serviceId__serviceId'])
+                service['distance'] = geo.distance
+                service['distanceCode'] = geo.distanceCode
 
             structure = json.dumps(list(services), cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
+
     elif request.method == 'GET':
         geo = Geolocation.objects.get(serviceId=request.GET['serviceId'])
         distanceMessage = '정상'
@@ -393,8 +405,14 @@ def approvalfuel_asjson(request):
 def adminfuel_asjson(request):
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
+    empId = request.POST['empId']
+    empDeptName = Employee.objects.get(empId=empId).empDeptName
 
-    fuels = Fuel.objects.select_related().filter(
+    fuels = Fuel.objects.select_related()
+    if empDeptName != '경영지원본부' and empDeptName != '임원':
+        fuels = fuels.filter(serviceId__empDeptName=empDeptName)
+
+    fuels = fuels.filter(
         Q(serviceId__serviceStatus='Y') &
         Q(serviceId__serviceDate__gte=startdate) &
         Q(serviceId__serviceDate__lte=enddate)
@@ -406,7 +424,6 @@ def adminfuel_asjson(request):
         progress=Count('fuelStatus', filter=Q(fuelStatus='N')),
         approval=Count('fuelStatus', filter=Q(fuelStatus='Y')),
         reject=Count('fuelStatus', filter=Q(fuelStatus='R')),
-        # sum_distance=Coalesce(Sum('totalDistance', filter=Q(fuelStatus='Y')), 0),
         sum_fuelMoney=Coalesce(Sum('fuelMoney', filter=Q(fuelStatus='Y')), 0),
     )
 
@@ -442,7 +459,6 @@ def fuel_asjson(request):
 
         fuels = Fuel.objects.select_related().filter(
             Q(serviceId__empId=empId) &
-            Q(serviceId__serviceStatus='Y') &
             Q(serviceId__serviceDate__gte=startdate) &
             Q(serviceId__serviceDate__lte=enddate)
         ).values('serviceId__serviceId')
@@ -490,9 +506,9 @@ def fuel_asjson(request):
             'fuelMoney', 'fuelStatus', 'comment',
         )
         for service in services:
-            service['distance'] = Geolocation.objects.get(
-                serviceId=service['serviceId__serviceId']
-            ).distance
+            geo = Geolocation.objects.get(serviceId=service['serviceId__serviceId'])
+            service['distance'] = geo.distance
+            service['distanceCode'] = geo.distanceCode
         structure = json.dumps(list(services), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
 
@@ -741,9 +757,18 @@ def view_extrapay_pdf(request, yearmonth):
 @login_required
 def post_distance(request):
     if request.method == 'POST':
+        carId = Employee.objects.get(empId=request.POST['empId']).carId
+        mpk = Oil.objects.filter(Q(oilDate=request.POST['startdate']) & Q(carId=carId))
+        if mpk:
+            mpk = mpk.values('mpk')[0]['mpk']
+        else:
+            mpk = 0
         geo = Geolocation.objects.get(serviceId=request.POST['serviceId'])
         geo.distance = request.POST['distance']
         geo.save()
+        fuel = Fuel.objects.get(serviceId=request.POST['serviceId'])
+        fuel.fuelMoney = float(request.POST['distance']) * 1.2 * mpk
+        fuel.save()
         return redirect('extrapay:approvalfuel', request.POST['empId'])
 
 

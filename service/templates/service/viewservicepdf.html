@@ -55,9 +55,9 @@
       <td style="width: 200px; text-align: center;" colspan="2">
         <strong>지 원 종 류</strong></td>
       <td style="width: 200px; text-align: center;" colspan="2">
-        <strong>개 시 일 시</strong></td>
+        <strong>시 작 일 시</strong></td>
       <td style="width: 200px; text-align: center;" colspan="2">
-        <strong>완 료 일 시</strong></td>
+        <strong>종 료 일 시</strong></td>
       <td style="width: 200px; text-align: center;" colspan="2">
         <strong>소 요 시 간</strong></td>
     </tr>
@@ -71,10 +71,10 @@
         {{ service.serviceType }}
       </td>
       <td style="width: 200px; text-align: center;" colspan="2">
-        {{ service.serviceBeginDatetime | date:"Y년 m월 d일 H:i"}}
+        {{ service.serviceStartDatetime | date:"Y년 m월 d일 H:i"}}
       </td>
       <td style="width: 200px; text-align: center;" colspan="2">
-        {{ service.serviceFinishDatetime | date:"Y년 m월 d일 H:i"}}
+        {{ service.serviceEndDatetime | date:"Y년 m월 d일 H:i"}}
       </td>
       <td style="width: 200px; text-align: center;" colspan="2">
         {{ service.serviceHour }} 시간
