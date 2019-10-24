@@ -124,7 +124,7 @@
           <td class="thtd" colspan="1">{{ row.overHourStartDate | date:"Y/m/d H:i" }}</td>
           <td class="thtd" colspan="1">{{ row.overHourEndDate | date:"Y/m/d H:i" }}</td>
           <td class="thtd" colspan="1">{{ row.overHour }}</td>
-          <td class="thtd" colspan="3">{{ row.overHourTitle }}</td>
+          <td class="thtd" colspan="3"><a href="/service/viewservice/{{row.serviceId_id}}/">{{ row.overHourTitle }}</a></td>
           <td class="thtd" colspan="1">{{ row.overHourCost |floatformat:0|intcomma}}</td>
           <td class="thtd" colspan="1">{{ row.foodCost |floatformat:0|intcomma}}</td>
           <td class="thtd" colspan="1">
@@ -200,7 +200,7 @@
           <td class="thtd" colspan="2">{{ row.serviceId.serviceBeginDatetime | date:"Y/m/d H:i"}}</td>
           <td class="thtd" colspan="2">{{ row.serviceId.serviceFinishDatetime | date:"Y/m/d H:i"}}</td>
           <td class="thtd" colspan="2">{{ row.serviceId.serviceHour }}</td>
-          <td class="thtd" colspan="4">{{ row.serviceId.serviceTitle }}</td>
+          <td class="thtd" colspan="4"><a href="/service/viewservice/{{row.serviceId_id}}/">{{ row.serviceId.serviceTitle }}</a></td>
           <td class="thtd" colspan="1">{{ row.foodCost |floatformat:0|intcomma }}</td>
           <td class="thtd" colspan="1">
             <a href="#" onclick="location.href='/service/viewservicepdf/{{ row.serviceId.serviceId }}'">
