@@ -83,122 +83,109 @@
 <table class="pc-table">
   <thead>
   <tr class="bg-light thtd">
-    <td class="thtd" colspan="2">부서</td>
-    <td class="thtd">직급</td>
-    <td class="thtd">성명</td>
-    <td class="thtd">시간외근무시간</td>
-    <td class="thtd">휴가신청시간</td>
-    <td class="thtd">수당&식대</td>
-    <td class="thtd">수당외식대</td>
-    <td class="thtd">수당합계</td>
+    <td class="thtd" colspan="1">부서</td>
+    <td class="thtd" colspan="1">직급</td>
+    <td class="thtd" colspan="1">성명</td>
+    <td class="thtd" colspan="1">전체이동거리</td>
+    <td class="thtd" colspan="1">유류비합계</td>
   </tr>
   </thead>
   <tbody>
-  {% if extrapayInfra %}
-  {% for row in extrapayInfra %}
+  {% if fuelSupport %}
+  {% for row in fuelSupport %}
   <tr class="thtd">
     {% ifchanged row.empDeptName %}
-    <td class="thtd" colspan="2">{{ row.empDeptName }}</td>
+    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
     {% else %}
-    <td class="thtd" colspan="2" style="background-color: white"></td>
+    <td class="thtd" colspan="1" style="background-color: white"></td>
     {% endifchanged %}
-    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
-    <td class="thtd" style="background-color: white">{{ row.compensatedHour }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
   </tr>
   {% endfor %}
   {% endif %}
-  {% if extrapaySolution %}
-  {% for row in extrapaySolution %}
+  {% if fuelSales1 %}
+  {% for row in fuelSales1 %}
   <tr class="thtd">
     {% ifchanged row.empDeptName %}
-    <td class="thtd" colspan="2">{{ row.empDeptName }}</td>
+    <td class="thtd"colspan="1" >{{ row.empDeptName }}</td>
     {% else %}
-    <td class="thtd" colspan="2" style="background-color: white"></td>
+    <td class="thtd" colspan="1" style="background-color: white"></td>
     {% endifchanged %}
-    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
-    <td class="thtd" style="background-color: white">{{ row.compensatedHour }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumFuelMoney |intcomma }}</td>
   </tr>
   {% endfor %}
   {% endif %}
-  {% if extrapayDB %}
-  {% for row in extrapayDB %}
+  {% if fuelSales2 %}
+  {% for row in fuelSales2 %}
   <tr class="thtd">
     {% ifchanged row.empDeptName %}
-    <td class="thtd" colspan="2">{{ row.empDeptName }}</td>
+    <td class="thtd">{{ row.empDeptName }}</td>
     {% else %}
-    <td class="thtd" colspan="2" style="background-color: white"></td>
+    <td class="thtd" style="background-color: white"></td>
     {% endifchanged %}
     <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
     <td class="thtd" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
-    <td class="thtd" style="background-color: white">{{ row.compensatedHour }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
+  </tr>
+  {% endfor %}
+  {% endif %}
+  {% if fuelInfra %}
+  {% for row in fuelInfra %}
+  <tr class="thtd">
+    {% ifchanged row.empDeptName %}
+    <td class="thtd">{{ row.empDeptName }}</td>
+    {% else %}
+    <td class="thtd" style="background-color: white"></td>
+    {% endifchanged %}
+    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
+  </tr>
+  {% endfor %}
+  {% endif %}
+  {% if fuelSolution %}
+  {% for row in fuelSolution %}
+  <tr class="thtd">
+    {% ifchanged row.empDeptName %}
+    <td class="thtd">{{ row.empDeptName }}</td>
+    {% else %}
+    <td class="thtd" style="background-color: white"></td>
+    {% endifchanged %}
+    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
+  </tr>
+  {% endfor %}
+  {% endif %}
+  {% if fuelDB %}
+  {% for row in fuelDB %}
+  <tr class="thtd">
+    {% ifchanged row.empDeptName %}
+    <td class="thtd">{{ row.empDeptName }}</td>
+    {% else %}
+    <td class="thtd" style="background-color: white"></td>
+    {% endifchanged %}
+    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
   </tr>
   {% endfor %}
   {% endif %}
   <tr class="thtd" style="background-color: lightsalmon">
-    <td class="thtd" colspan="4">소계</td>
-    <td class="thtd">{{ sumEmp.sumoverHour }}</td>
-    <td class="thtd">{{ sumEmp.sumcompensatedHour }}</td>
-    <td class="thtd">{{ sumEmp.sumoverandfoodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd">{{ sumEmp.sumfoodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd">{{ sumEmp.sumCost |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="3">소계</td>
+    <td class="thtd" colspan="1">{{ sumEmp.sumDistance }}</td>
+    <td class="thtd" colspan="1">{{ sumEmp.sumFuelMoney |floatformat:0|intcomma }}</td>
   </tr>
-  </tbody>
-</table>
-<br>
-<table class="pc-table">
-  <thead>
-  <tr class="bg-light thtd">
-    <td class="thtd" colspan="2">부서</td>
-    <td class="thtd">직급</td>
-    <td class="thtd">성명</td>
-    <td class="thtd">평일심야근무일수</td>
-    <td class="thtd">주말근무일</td>
-    <td class="thtd">평일심야수당</td>
-    <td class="thtd">주말수당</td>
-    <td class="thtd">수당합계</td>
-  </tr>
-  </thead>
-  <tbody>
-  {% if extrapaySupport %}
-  {% for row in extrapaySupport %}
-  <tr class="thtd">
-    <td class="thtd" colspan="2" >경영지원본부</td>
-    <td class="thtd" style="background-color: white">주임</td>
-    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumOverhourWeekday }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumOverhour }}</td>
-    <td class="thtd" style="background-color: white">{{ row.overHourCostWeekDay |floatformat:0|intcomma }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumOverhourCost |floatformat:0|intcomma }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumCost |floatformat:0|intcomma }}</td>
-  </tr>
-  {% endfor %}
-  {% endif %}
-  {% if extrapaySupport %}
-  {% for row in extrapaySupport %}
-  <tr class="thtd" style="background-color: lightsalmon">
-    <td class="thtd" colspan="4">소계</td>
-    <td class="thtd">{{ row.sumOverhourWeekday }}</td>
-    <td class="thtd">{{ row.sumOverhour }}</td>
-    <td class="thtd">{{ row.overHourCostWeekDay |floatformat:0|intcomma }}</td>
-    <td class="thtd">{{ row.sumOverhourCost |floatformat:0|intcomma }}</td>
-    <td class="thtd">{{ row.sumCost |floatformat:0|intcomma }}</td>
-  </tr>
-  {% endfor %}
-  {% endif %}
   </tbody>
 </table>
 <br>
@@ -206,9 +193,9 @@
   <table class="pc-table" style="border-color: white;">
     <tbody>
     <tr>
-      <td colspan="10" style="border-color: white;background-color:white"></td>
-      <td class="thtd" colspan="4" style="background-color: lightsalmon">총 합계</td>
-      <td class="thtd" colspan="4" style="background-color: lightsalmon">{{ sumAll |floatformat:0|intcomma }}</td>
+      <td colspan="3" style="border-color: white;background-color:white"></td>
+      <td class="thtd" colspan="1" style="background-color: lightsalmon">총 합계</td>
+      <td class="thtd" colspan="1" style="background-color: lightsalmon">{{ sumAll |floatformat:0|intcomma }}</td>
     </tr>
     </tbody>
   </table>

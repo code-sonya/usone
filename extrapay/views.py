@@ -20,7 +20,7 @@ from service.functions import link_callback
 from hr.models import Employee
 from service.models import Servicereport, Geolocation
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
-from .functions import cal_overhour, Round, cal_extraPay
+from .functions import cal_overhour, Round, cal_extraPay, cal_fuel
 from usone.security import MAP_KEY, testMAP_KEY
 
 
@@ -950,9 +950,32 @@ def delete_overhour(request):
 def view_fuel_pdf(request, yearmonth):
     todayYear = int(yearmonth[:4])
     todayMonth = int(yearmonth[5:7])
+
+    fuelSupport, sumSupport = cal_fuel('경영지원본부', todayYear, todayMonth)
+    fuelSales1, sumSales1 = cal_fuel('영업1팀', todayYear, todayMonth)
+    fuelSales2, sumSales2 = cal_fuel('영업2팀', todayYear, todayMonth)
+    fuelInfra, sumInfra = cal_fuel('인프라서비스사업팀', todayYear, todayMonth)
+    fuelSolution, sumSolution = cal_fuel('솔루션지원팀', todayYear, todayMonth)
+    fuelDB, sumDB = cal_fuel('DB지원팀', todayYear, todayMonth)
+
+    sumEmp = {'sumFuelMoney': 0, 'sumDistance': 0}
+    for sum in [sumSupport, sumSales1, sumSales2, sumInfra, sumSolution, sumDB]:
+        sumEmp['sumFuelMoney'] += sum['sumFuelMoney']
+        sumEmp['sumDistance'] += sum['sumDistance']
+
+    sumAll = (sumEmp['sumFuelMoney'] or 0)
+
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,
+        'fuelSupport': fuelSupport,
+        'fuelSales1': fuelSales1,
+        'fuelSales2': fuelSales2,
+        'fuelInfra': fuelInfra,
+        'fuelSolution': fuelSolution,
+        'fuelDB': fuelDB,
+        'sumAll': sumAll,
+        'sumEmp': sumEmp,
     }
 
     response = HttpResponse(content_type='application/pdf')

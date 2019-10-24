@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db.models import Q
-from .models import OverHour, ExtraPay
-from service.models import Servicereport, Vacation
+from .models import OverHour, ExtraPay, Fuel
+from service.models import Servicereport, Vacation, Geolocation
 from hr.models import Employee
 from scheduler.models import Eventday
 import datetime
@@ -93,6 +93,29 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
             sumEmp = extrapay_dict
 
         table.append(extrapay_dict)
+
+    return table, sumEmp
+
+
+def cal_fuel(empDeptName, todayYear, todayMonth):
+    fuels = Fuel.objects.filter(Q(serviceId__serviceDate__year=todayYear) & Q(serviceId__serviceDate__month=todayMonth) & Q(serviceId__empDeptName=empDeptName) & Q(fuelStatus='Y'))
+    table = []
+    sumEmp = {'sumFuelMoney': 0, 'sumDistance': 0}
+    fuelsEmp = fuels.values('serviceId__empName').annotate(countFuel=Count('serviceId__empName'))
+    fuelsEmpList = [x['serviceId__empName'] for x in fuelsEmp]
+    for employee in fuelsEmpList:
+        fuel = fuels.filter(serviceId__empName=employee)
+        fuel_dict={'sumDistance': 0}
+        for f in fuel:
+            fuel_dict['sumDistance'] += Geolocation.objects.get(Q(serviceId=f.serviceId)).distance
+            fuel_dict['empDeptName'] = f.serviceId.empDeptName
+            fuel_dict['empPosition'] = f.serviceId.empId.empPosition.positionName
+            fuel_dict['empName'] = f.serviceId.empName
+        fuel_dict['sumFuelMoney'] = fuel.aggregate(sumFuelMoney=Sum('fuelMoney'))['sumFuelMoney']
+        sumEmp['sumFuelMoney'] += fuel_dict['sumFuelMoney']
+        sumEmp['sumDistance'] += fuel_dict['sumDistance']
+
+        table.append(fuel_dict)
 
     return table, sumEmp
 
