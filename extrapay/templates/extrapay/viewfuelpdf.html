@@ -125,14 +125,14 @@
   {% for row in fuelSales2 %}
   <tr class="thtd">
     {% ifchanged row.empDeptName %}
-    <td class="thtd">{{ row.empDeptName }}</td>
+    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
     {% else %}
-    <td class="thtd" style="background-color: white"></td>
+    <td class="thtd" colspan="1" style="background-color: white"></td>
     {% endifchanged %}
-    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumDistance }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
   </tr>
   {% endfor %}
   {% endif %}
@@ -140,14 +140,14 @@
   {% for row in fuelInfra %}
   <tr class="thtd">
     {% ifchanged row.empDeptName %}
-    <td class="thtd">{{ row.empDeptName }}</td>
+    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
     {% else %}
-    <td class="thtd" style="background-color: white"></td>
+    <td class="thtd" colspan="1" style="background-color: white"></td>
     {% endifchanged %}
-    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumDistance }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
   </tr>
   {% endfor %}
   {% endif %}
@@ -155,14 +155,14 @@
   {% for row in fuelSolution %}
   <tr class="thtd">
     {% ifchanged row.empDeptName %}
-    <td class="thtd">{{ row.empDeptName }}</td>
+    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
     {% else %}
-    <td class="thtd" style="background-color: white"></td>
+    <td class="thtd" colspan="1" style="background-color: white"></td>
     {% endifchanged %}
-    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumDistance }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
   </tr>
   {% endfor %}
   {% endif %}
@@ -170,14 +170,14 @@
   {% for row in fuelDB %}
   <tr class="thtd">
     {% ifchanged row.empDeptName %}
-    <td class="thtd">{{ row.empDeptName }}</td>
+    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
     {% else %}
-    <td class="thtd" style="background-color: white"></td>
+    <td class="thtd" colspan="1" style="background-color: white"></td>
     {% endifchanged %}
-    <td class="thtd" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumDistance }}</td>
-    <td class="thtd" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumDistance }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
   </tr>
   {% endfor %}
   {% endif %}
