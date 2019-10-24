@@ -718,7 +718,4 @@ def reverse_geo(lat, lng):
         + body['results'][0]['region']['area4']['name']
     region = region.strip()
 
-    print('alias:', alias)
-    print('region:', region)
-
     return alias, region

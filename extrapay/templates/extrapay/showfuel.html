@@ -157,7 +157,7 @@
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="mapModalLabel">이동경로 확인</h5>
+          <h5 class="modal-title" id="mapModalLabel">이동경로</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
@@ -170,25 +170,70 @@
             <input class="d-none" name="empId" value="{{ empId }}">
             <input class="d-none" id="serviceId" name="serviceId" value="">
             <div id="map" style="width:100%;height:300px;" class="mb-3"></div>
-            <div class="row">
-              <div class="col-4">
-                <label for="distanceMessage" class="font-weight-light text-primary">길찾기 상태</label>
-                <div id="distanceMessage"></div>
+            <div id="modifydistance">
+              <div class="row">
+                <div class="col-4">
+                  <label for="distanceMessage" class="font-weight-bold text-primary">길찾기 상태</label>
+                  <div id="distanceMessage"></div>
+                </div>
+                <div class="col-4">
+                  <label for="distance" class="font-weight-bold text-primary">이동 거리(km)</label>
+                  <input class="form-control" id="distance" name="distance" value="">
+                </div>
+                <div class="col-4">
+                  <label for="comment" class="font-weight-bold text-primary">수정 사유</label>
+                  <input class="form-control" id="comment" name="comment" value="">
+                </div>
               </div>
-              <div class="col-4">
-                <label for="realdistance" class="font-weight-light text-primary">측정 거리(km)</label>
-                <div id="realdistance"></div>
+              <div class="row mt-3 mb-3">
+                <div class="col-4">
+                  <label for="beginRegion" class="font-weight-bold text-primary">출발지 주소</label>
+                  <input class="form-control" id="beginRegion" name="beginRegion" value="">
+                </div>
+                <div class="col-4">
+                  <label for="startRegion" class="font-weight-bold text-primary">고객사 주소</label>
+                  <input class="form-control" id="startRegion" name="startRegion" value="">
+                </div>
+                <div class="col-4">
+                  <label for="finishRegion" class="font-weight-bold text-primary">도착지 주소</label>
+                  <input class="form-control" id="finishRegion" name="finishRegion" value="">
+                </div>
               </div>
-              <div class="col-4 map-status">
-                <label for="distance" class="font-weight-light text-primary">거리 수정(km)</label>
-                <input class="form-control" id="distance" name="distance" value="">
+              <div class="modal-footer map-status">
+                <a class="btn btn-info" href="#" onclick="btn_post_distance()">적용</a>
               </div>
             </div>
           </form>
-        </div>
-
-        <div class="modal-footer map-status">
-          <a class="btn btn-info" href="#" onclick="btn_post_distance()">적용</a>
+            <div id="showdistance">
+              <div class="row">
+                <div class="col-4">
+                  <label for="distanceMessageShow" class="font-weight-bold text-primary">길찾기 상태</label>
+                  <div id="distanceMessageShow"></div>
+                </div>
+                <div class="col-4">
+                  <label for="distanceShow" class="font-weight-bold text-primary">이동 거리(km)</label>
+                  <div id="distanceShow"></div>
+                </div>
+                <div class="col-4">
+                  <label for="commentShow" class="font-weight-bold text-primary">수정 사유</label>
+                  <div id="commentShow"></div>
+                </div>
+              </div>
+              <div class="row mt-3">
+                <div class="col-4">
+                  <label for="beginRegionShow" class="font-weight-bold text-primary">출발지 주소</label>
+                  <div id="beginRegionShow"></div>
+                </div>
+                <div class="col-4">
+                  <label for="startRegionShow" class="font-weight-bold text-primary">고객사 주소</label>
+                  <div id="startRegionShow"></div>
+                </div>
+                <div class="col-4">
+                  <label for="finishRegionShow" class="font-weight-bold text-primary">도착지 주소</label>
+                  <div id="finishRegionShow"></div>
+                </div>
+              </div>
+            </div>
         </div>
       </div>
     </div>
@@ -242,6 +287,24 @@
         delFuelForm.appendChild(fuelId);
 
         delFuelForm.submit();
+    }
+
+    function btn_post_distance() {
+        const mapForm = document.getElementById('mapForm');
+        if (mapForm.comment.value === '') {
+            alert("수정 사유를 입력해주세요");
+            return false;
+        } else if (mapForm.beginRegion.value === '') {
+            alert("출발지 주소를 입력해주세요");
+            return false;
+        } else if (mapForm.startRegion.value === '') {
+            alert("고객사 주소를 입력해주세요");
+            return false;
+        } else if (mapForm.finishRegion.value === '') {
+            alert("도착지 주소를를 입력해주세요");
+            return false;
+        }
+        mapForm.submit();
     }
 
     function initMap(path, pathCenterLat, pathCenterLong, beginLatitude, beginLongitude, startLatitude, startLongitude,
@@ -314,6 +377,10 @@
                 const finishLongitude = returnData.finishLongitude;
                 const distance = returnData.distance;
                 const distanceMessage = returnData.distanceMessage;
+                const beginRegion = returnData.beginRegion;
+                const startRegion = returnData.startRegion;
+                const finishRegion = returnData.finishRegion;
+                const comment = returnData.comment;
                 const serviceId = returnData.serviceId;
                 const path = returnData.path;
                 const pathCenterLong = returnData.pathCenterLong;
@@ -325,17 +392,32 @@
                 );
 
                 $('#serviceId').val(serviceId);
-                $('#distance').val(distance);
-                $('#realdistance').text(distance);
+
                 $('#distanceMessage').text(distanceMessage);
+                $('#distance').val(distance);
+                $('#comment').val(comment);
+                $('#beginRegion').val(beginRegion);
+                $('#startRegion').val(startRegion);
+                $('#finishRegion').val(finishRegion);
+
+                $('#distanceMessageShow').text(distanceMessage);
+                $('#distanceShow').text(distance);
+                $('#commentShow').text(comment);
+                $('#beginRegionShow').text(beginRegion);
+                $('#startRegionShow').text(startRegion);
+                $('#finishRegionShow').text(finishRegion);
+
                 if (distanceMessage === '정상') {
-                    $('#distance').attr('readonly', 'readonly');
+                    $('#modifydistance').addClass('d-none');
+                    $('#showdistance').removeClass('d-none');
+                } else {
+                    $('#modifydistance').removeClass('d-none');
+                    $('#showdistance').addClass('d-none');
                 }
 
-                if (status === "N") {
-                    $('.map-status').removeClass('d-none');
-                } else if (status === 'YR') {
-                    $('.map-status').addClass('d-none');
+                if (status === 'YR') {
+                    $('#modifydistance').addClass('d-none');
+                    $('#showdistance').removeClass('d-none');
                 }
             }
         });
@@ -441,7 +523,6 @@
                     'onclick=btn_map("' + aData.serviceId__serviceId + '","N")></i>'
                 );
                 if (aData.distanceCode > 0) {
-                    console.log(aData.distanceCode);
                     $('td:eq(4)', nRow).addClass('text-danger');
                 }
                 $('td:eq(6)', nRow).text(aData.mpk.toLocaleString() + '원');
@@ -562,10 +643,9 @@
                 $('td:eq(5)', nRow).html(
                     aData.distance.toLocaleString() + 'km ' +
                     '<i class="fas fa-car-side fa-fw text-warning" ' +
-                    'onclick=btn_map("' + aData.serviceId__serviceId + '","N")></i>'
+                    'onclick=btn_map("' + aData.serviceId__serviceId + '","YR")></i>'
                 );
                 if (aData.distanceCode > 0) {
-                    console.log(aData.distanceCode);
                     $('td:eq(5)', nRow).addClass('text-danger');
                 }
                 $('td:eq(6)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
