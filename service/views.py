@@ -837,6 +837,8 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         post = Geolocation.objects.get(serviceId=serviceId)
         post.finishLatitude = float(latitude)
         post.finishLongitude = float(longitude)
+
+        # 거리, 경로, 길찾기 결과코드
         latlngs = [
             [post.beginLatitude, post.beginLongitude],
             [post.startLatitude, post.startLongitude],
@@ -847,7 +849,23 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         post.distance = distance
         post.path = path
         post.distanceCode = distanceCode
+
+        # 거리 계산 비율
+        beginAlias, beginRegion = reverse_geo(post.beginLatitude, post.beginLongitude)
+        startAlias, startRegion = reverse_geo(post.startLatitude, post.startLongitude)
+        endAlias, endRegion = reverse_geo(post.endLatitude, post.endLongitude)
+        finishAlias, finishRegion = reverse_geo(post.finishLatitude, post.finishLongitude)
+        if beginAlias not in ['서울', '경기'] or finishAlias not in ['서울', '경기']:
+            post.distanceRatio = 1.0
         post.save()
+
+        # 출발, 시작, 종료, 도착 위치
+        if distanceCode == 0:
+            post.beginLocation = beginRegion
+            post.startLocation = startRegion
+            post.endLocation = endRegion
+            post.finishLocation = finishRegion
+
         service.serviceFinishDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
         if service.empName == '이현수':

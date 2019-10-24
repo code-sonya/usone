@@ -2,6 +2,7 @@
 
 import json
 from datetime import datetime, timedelta
+from math import ceil
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import login_required
@@ -18,7 +19,6 @@ from service.functions import link_callback
 
 from hr.models import Employee
 from service.models import Servicereport, Geolocation
-from service.functions import latlng_distance
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
 from .functions import cal_overhour, Round, cal_extraPay
 from usone.security import MAP_KEY, testMAP_KEY
@@ -201,6 +201,7 @@ def show_fuel(request):
         'startdate': startdate,
         'enddate': enddate,
         'btnStatus': btnStatus,
+        'testMAP_KEY': testMAP_KEY,
     }
     return render(request, 'extrapay/showfuel.html', context)
 
@@ -217,7 +218,7 @@ def post_fuel(request):
         serviceIds = json.loads(request.POST['serviceId'])
         for serviceId in serviceIds:
             geo = Geolocation.objects.get(serviceId=serviceId)
-            fuelMoney = geo.distance * 1.2 * mpk
+            fuelMoney = ceil(geo.distance * geo.distanceRatio * mpk)
             Fuel.objects.create(
                 serviceId=Servicereport.objects.get(serviceId=serviceId),
                 fuelMoney=fuelMoney,
@@ -370,14 +371,27 @@ def approvalfuel_asjson(request):
 
         path = [i.split(", ") for i in geo.path[2:-2].split("], [")]
 
-        if path[0][0] == '':
-            pathCenterLong = 37.532035
-            pathCenterLat = 126.919545
-        else:
-            pathCenter =len(path)//2
-            pathCenterLong = float(path[pathCenter][0])
-            pathCenterLat = float(path[pathCenter][1])
-
+        maxLat = max(geo.beginLatitude, geo.startLatitude, geo.endLatitude, geo.finishLatitude)
+        minLat = min(geo.beginLatitude, geo.startLatitude, geo.endLatitude, geo.finishLatitude)
+        maxLng = max(geo.beginLongitude, geo.startLongitude, geo.endLongitude, geo.finishLongitude)
+        minLng = min(geo.beginLongitude, geo.startLongitude, geo.endLongitude, geo.finishLongitude)
+        pathCenterLong = (maxLng + minLng) / 2
+        pathCenterLat = (maxLat + minLat) / 2
+        differLat = maxLat - minLat
+        differLng = maxLng - minLng
+        latZoom, stDifferLat = 13, 0.05
+        lngZoom, stDifferLng = 13, 0.13
+        for i in range(7):
+            if differLat < stDifferLat:
+                latZoom -= i
+                break
+            stDifferLat *= 2
+        for i in range(7):
+            if differLng < stDifferLng:
+                lngZoom -= i
+                break
+            stDifferLng *= 2
+        zoom = min(latZoom, lngZoom)
 
         geos = {
             'beginLatitude': geo.beginLatitude,
@@ -394,6 +408,7 @@ def approvalfuel_asjson(request):
             'path': path,
             'pathCenterLong': pathCenterLong,
             'pathCenterLat': pathCenterLat,
+            'zoom': zoom,
         }
 
         structure = json.dumps(geos, cls=DjangoJSONEncoder)
@@ -474,18 +489,18 @@ def fuel_asjson(request):
             serviceDate=F('serviceId__serviceDate'),
             companyName=F('serviceId__companyName__companyName'),
             serviceTitle=F('serviceId__serviceTitle'),
+            mpk=Value(mpk, output_field=IntegerField()),
         )
 
         services = services.values(
             'serviceId', 'serviceId__serviceId', 'serviceDate', 'companyName',
-            'serviceTitle', 'distance', 'distanceCode',
+            'serviceTitle', 'distance', 'distanceCode', 'distanceRatio', 'mpk',
             'beginLatitude', 'beginLongitude', 'startLatitude', 'startLongitude',
             'endLatitude', 'endLongitude', 'finishLatitude', 'finishLongitude', 'serviceId__empId__carId'
         )
 
         for service in services:
-            service['fuelMoney'] = service['distance'] * mpk
-
+            service['fuelMoney'] = ceil(service['distance'] * service['distanceRatio'] * mpk)
         structure = json.dumps(list(services), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
 
@@ -767,7 +782,7 @@ def post_distance(request):
         geo.distance = request.POST['distance']
         geo.save()
         fuel = Fuel.objects.get(serviceId=request.POST['serviceId'])
-        fuel.fuelMoney = float(request.POST['distance']) * 1.2 * mpk
+        fuel.fuelMoney = ceil(float(request.POST['distance']) * geo.distanceRatio * mpk)
         fuel.save()
         return redirect('extrapay:approvalfuel', request.POST['empId'])
 

@@ -684,3 +684,41 @@ def naver_distance(latlngs):
     buffer.close()
 
     return distance, path, distanceCode
+
+
+def reverse_geo(lat, lng):
+    lat = str(lat)
+    lng = str(lng)
+    url = "https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?" + \
+          "request=coordsToaddr&coords=" + lng + "," + lat + \
+          "&output=json" + \
+          "&orders=addr"
+    header = [
+        "X-NCP-APIGW-API-KEY-ID: " + naverMapId,
+        "X-NCP-APIGW-API-KEY: " + naverMapKey,
+    ]
+    buffer = BytesIO()
+    c = pycurl.Curl()
+
+    c.setopt(pycurl.HTTPHEADER, header)
+    c.setopt(c.URL, url)
+    c.setopt(c.WRITEDATA, buffer)
+    c.setopt(c.SSL_VERIFYPEER, False)
+    c.perform()
+    c.close()
+
+    body = buffer.getvalue().decode('utf-8')
+    body = json.loads(body)
+    buffer.close()
+
+    alias = body['results'][0]['region']['area1']['alias']
+    region = body['results'][0]['region']['area1']['name'] + ' ' \
+        + body['results'][0]['region']['area2']['name'] + ' ' \
+        + body['results'][0]['region']['area3']['name'] + ' ' \
+        + body['results'][0]['region']['area4']['name']
+    region = region.strip()
+
+    print('alias:', alias)
+    print('region:', region)
+
+    return alias, region

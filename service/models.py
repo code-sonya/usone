@@ -124,10 +124,13 @@ class Geolocation(models.Model):
     endLongitude = models.FloatField(null=True, blank=True)
     finishLatitude = models.FloatField(null=True, blank=True)
     finishLongitude = models.FloatField(null=True, blank=True)
+    beginLocation = models.CharField(max_length=50, null=True, blank=True)
+    startLocation = models.CharField(max_length=50, null=True, blank=True)
+    endLocation = models.CharField(max_length=50, null=True, blank=True)
+    finishLocation = models.CharField(max_length=50, null=True, blank=True)
+    distanceRatio = models.FloatField(default=1.2)
     distance = models.FloatField(default=0)
-    path = models.TextField(
-        null=True, blank=True
-    )
+    path = models.TextField(null=True, blank=True)
     distanceCode = models.IntegerField(default=0)
 
     def __str__(self):
