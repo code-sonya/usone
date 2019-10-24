@@ -240,38 +240,33 @@
         }
     }
 
-    function initMap(path, pathCenterLat, pathCenterLong, beginLatitude, beginLongitude, startLatitude, startLongitude, endLatitude, endLongitude, finishLatitude, finishLongitude) {
-        const path_lst = new Array();
+    function initMap(path, pathCenterLat, pathCenterLong, beginLatitude, beginLongitude, startLatitude, startLongitude,
+                     endLatitude, endLongitude, finishLatitude, finishLongitude, zoom) {
+        const path_lst = [];
         for (let i = 0; i < path.length; i++) {
             path_lst.push({lat: parseFloat(path[i][1]), lng: parseFloat(path[i][0])});
         }
-        if(path_lst.length!=1){
-            const map = new google.maps.Map(document.getElementById('map'), {
+
+        let map;
+        const mapProp = {
             center: new google.maps.LatLng(pathCenterLat, pathCenterLong),
             mapTypeId: google.maps.MapTypeId.ROADMAP,
-            zoom: 13
-            });
-            const flightPlanCoordinates = path_lst;
+            zoom: zoom
+        };
+        map = new google.maps.Map(document.getElementById('map'), mapProp);
+
+        if (path_lst.length !== 1) {
             const flightPath = new google.maps.Polyline({
-                path: flightPlanCoordinates,
+                path: path_lst,
                 geodesic: true,
                 strokeColor: '#ff2b39',
                 strokeOpacity: 1.0,
                 strokeWeight: 4
             });
             flightPath.setMap(map);
-        }else {
-            let map;
-            // 지도 로드
-            const mapProp = {
-                center: new google.maps.LatLng(37.549012, 126.988546),
-                mapTypeId: google.maps.MapTypeId.ROADMAP,
-                zoom: 12
-            };
-            map = new google.maps.Map(document.getElementById('map'), mapProp);
-
+        } else {
             let location, msg, marker, infowindow;
-            const newlocation = new Array();
+            const newlocation = [];
             newlocation.push([parseFloat(beginLatitude), parseFloat(beginLongitude), '출발지']);
             newlocation.push([parseFloat(startLatitude), parseFloat(startLongitude), '지원시작지점']);
             newlocation.push([parseFloat(endLatitude), parseFloat(endLongitude), '지원종료지점']);
@@ -295,7 +290,6 @@
                 });
             }
         }
-
     }
 
     function btn_map(serviceId, status) {
@@ -320,9 +314,10 @@
                 const path = returnData.path;
                 const pathCenterLong = returnData.pathCenterLong;
                 const pathCenterLat = returnData.pathCenterLat;
+                const zoom = returnData.zoom;
                 initMap(
                     path, pathCenterLat, pathCenterLong, beginLatitude, beginLongitude, startLatitude, startLongitude,
-                    endLatitude, endLongitude, finishLatitude, finishLongitude
+                    endLatitude, endLongitude, finishLatitude, finishLongitude, zoom
                 );
 
                 $('#serviceId').val(serviceId);
