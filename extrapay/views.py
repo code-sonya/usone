@@ -198,6 +198,7 @@ def show_fuel(request):
     if datetime(y, m+1, 5) > datetime.today():
         btnStatus = 'Y'
     context = {
+        'empId': request.user.employee.empId,
         'startdate': startdate,
         'enddate': enddate,
         'btnStatus': btnStatus,
@@ -380,8 +381,8 @@ def approvalfuel_asjson(request):
         pathCenterLat = (maxLat + minLat) / 2
         differLat = maxLat - minLat
         differLng = maxLng - minLng
-        latZoom, stDifferLat = 13, 0.05
-        lngZoom, stDifferLng = 13, 0.13
+        latZoom, stDifferLat = 13, 0.06
+        lngZoom, stDifferLng = 13, 0.14
         for i in range(7):
             if differLat < stDifferLat:
                 latZoom -= i
@@ -405,6 +406,10 @@ def approvalfuel_asjson(request):
             'finishLongitude': geo.finishLongitude,
             'distance': geo.distance,
             'distanceMessage': distanceMessage,
+            'beginRegion': geo.beginLocation,
+            'startRegion': geo.startLocation,
+            'finishRegion': geo.finishLocation,
+            'comment': geo.comment,
             'serviceId': request.GET['serviceId'],
             'path': path,
             'pathCenterLong': pathCenterLong,
@@ -781,11 +786,13 @@ def post_distance(request):
             mpk = 0
         geo = Geolocation.objects.get(serviceId=request.POST['serviceId'])
         geo.distance = request.POST['distance']
+        geo.comment = request.POST['comment']
+        geo.beginLocation = request.POST['beginRegion']
+        geo.startLocation = request.POST['startRegion']
+        geo.endLocation = request.POST['startRegion']
+        geo.finishLocation = request.POST['finishRegion']
         geo.save()
-        fuel = Fuel.objects.get(serviceId=request.POST['serviceId'])
-        fuel.fuelMoney = ceil(float(request.POST['distance']) * geo.distanceRatio * mpk)
-        fuel.save()
-        return redirect('extrapay:approvalfuel', request.POST['empId'])
+        return redirect('extrapay:showfuel')
 
 
 @login_required

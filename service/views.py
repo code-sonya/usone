@@ -857,7 +857,6 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         finishAlias, finishRegion = reverse_geo(post.finishLatitude, post.finishLongitude)
         if beginAlias not in ['서울', '경기'] or finishAlias not in ['서울', '경기']:
             post.distanceRatio = 1.0
-        post.save()
 
         # 출발, 시작, 종료, 도착 위치
         if distanceCode == 0:
@@ -865,6 +864,8 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
             post.startLocation = startRegion
             post.endLocation = endRegion
             post.finishLocation = finishRegion
+
+        post.save()
 
         service.serviceFinishDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))

@@ -132,6 +132,7 @@ class Geolocation(models.Model):
     distance = models.FloatField(default=0)
     path = models.TextField(null=True, blank=True)
     distanceCode = models.IntegerField(default=0)
+    comment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return str(self.serviceId)
