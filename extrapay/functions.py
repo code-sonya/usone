@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db.models import Q
-from .models import OverHour, ExtraPay, Fuel
+from .models import OverHour, ExtraPay, Fuel, Oil
 from service.models import Servicereport, Vacation, Geolocation
 from hr.models import Employee
 from scheduler.models import Eventday
@@ -99,23 +99,43 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
 
 def cal_fuel(empDeptName, todayYear, todayMonth):
     fuels = Fuel.objects.filter(Q(serviceId__serviceDate__year=todayYear) & Q(serviceId__serviceDate__month=todayMonth) & Q(serviceId__empDeptName=empDeptName) & Q(fuelStatus='Y'))
+    oil = Oil.objects.filter(Q(oilDate__year=todayYear) & Q(oilDate__month=todayMonth))
     table = []
-    sumEmp = {'sumFuelMoney': 0, 'sumDistance': 0}
+    sumEmp = {'sumFuelMoney': 0, 'sumDistance': 0, 'sumDistanceCountry': 0}
     fuelsEmp = fuels.values('serviceId__empName').annotate(countFuel=Count('serviceId__empName'))
     fuelsEmpList = [x['serviceId__empName'] for x in fuelsEmp]
     for employee in fuelsEmpList:
+        emp = Employee.objects.get(Q(empName=employee))
+        oilMpk = oil.get(Q(carId__carId=emp.carId_id)).mpk
         fuel = fuels.filter(serviceId__empName=employee)
-        fuel_dict={'sumDistance': 0}
+        fuel_dict={'sumDistance': 0,'sumDistanceCountry': 0}
         for f in fuel:
-            fuel_dict['sumDistance'] += Geolocation.objects.get(Q(serviceId=f.serviceId)).distance
+            geolocation = Geolocation.objects.get(Q(serviceId=f.serviceId))
+            if geolocation.distanceRatio == 1.2:
+                fuel_dict['sumDistance'] += geolocation.distance
+            else:
+                fuel_dict['sumDistanceCountry'] += geolocation.distance
             fuel_dict['empDeptName'] = f.serviceId.empDeptName
             fuel_dict['empPosition'] = f.serviceId.empId.empPosition.positionName
             fuel_dict['empName'] = f.serviceId.empName
         fuel_dict['sumFuelMoney'] = fuel.aggregate(sumFuelMoney=Sum('fuelMoney'))['sumFuelMoney']
+        fuel_dict['oilMpk'] = oilMpk
         sumEmp['sumFuelMoney'] += fuel_dict['sumFuelMoney']
         sumEmp['sumDistance'] += fuel_dict['sumDistance']
 
-        table.append(fuel_dict)
+        if fuel_dict['sumDistanceCountry'] == 0 and fuel_dict['sumDistance'] != 0:
+            fuel_dict['distanceRatio'] = 1.2
+            table.append(fuel_dict)
+        elif fuel_dict['sumDistanceCountry'] != 0 and fuel_dict['sumDistance'] == 0:
+            fuel_dict['distanceRatio'] = 1.0
+            fuel_dict['sumDistance'] = fuel_dict['sumDistanceCountry']
+            table.append(fuel_dict)
+        else:
+            fuel_dict['distanceRatio'] = 1.2
+            table.append(fuel_dict)
+            fuel_dict['distanceRatio'] = 1.0
+            fuel_dict['sumDistance'] = fuel_dict['sumDistanceCountry']
+            table.append(fuel_dict)
 
     return table, sumEmp
 

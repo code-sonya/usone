@@ -964,6 +964,7 @@ def view_fuel_pdf(request, yearmonth):
     fuelInfra, sumInfra = cal_fuel('인프라서비스사업팀', todayYear, todayMonth)
     fuelSolution, sumSolution = cal_fuel('솔루션지원팀', todayYear, todayMonth)
     fuelDB, sumDB = cal_fuel('DB지원팀', todayYear, todayMonth)
+    print(fuelDB)
 
     sumEmp = {'sumFuelMoney': 0, 'sumDistance': 0}
     for sum in [sumSupport, sumSales1, sumSales2, sumInfra, sumSolution, sumDB]:

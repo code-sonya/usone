@@ -855,7 +855,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         startAlias, startRegion = reverse_geo(post.startLatitude, post.startLongitude)
         endAlias, endRegion = reverse_geo(post.endLatitude, post.endLongitude)
         finishAlias, finishRegion = reverse_geo(post.finishLatitude, post.finishLongitude)
-        if beginAlias not in ['서울', '경기'] or finishAlias not in ['서울', '경기']:
+        if beginAlias not in ['서울', '경기'] or startAlias not in ['서울', '경기'] or endAlias not in ['서울', '경기'] or finishAlias not in ['서울', '경기']:
             post.distanceRatio = 1.0
 
         # 출발, 시작, 종료, 도착 위치
