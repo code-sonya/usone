@@ -130,6 +130,7 @@ class Geolocation(models.Model):
     finishLocation = models.CharField(max_length=50, null=True, blank=True)
     distanceRatio = models.FloatField(default=1.2)
     distance = models.FloatField(default=0)
+    tollMoney = models.IntegerField(default=0)
     path = models.TextField(null=True, blank=True)
     distanceCode = models.IntegerField(default=0)
     comment = models.CharField(max_length=200, null=True, blank=True)

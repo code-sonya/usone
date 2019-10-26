@@ -32,6 +32,6 @@ class OilAdmin(admin.ModelAdmin):
 
 @admin.register(Fuel)
 class FuelAdmin(admin.ModelAdmin):
-    list_display = ('fuelId', 'serviceId', 'fuelStatus')
-    list_filter = ('fuelId',)
-    list_display_links = ['fuelId', 'serviceId', 'fuelStatus']
+    list_display = ('fuelId', 'geolocationId', 'fuelStatus')
+    list_filter = ('geolocationId',)
+    list_display_links = ['fuelId', 'geolocationId', 'fuelStatus']

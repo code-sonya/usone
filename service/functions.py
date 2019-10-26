@@ -653,7 +653,7 @@ def naver_distance(latlngs):
           "?start=" + start_lng + "," + start_lat + \
           "&goal=" + goal_lng + "," + goal_lat + \
           "&waypoints=" + waypoints + \
-          "&option=" + option[1]
+          "&option=" + option[0] + ":" + option[1] + ":" + option[2]
     header = [
         "X-NCP-APIGW-API-KEY-ID: " + naverMapId,
         "X-NCP-APIGW-API-KEY: " + naverMapKey,
@@ -674,16 +674,25 @@ def naver_distance(latlngs):
     if distanceCode > 0:
         path = ''
         distance = 0
+        tollMoney = 0
     else:
-        path = body['route']['tracomfort'][0]['path']
-        # path_lst = []
-        # for p in path:
-        #     path_lst.append({'longitude':p[0], 'latitude':p[1]})
-
-        distance = round((body['route']['tracomfort'][0]['summary']['distance'] / 1000), 1)
+        distanceList = [
+            body['route'][option[0]][0]['summary']['distance'],
+            body['route'][option[1]][0]['summary']['distance'],
+            body['route'][option[2]][0]['summary']['distance'],
+        ]
+        distance = max(distanceList)
+        distanceOption = distanceList.index(distance)
+        distance = round((distance / 1000), 1)
+        path = body['route'][option[distanceOption]][0]['path']
+        tollMoney = max([
+            body['route'][option[0]][0]['summary']['tollFare'],
+            body['route'][option[1]][0]['summary']['tollFare'],
+            body['route'][option[2]][0]['summary']['tollFare'],
+        ])
     buffer.close()
 
-    return distance, path, distanceCode
+    return distance, path, distanceCode, tollMoney
 
 
 def reverse_geo(lat, lng):

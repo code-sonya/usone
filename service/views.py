@@ -845,9 +845,10 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
             [post.endLatitude, post.endLongitude],
             [post.finishLatitude, post.finishLongitude],
         ]
-        distance, path, distanceCode = naver_distance(latlngs)
+        distance, path, distanceCode, tollMoney = naver_distance(latlngs)
         post.distance = distance
         post.path = path
+        post.tollMoney = tollMoney
         post.distanceCode = distanceCode
 
         # 거리 계산 비율

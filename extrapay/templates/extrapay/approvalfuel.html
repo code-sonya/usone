@@ -41,7 +41,9 @@
               <th>고객사</th>
               <th>제목</th>
               <th>이동거리</th>
+              <th>통행료</th>
               <th>유류비</th>
+              <th>합계</th>
               <th>반려사유</th>
             </tr>
             </thead>
@@ -53,8 +55,10 @@
               <th style="padding: 8px 10px; text-align: right">(승인) TOTAL :</th>
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: left">
-                ※ 합계는 <span class="text-primary">승인</span>된 건에 대해서만 계산됩니다.
+                ※ 합계는 <span class="text-primary">승인</span>된 건만 계산됩니다.
               </th>
             </tr>
             </tfoot>
@@ -66,14 +70,15 @@
           <table id="napprovalfuel" class="hover row-border" width="100%" style="width: 100%;">
             <thead>
             <tr>
-              <th>단계</th>
+              <th>승인</th>
+              <th>반려</th>
               <th>날짜</th>
               <th>고객사</th>
               <th>제목</th>
               <th>이동거리</th>
+              <th>통행료</th>
               <th>유류비</th>
-              <th>승인</th>
-              <th>반려</th>
+              <th>합계</th>
               <th>반려사유</th>
               <th class="d-none">fuelId</th>
             </tr>
@@ -83,12 +88,13 @@
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
             </tr>
             </tfoot>
           </table>
@@ -369,63 +375,71 @@
             "columnDefs": [
                 {
                     targets: 0,
-                    width: "5%",
-                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "fuelStatus",
-                },
-                {
-                    targets: 1,
-                    width: "10%",
-                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "serviceDate",
-                },
-                {
-                    targets: 2,
-                    width: "10%",
-                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "companyName"
-                },
-                {
-                    targets: 3,
-                    width: "25%",
-                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
-                    data: "serviceTitle",
-                },
-                {
-                    targets: 4,
-                    width: "10%",
-                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
-                    data: "distance",
-                },
-                {
-                    targets: 5,
-                    width: "10%",
-                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
-                    data: "fuelMoney",
-                },
-                {
-                    targets: 6,
-                    width: "5%",
+                    width: "1%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     data: "fuelId",
+                    orderable: false,
                     render: function (data, type, full, meta) {
                         return '<input type="radio" class="rdbt" name="rdbt' + data + '" value="Y" checked ' +
                             'onchange="rdbt_input(input' + data + ', \'attr\')">';
                     },
                 },
                 {
-                    targets: 7,
-                    width: "5%",
+                    targets: 1,
+                    width: "1%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     data: "fuelId",
+                    orderable: false,
                     render: function (data, type, full, meta) {
                         return '<input type="radio" class="rdbt" name="rdbt' + data + '" value="N" ' +
                             'onchange="rdbt_input(input' + data + ', \'remove\')">';
                     },
                 },
                 {
+                    targets: 2,
+                    width: "8%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "serviceDate",
+                },
+                {
+                    targets: 3,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "companyName"
+                },
+                {
+                    targets: 4,
+                    width: "25%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "serviceTitle",
+                },
+                {
+                    targets: 5,
+                    width: "8%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "distance",
+                },
+                {
+                    targets: 6,
+                    width: "8%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "tollMoney",
+                },
+                {
+                    targets: 7,
+                    width: "8%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "fuelMoney",
+                },
+                {
                     targets: 8,
-                    width: "20%",
+                    width: "8%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "totalMoney",
+                },
+                {
+                    targets: 9,
+                    width: "15%",
                     className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                     data: "fuelId",
                     render: function (data, type, full, meta) {
@@ -433,7 +447,7 @@
                     },
                 },
                 {
-                    targets: 9,
+                    targets: 10,
                     className: "d-none fuel-id",
                     data: "fuelId",
                 },
@@ -445,7 +459,7 @@
             "scrollY": "50vh",
             "scrollX": true,
             "scrollCollapse": true,
-            "order": [[0, 'desc']],
+            "order": [[2, 'desc']],
             "language": {
                 "lengthMenu": "_MENU_개씩 보기",
                 "search": "검색:",
@@ -459,43 +473,44 @@
                 },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                const fuelStatus = aData.fuelStatus;
-                if (fuelStatus === 'N') {
-                    $('td', nRow).eq(0).text('진행');
-                    $('td', nRow).eq(0).addClass('text-dark font-weight-bold');
-                } else if (fuelStatus === 'Y') {
-                    $('td', nRow).eq(0).text('승인');
-                    $('td', nRow).eq(0).addClass('text-primary font-weight-bold');
-                } else if (fuelStatus === 'R') {
-                    $('td', nRow).eq(0).text('반려');
-                    $('td', nRow).css('background-color', '#f2f2f2');
-                    $('td', nRow).eq(0).addClass('text-danger font-weight-bold');
-                }
-
-                $('td:eq(4)', nRow).html(
+                $('td:eq(5)', nRow).html(
                     aData.distance.toLocaleString() + 'km ' +
                     '<i class="fas fa-car-side fa-fw text-warning" ' +
-                    'onclick=btn_map("' + aData.serviceId__serviceId + '","YR")></i>'
+                    'onclick=btn_map("' + aData.serviceId + '","YR")></i>'
                 );
                 if (aData.distanceCode > 0) {
-                    $('td:eq(4)', nRow).addClass('text-danger');
+                    $('td:eq(5)', nRow).addClass('text-danger');
                 }
-                $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
+                $('td:eq(6)', nRow).text(aData.tollMoney.toLocaleString() + '원');
+                $('td:eq(7)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
+                $('td:eq(8)', nRow).text(aData.totalMoney.toLocaleString() + '원');
             },
             "footerCallback": function () {
                 let api = this.api(), data;
 
                 let distanceResult = 0;
-                api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                api.column(5, {search: 'applied'}).data().each(function (data, index) {
                     distanceResult += parseFloat(data);
                 });
-                $(api.column(4).footer()).html(distanceResult.toLocaleString() + 'km ');
+                $(api.column(5).footer()).html(distanceResult.toLocaleString() + 'km ');
 
-                let moneyResult = 0;
-                api.column(5, {search: 'applied'}).data().each(function (data, index) {
-                    moneyResult += parseFloat(data);
+                let tollResult = 0;
+                api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                    tollResult += parseFloat(data);
                 });
-                $(api.column(5).footer()).html(moneyResult.toLocaleString() + '원');
+                $(api.column(6).footer()).html(tollResult.toLocaleString() + '원');
+
+                let fuelResult = 0;
+                api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                    fuelResult += parseFloat(data);
+                });
+                $(api.column(7).footer()).html(fuelResult.toLocaleString() + '원');
+
+                let totalResult = 0;
+                api.column(8, {search: 'applied'}).data().each(function (data, index) {
+                    totalResult += parseFloat(data);
+                });
+                $(api.column(8).footer()).html(totalResult.toLocaleString() + '원');
             },
         });
 
@@ -522,7 +537,7 @@
                 },
                 {
                     targets: 1,
-                    width: "10%",
+                    width: "8%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     data: "serviceDate",
                 },
@@ -540,7 +555,7 @@
                 },
                 {
                     targets: 4,
-                    width: "10%",
+                    width: "7%",
                     className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
                     data: "distance",
                 },
@@ -548,11 +563,23 @@
                     targets: 5,
                     width: "10%",
                     className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
-                    data: "fuelMoney",
+                    data: "tollMoney",
                 },
                 {
                     targets: 6,
-                    width: "30%",
+                    width: "10%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "fuelMoney",
+                },
+                {
+                    targets: 7,
+                    width: "10%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "totalMoney",
+                },
+                {
+                    targets: 8,
+                    width: "15%",
                     className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                     data: "comment"
                 },
@@ -587,19 +614,20 @@
                     $('td', nRow).eq(0).addClass('text-primary font-weight-bold');
                 } else if (fuelStatus === 'R') {
                     $('td', nRow).eq(0).text('반려');
-                    $('td', nRow).css('background-color', '#f2f2f2');
                     $('td', nRow).eq(0).addClass('text-danger font-weight-bold');
                 }
 
                 $('td:eq(4)', nRow).html(
                     aData.distance.toLocaleString() + 'km ' +
                     '<i class="fas fa-car-side fa-fw text-warning" ' +
-                    'onclick=btn_map("' + aData.serviceId__serviceId + '","YR")></i>'
+                    'onclick=btn_map("' + aData.serviceId + '","YR")></i>'
                 );
                 if (aData.distanceCode > 0) {
                     $('td:eq(4)', nRow).addClass('text-danger');
                 }
-                $('td:eq(5)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
+                $('td:eq(5)', nRow).text(aData.tollMoney.toLocaleString() + '원');
+                $('td:eq(6)', nRow).text(aData.fuelMoney.toLocaleString() + '원');
+                $('td:eq(7)', nRow).text(aData.totalMoney.toLocaleString() + '원');
             },
             "footerCallback": function () {
                 let api = this.api(), data;
@@ -612,13 +640,29 @@
                 });
                 $(api.column(4).footer()).html(distanceResult.toLocaleString() + 'km');
 
-                let moneyResult = 0;
+                let tollResult = 0;
                 api.column(5, {search: 'applied'}).data().each(function (data, index) {
                     if (api.column(0).data()[index] === 'Y') {
-                        moneyResult += parseFloat(data);
+                        tollResult += parseFloat(data);
                     }
                 });
-                $(api.column(5).footer()).html(moneyResult.toLocaleString() + '원');
+                $(api.column(5).footer()).html(tollResult.toLocaleString() + '원');
+
+                let fuelResult = 0;
+                api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                    if (api.column(0).data()[index] === 'Y') {
+                        fuelResult += parseFloat(data);
+                    }
+                });
+                $(api.column(6).footer()).html(fuelResult.toLocaleString() + '원');
+
+                let totalResult = 0;
+                api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                    if (api.column(0).data()[index] === 'Y') {
+                        totalResult += parseFloat(data);
+                    }
+                });
+                $(api.column(7).footer()).html(totalResult.toLocaleString() + '원');
             },
         });
     })
