@@ -97,47 +97,50 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
     return table, sumEmp
 
 
-def cal_fuel(empDeptName, todayYear, todayMonth):
-    fuels = Fuel.objects.filter(Q(serviceId__serviceDate__year=todayYear) & Q(serviceId__serviceDate__month=todayMonth) & Q(serviceId__empDeptName=empDeptName) & Q(fuelStatus='Y'))
-    oil = Oil.objects.filter(Q(oilDate__year=todayYear) & Q(oilDate__month=todayMonth))
-    table = []
-    sumEmp = {'sumFuelMoney': 0, 'sumDistance': 0, 'sumDistanceCountry': 0}
-    fuelsEmp = fuels.values('serviceId__empName').annotate(countFuel=Count('serviceId__empName'))
-    fuelsEmpList = [x['serviceId__empName'] for x in fuelsEmp]
-    for employee in fuelsEmpList:
-        emp = Employee.objects.get(Q(empName=employee))
-        oilMpk = oil.get(Q(carId__carId=emp.carId_id)).mpk
-        fuel = fuels.filter(serviceId__empName=employee)
-        fuel_dict={'sumDistance': 0,'sumDistanceCountry': 0}
-        for f in fuel:
-            geolocation = Geolocation.objects.get(Q(serviceId=f.serviceId))
-            if geolocation.distanceRatio == 1.2:
-                fuel_dict['sumDistance'] += geolocation.distance
-            else:
-                fuel_dict['sumDistanceCountry'] += geolocation.distance
-            fuel_dict['empDeptName'] = f.serviceId.empDeptName
-            fuel_dict['empPosition'] = f.serviceId.empId.empPosition.positionName
-            fuel_dict['empName'] = f.serviceId.empName
-        fuel_dict['sumFuelMoney'] = fuel.aggregate(sumFuelMoney=Sum('fuelMoney'))['sumFuelMoney']
-        fuel_dict['oilMpk'] = oilMpk
-        sumEmp['sumFuelMoney'] += fuel_dict['sumFuelMoney']
-        sumEmp['sumDistance'] += fuel_dict['sumDistance']
+def cal_fuel(todayYear, todayMonth, empDeptName=None):
+    fuels = Fuel.objects.filter(
+        Q(geolocationId__serviceId__serviceDate__year=todayYear) &
+        Q(geolocationId__serviceId__serviceDate__month=todayMonth) &
+        Q(fuelStatus='Y')
+    )
+    oil = Oil.objects.filter(
+        Q(oilDate__year=todayYear) &
+        Q(oilDate__month=todayMonth)
+    )
 
-        if fuel_dict['sumDistanceCountry'] == 0 and fuel_dict['sumDistance'] != 0:
-            fuel_dict['distanceRatio'] = 1.2
-            table.append(fuel_dict)
-        elif fuel_dict['sumDistanceCountry'] != 0 and fuel_dict['sumDistance'] == 0:
-            fuel_dict['distanceRatio'] = 1.0
-            fuel_dict['sumDistance'] = fuel_dict['sumDistanceCountry']
-            table.append(fuel_dict)
-        else:
-            fuel_dict['distanceRatio'] = 1.2
-            table.append(fuel_dict)
-            fuel_dict['distanceRatio'] = 1.0
-            fuel_dict['sumDistance'] = fuel_dict['sumDistanceCountry']
-            table.append(fuel_dict)
+    if empDeptName:
+        fuels = fuels.filter(geolocationId__serviceId__empDeptName=empDeptName)
 
-    return table, sumEmp
+        fuelsEmp = fuels.values(
+            'geolocationId__serviceId__empId',
+            'geolocationId__distanceRatio',
+        ).annotate(
+            empId=F('geolocationId__serviceId__empId'),
+            sumDistance=Sum('geolocationId__distance'),
+            empDeptName=F('geolocationId__serviceId__empDeptName'),
+            empPosition=F('geolocationId__serviceId__empId__empPosition__positionName'),
+            empName=F('geolocationId__serviceId__empName'),
+            sumFuelMoney=Sum('fuelMoney'),
+            sumTollMoney=Sum('geolocationId__tollMoney'),
+            sumTotalMoney=F('sumFuelMoney') + F('sumTollMoney'),
+            distanceRatio=F('geolocationId__distanceRatio'),
+            countFuel=Count('geolocationId__serviceId__empName'),
+        )
+
+        for f in fuelsEmp:
+            emp = Employee.objects.get(empId=f['empId'])
+            oilMpk = oil.get(carId__carId=emp.carId_id).mpk
+            f['oilMpk'] = oilMpk
+
+    else:
+        fuelsEmp = fuels.aggregate(
+            sumDistance=Sum('geolocationId__distance'),
+            sumTollMoney=Sum('geolocationId__tollMoney'),
+            sumFuelMoney=Sum('fuelMoney'),
+            sumTotalMoney=Sum('geolocationId__tollMoney') + Sum('fuelMoney'),
+        )
+
+    return fuelsEmp
 
 
 class Round(Func):

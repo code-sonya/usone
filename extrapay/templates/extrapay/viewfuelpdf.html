@@ -85,133 +85,39 @@
     <td class="thtd" colspan="1">부서</td>
     <td class="thtd" colspan="1">직급</td>
     <td class="thtd" colspan="1">성명</td>
-    <td class="thtd" colspan="1">전체이동거리(km)</td>
-    <td class="thtd" colspan="1">km당유류비(원)</td>
-    <td class="thtd" colspan="1">가산비율</td>
-    <td class="thtd" colspan="1">유류비합계</td> 
+    <td class="thtd" colspan="1">km당<br>유류비(원)</td>
+    <td class="thtd" colspan="1">이동거리<br>(가산비율)</td>
+    <td class="thtd" colspan="1">통행료</td>
+    <td class="thtd" colspan="1">유류비</td>
+    <td class="thtd" colspan="1">합계</td>
   </tr>
   </thead>
   <tbody>
-  {% if fuelSupport %}
-  {% for row in fuelSupport %}
-  <tr class="thtd">
-    {% ifchanged row.empDeptName %}
-    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
-    {% else %}
-    <td class="thtd" colspan="1" style="background-color: white"></td>
-    {% endifchanged %}
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;">{{ row.distanceRatio }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
-  </tr>
+  {% for dept in fuels %}
+    {% for row in dept %}
+    <tr class="thtd">
+      {% ifchanged row.empDeptName %}
+      <td class="thtd" rowspan="{{ row.countFuel }}" colspan="1">{{ row.empDeptName }}</td>
+      {% endifchanged %}
+      <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
+      <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
+      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
+      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance }}<br>({{ row.distanceRatio }})</td>
+      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumTollMoney |floatformat:0|intcomma }}</td>
+      <td class="thtd" colspan="1" style="background-color: white; text-align: right">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
+      <td class="thtd" colspan="1" style="background-color: white; text-align: right">{{ row.sumTotalMoney |floatformat:0|intcomma }}</td>
+    </tr>
+    {% endfor %}
   {% endfor %}
-  {% endif %}
-  {% if fuelSales1 %}
-  {% for row in fuelSales1 %}
-  <tr class="thtd">
-    {% ifchanged row.empDeptName %}
-    <td class="thtd"colspan="1" >{{ row.empDeptName }}</td>
-    {% else %}
-    <td class="thtd" colspan="1" style="background-color: white"></td>
-    {% endifchanged %}
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;">{{ row.distanceRatio }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumFuelMoney |intcomma }}</td>
-  </tr>
-  {% endfor %}
-  {% endif %}
-  {% if fuelSales2 %}
-  {% for row in fuelSales2 %}
-  <tr class="thtd">
-    {% ifchanged row.empDeptName %}
-    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
-    {% else %}
-    <td class="thtd" colspan="1" style="background-color: white"></td>
-    {% endifchanged %}
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;">{{ row.distanceRatio }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
-  </tr>
-  {% endfor %}
-  {% endif %}
-  {% if fuelInfra %}
-  {% for row in fuelInfra %}
-  <tr class="thtd">
-    {% ifchanged row.empDeptName %}
-    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
-    {% else %}
-    <td class="thtd" colspan="1" style="background-color: white"></td>
-    {% endifchanged %}
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;">{{ row.distanceRatio }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
-  </tr>
-  {% endfor %}
-  {% endif %}
-  {% if fuelSolution %}
-  {% for row in fuelSolution %}
-  <tr class="thtd">
-    {% ifchanged row.empDeptName %}
-    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
-    {% else %}
-    <td class="thtd" colspan="1" style="background-color: white"></td>
-    {% endifchanged %}
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;">{{ row.distanceRatio }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
-  </tr>
-  {% endfor %}
-  {% endif %}
-  {% if fuelDB %}
-  {% for row in fuelDB %}
-  <tr class="thtd">
-    {% ifchanged row.empDeptName %}
-    <td class="thtd" colspan="1">{{ row.empDeptName }}</td>
-    {% else %}
-    <td class="thtd" colspan="1" style="background-color: white"></td>
-    {% endifchanged %}
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
-    <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;">{{ row.distanceRatio }}</td>
-    <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
-  </tr>
-  {% endfor %}
-  {% endif %}
+
   <tr class="thtd" style="background-color: lightsalmon">
-    <td class="thtd" colspan="5">소계</td>
-    <td class="thtd" colspan="1" style="text-align: right">{{ sumEmp.sumDistance }}</td>
-    <td class="thtd" colspan="1" style="text-align: right">{{ sumEmp.sumFuelMoney |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="4">총 합계</td>
+    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumDistance }}</td>
+    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumTollMoney |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumFuelMoney |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumTotalMoney |floatformat:0|intcomma }}</td>
   </tr>
   </tbody>
 </table>
-<br>
-<div class="float-right">
-  <table class="pc-table" style="border-color: white;">
-    <tbody>
-    <tr>
-      <td colspan="5" style="border-color: white;background-color:white"></td>
-      <td class="thtd" colspan="1" style="background-color: lightsalmon">총 합계</td>
-      <td class="thtd" colspan="1" style="background-color: lightsalmon;text-align: right">{{ sumAll |floatformat:0|intcomma }}</td>
-    </tr>
-    </tbody>
-  </table>
-</div>
 </body>
 </html>
