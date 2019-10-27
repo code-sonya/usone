@@ -55,7 +55,6 @@
             <span class="text-white">손익계산서</span></a>
       </li>
       <!-- Divider -->
-      <hr class="sidebar-divider my-0">
     {% endif %}
 
     {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
@@ -76,8 +75,8 @@
           </div>
         </div>
       </li>
+     <hr class="sidebar-divider my-0">
     {% endif %}
-
     {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
       <!-- Nav Item - 영업관리 -->
       <li class="nav-item">
@@ -140,15 +139,24 @@
           </div>
         </div>
       </li>
+    <hr class="sidebar-divider my-0">
     {% endif %}
 
     {% if user.employee.empDeptName == '경영지원본부' %}
       <!-- Nav Item - 초과근무 -->
       <li class="nav-item">
-        <a class="nav-link" href="/dashboard/overhour/">
-          <i class="fas fa-fw fa-clock text-white"></i>
-          <span class="text-white">초과근무</span></a>
-      </li>
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOverhour" aria-expanded="true" aria-controls="collapseOverhour">
+            <i class="fas fa-fw fa-clock text-white"></i>
+            <span class="text-white">시간외수당</span>
+          </a>
+          <div id="collapseOverhour" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <a class="collapse-item" href="/extrapay/overhourall/today/">시간외수당현황</a>
+              <a class="collapse-item" href="/extrapay/overhour/">시간외수당관리</a>
+              <a class="collapse-item" href="/extrapay/showsalarys/">수당관리</a>
+            </div>
+          </div>
+        </li>
 
       <!-- Nav Item - 근태관리 -->
       <li class="nav-item">
@@ -176,6 +184,26 @@
         </a>
       </li>
     {% endif %}
+
+    <!-- Nav Item - 유류비 -->
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFuel" aria-expanded="true" aria-controls="collapseFuel">
+        <i class="fas fa-fw fa-money-bill-alt text-white"></i>
+        <span class="text-white">유류비</span>
+      </a>
+      <div id="collapseFuel" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          {% if user.employee.empManager == 'Y' or user.employee.empDeptName == '경영지원본부' or user.employee.empDeptName == '임원' %}
+          <a class="collapse-item" href="/extrapay/adminfuel/">유류비관리</a>
+          {% endif %}
+          <a class="collapse-item" href="/extrapay/showfuel/">유류비신청</a>
+          <a class="collapse-item" href="/extrapay/showoils/">유류대현황</a>
+          {% if user.employee.empDeptName == '경영지원본부' %}
+          <a class="collapse-item" href="/extrapay/postcar/">차종관리</a>
+          {% endif %}
+        </div>
+      </div>
+    </li>
 
     <!-- Divider -->
     <hr class="sidebar-divider">

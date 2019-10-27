@@ -1,0 +1,265 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  유류비신청
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h6 class="m-0 h3 text-gray-800"> {{ startdate | slice:'0:4' }}년 {{ startdate | slice:'5:7' }}월 유류비관리 </h6>
+      <div class="dropdown no-arrow">
+        <a class="mr-3" onclick="location.href='/extrapay/viewfuelpdf/{{ yearmonth }}/'">
+            <i class="fas fa-download fa-fw text-gray-400"></i>
+          </a>
+        <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal"
+           data-target="#filterModal">
+          <i class="fas fa-filter fa-fw text-gray-400"></i>
+        </a>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="adminfuel" class="hover row-border" width="100%" style="width: 100%;">
+          <thead>
+          <tr>
+            <th>소속</th>
+            <th>직급</th>
+            <th>성명</th>
+            <th>진행(건)</th>
+            <th>승인(건)</th>
+            <th>반려(건)</th>
+            <th>차량구분</th>
+            <th>이동거리</th>
+            <th>통행료</th>
+            <th>유류비</th>
+            <th>합계</th>
+          </tr>
+          </thead>
+          <tfoot>
+          <tr>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+          </tr>
+          </tfoot>
+        </table>
+      </div>
+      <br>
+    </div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <label for="findDate" class="font-weight-light text-primary">검색 일자</label>
+            <input type="month" max="9999-12" class="form-control" id="findDate" name="findDate" value="{{ startdate | slice:'0:7' }}">
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+    function btn_filter() {
+        const filterForm = document.getElementById('filterForm');
+        filterForm.submit();
+    }
+
+    function btn_post() {
+
+    }
+
+    $(document).ready(function () {
+        const adminfuel = $('#adminfuel').DataTable({
+            "processing": true,
+            "ajax": {
+                "processing": true,
+                "type": 'POST',
+                "data": {
+                    "startdate": "{{ startdate }}",
+                    "enddate": "{{ enddate }}",
+                    "empId": "{{ user.employee.empId }}"
+                },
+                "url": "{% url 'extrapay:adminfuelasjson' %}",
+                "dataSrc": ""
+            },
+            "columnDefs": [
+                {
+                    targets: 0,
+                    width: "8%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: 'empDeptName',
+                },
+                {
+                    targets: 1,
+                    width: "7%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: 'empPosition',
+                },
+                {
+                    targets: 2,
+                    width: "8%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "empName"
+                },
+                {
+                    targets: 3,
+                    width: "9%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "progress",
+                },
+                {
+                    targets: 4,
+                    width: "9%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "approval",
+                },
+                {
+                    targets: 5,
+                    width: "9%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "reject",
+                },
+                {
+                    targets: 6,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "car",
+                },
+                {
+                    targets: 7,
+                    width: "10%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "sum_distance",
+                },
+                {
+                    targets: 8,
+                    width: "10%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "sum_tollMoney",
+                },
+                {
+                    targets: 9,
+                    width: "10%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "sum_fuelMoney",
+                },
+                {
+                    targets: 10,
+                    width: "10%",
+                    className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                    data: "sum_totalMoney",
+                },
+            ],
+            "deferRender": true,
+            "searching": true,
+            "paging": false,
+            "info": false,
+            "scrollY": "50vh",
+            "scrollX": true,
+            "scrollCollapse": true,
+            "order": [[1, 'desc']],
+            "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(3)', nRow).text(aData.progress + '건');
+                $('td:eq(3)', nRow).addClass('text-dark font-weight-bold');
+                $('td:eq(4)', nRow).text(aData.approval + '건');
+                $('td:eq(4)', nRow).addClass('text-primary font-weight-bold');
+                $('td:eq(5)', nRow).text(aData.reject + '건');
+                $('td:eq(5)', nRow).addClass('text-danger font-weight-bold');
+                $('td:eq(7)', nRow).text(aData.sum_distance.toLocaleString() + 'km');
+                $('td:eq(8)', nRow).text(aData.sum_tollMoney.toLocaleString() + '원');
+                $('td:eq(9)', nRow).text(aData.sum_fuelMoney.toLocaleString() + '원');
+                $('td:eq(10)', nRow).text(aData.sum_totalMoney.toLocaleString() + '원');
+            },
+            "footerCallback": function () {
+                let api = this.api(), data;
+
+                let distanceResult = 0;
+                api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                    distanceResult += parseFloat(data);
+                });
+                $(api.column(7).footer()).html(distanceResult.toLocaleString() + 'km ');
+
+                let tollResult = 0;
+                api.column(8, {search: 'applied'}).data().each(function (data, index) {
+                    tollResult += parseFloat(data);
+                });
+                $(api.column(8).footer()).html(tollResult.toLocaleString() + '원');
+
+                let fuelResult = 0;
+                api.column(9, {search: 'applied'}).data().each(function (data, index) {
+                    fuelResult += parseFloat(data);
+                });
+                $(api.column(9).footer()).html(fuelResult.toLocaleString() + '원');
+
+                let totalResult = 0;
+                api.column(10, {search: 'applied'}).data().each(function (data, index) {
+                    totalResult += parseFloat(data);
+                });
+                $(api.column(10).footer()).html(totalResult.toLocaleString() + '원');
+            },
+        });
+
+        $('#adminfuel').on("click", 'tr', function () {
+            const data = adminfuel.row(this).data();
+            location.href = '/extrapay/approvalfuel/' + data.empId + '/'
+        });
+    })
+
+
+  </script>
+
+{% endblock %}

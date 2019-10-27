@@ -1,6 +1,10 @@
 import datetime
 import os
 import math
+import pycurl
+import re
+from io import BytesIO
+import json
 
 import pandas as pd
 from dateutil.relativedelta import relativedelta
@@ -10,6 +14,7 @@ from django.db.models import Q
 from django.http import QueryDict
 
 from scheduler.models import Eventday
+from usone.security import naverMapId, naverMapKey
 from .models import Servicereport, Vacation
 
 
@@ -90,6 +95,7 @@ def overtime(str_start_datetime, str_end_datetime):
             else:
                 d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
 
+
     for i in range(0, work_hours(d_start, d_finish), 1):
         a = (d_start + datetime.timedelta(hours=i))
         event_a = is_holiday(a.date())
@@ -111,7 +117,267 @@ def overtime(str_start_datetime, str_end_datetime):
                         pass
                     else:
                         minute_sum += 60
+
     return round((int(minute_sum) / 60), 1)
+
+
+def overtime_extrapay(str_start_datetime, str_end_datetime):
+    is_holiday_startdate = is_holiday(datetime.datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
+    is_holiday_enddate = is_holiday(datetime.datetime.strptime(str_end_datetime[:10], "%Y-%m-%d").date())
+
+    o_start = pd.Timestamp(str_start_datetime)
+    o_finish = pd.Timestamp(str_end_datetime)
+    d_start = pd.Timestamp(str_start_datetime)
+    d_finish = pd.Timestamp(str_end_datetime)
+
+
+    minute_sum = 0
+    min_date = ''
+    max_date = ''
+
+    s_week = d_start.weekday()
+    f_week = d_finish.weekday()
+
+    if s_week in [5, 6] or is_holiday_startdate != 0:  # 주말이거나 공휴일 일때
+        if d_start.minute != 0:
+            if d_start.hour == d_finish.hour and d_start.date() == d_finish.date():
+                minute_sum += (d_finish.minute - d_start.minute)
+                min_date = d_start
+                max_date = d_finish
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                d_finish = d_finish + datetime.timedelta(minutes=(60 - d_finish.minute))
+            else:
+                minute_sum += (60 - d_start.minute)
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
+
+    else:  # 평일 일때
+        if d_start.minute != 0:  # 정각 시작하지 않은 경우
+            if d_start.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
+                if d_start.hour == d_finish.hour and d_start.date() == d_finish.date():
+                    minute_sum += (d_finish.minute - d_start.minute)
+                    min_date = d_start
+                    max_date = d_finish
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                    d_finish = d_finish + datetime.timedelta(minutes=(60 - d_finish.minute))
+                else:
+                    minute_sum += (60 - d_start.minute)
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+                    min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
+            else:  # 초과 근무에 해당 하지 않는 경우
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+
+    if f_week in [5, 6] or is_holiday_enddate != 0:  # 주말이거나 공휴일 일때
+        if d_finish.minute != 0:
+            if d_start.hour != d_finish.hour and d_start.date() == d_finish.date():
+                minute_sum += d_finish.minute
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+                max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
+
+    else:  # 평일 일때
+        if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
+            if d_finish.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
+                if d_start.hour != d_finish.hour and d_start.date() == d_finish.date():
+                    minute_sum += d_finish.minute
+                    d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+                    max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
+            else:
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+
+    if min_date == '':
+        min_date = datetime.datetime(3000, 1, 31, 1, 0, 0)
+    if max_date == '':
+        max_date = datetime.datetime(1999, 1, 31, 1, 0, 0)
+    for i in range(0, work_hours(d_start, d_finish), 1):
+        a = (d_start + datetime.timedelta(hours=i))
+        event_a = is_holiday(a.date())
+        a_week = a.weekday()
+
+        if d_start <= a <= d_finish:
+            if a_week in [5, 6] or event_a != 0:  # 주말이나 공휴일
+                if d_start.date() == d_finish.date():
+                    if d_start.hour !=d_finish.hour:
+                        break
+                    else:
+                        minute_sum += int((d_finish - d_start).seconds / 60)
+                        min_date = d_start
+                        max_date = d_finish
+                        break
+                elif d_finish == a:
+                    pass
+                else:
+                    minute_sum += 60
+                    if a < min_date:
+                        min_date = a
+
+                    if a > max_date:
+                        max_date = a
+
+            else:  # 평일
+                if int(a.hour) in [0, 1, 2, 3, 4, 5, 22, 23]:
+                    if d_finish == a:
+                        pass
+                    else:
+                        minute_sum += 60
+                        if a < min_date:
+                            min_date = a
+
+                        if a > max_date:
+                            max_date = a
+        else:
+            print('else')
+    if max_date != datetime.datetime(1999, 1, 31, 1, 0, 0):
+        max_date = max_date + datetime.timedelta(minutes=60)
+    if max_date.hour == 5 and o_finish.hour == 5 and o_finish.minute != 0:
+        max_date = o_finish
+    if min_date.hour == 23:
+        if o_start.hour == 22 and o_start.minute != 0:
+            min_date = o_start
+    if max_date == datetime.datetime(1999, 1, 31, 1, 0, 0):
+        max_date = None
+    if min_date == datetime.datetime(3000, 1, 31, 1, 0, 0):
+        min_date = None
+
+    return round((math.trunc(minute_sum * 0.1)*10)/60, 2), round((math.trunc(minute_sum * 0.1)*10)/60, 2), min_date, max_date
+
+
+# 이현수대리 조기출근
+def overtime_extrapay_etc(str_start_datetime, str_end_datetime):
+    is_holiday_startdate = is_holiday(datetime.datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
+    is_holiday_enddate = is_holiday(datetime.datetime.strptime(str_end_datetime[:10], "%Y-%m-%d").date())
+
+    o_start = pd.Timestamp(str_start_datetime)
+    o_finish = pd.Timestamp(str_end_datetime)
+    d_start = pd.Timestamp(str_start_datetime)
+    d_finish = pd.Timestamp(str_end_datetime)
+
+    minute_sum = 0
+    min_date = ''
+    max_date = ''
+
+    s_week = d_start.weekday()
+    f_week = d_finish.weekday()
+
+    if s_week in [5, 6] or is_holiday_startdate != 0:  # 주말이거나 공휴일 일때
+        if d_start.minute != 0:
+            minute_sum += (60 - d_start.minute)
+            d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+
+    else:  # 평일 일때
+        if d_start.minute != 0:  # 정각 시작하지 않은 경우
+            if d_start.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
+                minute_sum += (60 - d_start.minute)
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+            elif d_start.hour in [6, 7, 8]:
+                if d_start.hour in [6, 7]:
+                    minute_temp = (60 - d_start.minute)
+                    min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 7, int(d_start.minute), 0)
+                    if minute_temp > 30:
+                        minute_temp = 30
+                        min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 7, 30, 0)
+                    minute_sum += minute_temp
+                else:
+                    minute_sum += (60 - d_start.minute)
+                    min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 8, int(d_start.minute), 0)
+
+                if d_start.hour == 6:
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute) - 60)
+                else:
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+
+                if d_finish.hour >= 9:
+                    max_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), 9, 0, 0)
+
+            else:  # 초과 근무에 해당 하지 않는 경우
+                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+
+        else:
+            if d_start.hour in [6, 7, 8]:
+                if d_start.hour in [6, 7]:
+                    minute_temp = (60 - d_start.minute)
+                    if minute_temp > 30:
+                        minute_temp == 30
+                    minute_sum += minute_temp
+                else:
+                    minute_sum += (60 - d_start.minute)
+
+                if d_start.hour == 6:
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute) - 60)
+                else:
+                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
+
+
+    if f_week in [5, 6] or is_holiday_enddate != 0:  # 주말이거나 공휴일 일때
+        if d_finish.minute != 0:
+            minute_sum += d_finish.minute
+            d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+
+    else:  # 평일 일때
+        if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
+            if d_finish.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
+                minute_sum += d_finish.minute
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+            else:
+                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
+
+    if min_date == '':
+        min_date = datetime.datetime(3000, 1, 31, 1, 0, 0)
+    if max_date == '':
+        max_date = datetime.datetime(1999, 1, 31, 1, 0, 0)
+    for i in range(0, work_hours(d_start, d_finish), 1):
+        a = (d_start + datetime.timedelta(hours=i))
+        event_a = is_holiday(a.date())
+        a_week = a.weekday()
+
+        if d_start <= a <= d_finish:
+            if a_week in [5, 6] or event_a != 0:  # 주말이나 공휴일
+                if d_start.date() == d_finish.date():
+                    minute_sum += int((d_finish - d_start).seconds / 60)
+                    min_date = d_start
+                    max_date = d_finish
+                    break
+                elif d_finish == a:
+                    pass
+                else:
+                    minute_sum += 60
+                    if a < min_date:
+                        min_date = a
+
+                    if a > max_date:
+                        max_date = a
+
+            else:  # 평일
+                if int(a.hour) in [0, 1, 2, 3, 4, 5, 22, 23]:
+                    if d_finish == a:
+                        pass
+                    else:
+                        minute_sum += 60
+                        if a < min_date:
+                            min_date = a
+
+                        if a > max_date:
+                            max_date = a
+                elif int(a.hour) == 8:
+                    minute_sum += 60
+                    if a < min_date:
+                        min_date = a
+
+                    if a > max_date:
+                        max_date = a
+
+    if max_date != datetime.datetime(1999, 1, 31, 1, 0, 0):
+        max_date = max_date + datetime.timedelta(minutes=60)
+    if max_date.hour == 5 and o_finish.hour == 5 and o_finish.minute != 0:
+        max_date = o_finish
+    if min_date.hour == 23:
+        if o_start.hour == 22 and o_start.minute != 0:
+            min_date = o_start
+    if max_date == datetime.datetime(1999, 1, 31, 1, 0, 0):
+        max_date = None
+    if min_date == datetime.datetime(3000, 1, 31, 1, 0, 0):
+        min_date = None
+
+    return round((math.trunc(minute_sum * 0.1) * 10) / 60, 2), round((math.trunc(minute_sum * 0.1) * 10) / 60, 2), min_date, max_date
 
 
 def dayreport_query2(empDeptName, day):
@@ -124,8 +390,8 @@ def dayreport_query2(empDeptName, day):
         holiday = False
 
     serviceDept = Servicereport.objects.filter(
-        Q(empDeptName=empDeptName) & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))
-    ).order_by('serviceStartDatetime')
+        Q(empDeptName=empDeptName) & (Q(serviceBeginDatetime__lte=Date_max) & Q(serviceFinishDatetime__gte=Date_min))
+    ).order_by('serviceBeginDatetime')
 
     vacationDept = Vacation.objects.filter(
         Q(empDeptName=empDeptName) & Q(vacationDate=Date)
@@ -154,8 +420,8 @@ def dayreport_query2(empDeptName, day):
                 'serviceId': service.serviceId,
                 'flag': flag,
                 'empName': service.empName,
-                'serviceStartDatetime': service.serviceStartDatetime,
-                'serviceEndDatetime': service.serviceEndDatetime,
+                'serviceBeginDatetime': service.serviceBeginDatetime,
+                'serviceFinishDatetime': service.serviceFinishDatetime,
                 'serviceStatus': service.serviceStatus,
                 'serviceTitle': service.serviceTitle,
                 'sortKey': service.empId.empRank,
@@ -165,8 +431,8 @@ def dayreport_query2(empDeptName, day):
                 'serviceId': service.serviceId,
                 'flag': flag,
                 'empName': service.empName,
-                'serviceStartDatetime': service.serviceStartDatetime,
-                'serviceEndDatetime': service.serviceEndDatetime,
+                'serviceBeginDatetime': service.serviceBeginDatetime,
+                'serviceFinishDatetime': service.serviceFinishDatetime,
                 'serviceStatus': service.serviceStatus,
                 'companyName': service.companyName,
                 'serviceType': service.serviceType,
@@ -180,8 +446,8 @@ def dayreport_query2(empDeptName, day):
                 'serviceId': '',
                 'flag': '',
                 'empName': emp.employee.empName,
-                'serviceStartDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
-                'serviceEndDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
+                'serviceBeginDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
+                'serviceFinishDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
                 'serviceStatus': '',
                 'companyName': emp.employee.dispatchCompany,
                 'serviceType': '',
@@ -192,7 +458,7 @@ def dayreport_query2(empDeptName, day):
         for vacation in vacationDept:
             listVacation.append({
                 'empName': vacation.empName,
-                'serviceStartDatetime': Date,
+                'serviceBeginDatetime': Date,
                 'vacationType': vacation.vacationType[:2],
                 'sortKey': vacation.empId.empRank,
             })
@@ -214,8 +480,8 @@ def dayreport_query2(empDeptName, day):
                     'serviceId': '',
                     'flag': flag,
                     'empName': vacation.empName,
-                    'serviceStartDatetime': startDateTime,
-                    'serviceEndDatetime': endDateTime,
+                    'serviceBeginDatetime': startDateTime,
+                    'serviceFinishDatetime': endDateTime,
                     'serviceStatus': '',
                     'companyName': vacation.empId.dispatchCompany,
                     'serviceType': '',
@@ -284,7 +550,7 @@ def num_to_str_position(num):
         return '사원'
 
 
-def latlng_distance(lat1, lng1, lat2, lng2, unit='m'):
+def latlng_distance(lat1, lng1, lat2, lng2, unit='km'):
     deg2rad = lambda deg: deg * math.pi / 180.0
     rad2deg = lambda rad: rad * 180 / math.pi
 
@@ -296,7 +562,169 @@ def latlng_distance(lat1, lng1, lat2, lng2, unit='m'):
 
     if unit == "km":
         dist *= 1.609344
+        dist = round(dist, 1)
     elif unit == 'm':
         dist *= 1609.344
+        dist = round(dist)
 
     return dist
+
+
+def cal_foodcost(str_start_datetime, str_end_datetime):
+    foodcosts=0
+    is_holiday_startdate = is_holiday(datetime.datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
+    startDate = datetime.datetime(year=int(str_start_datetime[:4]), month=int(str_start_datetime[5:7]), day=int(str_start_datetime[8:10]))
+    endDate = datetime.datetime(year=int(str_end_datetime[:4]), month=int(str_end_datetime[5:7]), day=int(str_end_datetime[8:10]))
+    dateRange = []
+    o_start = pd.Timestamp(str_start_datetime)
+    o_finish = pd.Timestamp(str_end_datetime)
+    for x in range(0, (o_finish.date() - o_start.date()).days + 1):
+
+        date_dict = {}
+        year = int(str((startDate + datetime.timedelta(days=x)).date())[:4])
+        month = int(str((startDate + datetime.timedelta(days=x)).date())[5:7])
+        day = int(str((startDate + datetime.timedelta(days=x)).date())[8:10])
+        next_year = int(str((startDate + datetime.timedelta(days=x+1)).date())[:4])
+        next_month = int(str((startDate + datetime.timedelta(days=x+1)).date())[5:7])
+        next_day = int(str((startDate + datetime.timedelta(days=x+1)).date())[8:10])
+
+        if (startDate + datetime.timedelta(days=x)).date() == startDate.date():
+            date_dict['start'] = o_start
+            if (startDate + datetime.timedelta(days=x)).date() == endDate.date():
+                date_dict['end'] = o_finish
+                dateRange.append(date_dict)
+            else:
+                date_dict['end'] = datetime.datetime(next_year, next_month, next_day, 0, 0, 0)
+                dateRange.append(date_dict)
+        else:
+            date_dict['start'] = datetime.datetime(year, month, day, 0, 0, 0)
+            if (startDate + datetime.timedelta(days=x)).date() == endDate.date():
+                date_dict['end'] = o_finish
+                dateRange.append(date_dict)
+            else:
+                date_dict['end'] = datetime.datetime(next_year, next_month, next_day, 0, 0, 0)
+                dateRange.append(date_dict)
+
+    for date in dateRange:
+        s_week = date['start'].weekday()
+        start_hour = date['start'].hour
+        end_hour = date['end'].hour
+        if end_hour == 0:
+            end_hour = 24
+
+        # 주말이거나 공휴일일 때
+        if s_week in [5, 6] or is_holiday_startdate != 0:
+            if start_hour <= 7 and end_hour >= 7:
+                foodcosts += 8000
+
+            if start_hour <= 12 and end_hour >= 13:
+                foodcosts += 8000
+
+            if start_hour <= 18 and end_hour >= 19:
+                foodcosts += 8000
+        else:
+            # 평일 석식 오후 6시 이후 모두 지급 (단, 오후6~8시 근무자 제외)
+            if end_hour >= 18:
+                if start_hour >= 18 and end_hour < 21:
+                    pass
+                else:
+                    foodcosts += 8000
+
+    return foodcosts
+
+
+def naver_distance(latlngs):
+    start_lat = str(latlngs[0][0])
+    start_lng = str(latlngs[0][1])
+    goal_lat = str(latlngs[-1][0])
+    goal_lng = str(latlngs[-1][1])
+    waypoints = ""
+    for i in range(1, len(latlngs)-1):
+        waypoints += str(latlngs[i][1]) + ',' + str(latlngs[i][0]) + '|'
+    waypoints = waypoints[:-1]
+    option = [
+        "trafast",          # 실시간 빠른길
+        "tracomfort",       # 실시간 편한길
+        "traoptimal",       # 실시간 최적길
+        "traavoidtoll",     # 무료 우선
+        "traavoidcaronly",  # 자동차 전용도로 회피 우선
+    ]
+    url = "https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving" + \
+          "?start=" + start_lng + "," + start_lat + \
+          "&goal=" + goal_lng + "," + goal_lat + \
+          "&waypoints=" + waypoints + \
+          "&option=" + option[0] + ":" + option[1] + ":" + option[2]
+    header = [
+        "X-NCP-APIGW-API-KEY-ID: " + naverMapId,
+        "X-NCP-APIGW-API-KEY: " + naverMapKey,
+    ]
+    buffer = BytesIO()
+    c = pycurl.Curl()
+
+    c.setopt(pycurl.HTTPHEADER, header)
+    c.setopt(c.URL, url)
+    c.setopt(c.WRITEDATA, buffer)
+    c.setopt(c.SSL_VERIFYPEER, False)
+    c.perform()
+    c.close()
+
+    body = buffer.getvalue().decode('utf-8')
+    body = json.loads(body)
+    distanceCode = body['code']
+    if distanceCode > 0:
+        path = ''
+        distance = 0
+        tollMoney = 0
+    else:
+        distanceList = [
+            body['route'][option[0]][0]['summary']['distance'],
+            body['route'][option[1]][0]['summary']['distance'],
+            body['route'][option[2]][0]['summary']['distance'],
+        ]
+        distance = max(distanceList)
+        distanceOption = distanceList.index(distance)
+        distance = round((distance / 1000), 1)
+        path = body['route'][option[distanceOption]][0]['path']
+        tollMoney = max([
+            body['route'][option[0]][0]['summary']['tollFare'],
+            body['route'][option[1]][0]['summary']['tollFare'],
+            body['route'][option[2]][0]['summary']['tollFare'],
+        ])
+    buffer.close()
+
+    return distance, path, distanceCode, tollMoney
+
+
+def reverse_geo(lat, lng):
+    lat = str(lat)
+    lng = str(lng)
+    url = "https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?" + \
+          "request=coordsToaddr&coords=" + lng + "," + lat + \
+          "&output=json" + \
+          "&orders=addr"
+    header = [
+        "X-NCP-APIGW-API-KEY-ID: " + naverMapId,
+        "X-NCP-APIGW-API-KEY: " + naverMapKey,
+    ]
+    buffer = BytesIO()
+    c = pycurl.Curl()
+
+    c.setopt(pycurl.HTTPHEADER, header)
+    c.setopt(c.URL, url)
+    c.setopt(c.WRITEDATA, buffer)
+    c.setopt(c.SSL_VERIFYPEER, False)
+    c.perform()
+    c.close()
+
+    body = buffer.getvalue().decode('utf-8')
+    body = json.loads(body)
+    buffer.close()
+
+    alias = body['results'][0]['region']['area1']['alias']
+    region = body['results'][0]['region']['area1']['name'] + ' ' \
+        + body['results'][0]['region']['area2']['name'] + ' ' \
+        + body['results'][0]['region']['area3']['name'] + ' ' \
+        + body['results'][0]['region']['area4']['name']
+    region = region.strip()
+
+    return alias, region

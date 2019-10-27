@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, reverse
 from sales.models import Contract, Category, Revenue, Contractitem, Goal, Purchase
 from service.models import Company, Customer, Servicereport, Vacation
+from extrapay.models import Car
 import pandas as pd
 from .models import Attendance, Employee, Punctuality
 from django.db.models import Q
@@ -25,18 +26,25 @@ def profile(request):
     userId = request.user.id
     user = User.objects.get(id=userId)
     if request.method == "POST":
-        postMessage = request.POST['message']
-        user.employee.message = postMessage
+        empPhone = request.POST['empPhone'] or user.employee.empPhone
+        empEmail = request.POST['empEmail'] or user.employee.empEmail
+        carId = request.POST['carId'] or None
+        if carId:
+            carId = Car.objects.get(carId=carId)
+        message = request.POST['message'] or user.employee.message
+
+        user.employee.empPhone = empPhone
+        user.employee.empEmail = empEmail
+        user.employee.carId = carId
+        user.employee.message = message
         user.employee.save()
-        context = {
-            'user': user,
-        }
-        return HttpResponse(template.render(context, request))
-    else:
-        context = {
-            'user': user,
-        }
-        return HttpResponse(template.render(context, request))
+
+    cars = Car.objects.all()
+    context = {
+        'user': user,
+        'cars': cars,
+    }
+    return HttpResponse(template.render(context, request))
 
 
 @login_required

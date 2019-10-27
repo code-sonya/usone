@@ -16,7 +16,7 @@ from django.views.decorators.http import require_POST
 
 from hr.models import Employee
 from service.models import Servicereport
-from .forms import ContractForm, GoalForm, PurchaseForm
+from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss
 from service.models import Company, Customer
@@ -1572,6 +1572,7 @@ def daily_report(request):
     # 연도, 월, 분기
     todayYear = datetime.today().year
     todayMonth = datetime.today().month
+    todayQuarter = 0
     if todayMonth in [1, 2, 3]:
         todayQuarter = 1
     elif todayMonth in [4, 5, 6]:
@@ -1593,28 +1594,28 @@ def daily_report(request):
     #   2-2. 분기 누계 달성 현황
     rowsFOQ = dailyReportRows(todayYear, todayQuarter, 'FO')
 
-    # 채권 및 채무 현황
+    # 3. 채권 및 채무 현황
     contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
     revenues = Revenue.objects.all()
     purchases = Purchase.objects.all()
     money = {}
 
-    # 1. 회계기준 기본 잔액
+    # 3-1. 회계기준 기본 잔액
+    # 매출채권잔액(A)
     money['A'] = revenues.filter(
         Q(billingDate__isnull=False) &
         Q(depositDate__isnull=True)
-    ).aggregate(
-        sum=Sum('revenuePrice')
-    )['sum']
+    ).aggregate(sum=Sum('revenuePrice'))['sum']
+    # 매입채무잔액(B)
     money['B'] = purchases.filter(
-        Q(billingDate__isnull=False)
-        & Q(withdrawDate__isnull=True)
-    ).aggregate(
-        sum=Sum('purchasePrice')
-    )['sum']
+        Q(billingDate__isnull=False) &
+        Q(withdrawDate__isnull=True)
+    ).aggregate(sum=Sum('purchasePrice'))['sum']
+    # A - B
     money['AmB'] = money['A'] - money['B']
 
     # 2. 매입채무 조정
+    # 미접수(C), 선매입(D), 선지급(E)
     money['C'] = 0
     money['D'] = 0
     money['E'] = 0

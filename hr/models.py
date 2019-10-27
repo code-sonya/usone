@@ -37,6 +37,7 @@ class Employee(models.Model):
     empDeptName = models.CharField(max_length=30, choices=empDeptNameChoices, default='미정')
     dispatchCompany = models.CharField(max_length=100, default='내근')
     message = models.CharField(max_length=200, default='내근 업무 내용을 작성해 주세요.', help_text='내근 업무 내용을 작성해 주세요.')
+    carId = models.ForeignKey("extrapay.Car", on_delete=models.SET_NULL, null=True, blank=True)
     empAuth = models.CharField(max_length=10, default='일반')
     empRank = models.IntegerField(default=10)
     empSalary = models.IntegerField(default=0)

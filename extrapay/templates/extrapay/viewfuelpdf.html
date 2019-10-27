@@ -1,0 +1,123 @@
+{% load staticfiles %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+  <meta charset="utf-8">
+
+  <style type="text/css">
+    /*@font-face {*/
+    /*font-family: KBIZHanmaumMyungjo;*/
+    /*src: url({% static '/mail/KBIZHanmaumMyungjo.ttf' %});*/
+    /*}*/
+
+    /*html {*/
+    /*font-family: KBIZHanmaumMyungjo, serif;*/
+    /*}*/
+
+    @font-face {
+      font-family: JejuGothic;
+      src: url({% static '/mail/JejuGothic.ttf' %});
+    }
+
+    html {
+      font-family: JejuGothic, serif;
+    }
+
+    @page {
+      size: A4 ;
+      margin-right: 30pt;
+      margin-left: 30pt;
+      margin-top: 50pt;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid grey;
+    }
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 10px;
+      vertical-align: middle;
+      font-size: 11px;
+      /*border-top: 1px dotted #858796a3;*/
+      background-color: #ebfaff;
+    }
+
+
+  </style>
+</head>
+<body>
+<div style="text-align: center;">
+  <strong style="font-size: 35px;">{{ todayYear }}년 {{ todayMonth }}월 유류비 신청 내역</strong>
+</div>
+<br>
+<br>
+<br>
+<table width="300px" align="right">
+  <tr class="thtd" style="height: 30px">
+    <td class="thtd" rowspan="2" colspan="2" style="background-color:gainsboro">결재</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">담당자</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">팀장</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">사장</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">대표이사</td>
+  </tr>
+  <tr class="thtd" style="height: 70px">
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="2"></td>
+  </tr>
+</table>
+<div style="font-size: 14px">결재일자 : &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;년 &nbsp; &nbsp; &nbsp; &nbsp;월 &nbsp; &nbsp; &nbsp; &nbsp;일</div>
+<table class="pc-table">
+  <thead>
+  <tr class="bg-light thtd">
+    <td class="thtd" colspan="1">부서</td>
+    <td class="thtd" colspan="1">직급</td>
+    <td class="thtd" colspan="1">성명</td>
+    <td class="thtd" colspan="1">km당<br>유류비(원)</td>
+    <td class="thtd" colspan="1">이동거리<br>(가산비율)</td>
+    <td class="thtd" colspan="1">통행료</td>
+    <td class="thtd" colspan="1">유류비</td>
+    <td class="thtd" colspan="1">합계</td>
+  </tr>
+  </thead>
+  <tbody>
+  {% for dept in fuels %}
+    {% for row in dept %}
+    <tr class="thtd">
+      {% ifchanged row.empDeptName %}
+      <td class="thtd" rowspan="{{ row.countFuel }}" colspan="1">{{ row.empDeptName }}</td>
+      {% endifchanged %}
+      <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
+      <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
+      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
+      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance }}<br>({{ row.distanceRatio }})</td>
+      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumTollMoney |floatformat:0|intcomma }}</td>
+      <td class="thtd" colspan="1" style="background-color: white; text-align: right">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
+      <td class="thtd" colspan="1" style="background-color: white; text-align: right">{{ row.sumTotalMoney |floatformat:0|intcomma }}</td>
+    </tr>
+    {% endfor %}
+  {% endfor %}
+
+  <tr class="thtd" style="background-color: lightsalmon">
+    <td class="thtd" colspan="4">총 합계</td>
+    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumDistance }}</td>
+    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumTollMoney |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumFuelMoney |floatformat:0|intcomma }}</td>
+    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumTotalMoney |floatformat:0|intcomma }}</td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>

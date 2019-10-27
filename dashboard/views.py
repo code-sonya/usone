@@ -91,30 +91,6 @@ def dashboard_service(request):
 
 
 @login_required
-def over_hour(request):
-    template = loader.get_template('dashboard/overhourlist.html')
-
-    if request.method == "POST":
-        startdate = request.POST['startdate']
-        enddate = request.POST['enddate']
-        filter = 'Y'
-
-
-    else:
-        startdate = ''
-        enddate = ''
-        filter = 'N'
-
-    context = {
-        'filter': filter,
-        'startdate': startdate,
-        'enddate': enddate,
-    }
-
-    return HttpResponse(template.render(context, request))
-
-
-@login_required
 @csrf_exempt
 def over_asjson(request):
     startdate = request.POST['startdate']

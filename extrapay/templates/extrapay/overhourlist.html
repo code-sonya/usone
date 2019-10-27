@@ -1,0 +1,334 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  시간외수당관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-1"></div>
+
+    <div class="col-xl-10 d-xl-block">
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">시간외수당관리</h6>
+
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            </a>
+            <a class="dropdown-toggle ml-3" href="#" role="button" id="postLink" data-toggle="modal" data-target="#postModal">
+                <i class="fas fa-plus fa-fw text-gray-400"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          {% csrf_token %}
+          <div class="float-right">
+            <button class="btn btn-danger" id="saveOverhourTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
+          </div>
+
+          <div class="table-responsive">
+            <form id="overhourForm" action="/extrapay/saveoverhourtable/">
+              <table id="overhourlist" class="hover row-border" width="100%" style="width: 100%;">
+                <thead>
+                <tr>
+                  <th>초과근무일자</th>
+                  <th>엔지니어부서</th>
+                  <th>엔지니어명</th>
+                  <th>초과근무시간</th>
+                  <th>보상휴가시간</th>
+                  <th>비고(보상휴가시간)</th>
+                  <th class="d-none">overHourId</th>
+                </tr>
+                </thead>
+              </table>
+            </form>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-xl-1"></div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="searchdate" class="font-weight-light text-primary">조회 일자</label>
+                <input type="month" class="form-control" id="searchdate" name="searchdate">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Modal -->
+  <div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="postModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="postModalLabel">초과근무등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="postForm" action='/extrapay/postoverhour/' method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="overhourDate" class="font-weight-light text-primary">일자</label>
+                <input type="month" class="form-control" id="overhourDate" name="overhourDate" required='required'>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="empType" class="font-weight-light text-primary">직원유형</label>
+                <select class="form-control" id="empType" name="empType">
+                  <option value="특수직">특수직</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="empName" class="font-weight-light text-primary">직원</label>
+                <select class="form-control" id="empName" name="empName">
+                  <option value="">----</option>
+                  {% for emp in employee %}
+                  <option value="{{ emp.empId }}">{{ emp.empName }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="hourType" class="font-weight-light text-primary">시간유형</label>
+                <select class="form-control" id="hourType" name="hourType">
+                  <option value="일">일</option>
+                  <option value="시간">시간</option>
+                </select>
+              </div>
+              <div class="col-3">
+                <label for="overHourWeekDay" class="font-weight-light text-primary">평일초과근무</label>
+                <input class="form-control" id="overHourWeekDay" name="overHourWeekDay" type="number">
+              </div>
+               <div class="col-3">
+                <label for="overhour" class="font-weight-light text-primary">주말초과근무</label>
+                <input class="form-control" id="overhour" name="overhour" type="number">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+              </div>
+              <div class="col-3">
+                <label for="overHourCostWeekDay" class="font-weight-light text-primary">평일근무수당</label>
+                <input class="form-control" id="overHourCostWeekDay" name="overHourCostWeekDay" type="number"  placeholder="">
+              </div>
+               <div class="col-3">
+                <label for="overHourCost" class="font-weight-light text-primary">주말근무수당</label>
+                <input class="form-control" id="overHourCost" name="overHourCost" type="number" placeholder="">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_post()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+
+      function btn_post() {
+          document.getElementById("postForm").submit();
+      }
+
+      function btn_view(extraPayId) {
+          location.href = '/extrapay/viewoverhour/' + extraPayId + '/'
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 7);
+      }
+
+      $('#saveOverhourTable').click(function () {
+                  const overhourForm = document.getElementById("overhourForm");
+
+                  const lengthOverhour = $('[name="extraPayId"]').length;
+                  for (var i = 0; i <= lengthOverhour - 1; i++) {
+                      const overHour = document.createElement("input");
+                      const data = $('div[name="extraPayId"]').eq(i).text();
+                      overHour.setAttribute("type", "hidden");
+                      overHour.setAttribute("name", "extraPayId");
+                      overHour.setAttribute("value", data);
+                      overhourForm.appendChild(overHour);
+                  }
+                  overhourForm.submit();
+              });
+
+      $(document).ready(function () {
+
+
+          $('#overhourlist').DataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      "searchdate": {% if searchdate %}"{{ searchdate }}",{% else %}"",{% endif %}
+                  },
+                  "url": "{% url 'extrapay:over_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              columns: [
+                  {data: "overHourDate"},
+                  {data: "empId__empDeptName"},
+                  {data: "empName"},
+                  {data: "sumOverHour"},
+                  {data: "compensatedHour"},
+                  {data: "compensatedComment"},
+                  {data: "extraPayId"},
+              ],
+              columnDefs: [
+                  {
+                      targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                              return '<a name="empId__empDeptName" class="input-form" onclick="btn_view('+ row["extraPayId"] +')">'+row["empId__empDeptName"]+'</a>'
+                       },
+                      targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                              return '<a name="empName" class="input-form text-primary" onclick="btn_view('+ row["extraPayId"] +')">'+row["empName"]+'</a>'
+                       },
+                      targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                       "render": function (data, type, row) {
+                              return '<input type="number" id="compensatedHour' + row["extraPayId"] + '" ' +
+                                  'name="compensatedHour" class="input-form" step="0.1" value='+row["compensatedHour"]+'>'
+                       },
+                      targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  // {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                              return '<input type="text" id="compensatedComment' + row["extraPayId"] + '" ' +
+                                  'name="compensatedComment" class="input-form" value='+data+'>'
+                       },
+                      targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      "render": function (data, type, row) {
+                          return '<div name="extraPayId" >' + data + '</div>'
+                      },
+                      targets: 6, className: "d-none"},
+              ],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "order": [[0, 'desc']],
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(0)', nRow).text(replaceAll(aData.overHourDate, "-", "."));
+              }
+          });
+
+      });
+
+  </script>
+
+{% endblock %}

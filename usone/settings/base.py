@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'dashboard',
     'signature',
     'sales',
+    'extrapay',
 ]
 
 MIDDLEWARE = [

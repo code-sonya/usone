@@ -55,10 +55,6 @@
     <div id="serviceReport" class="col-xl-8 d-none" style="z-index: 2">
       <div class="text-right mb-3" style="min-width: 1000px">
         {% if service.empId.empId == user.employee.empId %}
-          <a href="#" class="btn btn-warning" style="width: 50px; height: 42px;" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-            <i class="fas fa-file-signature text-gray-100" style="font-size: 1.5em;"></i>
-          </a>
-          &nbsp;&nbsp;
           <a href="#" class="btn btn-info" style="width: 50px; height: 42px;" onclick="location.href='/mail/{{ service.serviceId }}'">
             <i class="fas fa-envelope text-gray-100" style="font-size: 1.5em;"></i>
           </a>
@@ -98,10 +94,10 @@
             {{ service.serviceType }}
           </td>
           <td style="width: 205px; text-align: center;" colspan="2">
-            {{ service.serviceStartDatetime | date:"Y년 m월 d일 H:i" }}
+            {{ service.serviceBeginDatetime | date:"Y년 m월 d일 H:i" }}
           </td>
           <td style="width: 205px; text-align: center;" colspan="2">
-            {{ service.serviceEndDatetime | date:"Y년 m월 d일 H:i" }}
+            {{ service.serviceFinishDatetime | date:"Y년 m월 d일 H:i" }}
           </td>
           <td style="width: 195px; text-align: center;" colspan="2">
             {{ service.serviceHour }} 시간
@@ -228,11 +224,6 @@
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
             {% if service.empId.empId == user.employee.empId %}
-              {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-              <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-                <i class="fas fa-file-signature text-gray-100"></i>
-              </a>
-              {% endif %}
             <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
               <i class="fas fa-envelope text-gray-100"></i>
             </a>
@@ -246,23 +237,23 @@
           <table class="mobile-table">
             <tbody>
             <tr>
-              <td style="width: 30%; border-top: 0px;" class="text-center"><b>성&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp함</b></td>
+              <td style="width: 30%; border-top: 0px;" class="text-center"><b>성&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;함</b></td>
               <td style="width: 70%; border-top: 0px;">{{ service.empName }} {% if service.directgo == "Y" %}(직출){% endif %}</td>
             </tr>
             {% if coWorker %}
             <tr>
-              <td class="text-center"><b>동&nbsp&nbsp행&nbsp&nbsp자</b></td>
+              <td class="text-center"><b>동&nbsp;&nbsp;행&nbsp;&nbsp;자</b></td>
               <td>{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}</td>
             </tr>
             {% endif %}
             {% if contractName %}
             <tr>
-              <td class="text-center"><b>계&nbsp&nbsp약&nbsp&nbsp명</b></td>
+              <td class="text-center"><b>계&nbsp;&nbsp;약&nbsp;&nbsp;명</b></td>
               <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ contractName }}</td>
             </tr>
             {% endif %}
             <tr>
-              <td class="text-center"><b>고&nbsp&nbsp객&nbsp&nbsp사</b></td>
+              <td class="text-center"><b>고&nbsp;&nbsp;객&nbsp;&nbsp;사</b></td>
               <td><b class="text-primary">{{ service.companyName }}</b> ({{ service.serviceLocation }})
                 <i class="fas fa-search text-gray-600" onclick="location.href='/client/viewclient/{{ service.companyName }}/'"></i>
               </td>
@@ -272,23 +263,35 @@
               <td>{{ service.serviceType }}</td>
             </tr>
             <tr>
+              <td class="text-center"><b>출발일시</b></td>
+              <td>{{ service.serviceBeginDatetime | date:"Y. m. d(D" | slice:"0:14" }})
+                {{ service.serviceBeginDatetime | date:"H:i" }}</td>
+            </tr>
+            <tr>
               <td class="text-center"><b>시작일시</b></td>
-              <td>{{ service.serviceStartDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceStartDatetime | date:"H:i" }}</td>
+              <td>{{ service.serviceBeginDatetime | date:"Y. m. d(D" | slice:"0:14" }})
+                {{ service.serviceStartDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
               <td class="text-center"><b>종료일시</b></td>
-              <td>{{ service.serviceEndDatetime | date:"Y. m. d(D" | slice:"0:14" }}) {{ service.serviceEndDatetime | date:"H:i" }}</td>
+              <td>{{ service.serviceFinishDatetime | date:"Y. m. d(D" | slice:"0:14" }})
+                {{ service.serviceEndDatetime | date:"H:i" }}</td>
+            </tr>
+            <tr>
+              <td class="text-center"><b>도착일시</b></td>
+              <td>{{ service.serviceFinishDatetime | date:"Y. m. d(D" | slice:"0:14" }})
+                {{ service.serviceFinishDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
               <td class="text-center"><b>소요시간</b></td>
               <td>{{ service.serviceHour }} 시간 {% if service.serviceOverHour > 0 %}<b class="text-danger">({{ service.serviceOverHour }} 초과근무)</b>{% endif %}</td>
             </tr>
             <tr>
-              <td class="text-center"><b>제&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp목</b></td>
+              <td class="text-center"><b>제&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;목</b></td>
               <td>{{ service.serviceTitle }}</td>
             </tr>
             <tr>
-              <td class="text-center"><b>내&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp용</b></td>
+              <td class="text-center"><b>내&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;용</b></td>
               <td>{{ service.serviceDetails | linebreaksbr }}</td>
             </tr>
             </tbody>
@@ -334,7 +337,7 @@
       }
 
       function btn_modify() {
-          if (confirm("일정을 수정 하시겠습니까?") === true) {
+          if (confirm("계약명을 수정 하시겠습니까?") === true) {
               location.href = '/service/modifyservice/' + {{ service.serviceId }} +'/';
           }
       }
