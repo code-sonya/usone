@@ -139,6 +139,7 @@ def post_contract(request):
             {'id': '지원금', 'value': '지원금'},
             {'id': '인건비', 'value': '인건비'},
             {'id': '교육비', 'value': '교육비'},
+            {'id': '대손상각비', 'value': '대손상각비'},
             {'id': '미정', 'value': '미정'},
         ]
 
@@ -421,6 +422,7 @@ def modify_contract(request, contractId):
             {'id': '지원금', 'value': '지원금'},
             {'id': '인건비', 'value': '인건비'},
             {'id': '교육비', 'value': '교육비'},
+            {'id': '대손상각비', 'value': '대손상각비'},
             {'id': '미정', 'value': '미정'},
         ]
 
