@@ -2841,3 +2841,69 @@ def view_salaryall(request):
                'table': table,
                'sum_table': sum_table}
     return render(request, 'sales/viewsalaryall.html', context)
+
+
+@login_required
+def view_salaryallpdf(request, year):
+    emps = Incentive.objects.filter(Q(year=year)).values('empId').distinct()
+    table = []
+    basic = Incentive.objects.filter(
+        Q(year=datetime.today().year)
+    ).values('empId', 'empId__empPosition__positionName', 'empId__empName').annotate(
+        empPosition=F('empId__empPosition__positionName'),
+        empName=F('empId__empName'),
+        sum_salary=Sum('salary'),
+        sum_basicSalary=Sum('basicSalary'),
+        sum_bettingSalary=Sum('bettingSalary'),
+        sum_achieveIncentive=Sum('achieveIncentive'),
+        sum_achieveAward=Sum('achieveAward'),
+    )
+    sum_table = {'sum_quarter1_bettingSalary': 0, 'sum_quarter2_bettingSalary': 0, 'sum_quarter3_bettingSalary': 0,
+                 'sum_quarter4_bettingSalary': 0,
+                 'sum_quarter1_achieveIncentiveAward': 0, 'sum_quarter2_achieveIncentiveAward': 0,
+                 'sum_quarter3_achieveIncentiveAward': 0, 'sum_quarter4_achieveIncentiveAward': 0,
+                 'sum_quarter1_salaryIncreaseDecrease': 0, 'sum_quarter2_salaryIncreaseDecrease': 0,
+                 'sum_quarter3_salaryIncreaseDecrease': 0, 'sum_quarter4_salaryIncreaseDecrease': 0}
+    for emp in emps:
+        emp_quarter = {}
+        for q in range(1, 5):
+            tmp_quarter = basic.get(Q(empId=emp['empId']) & Q(quarter__lte=q))
+            emp_quarter['empId'] = emp['empId']
+            emp_quarter['empPosition'] = tmp_quarter['empPosition']
+            emp_quarter['empName'] = tmp_quarter['empName']
+            emp_quarter['quarter{}_bettingSalary'.format(str(q))] = tmp_quarter['sum_bettingSalary']
+            emp_quarter['quarter{}_achieveIncentiveAward'.format(str(q))] = tmp_quarter['sum_achieveIncentive'] + \
+                                                                            tmp_quarter['sum_achieveAward']
+            emp_quarter['quarter{}_salaryIncreaseDecrease'.format(str(q))] = (tmp_quarter['sum_achieveIncentive'] +
+                                                                              tmp_quarter['sum_achieveAward']) - \
+                                                                             tmp_quarter['sum_bettingSalary']
+
+        sum_table['sum_quarter1_bettingSalary'] += emp_quarter['quarter1_bettingSalary']
+        sum_table['sum_quarter2_bettingSalary'] += emp_quarter['quarter2_bettingSalary']
+        sum_table['sum_quarter3_bettingSalary'] += emp_quarter['quarter3_bettingSalary']
+        sum_table['sum_quarter4_bettingSalary'] += emp_quarter['quarter4_bettingSalary']
+        sum_table['sum_quarter1_achieveIncentiveAward'] += emp_quarter['quarter1_achieveIncentiveAward']
+        sum_table['sum_quarter2_achieveIncentiveAward'] += emp_quarter['quarter2_achieveIncentiveAward']
+        sum_table['sum_quarter3_achieveIncentiveAward'] += emp_quarter['quarter3_achieveIncentiveAward']
+        sum_table['sum_quarter4_achieveIncentiveAward'] += emp_quarter['quarter4_achieveIncentiveAward']
+        sum_table['sum_quarter1_salaryIncreaseDecrease'] += emp_quarter['quarter1_salaryIncreaseDecrease']
+        sum_table['sum_quarter2_salaryIncreaseDecrease'] += emp_quarter['quarter2_salaryIncreaseDecrease']
+        sum_table['sum_quarter3_salaryIncreaseDecrease'] += emp_quarter['quarter3_salaryIncreaseDecrease']
+        sum_table['sum_quarter4_salaryIncreaseDecrease'] += emp_quarter['quarter4_salaryIncreaseDecrease']
+
+        table.append(emp_quarter)
+
+    context = {'todayYear': year,
+               'table': table,
+               'sum_table': sum_table}
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{}년도 급여증감현황.pdf"'.format(year)
+
+    template = get_template('sales/viewsalaryallpdf.html')
+    html = template.render(context, request)
+    # create a pdf
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
