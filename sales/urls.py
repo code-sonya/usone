@@ -66,5 +66,6 @@ urlpatterns = [
     url(r'^deleteincentive/$', views.delete_incentive, name='deleteincentive'),
     url(r'^monthlybill/$', views.monthly_bill, name='monthlybill'),
     url(r'^viewincentivepdf/(?P<quarter>.+)/$', views.view_incentive_pdf, name='viewincentivepdf'),
+    url(r'^viewsalaryallpdf/(?P<year>.+)/$', views.view_salaryallpdf, name='viewsalaryallpdf'),
     url(r'^viewsalaryall/$', views.view_salaryall, name='viewsalaryall'),
 ]
