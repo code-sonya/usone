@@ -2156,7 +2156,7 @@ def view_incentive(request, empId):
         },
         {
             'name': 'Over GP Bonus',
-            'condition': '상품의 마진률 15% 이상 Over 시(매출 5천만원 이상 건)',
+            'condition': '상품의 마진률 15% 이상 Over 시\n(매출 5천만원 이상 건)',
             'for': '개인',
             'id': 'over',
             'q1': int(cal_over_gp(q1OverGp) or 0),
@@ -2166,7 +2166,7 @@ def view_incentive(request, empId):
         },
         {
             'name': 'New Account Bonus',
-            'condition': '신규 고객 3개 업체 마진률 10% 이상 계약 시(매출 5천만원 이상 건)',
+            'condition': '신규 고객 3개 업체 마진률 10% 이상 계약 시\n(매출 5천만원 이상 건)',
             'for': '개인',
             'id': 'new',
             'q1': q1New * newAccountBonusMoney,
