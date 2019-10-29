@@ -4,6 +4,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 
+from django.db import connection
 from django.db.models import Sum, FloatField, F, Case, When, Count
 from django.db.models.functions import Cast
 from django.http import HttpResponse, HttpResponseRedirect
@@ -18,7 +19,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
-from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, award
+from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta, date
@@ -1596,100 +1597,92 @@ def daily_report(request):
     #   2-2. 분기 누계 달성 현황
     rowsFOQ = dailyReportRows(todayYear, todayQuarter, 'FO')
 
-    # 3. 채권 및 채무 현황
-    contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
-    revenues = Revenue.objects.all()
-    purchases = Purchase.objects.all()
-    money = {}
+    with connection.cursor() as cursor:
+        cursor.execute(daily_report_sql3)
+        row = cursor.fetchone()
+    money = {
+        'A': int(row[0]),
+        'B': int(row[1]),
+        'AmB': int(row[2]),
+        'C': int(row[3]),
+        'D': int(row[4]),
+        'E': int(row[5]),
+        'CpD': int(row[6]),
+        'F': int(row[7]),
+        'AmF': int(row[8]),
+    }
 
-    # 3-1. 회계기준 기본 잔액
-    # 매출채권잔액(A)
-    money['A'] = revenues.filter(
-        Q(billingDate__isnull=False) &
-        Q(depositDate__isnull=True)
-    ).aggregate(sum=Sum('revenuePrice'))['sum']
-    # 매입채무잔액(B)
-    money['B'] = purchases.filter(
-        Q(billingDate__isnull=False) &
-        Q(withdrawDate__isnull=True)
-    ).aggregate(sum=Sum('purchasePrice'))['sum']
-    # A - B
-    money['AmB'] = money['A'] - money['B']
+    # # 3. 채권 및 채무 현황
+    # contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
+    # revenues = Revenue.objects.all()
+    # purchases = Purchase.objects.all()
+    # money = {}
+    #
+    # # 3-1. 회계기준 기본 잔액
+    # # 매출채권잔액(A)
+    # money['A'] = revenues.filter(
+    #     Q(billingDate__isnull=False) &
+    #     Q(depositDate__isnull=True)
+    # ).aggregate(sum=Sum('revenuePrice'))['sum']
+    # # 매입채무잔액(B)
+    # money['B'] = purchases.filter(
+    #     Q(billingDate__isnull=False) &
+    #     Q(withdrawDate__isnull=True)
+    # ).aggregate(sum=Sum('purchasePrice'))['sum']
+    # # A - B
+    # money['AmB'] = money['A'] - money['B']
+    #
+    # # 2. 매입채무 조정
+    # # 미접수(C), 선매입(D), 선지급(E)
+    # money['C'] = 0
+    # money['D'] = 0
+    # money['E'] = 0
+    # for contract in contracts:
+    #     # 계약 별 매출발행비율
+    #     contractRevenues = revenues.filter(contractId=contract.contractId)
+    #     billingContractRevenues = contractRevenues.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+    #     sumContractRevenues = contractRevenues.aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+    #     if sumContractRevenues:
+    #         ratioContractRevenues = billingContractRevenues / sumContractRevenues
+    #     else:
+    #         ratioContractRevenues = 0
+    #
+    #     # 계약 별 매입접수비율
+    #     contractPurchases = purchases.filter(contractId=contract.contractId)
+    #     billingContractPurchases = contractPurchases.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+    #     sumContractPurchases = contractPurchases.aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+    #     if sumContractPurchases:
+    #         ratioContractPurchases = billingContractPurchases / sumContractPurchases
+    #     else:
+    #         ratioContractPurchases = 0
+    #
+    #     # 계약 별 수금비율
+    #     depositContractRevenues = contractRevenues.filter(Q(depositDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+    #     if sumContractRevenues:
+    #         depositRatioContractRevenues = depositContractRevenues / sumContractRevenues
+    #     else:
+    #         depositRatioContractRevenues = 0
+    #
+    #     # 계약 별 지급비율
+    #     withdrawContractPurchases = contractPurchases.filter(Q(withdrawDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+    #     if sumContractPurchases:
+    #         withdrawRatioContractPurchases = withdrawContractPurchases / sumContractPurchases
+    #     else:
+    #         withdrawRatioContractPurchases = 0
+    #
+    #     # 미접수, 선매입, 선수금, 선지급 계산
+    #     if ratioContractRevenues > ratioContractPurchases:
+    #         money['C'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
+    #     elif ratioContractRevenues < ratioContractPurchases:
+    #         money['D'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
+    #     if depositRatioContractRevenues < withdrawRatioContractPurchases:
+    #         money['E'] += round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases))
+    # money['CpD'] = money['C'] + money['D']
+    # money['F'] = money['B'] + money['CpD']
+    #
+    # # 3. 조정사항 반영 후 잔액
+    # money['AmF'] = money['A'] - money['F']
 
-    # 2. 매입채무 조정
-    # 미접수(C), 선매입(D), 선지급(E)
-    money['C'] = 0
-    money['D'] = 0
-    money['E'] = 0
-    for contract in contracts:
-        # 계약 별 매출발행비율
-        contractRevenues = revenues.filter(contractId=contract.contractId)
-        billingContractRevenues = contractRevenues.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
-        sumContractRevenues = contractRevenues.aggregate(sum=Sum('revenuePrice'))['sum'] or 0
-        if sumContractRevenues:
-            ratioContractRevenues = billingContractRevenues / sumContractRevenues
-        else:
-            ratioContractRevenues = 0
-
-        # 계약 별 매입접수비율
-        contractPurchases = purchases.filter(contractId=contract.contractId)
-        billingContractPurchases = contractPurchases.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
-        sumContractPurchases = contractPurchases.aggregate(sum=Sum('purchasePrice'))['sum'] or 0
-        if sumContractPurchases:
-            ratioContractPurchases = billingContractPurchases / sumContractPurchases
-        else:
-            ratioContractPurchases = 0
-
-        # 계약 별 수금비율
-        depositContractRevenues = contractRevenues.filter(Q(depositDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
-        if sumContractRevenues:
-            depositRatioContractRevenues = depositContractRevenues / sumContractRevenues
-        else:
-            depositRatioContractRevenues = 0
-
-        # 계약 별 지급비율
-        withdrawContractPurchases = contractPurchases.filter(Q(withdrawDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
-        if sumContractPurchases:
-            withdrawRatioContractPurchases = withdrawContractPurchases / sumContractPurchases
-        else:
-            withdrawRatioContractPurchases = 0
-
-        # 미접수, 선매입, 선수금, 선지급 계산
-        if ratioContractRevenues > ratioContractPurchases:
-            money['C'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
-        elif ratioContractRevenues < ratioContractPurchases:
-            money['D'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
-        if depositRatioContractRevenues < withdrawRatioContractPurchases:
-            money['E'] += round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases))
-    money['CpD'] = money['C'] + money['D']
-    money['F'] = money['B'] + money['CpD']
-
-    # 3. 조정사항 반영 후 잔액
-    money['AmF'] = money['A'] - money['F']
-
-    # 4. 순이익
-    netProfit = dict()
-    # 판관비
-    expenses = Expense.objects.filter(expenseStatus='Y').aggregate(expenseMoney__sum=Sum('expenseMoney'))
-    netProfit['expenses'] = expenses['expenseMoney__sum'] or 0
-    if todayMonth != 12:
-        netRevenues = revenues.filter(
-            Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))) \
-            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
-    else:
-        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))) \
-            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
-
-    netProfit['revenuePrice'] = netRevenues['revenuePrice']
-    netProfit['revenueProfitPrice'] = netRevenues['revenueProfitPrice']
-    netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
-    netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
-    expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup') \
-        .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / netProfit['expenses'], FloatField())).order_by('-expenseMoney__sum')
-    try:
-        expenseDate = Expense.objects.filter(expenseStatus='Y').values('expenseDate').distinct()[0]['expenseDate']
-    except:
-        expenseDate = '-'
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,
@@ -1701,9 +1694,6 @@ def daily_report(request):
         'rowsFOY': rowsFOY,
         'rowsFOQ': rowsFOQ,
         'money': money,
-        'netProfit': netProfit,
-        'expenseDetail': expenseDetail,
-        'expenseDate': expenseDate,
     }
 
     return render(request, 'sales/dailyreport.html', context)

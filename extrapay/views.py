@@ -202,6 +202,7 @@ def show_fuel(request):
         'startdate': startdate,
         'enddate': enddate,
         'btnStatus': btnStatus,
+        'MAP_KEY': MAP_KEY,
         'testMAP_KEY': testMAP_KEY,
     }
     return render(request, 'extrapay/showfuel.html', context)
@@ -277,6 +278,7 @@ def approval_fuel(request, empId):
         'empName': empName,
         'empDeptName': empDeptName,
         'empId': empId,
+        'MAP_KEY': MAP_KEY,
         'testMAP_KEY': testMAP_KEY,
         'btnStatus': btnStatus,
     }
@@ -371,6 +373,8 @@ def approvalfuel_asjson(request):
             distanceMessage = '경유지가 도로 주변이 아님'
         elif geo.distanceCode == 5:
             distanceMessage = '요청 경로가 1500km 이상'
+        elif geo.distanceCode == 6:
+            distanceMessage = '이전 데이터 이관으로 출발, 도착지 없음'
 
         path = [i.split(", ") for i in geo.path[2:-2].split("], [")]
 

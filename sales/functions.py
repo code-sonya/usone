@@ -776,7 +776,6 @@ def cal_profitloss(dept, todayYear):
 
     return expenses1, expenses2
 
-
 def award(year, empDeptName, table2, goal, empName, incentive, empId):
     revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
     revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
@@ -962,3 +961,133 @@ def award(year, empDeptName, table2, goal, empName, incentive, empId):
 
     return table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues
 
+
+daily_report_sql3 = """
+    select
+        sum(t.A) as A
+        , sum(t.B) as B
+        , sum(t.A) - sum(t.B) as AmB
+        , sum(t.C) as C
+        , sum(t.D) as D
+        , sum(t.E) as E
+        , sum(t.C) + sum(t.D) as CpD
+        , sum(t.B) + sum(t.C) + sum(t.D) as F
+        , sum(t.A) - (sum(t.B) + sum(t.C) + sum(t.D)) as AmF
+    from (
+        select
+            c.contractId
+            , contractName
+            , totalRevenuePrice
+            , billingRevenuePrice
+            , revenueRatio
+            , depositRatio
+            , coalesce(totalPurchasePrice, 0) as totalPurchasesPrice
+            , coalesce(billingPurchasePrice, 0) as billingPurchasePrice
+            , coalesce(purchaseRatio, 0) as purchaseRatio
+            , coalesce(withdrawRatio, 0) as withdrawRaio
+            , A
+            , B
+            , case
+                when revenueRatio > purchaseRatio then round(totalPurchasePrice * (revenueRatio - purchaseRatio))
+                else 0
+            end as C
+            , case
+                when revenueRatio < purchaseRatio then round(totalPurchasePrice * (revenueRatio - purchaseRatio))
+                else 0
+            end as D
+            , case
+                when depositRatio < withdrawRatio then round(totalPurchasePrice * (depositRatio - withdrawRatio))
+                else 0
+            end as E
+        from sales_contract c
+
+        left join (
+            select 
+                r1.contractId
+                , r1.totalRevenuePrice
+                , r1.billingRevenuePrice
+                , case
+                    when r1.totalRevenuePrice = 0 then 0
+                    else r1.billingRevenuePrice*1.0 / r1.totalRevenuePrice
+                end as revenueRatio
+                , r1.depositRevenuePrice
+                , case
+                    when r1.totalRevenuePrice = 0 then 0
+                    else r1.depositRevenuePrice*1.0 / r1.totalRevenuePrice
+                end as depositRatio
+                , r1.A
+            from (
+                select 
+                    contractId_id as contractId
+                    , sum(revenuePrice) as totalRevenuePrice
+                    , sum(
+                        case
+                            when billingDate is null then 0
+                            else revenuePrice
+                        end
+                    ) as billingRevenuePrice
+                    , sum(
+                        case
+                            when depositDate is null then 0
+                            else revenuePrice
+                        end
+                    ) as depositRevenuePrice
+                    , sum(
+                        case
+                            when billingDate is not null and depositDate is null
+                                then revenuePrice
+                            else 0
+                        end
+                    ) as A
+                from sales_revenue
+                group by contractId_id
+            ) r1
+        ) r
+        on c.contractId = r.contractId
+
+        left join (
+            select
+                p1.contractId
+                , p1.totalPurchasePrice
+                , p1.billingPurchasePrice
+                , case
+                    when totalPurchasePrice = 0 then 0
+                    else p1.billingPurchasePrice*1.0 / p1.totalPurchasePrice 
+                end as purchaseRatio
+                , p1.withdrawPurchasePrice
+                , case
+                    when totalPurchasePrice = 0 then 0
+                    else p1.withdrawPurchasePrice*1.0 / p1.totalPurchasePrice
+                end as withdrawRatio
+                , B
+            from (
+                select 
+                    contractId_id as contractId
+                    , sum(purchasePrice) as totalPurchasePrice
+                    , sum(
+                        case
+                            when billingDate is null then 0
+                            else purchasePrice
+                        end
+                    ) as billingPurchasePrice
+                    , sum(
+                        case
+                            when withdrawDate is null then 0
+                            else purchasePrice
+                        end
+                    ) as withdrawPurchasePrice
+                    , sum(
+                        case
+                            when billingDate is not null and withdrawDate is null
+                                then purchasePrice
+                            else 0
+                        end
+                    ) as B
+                from sales_purchase
+                group by contractId_id
+            ) p1
+        ) p
+        on c.contractId = p.contractId
+        where c.salePrice = r.totalRevenuePrice
+    ) t;
+"""
