@@ -623,12 +623,9 @@ def cal_foodcost(str_start_datetime, str_end_datetime):
             if start_hour <= 18 and end_hour >= 19:
                 foodcosts += 8000
         else:
-            # 평일 석식 오후 6시 이후 모두 지급 (단, 오후6~8시 근무자 제외)
-            if end_hour >= 18:
-                if start_hour >= 18 and end_hour < 21:
-                    pass
-                else:
-                    foodcosts += 8000
+            # 평일 석식 오후 6시 이후 모두 지급 (단, 8시 이전 근무 종료자 제외)
+            if start_hour >= 18 and end_hour >= 20: #시작시간이 6시를 넘기고 & 종료시간은 8시보다 커야함
+                foodcosts += 8000
 
     return foodcosts
 
