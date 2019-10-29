@@ -2768,7 +2768,6 @@ def view_incentive_pdf(request, empId):
         'overGp': overGp,
         'incentiveRevenues': incentiveRevenues,
     }
-    print(context)
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="{}님인센티브현황.pdf"'.format(empId)
 

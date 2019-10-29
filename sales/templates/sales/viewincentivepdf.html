@@ -20,7 +20,7 @@
             size: A4;
             margin-left: 20pt;
             margin-right: 20pt;
-            margin-top: 10pt;
+            margin-top: 20pt;
         }
 
         .thtd {
@@ -38,8 +38,7 @@
         }
 
         .pc-table td, .pc-table th {
-            padding: 5px 15px;
-            text-align: center;
+            padding: 4px 1px;
             vertical-align: middle;
             font-size: 14px;
             border-top: 1px dotted #858796a3;
@@ -51,8 +50,9 @@
 </head>
 <body>
 <div style="text-align: center;">
-    <strong style="font-size: 20px;">{{ empName }}님 인센티브 현황</strong>
+    <strong style="font-size: 35px;">{{ empName }}님 인센티브 현황</strong>
 </div>
+<br>
 <br>
 <div style="font-size: 14px;text-align: right">결재일자 : &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;년 &nbsp; &nbsp;
     &nbsp; &nbsp;월 &nbsp; &nbsp; &nbsp; &nbsp;일
@@ -73,13 +73,17 @@
     <tr class="thtd">
         {% if t3.name == '확정지급액' %}
         <td class="thtd" colspan="3" style="background-color: lightsalmon">{{ t3.name }}</td>
+         <td class="thtd" colspan="2" style="background-color: lightsalmon;text-align: right">{{ t3.q1 | intcomma }}</td>
+        <td class="thtd" colspan="2" style="background-color: lightsalmon;text-align: right">{{ t3.q2 | intcomma }}</td>
+        <td class="thtd" colspan="2" style="background-color: lightsalmon;text-align: right">{{ t3.q3 | intcomma }}</td>
+        <td class="thtd" colspan="2" style="background-color: lightsalmon;text-align: right">{{ t3.q4 | intcomma }}</td>
         {% else %}
         <td class="thtd" colspan="3">{{ t3.name }}</td>
+         <td class="thtd" colspan="2" style="background-color: white;text-align: right">{{ t3.q1 | intcomma }}</td>
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">{{ t3.q2 | intcomma }}</td>
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">{{ t3.q3 | intcomma }}</td>
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">{{ t3.q4 | intcomma }}</td>
         {% endif %}
-        <td class="thtd" colspan="2" style="background-color: white">{{ t3.q1 | intcomma }}</td>
-        <td class="thtd" colspan="2" style="background-color: white">{{ t3.q2 | intcomma }}</td>
-        <td class="thtd" colspan="2" style="background-color: white">{{ t3.q3 | intcomma }}</td>
-        <td class="thtd" colspan="2" style="background-color: white">{{ t3.q4 | intcomma }}</td>
     </tr>
     {% endfor %}
     </tbody>
@@ -101,19 +105,19 @@
     <tr class="thtd">
         <td class="thtd" colspan="2" rowspan="2">목표</td>
         <td class="thtd" colspan="1">매출</td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.target.revenue.q1 | intcomma }} <br>
             ({{ table2.target.cumulation.revenue.q1 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.target.revenue.q2 | intcomma }} <br>
             ({{ table2.target.cumulation.revenue.q2 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.target.revenue.q3 | intcomma }} <br>
             ({{ table2.target.cumulation.revenue.q3 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.target.revenue.q4 | intcomma }} <br>
             ({{ table2.target.cumulation.revenue.q4 | intcomma }})
         </td>
@@ -124,15 +128,15 @@
             {{ table2.target.profit.q1 | intcomma }} <br>
             ({{ table2.target.cumulation.profit.q1 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.target.profit.q2 | intcomma }} <br>
             ({{ table2.target.cumulation.profit.q2 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.target.profit.q3 | intcomma }} <br>
             ({{ table2.target.cumulation.profit.q3 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.target.profit.q4 | intcomma }} <br>
             ({{ table2.target.cumulation.profit.q4 | intcomma }})
         </td>
@@ -140,38 +144,38 @@
     <tr class="thtd">
         <td class="thtd" colspan="2" rowspan="2">회의실적</td>
         <td class="thtd" colspan="1">매출</td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.real.revenue.q1 | intcomma }} <br>
             ({{ table2.real.cumulation.revenue.q1 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.real.revenue.q2 | intcomma }} <br>
             ({{ table2.real.cumulation.revenue.q2 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.real.revenue.q3 | intcomma }} <br>
             ({{ table2.real.cumulation.revenue.q3 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.real.revenue.q4 | intcomma }} <br>
             ({{ table2.real.cumulation.revenue.q4 | intcomma }})
         </td>
     </tr>
     <tr class="thtd">
         <td class="thtd" colspan="1">GP</td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.real.profit.q1 | intcomma }} <br>
             ({{ table2.real.cumulation.profit.q1 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.real.profit.q2 | intcomma }} <br>
             ({{ table2.real.cumulation.profit.q2 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.real.profit.q3 | intcomma }} <br>
             ({{ table2.real.cumulation.profit.q3 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.real.profit.q4 | intcomma }} <br>
             ({{ table2.real.cumulation.profit.q4 | intcomma }})
         </td>
@@ -179,38 +183,38 @@
     <tr class="thtd">
         <td class="thtd" colspan="2" rowspan="2">인센티브<br>실적</td>
         <td class="thtd" colspan="1">매출</td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.incentive.revenue.q1 | intcomma }} <br>
             ({{ table2.incentive.cumulation.revenue.q1 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.incentive.revenue.q2 | intcomma }} <br>
             ({{ table2.incentive.cumulation.revenue.q2 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.incentive.revenue.q3 | intcomma }} <br>
             ({{ table2.incentive.cumulation.revenue.q3 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.incentive.revenue.q4 | intcomma }} <br>
             ({{ table2.incentive.cumulation.revenue.q4 | intcomma }})
         </td>
     </tr>
     <tr class="thtd">
         <td class="thtd" colspan="1">GP</td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.incentive.profit.q1 | intcomma }} <br>
             ({{ table2.incentive.cumulation.profit.q1 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.incentive.profit.q2 | intcomma }} <br>
             ({{ table2.incentive.cumulation.profit.q2 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.incentive.profit.q3 | intcomma }} <br>
             ({{ table2.incentive.cumulation.profit.q3 | intcomma }})
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.incentive.profit.q4 | intcomma }} <br>
             ({{ table2.incentive.cumulation.profit.q4 | intcomma }})
         </td>
@@ -218,38 +222,38 @@
     <tr class="thtd">
         <td class="thtd" colspan="2" rowspan="2">목표<br>달성률</td>
         <td class="thtd" colspan="1">매출</td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.achieve.revenue.q1 | intcomma }}% <br>
             ({{ table2.achieve.cumulation.revenue.q1 | intcomma }}%)
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.achieve.revenue.q2 | intcomma }}% <br>
             ({{ table2.achieve.cumulation.revenue.q2 | intcomma }}%)
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.achieve.revenue.q3 | intcomma }}% <br>
             ({{ table2.achieve.cumulation.revenue.q3 | intcomma }}%)
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.achieve.revenue.q4 | intcomma }}% <br>
             ({{ table2.achieve.cumulation.revenue.q4 | intcomma }}%)
         </td>
     </tr>
     <tr class="thtd">
         <td class="thtd" colspan="1">GP</td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.achieve.profit.q1 | intcomma }}% <br>
             ({{ table2.achieve.cumulation.profit.q1 | intcomma }}%)
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.achieve.profit.q2 | intcomma }}% <br>
             ({{ table2.achieve.cumulation.profit.q2 | intcomma }}%)
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.achieve.profit.q3 | intcomma }}% <br>
             ({{ table2.achieve.cumulation.profit.q3 | intcomma }}%)
         </td>
-        <td class="thtd" colspan="2" style="background-color: white">
+        <td class="thtd" colspan="2" style="background-color: white;text-align: right">
             {{ table2.achieve.profit.q4 | intcomma }}% <br>
             ({{ table2.achieve.cumulation.profit.q4 | intcomma }}%)
         </td>
@@ -261,18 +265,18 @@
 <div style="text-align: right;font-size:12px;">※ 누적 분기 인센티브 실적 달성률 80% 이상시 청구 가능</div>
 <table class="pc-table">
     <thead class="thtd">
-    <tr class="thtd">
-        <td class="thtd" colspan="2">프로그램</td>
-        <td class="thtd" colspan="2">지급조건</td>
-        <td class="thtd" colspan="1">대상</td>
-        <td class="thtd" colspan="4">연간</td>
-    </tr>
-    <tr class="thtd">
-        <td class="thtd" colspan="2">GP achieve Bonus</td>
-        <td class="thtd" colspan="2">연간 GP 목표 달성 시</td>
-        <td class="thtd" colspan="1">팀장</td>
-        <td class="thtd" colspan="4">{{ GPachieve | intcomma }}</td>
-    </tr>
+    <!--<tr class="thtd">-->
+        <!--<td class="thtd" colspan="2">프로그램</td>-->
+        <!--<td class="thtd" colspan="2">지급조건</td>-->
+        <!--<td class="thtd" colspan="1">대상</td>-->
+        <!--<td class="thtd" colspan="4">연간</td>-->
+    <!--</tr>-->
+    <!--<tr class="thtd">-->
+        <!--<td class="thtd" colspan="2">GP achieve Bonus</td>-->
+        <!--<td class="thtd" colspan="2">연간 GP 목표 달성 시</td>-->
+        <!--<td class="thtd" colspan="1">팀장</td>-->
+        <!--<td class="thtd" colspan="4">{{ GPachieve | intcomma }}</td>-->
+    <!--</tr>-->
     <tr class="thtd">
         <td class="thtd" colspan="2">프로그램</td>
         <td class="thtd" colspan="2">지급조건</td>
@@ -284,7 +288,66 @@
     </tr>
     </thead>
     <tbody>
-    
+    {% for table in table4 %}
+    <tr class="thtd" id="{{ table.id }}">
+        <td class="thtd" colspan="2">{{ table.name }}</td>
+        <td class="thtd" colspan="2">{{ table.condition | linebreaksbr }}</td>
+        <td class="thtd" colspan="1">{{ table.for }}</td>
+        {% if table.q1 == 0 or table2.achieve.total.q1 >= 80 or table.q1 == 'X' or table.id == 'expect' or table.id == 'acheive' %}
+        <td class="thtd" colspan="1" style="background-color: white">{{ table.q1 | intcomma }}</td>
+        {% else %}
+        <td class="thtd" colspan="1" style="text-decoration:line-through;background-color: white">{{ table.q1 | intcomma }}</td>
+        {% endif %}
+        {% if table.q2 == 0 or table2.achieve.total.q2 >= 80 or table.q2 == 'X' or table.id == 'expect' or table.id == 'acheive' %}
+        <td class="thtd" colspan="1" style="background-color: white">{{ table.q2 | intcomma }}</td>
+        {% else %}
+        <td class="thtd" colspan="1" style="text-decoration:line-through;background-color: white">{{ table.q2 | intcomma }}</td>
+        {% endif %}
+        {% if table.q3 == 0 or table2.achieve.total.q3 >= 80 or table.q3 == 'X' or table.id == 'expect' or table.id == 'acheive' %}
+        <td class="thtd" colspan="1" style="background-color: white">{{ table.q3 | intcomma }}</td>
+        {% else %}
+        <td class="thtd" colspan="1"style="text-decoration:line-through;background-color: white">{{ table.q3 | intcomma }}</td>
+        {% endif %}
+        {% if table.q4 == 0 or table2.achieve.total.q4 >= 80 or table.q4 == 'X' or table.id == 'expect' or table.id == 'acheive' %}
+        <td class="thtd" colspan="1" style="background-color: white">{{ table.q4 | intcomma }}</td>
+        {% else %}
+        <td class="thtd" colspan="1" style="text-decoration:line-through;background-color: white">{{ table.q4 | intcomma }}</td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<br>
+<div style="font-size: 16px">▼ 인센티브 실적 상세 내역</div>
+<div style="text-align: right;font-size:12px;">※ 회의실적과 인센티브실적이 다른 내역</div>
+<table class="pc-table">
+    <thead class="thtd">
+    <tr class="thtd">
+      <td class="thtd" colspan="1">계약명</td>
+      <td class="thtd" colspan="1">매출일</td>
+      <td class="thtd" colspan="1">사유</td>
+      <td class="thtd" colspan="1">회의매출</td>
+      <td class="thtd" colspan="1">인센매출</td>
+      <td class="thtd" colspan="1">매출차이</td>
+      <td class="thtd" colspan="1">회의GP</td>
+      <td class="thtd" colspan="1">인센GP</td>
+      <td class="thtd" colspan="1">GP차이</td>
+    </tr>
+     </thead>
+    <tbody>
+     {% for incentive in incentiveRevenues %}
+              <tr class="thtd">
+                <td class="thtd" colspan="1" style="background-color: white">{{ incentive.contractId }}</td>
+                <td class="thtd" colspan="1" style="background-color: white">{{ incentive.billingDate }}</td>
+                <td class="thtd" colspan="1" style="background-color: white;color:blue">{{ incentive.incentiveReason }}</td>
+                <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ incentive.revenuePrice | intcomma }}</td>
+                <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ incentive.incentivePrice | intcomma }}</td>
+                <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ incentive.comparePrice | intcomma }}</td>
+                <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ incentive.revenueProfitPrice | intcomma }}</td>
+                <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ incentive.incentiveProfitPrice | intcomma }}</td>
+                <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ incentive.compareProfitPrice | intcomma }}</td>
+              </tr>
+            {% endfor %}
     </tbody>
 </table>
 </body>
