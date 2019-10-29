@@ -626,7 +626,8 @@ def cal_foodcost(str_start_datetime, str_end_datetime):
             # 평일 석식 오후 6시 이후 모두 지급 (단, 8시 이전 근무 종료자 제외)
             if start_hour >= 18 and end_hour >= 20: #시작시간이 6시를 넘기고 & 종료시간은 8시보다 커야함
                 foodcosts += 8000
-
+            elif end_hour >= 20: # 정규근무시간에서 플러스 8시넘어서 했을 때
+                foodcosts += 8000
     return foodcosts
 
 
