@@ -4,6 +4,7 @@ import json
 from django.contrib.auth.decorators import login_required
 from django.core import serializers
 
+from django.db import connection
 from django.db.models import Sum, FloatField, F, Case, When, Count
 from django.db.models.functions import Cast
 from django.http import HttpResponse, HttpResponseRedirect
@@ -18,7 +19,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
-from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss
+from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta, date
@@ -139,6 +140,7 @@ def post_contract(request):
             {'id': '지원금', 'value': '지원금'},
             {'id': '인건비', 'value': '인건비'},
             {'id': '교육비', 'value': '교육비'},
+            {'id': '대손상각비', 'value': '대손상각비'},
             {'id': '미정', 'value': '미정'},
         ]
 
@@ -421,6 +423,7 @@ def modify_contract(request, contractId):
             {'id': '지원금', 'value': '지원금'},
             {'id': '인건비', 'value': '인건비'},
             {'id': '교육비', 'value': '교육비'},
+            {'id': '대손상각비', 'value': '대손상각비'},
             {'id': '미정', 'value': '미정'},
         ]
 
@@ -1594,100 +1597,92 @@ def daily_report(request):
     #   2-2. 분기 누계 달성 현황
     rowsFOQ = dailyReportRows(todayYear, todayQuarter, 'FO')
 
-    # 3. 채권 및 채무 현황
-    contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
-    revenues = Revenue.objects.all()
-    purchases = Purchase.objects.all()
-    money = {}
+    with connection.cursor() as cursor:
+        cursor.execute(daily_report_sql3)
+        row = cursor.fetchone()
+    money = {
+        'A': int(row[0]),
+        'B': int(row[1]),
+        'AmB': int(row[2]),
+        'C': int(row[3]),
+        'D': int(row[4]),
+        'E': int(row[5]),
+        'CpD': int(row[6]),
+        'F': int(row[7]),
+        'AmF': int(row[8]),
+    }
 
-    # 3-1. 회계기준 기본 잔액
-    # 매출채권잔액(A)
-    money['A'] = revenues.filter(
-        Q(billingDate__isnull=False) &
-        Q(depositDate__isnull=True)
-    ).aggregate(sum=Sum('revenuePrice'))['sum']
-    # 매입채무잔액(B)
-    money['B'] = purchases.filter(
-        Q(billingDate__isnull=False) &
-        Q(withdrawDate__isnull=True)
-    ).aggregate(sum=Sum('purchasePrice'))['sum']
-    # A - B
-    money['AmB'] = money['A'] - money['B']
+    # # 3. 채권 및 채무 현황
+    # contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
+    # revenues = Revenue.objects.all()
+    # purchases = Purchase.objects.all()
+    # money = {}
+    #
+    # # 3-1. 회계기준 기본 잔액
+    # # 매출채권잔액(A)
+    # money['A'] = revenues.filter(
+    #     Q(billingDate__isnull=False) &
+    #     Q(depositDate__isnull=True)
+    # ).aggregate(sum=Sum('revenuePrice'))['sum']
+    # # 매입채무잔액(B)
+    # money['B'] = purchases.filter(
+    #     Q(billingDate__isnull=False) &
+    #     Q(withdrawDate__isnull=True)
+    # ).aggregate(sum=Sum('purchasePrice'))['sum']
+    # # A - B
+    # money['AmB'] = money['A'] - money['B']
+    #
+    # # 2. 매입채무 조정
+    # # 미접수(C), 선매입(D), 선지급(E)
+    # money['C'] = 0
+    # money['D'] = 0
+    # money['E'] = 0
+    # for contract in contracts:
+    #     # 계약 별 매출발행비율
+    #     contractRevenues = revenues.filter(contractId=contract.contractId)
+    #     billingContractRevenues = contractRevenues.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+    #     sumContractRevenues = contractRevenues.aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+    #     if sumContractRevenues:
+    #         ratioContractRevenues = billingContractRevenues / sumContractRevenues
+    #     else:
+    #         ratioContractRevenues = 0
+    #
+    #     # 계약 별 매입접수비율
+    #     contractPurchases = purchases.filter(contractId=contract.contractId)
+    #     billingContractPurchases = contractPurchases.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+    #     sumContractPurchases = contractPurchases.aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+    #     if sumContractPurchases:
+    #         ratioContractPurchases = billingContractPurchases / sumContractPurchases
+    #     else:
+    #         ratioContractPurchases = 0
+    #
+    #     # 계약 별 수금비율
+    #     depositContractRevenues = contractRevenues.filter(Q(depositDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
+    #     if sumContractRevenues:
+    #         depositRatioContractRevenues = depositContractRevenues / sumContractRevenues
+    #     else:
+    #         depositRatioContractRevenues = 0
+    #
+    #     # 계약 별 지급비율
+    #     withdrawContractPurchases = contractPurchases.filter(Q(withdrawDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
+    #     if sumContractPurchases:
+    #         withdrawRatioContractPurchases = withdrawContractPurchases / sumContractPurchases
+    #     else:
+    #         withdrawRatioContractPurchases = 0
+    #
+    #     # 미접수, 선매입, 선수금, 선지급 계산
+    #     if ratioContractRevenues > ratioContractPurchases:
+    #         money['C'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
+    #     elif ratioContractRevenues < ratioContractPurchases:
+    #         money['D'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
+    #     if depositRatioContractRevenues < withdrawRatioContractPurchases:
+    #         money['E'] += round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases))
+    # money['CpD'] = money['C'] + money['D']
+    # money['F'] = money['B'] + money['CpD']
+    #
+    # # 3. 조정사항 반영 후 잔액
+    # money['AmF'] = money['A'] - money['F']
 
-    # 2. 매입채무 조정
-    # 미접수(C), 선매입(D), 선지급(E)
-    money['C'] = 0
-    money['D'] = 0
-    money['E'] = 0
-    for contract in contracts:
-        # 계약 별 매출발행비율
-        contractRevenues = revenues.filter(contractId=contract.contractId)
-        billingContractRevenues = contractRevenues.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
-        sumContractRevenues = contractRevenues.aggregate(sum=Sum('revenuePrice'))['sum'] or 0
-        if sumContractRevenues:
-            ratioContractRevenues = billingContractRevenues / sumContractRevenues
-        else:
-            ratioContractRevenues = 0
-
-        # 계약 별 매입접수비율
-        contractPurchases = purchases.filter(contractId=contract.contractId)
-        billingContractPurchases = contractPurchases.filter(Q(billingDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
-        sumContractPurchases = contractPurchases.aggregate(sum=Sum('purchasePrice'))['sum'] or 0
-        if sumContractPurchases:
-            ratioContractPurchases = billingContractPurchases / sumContractPurchases
-        else:
-            ratioContractPurchases = 0
-
-        # 계약 별 수금비율
-        depositContractRevenues = contractRevenues.filter(Q(depositDate__isnull=False)).aggregate(sum=Sum('revenuePrice'))['sum'] or 0
-        if sumContractRevenues:
-            depositRatioContractRevenues = depositContractRevenues / sumContractRevenues
-        else:
-            depositRatioContractRevenues = 0
-
-        # 계약 별 지급비율
-        withdrawContractPurchases = contractPurchases.filter(Q(withdrawDate__isnull=False)).aggregate(sum=Sum('purchasePrice'))['sum'] or 0
-        if sumContractPurchases:
-            withdrawRatioContractPurchases = withdrawContractPurchases / sumContractPurchases
-        else:
-            withdrawRatioContractPurchases = 0
-
-        # 미접수, 선매입, 선수금, 선지급 계산
-        if ratioContractRevenues > ratioContractPurchases:
-            money['C'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
-        elif ratioContractRevenues < ratioContractPurchases:
-            money['D'] += round(sumContractPurchases * (ratioContractRevenues - ratioContractPurchases))
-        if depositRatioContractRevenues < withdrawRatioContractPurchases:
-            money['E'] += round(sumContractPurchases * (depositRatioContractRevenues - withdrawRatioContractPurchases))
-    money['CpD'] = money['C'] + money['D']
-    money['F'] = money['B'] + money['CpD']
-
-    # 3. 조정사항 반영 후 잔액
-    money['AmF'] = money['A'] - money['F']
-
-    # 4. 순이익
-    netProfit = dict()
-    # 판관비
-    expenses = Expense.objects.filter(expenseStatus='Y').aggregate(expenseMoney__sum=Sum('expenseMoney'))
-    netProfit['expenses'] = expenses['expenseMoney__sum'] or 0
-    if todayMonth != 12:
-        netRevenues = revenues.filter(
-            Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))) \
-            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
-    else:
-        netRevenues = revenues.filter(Q(contractId__contractStep='Firm') & Q(predictBillingDate__gte='{}-01-01'.format(todayYear)) & Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))) \
-            .aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
-
-    netProfit['revenuePrice'] = netRevenues['revenuePrice']
-    netProfit['revenueProfitPrice'] = netRevenues['revenueProfitPrice']
-    netProfit['cogs'] = netProfit['revenuePrice'] - netProfit['revenueProfitPrice']
-    netProfit['netProfit'] = netProfit['revenueProfitPrice'] - netProfit['expenses']
-    expenseDetail = Expense.objects.filter(expenseStatus='Y').values('expenseGroup') \
-        .annotate(expenseMoney__sum=Sum('expenseMoney')).annotate(expensePercent=Cast(F('expenseMoney__sum') * 100.0 / netProfit['expenses'], FloatField())).order_by('-expenseMoney__sum')
-    try:
-        expenseDate = Expense.objects.filter(expenseStatus='Y').values('expenseDate').distinct()[0]['expenseDate']
-    except:
-        expenseDate = '-'
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,
@@ -1699,9 +1694,6 @@ def daily_report(request):
         'rowsFOY': rowsFOY,
         'rowsFOQ': rowsFOQ,
         'money': money,
-        'netProfit': netProfit,
-        'expenseDetail': expenseDetail,
-        'expenseDate': expenseDate,
     }
 
     return render(request, 'sales/dailyreport.html', context)
@@ -2049,180 +2041,10 @@ def view_incentive(request, empId):
         msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
         return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, })
     table1, table2, table3 = empIncentive(year, empId)
-    revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
-    revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
-    revenue2 = revenues.filter(Q(billingDate__gte=year + '-04-01') & Q(billingDate__lt=year + '-07-01'))
-    revenue3 = revenues.filter(Q(billingDate__gte=year + '-07-01') & Q(billingDate__lt=year + '-10-01'))
-    revenue4 = revenues.filter(Q(billingDate__gte=year + '-10-01') & Q(billingDate__lte=year + '-12-31'))
-
-    # AWARD BONUS
-    skewBonusMoney = 1000000
-    newAccountBonusMoney = 500000
-    q1Skew, q2Skew, q3Skew, q4Skew = 0, 0, 0, 0
-    GPachieve = 0
-
-    # GP achieve
-    if (revenues.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.yearProfitSum:
-        GPachieve = 2000000
-
-    # Skew Bonus
-    if (revenue1.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq1 and (revenue1.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq1:
-        q1Skew = skewBonusMoney
-    if (revenue2.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq2 and (revenue2.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq2:
-        q2Skew = skewBonusMoney
-    if (revenue3.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq3 and (revenue3.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq3:
-        q3Skew = skewBonusMoney
-    if (revenue4.aggregate(sum=Sum('revenuePrice'))['sum'] or 0) >= goal.salesq4 and (revenue4.aggregate(sum=Sum('revenueProfitPrice'))['sum'] or 0) >= goal.profitq4:
-        q4Skew = skewBonusMoney
-
-    # New Account Bonus
-    new_standard = 50000000
-    new_profitratio = 10
-
-    q1NewCount = revenue1.filter(
-        Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
-            contractId__profitRatio__gte=new_profitratio))
-    q2NewCount = revenue2.filter(
-        Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
-            contractId__profitRatio__gte=new_profitratio))
-    q3NewCount = revenue3.filter(
-        Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
-            contractId__profitRatio__gte=new_profitratio))
-    q4NewCount = revenue4.filter(
-        Q(contractId__empName=empName) & Q(contractId__newCompany='Y') & Q(contractId__salePrice__gte=new_standard) & Q(
-            contractId__profitRatio__gte=new_profitratio))
-
-    newCount = [q1NewCount or None, q2NewCount or None, q3NewCount or None, q4NewCount or None]
-
-    q1New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3
-    q2New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3 - q1New
-    q3New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q3NewCount.aggregate(count=Count('revenueId'))[
-        'count'] or 0) // 3 - q2New
-    q4New = (q1NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q2NewCount.aggregate(count=Count('revenueId'))['count'] or 0 + q3NewCount.aggregate(count=Count('revenueId'))[
-        'count'] or 0 + q4NewCount.aggregate(count=Count('revenueId'))['count'] or 0) // 3 - q3New
-
-    # Over Gp Bonus
-    gp_standard = 50000000
-    gp_profitratio = 15
-    gp_maincategory = '상품'
-
-    q1OverGp = revenue1.filter(
-        Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
-    q2OverGp = revenue2.filter(
-        Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
-    q3OverGp = revenue3.filter(
-        Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
-    q4OverGp = revenue4.filter(
-        Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
-
-    overGp = [q1OverGp or None, q2OverGp or None, q3OverGp or None, q4OverGp or None]
-    if newCount == [None, None, None, None]:
-        newCount = ''
-    if overGp == [None, None, None, None]:
-        overGp = ''
-
-    # constraint
-    q1constraint, q2constraint, q3constraint, q4constraint = 'X', 'X', 'X', 'X'
-    q1expect, q2expect, q3expect, q4expect = 0, 0, 0, 0
-    if table2['achieve']['total']['q1'] >= 80:
-        q1constraint = 'O'
-        q1expect = int(q1Skew + (cal_over_gp(q1OverGp) or 0) + q1New * newAccountBonusMoney)
-    if table2['achieve']['total']['q2'] >= 80:
-        q2constraint = 'O'
-        q2expect = int(q2Skew + (cal_over_gp(q2OverGp) or 0) + q2New * newAccountBonusMoney)
-    if table2['achieve']['total']['q3'] >= 80:
-        q3constraint = 'O'
-        q3expect = int(q3Skew + (cal_over_gp(q3OverGp) or 0) + q3New * newAccountBonusMoney)
-    if table2['achieve']['total']['q4'] >= 80:
-        q4constraint = 'O'
-        q4expect = int(q4Skew + (cal_over_gp(q4OverGp) or 0) + q4New * newAccountBonusMoney)
-
-    table4 = [
-        {
-            'name': 'Skew Bonus',
-            'condition': '분기 목표 달성 시',
-            'for': '팀',
-            'id': 'skew',
-            'q1': int(q1Skew),
-            'q2': int(q2Skew),
-            'q3': int(q3Skew),
-            'q4': int(q4Skew),
-        },
-        {
-            'name': 'Over GP Bonus',
-            'condition': '상품의 마진률 15% 이상 Over 시(매출 5천만원 이상 건)',
-            'for': '개인',
-            'id': 'over',
-            'q1': int(cal_over_gp(q1OverGp) or 0),
-            'q2': int(cal_over_gp(q2OverGp) or 0),
-            'q3': int(cal_over_gp(q3OverGp) or 0),
-            'q4': int(cal_over_gp(q4OverGp) or 0),
-        },
-        {
-            'name': 'New Account Bonus',
-            'condition': '신규 고객 3개 업체 마진률 10% 이상 계약 시(매출 5천만원 이상 건)',
-            'for': '개인',
-            'id': 'new',
-            'q1': q1New * newAccountBonusMoney,
-            'q2': q2New * newAccountBonusMoney,
-            'q3': q3New * newAccountBonusMoney,
-            'q4': q4New * newAccountBonusMoney,
-        },
-        {
-            'name': '제약조건',
-            'condition': '누적분기80%이상',
-            'for': '',
-            'id': 'constraint',
-            'q1': q1constraint,
-            'q2': q2constraint,
-            'q3': q3constraint,
-            'q4': q4constraint,
-        },
-        {
-            'name': '합계',
-            'condition': '예상분기AWARD',
-            'for': '',
-            'id': 'expect',
-            'q1': q1expect,
-            'q2': q2expect,
-            'q3': q3expect,
-            'q4': q4expect,
-        },
-        {
-            'name': '',
-            'condition': '확정지급액',
-            'for': '',
-            'id': 'acheive',
-            'q1': int(incentive.get(quarter=1).achieveAward),
-            'q2': int(incentive.get(quarter=2).achieveAward),
-            'q3': int(incentive.get(quarter=3).achieveAward),
-            'q4': int(incentive.get(quarter=4).achieveAward),
-        },
-    ]
-
-    # 누적 인센티브&어워드 확정 금액
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
-    sumachieveIncentive = incentive.filter(year=year).aggregate(Sum('achieveIncentive'))
-    sumachieveAward = incentive.filter(year=year).aggregate(Sum('achieveAward'))
-
-    # 인센티브 실적 상세 내역
-    incentiveRevenues = revenues.filter(
-        Q(billingDate__isnull=False) &
-        (
-                ~Q(revenuePrice=F('incentivePrice')) |
-                ~Q(revenueProfitPrice=F('incentiveProfitPrice'))
-        )
-    )
-    incentiveRevenues = incentiveRevenues.annotate(
-        comparePrice=F('revenuePrice') - F('incentivePrice'),
-        compareProfitPrice=F('revenueProfitPrice') - F('incentiveProfitPrice')
-    )
+    table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(year, empDeptName, table2, goal, empName, incentive, empId)
 
     context = {
+        'empId': empId,
         'empName': empName,
         'table1': table1,
         'table2': table2,
@@ -2663,7 +2485,7 @@ def monthly_bill(request):
     return render(request, 'sales/monthlybill.html', context)
 
 @login_required
-def view_incentive_pdf(request, quarter):
+def view_incentiveall_pdf(request, quarter):
     todayYear = datetime.today().year
 
     # 조회 분기 (기본값은 현재 분기)
@@ -2780,7 +2602,7 @@ def view_incentive_pdf(request, quarter):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="incentive_{}분기.pdf"'.format(quarter)
 
-    template = get_template('sales/viewincentivepdf.html')
+    template = get_template('sales/viewincentiveallpdf.html')
     html = template.render(context, request)
     # create a pdf
     pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
@@ -2839,3 +2661,111 @@ def view_salaryall(request):
                'table': table,
                'sum_table': sum_table}
     return render(request, 'sales/viewsalaryall.html', context)
+
+
+@login_required
+def view_salaryall_pdf(request, year):
+    emps = Incentive.objects.filter(Q(year=year)).values('empId').distinct()
+    table = []
+    basic = Incentive.objects.filter(
+        Q(year=datetime.today().year)
+    ).values('empId', 'empId__empPosition__positionName', 'empId__empName').annotate(
+        empPosition=F('empId__empPosition__positionName'),
+        empName=F('empId__empName'),
+        sum_salary=Sum('salary'),
+        sum_basicSalary=Sum('basicSalary'),
+        sum_bettingSalary=Sum('bettingSalary'),
+        sum_achieveIncentive=Sum('achieveIncentive'),
+        sum_achieveAward=Sum('achieveAward'),
+    )
+    sum_table = {'sum_quarter1_bettingSalary': 0, 'sum_quarter2_bettingSalary': 0, 'sum_quarter3_bettingSalary': 0,
+                 'sum_quarter4_bettingSalary': 0,
+                 'sum_quarter1_achieveIncentiveAward': 0, 'sum_quarter2_achieveIncentiveAward': 0,
+                 'sum_quarter3_achieveIncentiveAward': 0, 'sum_quarter4_achieveIncentiveAward': 0,
+                 'sum_quarter1_salaryIncreaseDecrease': 0, 'sum_quarter2_salaryIncreaseDecrease': 0,
+                 'sum_quarter3_salaryIncreaseDecrease': 0, 'sum_quarter4_salaryIncreaseDecrease': 0}
+    for emp in emps:
+        emp_quarter = {}
+        for q in range(1, 5):
+            tmp_quarter = basic.get(Q(empId=emp['empId']) & Q(quarter__lte=q))
+            emp_quarter['empId'] = emp['empId']
+            emp_quarter['empPosition'] = tmp_quarter['empPosition']
+            emp_quarter['empName'] = tmp_quarter['empName']
+            emp_quarter['quarter{}_bettingSalary'.format(str(q))] = tmp_quarter['sum_bettingSalary']
+            emp_quarter['quarter{}_achieveIncentiveAward'.format(str(q))] = tmp_quarter['sum_achieveIncentive'] + \
+                                                                            tmp_quarter['sum_achieveAward']
+            emp_quarter['quarter{}_salaryIncreaseDecrease'.format(str(q))] = (tmp_quarter['sum_achieveIncentive'] +
+                                                                              tmp_quarter['sum_achieveAward']) - \
+                                                                             tmp_quarter['sum_bettingSalary']
+
+        sum_table['sum_quarter1_bettingSalary'] += emp_quarter['quarter1_bettingSalary']
+        sum_table['sum_quarter2_bettingSalary'] += emp_quarter['quarter2_bettingSalary']
+        sum_table['sum_quarter3_bettingSalary'] += emp_quarter['quarter3_bettingSalary']
+        sum_table['sum_quarter4_bettingSalary'] += emp_quarter['quarter4_bettingSalary']
+        sum_table['sum_quarter1_achieveIncentiveAward'] += emp_quarter['quarter1_achieveIncentiveAward']
+        sum_table['sum_quarter2_achieveIncentiveAward'] += emp_quarter['quarter2_achieveIncentiveAward']
+        sum_table['sum_quarter3_achieveIncentiveAward'] += emp_quarter['quarter3_achieveIncentiveAward']
+        sum_table['sum_quarter4_achieveIncentiveAward'] += emp_quarter['quarter4_achieveIncentiveAward']
+        sum_table['sum_quarter1_salaryIncreaseDecrease'] += emp_quarter['quarter1_salaryIncreaseDecrease']
+        sum_table['sum_quarter2_salaryIncreaseDecrease'] += emp_quarter['quarter2_salaryIncreaseDecrease']
+        sum_table['sum_quarter3_salaryIncreaseDecrease'] += emp_quarter['quarter3_salaryIncreaseDecrease']
+        sum_table['sum_quarter4_salaryIncreaseDecrease'] += emp_quarter['quarter4_salaryIncreaseDecrease']
+
+        table.append(emp_quarter)
+
+    context = {'todayYear': year,
+               'table': table,
+               'sum_table': sum_table}
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{}년도 급여증감현황.pdf"'.format(year)
+
+    template = get_template('sales/viewsalaryallpdf.html')
+    html = template.render(context, request)
+    # create a pdf
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+
+def view_incentive_pdf(request, empId):
+    year = str(datetime.today().year)
+    empName = Employee.objects.get(empId=empId).empName
+    empDeptName = Employee.objects.get(empId=empId).empDeptName
+    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
+    if not incentive:
+        msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, })
+    goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=datetime.today().year))
+    if not goal:
+        msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, })
+    table1, table2, table3 = empIncentive(year, empId)
+    table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues \
+        = award(year, empDeptName, table2, goal, empName, incentive, empId)
+    context = {
+        'empId': empId,
+        'empName': empName,
+        'table1': table1,
+        'table2': table2,
+        'table3': table3,
+        'table4': table4,
+        'sumachieveIncentive': sumachieveIncentive,
+        'sumachieveAward': sumachieveAward,
+        'GPachieve': GPachieve,
+        'newCount': newCount,
+        'overGp': overGp,
+        'incentiveRevenues': incentiveRevenues,
+    }
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{}님인센티브현황.pdf"'.format(empId)
+
+    template = get_template('sales/viewincentivepdf.html')
+    html = template.render(context, request)
+    # create a pdf
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
