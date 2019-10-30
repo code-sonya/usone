@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^signature/', include('signature.urls')),
     url(r'^sales/', include('sales.urls')),
     url(r'^extrapay/', include('extrapay.urls')),
+    url(r'^approval/', include('approval.urls')),
 ]
 
 urlpatterns += static(
