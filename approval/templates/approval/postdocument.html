@@ -1,0 +1,43 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  전자결재
+{% endblock %}
+
+
+{% block css %}
+  <style>
+  </style>
+{% endblock %}
+
+
+{% block content %}
+  <div id="summernote">
+  Hello
+  </div>
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+    const toolbar = [
+        ['font', ['fontsize', 'bold', 'italic', 'underline', 'strikethrough', 'forecolor', 'backcolor']],
+        ['font2', ['ol', 'ul', 'paragraph', 'height']],
+        ['insert', ['picture', 'link', 'table', 'hr']],
+        ['util', ['codeview', 'help']]
+    ];
+
+    let note = $('#summernote');
+
+    note.summernote({
+        placeholder: '결재 문서 내용 작성',
+        tabsize: 2,
+        height: 300,
+        toolbar: toolbar,
+        spellCheck: false,
+        disableGrammar: true,
+    });
+
+  </script>
+{% endblock %}
