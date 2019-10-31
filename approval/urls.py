@@ -5,4 +5,9 @@ app_name = 'approval'
 
 urlpatterns = [
     url(r'^postdocument/$', views.post_document, name='postdocumnet'),
+    url(r'^postdocumentform/$', views.post_documentform, name='postdocumnetform'),
+    url(r'^documentcategoryasjson/$', views.documentcategory_asjson, name='documentcategoryasjson'),
+    url(r'^showdocumentformasjson/$', views.showdocumentform_asjson, name='showdocumentformasjson'),
+    url(r'^postdocumentcategory/$', views.post_documentcategory, name='postdocumentcategory'),
+    url(r'^showdocumentform/$', views.show_documentform, name='showdocumentform'),
 ]

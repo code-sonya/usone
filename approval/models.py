@@ -10,18 +10,20 @@ class Documentcategory(models.Model):
     thirdCategory = models.CharField(max_length=20, default='공통')
 
 
-class Docuform(models.Model):
+class Documentform(models.Model):
     formId = models.AutoField(primary_key=True)
-    formNumber = models.IntegerField(unique=True)
     categoryId = models.ForeignKey(Documentcategory, on_delete=models.SET_NULL, null=True, blank=True)
+    formNumber = models.IntegerField(default=0)
+    formTitle = models.CharField(max_length=200)
     formHtml = models.TextField()
+    comment = models.CharField(max_length=200, default='')
 
 
 class Document(models.Model):
     documentId = models.AutoField(primary_key=True)
     documentNumber = models.CharField(max_length=100, default='')
     writeEmp = models.ForeignKey(Employee, on_delete=models.PROTECT)
-    formId = models.ForeignKey(Docuform, on_delete=models.SET_NULL, null=True, blank=True)
+    formId = models.ForeignKey(Documentform, on_delete=models.SET_NULL, null=True, blank=True)
     preservationYear = models.IntegerField(default=9999)
     securityLevel = models.CharField(max_length=1, default='S')
     title = models.CharField(max_length=200)
