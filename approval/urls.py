@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^showdocumentformasjson/$', views.showdocumentform_asjson, name='showdocumentformasjson'),
     url(r'^postdocumentcategory/$', views.post_documentcategory, name='postdocumentcategory'),
     url(r'^showdocumentform/$', views.show_documentform, name='showdocumentform'),
+    url(r'^modifydocumentform/(?P<formId>.+)/$', views.modify_documentform, name='modifydocumentform'),
 ]
