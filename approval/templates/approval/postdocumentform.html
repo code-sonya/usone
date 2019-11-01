@@ -17,14 +17,14 @@
 
   <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-      <h6 class="m-0 h3 text-gray-800"> 문서 양식 등록 </h6>
+      <h6 class="m-0 h3 text-gray-800">문서 양식</h6>
     </div>
 
     <div class="card-body">
       <div class="row mb-3">
         <div class="col-6">
           <label for="formTitle" class="font-weight-bold text-primary">문서명</label>
-          <input id="formTitle" name="formTitle" class="form-control">
+          <input id="formTitle" name="formTitle" class="form-control" value="{{ form.formTitle }}">
         </div>
         <div class="col-2">
           <label for="firstCategory" class="font-weight-bold text-primary">대분류</label>
@@ -42,27 +42,27 @@
         <div class="col-1">
           <label for="preservationYear" class="font-weight-bold text-primary">보존연한</label>
           <select id="preservationYear" name="preservationYear" class="form-control">
-            <option value="1">1년</option>
-            <option value="3">3년</option>
-            <option value="5">5년</option>
-            <option value="10">10년</option>
-            <option value="9999" selected="selected">영구</option>
+            <option value="9999" {% if form.preservationYear == 9999 %}selected="selected"{% endif %}>영구</option>
+            <option value="1" {% if form.preservationYear == 1 %}selected="selected"{% endif %}>1년</option>
+            <option value="3" {% if form.preservationYear == 3 %}selected="selected"{% endif %}>3년</option>
+            <option value="5" {% if form.preservationYear == 5 %}selected="selected"{% endif %}>5년</option>
+            <option value="10" {% if form.preservationYear == 10 %}selected="selected"{% endif %}>10년</option>
           </select>
         </div>
         <div class="col-1">
           <label for="securityLevel" class="font-weight-bold text-primary">보안등급</label>
           <select id="securityLevel" name="securityLevel" class="form-control">
-            <option value="S" selected="selected">S등급</option>
-            <option value="A">A등급</option>
-            <option value="B">B등급</option>
-            <option value="C">C등급</option>
+            <option value="S" {% if form.securityLevel == 'S' %}selected="selected"{% endif %}>S등급</option>
+            <option value="A" {% if form.securityLevel == 'A' %}selected="selected"{% endif %}>A등급</option>
+            <option value="B" {% if form.securityLevel == 'B' %}selected="selected"{% endif %}>B등급</option>
+            <option value="C" {% if form.securityLevel == 'C' %}selected="selected"{% endif %}>C등급</option>
           </select>
         </div>
       </div>
       <div class="row mb-3">
         <div class="col-12">
           <label for="comment" class="font-weight-bold text-primary">문서설명</label>
-          <input id="comment" name="comment" class="form-control">
+          <input id="comment" name="comment" class="form-control" value="{{ form.comment }}">
         </div>
       </div>
 
@@ -206,18 +206,49 @@
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
             success: function (returnData) {
                 firstCategory.empty();
-                firstCategory.append('<option value="" selected="">---------</option>');
-                secondCategory.append('<option value="" selected="">대분류 선택</option>');
                 for (let i=0; i<returnData.length; i++){
-                    firstCategory.append(
-                        '<option value="' + returnData[i].firstCategory + '">' +
-                        returnData[i].firstCategory + '</option>'
-                    );
+                    if ("{{ form.categoryId.firstCategory }}" === returnData[i].firstCategory) {
+                        firstCategory.append(
+                            '<option value="' + returnData[i].firstCategory + '" selected="selected">' +
+                            returnData[i].firstCategory + '</option>'
+                        )
+                    } else {
+                        firstCategory.append(
+                            '<option value="' + returnData[i].firstCategory + '">' +
+                            returnData[i].firstCategory + '</option>'
+                        )
+                    }
                 }
+                $.ajax({
+                    url: "{% url 'approval:documentcategoryasjson' %}",
+                    method: 'GET',
+                    cache: false,
+                    data: {
+                        "category": "second",
+                        "firstCategory": firstCategory.val(),
+                    },
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    success: function (returnData) {
+                        secondCategory.empty();
+                        for (let i=0; i<returnData.length; i++){
+                            if ("{{ form.categoryId.secondCategory }}" === returnData[i].secondCategory) {
+                                secondCategory.append(
+                                    '<option value="' + returnData[i].secondCategory + '" selected="selected">' +
+                                    returnData[i].secondCategory + '</option>'
+                                );
+                            } else {
+                                secondCategory.append(
+                                    '<option value="' + returnData[i].secondCategory + '">' +
+                                    returnData[i].secondCategory + '</option>'
+                                );
+                            }
+                        }
+                    }
+                });
             }
         });
 
-        firstCategory.change(function() {
+        firstCategory.change(function () {
             $.ajax({
                 url: "{% url 'approval:documentcategoryasjson' %}",
                 method: 'GET',
@@ -260,6 +291,7 @@
             spellCheck: false,
             disableGrammar: true,
         });
+        formHtml.summernote('code', '{{ form.formHtml | safe }}');
     })
 
   </script>

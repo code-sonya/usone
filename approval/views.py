@@ -21,7 +21,6 @@ def post_document(request):
 
 @login_required
 def show_documentform(request):
-
     context = {}
     return render(request, 'approval/showdocumentform.html', context)
 
@@ -52,9 +51,10 @@ def post_documentform(request):
             securityLevel=request.POST['securityLevel'],
             comment=request.POST['comment'],
         )
-
-    context = {}
-    return render(request, 'approval/postdocumentform.html', context)
+        return redirect('approval:showdocumentform')
+    else:
+        context = {}
+        return render(request, 'approval/postdocumentform.html', context)
 
 
 @login_required
@@ -78,7 +78,7 @@ def modify_documentform(request, formId):
         context = {
             'form': form,
         }
-        return render(request, 'approval/modifydocumentform.html', context)
+        return render(request, 'approval/postdocumentform.html', context)
 
 
 @login_required
