@@ -14,6 +14,8 @@ class Documentform(models.Model):
     formId = models.AutoField(primary_key=True)
     categoryId = models.ForeignKey(Documentcategory, on_delete=models.SET_NULL, null=True, blank=True)
     formNumber = models.IntegerField(default=0)
+    preservationYear = models.IntegerField(default=9999)
+    securityLevel = models.CharField(max_length=1, default='S')
     formTitle = models.CharField(max_length=200)
     formHtml = models.TextField()
     comment = models.CharField(max_length=200, default='')

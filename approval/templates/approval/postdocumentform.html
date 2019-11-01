@@ -26,11 +26,11 @@
           <label for="formTitle" class="font-weight-bold text-primary">문서명</label>
           <input id="formTitle" name="formTitle" class="form-control">
         </div>
-        <div class="col-3">
+        <div class="col-2">
           <label for="firstCategory" class="font-weight-bold text-primary">대분류</label>
           <select id="firstCategory" name="firstCategory" class="form-control"></select>
         </div>
-        <div class="col-3">
+        <div class="col-2">
           <div class="d-flex flex-row align-items-center justify-content-between">
             <label for="secondCategory" class="font-weight-bold text-primary">소분류</label>
             <a href="#" role="button" id="addCategory" data-toggle="modal" data-target="#categoryModal">
@@ -38,6 +38,25 @@
             </a>
           </div>
           <select id="secondCategory" name="secondCategory" class="form-control"></select>
+        </div>
+        <div class="col-1">
+          <label for="preservationYear" class="font-weight-bold text-primary">보존연한</label>
+          <select id="preservationYear" name="preservationYear" class="form-control">
+            <option value="1">1년</option>
+            <option value="3">3년</option>
+            <option value="5">5년</option>
+            <option value="10">10년</option>
+            <option value="9999" selected="selected">영구</option>
+          </select>
+        </div>
+        <div class="col-1">
+          <label for="securityLevel" class="font-weight-bold text-primary">보안등급</label>
+          <select id="securityLevel" name="securityLevel" class="form-control">
+            <option value="S" selected="selected">S등급</option>
+            <option value="A">A등급</option>
+            <option value="B">B등급</option>
+            <option value="C">C등급</option>
+          </select>
         </div>
       </div>
       <div class="row mb-3">
@@ -121,6 +140,16 @@
             type: 'hidden',
             name: 'secondCategory',
             value: $('#secondCategory').val()
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'preservationYear',
+            value: $('#preservationYear').val()
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'securityLevel',
+            value: $('#securityLevel').val()
         }).appendTo(documentForm);
         $('<input />', {
             type: 'hidden',

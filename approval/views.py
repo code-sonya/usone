@@ -48,11 +48,37 @@ def post_documentform(request):
             categoryId=categoryId,
             formTitle=request.POST['formTitle'],
             formHtml=request.POST['formHtml'],
+            preservationYear=request.POST['preservationYear'],
+            securityLevel=request.POST['securityLevel'],
             comment=request.POST['comment'],
         )
 
     context = {}
     return render(request, 'approval/postdocumentform.html', context)
+
+
+@login_required
+def modify_documentform(request, formId):
+    if request.method == 'POST':
+        categoryId = Documentcategory.objects.get(
+            firstCategory=request.POST['firstCategory'],
+            secondCategory=request.POST['secondCategory'],
+        )
+        form = Documentform.objects.get(formId=formId)
+        form.categoryId = categoryId
+        form.formTitle = request.POST['formTitle']
+        form.formHtml = request.POST['formHtml']
+        form.preservationYear = request.POST['preservationYear']
+        form.securityLevel = request.POST['securityLevel']
+        form.comment = request.POST['comment']
+        form.save()
+        return redirect('approval:showdocumentform')
+    else:
+        form = Documentform.objects.get(formId=formId)
+        context = {
+            'form': form,
+        }
+        return render(request, 'approval/modifydocumentform.html', context)
 
 
 @login_required
@@ -95,27 +121,3 @@ def post_documentcategory(request):
 
         structure = json.dumps(message, cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
-
-
-@login_required
-def modify_documentform(request, formId):
-    if request.method == 'POST':
-        categoryId = Documentcategory.objects.get(
-            firstCategory=request.POST['firstCategory'],
-            secondCategory=request.POST['secondCategory'],
-        )
-        form = Documentform.objects.get(formId=formId)
-        form.categoryId = categoryId
-        form.formTitle = request.POST['formTitle']
-        form.formHtml = request.POST['formHtml']
-        form.comment = request.POST['comment']
-        form.save()
-        return redirect('approval:showdocumentform')
-    else:
-        form = Documentform.objects.get(formId=formId)
-        context = {
-            'form': form,
-        }
-        return render(request, 'approval/modifydocumentform.html', context)
-
-
