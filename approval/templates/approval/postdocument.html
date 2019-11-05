@@ -19,10 +19,13 @@
     </div>
 
     <div class="card-body">
-      <div class="row">
-        <div class="col-6 font-weight-bold text-primary mb-2">문서종류</div>
+
+      <div class="row mb-2">
+        <div class="col-8 font-weight-bold text-primary">문서종류</div>
+        <div class="col-2 font-weight-bold text-primary">보존연한</div>
+        <div class="col-2 font-weight-bold text-primary">보안등급</div>
       </div>
-      <div class="row">
+      <div class="row mb-3">
         <div class="col-2">
           <select id="firstCategory" name="firstCategory" class="form-control"></select>
         </div>
@@ -32,6 +35,35 @@
         <div class="col-4">
           <select id="formTitle" name="formTitle" class="form-control"></select>
         </div>
+        <div class="col-2">
+          <span id="preservationYear" name="preservationYear" class="form-control"></span>
+        </div>
+        <div class="col-2">
+          <span id="securityLevel" name="securityLevel" class="form-control"></span>
+        </div>
+      </div>
+
+      <div class="document-editor d-none">
+        <div class="mb-3">
+          <label for="title" class="font-weight-bold text-primary">제목</label>
+          <input id="title" name="title" class="form-control" value="">
+        </div>
+
+        <div class="d-flex flex-row align-items-center justify-content-between">
+          <label for="contentHtml" class="font-weight-bold text-primary">본문</label>
+          <span>※ 문서편집기 하단을 드래그 하여 크기를 조정할 수 있습니다.</span>
+        </div>
+        <div id="contentHtml"></div>
+      </div>
+
+      <label for="orderPaper" class="font-weight-bold">첨부파일</label>
+      <div class="input-group">
+        <span class="form-control bg-white" type="text" value="" id="orderPaper_route"></span>
+        <label class="m-0 btn btn-info btn-icon-split">
+          <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>
+          <input id="files" name="files" type="file" multiple="multiple"
+                 onchange=file_names(this.id)>
+        </label>
       </div>
 
     </div>
@@ -42,6 +74,229 @@
 
 {% block script %}
   <script type="text/javascript">
+
+    function load_category() {
+        const firstCategory = $('#firstCategory');
+        const secondCategory = $('#secondCategory');
+        const formTitle = $('#formTitle');
+
+        // 대분류
+        $.ajax({
+            url: "{% url 'approval:documentcategoryasjson' %}",
+            method: 'GET',
+            cache: false,
+            data: {"category": "first"},
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                firstCategory.empty();
+                for (let i=0; i<returnData.length; i++){
+                    if ("{{ form.categoryId.firstCategory }}" === returnData[i].firstCategory) {
+                        firstCategory.append(
+                            '<option value="' + returnData[i].firstCategory + '" selected="selected">' +
+                            returnData[i].firstCategory + '</option>'
+                        )
+                    } else {
+                        firstCategory.append(
+                            '<option value="' + returnData[i].firstCategory + '">' +
+                            returnData[i].firstCategory + '</option>'
+                        )
+                    }
+                }
+                // 소분류
+                $.ajax({
+                    url: "{% url 'approval:documentcategoryasjson' %}",
+                    method: 'GET',
+                    cache: false,
+                    data: {
+                        "category": "second",
+                        "firstCategory": firstCategory.val(),
+                    },
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    success: function (returnData) {
+                        secondCategory.empty();
+                        for (let i=0; i<returnData.length; i++){
+                            if ("{{ form.categoryId.secondCategory }}" === returnData[i].secondCategory) {
+                                secondCategory.append(
+                                    '<option value="' + returnData[i].secondCategory + '" selected="selected">' +
+                                    returnData[i].secondCategory + '</option>'
+                                );
+                            } else {
+                                secondCategory.append(
+                                    '<option value="' + returnData[i].secondCategory + '">' +
+                                    returnData[i].secondCategory + '</option>'
+                                );
+                            }
+                        }
+                        // 문서명
+                        $.ajax({
+                            url: "{% url 'approval:documentformasjson' %}",
+                            method: 'GET',
+                            cache: false,
+                            data: {
+                                "type": "formTitle",
+                                "firstCategory": firstCategory.val(),
+                                "secondCategory": secondCategory.val(),
+                            },
+                            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                            success: function (returnData) {
+                                formTitle.empty();
+                                formTitle.append('<option value="">선택</option>');
+                                for (let i=0; i<returnData.length; i++){
+                                    formTitle.append(
+                                        '<option value="' + returnData[i].formTitle + '">' +
+                                        returnData[i].formTitle + '</option>'
+                                    );
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        // 대분류 기준으로 소분류
+        firstCategory.change(function () {
+            $.ajax({
+                url: "{% url 'approval:documentcategoryasjson' %}",
+                method: 'GET',
+                cache: false,
+                data: {
+                    "category": "second",
+                    "firstCategory": this.value,
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (returnData) {
+                    secondCategory.empty();
+                    for (let i=0; i<returnData.length; i++){
+                        secondCategory.append(
+                            '<option value="' + returnData[i].secondCategory + '">' +
+                            returnData[i].secondCategory + '</option>'
+                        );
+                    }
+                    $.ajax({
+                        url: "{% url 'approval:documentformasjson' %}",
+                        method: 'GET',
+                        cache: false,
+                        data: {
+                            "type": "formTitle",
+                            "firstCategory": firstCategory.val(),
+                            "secondCategory": secondCategory.val(),
+                        },
+                        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                        success: function (returnData) {
+                            formTitle.empty();
+                            formTitle.append('<option value="">선택</option>');
+                            for (let i=0; i<returnData.length; i++){
+                                formTitle.append(
+                                    '<option value="' + returnData[i].formTitle + '">' +
+                                    returnData[i].formTitle + '</option>'
+                                );
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        // 대분류, 소분류 기준으로 문서명
+        secondCategory.change(function () {
+            $.ajax({
+                url: "{% url 'approval:documentformasjson' %}",
+                method: 'GET',
+                cache: false,
+                data: {
+                    "type": "formTitle",
+                    "firstCategory": firstCategory.val(),
+                    "secondCategory": secondCategory.val(),
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (returnData) {
+                    formTitle.empty();
+                    formTitle.append('<option value="">선택</option>');
+                    for (let i=0; i<returnData.length; i++){
+                        formTitle.append(
+                            '<option value="' + returnData[i].formTitle + '">' +
+                            returnData[i].formTitle + '</option>'
+                        );
+                    }
+                }
+            });
+        });
+    }
+
+    function load_document(data) {
+        const preservationYear = $('#preservationYear');
+        const securityLevel = $('#securityLevel');
+        const editor = $('.document-editor');
+        const contentHtml = $('#contentHtml');
+        const title = $('#title');
+
+        if (data.length === 0) {
+            preservationYear.text('');
+            securityLevel.text('');
+            editor.addClass('d-none');
+            title.val('');
+            contentHtml.summernote('code', '');
+        } else {
+            data = data[0];
+            preservationYear.text(data.preservationYear.toString() + '년');
+            securityLevel.text(data.securityLevel + '등급');
+            editor.removeClass('d-none');
+            contentHtml.summernote('code', data.formHtml);
+        }
+    }
+
+    function file_names(id) {
+        let files = $('#' + id).get(0).files;
+        let file;
+
+        for (let i=0; i<files.length; i++) {
+            file = files[i];
+            console.log(file.name);
+        }
+    }
+
+    $(document).ready(function() {
+        load_category();
+        const firstCategory = $('#firstCategory');
+        const secondCategory = $('#secondCategory');
+        const formTitle = $('#formTitle');
+
+        formTitle.change(function() {
+            $.ajax({
+                url: "{% url 'approval:documentformasjson' %}",
+                method: 'GET',
+                cache: false,
+                data: {
+                    "type": "form",
+                    "firstCategory": firstCategory.val(),
+                    "secondCategory": secondCategory.val(),
+                    "formTitle": this.value,
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (returnData) {
+                    load_document(returnData)
+                }
+            })
+        });
+
+        // 본문 작성
+        const toolbar = [
+            ['font', ['fontsize', 'bold', 'italic', 'underline', 'strikethrough', 'forecolor', 'backcolor']],
+            ['font2', ['ol', 'ul', 'paragraph', 'height']],
+            ['insert', ['picture', 'link', 'table', 'hr']],
+            ['util', ['codeview', 'help']]
+        ];
+        let contentHtml = $('#contentHtml');
+        contentHtml.summernote({
+            placeholder: '결재 문서 내용 작성',
+            tabsize: 2,
+            height: document.documentElement.clientHeight * 0.5,
+            toolbar: toolbar,
+            spellCheck: false,
+            disableGrammar: true,
+        });
+    })
 
   </script>
 {% endblock %}

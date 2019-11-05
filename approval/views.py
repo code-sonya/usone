@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
-from django.db.models import Sum, FloatField, F, Case, When, Count
+from django.db.models import Sum, FloatField, F, Case, When, Count, Q
 
 from .models import Documentcategory, Documentform
 
@@ -97,6 +97,28 @@ def documentcategory_asjson(request):
             ).distinct()
         structure = json.dumps(list(documentCategory), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def documentform_asjson(request):
+    if request.method == 'GET':
+        if request.GET['type'] == 'formTitle':
+            documentForm = Documentform.objects.filter(
+                Q(categoryId__firstCategory=request.GET['firstCategory']) &
+                Q(categoryId__secondCategory=request.GET['secondCategory'])
+            ).values('formTitle')
+
+            structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
+            return HttpResponse(structure, content_type='application/json')
+        elif request.GET['type'] == 'form':
+            documentForm = Documentform.objects.filter(
+                Q(categoryId__firstCategory=request.GET['firstCategory']) &
+                Q(categoryId__secondCategory=request.GET['secondCategory']) &
+                Q(formTitle=request.GET['formTitle'])
+            ).values('preservationYear', 'securityLevel', 'formHtml')
+
+            structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
+            return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
