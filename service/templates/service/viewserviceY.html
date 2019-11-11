@@ -228,6 +228,11 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
+            {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
+             <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+                <i class="fas fa-file-signature text-gray-100"></i>
+              </a>
+            {% endif %}
             {% if service.empId.empId == user.employee.empId %}
             <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
               <i class="fas fa-envelope text-gray-100"></i>
