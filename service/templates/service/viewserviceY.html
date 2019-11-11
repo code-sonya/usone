@@ -56,13 +56,9 @@
       <div class="text-right mb-3" style="min-width: 1000px">
         {% if service.empId.empId == user.employee.empId %}
               {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-                {% if service.serviceStatus != 'N'  %}
-                <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+               <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
                   <i class="fas fa-file-signature text-gray-100"></i>
                 </a>
-                {% endif %}
-              {% else %}
-                (서명완료)
               {% endif %}
           <a href="#" class="btn btn-info" style="width: 50px; height: 42px;" onclick="location.href='/mail/{{ service.serviceId }}'">
             <i class="fas fa-envelope text-gray-100" style="font-size: 1.5em;"></i>
