@@ -549,7 +549,7 @@ def view_overhour(request, extraPayId):
         .values('overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empSalary', 'empId__empDeptName', 'empId__empCode', 'extraPayId', 'empId__empPosition_id__positionName',
                 'compensatedComment', 'compensatedHour', 'payStatus').first()
     overhours = OverHour.objects.filter(Q(extraPayId=extraPayId) &
-                                        Q(overHour__isnull=False) &
+                                        ~Q(overHour=0) &
                                         Q(overHourStatus='Y'))
     sum_overhours = overhours.aggregate(sumOverhour=Sum('overHour'),
                                         sumOverhourWeekDay=Sum('overHourWeekDay'),
@@ -558,7 +558,7 @@ def view_overhour(request, extraPayId):
                                         sumOverhourCostWeekDay=Sum('overHourCostWeekDay'),
                                         sumFoodCost=Sum('foodCost'))
     foodcosts = OverHour.objects.filter(Q(extraPayId=extraPayId) &
-                                        Q(overHour__isnull=True) &
+                                        Q(overHour=0) &
                                         Q(overHourStatus='Y'))
     sum_foodcosts = foodcosts.aggregate(sumServicehour=Sum('serviceId__serviceHour'),
                                         sumFoodCost=Sum('foodCost'))
@@ -873,7 +873,7 @@ def view_overhour_pdf(request, extraPayId):
         .values('overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empSalary', 'empId__empDeptName', 'empId__empCode', 'extraPayId', 'empId__empPosition_id__positionName',
                 'compensatedComment', 'compensatedHour', 'payStatus').first()
     overhours = OverHour.objects.filter(Q(extraPayId=extraPayId) &
-                                        Q(overHour__isnull=False) &
+                                        ~Q(overHour=0) &
                                         Q(overHourStatus='Y'))
     sum_overhours = overhours.aggregate(sumOverhour=Sum('overHour'),
                                         sumOverhourWeekDay=Sum('overHourWeekDay'),
@@ -882,7 +882,7 @@ def view_overhour_pdf(request, extraPayId):
                                         sumOverhourCostWeekDay=Sum('overHourCostWeekDay'),
                                         sumFoodCost=Sum('foodCost'))
     foodcosts = OverHour.objects.filter(Q(extraPayId=extraPayId) &
-                                        Q(overHour__isnull=True) &
+                                        Q(overHour=0) &
                                         Q(overHourStatus='Y'))
     sum_foodcosts = foodcosts.aggregate(sumServicehour=Sum('serviceId__serviceHour'),
                                         sumFoodCost=Sum('foodCost'))

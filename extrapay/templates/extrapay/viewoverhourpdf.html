@@ -170,7 +170,6 @@
     <td class="thtd" colspan="2">근무시간</td>
     <td class="thtd" colspan="4">업무내역</td>
     <td class="thtd" colspan="1">식대</td>
-    <td class="thtd" colspan="1" rowspan="2">증빙서류</td>
   </tr>
   </thead>
   <tbody>
@@ -183,11 +182,6 @@
     <td class="thtd" colspan="2" style="background-color: white">{{ row.serviceId.serviceHour }}</td>
     <td class="thtd" colspan="4" style="background-color: white">{{ row.serviceId.serviceTitle }}</td>
     <td class="thtd" colspan="1" style="background-color: white">{{ row.foodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd" colspan="1" style="background-color: white">
-      <a href="#" onclick="location.href='/service/viewservicepdf/{{ row.serviceId.serviceId }}'">
-        <i class="fas fa-file-pdf btn btn-danger" style="font-size: 1.0em;"></i>
-      </a>
-    </td>
   </tr>
   {% endfor %}
   <tr class="thtd bg-light">
@@ -196,7 +190,6 @@
     <td class="thtd" colspan="2">{{ sum_foodcosts.sumServicehour }}</td>
     <td class="thtd" colspan="4">총 식대금액</td>
     <td class="thtd" colspan="1">{{ sum_foodcosts.sumFoodCost |floatformat:0|intcomma }}</td>
-    <td class="thtd"></td>
   </tr>
   </tbody>
 </table>
