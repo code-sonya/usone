@@ -90,12 +90,12 @@
             </tr>
             <tr>
               <td class="text-center"><b>시작일시</b></td>
-              <td>{{ service.serviceBeginDatetime | date:"Y. m. d(D" | slice:"0:14" }})
+              <td>{{ service.serviceStartDatetime | date:"Y. m. d(D" | slice:"0:14" }})
                 {{ service.serviceStartDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
               <td class="text-center"><b>종료일시</b></td>
-              <td>{{ service.serviceFinishDatetime | date:"Y. m. d(D" | slice:"0:14" }})
+              <td>{{ service.serviceEndDatetime | date:"Y. m. d(D" | slice:"0:14" }})
                 {{ service.serviceEndDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
