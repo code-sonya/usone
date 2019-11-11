@@ -37,6 +37,14 @@ class Document(models.Model):
     documentStatus = models.CharField(max_length=10, default='임시')
 
 
+class Documentfile(models.Model):
+    fileId = models.AutoField(primary_key=True)
+    documentId = models.ForeignKey(Document, on_delete=models.SET_NULL, null=True, blank=True)
+    file = models.FileField(upload_to="document/%Y_%m")
+    fileName = models.CharField(max_length=200)
+    fileSize = models.IntegerField()
+
+
 class Approvalcategory(models.Model):
     categoryId = models.AutoField(primary_key=True)
     approvalCategory = models.CharField(max_length=10)
@@ -53,8 +61,9 @@ class Approval(models.Model):
     approvalDatetime = models.DateTimeField(null=True, blank=True)
 
 
-class Documentfile(models.Model):
-    fileId = models.AutoField(primary_key=True)
-    file = models.FileField(upload_to="document/%Y_%m")
-    fileName = models.CharField(max_length=200)
-    fileSize = models.IntegerField()
+class Approvalform(models.Model):
+    approvalId = models.AutoField(primary_key=True)
+    formId = models.ForeignKey(Documentform, on_delete=models.CASCADE)
+    approvalEmp = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    approvalStep = models.IntegerField(default=0)
+    approvalCategory = models.ForeignKey(Approvalcategory, on_delete=models.PROTECT)

@@ -8,6 +8,18 @@
 
 {% block css %}
   <style>
+    .table {
+      color: #333333;
+    }
+
+    .table td, .table th {
+      padding: .75rem;
+      vertical-align: middle;
+      border-top: 1px solid #e3e6f0;
+      font-size: 14px;
+      text-align: center;
+      white-space: nowrap;
+    }
   </style>
 {% endblock %}
 
@@ -56,14 +68,28 @@
         <div id="contentHtml"></div>
       </div>
 
-      <label for="orderPaper" class="font-weight-bold">첨부파일</label>
-      <div class="input-group">
-        <span class="form-control bg-white" type="text" value="" id="orderPaper_route"></span>
-        <label class="m-0 btn btn-info btn-icon-split">
-          <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>
-          <input id="files" name="files" type="file" multiple="multiple"
-                 onchange=file_names(this.id)>
-        </label>
+      <div class="row">
+        <div class="col-6">
+          <label class="font-weight-bold text-primary mt-3">첨부파일</label>
+          <table class="table">
+            <thead>
+            <tr>
+              <td width="65%">파일명</td>
+              <td width="20%">파일크기</td>
+              <td width="15%">
+                <label class="m-0 btn btn-info btn-icon-split">
+                  <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>
+                  <input id="files" name="files" type="file" multiple="multiple" class="d-none"
+                         onchange=file_names(this.id)>
+                </label>
+              </td>
+            </tr>
+            </thead>
+          </table>
+        </div>
+        <div class="col-6">
+          <label class="font-weight-bold text-primary mt-3">관련문서</label>
+        </div>
       </div>
 
     </div>
@@ -239,7 +265,11 @@
             contentHtml.summernote('code', '');
         } else {
             data = data[0];
-            preservationYear.text(data.preservationYear.toString() + '년');
+            if (data.preservationYear < 9999) {
+                preservationYear.text(data.preservationYear.toString() + '년');
+            } else {
+                preservationYear.text('영구');
+            }
             securityLevel.text(data.securityLevel + '등급');
             editor.removeClass('d-none');
             contentHtml.summernote('code', data.formHtml);
