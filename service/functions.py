@@ -121,124 +121,115 @@ def overtime(str_start_datetime, str_end_datetime):
     return round((int(minute_sum) / 60), 1)
 
 
-def overtime_extrapay(str_start_datetime, str_end_datetime):
-    is_holiday_startdate = is_holiday(datetime.datetime.strptime(str_start_datetime[:10], "%Y-%m-%d").date())
-    is_holiday_enddate = is_holiday(datetime.datetime.strptime(str_end_datetime[:10], "%Y-%m-%d").date())
+def round_down(startDatetime, endDatetime):
+    diff = endDatetime - startDatetime
+    h = (diff.days * 24) + (diff.seconds / 3600)
+    m = h - int(h)
+    if m < 1/6:
+        return int(h)
+    elif m < 2/6:
+        return int(h) + 0.17
+    elif m < 3/6:
+        return int(h) + 0.33
+    elif m < 4/6:
+        return int(h) + 0.5
+    elif m < 5/6:
+        return int(h) + 0.67
+    else:
+        return int(h) + 0.83
 
-    o_start = pd.Timestamp(str_start_datetime)
-    o_finish = pd.Timestamp(str_end_datetime)
-    d_start = pd.Timestamp(str_start_datetime)
-    d_finish = pd.Timestamp(str_end_datetime)
 
+def overtime_extrapay(startDatetime, endDatetime):
+    overtime = 0
+    minDate = datetime.datetime(3000, 1, 31, 1, 0, 0)
+    maxDate = datetime.datetime(1999, 1, 31, 1, 0, 0)
+    startDatetime = pd.Timestamp(startDatetime)
+    endDatetime = pd.Timestamp(endDatetime)
+    beforeOvertime = datetime.datetime(startDatetime.year, startDatetime.month, startDatetime.day, 6, 0)
+    startOvertime = datetime.datetime(startDatetime.year, startDatetime.month, startDatetime.day, 22, 0)
+    endOvertime = datetime.datetime(startDatetime.year, startDatetime.month, startDatetime.day + 1, 6, 0)
 
-    minute_sum = 0
-    min_date = ''
-    max_date = ''
-
-    s_week = d_start.weekday()
-    f_week = d_finish.weekday()
-
-    if s_week in [5, 6] or is_holiday_startdate != 0:  # 주말이거나 공휴일 일때
-        if d_start.minute != 0:
-            if d_start.hour == d_finish.hour and d_start.date() == d_finish.date():
-                minute_sum += (d_finish.minute - d_start.minute)
-                min_date = d_start
-                max_date = d_finish
-                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-                d_finish = d_finish + datetime.timedelta(minutes=(60 - d_finish.minute))
-            else:
-                minute_sum += (60 - d_start.minute)
-                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-                min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
-
-    else:  # 평일 일때
-        if d_start.minute != 0:  # 정각 시작하지 않은 경우
-            if d_start.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
-                if d_start.hour == d_finish.hour and d_start.date() == d_finish.date():
-                    minute_sum += (d_finish.minute - d_start.minute)
-                    min_date = d_start
-                    max_date = d_finish
-                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-                    d_finish = d_finish + datetime.timedelta(minutes=(60 - d_finish.minute))
-                else:
-                    minute_sum += (60 - d_start.minute)
-                    d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-                    min_date = datetime.datetime(int(d_start.year), int(d_start.month), int(d_start.day), int(d_start.hour), int(d_start.minute), 0)
-            else:  # 초과 근무에 해당 하지 않는 경우
-                d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
-
-    if f_week in [5, 6] or is_holiday_enddate != 0:  # 주말이거나 공휴일 일때
-        if d_finish.minute != 0:
-            if d_start.hour != d_finish.hour and d_start.date() == d_finish.date():
-                minute_sum += d_finish.minute
-                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
-                max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
-
-    else:  # 평일 일때
-        if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
-            if d_finish.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
-                if d_start.hour != d_finish.hour and d_start.date() == d_finish.date():
-                    minute_sum += d_finish.minute
-                    d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
-                    max_date = datetime.datetime(int(d_finish.year), int(d_finish.month), int(d_finish.day), int(d_finish.hour), int(d_finish.minute), 0)
-            else:
-                d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
-
-    if min_date == '':
-        min_date = datetime.datetime(3000, 1, 31, 1, 0, 0)
-    if max_date == '':
-        max_date = datetime.datetime(1999, 1, 31, 1, 0, 0)
-    for i in range(0, work_hours(d_start, d_finish), 1):
-        a = (d_start + datetime.timedelta(hours=i))
-        event_a = is_holiday(a.date())
-        a_week = a.weekday()
-
-        if d_start <= a <= d_finish:
-            if a_week in [5, 6] or event_a != 0:  # 주말이나 공휴일
-                if d_start.date() == d_finish.date():
-                    if d_start.hour !=d_finish.hour:
-                        break
-                    else:
-                        minute_sum += int((d_finish - d_start).seconds / 60)
-                        min_date = d_start
-                        max_date = d_finish
-                        break
-                elif d_finish == a:
-                    pass
-                else:
-                    minute_sum += 60
-                    if a < min_date:
-                        min_date = a
-
-                    if a > max_date:
-                        max_date = a
-
-            else:  # 평일
-                if int(a.hour) in [0, 1, 2, 3, 4, 5, 22, 23]:
-                    if d_finish == a:
-                        pass
-                    else:
-                        minute_sum += 60
-                        if a < min_date:
-                            min_date = a
-
-                        if a > max_date:
-                            max_date = a
+    # 같은날이면 초과근무 일수도 있고 아닐수도 있음.
+    if startDatetime.date() == endDatetime.date():
+        # 주말 (여기에 공휴일도 넣어줘야 함)
+        if startDatetime.weekday() >= 5 or is_holiday(startDatetime.date()) != 0:
+            if startDatetime < minDate:
+                minDate = startDatetime
+            if endDatetime > maxDate:
+                maxDate = endDatetime
+            overtime += round_down(startDatetime, endDatetime)
+        # 평일
         else:
-            print('else')
-    if max_date != datetime.datetime(1999, 1, 31, 1, 0, 0):
-        max_date = max_date + datetime.timedelta(minutes=60)
-    if max_date.hour == 5 and o_finish.hour == 5 and o_finish.minute != 0:
-        max_date = o_finish
-    if min_date.hour == 23:
-        if o_start.hour == 22 and o_start.minute != 0:
-            min_date = o_start
-    if max_date == datetime.datetime(1999, 1, 31, 1, 0, 0):
-        max_date = None
-    if min_date == datetime.datetime(3000, 1, 31, 1, 0, 0):
-        min_date = None
+            # 같은날 06:00 보다 이전에 시작하는 경우
+            if startDatetime <= beforeOvertime:
+                if startDatetime < minDate:
+                    minDate = startDatetime
+                if beforeOvertime > maxDate:
+                    maxDate = beforeOvertime
+                overtime += round_down(startDatetime, beforeOvertime)
+            # 같은날 22:00 보다 끝나는 시간이 크다면 초과근무 맞음
+            if endDatetime > startOvertime:
+                if startOvertime < minDate:
+                    minDate = startOvertime
+                if endDatetime > maxDate:
+                    maxDate = endDatetime
+                overtime += round_down(startOvertime, endDatetime)
 
-    return round((math.trunc(minute_sum * 0.1)*10)/60, 2), round((math.trunc(minute_sum * 0.1)*10)/60, 2), min_date, max_date
+    # 다른날이면 무조건 초과근무 있음.
+    else:
+        tempStartDatetime = startDatetime
+        tempEndDatetime = min(endDatetime, endOvertime)
+        tempStartOvertime = startOvertime
+        tempEndOvertime = endOvertime
+
+        # 주말 (여기에 공휴일도 넣어줘야 함)
+        if tempStartDatetime.weekday() >= 5 or is_holiday(tempStartDatetime.date()) != 0:
+            if tempStartDatetime < minDate:
+                minDate = tempStartDatetime
+            if tempEndDatetime > maxDate:
+                maxDate = tempEndDatetime
+            overtime += round_down(tempStartDatetime, tempEndDatetime)
+        # 평일
+        else:
+            if tempStartDatetime <= beforeOvertime:
+                if tempStartDatetime < minDate:
+                    minDate = tempStartDatetime
+                if beforeOvertime > maxDate:
+                    maxDate = beforeOvertime
+                overtime += round_down(tempStartDatetime, beforeOvertime)
+
+            if tempStartOvertime < minDate:
+                minDate = tempStartOvertime
+            if tempEndDatetime > maxDate:
+                maxDate = tempEndDatetime
+            overtime += round_down(tempStartOvertime, tempEndDatetime)
+
+        while tempEndDatetime != endDatetime:
+            tempStartOvertime = tempStartOvertime + datetime.timedelta(days=1)
+            tempEndOvertime = tempEndOvertime + datetime.timedelta(days=1)
+            tempStartDatetime = tempEndDatetime
+            tempEndDatetime = min(endDatetime, tempEndOvertime)
+
+            # 주말 (여기에 공휴일도 넣어줘야 함)
+            if tempStartDatetime.weekday() >= 5 or is_holiday(startDatetime.date()) != 0:
+                if tempStartDatetime < minDate:
+                    minDate = tempStartDatetime
+                if tempEndDatetime > maxDate:
+                    maxDate = tempEndDatetime
+                overtime += round_down(tempStartDatetime, tempEndDatetime)
+            # 평일
+            elif tempEndDatetime > tempStartOvertime:
+                if tempStartOvertime < minDate:
+                    minDate = tempStartOvertime
+                if tempEndDatetime > maxDate:
+                    maxDate = tempEndDatetime
+                overtime += round_down(tempStartOvertime, tempEndDatetime)
+
+    if overtime == 0:
+        minDate = None
+        maxDate = None
+
+    return overtime, overtime, minDate, maxDate
 
 
 # 이현수대리 조기출근
