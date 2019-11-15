@@ -90,6 +90,22 @@
         </div>
         <div class="col-6">
           <label class="font-weight-bold text-primary mt-3">관련문서</label>
+          <table class="table">
+            <thead>
+            <tr>
+              <td width="25%"><b>문서번호</b></td>
+              <td width="40%"><b>문서명</b></td>
+              <td width="20%"><b>기안자</b></td>
+              <td width="15%">
+                <label class="m-0 btn btn-info btn-icon-split" onclick="add_document()">
+                  <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>
+                </label>
+              </td>
+            </tr>
+            </thead>
+            <tbody id="filesTbody">
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -98,7 +114,11 @@
         <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
         <span class="text">취소</span>
       </a>
-      <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+      <a href="#" class="btn btn-warning btn-icon-split" onclick="btn_save('임시')">
+        <span class="icon text-white-50"> <i class="fas fa-save"> </i> </span>
+        <span class="text">임시</span>
+      </a>
+      <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save('진행')">
         <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
         <span class="text">기안</span>
       </a>
@@ -113,8 +133,13 @@
 {% block script %}
   <script type="text/javascript">
 
-    function btn_save() {
+    function btn_save(documentStatus) {
         const form = $('#document');
+        $('<input />', {
+            type: 'hidden',
+            name: 'documentStatus',
+            value: documentStatus
+        }).appendTo(form);
         $('<input />', {
             type: 'hidden',
             name: 'firstCategory',
@@ -155,11 +180,25 @@
 
         let filesName = $('td[name="filesName"]');
         let filesSize = $('td[name="filesSize"]');
+        let listFile = [];
+        let data;
         for (let i=0; i<filesName.length; i++) {
-            console.log(filesName[i].innerText);
-            console.log(filesSize[i].innerText);
+            data = {};
+            data.fileName = filesName[i].innerText;
+            data.fileSize = filesSize[i].innerText;
+            listFile.push(data);
         }
-        {#form[0].submit();#}
+        $('<input />', {
+            type: 'hidden',
+            name: 'jsonFile',
+            value: JSON.stringify(listFile)
+        }).appendTo(form);
+
+        form[0].submit();
+    }
+
+    function add_document() {
+        alert('관련문서 추가 함수 구현!!');
     }
 
     function load_category() {

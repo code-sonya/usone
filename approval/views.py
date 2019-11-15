@@ -1,4 +1,5 @@
 import json
+import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
@@ -10,15 +11,64 @@ from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
 from django.db.models import Sum, FloatField, F, Case, When, Count, Q
 
-from .models import Documentcategory, Documentform, Approvalform
 from service.models import Employee
+from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform
 
 
 @login_required
 def post_document(request):
     if request.method == 'POST':
-        print(request.POST)
-        print(request.FILES)
+        # 문서 종류 선택
+        formId = Documentform.objects.get(
+            categoryId__firstCategory=request.POST['firstCategory'],
+            categoryId__secondCategory=request.POST['secondCategory'],
+            formTitle=request.POST['formTitle'],
+        )
+
+        # 보존연한 숫자로 변환
+        if request.POST['preservationYear'] == '영구':
+            preservationYear = 9999
+        else:
+            preservationYear = request.POST['preservationYear'][:-1]
+
+        # 문서번호 자동생성 (yymmdd-000)
+        yymmdd = str(datetime.date.today()).replace('-', '')[2:]
+        todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
+        documentNumber = yymmdd + '-' + str(todayDocumentCount+1).rjust(3, '0')
+
+        # 문서 등록
+        documentId = Document.objects.create(
+            documentNumber=documentNumber,
+            writeEmp=request.user.employee,
+            formId=formId,
+            preservationYear=preservationYear,
+            securityLevel=request.POST['securityLevel'][0],
+            title=request.POST['title'],
+            contentHtml=request.POST['contentHtml'],
+            writeDatetime=datetime.datetime.now(),
+            modifyDatetime=datetime.datetime.now(),
+            draftDatetime=datetime.datetime.now(),
+            documentStatus=request.POST['documentStatus'],
+        )
+
+        # 첨부파일 처리
+        # 1. 첨부파일 업로드 정보
+        jsonFile = json.loads(request.POST['jsonFile'])
+        filesInfo = {}   # {fileName1: fileSize1, fileName2: fileSize2, ...}
+        filesName = []   # [fileName1, fileName2, ...]
+        for i in jsonFile:
+            filesInfo[i['fileName']] = i['fileSize']
+            filesName.append(i['fileName'])
+        # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
+        for f in request.FILES.getlist('files'):
+            if f.name in filesName:
+                Documentfile.objects.create(
+                    documentId=documentId,
+                    file=f,
+                    fileName=f.name,
+                    fileSize=filesInfo[f.name][:-2],
+                )
+
     context = {}
     return render(request, 'approval/postdocument.html', context)
 
