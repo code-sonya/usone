@@ -8,6 +8,50 @@
 
 {% block css %}
   <style>
+       .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .pc-table-main td, .pc-table-main th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 18px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .mobile-table {
+      color: #333333;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .mobile-table td, .mobile-table th {
+      padding: 5px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+      border-top: 1px dotted #858796a3;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
   </style>
 {% endblock %}
 
@@ -22,7 +66,11 @@
 
     <div class="card-body">
       <div class="row mb-3">
-        <div class="col-6">
+        <div class="col-1">
+          <label for="formNumber" class="font-weight-bold text-primary">NO.</label>
+          <input id="formNumber" name="formNumber" class="form-control" value="{{ form.formNumber }}">
+        </div>
+        <div class="col-5">
           <label for="formTitle" class="font-weight-bold text-primary">문서명</label>
           <input id="formTitle" name="formTitle" class="form-control" value="{{ form.formTitle }}">
         </div>
@@ -61,11 +109,48 @@
       </div>
       <div class="row mb-3">
         <div class="col-12">
+          <label for="approvalFormat" class="font-weight-bold text-primary">결재양식</label>
+          <select id="approvalFormat" name="approvalFormat" class="form-control" onchange="change_format(this.value)">
+            <option value="신청">신청</option>
+            <option value="결재">결재</option>
+          </select>
+        </div>
+        <div class="col-12" id="format1">
+          <table class="pc-table">
+            <tr class="thtd">
+              <td class="bg-light">신청</td><td colspan="3"><input id="apply" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr class="thtd">
+              <td class="bg-light">처리</td><td colspan="3"><input id="process" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr class="thtd">
+              <td class="bg-light">참조</td><td colspan="3"><input id="reference" class="empName magicsearch form-control"></td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-12" id="format2">
+          <table class="pc-table">
+            <tr class="thtd">
+              <td class="bg-light">결재</td><td colspan="3"><input id="approval" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr class="thtd">
+              <td class="bg-light">합의</td><td colspan="3"><input id="agreement" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr class="thtd">
+              <td class="bg-light">재무합의</td><td colspan="3"><input id="financial" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr class="thtd">
+              <td class="bg-light">참조</td><td colspan="3"><input id="reference2" class="empName magicsearch form-control"></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-12">
           <label for="comment" class="font-weight-bold text-primary">문서설명</label>
           <input id="comment" name="comment" class="form-control" value="{{ form.comment }}">
         </div>
       </div>
-
       <div class="d-flex flex-row align-items-center justify-content-between">
         <label for="formHtml" class="font-weight-bold text-primary">본문</label>
         <span>※ 문서편집기 하단을 드래그 하여 크기를 조정할 수 있습니다.</span>
@@ -123,9 +208,40 @@
 
 {% block script %}
   <script type="text/javascript">
+    //결재 포맷
+    function change_format(thisVal){
+        const format1 = $('#format1');
+        const format2 = $('#format2');
+        if(thisVal=='신청'){
+            format1.show();
+            format2.hide();
+
+        }else{
+            format1.hide();
+            format2.show();
+        }
+    }
+    // 결재자 자동완성
+    $('.empName').magicsearch({
+        dataSource: {{ empNames|safe }},
+        fields: 'value',
+        id: 'id',
+        multiple: true,
+        multiField: 'value',
+        format: '%value%',
+        multiStyle: {space: 5, width: 80},
+        noResult: '검색결과없음',
+        focusShow: false,
+    });
+
     // 문서 양식 등록
     function btn_save() {
         const documentForm = $('#documentForm');
+        $('<input />', {
+            type: 'hidden',
+            name: 'formNumber',
+            value: $('#formNumber').val()
+        }).appendTo(documentForm);
         $('<input />', {
             type: 'hidden',
             name: 'formTitle',
@@ -155,6 +271,46 @@
             type: 'hidden',
             name: 'comment',
             value: $('#comment').val()
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'approvalFormat',
+            value: $('#approvalFormat').val()
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'apply',
+            value: $('#apply').attr('data-id')
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'process',
+            value: $('#process').attr('data-id')
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'reference',
+            value: $('#reference').attr('data-id')
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'approval',
+            value: $('#approval').attr('data-id')
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'agreement',
+            value: $('#agreement').attr('data-id')
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'financial',
+            value: $('#financial').attr('data-id')
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'reference2',
+            value: $('#reference2').attr('data-id')
         }).appendTo(documentForm);
         $('<input />', {
             type: 'hidden',
@@ -272,6 +428,8 @@
     }
 
     $(document).ready(function() {
+        const format2 = $('#format2');
+        format2.hide();
         // 분류 로드
         load_category();
 
