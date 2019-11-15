@@ -11,11 +11,16 @@ class Documentcategory(models.Model):
 
 
 class Documentform(models.Model):
+    approvalFormatChoices = (
+        ('신청', '신청'),
+        ('결재', '결재'),
+    )
     formId = models.AutoField(primary_key=True)
     categoryId = models.ForeignKey(Documentcategory, on_delete=models.SET_NULL, null=True, blank=True)
     formNumber = models.IntegerField(default=0)
     preservationYear = models.IntegerField(default=9999)
     securityLevel = models.CharField(max_length=1, default='S')
+    approvalFormat = models.CharField(max_length=10, choices=approvalFormatChoices, default='신청')
     formTitle = models.CharField(max_length=200)
     formHtml = models.TextField()
     comment = models.CharField(max_length=200, default='')
@@ -45,17 +50,20 @@ class Documentfile(models.Model):
     fileSize = models.IntegerField()
 
 
-class Approvalcategory(models.Model):
-    categoryId = models.AutoField(primary_key=True)
-    approvalCategory = models.CharField(max_length=10)
-
-
 class Approval(models.Model):
+    approvalCategoryChoices = (
+        ('신청', '신청'),
+        ('처리', '처리'),
+        ('참조', '참조'),
+        ('결재', '결재'),
+        ('합의', '합의'),
+        ('재무합의', '재무합의'),
+    )
     approvalId = models.AutoField(primary_key=True)
     documentId = models.ForeignKey(Document, on_delete=models.CASCADE)
     approvalEmp = models.ForeignKey(Employee, on_delete=models.PROTECT)
     approvalStep = models.IntegerField(default=0)
-    approvalCategory = models.ForeignKey(Approvalcategory, on_delete=models.PROTECT)
+    approvalCategory = models.CharField(max_length=20, choices=approvalCategoryChoices, default='신청')
     approvalStatus = models.CharField(max_length=10, default='대기')
     comment = models.CharField(max_length=200, default='')
     approvalDatetime = models.DateTimeField(null=True, blank=True)
@@ -66,4 +74,4 @@ class Approvalform(models.Model):
     formId = models.ForeignKey(Documentform, on_delete=models.CASCADE)
     approvalEmp = models.ForeignKey(Employee, on_delete=models.PROTECT)
     approvalStep = models.IntegerField(default=0)
-    approvalCategory = models.ForeignKey(Approvalcategory, on_delete=models.PROTECT)
+    approvalCategory = models.CharField(max_length=10, default='처리')

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Documentcategory, Documentform, Document, Approvalcategory, Approval, Documentfile, Approvalform
+from .models import Documentcategory, Documentform, Document, Approval, Documentfile, Approvalform
 
 
 @admin.register(Documentcategory)
@@ -11,9 +11,9 @@ class DocumentcategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Documentform)
 class DocumentformAdmin(admin.ModelAdmin):
-    list_display = ('formId', 'categoryId', 'formNumber', 'formHtml', 'comment')
-    list_filter = ('formId', 'categoryId', 'formNumber', 'formHtml', 'comment')
-    list_display_links = ['formId', 'categoryId', 'formNumber', 'formHtml', 'comment']
+    list_display = ('formId', 'categoryId', 'formNumber', 'formHtml', 'approvalFormat', 'comment')
+    list_filter = ('formId', 'categoryId', 'formNumber', 'formHtml', 'approvalFormat', 'comment')
+    list_display_links = ['formId', 'categoryId', 'formNumber', 'formHtml', 'approvalFormat', 'comment']
 
 
 @admin.register(Document)
@@ -21,13 +21,6 @@ class DocumentAdmin(admin.ModelAdmin):
     list_display = ('documentNumber', 'writeEmp', 'title', 'contentHtml', 'documentStatus')
     list_filter = ('documentNumber', 'writeEmp', 'title', 'contentHtml', 'documentStatus')
     list_display_links = ['documentNumber', 'writeEmp', 'title', 'contentHtml', 'documentStatus']
-
-
-@admin.register(Approvalcategory)
-class ApprovalcategoryAdmin(admin.ModelAdmin):
-    list_display = ('categoryId', 'approvalCategory')
-    list_filter = ('categoryId', 'approvalCategory')
-    list_display_links = ['categoryId', 'approvalCategory']
 
 
 @admin.register(Approval)
