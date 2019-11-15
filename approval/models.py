@@ -45,6 +45,12 @@ class Documentfile(models.Model):
     fileSize = models.FloatField()
 
 
+class Relateddocument(models.Model):
+    relatedId = models.AutoField(primary_key=True)
+    documentId = models.ForeignKey(Document, on_delete=models.PROTECT, related_name='documentId2')
+    relatedDocumentId = models.ForeignKey(Document, on_delete=models.PROTECT, related_name='relatedDocumentId')
+
+
 class Approvalcategory(models.Model):
     categoryId = models.AutoField(primary_key=True)
     approvalCategory = models.CharField(max_length=10)
