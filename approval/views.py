@@ -15,6 +15,9 @@ from .models import Documentcategory, Documentform
 
 @login_required
 def post_document(request):
+    if request.method == 'POST':
+        print(request.POST)
+        print(request.FILES)
     context = {}
     return render(request, 'approval/postdocument.html', context)
 
