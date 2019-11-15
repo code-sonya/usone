@@ -42,7 +42,7 @@ class Documentfile(models.Model):
     documentId = models.ForeignKey(Document, on_delete=models.SET_NULL, null=True, blank=True)
     file = models.FileField(upload_to="document/%Y_%m")
     fileName = models.CharField(max_length=200)
-    fileSize = models.IntegerField()
+    fileSize = models.FloatField()
 
 
 class Approvalcategory(models.Model):
