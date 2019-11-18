@@ -13,6 +13,7 @@ from django.db.models import Sum, FloatField, F, Case, When, Count, Q
 
 from service.models import Employee
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform
+from .functions import data_format
 
 
 @login_required
@@ -110,7 +111,7 @@ def post_documentform(request):
         approval = []
         if request.POST['approvalFormat'] == '신청':
             if request.POST['apply']:
-                applyList=request.POST['apply'].split(',')
+                applyList = request.POST['apply'].split(',')
                 for i, a in enumerate(applyList):
                     approval.append({'approvalEmp': a, 'approvalStep': i+1, 'approvalCategory': '신청'})
             if request.POST['process']:
@@ -139,7 +140,7 @@ def post_documentform(request):
                 for i, r in enumerate(referenceList):
                     approval.append({'approvalEmp': r, 'approvalStep': i+1, 'approvalCategory': '참조'})
         #
-        if len(approval)!=0:
+        if len(approval) != 0:
             for a in approval:
                 empId = Employee.objects.get(empId=a['approvalEmp'])
                 Approvalform.objects.create(
@@ -169,15 +170,70 @@ def modify_documentform(request, formId):
         )
         form = Documentform.objects.get(formId=formId)
         form.categoryId = categoryId
+        form.formNumber = request.POST['formNumber']
+        form.approvalFormat = request.POST['approvalFormat']
         form.formTitle = request.POST['formTitle']
         form.formHtml = request.POST['formHtml']
         form.preservationYear = request.POST['preservationYear']
         form.securityLevel = request.POST['securityLevel']
         form.comment = request.POST['comment']
         form.save()
+
+        Approvalform.objects.filter(formId=formId).delete()
+        approval = []
+        if request.POST['approvalFormat'] == '신청':
+            if request.POST['apply']:
+                applyList = request.POST['apply'].split(',')
+                for i, a in enumerate(applyList):
+                    if a != '':
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '신청'})
+            if request.POST['process']:
+                processList = request.POST['process'].split(',')
+                for i, p in enumerate(processList):
+                    if p != '':
+                        approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '처리'})
+            if request.POST['reference']:
+                referenceList = request.POST['reference'].split(',')
+                for i, r in enumerate(referenceList):
+                    if r != '':
+                        approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+        elif request.POST['approvalFormat'] == '결재':
+            if request.POST['approval'].split(','):
+                approvalList = request.POST['approval'].split(',')
+                for i, a in enumerate(approvalList):
+                    if a != '':
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '결재'})
+            if request.POST['agreement'].split(','):
+                agreementList = request.POST['agreement'].split(',')
+                for i, a in enumerate(agreementList):
+                    if a != '':
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '합의'})
+            if request.POST['financial'].split(','):
+                financialList = request.POST['financial'].split(',')
+                for i, f in enumerate(financialList):
+                    if f != '':
+                        approval.append({'approvalEmp': f, 'approvalStep': i + 1, 'approvalCategory': '재무합의'})
+            if request.POST['reference2'].split(','):
+                referenceList = request.POST['reference2'].split(',')
+                for i, r in enumerate(referenceList):
+                    if r != '':
+                        approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+        print(approval)
+        if len(approval) != 0:
+            for a in approval:
+                empId = Employee.objects.get(empId=a['approvalEmp'])
+                Approvalform.objects.create(
+                    formId=form,
+                    approvalEmp=empId,
+                    approvalStep=a['approvalStep'],
+                    approvalCategory=a['approvalCategory'],
+                )
+
         return redirect('approval:showdocumentform')
     else:
         form = Documentform.objects.get(formId=formId)
+        apply, process, reference, approval, agreement, financial = data_format(formId)
+
         # 결재자 자동완성
         empList = Employee.objects.filter(Q(empStatus='Y'))
         empNames = []
@@ -186,7 +242,13 @@ def modify_documentform(request, formId):
             empNames.append(temp)
         context = {
             'form': form,
-            'empNames': empNames
+            'empNames': empNames,
+            'apply': apply,
+            'process': process,
+            'reference': reference,
+            'approval': approval,
+            'agreement': agreement,
+            'financial': financial,
         }
         return render(request, 'approval/postdocumentform.html', context)
 
