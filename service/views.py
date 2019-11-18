@@ -509,10 +509,20 @@ def modify_service(request, serviceId):
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
-            post.serviceBeginDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-            post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-            post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            if post.serviceStatus == 'N':
+                post.serviceBeginDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            elif post.serviceStatus == 'B':
+                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            elif post.serviceStatus == 'S':
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            elif post.serviceStatus == 'E':
+                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
             post.serviceDate = str(post.serviceBeginDatetime)[:10]
             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
             post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
