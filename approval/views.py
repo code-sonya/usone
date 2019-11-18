@@ -94,7 +94,9 @@ def showdocumentform_asjson(request):
     documentforms = Documentform.objects.all().annotate(
         firstCategory=F('categoryId__firstCategory'),
         secondCategory=F('categoryId__secondCategory'),
-    ).values('formId', 'firstCategory', 'secondCategory', 'formTitle', 'comment')
+    ).values(
+        'formId', 'formNumber', 'firstCategory', 'secondCategory', 'formTitle', 'comment'
+    )
 
     structure = json.dumps(list(documentforms), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -287,7 +289,7 @@ def documentform_asjson(request):
             documentForm = Documentform.objects.filter(
                 Q(categoryId__firstCategory=request.GET['firstCategory']) &
                 Q(categoryId__secondCategory=request.GET['secondCategory'])
-            ).values('formTitle')
+            ).values('formNumber', 'formTitle')
 
             structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
@@ -334,8 +336,11 @@ def showdocument_asjson(request):
             documentStatus__in=documentStatus
         ).annotate(
             empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus'
         )
 
         structure = json.dumps(list(documents), cls=DjangoJSONEncoder)
@@ -351,7 +356,11 @@ def show_document(request):
 @login_required
 def view_document(request, documentId):
     document = Document.objects.get(documentId=documentId)
+    files = Documentfile.objects.filter(documentId__documentId=documentId)
+    related = Relateddocument.objects.filter(documentId__documentId=documentId)
     context = {
-        'document': document
+        'document': document,
+        'files': files,
+        'related': related,
     }
     return render(request, 'approval/viewdocument.html', context)
