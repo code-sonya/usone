@@ -12,7 +12,7 @@ from xhtml2pdf import pisa
 from django.db.models import Sum, FloatField, F, Case, When, Count, Q
 
 from service.models import Employee
-from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform
+from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument
 
 
 @login_required
@@ -253,3 +253,17 @@ def post_documentcategory(request):
 
         structure = json.dumps(message, cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def relateddocument_asjson(request):
+    documents = Document.objects.all().filter(
+        documentStatus='완료'
+    ).annotate(
+        empName=F('writeEmp__empName'),
+    ).values(
+        'documentId', 'documentNumber', 'title', 'empName',
+    )
+
+    structure = json.dumps(list(documents), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
