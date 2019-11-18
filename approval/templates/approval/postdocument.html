@@ -93,6 +93,7 @@
           <table class="table">
             <thead>
             <tr>
+              <td class="d-none">documentId</td>
               <td width="25%"><b>문서번호</b></td>
               <td width="40%"><b>문서명</b></td>
               <td width="20%"><b>기안자</b></td>
@@ -103,7 +104,7 @@
               </td>
             </tr>
             </thead>
-            <tbody id="filesTbody">
+            <tbody id="documentsTbody">
             </tbody>
           </table>
         </div>
@@ -158,7 +159,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_related()">등록</a>
+          <a class="btn btn-info" href="#" onclick="document_names()">등록</a>
         </div>
       </div>
     </div>
@@ -213,8 +214,8 @@
             value: $('#contentHtml').summernote('code')
         }).appendTo(form);
 
+        // 첨부파일
         form.append($("#files"));
-
         let filesName = $('td[name="filesName"]');
         let filesSize = $('td[name="filesSize"]');
         let listFile = [];
@@ -229,6 +230,18 @@
             type: 'hidden',
             name: 'jsonFile',
             value: JSON.stringify(listFile)
+        }).appendTo(form);
+
+        // 관련문서
+        let documentIds = $('td[name="documentId"]');
+        let listId = [];
+        for (let i=0; i < documentIds.length; i++) {
+            listId.push(documentIds.eq(i).text());
+        }
+        $('<input />', {
+            type: 'hidden',
+            name: 'relatedDocumentId',
+            value: JSON.stringify(listId)
         }).appendTo(form);
 
         form[0].submit();
@@ -427,22 +440,37 @@
         }
     }
 
-    function document_names(id) {
-        let files = $('#' + id).get(0).files;
-        let filesTbody = $('#filesTbody');
-        let file;
-        let tr;
-        filesTbody.empty();
+    function document_names() {
+        let length = $('.document-id').length;
+        let dataList = [];
+        let data;
+        for (let i = 2; i <= length - 1; i++) {
+            if ($('.ckbx').eq(i - 2).is(":checked")) {
+                data = {};
+                data.documentId = $('.document-id').eq(i).text();
+                data.documentNumber = $('.document-number').eq(i).text();
+                data.title = $('.document-title').eq(i).text();
+                data.empName = $('.document-empname').eq(i).text();
+                dataList.push(data);
+            }
+        }
 
-        for (let i=0; i<files.length; i++) {
-            file = files[i];
+        let documentsTbody = $('#documentsTbody');
+        let tr;
+        documentsTbody.empty();
+        for (let i=0; i<dataList.length; i++) {
+            data = dataList[i];
             tr = '<tr>';
-            tr += '<td class="text-left" name="filesName">' + file.name + '</td>';
-            tr += '<td name="filesSize">' + (file.size/1048576).toFixed(2) + 'MB</td>';
+            tr += '<td class="d-none" name="documentId">' + data.documentId + '</td>';
+            tr += '<td>' + data.documentNumber + '</td>';
+            tr += '<td class="text-left">' + data.title + '</td>';
+            tr += '<td>' + data.empName + '</td>';
             tr += '<td><i class="fas fa-times-circle" name="remove" onclick="remove_row(this)"></i></td>';
             tr += '</tr>';
-            filesTbody.append(tr);
+            documentsTbody.append(tr);
         }
+
+        $('#documentModal').modal('hide');
     }
 
     function remove_row(obj) {
@@ -474,19 +502,19 @@
                         {
                             targets: 1,
                             width: "20%",
-                            className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                            className: "document-number dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                             data: "documentNumber",
                         },
                         {
                             targets: 2,
                             width: "55%",
-                            className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                            className: "document-title dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                             data: "title"
                         },
                         {
                             targets: 3,
                             width: "20%",
-                            className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                            className: "document-empname dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                             data: "empName",
                         },
                         {
@@ -562,6 +590,10 @@
             toolbar: toolbar,
             spellCheck: false,
             disableGrammar: true,
+        });
+
+        $('.ckbxall').click(function () {
+            $('.ckbx').prop('checked', this.checked);
         });
     })
 

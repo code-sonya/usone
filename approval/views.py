@@ -70,6 +70,15 @@ def post_document(request):
                     fileSize=filesInfo[f.name][:-2],
                 )
 
+        # 관련문서 처리
+        jsonId = json.loads(request.POST['relatedDocumentId'])
+        for relatedId in jsonId:
+            relatedDocument = Document.objects.get(documentId=relatedId)
+            Relateddocument.objects.create(
+                documentId=documentId,
+                relatedDocumentId=relatedDocument,
+            )
+
     context = {}
     return render(request, 'approval/postdocument.html', context)
 
