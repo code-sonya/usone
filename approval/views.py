@@ -327,14 +327,31 @@ def post_documentcategory(request):
 
 
 @login_required
-def relateddocument_asjson(request):
-    documents = Document.objects.all().filter(
-        documentStatus='완료'
-    ).annotate(
-        empName=F('writeEmp__empName'),
-    ).values(
-        'documentId', 'documentNumber', 'title', 'empName',
-    )
+def showdocument_asjson(request):
+    if request.method == 'GET':
+        documentStatus = request.GET['documentStatus'].split(',')
+        documents = Document.objects.all().filter(
+            documentStatus__in=documentStatus
+        ).annotate(
+            empName=F('writeEmp__empName'),
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+        )
 
-    structure = json.dumps(list(documents), cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
+        structure = json.dumps(list(documents), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def show_document(request):
+    context = {}
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def view_document(request, documentId):
+    document = Document.objects.get(documentId=documentId)
+    context = {
+        'document': document
+    }
+    return render(request, 'approval/viewdocument.html', context)

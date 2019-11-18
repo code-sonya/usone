@@ -1,0 +1,123 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  전자결재
+{% endblock %}
+
+
+{% block css %}
+  <style>
+  </style>
+{% endblock %}
+
+
+{% block content %}
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h6 class="m-0 h3 text-gray-800">전자 문서</h6>
+      <div class="dropdown no-arrow">
+        <a class="dropdown-toggle" href="/approval/postdocument/" role="button">
+          <i class="fas fa-plus fa-fw text-gray-400"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="table-responsive mt-3">
+        <table id="showdocument" class="hover row-border">
+          <thead>
+          <tr>
+            <th>문서번호</th>
+            <th>제목</th>
+            <th>기안자</th>
+            <th>기안일</th>
+            <th class="d-none">documentId</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+
+    $(document).ready(function() {
+
+        let table = $('#showdocument').DataTable({
+            "processing": true,
+            "ajax": {
+                "processing": true,
+                "type": 'GET',
+                "data": {
+                    'documentStatus': '진행,완료',
+                },
+                "url": "{% url 'approval:showdocumentasjson' %}",
+                "dataSrc": ""
+            },
+            "columnDefs": [
+                {
+                    targets: 0,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "documentNumber",
+                },
+                {
+                    targets: 1,
+                    width: "70%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "title",
+                },
+                {
+                    targets: 2,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "empName"
+                },
+                {
+                    targets: 3,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "draftDatetime",
+                },
+                {
+                    targets: 4,
+                    className: "d-none",
+                    data: "documentId",
+                },
+            ],
+            "deferRender": true,
+            "searching": true,
+            "paging": true,
+            "info": false,
+            "scrollY": "60vh",
+            "scrollX": false,
+            "scrollCollapse": true,
+            "order": [[0, 'asc']],
+            "language": {
+                "lengthMenu": "_MENU_ 개씩 보기",
+                "search": "검색:",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "다음",
+                    "previous": "이전"
+                },
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td', nRow).eq(3).text(aData.draftDatetime.split('-').join('.').split('T').slice(0, 1));
+            }
+        });
+
+        $('#showdocument').on("click", 'tr', function () {
+            const data = table.row(this).data();
+            location.href = '/approval/viewdocument/' + data.documentId + '/'
+        });
+    })
+
+  </script>
+{% endblock %}

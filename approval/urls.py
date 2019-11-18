@@ -8,9 +8,11 @@ urlpatterns = [
     url(r'^postdocumentform/$', views.post_documentform, name='postdocumnetform'),
     url(r'^documentcategoryasjson/$', views.documentcategory_asjson, name='documentcategoryasjson'),
     url(r'^documentformasjson/$', views.documentform_asjson, name='documentformasjson'),
-    url(r'^relateddocumentasjson/$', views.relateddocument_asjson, name='relateddocumentasjson'),
+    url(r'^showdocumentasjson/$', views.showdocument_asjson, name='showdocumentasjson'),
     url(r'^showdocumentformasjson/$', views.showdocumentform_asjson, name='showdocumentformasjson'),
     url(r'^postdocumentcategory/$', views.post_documentcategory, name='postdocumentcategory'),
     url(r'^showdocumentform/$', views.show_documentform, name='showdocumentform'),
     url(r'^modifydocumentform/(?P<formId>.+)/$', views.modify_documentform, name='modifydocumentform'),
+    url(r'^showdocument/$', views.show_document, name='showdocument'),
+    url(r'^viewdocument/(?P<documentId>.+)/$', views.view_document, name='viewdocument'),
 ]
