@@ -111,8 +111,8 @@
         <div class="col-12">
           <label for="approvalFormat" class="font-weight-bold text-primary">결재양식</label>
           <select id="approvalFormat" name="approvalFormat" class="form-control" onchange="change_format(this.value)">
-            <option value="신청">신청</option>
-            <option value="결재">결재</option>
+            <option value="신청" {% if form.approvalFormat == '신청' %}selected="selected"{% endif %}>신청</option>
+            <option value="결재" {% if form.approvalFormat == '결재' %}selected="selected"{% endif %}>결재</option>
           </select>
         </div>
         <div class="col-12" id="format1">
@@ -212,16 +212,46 @@
     function change_format(thisVal){
         const format1 = $('#format1');
         const format2 = $('#format2');
-        if(thisVal=='신청'){
-            format1.show();
-            format2.hide();
-
-        }else{
+        if(thisVal=='결재' ){
             format1.hide();
             format2.show();
+
+        }else{
+            format1.show();
+            format2.hide();
         }
     }
     // 결재자 자동완성
+    const apply = $('#apply');
+    const process = $('#process');
+    const reference = $('#reference');
+    const approval = $('#approval');
+    const agreement = $('#agreement');
+    const financial = $('#financial');
+    const reference2 = $('#reference2');
+
+    {% if apply %}
+       apply.attr("data-id", "{{ apply }}");
+    {% endif %}
+    {% if process %}
+      process.attr("data-id", "{{ process }}");
+    {% endif %}
+    {% if reference %}
+      reference.attr("data-id", "{{ reference }}");
+    {% endif %}
+    {% if approval %}
+      approval.attr("data-id", "{{ approval }}");
+    {% endif %}
+    {% if agreement %}
+      agreement.attr("data-id", "{{ agreement }}");
+    {% endif %}
+    {% if financial %}
+      financial.attr("data-id", "{{ financial }}");
+    {% endif %}
+    {% if reference %}
+      reference2.attr("data-id", "{{ reference }}");
+    {% endif %}
+
     $('.empName').magicsearch({
         dataSource: {{ empNames|safe }},
         fields: 'value',
@@ -428,8 +458,7 @@
     }
 
     $(document).ready(function() {
-        const format2 = $('#format2');
-        format2.hide();
+        change_format("{{ form.approvalFormat }}");
         // 분류 로드
         load_category();
 
