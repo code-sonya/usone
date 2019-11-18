@@ -101,6 +101,7 @@
                 },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td', nRow).eq(2).text(aData.formNumber + '. ' + aData.formTitle);
             }
         });
 
