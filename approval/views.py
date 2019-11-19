@@ -331,10 +331,23 @@ def post_documentcategory(request):
 @login_required
 def showdocument_asjson(request):
     if request.method == 'GET':
-        documentStatus = request.GET['documentStatus'].split(',')
-        documents = Document.objects.all().filter(
-            documentStatus__in=documentStatus
-        ).annotate(
+        documentStatus = request.GET['documentStatus']
+        category = request.GET['category']
+
+        # 조회 권한 나누기
+        documents = Document.objects.filter(documentStatus=documentStatus)
+        if documentStatus == '진행':
+            if category == '전체':
+                documents = documents
+            elif category == '대기':
+                documents = documents.filter(writeEmp=request.user.employee)
+        elif documentStatus == '완료':
+            if category == '전체':
+                documents = documents
+            elif category == '기안':
+                documents = documents.filter(writeEmp=request.user.employee)
+
+        documents = documents.annotate(
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
@@ -348,8 +361,38 @@ def showdocument_asjson(request):
 
 
 @login_required
-def show_document(request):
-    context = {}
+def show_document_end_all(request):
+    context = {
+        'documentStatus': '완료',
+        'category': '전체',
+    }
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def show_document_end_write(request):
+    context = {
+        'documentStatus': '완료',
+        'category': '기안',
+    }
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def show_document_ing_all(request):
+    context = {
+        'documentStatus': '진행',
+        'category': '전체',
+    }
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def show_document_ing_write(request):
+    context = {
+        'documentStatus': '진행',
+        'category': '대기',
+    }
     return render(request, 'approval/showdocument.html', context)
 
 

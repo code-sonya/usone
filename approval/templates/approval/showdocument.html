@@ -56,7 +56,8 @@
                 "processing": true,
                 "type": 'GET',
                 "data": {
-                    'documentStatus': '진행,완료',
+                    'documentStatus': "{{ documentStatus }}",
+                    'category': "{{ category }}",
                 },
                 "url": "{% url 'approval:showdocumentasjson' %}",
                 "dataSrc": ""
