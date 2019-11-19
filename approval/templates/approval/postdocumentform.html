@@ -118,29 +118,36 @@
         <div class="col-12" id="format1">
           <table class="pc-table">
             <tr class="thtd">
-              <td class="bg-light">신청</td><td colspan="3"><input id="apply" class="empName magicsearch form-control"></td>
+              <td width="10%" class="bg-light">신청</td>
+              <td width="90%"><input id="apply" class="empName magicsearch form-control"></td>
             </tr>
-             <tr class="thtd">
-              <td class="bg-light">처리</td><td colspan="3"><input id="process" class="empName magicsearch form-control"></td>
+            <tr class="thtd">
+              <td width="10%" class="bg-light">처리</td>
+              <td width="90%"><input id="process" class="empName magicsearch form-control"></td>
             </tr>
-             <tr class="thtd">
-              <td class="bg-light">참조</td><td colspan="3"><input id="reference" class="empName magicsearch form-control"></td>
+            <tr class="thtd">
+              <td width="10%" class="bg-light">참조</td>
+              <td width="90%"><input id="reference" class="empName magicsearch form-control"></td>
             </tr>
           </table>
         </div>
         <div class="col-12" id="format2">
           <table class="pc-table">
             <tr class="thtd">
-              <td class="bg-light">결재</td><td colspan="3"><input id="approval" class="empName magicsearch form-control"></td>
+              <td width="10%" class="bg-light">결재</td>
+              <td width="90%"><input id="approval" class="empName magicsearch form-control"></td>
             </tr>
-             <tr class="thtd">
-              <td class="bg-light">합의</td><td colspan="3"><input id="agreement" class="empName magicsearch form-control"></td>
+            <tr class="thtd">
+              <td width="10%" class="bg-light">합의</td>
+              <td width="90%" colspan="3"><input id="agreement" class="empName magicsearch form-control"></td>
             </tr>
-             <tr class="thtd">
-              <td class="bg-light">재무합의</td><td colspan="3"><input id="financial" class="empName magicsearch form-control"></td>
+            <tr class="thtd">
+              <td width="10%" class="bg-light">재무합의</td>
+              <td width="90%" colspan="3"><input id="financial" class="empName magicsearch form-control"></td>
             </tr>
-             <tr class="thtd">
-              <td class="bg-light">참조</td><td colspan="3"><input id="reference2" class="empName magicsearch form-control"></td>
+            <tr class="thtd">
+              <td width="10%" class="bg-light">참조</td>
+              <td width="90%"><input id="reference2" class="empName magicsearch form-control"></td>
             </tr>
           </table>
         </div>
@@ -251,18 +258,6 @@
     {% if reference %}
       reference2.attr("data-id", "{{ reference }}");
     {% endif %}
-
-    $('.empName').magicsearch({
-        dataSource: {{ empNames|safe }},
-        fields: 'value',
-        id: 'id',
-        multiple: true,
-        multiField: 'value',
-        format: '%value%',
-        multiStyle: {space: 5, width: 80},
-        noResult: '검색결과없음',
-        focusShow: false,
-    });
 
     // 문서 양식 등록
     function btn_save() {
@@ -479,6 +474,18 @@
             disableGrammar: true,
         });
         formHtml.summernote('code', '{{ form.formHtml | safe }}');
+
+        $('.empName').magicsearch({
+            dataSource: {{ empNames|safe }},
+            fields: 'name',
+            id: 'id',
+            multiple: true,
+            multiField: 'name',
+            format: '%name% %position% (%dept%)',
+            multiStyle: {space: 5, width: 80},
+            noResult: '검색결과없음',
+            focusShow: false,
+        });
     })
 
   </script>
