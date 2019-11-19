@@ -304,10 +304,8 @@ def documentform_asjson(request):
                 Q(categoryId__secondCategory=request.GET['secondCategory']) &
                 Q(formTitle=request.GET['formTitle'])
             ).values('preservationYear', 'securityLevel', 'formHtml', 'approvalFormat', 'formId')
-            approvalForm = Approvalform.objects.filter(
-                Q(formId=documentForm.first()['formId'])
-            ).order_by('approvalStep').values('approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory')
-            structure = json.dumps(list(documentForm)+list(approvalForm), cls=DjangoJSONEncoder)
+            apply, process, reference, approval, agreement, financial = data_format(formId=documentForm.first()['formId'])
+            structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
 
 
