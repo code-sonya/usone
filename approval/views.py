@@ -35,7 +35,7 @@ def post_document(request):
         # 문서번호 자동생성 (yymmdd-000)
         yymmdd = str(datetime.date.today()).replace('-', '')[2:]
         todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
-        documentNumber = yymmdd + '-' + str(todayDocumentCount+1).rjust(3, '0')
+        documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
 
         # 문서 등록
         documentId = Document.objects.create(
@@ -55,8 +55,8 @@ def post_document(request):
         # 첨부파일 처리
         # 1. 첨부파일 업로드 정보
         jsonFile = json.loads(request.POST['jsonFile'])
-        filesInfo = {}   # {fileName1: fileSize1, fileName2: fileSize2, ...}
-        filesName = []   # [fileName1, fileName2, ...]
+        filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
+        filesName = []  # [fileName1, fileName2, ...]
         for i in jsonFile:
             filesInfo[i['fileName']] = i['fileSize']
             filesName.append(i['fileName'])
@@ -83,9 +83,16 @@ def post_document(request):
     empList = Employee.objects.filter(Q(empStatus='Y'))
     empNames = []
     for emp in empList:
-        temp = {'id': emp.empId, 'value': emp.empName}
+        temp = {
+            'id': emp.empId,
+            'name': emp.empName,
+            'position': emp.empPosition.positionName,
+            'dept': emp.empDeptName,
+        }
         empNames.append(temp)
-    context = {'empNames': empNames}
+    context = {
+        'empNames': empNames
+    }
     return render(request, 'approval/postdocument.html', context)
 
 
@@ -130,32 +137,32 @@ def post_documentform(request):
             if request.POST['apply']:
                 applyList = request.POST['apply'].split(',')
                 for i, a in enumerate(applyList):
-                    approval.append({'approvalEmp': a, 'approvalStep': i+1, 'approvalCategory': '신청'})
+                    approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '신청'})
             if request.POST['process']:
                 processList = request.POST['process'].split(',')
                 for i, p in enumerate(processList):
-                    approval.append({'approvalEmp': p, 'approvalStep': i+1, 'approvalCategory': '처리'})
+                    approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '처리'})
             if request.POST['reference']:
                 referenceList = request.POST['reference'].split(',')
                 for i, r in enumerate(referenceList):
-                    approval.append({'approvalEmp': r, 'approvalStep': i+1, 'approvalCategory': '참조'})
+                    approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
         elif request.POST['approvalFormat'] == '결재':
             if request.POST['approval'].split(','):
                 approvalList = request.POST['approval'].split(',')
                 for i, a in enumerate(approvalList):
-                    approval.append({'approvalEmp': a, 'approvalStep': i+1, 'approvalCategory': '결재'})
+                    approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '결재'})
             if request.POST['agreement'].split(','):
                 agreementList = request.POST['agreement'].split(',')
                 for i, a in enumerate(agreementList):
-                    approval.append({'approvalEmp': a, 'approvalStep': i+1, 'approvalCategory': '합의'})
+                    approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '합의'})
             if request.POST['financial'].split(','):
                 financialList = request.POST['financial'].split(',')
                 for i, f in enumerate(financialList):
-                    approval.append({'approvalEmp': f, 'approvalStep': i+1, 'approvalCategory': '재무합의'})
+                    approval.append({'approvalEmp': f, 'approvalStep': i + 1, 'approvalCategory': '재무합의'})
             if request.POST['reference2'].split(','):
                 referenceList = request.POST['reference2'].split(',')
                 for i, r in enumerate(referenceList):
-                    approval.append({'approvalEmp': r, 'approvalStep': i+1, 'approvalCategory': '참조'})
+                    approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
         #
         if len(approval) != 0:
             for a in approval:
@@ -172,9 +179,17 @@ def post_documentform(request):
         empList = Employee.objects.filter(Q(empStatus='Y'))
         empNames = []
         for emp in empList:
-            temp = {'id': emp.empId, 'value': emp.empName}
+            temp = {
+                'id': emp.empId,
+                'name': emp.empName,
+                'position': emp.empPosition.positionName,
+                'dept': emp.empDeptName,
+            }
             empNames.append(temp)
-        context = {'empNames': empNames}
+
+        context = {
+            'empNames': empNames
+        }
         return render(request, 'approval/postdocumentform.html', context)
 
 
@@ -255,8 +270,14 @@ def modify_documentform(request, formId):
         empList = Employee.objects.filter(Q(empStatus='Y'))
         empNames = []
         for emp in empList:
-            temp = {'id': emp.empId, 'value': emp.empName}
+            temp = {
+                'id': emp.empId,
+                'name': emp.empName,
+                'position': emp.empPosition.positionName,
+                'dept': emp.empDeptName,
+            }
             empNames.append(temp)
+
         context = {
             'form': form,
             'empNames': empNames,
@@ -336,10 +357,23 @@ def post_documentcategory(request):
 @login_required
 def showdocument_asjson(request):
     if request.method == 'GET':
-        documentStatus = request.GET['documentStatus'].split(',')
-        documents = Document.objects.all().filter(
-            documentStatus__in=documentStatus
-        ).annotate(
+        documentStatus = request.GET['documentStatus']
+        category = request.GET['category']
+
+        # 조회 권한 나누기
+        documents = Document.objects.filter(documentStatus=documentStatus)
+        if documentStatus == '진행':
+            if category == '전체':
+                documents = documents
+            elif category == '대기':
+                documents = documents.filter(writeEmp=request.user.employee)
+        elif documentStatus == '완료':
+            if category == '전체':
+                documents = documents
+            elif category == '기안':
+                documents = documents.filter(writeEmp=request.user.employee)
+
+        documents = documents.annotate(
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
@@ -353,8 +387,38 @@ def showdocument_asjson(request):
 
 
 @login_required
-def show_document(request):
-    context = {}
+def show_document_end_all(request):
+    context = {
+        'documentStatus': '완료',
+        'category': '전체',
+    }
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def show_document_end_write(request):
+    context = {
+        'documentStatus': '완료',
+        'category': '기안',
+    }
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def show_document_ing_all(request):
+    context = {
+        'documentStatus': '진행',
+        'category': '전체',
+    }
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def show_document_ing_write(request):
+    context = {
+        'documentStatus': '진행',
+        'category': '대기',
+    }
     return render(request, 'approval/showdocument.html', context)
 
 

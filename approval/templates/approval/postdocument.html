@@ -218,18 +218,6 @@
 
 {% block script %}
 <script type="text/javascript">
-    $('.empName').magicsearch({
-        dataSource: {{ empNames|safe }},
-        fields: 'value',
-        id: 'id',
-        multiple: true,
-        multiField: 'value',
-        format: '%value%',
-        multiStyle: {space: 5, width: 80},
-        noResult: '검색결과없음',
-        focusShow: false,
-    });
-
     function btn_save(documentStatus) {
         const form = $('#document');
         $('<input />', {
@@ -490,10 +478,10 @@
             securityLevel.text(val.securityLevel + '등급');
             editor.removeClass('d-none');
             contentHtml.summernote('code', val.formHtml);
-            if (val.approvalFormat == '신청'){
+            if (val.approvalFormat == '신청') {
                 format2.hide();
                 format1.show();
-            }else{
+            } else {
                 format1.hide();
                 format2.show();
             }
@@ -651,7 +639,18 @@
                 },
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 success: function (returnData) {
-                    load_document(returnData)
+                    load_document(returnData);
+                    $('.empName').magicsearch({
+                        dataSource: {{ empNames|safe }},
+                        fields: 'name',
+                        id: 'id',
+                        multiple: true,
+                        multiField: 'name',
+                        format: '%name% %position% (%dept%)',
+                        multiStyle: {space: 5, width: 80},
+                        noResult: '검색결과없음',
+                        focusShow: false,
+                    });
                 }
             })
         });
@@ -676,7 +675,6 @@
         $('.ckbxall').click(function () {
             $('.ckbx').prop('checked', this.checked);
         });
-
     })
 
 </script>

@@ -13,6 +13,9 @@ urlpatterns = [
     url(r'^postdocumentcategory/$', views.post_documentcategory, name='postdocumentcategory'),
     url(r'^showdocumentform/$', views.show_documentform, name='showdocumentform'),
     url(r'^modifydocumentform/(?P<formId>.+)/$', views.modify_documentform, name='modifydocumentform'),
-    url(r'^showdocument/$', views.show_document, name='showdocument'),
+    url(r'^showdocument/end/all/$', views.show_document_end_all, name='showdocumentendall'),
+    url(r'^showdocument/end/write/$', views.show_document_end_write, name='showdocumentendwrite'),
+    url(r'^showdocument/ing/all/$', views.show_document_ing_all, name='showdocumentingall'),
+    url(r'^showdocument/ing/write/$', views.show_document_ing_write, name='showdocumentingwrite'),
     url(r'^viewdocument/(?P<documentId>.+)/$', views.view_document, name='viewdocument'),
 ]
