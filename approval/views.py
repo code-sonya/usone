@@ -12,7 +12,7 @@ from xhtml2pdf import pisa
 from django.db.models import Sum, FloatField, F, Case, When, Count, Q
 
 from service.models import Employee
-from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument
+from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
 from .functions import data_format
 
 
@@ -78,6 +78,55 @@ def post_document(request):
                 documentId=documentId,
                 relatedDocumentId=relatedDocument,
             )
+        approval = []
+        if request.POST['approvalFormat'] == '신청':
+            if request.POST['apply']:
+                applyList = request.POST['apply'].split(',')
+                for i, a in enumerate(applyList):
+                    if a != '':
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '신청'})
+            if request.POST['process']:
+                processList = request.POST['process'].split(',')
+                for i, p in enumerate(processList):
+                    if p != '':
+                        approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '승인'})
+            if request.POST['reference']:
+                referenceList = request.POST['reference'].split(',')
+                for i, r in enumerate(referenceList):
+                    if r != '':
+                        approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+        elif request.POST['approvalFormat'] == '결재':
+            if request.POST['approval'].split(','):
+                approvalList = request.POST['approval'].split(',')
+                for i, a in enumerate(approvalList):
+                    if a != '':
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '결재'})
+            if request.POST['agreement'].split(','):
+                agreementList = request.POST['agreement'].split(',')
+                for i, a in enumerate(agreementList):
+                    if a != '':
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '합의'})
+            if request.POST['financial'].split(','):
+                financialList = request.POST['financial'].split(',')
+                for i, f in enumerate(financialList):
+                    if f != '':
+                        approval.append({'approvalEmp': f, 'approvalStep': i + 1, 'approvalCategory': '재무합의'})
+            if request.POST['reference2'].split(','):
+                referenceList = request.POST['reference2'].split(',')
+                for i, r in enumerate(referenceList):
+                    if r != '':
+                        approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+
+        if request.POST['documentStatus'] == '진행':
+            # 결재 생성 로직 추가
+            for a in approval:
+                empId = Employee.objects.get(empId=a['approvalEmp'])
+                Approval.objects.create(
+                    documentId=documentId,
+                    approvalEmp=empId,
+                    approvalStep=a['approvalStep'],
+                    approvalCategory=a['approvalCategory'],
+                )
 
     # 참조자 자동완성
     empList = Employee.objects.filter(Q(empStatus='Y'))
@@ -141,7 +190,7 @@ def post_documentform(request):
             if request.POST['process']:
                 processList = request.POST['process'].split(',')
                 for i, p in enumerate(processList):
-                    approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '처리'})
+                    approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '승인'})
             if request.POST['reference']:
                 referenceList = request.POST['reference'].split(',')
                 for i, r in enumerate(referenceList):
@@ -223,7 +272,7 @@ def modify_documentform(request, formId):
                 processList = request.POST['process'].split(',')
                 for i, p in enumerate(processList):
                     if p != '':
-                        approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '처리'})
+                        approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '승인'})
             if request.POST['reference']:
                 referenceList = request.POST['reference'].split(',')
                 for i, r in enumerate(referenceList):
@@ -326,7 +375,12 @@ def documentform_asjson(request):
                 Q(formTitle=request.GET['formTitle'])
             ).values('preservationYear', 'securityLevel', 'formHtml', 'approvalFormat', 'formId')
             apply, process, reference, approval, agreement, financial = data_format(formId=documentForm.first()['formId'])
-            structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
+            print(apply)
+            approvalList = {"apply": apply or None, "process": process or None, "reference": reference or None, "approval": approval or None, "agreement": agreement or None, "financial": financial or None}
+            structureList = list(documentForm)
+            structureList.append(approvalList)
+            print(structureList)
+            structure = json.dumps(structureList, cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
 
 
