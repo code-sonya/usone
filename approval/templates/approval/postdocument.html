@@ -25,7 +25,6 @@
     color: #333333;
     table-layout: fixed;
     width: 100%;
-    margin-bottom: 1rem;
   }
 
   .pc-table td, .pc-table th {
@@ -33,9 +32,7 @@
     text-align: center;
     vertical-align: middle;
     font-size: 16px;
-    border-top: 0.5px solid lightgrey;
-    border-left: 0.5px solid lightgrey;
-    border-right: 0.5px solid lightgrey;
+    border: 1px solid lightgrey;
   }
 
 </style>
@@ -76,155 +73,34 @@
     <div class="document-editor d-none">
       <div class="mb-3">
         <label for="approval" class="font-weight-bold text-primary">결재선</label>
-        <div id="format1" class="row">
-          <div class="col-xl-6 pr-0">
-            <table class="pc-table mr-0 mb-0" id="apply">
-              <tr class="bg-gray-200">
-                <td rowspan="4">신청</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-            </table>
-          </div>
-          <div class="col-xl-6 pl-0">
-            <table class="pc-table ml-0 mb-0" id="process">
-              <tr class="bg-gray-200">
-                <td rowspan="4">처리</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-            </table>
-          </div>
-          <div class="col-xl-12">
-               <table class="pc-table mb-0" id="reference">
-                 <tr style="border-bottom: 0.5px solid lightgrey;">
-                   <td colspan="1" class="bg-gray-200">참조</td>
-                   <td colspan="9"><input class="form-control empName magicsearch"></td>
-                 </tr>
-               </table>
-             </div>
+        <div class="col-12 pl-0 pr-0" id="format1">
+          <table class="pc-table">
+            <tr>
+              <td class="bg-light">신청</td><td colspan="3"><input id="apply" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr>
+              <td class="bg-light">처리</td><td colspan="3"><input id="process" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr>
+              <td class="bg-light">참조</td><td colspan="3"><input id="reference" class="empName magicsearch form-control"></td>
+            </tr>
+          </table>
         </div>
-        <div id="format2" class="row">
-          <div class="col-xl-12">
-            <table class="pc-table mr-0 mb-0" id="approval">
-              <tr class="bg-gray-200">
-                <td rowspan="4">결재</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-            </table>
-          </div>
-          <div class="col-xl-6 pr-0">
-            <table class="pc-table mr-0 mb-0" id="agreement">
-              <tr class="bg-gray-200">
-                <td rowspan="4">합의</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-            </table>
-          </div>
-          <div class="col-xl-6 pl-0">
-            <table class="pc-table ml-0 mb-0" id="financial">
-              <tr class="bg-gray-200">
-                <td rowspan="4">재무합의</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-                <td rowspan="1" height="80px">??</td>
-              </tr>
-              <tr>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-                <td rowspan="1">??</td>
-              </tr>
-            </table>
-          </div>
-          <div class="col-xl-12">
-               <table class="pc-table mb-0" id="reference2">
-                 <tr style="border-bottom: 0.5px solid lightgrey;">
-                   <td colspan="1" class="bg-gray-200">참조</td>
-                   <td colspan="9"><input class="form-control empName magicsearch"></td>
-                 </tr>
-               </table>
-             </div>
+        <div class="col-12" id="format2">
+          <table class="pc-table pl-0 pr-0">
+            <tr>
+              <td class="bg-light">결재</td><td colspan="3"><input id="approval" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr">
+              <td class="bg-light">합의</td><td colspan="3"><input id="agreement" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr>
+              <td class="bg-light">재무합의</td><td colspan="3"><input id="financial" class="empName magicsearch form-control"></td>
+            </tr>
+             <tr>
+              <td class="bg-light">참조</td><td colspan="3"><input id="reference2" class="empName magicsearch form-control"></td>
+            </tr>
+          </table>
         </div>
       </div>
 
@@ -621,15 +497,7 @@
                 format1.hide();
                 format2.show();
             }
-            //결재자양식
-            if(data.length>1){
-                for(let i=1;i<data.length;i++){
-                    console.log(data[i]);
-                    if(data[i]['approvalCategory']=='처리'){
-                        // $("#process tr:eq(0) td:eq(parseInt(data[i]['approvalStep']))").text(data[i]['approvalEmp__empPosition__positionName']);
-                    }
-                }
-            }
+            
         }
     }
 
