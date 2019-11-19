@@ -79,7 +79,13 @@ def post_document(request):
                 relatedDocumentId=relatedDocument,
             )
 
-    context = {}
+    # 참조자 자동완성
+    empList = Employee.objects.filter(Q(empStatus='Y'))
+    empNames = []
+    for emp in empList:
+        temp = {'id': emp.empId, 'value': emp.empName}
+        empNames.append(temp)
+    context = {'empNames': empNames}
     return render(request, 'approval/postdocument.html', context)
 
 
@@ -289,8 +295,7 @@ def documentform_asjson(request):
             documentForm = Documentform.objects.filter(
                 Q(categoryId__firstCategory=request.GET['firstCategory']) &
                 Q(categoryId__secondCategory=request.GET['secondCategory'])
-            ).values('formNumber', 'formTitle')
-
+            ).values('formNumber', 'formTitle', 'approvalFormat')
             structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
         elif request.GET['type'] == 'form':
@@ -298,9 +303,11 @@ def documentform_asjson(request):
                 Q(categoryId__firstCategory=request.GET['firstCategory']) &
                 Q(categoryId__secondCategory=request.GET['secondCategory']) &
                 Q(formTitle=request.GET['formTitle'])
-            ).values('preservationYear', 'securityLevel', 'formHtml')
-
-            structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
+            ).values('preservationYear', 'securityLevel', 'formHtml', 'approvalFormat', 'formId')
+            approvalForm = Approvalform.objects.filter(
+                Q(formId=documentForm.first()['formId'])
+            ).order_by('approvalStep').values('approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory')
+            structure = json.dumps(list(documentForm)+list(approvalForm), cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
 
 

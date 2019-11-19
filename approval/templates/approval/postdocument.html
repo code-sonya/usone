@@ -2,70 +2,242 @@
 
 
 {% block title %}
-  전자결재
+전자결재
 {% endblock %}
 
 
 {% block css %}
-  <style>
-    .table {
-      color: #333333;
-    }
+<style>
+  .table {
+    color: #333333;
+  }
 
-    .table td, .table th {
-      padding: .75rem;
-      vertical-align: middle;
-      border-bottom: 1px solid #e3e6f0;
-      font-size: 14px;
-      text-align: center;
-      white-space: nowrap;
-    }
-  </style>
+  .table td, .table th {
+    padding: .75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #e3e6f0;
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .pc-table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .pc-table td, .pc-table th {
+    padding: 3px 10px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 16px;
+    border-top: 0.5px solid lightgrey;
+    border-left: 0.5px solid lightgrey;
+    border-right: 0.5px solid lightgrey;
+  }
+
+</style>
 {% endblock %}
 
 
 {% block content %}
-  <div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-      <h6 class="m-0 h3 text-gray-800"> 문서 작성 </h6>
+<div class="card shadow mb-4">
+  <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <h6 class="m-0 h3 text-gray-800"> 문서 작성 </h6>
+  </div>
+
+  <div class="card-body">
+    <form id="document" method="POST" enctype="multipart/form-data" class="d-none">{% csrf_token %}</form>
+    <div class="row mb-2">
+      <div class="col-8 font-weight-bold text-primary">문서종류</div>
+      <div class="col-2 font-weight-bold text-primary">보존연한</div>
+      <div class="col-2 font-weight-bold text-primary">보안등급</div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-2">
+        <select id="firstCategory" name="firstCategory" class="form-control"></select>
+      </div>
+      <div class="col-2">
+        <select id="secondCategory" name="secondCategory" class="form-control"></select>
+      </div>
+      <div class="col-4">
+        <select id="formTitle" name="formTitle" class="form-control"></select>
+      </div>
+      <div class="col-2">
+        <span id="preservationYear" name="preservationYear" class="form-control"></span>
+      </div>
+      <div class="col-2">
+        <span id="securityLevel" name="securityLevel" class="form-control"></span>
+      </div>
     </div>
 
-    <div class="card-body">
-      <form id="document" method="POST" enctype="multipart/form-data" class="d-none">{% csrf_token %}</form>
-      <div class="row mb-2">
-        <div class="col-8 font-weight-bold text-primary">문서종류</div>
-        <div class="col-2 font-weight-bold text-primary">보존연한</div>
-        <div class="col-2 font-weight-bold text-primary">보안등급</div>
-      </div>
-      <div class="row mb-3">
-        <div class="col-2">
-          <select id="firstCategory" name="firstCategory" class="form-control"></select>
+    <div class="document-editor d-none">
+      <div class="mb-3">
+        <label for="approval" class="font-weight-bold text-primary">결재선</label>
+        <div id="format1" class="row">
+          <div class="col-xl-6 pr-0">
+            <table class="pc-table mr-0 mb-0" id="apply">
+              <tr class="bg-gray-200">
+                <td rowspan="4">신청</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-xl-6 pl-0">
+            <table class="pc-table ml-0 mb-0" id="process">
+              <tr class="bg-gray-200">
+                <td rowspan="4">처리</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-xl-12">
+               <table class="pc-table mb-0" id="reference">
+                 <tr style="border-bottom: 0.5px solid lightgrey;">
+                   <td colspan="1" class="bg-gray-200">참조</td>
+                   <td colspan="9"><input class="form-control empName magicsearch"></td>
+                 </tr>
+               </table>
+             </div>
         </div>
-        <div class="col-2">
-          <select id="secondCategory" name="secondCategory" class="form-control"></select>
-        </div>
-        <div class="col-4">
-          <select id="formTitle" name="formTitle" class="form-control"></select>
-        </div>
-        <div class="col-2">
-          <span id="preservationYear" name="preservationYear" class="form-control"></span>
-        </div>
-        <div class="col-2">
-          <span id="securityLevel" name="securityLevel" class="form-control"></span>
+        <div id="format2" class="row">
+          <div class="col-xl-12">
+            <table class="pc-table mr-0 mb-0" id="approval">
+              <tr class="bg-gray-200">
+                <td rowspan="4">결재</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-xl-6 pr-0">
+            <table class="pc-table mr-0 mb-0" id="agreement">
+              <tr class="bg-gray-200">
+                <td rowspan="4">합의</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-xl-6 pl-0">
+            <table class="pc-table ml-0 mb-0" id="financial">
+              <tr class="bg-gray-200">
+                <td rowspan="4">재무합의</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+                <td rowspan="1" height="80px">??</td>
+              </tr>
+              <tr>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+                <td rowspan="1">??</td>
+              </tr>
+            </table>
+          </div>
+          <div class="col-xl-12">
+               <table class="pc-table mb-0" id="reference2">
+                 <tr style="border-bottom: 0.5px solid lightgrey;">
+                   <td colspan="1" class="bg-gray-200">참조</td>
+                   <td colspan="9"><input class="form-control empName magicsearch"></td>
+                 </tr>
+               </table>
+             </div>
         </div>
       </div>
 
-      <div class="document-editor d-none">
-        <div class="mb-3">
-          <label for="title" class="font-weight-bold text-primary">제목</label>
-          <input id="title" name="title" class="form-control" value="">
-        </div>
+      <div class="mb-3">
+        <label for="title" class="font-weight-bold text-primary">제목</label>
+        <input id="title" name="title" class="form-control" value="">
+      </div>
 
-        <div class="d-flex flex-row align-items-center justify-content-between">
-          <label for="contentHtml" class="font-weight-bold text-primary">본문</label>
-          <span>※ 문서편집기 하단을 드래그 하여 크기를 조정할 수 있습니다.</span>
-        </div>
-        <div id="contentHtml"></div>
+      <div class="d-flex flex-row align-items-center justify-content-between">
+        <label for="contentHtml" class="font-weight-bold text-primary">본문</label>
+        <span>※ 문서편집기 하단을 드래그 하여 크기를 조정할 수 있습니다.</span>
+      </div>
+      <div id="contentHtml"></div>
 
       <div class="row">
         <div class="col-6">
@@ -108,9 +280,9 @@
           </table>
         </div>
       </div>
-      </div>
+    </div>
 
-      <div class="text-center mb-3">
+    <div class="text-center mb-3">
       <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
         <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
         <span class="text">취소</span>
@@ -125,51 +297,62 @@
       </a>
     </div>
 
-    </div>
   </div>
+</div>
 
-  <!-- Document Modal -->
-  <div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
+<!-- Document Modal -->
+<div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
 
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="documentModalLabel">관련문서 등록</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
+      <div class="modal-header bg-info text-gray-100">
+        <h5 class="modal-title" id="documentModalLabel">관련문서 등록</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span class="text-gray-100" aria-hidden="true">×</span>
+        </button>
+      </div>
 
-        <div class="modal-body">
-          <form id="documentForm" onkeydown="javascript: if (event.keyCode == 13) {btn_related();}">
-            {% csrf_token %}
-            <table id="documents" class="hover row-border" width="100%" style="width: 100%;">
+      <div class="modal-body">
+        <form id="documentForm" onkeydown="javascript: if (event.keyCode == 13) {btn_related();}">
+          {% csrf_token %}
+          <table id="documents" class="hover row-border" width="100%" style="width: 100%;">
             <thead>
-              <tr>
-                <th><input class="ckbxall" type="checkbox"></th>
-                <th>문서번호</th>
-                <th>문서명</th>
-                <th>기안자</th>
-                <th class="d-none">documentId</th>
-              </tr>
+            <tr>
+              <th><input class="ckbxall" type="checkbox"></th>
+              <th>문서번호</th>
+              <th>문서명</th>
+              <th>기안자</th>
+              <th class="d-none">documentId</th>
+            </tr>
             </thead>
-            </table>
-          </form>
-        </div>
+          </table>
+        </form>
+      </div>
 
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="document_names()">등록</a>
-        </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+        <a class="btn btn-info" href="#" onclick="document_names()">등록</a>
       </div>
     </div>
   </div>
+</div>
 
 {% endblock %}
 
 
 {% block script %}
-  <script type="text/javascript">
+<script type="text/javascript">
+    $('.empName').magicsearch({
+        dataSource: {{ empNames|safe }},
+        fields: 'value',
+        id: 'id',
+        multiple: true,
+        multiField: 'value',
+        format: '%value%',
+        multiStyle: {space: 5, width: 80},
+        noResult: '검색결과없음',
+        focusShow: false,
+    });
 
     function btn_save(documentStatus) {
         const form = $('#document');
@@ -220,7 +403,7 @@
         let filesSize = $('td[name="filesSize"]');
         let listFile = [];
         let data;
-        for (let i=0; i<filesName.length; i++) {
+        for (let i = 0; i < filesName.length; i++) {
             data = {};
             data.fileName = filesName[i].innerText;
             data.fileSize = filesSize[i].innerText;
@@ -235,7 +418,7 @@
         // 관련문서
         let documentIds = $('td[name="documentId"]');
         let listId = [];
-        for (let i=0; i < documentIds.length; i++) {
+        for (let i = 0; i < documentIds.length; i++) {
             listId.push(documentIds.eq(i).text());
         }
         $('<input />', {
@@ -261,7 +444,7 @@
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
             success: function (returnData) {
                 firstCategory.empty();
-                for (let i=0; i<returnData.length; i++){
+                for (let i = 0; i < returnData.length; i++) {
                     if ("{{ form.categoryId.firstCategory }}" === returnData[i].firstCategory) {
                         firstCategory.append(
                             '<option value="' + returnData[i].firstCategory + '" selected="selected">' +
@@ -286,7 +469,7 @@
                     headers: {'X-CSRFToken': '{{ csrf_token }}'},
                     success: function (returnData) {
                         secondCategory.empty();
-                        for (let i=0; i<returnData.length; i++){
+                        for (let i = 0; i < returnData.length; i++) {
                             if ("{{ form.categoryId.secondCategory }}" === returnData[i].secondCategory) {
                                 secondCategory.append(
                                     '<option value="' + returnData[i].secondCategory + '" selected="selected">' +
@@ -313,7 +496,7 @@
                             success: function (returnData) {
                                 formTitle.empty();
                                 formTitle.append('<option value="">선택</option>');
-                                for (let i=0; i<returnData.length; i++){
+                                for (let i = 0; i < returnData.length; i++) {
                                     formTitle.append(
                                         '<option value="' + returnData[i].formTitle + '">' +
                                         returnData[i].formNumber + '. ' +
@@ -340,7 +523,7 @@
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 success: function (returnData) {
                     secondCategory.empty();
-                    for (let i=0; i<returnData.length; i++){
+                    for (let i = 0; i < returnData.length; i++) {
                         secondCategory.append(
                             '<option value="' + returnData[i].secondCategory + '">' +
                             returnData[i].secondCategory + '</option>'
@@ -359,7 +542,7 @@
                         success: function (returnData) {
                             formTitle.empty();
                             formTitle.append('<option value="">선택</option>');
-                            for (let i=0; i<returnData.length; i++){
+                            for (let i = 0; i < returnData.length; i++) {
                                 formTitle.append(
                                     '<option value="' + returnData[i].formTitle + '">' +
                                     returnData[i].formTitle + '</option>'
@@ -386,7 +569,7 @@
                 success: function (returnData) {
                     formTitle.empty();
                     formTitle.append('<option value="">선택</option>');
-                    for (let i=0; i<returnData.length; i++){
+                    for (let i = 0; i < returnData.length; i++) {
                         formTitle.append(
                             '<option value="' + returnData[i].formTitle + '">' +
                             returnData[i].formTitle + '</option>'
@@ -403,6 +586,15 @@
         const editor = $('.document-editor');
         const contentHtml = $('#contentHtml');
         const title = $('#title');
+        const format1 = $('#format1');
+        const format2 = $('#format2');
+        const apply = $('#apply');
+        const process = $("#process");
+        const reference = $('#reference');
+        const approval = $('#approval');
+        const agreement = $('#agreement');
+        const financial = $('#financial');
+        const reference2 = $('#reference2');
 
         if (data.length === 0) {
             preservationYear.text('');
@@ -410,16 +602,34 @@
             editor.addClass('d-none');
             title.val('');
             contentHtml.summernote('code', '');
+            format1.hide();
+            format2.hide();
         } else {
-            data = data[0];
-            if (data.preservationYear < 9999) {
-                preservationYear.text(data.preservationYear.toString() + '년');
+            const val = data[0];
+            if (val.preservationYear < 9999) {
+                preservationYear.text(val.preservationYear.toString() + '년');
             } else {
                 preservationYear.text('영구');
             }
-            securityLevel.text(data.securityLevel + '등급');
+            securityLevel.text(val.securityLevel + '등급');
             editor.removeClass('d-none');
-            contentHtml.summernote('code', data.formHtml);
+            contentHtml.summernote('code', val.formHtml);
+            if (val.approvalFormat == '신청'){
+                format2.hide();
+                format1.show();
+            }else{
+                format1.hide();
+                format2.show();
+            }
+            //결재자양식
+            if(data.length>1){
+                for(let i=1;i<data.length;i++){
+                    console.log(data[i]);
+                    if(data[i]['approvalCategory']=='처리'){
+                        // $("#process tr:eq(0) td:eq(parseInt(data[i]['approvalStep']))").text(data[i]['approvalEmp__empPosition__positionName']);
+                    }
+                }
+            }
         }
     }
 
@@ -430,11 +640,11 @@
         let tr;
         filesTbody.empty();
 
-        for (let i=0; i<files.length; i++) {
+        for (let i = 0; i < files.length; i++) {
             file = files[i];
             tr = '<tr>';
             tr += '<td class="text-left" name="filesName">' + file.name + '</td>';
-            tr += '<td name="filesSize">' + (file.size/1048576).toFixed(2) + 'MB</td>';
+            tr += '<td name="filesSize">' + (file.size / 1048576).toFixed(2) + 'MB</td>';
             tr += '<td><i class="fas fa-times-circle" name="remove" onclick="remove_row(this)"></i></td>';
             tr += '</tr>';
             filesTbody.append(tr);
@@ -459,7 +669,7 @@
         let documentsTbody = $('#documentsTbody');
         let tr;
         documentsTbody.empty();
-        for (let i=0; i<dataList.length; i++) {
+        for (let i = 0; i < dataList.length; i++) {
             data = dataList[i];
             tr = '<tr>';
             tr += '<td class="d-none" name="documentId">' + data.documentId + '</td>';
@@ -480,8 +690,8 @@
     }
 
     function load_table() {
-        setTimeout(function() {
-            if ( ! $.fn.DataTable.isDataTable('#documents') ) {
+        setTimeout(function () {
+            if (!$.fn.DataTable.isDataTable('#documents')) {
                 $('#documents').DataTable({
                     "processing": true,
                     "ajax": {
@@ -536,16 +746,16 @@
                     "scrollCollapse": true,
                     "order": [[1, 'desc']],
                     "language": {
-                          "lengthMenu": "_MENU_개씩 보기",
-                          "search": "검색:",
-                          "zeroRecords": "결과 없음",
-                          "processing": "로딩중",
-                          "paginate": {
-                              "first": "처음",
-                              "last": "끝",
-                              "next": "→",
-                              "previous": "←"
-                          },
+                        "lengthMenu": "_MENU_개씩 보기",
+                        "search": "검색:",
+                        "zeroRecords": "결과 없음",
+                        "processing": "로딩중",
+                        "paginate": {
+                            "first": "처음",
+                            "last": "끝",
+                            "next": "→",
+                            "previous": "←"
+                        },
                     },
                     "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                     }
@@ -554,13 +764,13 @@
         }, 100);
     }
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         load_category();
         const firstCategory = $('#firstCategory');
         const secondCategory = $('#secondCategory');
         const formTitle = $('#formTitle');
 
-        formTitle.change(function() {
+        formTitle.change(function () {
             $.ajax({
                 url: "{% url 'approval:documentformasjson' %}",
                 method: 'GET',
@@ -598,7 +808,8 @@
         $('.ckbxall').click(function () {
             $('.ckbx').prop('checked', this.checked);
         });
+
     })
 
-  </script>
+</script>
 {% endblock %}
