@@ -83,9 +83,16 @@ def post_document(request):
     empList = Employee.objects.filter(Q(empStatus='Y'))
     empNames = []
     for emp in empList:
-        temp = {'id': emp.empId, 'value': emp.empName}
+        temp = {
+            'id': emp.empId,
+            'name': emp.empName,
+            'position': emp.empPosition.positionName,
+            'dept': emp.empDeptName,
+        }
         empNames.append(temp)
-    context = {'empNames': empNames}
+    context = {
+        'empNames': empNames
+    }
     return render(request, 'approval/postdocument.html', context)
 
 
