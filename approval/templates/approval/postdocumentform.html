@@ -209,9 +209,10 @@
 {% block script %}
   <script type="text/javascript">
     //결재 포맷
-    function change_format(thisVal){
+    function change_format(thisVal) {
         const format1 = $('#format1');
         const format2 = $('#format2');
+
         const apply = $('#apply');
         const process = $('#process');
         const reference = $('#reference');
@@ -223,14 +224,20 @@
         if(thisVal=='결재' ){
             format1.hide();
             format2.show();
-            className = '.empName';
-
+            className = '.empName2';
         }else{
             format1.show();
             format2.hide();
-            className = '.empName2';
+            className = '.empName';
         }
 
+        apply.trigger('destroy');
+        process.trigger('destroy');
+        reference.trigger('destroy');
+        approval.trigger('destroy');
+        agreement.trigger('destroy');
+        financial.trigger('destroy');
+        reference2.trigger('destroy');
         {% if apply %}
           apply.attr("data-id", "{{ apply }}");
         {% endif %}
