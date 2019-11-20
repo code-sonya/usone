@@ -481,9 +481,21 @@ def view_document(request, documentId):
     document = Document.objects.get(documentId=documentId)
     files = Documentfile.objects.filter(documentId__documentId=documentId)
     related = Relateddocument.objects.filter(documentId__documentId=documentId)
+    # 참조자 자동완성
+    empList = Employee.objects.filter(Q(empStatus='Y'))
+    empNames = []
+    for emp in empList:
+        temp = {
+            'id': emp.empId,
+            'name': emp.empName,
+            'position': emp.empPosition.positionName,
+            'dept': emp.empDeptName,
+        }
+        empNames.append(temp)
     context = {
         'document': document,
         'files': files,
         'related': related,
+        'empNames': empNames
     }
     return render(request, 'approval/viewdocument.html', context)

@@ -53,39 +53,72 @@
       <table class="pc-table">
         <tbody>
         <tr>
-          <td class="pc-table-title">문서 종류</td>
-          <td class="pc-table-detail">
+          <td class="pc-table-title" colspan="1">문서 종류</td>
+          <td class="pc-table-detail" colspan="4">
             {{ document.formId.categoryId.firstCategory }} >
             {{ document.formId.categoryId.secondCategory }} >
             {{ document.formId.formTitle }}
           </td>
-          <td class="pc-table-title">문서 번호</td>
-          <td class="pc-table-detail">{{ document.documentNumber }}</td>
+          <td class="pc-table-title" colspan="1">문서 번호</td>
+          <td class="pc-table-detail" colspan="4">{{ document.documentNumber }}</td>
         </tr>
         <tr>
-          <td class="pc-table-title">기안 부서</td>
-          <td class="pc-table-detail">{{ document.writeEmp.empDeptName }}</td>
-          <td class="pc-table-title">기&nbsp;&nbsp;안&nbsp;&nbsp;자</td>
-          <td class="pc-table-detail">{{ document.writeEmp.empName }}</td>
+          <td class="pc-table-title" colspan="1">기안 부서</td>
+          <td class="pc-table-detail" colspan="4">{{ document.writeEmp.empDeptName }}</td>
+          <td class="pc-table-title" colspan="1">기&nbsp;&nbsp;안&nbsp;&nbsp;자</td>
+          <td class="pc-table-detail" colspan="4">{{ document.writeEmp.empName }}</td>
         </tr>
         <tr>
-          <td class="pc-table-title">보존 연한</td>
-          <td class="pc-table-detail">
+          <td class="pc-table-title" colspan="1">보존 연한</td>
+          <td class="pc-table-detail" colspan="4">
             {% if document.preservationYear == 9999 %} 영구
             {% else %} {{ document.preservationYear }}년
             {% endif %}
           </td>
-          <td class="pc-table-title">보안 등급</td>
-          <td class="pc-table-detail">{{ document.securityLevel }}등급</td>
+          <td class="pc-table-title" colspan="1">보안 등급</td>
+          <td class="pc-table-detail" colspan="4">{{ document.securityLevel }}등급</td>
         </tr>
         <tr>
-          <td class="pc-table-title">기안 일시</td>
-          <td class="pc-table-detail">{{ document.draftDatetime | date:"Y.m.d. H:i:s" }}</td>
-          <td class="pc-table-title">완료 일시</td>
-          <td class="pc-table-detail">{{ document.approveDatetime | date:"Y.m.d. H:i:s" }}</td>
+          <td class="pc-table-title" colspan="1">기안 일시</td>
+          <td class="pc-table-detail" colspan="4">{{ document.draftDatetime | date:"Y.m.d. H:i:s" }}</td>
+          <td class="pc-table-title" colspan="1">완료 일시</td>
+          <td class="pc-table-detail" colspan="4">{{ document.approveDatetime | date:"Y.m.d. H:i:s" }}</td>
+        </tr>
+        <tr class="pc-table-title" id="applyProcess">
+          <td rowspan="3">신청</td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="3">승인</td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
         </tr>
         <tr>
-          <td colspan="4">여기에 결재선 추가해줘야함</td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+        </tr>
+        <tr>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+        </tr>
+        <tr id="reference">
+           <td colspan="1" class="pc-table-title">참조</td>
+           <td colspan="9"><input class="form-control empName magicsearch"></td>
         </tr>
         </tbody>
       </table>
@@ -121,6 +154,18 @@
 
 {% block script %}
   <script type="text/javascript">
-
+  $(document).ready(function () {
+    $('.empName').magicsearch({
+                  dataSource: {{ empNames|safe }},
+                  fields: 'name',
+                  id: 'id',
+                  multiple: true,
+                  multiField: 'name',
+                  format: '%name% %position% (%dept%)',
+                  multiStyle: {space: 5, width: 80},
+                  noResult: '검색결과없음',
+                  focusShow: false,
+              });
+  })
   </script>
 {% endblock %}
