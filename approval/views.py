@@ -368,7 +368,7 @@ def showdocument_asjson(request):
         if documentStatus == '진행':
             if category == '전체':
                 documents = documents
-            elif category == '대기':
+            elif category == '진행':
                 documents = documents.filter(writeEmp=request.user.employee)
         elif documentStatus == '완료':
             if category == '전체':
@@ -420,7 +420,7 @@ def show_document_ing_all(request):
 def show_document_ing_write(request):
     context = {
         'documentStatus': '진행',
-        'category': '대기',
+        'category': '진행',
     }
     return render(request, 'approval/showdocument.html', context)
 
