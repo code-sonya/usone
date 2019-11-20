@@ -216,14 +216,13 @@
 {% block script %}
   <script type="text/javascript">
     //결재 포맷
-    function change_format(thisVal){
+    function change_format(thisVal) {
         const format1 = $('#format1');
         const format2 = $('#format2');
-        if(thisVal=='결재' ){
+        if (thisVal=='결재' ) {
             format1.hide();
             format2.show();
-
-        }else{
+        } else {
             format1.show();
             format2.hide();
         }
