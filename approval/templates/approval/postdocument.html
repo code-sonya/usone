@@ -73,32 +73,40 @@
     <div class="document-editor d-none">
       <div class="mb-3">
         <label for="approval" class="font-weight-bold text-primary">결재선</label>
+        <div class="d-none" id="approvalFormat"></div>
         <div class="col-12 pl-0 pr-0" id="format1">
           <table class="pc-table">
             <tr>
-              <td class="bg-light">신청</td><td colspan="3"><input id="apply" class="empName magicsearch form-control"></td>
+              <td width="20%" class="bg-light">신청</td>
+              <td width="80%"><input id="apply" class="empName magicsearch form-control"></td>
             </tr>
-             <tr>
-              <td class="bg-light">처리</td><td colspan="3"><input id="process" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">승인</td>
+              <td width="80%"><input id="process" class="empName magicsearch form-control"></td>
             </tr>
-             <tr>
-              <td class="bg-light">참조</td><td colspan="3"><input id="reference" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">참조</td>
+              <td width="80%"><input id="reference" class="empName magicsearch form-control"></td>
             </tr>
           </table>
         </div>
-        <div class="col-12" id="format2">
-          <table class="pc-table pl-0 pr-0">
+        <div class="col-12 pl-0 pr-0" id="format2">
+          <table class="pc-table">
             <tr>
-              <td class="bg-light">결재</td><td colspan="3"><input id="approval" class="empName magicsearch form-control"></td>
+              <td width="20%" class="bg-light">결재</td>
+              <td width="80%"><input id="approval" class="empName2 magicsearch form-control"></td>
             </tr>
-             <tr">
-              <td class="bg-light">합의</td><td colspan="3"><input id="agreement" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">합의</td>
+              <td width="80%" colspan="3"><input id="agreement" class="empName2 magicsearch form-control"></td>
             </tr>
-             <tr>
-              <td class="bg-light">재무합의</td><td colspan="3"><input id="financial" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">재무합의</td>
+              <td width="80%" colspan="3"><input id="financial" class="empName2 magicsearch form-control"></td>
             </tr>
-             <tr>
-              <td class="bg-light">참조</td><td colspan="3"><input id="reference2" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">참조</td>
+              <td width="80%"><input id="reference2" class="empName2 magicsearch form-control"></td>
             </tr>
           </table>
         </div>
@@ -249,6 +257,46 @@
             type: 'hidden',
             name: 'securityLevel',
             value: $('#securityLevel').text()
+        }).appendTo(form);
+        $('<input />', {
+            type: 'hidden',
+            name: 'approvalFormat',
+            value: $('#approvalFormat').val()
+        }).appendTo(form);
+        $('<input />', {
+            type: 'hidden',
+            name: 'apply',
+            value: $('#apply').attr('data-id')
+        }).appendTo(form);
+        $('<input />', {
+            type: 'hidden',
+            name: 'process',
+            value: $('#process').attr('data-id')
+        }).appendTo(form);
+        $('<input />', {
+            type: 'hidden',
+            name: 'reference',
+            value: $('#reference').attr('data-id')
+        }).appendTo(form);
+        $('<input />', {
+            type: 'hidden',
+            name: 'approval',
+            value: $('#approval').attr('data-id')
+        }).appendTo(form);
+        $('<input />', {
+            type: 'hidden',
+            name: 'agreement',
+            value: $('#agreement').attr('data-id')
+        }).appendTo(form);
+        $('<input />', {
+            type: 'hidden',
+            name: 'financial',
+            value: $('#financial').attr('data-id')
+        }).appendTo(form);
+        $('<input />', {
+            type: 'hidden',
+            name: 'reference2',
+            value: $('#reference2').attr('data-id')
         }).appendTo(form);
         $('<input />', {
             type: 'hidden',
@@ -459,6 +507,7 @@
         const agreement = $('#agreement');
         const financial = $('#financial');
         const reference2 = $('#reference2');
+        const approvalFormat= $('#approvalFormat');
 
         if (data.length === 0) {
             preservationYear.text('');
@@ -469,7 +518,10 @@
             format1.hide();
             format2.hide();
         } else {
+            console.log(data);
             const val = data[0];
+            const approvalList = data[1];
+            console.log(approvalList);
             if (val.preservationYear < 9999) {
                 preservationYear.text(val.preservationYear.toString() + '년');
             } else {
@@ -478,14 +530,57 @@
             securityLevel.text(val.securityLevel + '등급');
             editor.removeClass('d-none');
             contentHtml.summernote('code', val.formHtml);
-            if (val.approvalFormat == '신청') {
-                format2.hide();
-                format1.show();
-            } else {
-                format1.hide();
-                format2.show();
+            approvalFormat.val(val.approvalFormat);
+
+            apply.trigger('destroy');
+            process.trigger('destroy');
+            reference.trigger('destroy');
+            approval.trigger('destroy');
+            agreement.trigger('destroy');
+            financial.trigger('destroy');
+            reference2.trigger('destroy');
+            if(approvalList.apply != null){
+                apply.attr("data-id", approvalList.apply);
             }
-            
+            if(approvalList.process != null){
+                process.attr("data-id", approvalList.process);
+            }
+            if(approvalList.reference != null){
+                reference.attr("data-id", approvalList.reference);
+                reference2.attr("data-id", approvalList.reference);
+            }
+            if(approvalList.approval != null){
+                approval.attr("data-id", approvalList.approval);
+            }
+            if(approvalList.agreement != null){
+                agreement.attr("data-id", approvalList.agreement);
+            }
+            if(approvalList.financial != null){
+                financial.attr("data-id", approvalList.financial);
+            }
+
+            let className;
+            if (val.approvalFormat == '신청') {
+                // format2.attr('style', "display:none;");
+                format2.addClass("d-none");
+                format1.removeClass("d-none");
+                className = '.empName';
+            } else {
+                format1.addClass("d-none");
+                format2.removeClass("d-none");
+                className = '.empName2';
+            }
+            $(className).magicsearch({
+                dataSource: {{ empNames|safe }},
+                fields: 'name',
+                id: 'id',
+                multiple: true,
+                multiField: 'name',
+                format: '%name% %position% (%dept%)',
+                multiStyle: {space: 5, width: 80},
+                noResult: '검색결과없음',
+                focusShow: false,
+            });
         }
     }
 
@@ -625,7 +720,6 @@
         const firstCategory = $('#firstCategory');
         const secondCategory = $('#secondCategory');
         const formTitle = $('#formTitle');
-
         formTitle.change(function () {
             $.ajax({
                 url: "{% url 'approval:documentformasjson' %}",
@@ -640,17 +734,6 @@
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 success: function (returnData) {
                     load_document(returnData);
-                    $('.empName').magicsearch({
-                        dataSource: {{ empNames|safe }},
-                        fields: 'name',
-                        id: 'id',
-                        multiple: true,
-                        multiField: 'name',
-                        format: '%name% %position% (%dept%)',
-                        multiStyle: {space: 5, width: 80},
-                        noResult: '검색결과없음',
-                        focusShow: false,
-                    });
                 }
             })
         });

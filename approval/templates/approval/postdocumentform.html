@@ -8,20 +8,18 @@
 
 {% block css %}
   <style>
-       .pc-table {
-      color: #333333;
-      table-layout: fixed;
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 1rem;
+     .pc-table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
     }
 
     .pc-table td, .pc-table th {
-      padding: 5px 15px;
-      text-align: center;
-      vertical-align: middle;
-      font-size: 14px;
-      border-top: 1px dotted #858796a3;
+    padding: 3px 10px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 16px;
+    border: 1px solid lightgrey;
     }
 
     .pc-table-main td, .pc-table-main th {
@@ -47,11 +45,6 @@
       border-top: 1px dotted #858796a3;
     }
 
-    .thtd {
-      text-align: center;
-      border: 1px solid lightgray;
-      border-collapse: collapse;
-    }
   </style>
 {% endblock %}
 
@@ -117,37 +110,37 @@
         </div>
         <div class="col-12" id="format1">
           <table class="pc-table">
-            <tr class="thtd">
-              <td width="10%" class="bg-light">신청</td>
-              <td width="90%"><input id="apply" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">신청</td>
+              <td width="80%"><input id="apply" class="empName magicsearch form-control"></td>
             </tr>
-            <tr class="thtd">
-              <td width="10%" class="bg-light">처리</td>
-              <td width="90%"><input id="process" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">승인</td>
+              <td width="80%"><input id="process" class="empName magicsearch form-control"></td>
             </tr>
-            <tr class="thtd">
-              <td width="10%" class="bg-light">참조</td>
-              <td width="90%"><input id="reference" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">참조</td>
+              <td width="80%"><input id="reference" class="empName magicsearch form-control"></td>
             </tr>
           </table>
         </div>
         <div class="col-12" id="format2">
           <table class="pc-table">
-            <tr class="thtd">
-              <td width="10%" class="bg-light">결재</td>
-              <td width="90%"><input id="approval" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">결재</td>
+              <td width="80%"><input id="approval" class="empName2 magicsearch form-control"></td>
             </tr>
-            <tr class="thtd">
-              <td width="10%" class="bg-light">합의</td>
-              <td width="90%" colspan="3"><input id="agreement" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">합의</td>
+              <td width="80%" colspan="3"><input id="agreement" class="empName2 magicsearch form-control"></td>
             </tr>
-            <tr class="thtd">
-              <td width="10%" class="bg-light">재무합의</td>
-              <td width="90%" colspan="3"><input id="financial" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">재무합의</td>
+              <td width="80%" colspan="3"><input id="financial" class="empName2 magicsearch form-control"></td>
             </tr>
-            <tr class="thtd">
-              <td width="10%" class="bg-light">참조</td>
-              <td width="90%"><input id="reference2" class="empName magicsearch form-control"></td>
+            <tr>
+              <td width="20%" class="bg-light">참조</td>
+              <td width="80%"><input id="reference2" class="empName2 magicsearch form-control"></td>
             </tr>
           </table>
         </div>
@@ -219,44 +212,59 @@
     function change_format(thisVal) {
         const format1 = $('#format1');
         const format2 = $('#format2');
-        if (thisVal=='결재' ) {
+
+        const apply = $('#apply');
+        const process = $('#process');
+        const reference = $('#reference');
+        const approval = $('#approval');
+        const agreement = $('#agreement');
+        const financial = $('#financial');
+        const reference2 = $('#reference2');
+        let className;
+        if(thisVal=='결재' ){
             format1.hide();
             format2.show();
-        } else {
+            className = '.empName';
+        }else{
             format1.show();
             format2.hide();
+            className = '.empName2';
         }
-    }
-    // 결재자 자동완성
-    const apply = $('#apply');
-    const process = $('#process');
-    const reference = $('#reference');
-    const approval = $('#approval');
-    const agreement = $('#agreement');
-    const financial = $('#financial');
-    const reference2 = $('#reference2');
 
-    {% if apply %}
-       apply.attr("data-id", "{{ apply }}");
-    {% endif %}
-    {% if process %}
-      process.attr("data-id", "{{ process }}");
-    {% endif %}
-    {% if reference %}
-      reference.attr("data-id", "{{ reference }}");
-    {% endif %}
-    {% if approval %}
-      approval.attr("data-id", "{{ approval }}");
-    {% endif %}
-    {% if agreement %}
-      agreement.attr("data-id", "{{ agreement }}");
-    {% endif %}
-    {% if financial %}
-      financial.attr("data-id", "{{ financial }}");
-    {% endif %}
-    {% if reference %}
-      reference2.attr("data-id", "{{ reference }}");
-    {% endif %}
+        {% if apply %}
+          apply.attr("data-id", "{{ apply }}");
+        {% endif %}
+        {% if process %}
+          process.attr("data-id", "{{ process }}");
+        {% endif %}
+        {% if reference %}
+          reference.attr("data-id", "{{ reference }}");
+        {% endif %}
+        {% if approval %}
+          approval.attr("data-id", "{{ approval }}");
+        {% endif %}
+        {% if agreement %}
+          agreement.attr("data-id", "{{ agreement }}");
+        {% endif %}
+        {% if financial %}
+          financial.attr("data-id", "{{ financial }}");
+        {% endif %}
+        {% if reference %}
+          reference2.attr("data-id", "{{ reference }}");
+        {% endif %}
+
+        $(className).magicsearch({
+            dataSource: {{ empNames|safe }},
+            fields: 'name',
+            id: 'id',
+            multiple: true,
+            multiField: 'name',
+            format: '%name% %position% (%dept%)',
+            multiStyle: {space: 5, width: 80},
+            noResult: '검색결과없음',
+            focusShow: false,
+        });
+    }
 
     // 문서 양식 등록
     function btn_save() {
@@ -473,18 +481,6 @@
             disableGrammar: true,
         });
         formHtml.summernote('code', '{{ form.formHtml | safe }}');
-
-        $('.empName').magicsearch({
-            dataSource: {{ empNames|safe }},
-            fields: 'name',
-            id: 'id',
-            multiple: true,
-            multiField: 'name',
-            format: '%name% %position% (%dept%)',
-            multiStyle: {space: 5, width: 80},
-            noResult: '검색결과없음',
-            focusShow: false,
-        });
     })
 
   </script>

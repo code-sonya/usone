@@ -4,7 +4,7 @@ from django.db.models import Q
 def data_format(formId):
     approvalform = Approvalform.objects.filter(Q(formId=formId))
     apply, process, reference, approval, agreement, financial = approvalform.filter(approvalCategory='신청').values('approvalEmp'), \
-                                                                approvalform.filter(approvalCategory='처리').values('approvalEmp'), \
+                                                                approvalform.filter(approvalCategory='승인').values('approvalEmp'), \
                                                                 approvalform.filter(approvalCategory='참조').values('approvalEmp'), \
                                                                 approvalform.filter(approvalCategory='결재').values('approvalEmp'), \
                                                                 approvalform.filter(approvalCategory='합의').values('approvalEmp'), \
