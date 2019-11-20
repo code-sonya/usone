@@ -299,7 +299,7 @@ def modify_documentform(request, formId):
                 for i, r in enumerate(referenceList):
                     if r != '':
                         approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
-        print(approval)
+
         if len(approval) != 0:
             for a in approval:
                 empId = Employee.objects.get(empId=a['approvalEmp'])
