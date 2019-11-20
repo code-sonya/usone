@@ -224,13 +224,20 @@
         if(thisVal=='결재' ){
             format1.hide();
             format2.show();
-            className = '.empName';
+            className = '.empName2';
         }else{
             format1.show();
             format2.hide();
-            className = '.empName2';
+            className = '.empName';
         }
 
+        apply.trigger('destroy');
+        process.trigger('destroy');
+        reference.trigger('destroy');
+        approval.trigger('destroy');
+        agreement.trigger('destroy');
+        financial.trigger('destroy');
+        reference2.trigger('destroy');
         {% if apply %}
           apply.attr("data-id", "{{ apply }}");
         {% endif %}
