@@ -13,7 +13,7 @@ from django.db.models import Sum, FloatField, F, Case, When, Count, Q
 
 from service.models import Employee
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
-from .functions import data_format
+from .functions import data_format, template_format
 
 
 @login_required
@@ -481,6 +481,8 @@ def view_document(request, documentId):
     document = Document.objects.get(documentId=documentId)
     files = Documentfile.objects.filter(documentId__documentId=documentId)
     related = Relateddocument.objects.filter(documentId__documentId=documentId)
+    apply, process, reference, approval, agreement, financial = template_format(documentId)
+
     # 참조자 자동완성
     empList = Employee.objects.filter(Q(empStatus='Y'))
     empNames = []
@@ -496,6 +498,12 @@ def view_document(request, documentId):
         'document': document,
         'files': files,
         'related': related,
-        'empNames': empNames
+        'empNames': empNames,
+        'apply': apply,
+        'process': process,
+        'reference': reference,
+        'approval': approval,
+        'agreement': agreement,
+        'financial': financial,
     }
     return render(request, 'approval/viewdocument.html', context)

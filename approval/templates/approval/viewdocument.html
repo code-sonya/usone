@@ -84,17 +84,52 @@
           <td class="pc-table-title" colspan="1">완료 일시</td>
           <td class="pc-table-detail" colspan="4">{{ document.approveDatetime | date:"Y.m.d. H:i:s" }}</td>
         </tr>
-        <tr class="pc-table-title" id="applyProcess">
+        {% if document.formId.approvalFormat == '신청' %}
+        <tr class="pc-table-title" id="apply">
           <td rowspan="3">신청</td>
           <td rowspan="1"></td>
           <td rowspan="1"></td>
           <td rowspan="1"></td>
           <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+        </tr>
+        <tr>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+        </tr>
+        <tr>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+        </tr>
+        <tr class="pc-table-title" id="process">
           <td rowspan="3">승인</td>
           <td rowspan="1"></td>
           <td rowspan="1"></td>
           <td rowspan="1"></td>
           <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
         </tr>
         <tr>
           <td rowspan="1" height="80px"></td>
@@ -105,6 +140,7 @@
           <td rowspan="1" height="80px"></td>
           <td rowspan="1" height="80px"></td>
           <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
         </tr>
         <tr>
           <td rowspan="1"></td>
@@ -115,8 +151,113 @@
           <td rowspan="1"></td>
           <td rowspan="1"></td>
           <td rowspan="1"></td>
+          <td rowspan="1"></td>
         </tr>
-        <tr id="reference">
+        {% elif document.formId.approvalFormat == '결재' %}
+        <tr class="pc-table-title" id="approval">
+          <td rowspan="3">결재</td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+        </tr>
+        <tr>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+        </tr>
+        <tr>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+        </tr>
+        <tr class="pc-table-title" id="agreement">
+          <td rowspan="3">합의</td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+        </tr>
+        <tr>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+        </tr>
+        <tr>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+        </tr>
+        <tr class="pc-table-title" id="financial">
+          <td rowspan="3">재무합의</td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+        </tr>
+        <tr>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+          <td rowspan="1" height="80px"></td>
+        </tr>
+        <tr>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+          <td rowspan="1"></td>
+        </tr>
+        {% endif %}
+        <tr>
            <td colspan="1" class="pc-table-title">참조</td>
            <td colspan="9"><input class="form-control empName magicsearch"></td>
         </tr>
