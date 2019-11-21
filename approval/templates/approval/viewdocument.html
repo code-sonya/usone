@@ -115,13 +115,15 @@
                   <div><img src="/media/icon/rejected.png" width="45%"></div>
                   <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '대기' %}
-                  {% if user.employee.empId == a.approvalEmp %}
+                  {% if user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}
                     <span>
                       <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
                       <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button></span>
                   {% else %}
                     <span>대기</span>
                   {% endif %}
+                {% elif a.approvalStatus == '정지' %}
+                  <span>-</span>
                 {% endif %}
                 </td>
               {% endfor %}
@@ -154,7 +156,7 @@
                   <div><img src="/media/icon/rejected.png" width="45%"></div>
                   <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '대기' %}
-                  {% if user.employee.empId == a.approvalEmp %}
+                  {% if user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}
                   <span>
                     <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
                     <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button></span>
@@ -162,6 +164,8 @@
                   {% else %}
                   <span>대기</span>
                   {% endif %}
+                {% elif a.approvalStatus == '정지' %}
+                  <span>-</span>
                 {% endif %}
                 </td>
               {% endfor %}
@@ -188,13 +192,15 @@
               {% if a.approvalStatus == '완료' %}
                 <i class="text-primary fas fa-check"></i>
               {% elif a.approvalStatus == '대기' %}
-                {% if user.employee.empId == a.approvalEmp %}
+                {% if user.employee.empId == a.approvalEmp and a.approvalEmp in check_approval%}
                 <span>
                   <button class="btn btn-info" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">확인</button>
                 </span>
                 {% else %}
                 <span>대기</span>
                 {% endif %}
+              {% elif a.approvalStatus == '정지' %}
+                <span>-</span>
               {% endif %}
               </td>
             {% endfor %}
