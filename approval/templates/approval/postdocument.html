@@ -227,119 +227,123 @@
 {% block script %}
 <script type="text/javascript">
     function btn_save(documentStatus) {
-        const form = $('#document');
-        $('<input />', {
-            type: 'hidden',
-            name: 'documentStatus',
-            value: documentStatus
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'firstCategory',
-            value: $('#firstCategory').val()
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'secondCategory',
-            value: $('#secondCategory').val()
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'formTitle',
-            value: $('#formTitle').val()
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'preservationYear',
-            value: $('#preservationYear').text()
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'securityLevel',
-            value: $('#securityLevel').text()
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'approvalFormat',
-            value: $('#approvalFormat').val()
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'apply',
-            value: $('#apply').attr('data-id')
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'process',
-            value: $('#process').attr('data-id')
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'reference',
-            value: $('#reference').attr('data-id')
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'approval',
-            value: $('#approval').attr('data-id')
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'agreement',
-            value: $('#agreement').attr('data-id')
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'financial',
-            value: $('#financial').attr('data-id')
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'reference2',
-            value: $('#reference2').attr('data-id')
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'title',
-            value: $('#title').val()
-        }).appendTo(form);
-        $('<input />', {
-            type: 'hidden',
-            name: 'contentHtml',
-            value: $('#contentHtml').summernote('code')
-        }).appendTo(form);
+        if($('#title').val() != '') {
+            const form = $('#document');
+            $('<input />', {
+                type: 'hidden',
+                name: 'documentStatus',
+                value: documentStatus
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'firstCategory',
+                value: $('#firstCategory').val()
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'secondCategory',
+                value: $('#secondCategory').val()
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'formTitle',
+                value: $('#formTitle').val()
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'preservationYear',
+                value: $('#preservationYear').text()
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'securityLevel',
+                value: $('#securityLevel').text()
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'approvalFormat',
+                value: $('#approvalFormat').val()
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'apply',
+                value: $('#apply').attr('data-id')
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'process',
+                value: $('#process').attr('data-id')
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'reference',
+                value: $('#reference').attr('data-id')
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'approval',
+                value: $('#approval').attr('data-id')
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'agreement',
+                value: $('#agreement').attr('data-id')
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'financial',
+                value: $('#financial').attr('data-id')
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'reference2',
+                value: $('#reference2').attr('data-id')
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'title',
+                value: $('#title').val()
+            }).appendTo(form);
+            $('<input />', {
+                type: 'hidden',
+                name: 'contentHtml',
+                value: $('#contentHtml').summernote('code')
+            }).appendTo(form);
 
-        // 첨부파일
-        form.append($("#files"));
-        let filesName = $('td[name="filesName"]');
-        let filesSize = $('td[name="filesSize"]');
-        let listFile = [];
-        let data;
-        for (let i = 0; i < filesName.length; i++) {
-            data = {};
-            data.fileName = filesName[i].innerText;
-            data.fileSize = filesSize[i].innerText;
-            listFile.push(data);
+            // 첨부파일
+            form.append($("#files"));
+            let filesName = $('td[name="filesName"]');
+            let filesSize = $('td[name="filesSize"]');
+            let listFile = [];
+            let data;
+            for (let i = 0; i < filesName.length; i++) {
+                data = {};
+                data.fileName = filesName[i].innerText;
+                data.fileSize = filesSize[i].innerText;
+                listFile.push(data);
+            }
+            $('<input />', {
+                type: 'hidden',
+                name: 'jsonFile',
+                value: JSON.stringify(listFile)
+            }).appendTo(form);
+
+            // 관련문서
+            let documentIds = $('td[name="documentId"]');
+            let listId = [];
+            for (let i = 0; i < documentIds.length; i++) {
+                listId.push(documentIds.eq(i).text());
+            }
+            $('<input />', {
+                type: 'hidden',
+                name: 'relatedDocumentId',
+                value: JSON.stringify(listId)
+            }).appendTo(form);
+
+            form[0].submit();
+        }else{
+            alert('제목을 입력해주세요.');
         }
-        $('<input />', {
-            type: 'hidden',
-            name: 'jsonFile',
-            value: JSON.stringify(listFile)
-        }).appendTo(form);
-
-        // 관련문서
-        let documentIds = $('td[name="documentId"]');
-        let listId = [];
-        for (let i = 0; i < documentIds.length; i++) {
-            listId.push(documentIds.eq(i).text());
-        }
-        $('<input />', {
-            type: 'hidden',
-            name: 'relatedDocumentId',
-            value: JSON.stringify(listId)
-        }).appendTo(form);
-
-        form[0].submit();
     }
 
     function load_category() {

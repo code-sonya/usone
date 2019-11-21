@@ -121,12 +121,22 @@ def post_document(request):
             # 결재 생성 로직 추가
             for a in approval:
                 empId = Employee.objects.get(empId=a['approvalEmp'])
-                Approval.objects.create(
-                    documentId=documentId,
-                    approvalEmp=empId,
-                    approvalStep=a['approvalStep'],
-                    approvalCategory=a['approvalCategory'],
-                )
+                if empId.user == request.user:
+                    Approval.objects.create(
+                        documentId=documentId,
+                        approvalEmp=empId,
+                        approvalStep=a['approvalStep'],
+                        approvalCategory=a['approvalCategory'],
+                        approvalStatus='완료',
+                    )
+                else:
+                    Approval.objects.create(
+                        documentId=documentId,
+                        approvalEmp=empId,
+                        approvalStep=a['approvalStep'],
+                        approvalCategory=a['approvalCategory'],
+                    )
+        return redirect("approval:showdocumentingdone")
 
     # 참조자 자동완성
     empList = Employee.objects.filter(Q(empStatus='Y'))
@@ -320,7 +330,7 @@ def modify_documentform(request, formId):
         return redirect('approval:showdocumentform')
     else:
         form = Documentform.objects.get(formId=formId)
-        apply, process, reference, approval, agreement, financial = data_format(formId)
+        apply, process, reference, approval, agreement, financial = data_format(formId, request.user)
 
         # 결재자 자동완성
         empList = Employee.objects.filter(Q(empStatus='Y'))
@@ -381,12 +391,10 @@ def documentform_asjson(request):
                 Q(categoryId__secondCategory=request.GET['secondCategory']) &
                 Q(formTitle=request.GET['formTitle'])
             ).values('preservationYear', 'securityLevel', 'formHtml', 'approvalFormat', 'formId')
-            apply, process, reference, approval, agreement, financial = data_format(formId=documentForm.first()['formId'])
-            print(apply)
+            apply, process, reference, approval, agreement, financial = data_format(documentForm.first()['formId'], request.user)
             approvalList = {"apply": apply or None, "process": process or None, "reference": reference or None, "approval": approval or None, "agreement": agreement or None, "financial": financial or None}
             structureList = list(documentForm)
             structureList.append(approvalList)
-            print(structureList)
             structure = json.dumps(structureList, cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
 
@@ -558,6 +566,7 @@ def view_document(request, documentId):
             'dept': emp.empDeptName,
         }
         empNames.append(temp)
+    print([apply, process, approval, agreement, financial])
 
     context = {
         'document': document,

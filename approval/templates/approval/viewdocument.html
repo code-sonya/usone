@@ -122,40 +122,42 @@
           {% endfor %}
         {% endfor %}
       {% elif document.formId.approvalFormat == '결재' %}
-        {% for approval in approvals %}
-          {% if approval.name == '결재' or approval.name == '합의' or approval.name == '재무합의' %}
-            <tr class="pc-table-title">
-              <td rowspan="3">{{ approval.name }}</td>
-            {% for a in approval.data %}
-              <td rowspan="1">{{ a.approvalEmp__empPosition__positionName }}</td>
-            {% endfor %}
-            </tr>
-            <tr>
-            {% for a in approval.data %}
-              <td rowspan="1" height="80px" class="text-center">
-              {% if a.approvalStatus == '완료' %}
-                <img src="/media/icon/accepted.png" width="45%">
-              {% elif a.approvalStatus == '반려' %}
-                <img src="/media/icon/rejected.png" width="45%">
-              {% elif a.approvalStatus == '대기' %}
-                {% if user.employee.empId == a.approvalEmp %}
-                <span>
-                  <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
-                  <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button></span>
-                </span>
-                {% else %}
-                <span>대기</span>
+        {% for approvals in approvalList %}
+          {% for approval in approvals %}
+            {% if approval.name == '결재' or approval.name == '합의' or approval.name == '재무합의' %}
+              <tr class="pc-table-title">
+                <td rowspan="3">{{ approval.name }}</td>
+              {% for a in approval.data %}
+                <td rowspan="1">{{ a.approvalEmp__empPosition__positionName }}</td>
+              {% endfor %}
+              </tr>
+              <tr>
+              {% for a in approval.data %}
+                <td rowspan="1" height="80px" class="text-center">
+                {% if a.approvalStatus == '완료' %}
+                  <img src="/media/icon/accepted.png" width="45%">
+                {% elif a.approvalStatus == '반려' %}
+                  <img src="/media/icon/rejected.png" width="45%">
+                {% elif a.approvalStatus == '대기' %}
+                  {% if user.employee.empId == a.approvalEmp %}
+                  <span>
+                    <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
+                    <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button></span>
+                  </span>
+                  {% else %}
+                  <span>대기</span>
+                  {% endif %}
                 {% endif %}
-              {% endif %}
-              </td>
-            {% endfor %}
-            </tr>
-            <tr class="pc-table-title">
-            {% for a in approval.data %}
-              <td rowspan="1">{{ a.approvalEmp__empName }}</td>
-            {% endfor %}
-            </tr>
-          {% endif %}
+                </td>
+              {% endfor %}
+              </tr>
+              <tr class="pc-table-title">
+              {% for a in approval.data %}
+                <td rowspan="1">{{ a.approvalEmp__empName }}</td>
+              {% endfor %}
+              </tr>
+            {% endif %}
+          {% endfor %}
         {% endfor %}
       {% endif %}
         {% for approval in reference %}
