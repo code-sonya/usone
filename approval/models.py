@@ -64,7 +64,7 @@ class Approvalcategory(models.Model):
 class Approval(models.Model):
     approvalCategoryChoices = (
         ('신청', '신청'),
-        ('처리', '처리'),
+        ('승인', '승인'),
         ('참조', '참조'),
         ('결재', '결재'),
         ('합의', '합의'),

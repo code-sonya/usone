@@ -11,9 +11,9 @@ class DocumentcategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Documentform)
 class DocumentformAdmin(admin.ModelAdmin):
-    list_display = ('formId', 'categoryId', 'formNumber', 'formHtml', 'approvalFormat', 'comment')
-    list_filter = ('formId', 'categoryId', 'formNumber', 'formHtml', 'approvalFormat', 'comment')
-    list_display_links = ['formId', 'categoryId', 'formNumber', 'formHtml', 'approvalFormat', 'comment']
+    list_display = ('formId', 'categoryId', 'formNumber', 'approvalFormat', 'comment')
+    list_filter = ('formId', 'categoryId', 'formNumber', 'approvalFormat', 'comment')
+    list_display_links = ['formId', 'categoryId', 'formNumber', 'approvalFormat', 'comment']
 
 
 @admin.register(Document)
