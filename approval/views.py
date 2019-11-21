@@ -466,10 +466,32 @@ def showdocument_asjson(request):
                         documentsId.append(documentId)
 
         elif documentStatus == '완료':
+            # 전체 완료 문서 중 내가 조회할 수 있는 모든 문서 추출
+            # 1. 보존연한체크 (문서 기안일 + 보존연한 > today) 통과
+            # 2. 보안등급체크 (C: 전체 조회, B: 본인과 부사장 이상(부서:임원, rank <= 4) 조회, A: 본인과 대표이사(부서:임원, rank == 1), S: 본인
+            # 본인 이라는 것은 해당 문서의 approval에 있는 emp들
+
+            tempDocumentsId = []
+
             if category == '전체':
-                documents = documents
+                documentsId = tempDocumentsId
+
+            # 문서상태가 완료이면서, 내가 기안자, 즉 document의 writeEmp가 나인 문서
             elif category == '기안':
                 documents = documents.filter(writeEmp=request.user.employee)
+
+            # 문서상태가 완료이면서, 내가 기안자가 아니고, 참조자도 아닌 경우
+            elif category == '결재':
+                documents = documents.filter(writeEmp=request.user.employee)
+
+            # 문서상태가 완료이면서, 내가 참조자에 들어가 있는 문서
+            elif category == '참조':
+                documents = documents.filter(writeEmp=request.user.employee)
+
+        # 문서 상태가 반려인 경우
+        # elif category == '반려':
+        #     documents = documents.filter(writeEmp=request.user.employee)
+
 
         returnDocuments = Document.objects.filter(
             documentId__in=documentsId
@@ -603,6 +625,10 @@ def return_document(request, approvalId):
     approval.approvalStatus = '반려'
     approval.approvalDatetime = datetime.datetime.now()
     approval.save()
+
+    document = Document.objects.get(documentId=approval.documentId_id)
+    document.documentStatus = '반려'
+    document.save()
 
     approvals = Approval.objects.filter(Q(documentId=approval.documentId_id) & Q(approvalStatus='대기'))
     approvals.update(approvalStatus='정지')
