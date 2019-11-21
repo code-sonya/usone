@@ -128,6 +128,7 @@ def post_document(request):
                         approvalStep=a['approvalStep'],
                         approvalCategory=a['approvalCategory'],
                         approvalStatus='완료',
+                        approvalDatetime=datetime.datetime.now(),
                     )
                 else:
                     Approval.objects.create(
@@ -566,7 +567,6 @@ def view_document(request, documentId):
             'dept': emp.empDeptName,
         }
         empNames.append(temp)
-    print([apply, process, approval, agreement, financial])
 
     context = {
         'document': document,
@@ -583,6 +583,7 @@ def view_document(request, documentId):
 def approve_document(request, approvalId):
     approval = Approval.objects.get(approvalId=approvalId)
     approval.approvalStatus = '완료'
+    approval.approvalDatetime = datetime.datetime.now()
     approval.save()
     return redirect('approval:viewdocument', approval.documentId_id)
 
@@ -591,6 +592,7 @@ def approve_document(request, approvalId):
 def return_document(request, approvalId):
     approval = Approval.objects.get(approvalId=approvalId)
     approval.approvalStatus = '반려'
+    approval.approvalDatetime = datetime.datetime.now()
     approval.save()
     return redirect('approval:viewdocument', approval.documentId_id)
 

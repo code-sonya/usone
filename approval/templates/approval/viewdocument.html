@@ -30,6 +30,17 @@
     font-weight: bold;
   }
 
+  .pc-table-top {
+    width: 10%;
+    background-color: #f8f9fc;
+    text-align: center;
+  }
+
+  .pc-table-bottom {
+    width: 10%;
+    text-align: center;
+  }
+
   .pc-table-detail {
     width: 40%;
     text-align: left;
@@ -91,16 +102,18 @@
               <tr class="pc-table-title">
                 <td rowspan="3">{{ approval.name }}</td>
               {% for a in approval.data %}
-                <td rowspan="1">{{ a.approvalEmp__empPosition__positionName}}</td>
+                <td rowspan="1" class="font-weight-normal">{{ a.approvalEmp__empPosition__positionName}}</td>
               {% endfor %}
               </tr>
               <tr>
               {% for a in approval.data %}
                 <td rowspan="1" height="80px" class="text-center">
                 {% if a.approvalStatus == '완료' %}
-                  <img src="/media/icon/accepted.png" width="45%">
+                  <div><img src="/media/icon/accepted.png" width="45%"></div>
+                  <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '반려' %}
-                  <img src="/media/icon/rejected.png" width="45%">
+                  <div><img src="/media/icon/rejected.png" width="45%"></div>
+                  <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '대기' %}
                   {% if user.employee.empId == a.approvalEmp %}
                     <span>
@@ -113,7 +126,7 @@
                 </td>
               {% endfor %}
               </tr>
-              <tr class="pc-table-title">
+              <tr class="pc-table-bottom">
               {% for a in approval.data %}
                 <td rowspan="1">{{ a.approvalEmp__empName}}</td>
               {% endfor %}
@@ -128,16 +141,18 @@
               <tr class="pc-table-title">
                 <td rowspan="3">{{ approval.name }}</td>
               {% for a in approval.data %}
-                <td rowspan="1">{{ a.approvalEmp__empPosition__positionName }}</td>
+                <td rowspan="1" class="font-weight-normal">{{ a.approvalEmp__empPosition__positionName }}</td>
               {% endfor %}
               </tr>
               <tr>
               {% for a in approval.data %}
                 <td rowspan="1" height="80px" class="text-center">
                 {% if a.approvalStatus == '완료' %}
-                  <img src="/media/icon/accepted.png" width="45%">
+                  <div><img src="/media/icon/accepted.png" width="45%"></div>
+                  <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '반려' %}
-                  <img src="/media/icon/rejected.png" width="45%">
+                  <div><img src="/media/icon/rejected.png" width="45%"></div>
+                  <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '대기' %}
                   {% if user.employee.empId == a.approvalEmp %}
                   <span>
@@ -151,7 +166,7 @@
                 </td>
               {% endfor %}
               </tr>
-              <tr class="pc-table-title">
+              <tr class="pc-table-bottom">
               {% for a in approval.data %}
                 <td rowspan="1">{{ a.approvalEmp__empName }}</td>
               {% endfor %}
@@ -164,7 +179,7 @@
             <tr class="pc-table-title">
               <td rowspan="3">{{ approval.name }}</td>
             {% for a in approval.data %}
-              <td rowspan="1">{{ a.approvalEmp__empPosition__positionName }}</td>
+              <td rowspan="1" class="font-weight-normal">{{ a.approvalEmp__empPosition__positionName }}</td>
             {% endfor %}
             </tr>
             <tr>
@@ -184,7 +199,7 @@
               </td>
             {% endfor %}
             </tr>
-            <tr class="pc-table-title">
+            <tr class="pc-table-bottom">
             {% for a in approval.data %}
               <td rowspan="1">{{ a.approvalEmp__empName }}</td>
             {% endfor %}
