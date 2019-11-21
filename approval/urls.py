@@ -18,4 +18,6 @@ urlpatterns = [
     url(r'^showdocument/ing/all/$', views.show_document_ing_all, name='showdocumentingall'),
     url(r'^showdocument/ing/write/$', views.show_document_ing_write, name='showdocumentingwrite'),
     url(r'^viewdocument/(?P<documentId>.+)/$', views.view_document, name='viewdocument'),
+    url(r'^approvedocument/(?P<approvalId>.+)/$', views.approve_document, name='approvedocument'),
+    url(r'^returndocument/(?P<approvalId>.+)/$', views.return_document, name='returndocument'),
 ]

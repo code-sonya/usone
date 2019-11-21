@@ -51,24 +51,23 @@ def template_format(documentId):
     approvals = Approval.objects.filter(Q(documentId__documentId=documentId))
     apply = approvals.filter(approvalCategory='신청')\
         .order_by('approvalStep')\
-        .values('approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
+        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
     process = approvals.filter(approvalCategory='승인')\
         .order_by('approvalStep')\
-        .values('approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
+        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
     reference = approvals.filter(approvalCategory='참조')\
         .order_by('approvalStep')\
-        .values('approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
+        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
     approval = approvals.filter(approvalCategory='결재')\
         .order_by('approvalStep')\
-        .values('approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
+        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
     agreement = approvals.filter(approvalCategory='합의')\
         .order_by('approvalStep')\
-        .values('approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
+        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
     financial = approvals.filter(approvalCategory='재무합의')\
         .order_by('approvalStep')\
-        .values('approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
+        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
 
-    print(apply, process, reference, approval, agreement, financial)
     if apply:
         applylst = []
         for a in apply:
@@ -76,7 +75,9 @@ def template_format(documentId):
         if len(apply) % 9 != 0:
             for i in range(9-(len(apply) % 9)):
                 applylst.append({})
-        apply = applylst
+        apply = [{'name': '신청', 'data': applylst}]
+    else:
+        apply = [{'name': '신청', 'data': [{} for i in range(9)]}]
     if process:
         processlst = []
         for p in process:
@@ -84,7 +85,9 @@ def template_format(documentId):
         if len(process) % 9 != 0:
             for i in range(9-(len(process) % 9)):
                 processlst.append({})
-        process = processlst
+        process = [{'name': '승인', 'data': processlst}]
+    else:
+        process = [{'name': '승인', 'data': [{} for i in range(9)]}]
     if reference:
         referencelst = []
         for r in reference:
@@ -92,7 +95,10 @@ def template_format(documentId):
         if len(reference) % 9 != 0:
             for i in range(9-(len(reference) % 9)):
                 referencelst.append({})
-        reference = referencelst
+        reference = [{'name': '참조', 'data': referencelst}]
+    else:
+        reference = [{'name': '참조', 'data': [{} for i in range(9)]}]
+
     if approval:
         approvallst = []
         for a in approval:
@@ -100,7 +106,10 @@ def template_format(documentId):
         if len(approval) % 9 != 0:
             for i in range(9-(len(approval) % 9)):
                 approvallst.append({})
-        approval = approvallst
+        approval = [{'name': '결재', 'data': approvallst}]
+    else:
+        approval = [{'name': '결재', 'data': [{} for i in range(9)]}]
+
     if agreement:
         agreementlst = []
         for a in agreement:
@@ -108,7 +117,9 @@ def template_format(documentId):
         if len(agreement) % 9 != 0:
             for i in range(9-(len(agreement) % 9)):
                 agreementlst.append({})
-        agreement = agreementlst
+        agreement = [{'name': '합의', 'data': agreementlst}]
+    else:
+        agreement = [{'name': '합의', 'data': [{} for i in range(9)]}]
     if financial:
         financiallst = []
         for f in financial:
@@ -116,7 +127,10 @@ def template_format(documentId):
         if len(financial) % 9 != 0:
             for i in range(9-(len(financial) % 9)):
                 financiallst.append({})
-        financial = financiallst
+        financial = [{'name': '재무합의', 'data': financiallst}]
+    else:
+        financial = [{'name': '재무합의', 'data': [{} for i in range(9)]}]
+
 
     return apply, process, reference, approval, agreement, financial
 

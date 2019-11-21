@@ -494,16 +494,31 @@ def view_document(request, documentId):
             'dept': emp.empDeptName,
         }
         empNames.append(temp)
+
     context = {
         'document': document,
         'files': files,
         'related': related,
         'empNames': empNames,
-        'apply': apply,
-        'process': process,
+        'approvalList': [apply, process,approval, agreement, financial],
         'reference': reference,
-        'approval': approval,
-        'agreement': agreement,
-        'financial': financial,
     }
     return render(request, 'approval/viewdocument.html', context)
+
+
+@login_required
+def approve_document(request, approvalId):
+    approval = Approval.objects.get(approvalId=approvalId)
+    approval.approvalStatus = '완료'
+    approval.save()
+    return redirect('approval:viewdocument', approval.documentId_id)
+
+
+@login_required
+def return_document(request, approvalId):
+    approval = Approval.objects.get(approvalId=approvalId)
+    approval.approvalStatus = '반려'
+    approval.save()
+    return redirect('approval:viewdocument', approval.documentId_id)
+
+
