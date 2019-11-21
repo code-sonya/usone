@@ -24,4 +24,6 @@ urlpatterns = [
     url(r'^showdocument/ing/will/$', views.show_document_ing_will, name='showdocumentingwill'),
 
     url(r'^viewdocument/(?P<documentId>.+)/$', views.view_document, name='viewdocument'),
+    url(r'^approvedocument/(?P<approvalId>.+)/$', views.approve_document, name='approvedocument'),
+    url(r'^returndocument/(?P<approvalId>.+)/$', views.return_document, name='returndocument'),
 ]

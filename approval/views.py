@@ -13,7 +13,7 @@ from django.db.models import Sum, FloatField, F, Case, When, Count, Q
 
 from service.models import Employee
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
-from .functions import data_format, who_approval
+from .functions import data_format, who_approval, template_format
 
 
 @login_required
@@ -545,9 +545,44 @@ def view_document(request, documentId):
     document = Document.objects.get(documentId=documentId)
     files = Documentfile.objects.filter(documentId__documentId=documentId)
     related = Relateddocument.objects.filter(documentId__documentId=documentId)
+    apply, process, reference, approval, agreement, financial = template_format(documentId)
+
+    # 참조자 자동완성
+    empList = Employee.objects.filter(Q(empStatus='Y'))
+    empNames = []
+    for emp in empList:
+        temp = {
+            'id': emp.empId,
+            'name': emp.empName,
+            'position': emp.empPosition.positionName,
+            'dept': emp.empDeptName,
+        }
+        empNames.append(temp)
+
     context = {
         'document': document,
         'files': files,
         'related': related,
+        'empNames': empNames,
+        'approvalList': [apply, process,approval, agreement, financial],
+        'reference': reference,
     }
     return render(request, 'approval/viewdocument.html', context)
+
+
+@login_required
+def approve_document(request, approvalId):
+    approval = Approval.objects.get(approvalId=approvalId)
+    approval.approvalStatus = '완료'
+    approval.save()
+    return redirect('approval:viewdocument', approval.documentId_id)
+
+
+@login_required
+def return_document(request, approvalId):
+    approval = Approval.objects.get(approvalId=approvalId)
+    approval.approvalStatus = '반려'
+    approval.save()
+    return redirect('approval:viewdocument', approval.documentId_id)
+
+
