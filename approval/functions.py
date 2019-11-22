@@ -6,14 +6,31 @@ from service.models import Employee
 from django.db.models import Q
 
 
-def data_format(formId, user, approvalFormat, document):
-    approvalform = Approvalform.objects.filter(Q(formId=formId))
-    apply = approvalform.filter(approvalCategory='신청').values('approvalEmp')
-    process = approvalform.filter(approvalCategory='승인').values('approvalEmp')
-    reference = approvalform.filter(approvalCategory='참조').values('approvalEmp')
-    approval = approvalform.filter(approvalCategory='결재').values('approvalEmp')
-    agreement = approvalform.filter(approvalCategory='합의').values('approvalEmp')
-    financial = approvalform.filter(approvalCategory='재무합의').values('approvalEmp')
+def data_format(ID, user, approvalFormat, document, model):
+    if model == "approvalform":
+        approvalform = Approvalform.objects.filter(Q(formId=ID))
+        apply = approvalform.filter(approvalCategory='신청').values('approvalEmp')
+        process = approvalform.filter(approvalCategory='승인').values('approvalEmp')
+        reference = approvalform.filter(approvalCategory='참조').values('approvalEmp')
+        approval = approvalform.filter(approvalCategory='결재').values('approvalEmp')
+        agreement = approvalform.filter(approvalCategory='합의').values('approvalEmp')
+        financial = approvalform.filter(approvalCategory='재무합의').values('approvalEmp')
+    elif model == "approval":
+        approvals = Approval.objects.filter(Q(documentId=ID))
+        apply = approvals.filter(approvalCategory='신청').values('approvalEmp')
+        process = approvals.filter(approvalCategory='승인').values('approvalEmp')
+        reference = approvals.filter(approvalCategory='참조').values('approvalEmp')
+        approval = approvals.filter(approvalCategory='결재').values('approvalEmp')
+        agreement = approvals.filter(approvalCategory='합의').values('approvalEmp')
+        financial = approvals.filter(approvalCategory='재무합의').values('approvalEmp')
+    else:
+        apply = ''
+        process = ''
+        reference = ''
+        approval = ''
+        agreement = ''
+        financial = ''
+
     employee = Employee.objects.get(user=user)
     empId = str(employee.empId)
     if apply:

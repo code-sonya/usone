@@ -38,7 +38,7 @@ def post_document(request):
         documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
 
         # 문서 등록
-        documentId = Document.objects.create(
+        document = Document.objects.create(
             documentNumber=documentNumber,
             writeEmp=request.user.employee,
             formId=formId,
@@ -48,182 +48,41 @@ def post_document(request):
             contentHtml=request.POST['contentHtml'],
             writeDatetime=datetime.datetime.now(),
             modifyDatetime=datetime.datetime.now(),
-            draftDatetime=datetime.datetime.now(),
             documentStatus=request.POST['documentStatus'],
         )
 
-        # 첨부파일 처리
-        # 1. 첨부파일 업로드 정보
-        jsonFile = json.loads(request.POST['jsonFile'])
-        filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
-        filesName = []  # [fileName1, fileName2, ...]
-        for i in jsonFile:
-            filesInfo[i['fileName']] = i['fileSize']
-            filesName.append(i['fileName'])
-        # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
-        for f in request.FILES.getlist('files'):
-            if f.name in filesName:
-                Documentfile.objects.create(
-                    documentId=documentId,
-                    file=f,
-                    fileName=f.name,
-                    fileSize=filesInfo[f.name][:-2],
-                )
-
-        # 관련문서 처리
-        jsonId = json.loads(request.POST['relatedDocumentId'])
-        for relatedId in jsonId:
-            relatedDocument = Document.objects.get(documentId=relatedId)
-            Relateddocument.objects.create(
-                documentId=documentId,
-                relatedDocumentId=relatedDocument,
-            )
-
-        # 결재선 처리
         if request.POST['documentStatus'] == '진행':
-            approval = []
-            if request.POST['approvalFormat'] == '신청':
-                if request.POST['apply']:
-                    applyList = request.POST['apply'].split(',')
-                    for i, a in enumerate(applyList):
-                        if a != '':
-                            approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '신청'})
-                if request.POST['process']:
-                    processList = request.POST['process'].split(',')
-                    for i, p in enumerate(processList):
-                        if p != '':
-                            approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '승인'})
-                if request.POST['reference']:
-                    referenceList = request.POST['reference'].split(',')
-                    for i, r in enumerate(referenceList):
-                        if r != '':
-                            approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
-            elif request.POST['approvalFormat'] == '결재':
-                if request.POST['approval'].split(','):
-                    approvalList = request.POST['approval'].split(',')
-                    for i, a in enumerate(approvalList):
-                        if a != '':
-                            approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '결재'})
-                if request.POST['agreement'].split(','):
-                    agreementList = request.POST['agreement'].split(',')
-                    for i, a in enumerate(agreementList):
-                        if a != '':
-                            approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '합의'})
-                if request.POST['financial'].split(','):
-                    financialList = request.POST['financial'].split(',')
-                    for i, f in enumerate(financialList):
-                        if f != '':
-                            approval.append({'approvalEmp': f, 'approvalStep': i + 1, 'approvalCategory': '재무합의'})
-                if request.POST['reference2'].split(','):
-                    referenceList = request.POST['reference2'].split(',')
-                    for i, r in enumerate(referenceList):
-                        if r != '':
-                            approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+            document.draftDatetime = datetime.datetime.now()
+            document.save()
 
-            for a in approval:
-                empId = Employee.objects.get(empId=a['approvalEmp'])
-                # 기안자는 자동 결재
-                if empId.user == request.user:
-                    Approval.objects.create(
-                        documentId=documentId,
-                        approvalEmp=empId,
-                        approvalStep=a['approvalStep'],
-                        approvalCategory=a['approvalCategory'],
-                        approvalStatus='완료',
-                        approvalDatetime=datetime.datetime.now(),
+        # 기안 할 경우에만 첨부파일 및 관련문서 저장 (임시 저장 시 첨부파일 및 관련문서 저장하지 않음)
+        if request.POST['documentStatus'] == '진행':
+            # 첨부파일 처리
+            # 1. 첨부파일 업로드 정보
+            jsonFile = json.loads(request.POST['jsonFile'])
+            filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
+            filesName = []  # [fileName1, fileName2, ...]
+            for i in jsonFile:
+                filesInfo[i['fileName']] = i['fileSize']
+                filesName.append(i['fileName'])
+            # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
+            for f in request.FILES.getlist('files'):
+                if f.name in filesName:
+                    Documentfile.objects.create(
+                        documentId=document,
+                        file=f,
+                        fileName=f.name,
+                        fileSize=filesInfo[f.name][:-2],
                     )
-                else:
-                    Approval.objects.create(
-                        documentId=documentId,
-                        approvalEmp=empId,
-                        approvalStep=a['approvalStep'],
-                        approvalCategory=a['approvalCategory'],
-                    )
-        if request.POST['documentStatus'] == '임시':
-            return redirect("approval:showdocumenttemp")
-        else:
-            return redirect("approval:showdocumentingdone")
 
-    else:
-        # 참조자 자동완성
-        empList = Employee.objects.filter(Q(empStatus='Y'))
-        empNames = []
-        for emp in empList:
-            temp = {
-                'id': emp.empId,
-                'name': emp.empName,
-                'position': emp.empPosition.positionName,
-                'dept': emp.empDeptName,
-            }
-            empNames.append(temp)
-        context = {
-            'empNames': empNames
-        }
-        return render(request, 'approval/postdocument.html', context)
-
-
-@login_required
-def modify_document(request, documentId):
-    if request.method == 'POST':
-        # 문서 종류 선택
-        formId = Documentform.objects.get(
-            categoryId__firstCategory=request.POST['firstCategory'],
-            categoryId__secondCategory=request.POST['secondCategory'],
-            formTitle=request.POST['formTitle'],
-        )
-
-        # 보존연한 숫자로 변환
-        if request.POST['preservationYear'] == '영구':
-            preservationYear = 9999
-        else:
-            preservationYear = request.POST['preservationYear'][:-1]
-
-        # 문서번호 자동생성 (yymmdd-000)
-        yymmdd = str(datetime.date.today()).replace('-', '')[2:]
-        todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
-        documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
-
-        # 문서 등록
-        documentId = Document.objects.create(
-            documentNumber=documentNumber,
-            writeEmp=request.user.employee,
-            formId=formId,
-            preservationYear=preservationYear,
-            securityLevel=request.POST['securityLevel'][0],
-            title=request.POST['title'],
-            contentHtml=request.POST['contentHtml'],
-            writeDatetime=datetime.datetime.now(),
-            modifyDatetime=datetime.datetime.now(),
-            draftDatetime=datetime.datetime.now(),
-            documentStatus=request.POST['documentStatus'],
-        )
-
-        # 첨부파일 처리
-        # 1. 첨부파일 업로드 정보
-        jsonFile = json.loads(request.POST['jsonFile'])
-        filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
-        filesName = []  # [fileName1, fileName2, ...]
-        for i in jsonFile:
-            filesInfo[i['fileName']] = i['fileSize']
-            filesName.append(i['fileName'])
-        # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
-        for f in request.FILES.getlist('files'):
-            if f.name in filesName:
-                Documentfile.objects.create(
-                    documentId=documentId,
-                    file=f,
-                    fileName=f.name,
-                    fileSize=filesInfo[f.name][:-2],
+            # 관련문서 처리
+            jsonId = json.loads(request.POST['relatedDocumentId'])
+            for relatedId in jsonId:
+                relatedDocument = Document.objects.get(documentId=relatedId)
+                Relateddocument.objects.create(
+                    documentId=document,
+                    relatedDocumentId=relatedDocument,
                 )
-
-        # 관련문서 처리
-        jsonId = json.loads(request.POST['relatedDocumentId'])
-        for relatedId in jsonId:
-            relatedDocument = Document.objects.get(documentId=relatedId)
-            Relateddocument.objects.create(
-                documentId=documentId,
-                relatedDocumentId=relatedDocument,
-            )
 
         # 결재선 처리
         approval = []
@@ -270,7 +129,7 @@ def modify_document(request, documentId):
             # 기안자는 자동 결재
             if request.POST['documentStatus'] == '진행' and empId.user == request.user:
                 Approval.objects.create(
-                    documentId=documentId,
+                    documentId=document,
                     approvalEmp=empId,
                     approvalStep=a['approvalStep'],
                     approvalCategory=a['approvalCategory'],
@@ -279,7 +138,155 @@ def modify_document(request, documentId):
                 )
             else:
                 Approval.objects.create(
-                    documentId=documentId,
+                    documentId=document,
+                    approvalEmp=empId,
+                    approvalStep=a['approvalStep'],
+                    approvalCategory=a['approvalCategory'],
+                )
+
+        if request.POST['documentStatus'] == '임시':
+            return redirect("approval:showdocumenttemp")
+        else:
+            return redirect("approval:showdocumentingdone")
+
+    else:
+        # 참조자 자동완성
+        empList = Employee.objects.filter(Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {
+                'id': emp.empId,
+                'name': emp.empName,
+                'position': emp.empPosition.positionName,
+                'dept': emp.empDeptName,
+            }
+            empNames.append(temp)
+        context = {
+            'empNames': empNames
+        }
+        return render(request, 'approval/postdocument.html', context)
+
+
+@login_required
+def modify_document(request, documentId):
+    if request.method == 'POST':
+        # 임시저장 문서
+        document = Document.objects.get(documentId=documentId)
+
+        # 문서 종류 선택
+        document.formId = Documentform.objects.get(
+            categoryId__firstCategory=request.POST['firstCategory'],
+            categoryId__secondCategory=request.POST['secondCategory'],
+            formTitle=request.POST['formTitle'],
+        )
+
+        # 보존연한 숫자로 변환
+        if request.POST['preservationYear'] == '영구':
+            document.preservationYear = 9999
+        else:
+            document.preservationYear = request.POST['preservationYear'][:-1]
+
+        # 문서번호 자동생성 (yymmdd-000)
+        yymmdd = str(datetime.date.today()).replace('-', '')[2:]
+        todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
+        document.documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
+
+        document.securityLevel = request.POST['securityLevel'][0]
+        document.title = request.POST['title']
+        document.contentHtml = request.POST['contentHtml']
+        document.modifyDatetime = datetime.datetime.now()
+        document.documentStatus = request.POST['documentStatus']
+
+        if request.POST['documentStatus'] == '진행':
+            document.draftDatetime = datetime.datetime.now()
+
+        document.save()
+
+        # 기안 할 경우에만 첨부파일 및 관련문서 저장 (임시 저장 시 첨부파일 및 관련문서 저장하지 않음)
+        if request.POST['documentStatus'] == '진행':
+            # 첨부파일 처리
+            # 1. 첨부파일 업로드 정보
+            jsonFile = json.loads(request.POST['jsonFile'])
+            filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
+            filesName = []  # [fileName1, fileName2, ...]
+            for i in jsonFile:
+                filesInfo[i['fileName']] = i['fileSize']
+                filesName.append(i['fileName'])
+            # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
+            for f in request.FILES.getlist('files'):
+                if f.name in filesName:
+                    Documentfile.objects.create(
+                        documentId=document,
+                        file=f,
+                        fileName=f.name,
+                        fileSize=filesInfo[f.name][:-2],
+                    )
+
+            # 관련문서 처리
+            jsonId = json.loads(request.POST['relatedDocumentId'])
+            for relatedId in jsonId:
+                relatedDocument = Document.objects.get(documentId=relatedId)
+                Relateddocument.objects.create(
+                    documentId=document,
+                    relatedDocumentId=relatedDocument,
+                )
+
+        # 결재선 처리 (기존 결재 삭제 후 처리)
+        Approval.objects.filter(documentId=document).delete()
+        approval = []
+        if request.POST['approvalFormat'] == '신청':
+            if request.POST['apply']:
+                applyList = request.POST['apply'].split(',')
+                for i, a in enumerate(applyList):
+                    if a != '':
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '신청'})
+            if request.POST['process']:
+                processList = request.POST['process'].split(',')
+                for i, p in enumerate(processList):
+                    if p != '':
+                        approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '승인'})
+            if request.POST['reference']:
+                referenceList = request.POST['reference'].split(',')
+                for i, r in enumerate(referenceList):
+                    if r != '':
+                        approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+        elif request.POST['approvalFormat'] == '결재':
+            if request.POST['approval'].split(','):
+                approvalList = request.POST['approval'].split(',')
+                for i, a in enumerate(approvalList):
+                    if a != '':
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '결재'})
+            if request.POST['agreement'].split(','):
+                agreementList = request.POST['agreement'].split(',')
+                for i, a in enumerate(agreementList):
+                    if a != '':
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '합의'})
+            if request.POST['financial'].split(','):
+                financialList = request.POST['financial'].split(',')
+                for i, f in enumerate(financialList):
+                    if f != '':
+                        approval.append({'approvalEmp': f, 'approvalStep': i + 1, 'approvalCategory': '재무합의'})
+            if request.POST['reference2'].split(','):
+                referenceList = request.POST['reference2'].split(',')
+                for i, r in enumerate(referenceList):
+                    if r != '':
+                        approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+
+        for a in approval:
+            empId = Employee.objects.get(empId=a['approvalEmp'])
+            # 기안자는 자동 결재
+            if request.POST['documentStatus'] == '진행' and empId.user == request.user:
+                Approval.objects.create(
+                    documentId=document,
+                    approvalEmp=empId,
+                    approvalStep=a['approvalStep'],
+                    approvalCategory=a['approvalCategory'],
+                    approvalStatus='완료',
+                    approvalDatetime=datetime.datetime.now(),
+                )
+            else:
+                Approval.objects.create(
+                    documentId=document,
                     approvalEmp=empId,
                     approvalStep=a['approvalStep'],
                     approvalCategory=a['approvalCategory'],
@@ -486,7 +493,7 @@ def modify_documentform(request, formId):
         return redirect('approval:showdocumentform')
     else:
         form = Documentform.objects.get(formId=formId)
-        apply, process, reference, approval, agreement, financial = data_format(formId, request.user, form.approvalFormat, 'N')
+        apply, process, reference, approval, agreement, financial = data_format(formId, request.user, form.approvalFormat, 'N', 'approvalform')
 
         # 결재자 자동완성
         empList = Employee.objects.filter(Q(empStatus='Y'))
@@ -538,22 +545,70 @@ def documentform_asjson(request):
             documentForm = Documentform.objects.filter(
                 Q(categoryId__firstCategory=request.GET['firstCategory']) &
                 Q(categoryId__secondCategory=request.GET['secondCategory'])
-            ).values('formNumber', 'formTitle', 'approvalFormat')
+            ).values(
+                'formNumber', 'formTitle', 'approvalFormat'
+            )
             structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
+
         elif request.GET['type'] == 'form':
             documentForm = Documentform.objects.filter(
                 Q(categoryId__firstCategory=request.GET['firstCategory']) &
                 Q(categoryId__secondCategory=request.GET['secondCategory']) &
                 Q(formTitle=request.GET['formTitle'])
-            ).values('preservationYear', 'securityLevel', 'formHtml', 'approvalFormat', 'formId')
-            apply, process, reference, approval, agreement, financial = data_format(documentForm.first()['formId'], request.user, documentForm.first()['approvalFormat'], 'Y')
-            approvalList = {"apply": apply or None, "process": process or None, "reference": reference or None, "approval": approval or None, "agreement": agreement or None, "financial": financial or None}
+            ).annotate(
+                html=F('formHtml')
+            ).values(
+                'preservationYear', 'securityLevel', 'html', 'approvalFormat', 'formId'
+            )
+            apply, process, reference, approval, agreement, financial = data_format(
+                documentForm.first()['formId'],
+                request.user,
+                documentForm.first()['approvalFormat'],
+                'Y',
+                'approvalform'
+            )
+            approvalList = {
+                "apply": apply or None,
+                "process": process or None,
+                "reference": reference or None,
+                "approval": approval or None,
+                "agreement": agreement or None,
+                "financial": financial or None
+            }
             structureList = list(documentForm)
             structureList.append(approvalList)
             structure = json.dumps(structureList, cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
 
+        elif request.GET['type'] == 'temp':
+            document = Document.objects.filter(
+                documentId=request.GET['documentId']
+            ).annotate(
+                approvalFormat=F('formId__approvalFormat'),
+                html=F('contentHtml'),
+            ).values(
+                'preservationYear', 'securityLevel', 'html', 'approvalFormat', 'title', 'documentId',
+            )
+            apply, process, reference, approval, agreement, financial = data_format(
+                document.first()['documentId'],
+                request.user,
+                document.first()['approvalFormat'],
+                'N',
+                'approval'
+            )
+            approvalList = {
+                "apply": apply or None,
+                "process": process or None,
+                "reference": reference or None,
+                "approval": approval or None,
+                "agreement": agreement or None,
+                "financial": financial or None
+            }
+            structureList = list(document)
+            structureList.append(approvalList)
+            structure = json.dumps(structureList, cls=DjangoJSONEncoder)
+            return HttpResponse(structure, content_type='application/json')
 
 @login_required
 def post_documentcategory(request):
@@ -728,7 +783,7 @@ def showdocument_asjson(request):
             formTitle=F('formId__formTitle'),
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime'
         )
 
         structure = json.dumps(list(returnDocuments), cls=DjangoJSONEncoder)

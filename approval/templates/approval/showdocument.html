@@ -31,7 +31,13 @@
             <th>문서번호</th>
             <th>제목</th>
             <th>기안자</th>
-            <th>기안일</th>
+            <th>
+              {% if documentStatus == '임시' %}
+                기안일
+              {% else %}
+                수정일
+              {% endif %}
+            </th>
             <th>문서종류</th>
             <th>구분</th>
             <th class="d-none">documentId</th>
@@ -124,7 +130,11 @@
                 },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td', nRow).eq(3).text(aData.draftDatetime.split('-').join('.').split('T').slice(0, 1));
+                {% if documentStatus == '임시' %}
+                    $('td', nRow).eq(3).text(aData.modifyDatetime.split('-').join('.').split('T').slice(0, 1));
+                {% else %}
+                    $('td', nRow).eq(3).text(aData.draftDatetime.split('-').join('.').split('T').slice(0, 1));
+                {% endif %}
                 $('td', nRow).eq(4).text(aData.formNumber + '. ' + aData.formTitle);
             }
         });

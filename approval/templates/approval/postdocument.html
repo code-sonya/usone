@@ -175,7 +175,7 @@
         <span class="icon text-white-50"> <i class="fas fa-save"> </i> </span>
         <span class="text">임시</span>
       </a>
-      <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save('기안')">
+      <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save('진행')">
         <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
         <span class="text">기안</span>
       </a>
@@ -340,8 +340,22 @@
                 value: JSON.stringify(listId)
             }).appendTo(form);
 
-            form[0].submit();
-        }else{
+            if (documentStatus === '임시') {
+                if (confirm('임시 저장 시, 첨부파일 및 관련문서는 저장되지 않습니다.') === true) {
+                    form[0].submit();
+                } else {
+                    return false;
+                }
+            }
+
+            if (documentStatus === '진행') {
+                if (confirm("기안 하시겠습니까?") === true) {
+                    form[0].submit();
+                } else {
+                    return false;
+                }
+            }
+        } else {
             alert('제목을 입력해주세요.');
         }
     }
@@ -542,12 +556,10 @@
             }
             securityLevel.text(val.securityLevel + '등급');
             editor.removeClass('d-none');
-            {% if document %}
-                contentHtml.summernote('code', '{{ document.contentHtml | safe }}');
-                title.val("{{ document.title }}");
-            {% else %}
-                contentHtml.summernote('code', val.formHtml);
-            {% endif %}
+
+            title.val(val.title);
+            contentHtml.summernote('code', val.html);
+
             approvalFormat.val(val.approvalFormat);
 
             apply.trigger('destroy');
@@ -579,7 +591,6 @@
 
             let className;
             if (val.approvalFormat == '신청') {
-                // format2.attr('style', "display:none;");
                 format2.addClass("d-none");
                 format1.removeClass("d-none");
                 className = '.empName';
@@ -762,10 +773,8 @@
                 method: 'GET',
                 cache: false,
                 data: {
-                    "type": "form",
-                    "firstCategory": "{{ document.formId.categoryId.firstCategory }}",
-                    "secondCategory": "{{ document.formId.categoryId.secondCategory }}",
-                    "formTitle": "{{ document.formId.formTitle }}",
+                    "type": "temp",
+                    "documentId": "{{ document.documentId }}"
                 },
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 success: function (returnData) {
@@ -794,7 +803,6 @@
         $('.ckbxall').click(function () {
             $('.ckbx').prop('checked', this.checked);
         });
-
 
     })
 
