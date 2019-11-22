@@ -470,6 +470,7 @@
                             for (let i = 0; i < returnData.length; i++) {
                                 formTitle.append(
                                     '<option value="' + returnData[i].formTitle + '">' +
+                                    returnData[i].formNumber + '. ' +
                                     returnData[i].formTitle + '</option>'
                                 );
                             }
@@ -497,6 +498,7 @@
                     for (let i = 0; i < returnData.length; i++) {
                         formTitle.append(
                             '<option value="' + returnData[i].formTitle + '">' +
+                            returnData[i].formNumber + '. ' +
                             returnData[i].formTitle + '</option>'
                         );
                     }
@@ -531,10 +533,8 @@
             format1.hide();
             format2.hide();
         } else {
-            console.log(data);
             const val = data[0];
             const approvalList = data[1];
-            console.log(approvalList);
             if (val.preservationYear < 9999) {
                 preservationYear.text(val.preservationYear.toString() + '년');
             } else {
@@ -542,7 +542,12 @@
             }
             securityLevel.text(val.securityLevel + '등급');
             editor.removeClass('d-none');
-            contentHtml.summernote('code', val.formHtml);
+            {% if document %}
+                contentHtml.summernote('code', '{{ document.contentHtml | safe }}');
+                title.val("{{ document.title }}");
+            {% else %}
+                contentHtml.summernote('code', val.formHtml);
+            {% endif %}
             approvalFormat.val(val.approvalFormat);
 
             apply.trigger('destroy');
@@ -583,6 +588,7 @@
                 format2.removeClass("d-none");
                 className = '.empName2';
             }
+
             $(className).magicsearch({
                 dataSource: {{ empNames|safe }},
                 fields: 'name',
@@ -750,6 +756,23 @@
                 }
             })
         });
+        {% if document %}
+            $.ajax({
+                url: "{% url 'approval:documentformasjson' %}",
+                method: 'GET',
+                cache: false,
+                data: {
+                    "type": "form",
+                    "firstCategory": "{{ document.formId.categoryId.firstCategory }}",
+                    "secondCategory": "{{ document.formId.categoryId.secondCategory }}",
+                    "formTitle": "{{ document.formId.formTitle }}",
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (returnData) {
+                    load_document(returnData);
+                }
+            });
+        {% endif %}
 
         // 본문 작성
         const toolbar = [
@@ -771,6 +794,8 @@
         $('.ckbxall').click(function () {
             $('.ckbx').prop('checked', this.checked);
         });
+
+
     })
 
 </script>
