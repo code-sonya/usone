@@ -5,6 +5,7 @@ app_name = 'approval'
 
 urlpatterns = [
     url(r'^postdocument/$', views.post_document, name='postdocumnet'),
+    url(r'^modifydocument/(?P<documentId>.+)/$', views.modify_document, name='modifydocumnet'),
     url(r'^postdocumentform/$', views.post_documentform, name='postdocumnetform'),
     url(r'^documentcategoryasjson/$', views.documentcategory_asjson, name='documentcategoryasjson'),
     url(r'^documentformasjson/$', views.documentform_asjson, name='documentformasjson'),
@@ -16,6 +17,10 @@ urlpatterns = [
 
     url(r'^showdocument/end/all/$', views.show_document_end_all, name='showdocumentendall'),
     url(r'^showdocument/end/write/$', views.show_document_end_write, name='showdocumentendwrite'),
+    url(r'^showdocument/end/approval/$', views.show_document_end_approval, name='showdocumentendapproval'),
+    url(r'^showdocument/end/check/$', views.show_document_end_check, name='showdocumentendcheck'),
+    url(r'^showdocument/end/reject/$', views.show_document_end_reject, name='showdocumentendreject'),
+    url(r'^showdocument/temp/$', views.show_document_temp, name='showdocumenttemp'),
 
     url(r'^showdocument/ing/all/$', views.show_document_ing_all, name='showdocumentingall'),
     url(r'^showdocument/ing/done/$', views.show_document_ing_done, name='showdocumentingdone'),

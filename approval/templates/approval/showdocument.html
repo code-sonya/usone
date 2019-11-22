@@ -131,7 +131,11 @@
 
         $('#showdocument').on("click", 'tr', function () {
             const data = table.row(this).data();
-            location.href = '/approval/viewdocument/' + data.documentId + '/'
+            {% if documentStatus == '임시' %}
+                location.href = '/approval/modifydocument/' + data.documentId + '/';
+            {% else %}
+                location.href = '/approval/viewdocument/' + data.documentId + '/';
+            {% endif %}
         });
     })
 

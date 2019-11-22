@@ -175,7 +175,7 @@
         <span class="icon text-white-50"> <i class="fas fa-save"> </i> </span>
         <span class="text">임시</span>
       </a>
-      <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save('진행')">
+      <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save('기안')">
         <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
         <span class="text">기안</span>
       </a>
@@ -361,7 +361,7 @@
             success: function (returnData) {
                 firstCategory.empty();
                 for (let i = 0; i < returnData.length; i++) {
-                    if ("{{ form.categoryId.firstCategory }}" === returnData[i].firstCategory) {
+                    if ("{{ document.formId.categoryId.firstCategory }}" === returnData[i].firstCategory) {
                         firstCategory.append(
                             '<option value="' + returnData[i].firstCategory + '" selected="selected">' +
                             returnData[i].firstCategory + '</option>'
@@ -386,7 +386,7 @@
                     success: function (returnData) {
                         secondCategory.empty();
                         for (let i = 0; i < returnData.length; i++) {
-                            if ("{{ form.categoryId.secondCategory }}" === returnData[i].secondCategory) {
+                            if ("{{ document.formId.categoryId.secondCategory }}" === returnData[i].secondCategory) {
                                 secondCategory.append(
                                     '<option value="' + returnData[i].secondCategory + '" selected="selected">' +
                                     returnData[i].secondCategory + '</option>'
@@ -413,11 +413,20 @@
                                 formTitle.empty();
                                 formTitle.append('<option value="">선택</option>');
                                 for (let i = 0; i < returnData.length; i++) {
-                                    formTitle.append(
-                                        '<option value="' + returnData[i].formTitle + '">' +
-                                        returnData[i].formNumber + '. ' +
-                                        returnData[i].formTitle + '</option>'
-                                    );
+                                    if ("{{ document.formId.formTitle }}" === returnData[i].formTitle) {
+                                        formTitle.append(
+                                            '<option value="' + returnData[i].formTitle + '" selected="selectd">' +
+                                            returnData[i].formNumber + '. ' +
+                                            returnData[i].formTitle + '</option>'
+                                        );
+                                    }
+                                    else {
+                                        formTitle.append(
+                                            '<option value="' + returnData[i].formTitle + '">' +
+                                            returnData[i].formNumber + '. ' +
+                                            returnData[i].formTitle + '</option>'
+                                        );
+                                    }
                                 }
                             }
                         });
