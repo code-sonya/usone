@@ -486,7 +486,7 @@ def modify_documentform(request, formId):
         return redirect('approval:showdocumentform')
     else:
         form = Documentform.objects.get(formId=formId)
-        apply, process, reference, approval, agreement, financial = data_format(formId, request.user)
+        apply, process, reference, approval, agreement, financial = data_format(formId, request.user, form.approvalFormat, 'N')
 
         # 결재자 자동완성
         empList = Employee.objects.filter(Q(empStatus='Y'))
@@ -546,10 +546,8 @@ def documentform_asjson(request):
                 Q(categoryId__firstCategory=request.GET['firstCategory']) &
                 Q(categoryId__secondCategory=request.GET['secondCategory']) &
                 Q(formTitle=request.GET['formTitle'])
-            ).values(
-                'preservationYear', 'securityLevel', 'formHtml', 'approvalFormat', 'formId'
-            )
-            apply, process, reference, approval, agreement, financial = data_format(documentForm.first()['formId'], request.user)
+            ).values('preservationYear', 'securityLevel', 'formHtml', 'approvalFormat', 'formId')
+            apply, process, reference, approval, agreement, financial = data_format(documentForm.first()['formId'], request.user, documentForm.first()['approvalFormat'], 'Y')
             approvalList = {"apply": apply or None, "process": process or None, "reference": reference or None, "approval": approval or None, "agreement": agreement or None, "financial": financial or None}
             structureList = list(documentForm)
             structureList.append(approvalList)

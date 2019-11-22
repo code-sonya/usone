@@ -6,7 +6,7 @@ from service.models import Employee
 from django.db.models import Q
 
 
-def data_format(formId, user):
+def data_format(formId, user, approvalFormat, document):
     approvalform = Approvalform.objects.filter(Q(formId=formId))
     apply = approvalform.filter(approvalCategory='신청').values('approvalEmp')
     process = approvalform.filter(approvalCategory='승인').values('approvalEmp')
@@ -20,51 +20,58 @@ def data_format(formId, user):
         applylst = []
         for a in apply:
             applylst.append(str(a['approvalEmp']))
-        if empId in applylst:
-            applylst.remove(empId)
-        applylst.insert(0, empId)
+        if document == 'Y':
+            if empId in applylst:
+                applylst.remove(empId)
+            applylst.insert(0, empId)
         apply = ','.join(applylst)
     else:
-        apply = [empId]
+        if approvalFormat == '신청' and document == 'Y':
+            apply = empId
     if process:
         processlst = []
         for a in process:
             processlst.append(str(a['approvalEmp']))
-        if empId in processlst:
-            processlst.remove(empId)
+        if document == 'Y':
+            if empId in processlst:
+                processlst.remove(empId)
         process = ','.join(processlst)
     if reference:
         referencelst = []
         for a in reference:
             referencelst.append(str(a['approvalEmp']))
-        if empId in referencelst:
-            referencelst.remove(empId)
+        if document == 'Y':
+            if empId in referencelst:
+                referencelst.remove(empId)
         reference = ','.join(referencelst)
     if approval:
         approvallst = []
         for a in approval:
             approvallst.append(str(a['approvalEmp']))
-        if empId in approvallst:
-            approvallst.remove(empId)
-        approvallst.insert(0, empId)
+        if document == 'Y':
+            if empId in approvallst:
+                approvallst.remove(empId)
+            approvallst.insert(0, empId)
         approval = ','.join(approvallst)
     else:
-        approval = [empId]
+        if approvalFormat == '결재' and document == 'Y':
+            approval = empId
     if agreement:
         agreementlst = []
         for a in agreement:
             agreementlst.append(str(a['approvalEmp']))
-        if empId in agreementlst:
-            agreementlst.remove(empId)
+        if document == 'Y':
+            if empId in agreementlst:
+                agreementlst.remove(empId)
         agreement = ','.join(agreementlst)
     if financial:
         financiallst = []
         for a in financial:
             financiallst.append(str(a['approvalEmp']))
-        if empId in financiallst:
-            financiallst.remove(empId)
+        if document == 'Y':
+            if empId in financiallst:
+                financiallst.remove(empId)
         financial = ','.join(financiallst)
-
     return apply, process, reference, approval, agreement, financial
 
 
