@@ -218,26 +218,32 @@
       <h4 class="mb-4">{{ document.title }}</h4>
       {{ document.contentHtml | safe }}
       <br>
-      <hr>
-      <br>
-      <div class="row">
-        <div class="col-6">
-          <b>첨부파일</b>
-          {% for f in files %}
-          <br><a href="/media/{{ f.file }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a>
-          {% endfor %}
+      {% if files or related %}
+        <hr>
+        <br>
+        <div class="row">
+          {% if files %}
+            <div class="col-6">
+              <b>첨부파일</b>
+              {% for f in files %}
+              <br><a href="/media/{{ f.file }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if related %}
+            <div class="col-6">
+              <b>관련문서</b>
+              {% for r in related %}
+              <br>
+              <a href="/approval/viewdocument/{{ r.relatedDocumentId.documentId }}" target="_blank">
+                [{{ r.relatedDocumentId.documentNumber }}]
+                {{ r.relatedDocumentId.title }}
+              </a>
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
-        <div class="col-6">
-          <b>관련문서</b>
-          {% for r in related %}
-          <br>
-          <a href="/approval/viewdocument/{{ r.relatedDocumentId.documentId }}" target="_blank">
-            [{{ r.relatedDocumentId.documentNumber }}]
-            {{ r.relatedDocumentId.title }}
-          </a>
-          {% endfor %}
-        </div>
-      </div>
+      {% endif %}
     </div>
   </div>
 </div>

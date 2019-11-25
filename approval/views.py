@@ -897,7 +897,6 @@ def view_document(request, documentId):
     apply, process, reference, approval, agreement, financial = template_format(documentId)
     do_approval = who_approval(documentId)['do']
     check_approval = who_approval(documentId)['check']
-    print(do_approval, check_approval)
 
     # 참조자 자동완성
     empList = Employee.objects.filter(Q(empStatus='Y'))
@@ -926,31 +925,37 @@ def view_document(request, documentId):
 
 @login_required
 def approve_document(request, approvalId):
+    now = datetime.datetime.now()
+
     approval = Approval.objects.get(approvalId=approvalId)
     approval.approvalStatus = '완료'
-    approval.approvalDatetime = datetime.datetime.now()
+    approval.approvalDatetime = now
     approval.save()
+
     if len(who_approval(approval.documentId_id)['do']) == 0:
         document = Document.objects.get(documentId=approval.documentId_id)
         document.documentStatus = '완료'
+        document.approveDatetime = now
         document.save()
+
     return redirect('approval:viewdocument', approval.documentId_id)
 
 
 @login_required
 def return_document(request, approvalId):
+    now = datetime.datetime.now()
+
     approval = Approval.objects.get(approvalId=approvalId)
     approval.approvalStatus = '반려'
-    approval.approvalDatetime = datetime.datetime.now()
+    approval.approvalDatetime = now
     approval.save()
 
     document = Document.objects.get(documentId=approval.documentId_id)
     document.documentStatus = '반려'
+    document.approveDatetime = now
     document.save()
 
     approvals = Approval.objects.filter(Q(documentId=approval.documentId_id) & Q(approvalStatus='대기'))
     approvals.update(approvalStatus='정지')
 
     return redirect('approval:viewdocument', approval.documentId_id)
-
-
