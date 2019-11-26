@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from hr.models import Employee
+from service.models import Servicereport
+from sales.models import Contract
 
 
 class Documentcategory(models.Model):
@@ -40,6 +42,8 @@ class Document(models.Model):
     draftDatetime = models.DateTimeField(null=True, blank=True)
     approveDatetime = models.DateTimeField(null=True, blank=True)
     documentStatus = models.CharField(max_length=10, default='임시')
+    serviceId = models.ForeignKey(Servicereport, on_delete=models.SET_NULL, null=True, blank=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class Documentfile(models.Model):
