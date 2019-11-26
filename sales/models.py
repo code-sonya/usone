@@ -215,3 +215,46 @@ class Contractfile(models.Model):
     fileSize = models.FloatField()
     uploadDatetime = models.DateTimeField(null=True, blank=True)
     file = models.FileField(upload_to="contract/%Y_%m")
+
+
+class Purchasetypea(models.Model):
+    classNumberChoices = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9))
+    typeId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
+    contents = models.CharField(max_length=200)
+    price = models.IntegerField()
+    classNumber = models.IntegerField(choices=classNumberChoices)
+
+    def __str__(self):
+        return '{} {}'.format(self.companyName, self.contractId)
+
+
+class Purchasetypeb(models.Model):
+    classNumberChoices = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9))
+    classificationChoices = (('상품_HW', '상품_HW'), ('상품_SW', '상품_SW'), ('유지보수_HW', '유지보수_HW'), ('유지보수_SW', '유지보수_SW'), ('HW', 'HW'), ('SW', 'SW'), ('PM상주', 'PM상주'))
+    typeId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    classification = models.CharField(max_length=20,  choices=classificationChoices)
+    times = models.IntegerField()
+    sites = models.IntegerField()
+    unitPrice = models.IntegerField()
+    price = models.IntegerField()
+    classNumber = models.IntegerField(choices=classNumberChoices)
+
+    def __str__(self):
+        return '{} {}'.format(self.classification, self.contractId)
+
+
+class Purchasetypec(models.Model):
+    classNumberChoices = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9))
+    classificationChoices = (('타사 service', '타사 service'), ('HW', 'HW'), ('SW', 'SW'), ('유류', '유류'), ('PS', 'PS'), ('기타', '기타'))
+    typeId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    classification = models.CharField(max_length=20, choices=classificationChoices)
+    contents = models.CharField(max_length=200)
+    price = models.IntegerField()
+    classNumber = models.IntegerField(choices=classNumberChoices)
+
+    def __str__(self):
+        return '{} {}'.format(self.classification, self.contractId)

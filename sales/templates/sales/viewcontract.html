@@ -110,40 +110,18 @@
         </div>
 
         <div class="card-body">
-          <div class="row">
-            <div class="col-6">
-              <h5 class="text-dark mb-3"><b>
-                <span id="processDown" onclick="downClick('process', 'processUp', 'processDown')">▼</span>
-                <span id="processUp" class="d-none" onclick="upClick('process', 'processUp', 'processDown')">▶</span>
-                진행단계
-              </b></h5>
-              <table class="flow-table" id="process">
-              <tr>
-                <td>
-                  <div class="text-secondary">매출견적서</div>
-                  <img src="/media/icon/prepare.png" width="15%">
-                  <div class="text-secondary">[결재완료]</div>
-                </td>
-                <td>
-                  <div class="text-secondary">수주통보서</div>
-                  <img src="/media/icon/ordernoti.png" width="15%">
-                  <div class="text-primary">[결재중]</div>
-                </td>
-                <td>
-                  <div class="text-secondary">매출발행</div>
-                  <img src="/media/icon/ordermail_grey.png" width="15%">
-                  <div class="text-secondary">[결재전]</div>
-                </td>
-{#                <td>#}
-{#                  <div class="text-secondary">매출발행</div>#}
-{#                  <img src="/media/icon/ordermail_grey.png" width="20%">#}
-{#                  <div class="text-secondary">매출발행[진행전]</div>#}
-{#                </td>#}
-              </tr>
-              </table>
-            </div>
-          </div>
-
+          <h5 class="text-dark mb-3"><b>
+            <span id="processDown" onclick="downClick('process', 'processUp', 'processDown')">▼</span>
+            <span id="processUp" class="d-none" onclick="upClick('process', 'processUp', 'processDown')">▶</span>
+            진행단계
+          </b></h5>
+          <table class="flow-table">
+          <tr>
+            <td><div class="text-secondary">계약준비</div><img src="/media/icon/prepare.png" width="15%"><div class="text-secondary">매출견적서[결재완료]</div></td>
+            <td><div class="text-secondary">수주통보서</div><img src="/media/icon/ordernoti.png" width="15%"><div class="text-primary">수주통보서[결재중]</div></td>
+            <td><div class="text-secondary">매출발행</div><img src="/media/icon/ordermail_grey.png" width="15%"><div class="text-secondary">매출발행[결재전]</div></td>
+          </tr>
+          </table>
           <h5 class="text-dark mb-3"><b>
             <span id="contractDown" onclick="downClick('contract', 'contractUp', 'contractDown')">▼</span>
             <span id="contractUp" class="d-none" onclick="upClick('contract', 'contractUp', 'contractDown')">▶</span>
