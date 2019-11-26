@@ -34,7 +34,7 @@ class ApprovalAdmin(admin.ModelAdmin):
 class DocumentfileAdmin(admin.ModelAdmin):
     list_display = ('fileId', 'fileName', 'fileSize')
     list_filter = ('fileId', 'fileName', 'fileSize')
-    list_display_links = ['fileId', 'fileName', 'fileSize']\
+    list_display_links = ['fileId', 'fileName', 'fileSize']
 
 
 @admin.register(Approvalform)

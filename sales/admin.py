@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive
+from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, Contractfile
 
 
 @admin.register(Contract)
@@ -70,3 +70,10 @@ class IncentiveAdmin(admin.ModelAdmin):
     list_display = ('empId', 'year', 'quarter')
     list_filter = ('empId', 'year', 'quarter')
     list_display_links = ('empId', 'year', 'quarter')
+
+
+@admin.register(Contractfile)
+class ContractfileAdmin(admin.ModelAdmin):
+    list_display = ('fileId', 'fileCategory', 'fileName', 'fileSize')
+    list_filter = ('fileId', 'fileCategory', 'fileName', 'fileSize')
+    list_display_links = ['fileId', 'fileCategory', 'fileName', 'fileSize']

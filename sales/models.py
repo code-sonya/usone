@@ -205,3 +205,12 @@ class Incentive(models.Model):
 
     def __str__(self):
         return str(self.empId.empName) + str(self.year) + '년 ' + str(self.quarter) + '분기 인센티브'
+
+
+class Contractfile(models.Model):
+    fileId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    fileCategory = models.CharField(max_length=100)
+    fileName = models.CharField(max_length=200)
+    fileSize = models.FloatField()
+    file = models.FileField(upload_to="contract/%Y_%m")
