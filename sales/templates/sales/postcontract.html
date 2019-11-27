@@ -273,7 +273,7 @@
             <div class="form-group row">
               <div class="col-xl-6">
                 <div class="text-dark mb-3"><b>1. 상품_HW</b></div>
-                <table id="GoodsHW" class="display" style="width:100%">
+                <table id="goodsHW" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
                     <th>체크</th>
@@ -296,7 +296,7 @@
               </div>
               <div class="col-xl-6">
                 <div class="text-dark mb-3"><b>2. 상품_SW</b></div>
-                <table id="GoodsSW" class="display" style="width:100%">
+                <table id="goodsSW" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
                     <th>체크</th>
@@ -321,7 +321,7 @@
             <div class="form-group row">
               <div class="col-xl-6">
                 <div class="text-dark mb-3"><b>3. 유지보수_HW</b></div>
-                <table id="MaintenanceHW" class="display" style="width:100%">
+                <table id="maintenanceHW" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
                     <th>체크</th>
@@ -344,7 +344,7 @@
               </div>
               <div class="col-xl-6">
                 <div class="text-dark mb-3"><b>4. 유지보수_SW</b></div>
-                <table id="MaintenanceSW" class="display" style="width:100%">
+                <table id="maintenanceSW" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
                     <th>체크</th>
@@ -369,7 +369,7 @@
             <div class="form-group row">
               <div class="col-xl-6">
                 <div class="text-dark mb-3"><b>5. 인력지원_자사서비스</b></div>
-                <table id="SupportInternal" class="display" style="width:100%">
+                <table id="supportInternal" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
                     <th>체크</th>
@@ -396,7 +396,7 @@
               </div>
               <div class="col-xl-6">
                 <div class="text-dark mb-3"><b>6. 인력지원_타사서비스</b></div>
-                <table id="SupportExternal" class="display" style="width:100%">
+                <table id="supportExternal" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
                     <th>체크</th>
@@ -422,7 +422,7 @@
             <div class="form-group row">
               <div class="col-xl-6">
                 <div class="text-dark mb-3"><b>7. 프로젝트</b></div>
-                <table id="Project" class="display" style="width:100%">
+                <table id="project" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
                     <th>체크</th>
@@ -449,7 +449,7 @@
               </div>
               <div class="col-xl-6">
                 <div class="text-dark mb-3"><b>8. 기타</b></div>
-                <table id="Others" class="display" style="width:100%">
+                <table id="others" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
                     <th>체크</th>
@@ -869,6 +869,285 @@
           cost.setAttribute("value", jsonCost);
           ContractForm.appendChild(cost);
 
+          // 하도급계약 상세내용
+          let sumPurchaseDetails = 0;
+          let statusPurchaseDetails = false;
+          // 1. 상품_HW
+          const lengthGoodsHW = $('[name="goodsHWTypeId"]').length;
+          const listGoodsHW = new Array();
+          if (lengthGoodsHW>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthGoodsHW - 1; i++) {
+              if ($('input[name="goodsHWCompany"]').eq(i).val() == '') {
+                  alert("상품_HW의 거래처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="goodsHWContents"]').eq(i).val() == '') {
+                  alert("상품_HW의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="goodsHWPrice"]').eq(i).val() == '') {
+                  alert("상품_HW의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="goodsHWTypeId"]').eq(i).text();
+              data.company = $('input[name="goodsHWCompany"]').eq(i).val();
+              data.contents = $('input[name="goodsHWContents"]').eq(i).val();
+              data.price = Number($('input[name="goodsHWPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listGoodsHW.push(data);
+          }
+          const jsonGoodsHW = JSON.stringify(listGoodsHW);
+          const goodsHW = document.createElement("input");
+          goodsHW.setAttribute("type", "hidden");
+          goodsHW.setAttribute("name", "jsonGoodsHW");
+          goodsHW.setAttribute("value", jsonGoodsHW);
+          ContractForm.appendChild(goodsHW);
+          // 2. 상품_SW
+          const lengthGoodsSW = $('[name="goodsSWTypeId"]').length;
+          const listGoodsSW = new Array();
+          if (lengthGoodsSW>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthGoodsSW - 1; i++) {
+              if ($('input[name="goodsSWCompany"]').eq(i).val() == '') {
+                  alert("상품_SW의 거래처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="goodsSWContents"]').eq(i).val() == '') {
+                  alert("상품_SW의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="goodsSWPrice"]').eq(i).val() == '') {
+                  alert("상품_SW의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="goodsSWTypeId"]').eq(i).text();
+              data.company = $('input[name="goodsSWCompany"]').eq(i).val();
+              data.contents = $('input[name="goodsSWContents"]').eq(i).val();
+              console.log($('input[name="goodsSWPrice"]').eq(i).val());
+              data.price = Number($('input[name="goodsSWPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listGoodsSW.push(data);
+          }
+          const jsonGoodsSW = JSON.stringify(listGoodsSW);
+          const goodsSW = document.createElement("input");
+          goodsSW.setAttribute("type", "hidden");
+          goodsSW.setAttribute("name", "jsonGoodsSW");
+          goodsSW.setAttribute("value", jsonGoodsSW);
+          ContractForm.appendChild(goodsSW);
+          // 3. 유지보수_HW
+          const lengthMaintenanceHW= $('[name="maintenanceHWTypeId"]').length;
+          const listMaintenanceHW = new Array();
+          if (lengthMaintenanceHW>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthMaintenanceHW - 1; i++) {
+              if ($('input[name="maintenanceHWCompany"]').eq(i).val() == '') {
+                  alert("유지보수_HW의 거래처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="maintenanceHWContents"]').eq(i).val() == '') {
+                  alert("유지보수_HW의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="maintenanceHWPrice"]').eq(i).val() == '') {
+                  alert("유지보수_HW의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="maintenanceHWTypeId"]').eq(i).text();
+              data.company = $('input[name="maintenanceHWCompany"]').eq(i).val();
+              data.contents = $('input[name="maintenanceHWContents"]').eq(i).val();
+              console.log($('input[name="maintenanceHWPrice"]').eq(i).val());
+              data.price = Number($('input[name="maintenanceHWPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listMaintenanceHW.push(data);
+          }
+          const jsonMaintenanceHW = JSON.stringify(listMaintenanceHW);
+          const maintenanceHW = document.createElement("input");
+          maintenanceHW.setAttribute("type", "hidden");
+          maintenanceHW.setAttribute("name", "jsonMaintenanceHW");
+          maintenanceHW.setAttribute("value", jsonMaintenanceHW);
+          ContractForm.appendChild(maintenanceHW);
+           // 4. 유지보수_SW
+          const lengthMaintenanceSW= $('[name="maintenanceSWTypeId"]').length;
+          const listMaintenanceSW = new Array();
+          if (lengthMaintenanceSW>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthMaintenanceSW - 1; i++) {
+              if ($('input[name="maintenanceSWCompany"]').eq(i).val() == '') {
+                  alert("유지보수_SW의 거래처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="maintenanceSWContents"]').eq(i).val() == '') {
+                  alert("유지보수_SW의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="maintenanceSWPrice"]').eq(i).val() == '') {
+                  alert("유지보수_SW의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="maintenanceSWTypeId"]').eq(i).text();
+              data.company = $('input[name="maintenanceSWCompany"]').eq(i).val();
+              data.contents = $('input[name="maintenanceSWContents"]').eq(i).val();
+              console.log($('input[name="maintenanceSWPrice"]').eq(i).val());
+              data.price = Number($('input[name="maintenanceSWPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listMaintenanceSW.push(data);
+          }
+          const jsonMaintenanceSW = JSON.stringify(listMaintenanceSW);
+          const maintenanceSW = document.createElement("input");
+          maintenanceSW.setAttribute("type", "hidden");
+          maintenanceSW.setAttribute("name", "jsonMaintenanceSW");
+          maintenanceSW.setAttribute("value", jsonMaintenanceSW);
+          ContractForm.appendChild(maintenanceSW);
+           // 5. 인력지원_자사서비스
+          const lengthSupportInternal= $('[name="supportInternalTypeId"]').length;
+          const listSupportInternal = new Array();
+          if (lengthSupportInternal>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthSupportInternal - 1; i++) {
+              if ($('input[name="supportInternalType"]').eq(i).val() == '') {
+                  alert("인력지원_자사서비스의 구분을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="supportInternalUnits"]').eq(i).val() == '') {
+                  alert("인력지원_자사서비스의 단가를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="supportInternalPrice"]').eq(i).val() == '') {
+                  alert("인력지원_자사서비스의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="supportInternalTypeId"]').eq(i).text();
+              data.type = $('input[name="supportInternalType"]').eq(i).val();
+              data.times = $('input[name="supportInternalTimes"]').eq(i).val();
+              data.sites = $('input[name="supportInternalSites"]').eq(i).val();
+              data.units = $('input[name="supportInternalUnits"]').eq(i).val();
+              console.log($('input[name="supportInternalPrice"]').eq(i).val());
+              data.price = Number($('input[name="supportInternalPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listSupportInternal.push(data);
+          }
+          const jsonSupportInternal = JSON.stringify(listSupportInternal);
+          const supportInternal = document.createElement("input");
+          supportInternal.setAttribute("type", "hidden");
+          supportInternal.setAttribute("name", "jsonSupportInternal");
+          supportInternal.setAttribute("value", jsonSupportInternal);
+          ContractForm.appendChild(supportInternal);
+           // 6. 인력지원_타사서비스
+          const lengthSupportExternal= $('[name="supportExternalTypeId"]').length;
+          const listSupportExternal = new Array();
+          if (lengthSupportExternal>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthSupportExternal - 1; i++) {
+              if ($('input[name="supportExternalType"]').eq(i).val() == '') {
+                  alert("인력지원_타사서비스의 구분을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="supportExternalContents"]').eq(i).val() == '') {
+                  alert("인력지원_타사서비스의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="supportExternalPrice"]').eq(i).val() == '') {
+                  alert("인력지원_타사서비스의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="supportExternalTypeId"]').eq(i).text();
+              data.type = $('input[name="supportExternalType"]').eq(i).val();
+              data.contents = $('input[name="supportExternalContents"]').eq(i).val();
+              console.log($('input[name="supportExternalPrice"]').eq(i).val());
+              data.price = Number($('input[name="supportExternalPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listSupportExternal.push(data);
+          }
+          const jsonSupportExternal = JSON.stringify(listSupportExternal);
+          const supportExternal = document.createElement("input");
+          supportExternal.setAttribute("type", "hidden");
+          supportExternal.setAttribute("name", "jsonSupportExternal");
+          supportExternal.setAttribute("value", jsonSupportExternal);
+          ContractForm.appendChild(supportExternal);
+           // 7. 프로젝트
+          const lengthProject= $('[name="projectTypeId"]').length;
+          const listProject = new Array();
+          if (lengthProject>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthProject - 1; i++) {
+              if ($('input[name="projectType"]').eq(i).val() == '') {
+                  alert("프로젝트의 구분을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="projectUnits"]').eq(i).val() == '') {
+                  alert("프로젝트의 단가를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="projectPrice"]').eq(i).val() == '') {
+                  alert("프로젝트의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="projectTypeId"]').eq(i).text();
+              data.type = $('input[name="projectType"]').eq(i).val();
+              data.times = $('input[name="projectTimes"]').eq(i).val();
+              data.sites = $('input[name="projectSites"]').eq(i).val();
+              data.units = $('input[name="projectUnits"]').eq(i).val();
+              console.log($('input[name="projectPrice"]').eq(i).val());
+              data.price = Number($('input[name="projectPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listProject.push(data);
+          }
+          const jsonProject = JSON.stringify(listProject);
+          const project = document.createElement("input");
+          project.setAttribute("type", "hidden");
+          project.setAttribute("name", "jsonProject");
+          project.setAttribute("value", jsonProject);
+          ContractForm.appendChild(project);
+           // 8. 기타
+          const lengthOthers= $('[name="othersTypeId"]').length;
+          const listOthers = new Array();
+          if (lengthOthers>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthOthers - 1; i++) {
+              if ($('input[name="othersType"]').eq(i).val() == '') {
+                  alert("기타의 구분을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="othersContents"]').eq(i).val() == '') {
+                  alert("기타의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="othersPrice"]').eq(i).val() == '') {
+                  alert("기타의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="othersTypeId"]').eq(i).text();
+              data.type = $('input[name="othersType"]').eq(i).val();
+              data.contents = $('input[name="othersContents"]').eq(i).val();
+              console.log($('input[name="othersPrice"]').eq(i).val());
+              data.price = Number($('input[name="othersPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listOthers.push(data);
+          }
+          const jsonOthers = JSON.stringify(listOthers);
+          const others = document.createElement("input");
+          others.setAttribute("type", "hidden");
+          others.setAttribute("name", "jsonOthers");
+          others.setAttribute("value", jsonOthers);
+          ContractForm.appendChild(others);
+
           // 금액 일치 계산
           let sumItemPrice = 0;
           for (i = 0; i < $('input[name="itemPrice"]').length; i++) {
@@ -907,6 +1186,20 @@
               let sumPurchasePrice = 0;
               for (i = 0; i < $('input[name="purchasePrice"]').length; i++) {
                   sumPurchasePrice += Number($('input[name="purchasePrice"]').eq(i).val().replace(/,/g, ''));
+              }
+
+              let sumCostPrice = 0;
+              for (i = 0; i < $('input[name="costPrice"]').length; i++) {
+                  sumCostPrice += Number($('input[name="costPrice"]').eq(i).val().replace(/,/g, ''));
+              }
+
+              if (statusPurchaseDetails == true){
+                let sumPurchase = sumPurchasePrice+sumCostPrice;
+                if (sumPurchaseDetails != sumPurchase){
+                    alert("매입금액 합계금액: " + sumPurchase.toLocaleString() + "\n" +
+                      "하도급계약 합계금액 : " + sumPurchaseDetails.toLocaleString() + "\n" +
+                      "매입금액 하도급계약 금액의 합이 일치하지 않습니다.")
+                }
               }
 
               let revenueMinusPurchase = sumRevenuePrice - sumPurchasePrice;
@@ -1589,7 +1882,7 @@
 
           // 하도급계약 상세항목
           // 1. 상품 HW
-          var c1 = $('#GoodsHW').DataTable({
+          var c1 = $('#goodsHW').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -1609,19 +1902,19 @@
                   {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
-          var GoodsHWCounter = 0;
+          var goodsHWCounter = 0;
 
           $('#addGoodsHW').on('click', function () {
             c1.row.add([
-                '<div class="d-none" value="0" name="typeId" id="GoodsHW0' + GoodsHWCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="GoodsHWCompany" ' +
-                'id="GoodsHW1' + GoodsHWCounter + '" onkeydown="magicsearchtab(GoodsHW1' + GoodsHWCounter + ')">',
-                '<input class="input-form" type="text" style="width: 350px;" name="GoodsHWContents" id="GoodsHW2' + GoodsHWCounter + '">',
-                '<input class="money input-form"  name="GoodsHWPrice" style="width: 200px;" id="GoodsHW3' + GoodsHWCounter + '">',
+                '<div class="d-none" value="0" name="goodsHWTypeId" id="goodsHW0' + goodsHWCounter + '">추가</div>',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="goodsHWCompany" ' +
+                'id="goodsHW1' + goodsHWCounter + '" onkeydown="magicsearchtab(goodsHW1' + goodsHWCounter + ')">',
+                '<input class="input-form" type="text" style="width: 350px;" name="goodsHWContents" id="goodsHW2' + goodsHWCounter + '">',
+                '<input class="money input-form"  name="goodsHWPrice" style="width: 200px;" id="goodsHW3' + goodsHWCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('#GoodsHW1' + GoodsHWCounter).magicsearch({
+            $('#goodsHW1' + goodsHWCounter).magicsearch({
                 dataSource: companyList,
                 fields: 'value',
                 id: 'id',
@@ -1632,14 +1925,14 @@
                 maxShow: 100,
             });
 
-              $('input[name=GoodsHWPrice]').on("change keyup paste input", function() {
-                  totalPrice('GoodsHWPrice', 'totalGoodsHWPrice');
+              $('input[name=goodsHWPrice]').on("change keyup paste input", function() {
+                  totalPrice('goodsHWPrice', 'totalGoodsHWPrice');
               });
 
-              GoodsHWCounter++;
+              goodsHWCounter++;
           });
 
-           $('#GoodsHW').on('click', 'i', function () {
+           $('#goodsHW').on('click', 'i', function () {
               c1
                   .row($(this).parents('tr'))
                   .remove()
@@ -1647,7 +1940,7 @@
           });
 
           // 2. 상품 SW
-          var c2 = $('#GoodsSW').DataTable({
+          var c2 = $('#goodsSW').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -1668,19 +1961,19 @@
               ],
           });
 
-          var GoodsSWCounter = 0;
+          var goodsSWCounter = 0;
 
           $('#addGoodsSW').on('click', function () {
             c2.row.add([
-                '<div class="d-none" value="0" name="typeId" id="GoodsSW0' + GoodsSWCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="GoodsSWCompany" ' +
-                'id="GoodsSW1' + GoodsSWCounter + '" onkeydown="magicsearchtab(GoodsSW1' + GoodsSWCounter + ')">',
-                '<input class="input-form" type="text" style="width: 350px;" name="GoodsSWContents" id="GoodsSW2' + GoodsSWCounter + '">',
-                '<input class="money input-form"  name="GoodsSWPrice" style="width: 200px;" id="GoodsSW3' + GoodsSWCounter + '">',
+                '<div class="d-none" value="0" name="goodsSWTypeId" id="goodsSW0' + goodsSWCounter + '">추가</div>',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="goodsSWCompany" ' +
+                'id="goodsSW1' + goodsSWCounter + '" onkeydown="magicsearchtab(goodsSW1' + goodsSWCounter + ')">',
+                '<input class="input-form" type="text" style="width: 350px;" name="goodsSWContents" id="goodsSW2' + goodsSWCounter + '">',
+                '<input class="money input-form"  name="goodsSWPrice" style="width: 200px;" id="goodsSW3' + goodsSWCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('#GoodsSW1' + GoodsSWCounter).magicsearch({
+            $('#goodsSW1' + goodsSWCounter).magicsearch({
                 dataSource: companyList,
                 fields: 'value',
                 id: 'id',
@@ -1691,21 +1984,21 @@
                 maxShow: 100,
             });
 
-              $('input[name=GoodsSWPrice]').on("change keyup paste input", function() {
-                  totalPrice('GoodsSWPrice', 'totalGoodsSWPrice');
+              $('input[name=goodsSWPrice]').on("change keyup paste input", function() {
+                  totalPrice('goodsSWPrice', 'totalGoodsSWPrice');
               });
 
-              GoodsHWCounter++;
+              goodsHWCounter++;
           });
 
-           $('#GoodsSW').on('click', 'i', function () {
+           $('#goodsSW').on('click', 'i', function () {
               c2
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
           });
           // 3. 유지보수 HW
-          var c3 = $('#MaintenanceHW').DataTable({
+          var c3 = $('#maintenanceHW').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -1726,19 +2019,19 @@
               ],
           });
 
-          var MaintenanceHWCounter = 0;
+          var maintenanceHWCounter = 0;
 
           $('#addMaintenanceHW').on('click', function () {
             c3.row.add([
-                '<div class="d-none" value="0" name="typeId" id="MaintenanceHW0' + MaintenanceHWCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="MaintenanceHWCompany" ' +
-                'id="MaintenanceHW1' + MaintenanceHWCounter + '" onkeydown="magicsearchtab(MaintenanceHW1' + MaintenanceHWCounter + ')">',
-                '<input class="input-form" type="text" style="width: 350px;" name="MaintenanceHWContents" id="MaintenanceHW2' + MaintenanceHWCounter + '">',
-                '<input class="money input-form"  name="MaintenanceHWPrice" style="width: 200px;" id="MaintenanceHW3' + MaintenanceHWCounter + '">',
+                '<div class="d-none" value="0" name="maintenanceHWTypeId" id="maintenanceHW0' + maintenanceHWCounter + '">추가</div>',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="maintenanceHWCompany" ' +
+                'id="maintenanceHW1' + maintenanceHWCounter + '" onkeydown="magicsearchtab(maintenanceHW1' + maintenanceHWCounter + ')">',
+                '<input class="input-form" type="text" style="width: 350px;" name="maintenanceHWContents" id="maintenanceHW2' + maintenanceHWCounter + '">',
+                '<input class="money input-form"  name="maintenanceHWPrice" style="width: 200px;" id="maintenanceHW3' + maintenanceHWCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('#MaintenanceHW1' + MaintenanceHWCounter).magicsearch({
+            $('#maintenanceHW1' + maintenanceHWCounter).magicsearch({
                 dataSource: companyList,
                 fields: 'value',
                 id: 'id',
@@ -1749,14 +2042,14 @@
                 maxShow: 100,
             });
 
-              $('input[name=MaintenanceHWPrice]').on("change keyup paste input", function() {
-                  totalPrice('MaintenanceHWPrice', 'totalMaintenanceHWPrice');
+              $('input[name=maintenanceHWPrice]').on("change keyup paste input", function() {
+                  totalPrice('maintenanceHWPrice', 'totalMaintenanceHWPrice');
               });
 
-              MaintenanceHWCounter++;
+              maintenanceHWCounter++;
           });
 
-           $('#MaintenanceHW').on('click', 'i', function () {
+           $('#maintenanceHW').on('click', 'i', function () {
               c3
                   .row($(this).parents('tr'))
                   .remove()
@@ -1764,7 +2057,7 @@
           });
 
           // 4. 유지보수 SW
-          var c4 = $('#MaintenanceSW').DataTable({
+          var c4 = $('#maintenanceSW').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -1785,19 +2078,19 @@
               ],
           });
 
-          var MaintenanceSWCounter = 0;
+          var maintenanceSWCounter = 0;
 
           $('#addMaintenanceSW').on('click', function () {
             c4.row.add([
-                '<div class="d-none" value="0" name="typeId" id="MaintenanceSW0' + MaintenanceSWCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="MaintenanceSWCompany" ' +
-                'id="MaintenanceSW1' + MaintenanceSWCounter + '" onkeydown="magicsearchtab(MaintenanceSW1' + MaintenanceSWCounter + ')">',
-                '<input class="input-form" type="text" style="width: 350px;" name="MaintenanceSWContents" id="MaintenanceSW2' + MaintenanceSWCounter + '">',
-                '<input class="money input-form"  name="MaintenanceSWPrice" style="width: 200px;" id="MaintenanceSW3' + MaintenanceSWCounter + '">',
+                '<div class="d-none" value="0" name="maintenanceSWTypeId" id="maintenanceSW0' + maintenanceSWCounter + '">추가</div>',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="maintenanceSWCompany" ' +
+                'id="maintenanceSW1' + maintenanceSWCounter + '" onkeydown="magicsearchtab(maintenanceSW1' + maintenanceSWCounter + ')">',
+                '<input class="input-form" type="text" style="width: 350px;" name="maintenanceSWContents" id="maintenanceSW2' + maintenanceSWCounter + '">',
+                '<input class="money input-form"  name="maintenanceSWPrice" style="width: 200px;" id="maintenanceSW3' + maintenanceSWCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('#MaintenanceSW1' + MaintenanceSWCounter).magicsearch({
+            $('#maintenanceSW1' + maintenanceSWCounter).magicsearch({
                 dataSource: companyList,
                 fields: 'value',
                 id: 'id',
@@ -1808,14 +2101,14 @@
                 maxShow: 100,
             });
 
-              $('input[name=MaintenanceSWPrice]').on("change keyup paste input", function() {
-                  totalPrice('MaintenanceSWPrice', 'totalMaintenanceSWPrice');
+              $('input[name=maintenanceSWPrice]').on("change keyup paste input", function() {
+                  totalPrice('maintenanceSWPrice', 'totalMaintenanceSWPrice');
               });
 
-              MaintenanceSWCounter++;
+              maintenanceSWCounter++;
           });
 
-           $('#MaintenanceSW').on('click', 'i', function () {
+           $('#maintenanceSW').on('click', 'i', function () {
               c4
                   .row($(this).parents('tr'))
                   .remove()
@@ -1824,7 +2117,7 @@
 
 
            // 5. 인력지원 자사
-          var c5 = $('#SupportInternal').DataTable({
+          var c5 = $('#supportInternal').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -1847,26 +2140,26 @@
               ],
           });
 
-          var SupportInternalCounter = 0;
+          var supportInternalCounter = 0;
 
           $('#addSupportInternal').on('click', function () {
             c5.row.add([
-                '<div class="d-none" value="0" name="typeId" id="SupportInternal0' + SupportInternalCounter + '">추가</div>',
-                '<input class="input-form" type="text" style="width: 200px;" name="SupportInternalType" id="SupportInternal1' + SupportInternalCounter + '">',
-                '<input class="input-form" type="digit" style="width: 50px;" name="SupportInternalTimes" id="SupportInternal2' + SupportInternalCounter + '">',
-                '<input class="input-form" type="digit" style="width: 50px;" name="SupportInternalSites" id="SupportInternal3' + SupportInternalCounter + '">',
-                '<input class="input-form" type="digit" style="width: 200px;" name="SupportInternalUnits" id="SupportInternal4' + SupportInternalCounter + '">',
-                '<input class="money input-form"  name="SupportInternalPrice" style="width: 200px;" id="SupportInternal5' + SupportInternalCounter + '">',
+                '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">추가</div>',
+                '<input class="input-form" type="text" style="width: 200px;" name="supportInternalType" id="supportInternal1' + supportInternalCounter + '">',
+                '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalTimes" id="supportInternal2' + supportInternalCounter + '">',
+                '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalSites" id="supportInternal3' + supportInternalCounter + '">',
+                '<input class="input-form" type="digit" style="width: 200px;" name="supportInternalUnits" id="supportInternal4' + supportInternalCounter + '">',
+                '<input class="money input-form"  name="supportInternalPrice" style="width: 200px;" id="supportInternal5' + supportInternalCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('input[name=SupportInternalPrice]').on("change keyup paste input", function() {
-                totalPrice('SupportInternalPrice', 'totalSupportInternalPrice');
+            $('input[name=supportInternalPrice]').on("change keyup paste input", function() {
+                totalPrice('supportInternalPrice', 'totalSupportInternalPrice');
             });
-              SupportInternalCounter++;
+              supportInternalCounter++;
           });
 
-           $('#SupportInternal').on('click', 'i', function () {
+           $('#supportInternal').on('click', 'i', function () {
               c5
                   .row($(this).parents('tr'))
                   .remove()
@@ -1874,7 +2167,7 @@
           });
 
           // 6. 인력지원 타사
-          var c6 = $('#SupportExternal').DataTable({
+          var c6 = $('#supportExternal').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -1895,25 +2188,25 @@
               ],
           });
 
-          var SupportExternalCounter = 0;
+          var supportExternalCounter = 0;
 
           $('#addSupportExternal').on('click', function () {
             c6.row.add([
-                '<div class="d-none" value="0" name="typeId" id="SupportExternal0' + SupportExternalCounter + '">추가</div>',
-                '<input class="input-form" type="text" style="width: 200px;" name="SupportExternalType" id="SupportExternal1' + SupportExternalCounter + '">',
-                '<input class="input-form" type="text" style="width: 350px;" name="SupportExternalContents" id="SupportExternal2' + SupportExternalCounter + '">',
-                '<input class="money input-form"  name="SupportExternalPrice" style="width: 200px;" id="SupportExternal3' + SupportExternalCounter + '">',
+                '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">추가</div>',
+                '<input class="input-form" type="text" style="width: 200px;" name="supportExternalType" id="supportExternal1' + supportExternalCounter + '">',
+                '<input class="input-form" type="text" style="width: 350px;" name="supportExternalContents" id="supportExternal2' + supportExternalCounter + '">',
+                '<input class="money input-form"  name="supportExternalPrice" style="width: 200px;" id="supportExternal3' + supportExternalCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('input[name=SupportExternalPrice]').on("change keyup paste input", function() {
-                totalPrice('SupportExternalPrice', 'totalSupportExternalPrice');
+            $('input[name=supportExternalPrice]').on("change keyup paste input", function() {
+                totalPrice('supportExternalPrice', 'totalSupportExternalPrice');
             });
 
-              SupportExternalCounter++;
+              supportExternalCounter++;
           });
 
-           $('#SupportExternal').on('click', 'i', function () {
+           $('#supportExternal').on('click', 'i', function () {
               c6
                   .row($(this).parents('tr'))
                   .remove()
@@ -1921,7 +2214,7 @@
           });
 
            // 7. 프로젝트
-          var c7 = $('#Project').DataTable({
+          var c7 = $('#project').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -1944,26 +2237,26 @@
               ],
           });
 
-          var ProjectCounter = 0;
+          var projectCounter = 0;
 
           $('#addProject').on('click', function () {
             c7.row.add([
-                '<div class="d-none" value="0" name="typeId" id="Project0' + ProjectCounter + '">추가</div>',
-                '<input class="input-form" type="text" style="width: 200px;" name="ProjectType" id="Project1' + ProjectCounter + '">',
-                '<input class="input-form" type="digit" style="width: 50px;" name="ProjectTimes" id="Project2' + ProjectCounter + '">',
-                '<input class="input-form" type="digit" style="width: 50px;" name="ProjectSites" id="Project3' + ProjectCounter + '">',
-                '<input class="input-form" type="digit" style="width: 200px;" name="ProjectUnits" id="Project4' + ProjectCounter + '">',
-                '<input class="money input-form"  name="ProjectPrice" style="width: 200px;" id="Project5' + ProjectCounter + '">',
+                '<div class="d-none" value="0" name="projectTypeId" id="project0' + projectCounter + '">추가</div>',
+                '<input class="input-form" type="text" style="width: 200px;" name="projectType" id="project1' + projectCounter + '">',
+                '<input class="input-form" type="digit" style="width: 50px;" name="projectTimes" id="project2' + projectCounter + '">',
+                '<input class="input-form" type="digit" style="width: 50px;" name="projectSites" id="project3' + projectCounter + '">',
+                '<input class="input-form" type="digit" style="width: 200px;" name="projectUnits" id="project4' + projectCounter + '">',
+                '<input class="money input-form"  name="projectPrice" style="width: 200px;" id="project5' + projectCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('input[name=ProjectPrice]').on("change keyup paste input", function() {
-                totalPrice('ProjectPrice', 'totalProjectPrice');
+            $('input[name=projectPrice]').on("change keyup paste input", function() {
+                totalPrice('projectPrice', 'totalProjectPrice');
             });
-              ProjectCounter++;
+              projectCounter++;
           });
 
-           $('#Project').on('click', 'i', function () {
+           $('#project').on('click', 'i', function () {
               c7
                   .row($(this).parents('tr'))
                   .remove()
@@ -1971,7 +2264,7 @@
           });
 
           // 8. 기타
-          var c8 = $('#Others').DataTable({
+          var c8 = $('#others').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -1992,25 +2285,25 @@
               ],
           });
 
-          var OthersCounter = 0;
+          var othersCounter = 0;
 
           $('#addOthers').on('click', function () {
             c8.row.add([
-                '<div class="d-none" value="0" name="typeId" id="Others0' + OthersCounter + '">추가</div>',
-                '<input class="input-form" type="text" style="width: 200px;" name="OthersType" id="Others1' + OthersCounter + '">',
-                '<input class="input-form" type="text" style="width: 350px;" name="OthersContents" id="Others2' + OthersCounter + '">',
-                '<input class="money input-form"  name="OthersPrice" style="width: 200px;" id="Others3' + OthersCounter + '">',
+                '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">추가</div>',
+                '<input class="input-form" type="text" style="width: 200px;" name="othersType" id="others1' + othersCounter + '">',
+                '<input class="input-form" type="text" style="width: 350px;" name="othersContents" id="others2' + othersCounter + '">',
+                '<input class="money input-form"  name="othersPrice" style="width: 200px;" id="others3' + othersCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('input[name=OthersPrice]').on("change keyup paste input", function() {
-                totalPrice('OthersPrice', 'totalOthersPrice');
+            $('input[name=othersPrice]').on("change keyup paste input", function() {
+                totalPrice('othersPrice', 'totalOthersPrice');
             });
 
-              OthersCounter++;
+              othersCounter++;
           });
 
-           $('#Others').on('click', 'i', function () {
+           $('#others').on('click', 'i', function () {
               c8
                   .row($(this).parents('tr'))
                   .remove()

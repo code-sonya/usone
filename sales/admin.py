@@ -88,9 +88,9 @@ class PurchasetypeaAdmin(admin.ModelAdmin):
 
 @admin.register(Purchasetypeb)
 class PurchasetypebAdmin(admin.ModelAdmin):
-    list_display = ('typeId', 'contractId', 'classification', 'times', 'sites', 'unitPrice', 'price', 'classNumber')
+    list_display = ('typeId', 'contractId', 'classification', 'times', 'sites', 'units', 'price', 'classNumber')
     list_filter = ('contractId', 'classNumber')
-    list_display_links = ['typeId', 'contractId', 'classification', 'times', 'sites', 'unitPrice', 'price', 'classNumber']
+    list_display_links = ['typeId', 'contractId', 'classification', 'times', 'sites', 'units', 'price', 'classNumber']
 
 
 @admin.register(Purchasetypec)

@@ -237,7 +237,7 @@ class Purchasetypeb(models.Model):
     classification = models.CharField(max_length=20,  choices=classificationChoices)
     times = models.IntegerField(null=True, blank=True)
     sites = models.IntegerField(null=True, blank=True)
-    unitPrice = models.IntegerField()
+    units = models.IntegerField()
     price = models.IntegerField()
     classNumber = models.IntegerField(choices=classNumberChoices)
 
