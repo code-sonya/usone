@@ -78,6 +78,26 @@
       border-collapse: collapse;
     }
 
+    .td-img {
+      max-width: 40%;
+      height: auto;
+    }
+
+    .file-table {
+      color: #333333;
+      width: 100%;
+      margin-bottom: 2rem;
+    }
+
+    .file-table td, .file-table th {
+      padding: .75rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #e3e6f0;
+      font-size: 14px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
   </style>
 
 {% endblock %}
@@ -87,7 +107,7 @@
 
   <div class="d-none d-lg-block">
     <div class="card shadow mb-4">
-      <div id="pdf">
+      <div>
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h3 class="m-0 text-gray-800"> [{{ contract.contractCode }}] {{ contract.contractName }} </h3>
           <div style="font-size: 14px">
@@ -98,7 +118,7 @@
             수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
             {% endif %}
           </div>
-          <div>
+          <div class="input-group-btn">
             <select class="form-control">
               <option>매출견적서</option>
               <option>수주통보서</option>
@@ -110,18 +130,79 @@
         </div>
 
         <div class="card-body">
+
           <h5 class="text-dark mb-3"><b>
             <span id="processDown" onclick="downClick('process', 'processUp', 'processDown')">▼</span>
             <span id="processUp" class="d-none" onclick="upClick('process', 'processUp', 'processDown')">▶</span>
             진행단계
           </b></h5>
-          <table class="flow-table">
-          <tr>
-            <td><div class="text-secondary">계약준비</div><img src="/media/icon/prepare.png" width="15%"><div class="text-secondary">매출견적서[결재완료]</div></td>
-            <td><div class="text-secondary">수주통보서</div><img src="/media/icon/ordernoti.png" width="15%"><div class="text-primary">수주통보서[결재중]</div></td>
-            <td><div class="text-secondary">매출발행</div><img src="/media/icon/ordermail_grey.png" width="15%"><div class="text-secondary">매출발행[결재전]</div></td>
-          </tr>
+          <table id="process" class="flow-table">
+            <tr>
+              <td>매입견적서</td>
+              <td>매출견적서</td>
+              <td>계약서</td>
+              <td>수주통보서</td>
+              <td>매입발주서</td>
+              <td>납품,구축,검수확인서</td>
+              <td>매출발행</td>
+            </tr>
+            <tr>
+              <td>
+                <a href="#" id="" onclick="open_upload('매입견적서')">
+                  <img class="td-img" src="/media/icon/prepare.png">
+                </a>
+              </td>
+              <td>
+                <a href="#" id="" onclick="open_upload('매출견적서')">
+                  <img class="td-img" src="/media/icon/prepare.png">
+                </a>
+              </td>
+              <td>
+                <a href="#" id="" onclick="open_upload('계약서')">
+                  <img class="td-img" src="/media/icon/prepare.png">
+                </a>
+              </td>
+              <td>
+                <a href="#" id="" onclick="open_upload('수주통보서')">
+                  <img class="td-img" src="/media/icon/ordernoti.png">
+                </a>
+              </td>
+              <td>
+                <a href="#" id="" onclick="open_upload('매입발주서')">
+                  <img class="td-img" src="/media/icon/ordernoti.png">
+                </a>
+              </td>
+              <td>
+                <a href="#" id="" onclick="open_upload('납품,구축,검수확인서')">
+                  <img class="td-img" src="/media/icon/ordernoti.png">
+                </a>
+              </td>
+              <td>
+                <a href="#" id="" onclick="open_upload('매출발행')">
+                  <img class="td-img" src="/media/icon/ordermail_grey.png">
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td>[업로드완료]</td>
+              <td>[업로드완료]</td>
+              <td>[업로드완료]</td>
+              <td>[업로드완료]</td>
+              <td>[업로드완료]</td>
+              <td>[업로드완료]</td>
+              <td>[업로드완료]</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>[결재완료]</td>
+              <td></td>
+              <td>[결재완료]</td>
+              <td></td>
+              <td></td>
+              <td>[결재완료]</td>
+            </tr>
           </table>
+
           <h5 class="text-dark mb-3"><b>
             <span id="contractDown" onclick="downClick('contract', 'contractUp', 'contractDown')">▼</span>
             <span id="contractUp" class="d-none" onclick="upClick('contract', 'contractUp', 'contractDown')">▶</span>
@@ -527,9 +608,74 @@
     </div>
   </div>
 
+
+  <!-- file upload modal 모달 화면 -->
+  <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="uploadModalLabel">첨부파일 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="uploadForm" method="POST" enctype="multipart/form-data"
+                action="/sales/savecontractfiles/{{ contract.contractId }}/">
+            {% csrf_token %}
+          </form>
+          <span id="fileType" class="d-none"></span>
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="65%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
+              <td width="15%">
+                <label class="m-0 btn btn-info btn-icon-split">
+                  <span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>
+                  <input id="files" name="files" type="file" multiple="multiple" class="d-none" onchange=file_names(this.id)>
+                </label>
+              </td>
+            </tr>
+            </thead>
+            <tbody id="filesTbody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_upload()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  {#모바일화면#}
   <div class="d-lg-none">
     <div class="card shadow mb-4">
-      <div id="pdf">
+      <div>
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h3 class="m-0 text-gray-800">{{ contract.contractName }}</h3>
         </div>
@@ -894,14 +1040,14 @@
               <table id="servicesMobile" class="cell-border mobile-table" width="100%" style="width: 100%; table-layout: auto;">
                 <thead>
                 <tr class="bg-info">
-                  <th class="text-gray-100 font-weight-normal" >엔지니어</th>
-                  <th class="text-gray-100 font-weight-normal" >구분</th>
-                  <th class="text-gray-100 font-weight-normal" >날짜</th>
-                  <th class="text-gray-100 font-weight-normal" >작업내용</th>
-                  <th class="text-gray-100 font-weight-normal" >일반근무시간</th>
-                  <th class="text-gray-100 font-weight-normal" >초과근무시간</th>
-                  <th class="text-gray-100 font-weight-normal" >기본수당</th>
-                  <th class="text-gray-100 font-weight-normal" >시간외수당</th>
+                  <th class="text-gray-100 font-weight-normal">엔지니어</th>
+                  <th class="text-gray-100 font-weight-normal">구분</th>
+                  <th class="text-gray-100 font-weight-normal">날짜</th>
+                  <th class="text-gray-100 font-weight-normal">작업내용</th>
+                  <th class="text-gray-100 font-weight-normal">일반근무시간</th>
+                  <th class="text-gray-100 font-weight-normal">초과근무시간</th>
+                  <th class="text-gray-100 font-weight-normal">기본수당</th>
+                  <th class="text-gray-100 font-weight-normal">시간외수당</th>
                   <th class="d-none">serviceId</th>
                 </tr>
                 </thead>
@@ -955,6 +1101,44 @@
           }
       }
 
+      function open_upload(fileType) {
+          $('#fileType').text(fileType);
+          $('#uploadModalLabel').text(fileType + ' 등록');
+          $('#uploadModal').modal('show');
+      }
+
+      function btn_upload() {
+          let fileType = $('#fileType').text();
+          let uploadForm = $('#uploadForm');
+
+          // 파일종류
+          $('<input />', {
+              type: 'hidden',
+              name: 'fileType',
+              value: fileType,
+          }).appendTo(uploadForm);
+
+          // 첨부파일
+          uploadForm.append($("#files"));
+          let filesName = $('td[name="filesName"]');
+          let filesSize = $('td[name="filesSize"]');
+          let listFile = [];
+          let data;
+          for (let i = 0; i < filesName.length; i++) {
+              data = {};
+              data.fileName = filesName[i].innerText;
+              data.fileSize = filesSize[i].innerText;
+              listFile.push(data);
+          }
+          $('<input />', {
+              type: 'hidden',
+              name: 'jsonFile',
+              value: JSON.stringify(listFile)
+          }).appendTo(uploadForm);
+
+          uploadForm.submit();
+      }
+
       function downClick(table, up, down) {
           $('#' + table).addClass('d-none');
           $('#' + up).removeClass('d-none');
@@ -978,6 +1162,29 @@
               newStr = '-'
           }
           return newStr
+      }
+
+      function file_names(id) {
+          let files = $('#' + id).get(0).files;
+          let filesTbody = $('#filesTbody');
+          let file;
+          let tr;
+          filesTbody.empty();
+
+          for (let i = 0; i < files.length; i++) {
+              file = files[i];
+              tr = '<tr>';
+              tr += '<td class="text-left" name="filesName">' + file.name + '</td>';
+              tr += '<td name="filesSize">' + (file.size / 1048576).toFixed(2) + 'MB</td>';
+              tr += '<td><i class="fas fa-times-circle" name="remove" onclick="remove_row(this)"></i></td>';
+              tr += '</tr>';
+              filesTbody.append(tr);
+          }
+      }
+
+      function remove_row(obj) {
+          let row = $(obj).parent().parent();
+          row.remove();
       }
 
       $(document).ready(function () {

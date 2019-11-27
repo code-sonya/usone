@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Contractfile
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
@@ -2769,3 +2769,28 @@ def view_incentive_pdf(request, empId):
     if pisaStatus.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
+
+
+def save_contract_files(request, contractId):
+    if request.method == 'POST':
+
+        # 1. 첨부파일 업로드 정보
+        jsonFile = json.loads(request.POST['jsonFile'])
+        filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
+        filesName = []  # [fileName1, fileName2, ...]
+        for i in jsonFile:
+            filesInfo[i['fileName']] = i['fileSize']
+            filesName.append(i['fileName'])
+
+        # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
+        for f in request.FILES.getlist('files'):
+            if f.name in filesName:
+                Contractfile.objects.create(
+                    contractId=Contract.objects.get(contractId=contractId),
+                    fileCategory=request.POST['fileType'],
+                    fileName=f.name,
+                    fileSize=filesInfo[f.name][:-2],
+                    file=f,
+                    uploadDatetime=datetime.now(),
+                )
+        return redirect('sales:viewcontract', contractId)
