@@ -98,7 +98,15 @@
             수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
             {% endif %}
           </div>
-          <div><select><option>매출견적서</option><option>수주통보서</option><option>매출발행</option><option>선발주</option></select><button class="btn btn-secondary ml-2">결재</button></div>
+          <div>
+            <select class="form-control">
+              <option>매출견적서</option>
+              <option>수주통보서</option>
+              <option>매출발행</option>
+              <option>선발주</option>
+            </select>
+            <button class="btn btn-secondary ml-2">결재</button>
+          </div>
         </div>
 
         <div class="card-body">
