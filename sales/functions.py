@@ -14,7 +14,7 @@ from django.db.models.functions import Coalesce
 from hr.models import Employee
 
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile
 from service.models import Company, Customer, Servicereport
 from django.db.models import Q
 from datetime import datetime, timedelta, date
@@ -24,13 +24,26 @@ from service.functions import link_callback
 
 
 def viewContract(contractId):
+    # 첨부파일
+    files_a = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매입견적서').order_by('uploadDatetime')
+    files_b = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출견적서').order_by('uploadDatetime')
+    files_c = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='계약서').order_by('uploadDatetime')
+    files_d = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='수주통보서').order_by('uploadDatetime')
+    files_e = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매입발주서').order_by('uploadDatetime')
+    files_f = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='납품,구축,검수확인서').order_by('uploadDatetime')
+    files_g = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출발행').order_by('uploadDatetime')
+
     # 계약, 세부정보, 매출, 매입, 계약서 명, 수주통보서 명
     contract = Contract.objects.get(contractId=contractId)
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
     costs = Cost.objects.filter(contractId=contractId)
-    services = Servicereport.objects.filter(Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
+    services = Servicereport.objects.filter(
+        Q(contractId=contractId) & 
+        Q(serviceStatus='Y') & 
+        (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀'))
+    )
     contractPaper = str(contract.contractPaper).split('/')[-1]
     orderPaper = str(contract.orderPaper).split('/')[-1]
 
@@ -52,12 +65,23 @@ def viewContract(contractId):
     for year in yearList:
         temp = {
             'year': str(year),
-            'revenuePrice': revenues.aggregate(revenuePrice=Coalesce(Sum('revenuePrice', filter=Q(predictBillingDate__year=year)), 0))['revenuePrice'],
-            'purchasePrice': purchases.aggregate(purchasePrice=Coalesce(Sum('purchasePrice', filter=Q(predictBillingDate__year=year)), 0))['purchasePrice'] +
-                             costs.aggregate(costPrice=Coalesce(Sum('costPrice', filter=Q(billingDate__year=year)), 0))['costPrice'],
-            'revenueProfitPrice': revenues.aggregate(revenueProfitPrice=Coalesce(Sum('revenueProfitPrice', filter=Q(predictBillingDate__year=year)), 0))['revenueProfitPrice'],
-            'depositPrice': revenues.aggregate(depositPrice=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False) & Q(predictBillingDate__year=year)), 0))['depositPrice'],
-            'withdrawPrice': purchases.aggregate(withdrawPrice=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & Q(predictBillingDate__year=year)), 0))['withdrawPrice'],
+            'revenuePrice': revenues.aggregate(
+                revenuePrice=Coalesce(Sum('revenuePrice', filter=Q(predictBillingDate__year=year)), 0)
+            )['revenuePrice'],
+            'purchasePrice': purchases.aggregate(
+                purchasePrice=Coalesce(Sum('purchasePrice', filter=Q(predictBillingDate__year=year)), 0)
+            )['purchasePrice'] + costs.aggregate(
+                costPrice=Coalesce(Sum('costPrice', filter=Q(billingDate__year=year)), 0)
+            )['costPrice'],
+            'revenueProfitPrice': revenues.aggregate(
+                revenueProfitPrice=Coalesce(Sum('revenueProfitPrice', filter=Q(predictBillingDate__year=year)), 0)
+            )['revenueProfitPrice'],
+            'depositPrice': revenues.aggregate(
+                depositPrice=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False) & Q(predictBillingDate__year=year)), 0)
+            )['depositPrice'],
+            'withdrawPrice': purchases.aggregate(
+                withdrawPrice=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False) & Q(predictBillingDate__year=year)), 0)
+            )['withdrawPrice'],
         }
         if temp['revenuePrice'] == 0:
             temp['revenueProfitRatio'] = '-'
@@ -138,6 +162,14 @@ def viewContract(contractId):
     context = {
         'revenueId': '',
         'purchaseId': '',
+        # 첨부파일
+        'files_a': files_a,
+        'files_b': files_b,
+        'files_c': files_c,
+        'files_d': files_d,
+        'files_e': files_e,
+        'files_f': files_f,
+        'files_g': files_g,
         # 계약, 세부사항, 매출, 매입, 원가, 계약서 명, 수주통보서 명
         'contract': contract,
         'services': services,
