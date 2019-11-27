@@ -420,18 +420,44 @@
             </div>
 
             <div class="form-group row">
+              <!--<div class="col-xl-6">-->
+                <!--<div class="text-dark mb-3"><b>7. 프로젝트</b></div>-->
+                <!--<table id="project" class="display" style="width:100%">-->
+                  <!--<thead style="width:100%">-->
+                  <!--<tr>-->
+                    <!--<th>체크</th>-->
+                    <!--<th class="font-weight-bold text-primary">구분</th>-->
+                    <!--<th>횟수</th>-->
+                    <!--<th>사이트수</th>-->
+                    <!--<th class="font-weight-bold text-primary">단가</th>-->
+                    <!--<th class="font-weight-bold text-primary">금액</th>-->
+                    <!--<th><i id="addProject" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>-->
+                  <!--</tr>-->
+                  <!--</thead>-->
+                  <!--<tfoot>-->
+                  <!--<tr>-->
+                    <!--<th></th>-->
+                    <!--<th></th>-->
+                    <!--<th></th>-->
+                    <!--<th></th>-->
+                    <!--<th>TOTAL : </th>-->
+                    <!--<th><span class="totalProjectPrice"></span></th>-->
+                    <!--<th></th>-->
+                  <!--</tr>-->
+                  <!--</tfoot>-->
+                <!--</table>-->
+              <!--</div>-->
               <div class="col-xl-6">
-                <div class="text-dark mb-3"><b>7. 프로젝트</b></div>
-                <table id="project" class="display" style="width:100%">
+                <div class="text-dark mb-3"><b>7. DB COSTS</b></div>
+                <table id="dbCosts" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
                     <th>체크</th>
-                    <th class="font-weight-bold text-primary">구분</th>
-                    <th>횟수</th>
-                    <th>사이트수</th>
-                    <th class="font-weight-bold text-primary">단가</th>
+                    <th class="font-weight-bold text-primary">계약번호</th>
+                    <th>계약시작일</th>
+                    <th>계약종료일</th>
                     <th class="font-weight-bold text-primary">금액</th>
-                    <th><i id="addProject" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                    <th><i id="addDbCosts" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
                   </tr>
                   </thead>
                   <tfoot>
@@ -439,9 +465,8 @@
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th></th>
                     <th>TOTAL : </th>
-                    <th><span class="totalProjectPrice"></span></th>
+                    <th><span class="totalDbCostsPrice"></span></th>
                     <th></th>
                   </tr>
                   </tfoot>
@@ -1077,42 +1102,36 @@
           supportExternal.setAttribute("name", "jsonSupportExternal");
           supportExternal.setAttribute("value", jsonSupportExternal);
           ContractForm.appendChild(supportExternal);
-           // 7. 프로젝트
-          const lengthProject= $('[name="projectTypeId"]').length;
-          const listProject = new Array();
-          if (lengthProject>0){
+           // 7. DB COSTS
+          const lengthDbCosts= $('[name="dbCostsTypeId"]').length;
+          const listDbCosts = new Array();
+          if (lengthDbCosts>0){
               statusPurchaseDetails = true;
           }
-          for (var i = 0; i <= lengthProject - 1; i++) {
-              if ($('input[name="projectType"]').eq(i).val() == '') {
-                  alert("프로젝트의 구분을 입력해주세요.");
+          for (var i = 0; i <= lengthDbCosts - 1; i++) {
+              if ($('input[name="dbCostsNumber"]').eq(i).val() == '') {
+                  alert("DB COSTS의 계약번호를 입력해주세요.");
                   return false;
               }
-              if ($('input[name="projectUnits"]').eq(i).val() == '') {
-                  alert("프로젝트의 단가를 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="projectPrice"]').eq(i).val() == '') {
-                  alert("프로젝트의 금액을 입력해주세요.");
+              if ($('input[name="dbCostsPrice"]').eq(i).val() == '') {
+                  alert("DB COSTS의 금액을 입력해주세요.");
                   return false;
               }
               var data = new Object();
-              data.typeId = $('div[name="projectTypeId"]').eq(i).text();
-              data.type = $('input[name="projectType"]').eq(i).val();
-              data.times = $('input[name="projectTimes"]').eq(i).val();
-              data.sites = $('input[name="projectSites"]').eq(i).val();
-              data.units = $('input[name="projectUnits"]').eq(i).val();
-              console.log($('input[name="projectPrice"]').eq(i).val());
-              data.price = Number($('input[name="projectPrice"]').eq(i).val().replace(/,/g, ''));
+              data.typeId = $('div[name="dbCostsTypeId"]').eq(i).text();
+              data.number = $('input[name="dbCostsNumber"]').eq(i).val();
+              data.start = $('input[name="dbCostsStart"]').eq(i).val();
+              data.end = $('input[name="dbCostsEnd"]').eq(i).val();
+              data.price = Number($('input[name="dbCostsPrice"]').eq(i).val().replace(/,/g, ''));
               sumPurchaseDetails += data.price;
-              listProject.push(data);
+              listDbCosts.push(data);
           }
-          const jsonProject = JSON.stringify(listProject);
-          const project = document.createElement("input");
-          project.setAttribute("type", "hidden");
-          project.setAttribute("name", "jsonProject");
-          project.setAttribute("value", jsonProject);
-          ContractForm.appendChild(project);
+          const jsonDbCosts = JSON.stringify(listDbCosts);
+          const dbCosts = document.createElement("input");
+          dbCosts.setAttribute("type", "hidden");
+          dbCosts.setAttribute("name", "jsonDbCosts");
+          dbCosts.setAttribute("value", jsonDbCosts);
+          ContractForm.appendChild(dbCosts);
            // 8. 기타
           const lengthOthers= $('[name="othersTypeId"]').length;
           const listOthers = new Array();
@@ -1932,6 +1951,42 @@
               goodsHWCounter++;
           });
 
+          {% if goodsHWs %}
+              {% for goodsHW in goodsHWs %}
+              console.log("{{ goodsHW.companyName }}");
+                  c1.row.add([
+                      '<div class="d-none" value="0" name="goodsHWTypeId" id="goodsHW0' + goodsHWCounter + '">추가</div>',
+                      '<input class="magicsearch input-form" autocomplete="off" data-id="{{ goodsHW.companyName }}" type="text" style="width: 200px;" name="goodsHWCompany" ' +
+                      'id="goodsHW1' + goodsHWCounter + '" onkeydown="magicsearchtab(goodsHW1' + goodsHWCounter + ')">',
+                      '<input class="input-form" type="text" style="width: 350px;" value="{{ goodsHW.contents }}" name="goodsHWContents" id="goodsHW2' + goodsHWCounter + '">',
+                      '<input class="money input-form"  name="goodsHWPrice" value="{{ goodsHW.price }}" style="width: 200px;" id="goodsHW3' + goodsHWCounter + '">',
+                      '<i class="fas fa-times-circle" name="remove">'
+                  ]);
+                  goodsHWCounter++;
+              {% endfor %}
+              c1.draw();
+              console.log(goodsHWCounter);
+              for (var c = 0; c < goodsHWCounter; c++) {
+                  $('#goodsHW1' + c).magicsearch({
+                      dataSource: companyList,
+                      fields: 'value',
+                      id: 'id',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                      maxShow: 100,
+                  });
+              }
+              $('.money').simpleMoneyFormat();
+
+              $('input[name=goodsHWPrice]').on("change keyup paste input", function() {
+                  totalPrice('goodsHWPrice', 'totalGoodsHWPrice');
+              });
+          // {% else %}
+          //     $('#addGoodsHW').click();
+          {% endif %}
+
            $('#goodsHW').on('click', 'i', function () {
               c1
                   .row($(this).parents('tr'))
@@ -1991,6 +2046,41 @@
               goodsHWCounter++;
           });
 
+          {% if goodsSWs %}
+              {% for goodsSW in goodsSWs %}
+              console.log("{{ goodsSW.companyName }}");
+                  c2.row.add([
+                      '<div class="d-none" value="0" name="goodsSWTypeId" id="goodsSW0' + goodsSWCounter + '">추가</div>',
+                      '<input class="magicsearch input-form" autocomplete="off" data-id="{{ goodsSW.companyName }}" type="text" style="width: 200px;" name="goodsSWCompany" ' +
+                      'id="goodsSW1' + goodsSWCounter + '" onkeydown="magicsearchtab(goodsSW1' + goodsSWCounter + ')">',
+                      '<input class="input-form" type="text" style="width: 350px;" value="{{ goodsSW.contents }}" name="goodsSWContents" id="goodsSW2' + goodsSWCounter + '">',
+                      '<input class="money input-form"  name="goodsSWPrice" value="{{ goodsSW.price }}" style="width: 200px;" id="goodsSW3' + goodsSWCounter + '">',
+                      '<i class="fas fa-times-circle" name="remove">'
+                  ]);
+                  goodsSWCounter++;
+              {% endfor %}
+              c2.draw();
+              console.log(goodsSWCounter);
+              for (var c = 0; c < goodsSWCounter; c++) {
+                  $('#goodsSW1' + c).magicsearch({
+                      dataSource: companyList,
+                      fields: 'value',
+                      id: 'id',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                      maxShow: 100,
+                  });
+              }
+              $('.money').simpleMoneyFormat();
+
+              $('input[name=goodsSWPrice]').on("change keyup paste input", function() {
+                  totalPrice('goodsSWPrice', 'totalGoodsSWPrice');
+              });
+          {% endif %}
+
+
            $('#goodsSW').on('click', 'i', function () {
               c2
                   .row($(this).parents('tr'))
@@ -2048,6 +2138,40 @@
 
               maintenanceHWCounter++;
           });
+
+          {% if maintenanceHWs %}
+              {% for maintenanceHW in maintenanceHWs %}
+              console.log("{{ maintenanceHW.companyName }}");
+                  c3.row.add([
+                      '<div class="d-none" value="0" name="maintenanceHWTypeId" id="maintenanceHW0' + maintenanceHWCounter + '">추가</div>',
+                      '<input class="magicsearch input-form" autocomplete="off" data-id="{{ maintenanceHW.companyName }}" type="text" style="width: 200px;" name="maintenanceHWCompany" ' +
+                      'id="maintenanceHW1' + maintenanceHWCounter + '" onkeydown="magicsearchtab(maintenanceHW1' + maintenanceHWCounter + ')">',
+                      '<input class="input-form" type="text" style="width: 350px;" value="{{ maintenanceHW.contents }}" name="maintenanceHWContents" id="maintenanceHW2' + maintenanceHWCounter + '">',
+                      '<input class="money input-form"  name="maintenanceHWPrice" value="{{ maintenanceHW.price }}" style="width: 200px;" id="maintenanceHW3' + maintenanceHWCounter + '">',
+                      '<i class="fas fa-times-circle" name="remove">'
+                  ]);
+                  maintenanceHWCounter++;
+              {% endfor %}
+              c3.draw();
+              console.log(maintenanceHWCounter);
+              for (var c = 0; c < maintenanceHWCounter; c++) {
+                  $('#maintenanceHW1' + c).magicsearch({
+                      dataSource: companyList,
+                      fields: 'value',
+                      id: 'id',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                      maxShow: 100,
+                  });
+              }
+              $('.money').simpleMoneyFormat();
+
+              $('input[name=maintenanceHWPrice]').on("change keyup paste input", function() {
+                  totalPrice('maintenanceHWPrice', 'totalMaintenanceHWPrice');
+              });
+          {% endif %}
 
            $('#maintenanceHW').on('click', 'i', function () {
               c3
@@ -2213,8 +2337,8 @@
                   .draw();
           });
 
-           // 7. 프로젝트
-          var c7 = $('#project').DataTable({
+           // 7. DB COSTS
+          var c7 = $('#dbCosts').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -2227,36 +2351,34 @@
               },
               "ordering": false,
               "columnDefs": [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
                   {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "20%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
           });
 
-          var projectCounter = 0;
+          var dbCostsCounter = 0;
 
-          $('#addProject').on('click', function () {
+          $('#addDbCosts').on('click', function () {
             c7.row.add([
-                '<div class="d-none" value="0" name="projectTypeId" id="project0' + projectCounter + '">추가</div>',
-                '<input class="input-form" type="text" style="width: 200px;" name="projectType" id="project1' + projectCounter + '">',
-                '<input class="input-form" type="digit" style="width: 50px;" name="projectTimes" id="project2' + projectCounter + '">',
-                '<input class="input-form" type="digit" style="width: 50px;" name="projectSites" id="project3' + projectCounter + '">',
-                '<input class="input-form" type="digit" style="width: 200px;" name="projectUnits" id="project4' + projectCounter + '">',
-                '<input class="money input-form"  name="projectPrice" style="width: 200px;" id="project5' + projectCounter + '">',
+                '<div class="d-none" value="0" name="dbCostsTypeId" id="dbCosts0' + dbCostsCounter + '">추가</div>',
+                '<input class="input-form" type="text" style="width: 130px;" name="dbCostsNumber" id="dbCosts1' + dbCostsCounter + '">',
+                '<input class="input-form" type="date" style="width: 200px;" name="dbCostsStart" id="dbCosts2' + dbCostsCounter + '">',
+                '<input class="input-form" type="date" style="width: 200px;" name="dbCostsEnd" id="dbCosts3' + dbCostsCounter + '">',
+                '<input class="money input-form"  name="dbCostsPrice" style="width: 200px;" id="dbCosts4' + dbCostsCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('input[name=projectPrice]').on("change keyup paste input", function() {
-                totalPrice('projectPrice', 'totalProjectPrice');
+            $('input[name=dbCostsPrice]').on("change keyup paste input", function() {
+                totalPrice('dbCostsPrice', 'totalDbCostsPrice');
             });
-              projectCounter++;
+              dbCostsCounter++;
           });
 
-           $('#project').on('click', 'i', function () {
+           $('#dbCosts').on('click', 'i', function () {
               c7
                   .row($(this).parents('tr'))
                   .remove()

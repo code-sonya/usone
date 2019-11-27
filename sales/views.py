@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Purchasetypea, Purchasetypeb, Purchasetypec
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
@@ -181,16 +181,15 @@ def post_contract(request):
                     price=int(supportExternal["price"]),
                 )
 
-            jsonProject = json.loads(request.POST['jsonProject'])
-            for proejct in jsonProject:
-                Purchasetypeb.objects.create(
+            jsonDbCosts = json.loads(request.POST['jsonDbCosts'])
+            for dbCosts in jsonDbCosts:
+                Purchasetyped.objects.create(
                     classNumber=7,
                     contractId=post,
-                    classification=proejct["type"],
-                    times=int(proejct["times"] or 0) or None,
-                    sites=int(proejct["sites"] or 0) or None,
-                    units=int(proejct["units"]),
-                    price=int(proejct["price"]),
+                    contractNo=dbCosts["number"],
+                    contractStartDate=dbCosts["start"] or None,
+                    contractEndDate=dbCosts["end"] or None,
+                    price=int(dbCosts["price"]),
                 )
 
             jsonOthers = json.loads(request.POST['jsonOthers'])
@@ -490,6 +489,14 @@ def modify_contract(request, contractId):
         endCompanyNames = Contract.objects.get(contractId=contractId).endCompanyName
         contractPaper = str(form.save(commit=False).contractPaper).split('/')[-1]
         orderPaper = str(form.save(commit=False).orderPaper).split('/')[-1]
+        goodsHWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=1))
+        goodsSWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=2))
+        maintenanceHWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=3))
+        maintenanceSWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=4))
+        supportInternals = Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=5))
+        supportExternals = Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=6))
+        dbCosts = Purchasetyped.objects.filter(Q(contractId=contractId) & Q(classNumber=7))
+        others = Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=8))
 
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
@@ -528,6 +535,14 @@ def modify_contract(request, contractId):
             'companyNames': companyNames,
             'empNames': empNames,
             'costCompany': costCompany,
+            'goodsHWs': goodsHWs,
+            'goodsSWs': goodsSWs,
+            'maintenanceHWs': maintenanceHWs,
+            'maintenanceSWs': maintenanceSWs,
+            'supportInternals': supportInternals,
+            'supportExternals': supportExternals,
+            'dbCosts': dbCosts,
+            'others': others,
         }
         return render(request, 'sales/postcontract.html', context)
 
