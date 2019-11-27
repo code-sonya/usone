@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Contractfile
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Purchasetypea, Purchasetypeb, Purchasetypec, Contractfile
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
@@ -113,6 +113,94 @@ def post_contract(request):
                     billingTime=None,
                     billingDate=datetime(year=int(cost["costDate"]), month=12, day=31),
                     comment=cost["costComment"],
+                )
+
+            jsonGoodsHW = json.loads(request.POST['jsonGoodsHW'])
+            for goodsHW in jsonGoodsHW:
+                company = Company.objects.get(companyNameKo=goodsHW["company"])
+                Purchasetypea.objects.create(
+                    classNumber=1,
+                    contractId=post,
+                    companyName=company,
+                    contents=goodsHW["contents"],
+                    price=int(goodsHW["price"]),
+                )
+
+            jsonGoodsSW = json.loads(request.POST['jsonGoodsSW'])
+            for goodsSW in jsonGoodsSW:
+                company = Company.objects.get(companyNameKo=goodsSW["company"])
+                Purchasetypea.objects.create(
+                    classNumber=2,
+                    contractId=post,
+                    companyName=company,
+                    contents=goodsSW["contents"],
+                    price=int(goodsSW["price"]),
+                )
+
+            jsonMaintenanceHW = json.loads(request.POST['jsonMaintenanceHW'])
+            for maintenanceHW in jsonMaintenanceHW:
+                company = Company.objects.get(companyNameKo=maintenanceHW["company"])
+                Purchasetypea.objects.create(
+                    classNumber=3,
+                    contractId=post,
+                    companyName=company,
+                    contents=maintenanceHW["contents"],
+                    price=int(maintenanceHW["price"]),
+                )
+
+            jsonMaintenanceSW = json.loads(request.POST['jsonMaintenanceSW'])
+            for maintenanceSW in jsonMaintenanceSW:
+                company = Company.objects.get(companyNameKo=maintenanceSW["company"])
+                Purchasetypea.objects.create(
+                    classNumber=4,
+                    contractId=post,
+                    companyName=company,
+                    contents=maintenanceSW["contents"],
+                    price=int(maintenanceSW["price"]),
+                )
+
+            jsonSupportInternal = json.loads(request.POST['jsonSupportInternal'])
+            for supportInternal in jsonSupportInternal:
+                Purchasetypeb.objects.create(
+                    classNumber=5,
+                    contractId=post,
+                    classification=supportInternal["type"],
+                    times=int(supportInternal["times"] or 0) or None,
+                    sites=int(supportInternal["sites"] or 0) or None,
+                    units=int(supportInternal["units"]),
+                    price=int(supportInternal["price"]),
+                )
+
+            jsonSupportExternal = json.loads(request.POST['jsonSupportExternal'])
+            for supportExternal in jsonSupportExternal:
+                Purchasetypec.objects.create(
+                    classNumber=6,
+                    contractId=post,
+                    classification=supportExternal["type"],
+                    contents=supportExternal["contents"],
+                    price=int(supportExternal["price"]),
+                )
+
+            jsonProject = json.loads(request.POST['jsonProject'])
+            for proejct in jsonProject:
+                Purchasetypeb.objects.create(
+                    classNumber=7,
+                    contractId=post,
+                    classification=proejct["type"],
+                    times=int(proejct["times"] or 0) or None,
+                    sites=int(proejct["sites"] or 0) or None,
+                    units=int(proejct["units"]),
+                    price=int(proejct["price"]),
+                )
+
+            jsonOthers = json.loads(request.POST['jsonOthers'])
+            for others in jsonOthers:
+                Purchasetypec.objects.create(
+                    classNumber=8,
+                    contractId=post,
+                    classification=others["type"],
+                    contents=others["contents"],
+                    price=int(others["price"]),
                 )
 
             return redirect('sales:showcontracts')

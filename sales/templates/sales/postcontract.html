@@ -339,6 +339,210 @@
               </div>
             </div>
 
+            <hr class="divider">
+             <h5 class="text-dark mb-3"><b>▼ 하도급계약 상세내용</b></h5>
+            <div class="form-group row">
+              <div class="col-xl-6">
+                <div class="text-dark mb-3"><b>1. 상품_HW</b></div>
+                <table id="goodsHW" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>체크</th>
+                    <th class="font-weight-bold text-primary">거래처</th>
+                    <th class="font-weight-bold text-primary">내역</th>
+                    <th class="font-weight-bold text-primary">금액</th>
+                    <th><i id="addGoodsHW" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                     <th></th>
+                    <th>TOTAL : </th>
+                    <th><span class="totalGoodsHWPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="col-xl-6">
+                <div class="text-dark mb-3"><b>2. 상품_SW</b></div>
+                <table id="goodsSW" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>체크</th>
+                    <th class="font-weight-bold text-primary">거래처</th>
+                    <th class="font-weight-bold text-primary">내역</th>
+                    <th class="font-weight-bold text-primary">금액</th>
+                    <th><i id="addGoodsSW" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL : </th>
+                    <th><span class="totalGoodsSWPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-xl-6">
+                <div class="text-dark mb-3"><b>3. 유지보수_HW</b></div>
+                <table id="maintenanceHW" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>체크</th>
+                    <th class="font-weight-bold text-primary">거래처</th>
+                    <th class="font-weight-bold text-primary">내역</th>
+                    <th class="font-weight-bold text-primary">금액</th>
+                    <th><i id="addMaintenanceHW" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL : </th>
+                    <th><span class="totalMaintenanceHWPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="col-xl-6">
+                <div class="text-dark mb-3"><b>4. 유지보수_SW</b></div>
+                <table id="maintenanceSW" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>체크</th>
+                    <th class="font-weight-bold text-primary">거래처</th>
+                    <th class="font-weight-bold text-primary">내역</th>
+                    <th class="font-weight-bold text-primary">금액</th>
+                    <th><i id="addMaintenanceSW" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL : </th>
+                    <th><span class="totalMaintenanceSWPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-xl-6">
+                <div class="text-dark mb-3"><b>5. 인력지원_자사서비스</b></div>
+                <table id="supportInternal" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>체크</th>
+                    <th class="font-weight-bold text-primary">구분</th>
+                    <th>횟수</th>
+                    <th>사이트수</th>
+                    <th class="font-weight-bold text-primary">단가</th>
+                    <th class="font-weight-bold text-primary">금액</th>
+                    <th><i id="addSupportInternal" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL : </th>
+                    <th><span class="totalSupportInternalPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="col-xl-6">
+                <div class="text-dark mb-3"><b>6. 인력지원_타사서비스</b></div>
+                <table id="supportExternal" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>체크</th>
+                    <th class="font-weight-bold text-primary">구분</th>
+                    <th class="font-weight-bold text-primary">내역</th>
+                    <th class="font-weight-bold text-primary">금액</th>
+                    <th><i id="addSupportExternal" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL : </th>
+                    <th><span class="totalSupportExternalPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div class="col-xl-6">
+                <div class="text-dark mb-3"><b>7. 프로젝트</b></div>
+                <table id="project" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>체크</th>
+                    <th class="font-weight-bold text-primary">구분</th>
+                    <th>횟수</th>
+                    <th>사이트수</th>
+                    <th class="font-weight-bold text-primary">단가</th>
+                    <th class="font-weight-bold text-primary">금액</th>
+                    <th><i id="addProject" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL : </th>
+                    <th><span class="totalProjectPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="col-xl-6">
+                <div class="text-dark mb-3"><b>8. 기타</b></div>
+                <table id="others" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>체크</th>
+                    <th class="font-weight-bold text-primary">구분</th>
+                    <th class="font-weight-bold text-primary">내역</th>
+                    <th class="font-weight-bold text-primary">금액</th>
+                    <th><i id="addOthers" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th>TOTAL : </th>
+                    <th><span class="totalOthersPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
             <div class="text-center">
               <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
                 <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
@@ -736,6 +940,285 @@
           cost.setAttribute("value", jsonCost);
           ContractForm.appendChild(cost);
 
+          // 하도급계약 상세내용
+          let sumPurchaseDetails = 0;
+          let statusPurchaseDetails = false;
+          // 1. 상품_HW
+          const lengthGoodsHW = $('[name="goodsHWTypeId"]').length;
+          const listGoodsHW = new Array();
+          if (lengthGoodsHW>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthGoodsHW - 1; i++) {
+              if ($('input[name="goodsHWCompany"]').eq(i).val() == '') {
+                  alert("상품_HW의 거래처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="goodsHWContents"]').eq(i).val() == '') {
+                  alert("상품_HW의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="goodsHWPrice"]').eq(i).val() == '') {
+                  alert("상품_HW의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="goodsHWTypeId"]').eq(i).text();
+              data.company = $('input[name="goodsHWCompany"]').eq(i).val();
+              data.contents = $('input[name="goodsHWContents"]').eq(i).val();
+              data.price = Number($('input[name="goodsHWPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listGoodsHW.push(data);
+          }
+          const jsonGoodsHW = JSON.stringify(listGoodsHW);
+          const goodsHW = document.createElement("input");
+          goodsHW.setAttribute("type", "hidden");
+          goodsHW.setAttribute("name", "jsonGoodsHW");
+          goodsHW.setAttribute("value", jsonGoodsHW);
+          ContractForm.appendChild(goodsHW);
+          // 2. 상품_SW
+          const lengthGoodsSW = $('[name="goodsSWTypeId"]').length;
+          const listGoodsSW = new Array();
+          if (lengthGoodsSW>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthGoodsSW - 1; i++) {
+              if ($('input[name="goodsSWCompany"]').eq(i).val() == '') {
+                  alert("상품_SW의 거래처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="goodsSWContents"]').eq(i).val() == '') {
+                  alert("상품_SW의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="goodsSWPrice"]').eq(i).val() == '') {
+                  alert("상품_SW의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="goodsSWTypeId"]').eq(i).text();
+              data.company = $('input[name="goodsSWCompany"]').eq(i).val();
+              data.contents = $('input[name="goodsSWContents"]').eq(i).val();
+              console.log($('input[name="goodsSWPrice"]').eq(i).val());
+              data.price = Number($('input[name="goodsSWPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listGoodsSW.push(data);
+          }
+          const jsonGoodsSW = JSON.stringify(listGoodsSW);
+          const goodsSW = document.createElement("input");
+          goodsSW.setAttribute("type", "hidden");
+          goodsSW.setAttribute("name", "jsonGoodsSW");
+          goodsSW.setAttribute("value", jsonGoodsSW);
+          ContractForm.appendChild(goodsSW);
+          // 3. 유지보수_HW
+          const lengthMaintenanceHW= $('[name="maintenanceHWTypeId"]').length;
+          const listMaintenanceHW = new Array();
+          if (lengthMaintenanceHW>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthMaintenanceHW - 1; i++) {
+              if ($('input[name="maintenanceHWCompany"]').eq(i).val() == '') {
+                  alert("유지보수_HW의 거래처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="maintenanceHWContents"]').eq(i).val() == '') {
+                  alert("유지보수_HW의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="maintenanceHWPrice"]').eq(i).val() == '') {
+                  alert("유지보수_HW의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="maintenanceHWTypeId"]').eq(i).text();
+              data.company = $('input[name="maintenanceHWCompany"]').eq(i).val();
+              data.contents = $('input[name="maintenanceHWContents"]').eq(i).val();
+              console.log($('input[name="maintenanceHWPrice"]').eq(i).val());
+              data.price = Number($('input[name="maintenanceHWPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listMaintenanceHW.push(data);
+          }
+          const jsonMaintenanceHW = JSON.stringify(listMaintenanceHW);
+          const maintenanceHW = document.createElement("input");
+          maintenanceHW.setAttribute("type", "hidden");
+          maintenanceHW.setAttribute("name", "jsonMaintenanceHW");
+          maintenanceHW.setAttribute("value", jsonMaintenanceHW);
+          ContractForm.appendChild(maintenanceHW);
+           // 4. 유지보수_SW
+          const lengthMaintenanceSW= $('[name="maintenanceSWTypeId"]').length;
+          const listMaintenanceSW = new Array();
+          if (lengthMaintenanceSW>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthMaintenanceSW - 1; i++) {
+              if ($('input[name="maintenanceSWCompany"]').eq(i).val() == '') {
+                  alert("유지보수_SW의 거래처를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="maintenanceSWContents"]').eq(i).val() == '') {
+                  alert("유지보수_SW의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="maintenanceSWPrice"]').eq(i).val() == '') {
+                  alert("유지보수_SW의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="maintenanceSWTypeId"]').eq(i).text();
+              data.company = $('input[name="maintenanceSWCompany"]').eq(i).val();
+              data.contents = $('input[name="maintenanceSWContents"]').eq(i).val();
+              console.log($('input[name="maintenanceSWPrice"]').eq(i).val());
+              data.price = Number($('input[name="maintenanceSWPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listMaintenanceSW.push(data);
+          }
+          const jsonMaintenanceSW = JSON.stringify(listMaintenanceSW);
+          const maintenanceSW = document.createElement("input");
+          maintenanceSW.setAttribute("type", "hidden");
+          maintenanceSW.setAttribute("name", "jsonMaintenanceSW");
+          maintenanceSW.setAttribute("value", jsonMaintenanceSW);
+          ContractForm.appendChild(maintenanceSW);
+           // 5. 인력지원_자사서비스
+          const lengthSupportInternal= $('[name="supportInternalTypeId"]').length;
+          const listSupportInternal = new Array();
+          if (lengthSupportInternal>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthSupportInternal - 1; i++) {
+              if ($('input[name="supportInternalType"]').eq(i).val() == '') {
+                  alert("인력지원_자사서비스의 구분을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="supportInternalUnits"]').eq(i).val() == '') {
+                  alert("인력지원_자사서비스의 단가를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="supportInternalPrice"]').eq(i).val() == '') {
+                  alert("인력지원_자사서비스의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="supportInternalTypeId"]').eq(i).text();
+              data.type = $('input[name="supportInternalType"]').eq(i).val();
+              data.times = $('input[name="supportInternalTimes"]').eq(i).val();
+              data.sites = $('input[name="supportInternalSites"]').eq(i).val();
+              data.units = $('input[name="supportInternalUnits"]').eq(i).val();
+              console.log($('input[name="supportInternalPrice"]').eq(i).val());
+              data.price = Number($('input[name="supportInternalPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listSupportInternal.push(data);
+          }
+          const jsonSupportInternal = JSON.stringify(listSupportInternal);
+          const supportInternal = document.createElement("input");
+          supportInternal.setAttribute("type", "hidden");
+          supportInternal.setAttribute("name", "jsonSupportInternal");
+          supportInternal.setAttribute("value", jsonSupportInternal);
+          ContractForm.appendChild(supportInternal);
+           // 6. 인력지원_타사서비스
+          const lengthSupportExternal= $('[name="supportExternalTypeId"]').length;
+          const listSupportExternal = new Array();
+          if (lengthSupportExternal>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthSupportExternal - 1; i++) {
+              if ($('input[name="supportExternalType"]').eq(i).val() == '') {
+                  alert("인력지원_타사서비스의 구분을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="supportExternalContents"]').eq(i).val() == '') {
+                  alert("인력지원_타사서비스의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="supportExternalPrice"]').eq(i).val() == '') {
+                  alert("인력지원_타사서비스의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="supportExternalTypeId"]').eq(i).text();
+              data.type = $('input[name="supportExternalType"]').eq(i).val();
+              data.contents = $('input[name="supportExternalContents"]').eq(i).val();
+              console.log($('input[name="supportExternalPrice"]').eq(i).val());
+              data.price = Number($('input[name="supportExternalPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listSupportExternal.push(data);
+          }
+          const jsonSupportExternal = JSON.stringify(listSupportExternal);
+          const supportExternal = document.createElement("input");
+          supportExternal.setAttribute("type", "hidden");
+          supportExternal.setAttribute("name", "jsonSupportExternal");
+          supportExternal.setAttribute("value", jsonSupportExternal);
+          ContractForm.appendChild(supportExternal);
+           // 7. 프로젝트
+          const lengthProject= $('[name="projectTypeId"]').length;
+          const listProject = new Array();
+          if (lengthProject>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthProject - 1; i++) {
+              if ($('input[name="projectType"]').eq(i).val() == '') {
+                  alert("프로젝트의 구분을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="projectUnits"]').eq(i).val() == '') {
+                  alert("프로젝트의 단가를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="projectPrice"]').eq(i).val() == '') {
+                  alert("프로젝트의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="projectTypeId"]').eq(i).text();
+              data.type = $('input[name="projectType"]').eq(i).val();
+              data.times = $('input[name="projectTimes"]').eq(i).val();
+              data.sites = $('input[name="projectSites"]').eq(i).val();
+              data.units = $('input[name="projectUnits"]').eq(i).val();
+              console.log($('input[name="projectPrice"]').eq(i).val());
+              data.price = Number($('input[name="projectPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listProject.push(data);
+          }
+          const jsonProject = JSON.stringify(listProject);
+          const project = document.createElement("input");
+          project.setAttribute("type", "hidden");
+          project.setAttribute("name", "jsonProject");
+          project.setAttribute("value", jsonProject);
+          ContractForm.appendChild(project);
+           // 8. 기타
+          const lengthOthers= $('[name="othersTypeId"]').length;
+          const listOthers = new Array();
+          if (lengthOthers>0){
+              statusPurchaseDetails = true;
+          }
+          for (var i = 0; i <= lengthOthers - 1; i++) {
+              if ($('input[name="othersType"]').eq(i).val() == '') {
+                  alert("기타의 구분을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="othersContents"]').eq(i).val() == '') {
+                  alert("기타의 내역을 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="othersPrice"]').eq(i).val() == '') {
+                  alert("기타의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.typeId = $('div[name="othersTypeId"]').eq(i).text();
+              data.type = $('input[name="othersType"]').eq(i).val();
+              data.contents = $('input[name="othersContents"]').eq(i).val();
+              console.log($('input[name="othersPrice"]').eq(i).val());
+              data.price = Number($('input[name="othersPrice"]').eq(i).val().replace(/,/g, ''));
+              sumPurchaseDetails += data.price;
+              listOthers.push(data);
+          }
+          const jsonOthers = JSON.stringify(listOthers);
+          const others = document.createElement("input");
+          others.setAttribute("type", "hidden");
+          others.setAttribute("name", "jsonOthers");
+          others.setAttribute("value", jsonOthers);
+          ContractForm.appendChild(others);
+
           // 금액 일치 계산
           let sumItemPrice = 0;
           for (i = 0; i < $('input[name="itemPrice"]').length; i++) {
@@ -774,6 +1257,20 @@
               let sumPurchasePrice = 0;
               for (i = 0; i < $('input[name="purchasePrice"]').length; i++) {
                   sumPurchasePrice += Number($('input[name="purchasePrice"]').eq(i).val().replace(/,/g, ''));
+              }
+
+              let sumCostPrice = 0;
+              for (i = 0; i < $('input[name="costPrice"]').length; i++) {
+                  sumCostPrice += Number($('input[name="costPrice"]').eq(i).val().replace(/,/g, ''));
+              }
+
+              if (statusPurchaseDetails == true){
+                let sumPurchase = sumPurchasePrice+sumCostPrice;
+                if (sumPurchaseDetails != sumPurchase){
+                    alert("매입금액 합계금액: " + sumPurchase.toLocaleString() + "\n" +
+                      "하도급계약 합계금액 : " + sumPurchaseDetails.toLocaleString() + "\n" +
+                      "매입금액 하도급계약 금액의 합이 일치하지 않습니다.")
+                }
               }
 
               let revenueMinusPurchase = sumRevenuePrice - sumPurchasePrice;
@@ -1464,6 +1961,437 @@
           totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
           totalPrice('purchasePrice', 'totalPurchasePrice');
           totalPrice('costPrice', 'totalCostPrice');
+
+
+          // 하도급계약 상세항목
+          // 1. 상품 HW
+          var c1 = $('#goodsHW').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+          var goodsHWCounter = 0;
+
+          $('#addGoodsHW').on('click', function () {
+            c1.row.add([
+                '<div class="d-none" value="0" name="goodsHWTypeId" id="goodsHW0' + goodsHWCounter + '">추가</div>',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="goodsHWCompany" ' +
+                'id="goodsHW1' + goodsHWCounter + '" onkeydown="magicsearchtab(goodsHW1' + goodsHWCounter + ')">',
+                '<input class="input-form" type="text" style="width: 350px;" name="goodsHWContents" id="goodsHW2' + goodsHWCounter + '">',
+                '<input class="money input-form"  name="goodsHWPrice" style="width: 200px;" id="goodsHW3' + goodsHWCounter + '">',
+                '<i class="fas fa-times-circle" name="remove">'
+            ]).draw(false);
+            $('.money').simpleMoneyFormat();
+            $('#goodsHW1' + goodsHWCounter).magicsearch({
+                dataSource: companyList,
+                fields: 'value',
+                id: 'id',
+                format: '%value%',
+                multiStyle: {space: 5, width: 80},
+                noResult: '검색결과없음',
+                focusShow: true,
+                maxShow: 100,
+            });
+
+              $('input[name=goodsHWPrice]').on("change keyup paste input", function() {
+                  totalPrice('goodsHWPrice', 'totalGoodsHWPrice');
+              });
+
+              goodsHWCounter++;
+          });
+
+           $('#goodsHW').on('click', 'i', function () {
+              c1
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
+          // 2. 상품 SW
+          var c2 = $('#goodsSW').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+
+          var goodsSWCounter = 0;
+
+          $('#addGoodsSW').on('click', function () {
+            c2.row.add([
+                '<div class="d-none" value="0" name="goodsSWTypeId" id="goodsSW0' + goodsSWCounter + '">추가</div>',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="goodsSWCompany" ' +
+                'id="goodsSW1' + goodsSWCounter + '" onkeydown="magicsearchtab(goodsSW1' + goodsSWCounter + ')">',
+                '<input class="input-form" type="text" style="width: 350px;" name="goodsSWContents" id="goodsSW2' + goodsSWCounter + '">',
+                '<input class="money input-form"  name="goodsSWPrice" style="width: 200px;" id="goodsSW3' + goodsSWCounter + '">',
+                '<i class="fas fa-times-circle" name="remove">'
+            ]).draw(false);
+            $('.money').simpleMoneyFormat();
+            $('#goodsSW1' + goodsSWCounter).magicsearch({
+                dataSource: companyList,
+                fields: 'value',
+                id: 'id',
+                format: '%value%',
+                multiStyle: {space: 5, width: 80},
+                noResult: '검색결과없음',
+                focusShow: true,
+                maxShow: 100,
+            });
+
+              $('input[name=goodsSWPrice]').on("change keyup paste input", function() {
+                  totalPrice('goodsSWPrice', 'totalGoodsSWPrice');
+              });
+
+              goodsHWCounter++;
+          });
+
+           $('#goodsSW').on('click', 'i', function () {
+              c2
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+          // 3. 유지보수 HW
+          var c3 = $('#maintenanceHW').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+
+          var maintenanceHWCounter = 0;
+
+          $('#addMaintenanceHW').on('click', function () {
+            c3.row.add([
+                '<div class="d-none" value="0" name="maintenanceHWTypeId" id="maintenanceHW0' + maintenanceHWCounter + '">추가</div>',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="maintenanceHWCompany" ' +
+                'id="maintenanceHW1' + maintenanceHWCounter + '" onkeydown="magicsearchtab(maintenanceHW1' + maintenanceHWCounter + ')">',
+                '<input class="input-form" type="text" style="width: 350px;" name="maintenanceHWContents" id="maintenanceHW2' + maintenanceHWCounter + '">',
+                '<input class="money input-form"  name="maintenanceHWPrice" style="width: 200px;" id="maintenanceHW3' + maintenanceHWCounter + '">',
+                '<i class="fas fa-times-circle" name="remove">'
+            ]).draw(false);
+            $('.money').simpleMoneyFormat();
+            $('#maintenanceHW1' + maintenanceHWCounter).magicsearch({
+                dataSource: companyList,
+                fields: 'value',
+                id: 'id',
+                format: '%value%',
+                multiStyle: {space: 5, width: 80},
+                noResult: '검색결과없음',
+                focusShow: true,
+                maxShow: 100,
+            });
+
+              $('input[name=maintenanceHWPrice]').on("change keyup paste input", function() {
+                  totalPrice('maintenanceHWPrice', 'totalMaintenanceHWPrice');
+              });
+
+              maintenanceHWCounter++;
+          });
+
+           $('#maintenanceHW').on('click', 'i', function () {
+              c3
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
+          // 4. 유지보수 SW
+          var c4 = $('#maintenanceSW').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+
+          var maintenanceSWCounter = 0;
+
+          $('#addMaintenanceSW').on('click', function () {
+            c4.row.add([
+                '<div class="d-none" value="0" name="maintenanceSWTypeId" id="maintenanceSW0' + maintenanceSWCounter + '">추가</div>',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="maintenanceSWCompany" ' +
+                'id="maintenanceSW1' + maintenanceSWCounter + '" onkeydown="magicsearchtab(maintenanceSW1' + maintenanceSWCounter + ')">',
+                '<input class="input-form" type="text" style="width: 350px;" name="maintenanceSWContents" id="maintenanceSW2' + maintenanceSWCounter + '">',
+                '<input class="money input-form"  name="maintenanceSWPrice" style="width: 200px;" id="maintenanceSW3' + maintenanceSWCounter + '">',
+                '<i class="fas fa-times-circle" name="remove">'
+            ]).draw(false);
+            $('.money').simpleMoneyFormat();
+            $('#maintenanceSW1' + maintenanceSWCounter).magicsearch({
+                dataSource: companyList,
+                fields: 'value',
+                id: 'id',
+                format: '%value%',
+                multiStyle: {space: 5, width: 80},
+                noResult: '검색결과없음',
+                focusShow: true,
+                maxShow: 100,
+            });
+
+              $('input[name=maintenanceSWPrice]').on("change keyup paste input", function() {
+                  totalPrice('maintenanceSWPrice', 'totalMaintenanceSWPrice');
+              });
+
+              maintenanceSWCounter++;
+          });
+
+           $('#maintenanceSW').on('click', 'i', function () {
+              c4
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
+
+           // 5. 인력지원 자사
+          var c5 = $('#supportInternal').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+
+          var supportInternalCounter = 0;
+
+          $('#addSupportInternal').on('click', function () {
+            c5.row.add([
+                '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">추가</div>',
+                '<input class="input-form" type="text" style="width: 200px;" name="supportInternalType" id="supportInternal1' + supportInternalCounter + '">',
+                '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalTimes" id="supportInternal2' + supportInternalCounter + '">',
+                '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalSites" id="supportInternal3' + supportInternalCounter + '">',
+                '<input class="input-form" type="digit" style="width: 200px;" name="supportInternalUnits" id="supportInternal4' + supportInternalCounter + '">',
+                '<input class="money input-form"  name="supportInternalPrice" style="width: 200px;" id="supportInternal5' + supportInternalCounter + '">',
+                '<i class="fas fa-times-circle" name="remove">'
+            ]).draw(false);
+            $('.money').simpleMoneyFormat();
+            $('input[name=supportInternalPrice]').on("change keyup paste input", function() {
+                totalPrice('supportInternalPrice', 'totalSupportInternalPrice');
+            });
+              supportInternalCounter++;
+          });
+
+           $('#supportInternal').on('click', 'i', function () {
+              c5
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
+          // 6. 인력지원 타사
+          var c6 = $('#supportExternal').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+
+          var supportExternalCounter = 0;
+
+          $('#addSupportExternal').on('click', function () {
+            c6.row.add([
+                '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">추가</div>',
+                '<input class="input-form" type="text" style="width: 200px;" name="supportExternalType" id="supportExternal1' + supportExternalCounter + '">',
+                '<input class="input-form" type="text" style="width: 350px;" name="supportExternalContents" id="supportExternal2' + supportExternalCounter + '">',
+                '<input class="money input-form"  name="supportExternalPrice" style="width: 200px;" id="supportExternal3' + supportExternalCounter + '">',
+                '<i class="fas fa-times-circle" name="remove">'
+            ]).draw(false);
+            $('.money').simpleMoneyFormat();
+            $('input[name=supportExternalPrice]').on("change keyup paste input", function() {
+                totalPrice('supportExternalPrice', 'totalSupportExternalPrice');
+            });
+
+              supportExternalCounter++;
+          });
+
+           $('#supportExternal').on('click', 'i', function () {
+              c6
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
+           // 7. 프로젝트
+          var c7 = $('#project').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+
+          var projectCounter = 0;
+
+          $('#addProject').on('click', function () {
+            c7.row.add([
+                '<div class="d-none" value="0" name="projectTypeId" id="project0' + projectCounter + '">추가</div>',
+                '<input class="input-form" type="text" style="width: 200px;" name="projectType" id="project1' + projectCounter + '">',
+                '<input class="input-form" type="digit" style="width: 50px;" name="projectTimes" id="project2' + projectCounter + '">',
+                '<input class="input-form" type="digit" style="width: 50px;" name="projectSites" id="project3' + projectCounter + '">',
+                '<input class="input-form" type="digit" style="width: 200px;" name="projectUnits" id="project4' + projectCounter + '">',
+                '<input class="money input-form"  name="projectPrice" style="width: 200px;" id="project5' + projectCounter + '">',
+                '<i class="fas fa-times-circle" name="remove">'
+            ]).draw(false);
+            $('.money').simpleMoneyFormat();
+            $('input[name=projectPrice]').on("change keyup paste input", function() {
+                totalPrice('projectPrice', 'totalProjectPrice');
+            });
+              projectCounter++;
+          });
+
+           $('#project').on('click', 'i', function () {
+              c7
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
+          // 8. 기타
+          var c8 = $('#others').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+
+          var othersCounter = 0;
+
+          $('#addOthers').on('click', function () {
+            c8.row.add([
+                '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">추가</div>',
+                '<input class="input-form" type="text" style="width: 200px;" name="othersType" id="others1' + othersCounter + '">',
+                '<input class="input-form" type="text" style="width: 350px;" name="othersContents" id="others2' + othersCounter + '">',
+                '<input class="money input-form"  name="othersPrice" style="width: 200px;" id="others3' + othersCounter + '">',
+                '<i class="fas fa-times-circle" name="remove">'
+            ]).draw(false);
+            $('.money').simpleMoneyFormat();
+            $('input[name=othersPrice]').on("change keyup paste input", function() {
+                totalPrice('othersPrice', 'totalOthersPrice');
+            });
+
+              othersCounter++;
+          });
+
+           $('#others').on('click', 'i', function () {
+              c8
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
 
       })
   </script>
