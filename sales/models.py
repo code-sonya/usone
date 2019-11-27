@@ -258,3 +258,17 @@ class Purchasetypec(models.Model):
 
     def __str__(self):
         return '{} {}'.format(self.classification, self.contractId)
+
+
+class Purchasetyped(models.Model):
+    classNumberChoices = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9))
+    typeId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    contractNo = models.CharField(max_length=50)
+    contractStartDate = models.DateField()
+    contractEndDate = models.DateField()
+    price = models.IntegerField()
+    classNumber = models.IntegerField(choices=classNumberChoices)
+
+    def __str__(self):
+        return '{} {}'.format(self.contractNo, self.contractId)
