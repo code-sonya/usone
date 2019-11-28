@@ -3096,3 +3096,36 @@ def save_contract_files(request, contractId):
                     uploadDatetime=datetime.now(),
                 )
         return redirect('sales:viewcontract', contractId)
+
+
+@login_required
+@csrf_exempt
+def contract_details(request):
+    print(request.POST)
+    contractId = request.POST['contractId']
+    table = request.POST['table']
+    classNumber = request.POST['classNumber']
+    if table == 'a':
+        purchaseTypes = Purchasetypea.objects.all()
+    elif table == 'b':
+        purchaseTypes = Purchasetypeb.objects.all()
+    elif table == 'c':
+        purchaseTypes = Purchasetypec.objects.all()
+    elif table == 'd':
+        purchaseTypes = Purchasetyped.objects.all()
+
+    purchaseTypes = purchaseTypes.filter(Q(contractId=contractId) & Q(classNumber=classNumber))
+
+    if table == 'a':
+        purchaseTypes = purchaseTypes.values('companyName', 'contents', 'price', 'typeId')
+    elif table == 'b':
+        purchaseTypes = purchaseTypes.values('classification', 'times', 'sites', 'units', 'price', 'typeId')
+    elif table == 'c':
+        purchaseTypes = purchaseTypes.values('classification', 'contents', 'price', 'typeId')
+    elif table == 'd':
+        purchaseTypes = purchaseTypes.values('contractNo', 'contractStartDate', 'contractEndDate', 'price', 'typeId')
+
+    structure = json.dumps(list(purchaseTypes), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
