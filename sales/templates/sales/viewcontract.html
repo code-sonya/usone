@@ -161,94 +161,108 @@
             <tr>
               <td>
                 <div class="row">
-                  <div class="col-lg-6">[첨부파일]</div>
-                  <div class="col-lg-6">[결재완료]</div>
+                  <div class="col-xl-6"><a href="#" onclick="switch_id_class('filesRow', 'd-none')">[첨부파일]</a></div>
+                  <div class="col-xl-6">[결재완료]</div>
                 </div>
               </td>
               <td>
                 <div class="row">
-                  <div class="col-lg-6">[첨부파일]</div>
-                  <div class="col-lg-6">[결재완료]</div>
+                  <div class="col-xl-6">[첨부파일]</div>
+                  <div class="col-xl-6">[결재완료]</div>
                 </div>
               </td>
               <td>
                 <div class="row">
-                  <div class="col-lg-6">[첨부파일]</div>
-                  <div class="col-lg-6">[결재완료]</div>
+                  <div class="col-xl-6">[첨부파일]</div>
+                  <div class="col-xl-6">[결재완료]</div>
                 </div>
               </td>
               <td>
                 <div class="row">
-                  <div class="col-lg-6">[첨부파일]</div>
-                  <div class="col-lg-6">[결재완료]</div>
+                  <div class="col-xl-6">[첨부파일]</div>
+                  <div class="col-xl-6">[결재완료]</div>
                 </div>
               </td>
               <td>
                 <div class="row">
-                  <div class="col-lg-6">[첨부파일]</div>
-                  <div class="col-lg-6">[결재완료]</div>
+                  <div class="col-xl-6">[첨부파일]</div>
+                  <div class="col-xl-6">[결재완료]</div>
                 </div>
               </td>
               <td>
                 <div class="row">
-                  <div class="col-lg-6">[첨부파일]</div>
-                  <div class="col-lg-6">[결재완료]</div>
+                  <div class="col-xl-6">[첨부파일]</div>
+                  <div class="col-xl-6">[결재완료]</div>
                 </div>
               </td>
               <td>
                 <div class="row">
-                  <div class="col-lg-6">[첨부파일]</div>
-                  <div class="col-lg-6">[결재완료]</div>
+                  <div class="col-xl-6">[첨부파일]</div>
+                  <div class="col-xl-6">[결재완료]</div>
                 </div>
               </td>
             </tr>
-            <tr>
-              <td>
+            <tr id="filesRow" class="d-none">
+              <td class="align-text-top">
                 {% if files_a %}
                   {% for f in files_a %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a><br>
+                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
+                      {{ f.fileName }} ({{ f.fileSize }}MB)
+                    </a><br>
                   {% endfor %}
                 {% endif %}
               </td>
-              <td>
+              <td class="align-text-top">
                 {% if files_b %}
                   {% for f in files_b %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a><br>
+                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
+                      {{ f.fileName }} ({{ f.fileSize }}MB)
+                    </a><br>
                   {% endfor %}
                 {% endif %}
               </td>
-              <td>
+              <td  class="align-text-top">
                 {% if files_c %}
                   {% for f in files_c %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a><br>
+                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
+                      {{ f.fileName }} ({{ f.fileSize }}MB)
+                    </a><br>
                   {% endfor %}
                 {% endif %}
               </td>
-              <td>
+              <td class="align-text-top">
                 {% if files_d %}
                   {% for f in files_d %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a><br>
+                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
+                      {{ f.fileName }} ({{ f.fileSize }}MB)
+                    </a><br>
                   {% endfor %}
                 {% endif %}
               </td>
-              <td>
+              <td class="align-text-top">
                 {% if files_e %}
                   {% for f in files_e %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a><br>
+                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
+                      {{ f.fileName }} ({{ f.fileSize }}MB)
+                    </a><br>
                   {% endfor %}
                 {% endif %}
               </td>
-              <td>
+              <td class="align-text-top">
                 {% if files_f %}
                   {% for f in files_f %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a><br>
+                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
+                      {{ f.fileName }} ({{ f.fileSize }}MB)
+                    </a><br>
                   {% endfor %}
                 {% endif %}
               </td>
-              <td>
+              <td class="align-text-top">
                 {% if files_g %}
                   {% for f in files_g %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a><br>
+                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
+                      {{ f.fileName }} ({{ f.fileSize }}MB)
+                    </a><br>
                   {% endfor %}
                 {% endif %}
               </td>
@@ -616,14 +630,14 @@
               <table id="services" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
                 <thead>
                 <tr class="bg-info">
-                  <th class="text-gray-100 font-weight-normal" >엔지니어</th>
-                  <th class="text-gray-100 font-weight-normal" >구분</th>
-                  <th class="text-gray-100 font-weight-normal" >날짜</th>
-                  <th class="text-gray-100 font-weight-normal" >작업내용</th>
-                  <th class="text-gray-100 font-weight-normal" >일반근무시간</th>
-                  <th class="text-gray-100 font-weight-normal" >초과근무시간</th>
-                  <th class="text-gray-100 font-weight-normal" >기본수당</th>
-                  <th class="text-gray-100 font-weight-normal" >시간외수당</th>
+                  <th class="text-gray-100 font-weight-normal">엔지니어</th>
+                  <th class="text-gray-100 font-weight-normal">구분</th>
+                  <th class="text-gray-100 font-weight-normal">날짜</th>
+                  <th class="text-gray-100 font-weight-normal">작업내용</th>
+                  <th class="text-gray-100 font-weight-normal">일반근무시간</th>
+                  <th class="text-gray-100 font-weight-normal">초과근무시간</th>
+                  <th class="text-gray-100 font-weight-normal">기본수당</th>
+                  <th class="text-gray-100 font-weight-normal">시간외수당</th>
                   <th class="d-none">serviceId</th>
                 </tr>
                 </thead>
@@ -1237,6 +1251,15 @@
       function remove_row(obj) {
           let row = $(obj).parent().parent();
           row.remove();
+      }
+
+      function switch_id_class(id, classname) {
+          let obj = $('#' + id);
+          if (obj.hasClass(classname)) {
+              obj.removeClass(classname)
+          } else {
+              obj.addClass(classname)
+          }
       }
 
       $(document).ready(function () {

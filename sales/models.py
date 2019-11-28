@@ -213,6 +213,7 @@ class Contractfile(models.Model):
     fileCategory = models.CharField(max_length=100)
     fileName = models.CharField(max_length=200)
     fileSize = models.FloatField()
+    uploadEmp = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     uploadDatetime = models.DateTimeField(null=True, blank=True)
     file = models.FileField(upload_to="contract/%Y_%m")
 

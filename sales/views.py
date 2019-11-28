@@ -2879,6 +2879,7 @@ def save_contract_files(request, contractId):
                     fileName=f.name,
                     fileSize=filesInfo[f.name][:-2],
                     file=f,
+                    uploadEmp=request.user.employee,
                     uploadDatetime=datetime.now(),
                 )
         return redirect('sales:viewcontract', contractId)
