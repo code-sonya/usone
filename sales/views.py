@@ -470,6 +470,219 @@ def modify_contract(request, contractId):
                 for Id in delCostId:
                     Cost.objects.filter(costId=Id).delete()
 
+            # 하도급계약정보 수정
+            # 1. 상품_HW
+            jsonGoodsHW = json.loads(request.POST['jsonGoodsHW'])
+            typeId = list(i[0] for i in Purchasetypea.objects.filter(Q(contractId=contractId)&Q(classNumber=1)).values_list('typeId'))
+            jsonTypeId= []
+            for goodsHW in jsonGoodsHW:
+                company = Company.objects.get(companyNameKo=goodsHW["company"])
+                if goodsHW['typeId'] == '추가':
+                    Purchasetypea.objects.create(
+                        classNumber=1,
+                        contractId=post,
+                        companyName=company,
+                        contents=goodsHW["contents"],
+                        price=int(goodsHW["price"]),
+                    )
+                else:
+                    goodsHWInstance = Purchasetypea.objects.get(typeId=int(goodsHW["typeId"]))
+                    goodsHWInstance.companyName = company
+                    goodsHWInstance.contents = goodsHW["contents"]
+                    goodsHWInstance.price = int(goodsHW["price"])
+                    goodsHWInstance.save()
+                    jsonTypeId.append(int(goodsHW["typeId"]))
+
+            delGoodsHW = list(set(typeId) - set(jsonTypeId))
+            if delGoodsHW:
+                for Id in delGoodsHW:
+                    Purchasetypea.objects.filter(typeId=Id).delete()
+            # 2. 상품_SW
+            jsonGoodsSW = json.loads(request.POST['jsonGoodsSW'])
+            typeId = list(i[0] for i in Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=2)).values_list('typeId'))
+            jsonTypeId = []
+            for goodsSW in jsonGoodsSW:
+                company = Company.objects.get(companyNameKo=goodsSW["company"])
+                if goodsSW['typeId'] == '추가':
+                    Purchasetypea.objects.create(
+                        classNumber=2,
+                        contractId=post,
+                        companyName=company,
+                        contents=goodsSW["contents"],
+                        price=int(goodsSW["price"]),
+                    )
+                else:
+                    goodsSWInstance = Purchasetypea.objects.get(typeId=int(goodsSW["typeId"]))
+                    goodsSWInstance.companyName = company
+                    goodsSWInstance.contents = goodsSW["contents"]
+                    goodsSWInstance.price = int(goodsSW["price"])
+                    goodsSWInstance.save()
+                    jsonTypeId.append(int(goodsSW["typeId"]))
+
+            delGoodsSW = list(set(typeId) - set(jsonTypeId))
+
+            if delGoodsSW:
+                for Id in delGoodsSW:
+                    Purchasetypea.objects.filter(typeId=Id).delete()
+            # 3. 유지보수_HW
+            jsonMaintenanceHW = json.loads(request.POST['jsonMaintenanceHW'])
+            typeId = list(i[0] for i in Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=3)).values_list('typeId'))
+            jsonTypeId = []
+            for maintenanceHW in jsonMaintenanceHW:
+                company = Company.objects.get(companyNameKo=maintenanceHW["company"])
+                if maintenanceHW['typeId'] == '추가':
+                    Purchasetypea.objects.create(
+                        classNumber=1,
+                        contractId=post,
+                        companyName=company,
+                        contents=maintenanceHW["contents"],
+                        price=int(maintenanceHW["price"]),
+                    )
+                else:
+                    maintenanceHWInstance = Purchasetypea.objects.get(typeId=int(maintenanceHW["typeId"]))
+                    maintenanceHWInstance.companyName = company
+                    maintenanceHWInstance.contents = maintenanceHW["contents"]
+                    maintenanceHWInstance.price = int(maintenanceHW["price"])
+                    maintenanceHWInstance.save()
+                    jsonTypeId.append(int(maintenanceHW["typeId"]))
+
+            delMaintenanceHW = list(set(typeId) - set(jsonTypeId))
+            if delMaintenanceHW:
+                for Id in delMaintenanceHW:
+                    Purchasetypea.objects.filter(typeId=Id).delete()
+            # 4. 유지보수_SW
+            jsonMaintenanceSW = json.loads(request.POST['jsonMaintenanceSW'])
+            typeId = list(i[0] for i in Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=4)).values_list('typeId'))
+            jsonTypeId = []
+            for maintenanceSW in jsonMaintenanceSW:
+                company = Company.objects.get(companyNameKo=maintenanceSW["company"])
+                if maintenanceSW['typeId'] == '추가':
+                    Purchasetypea.objects.create(
+                        classNumber=1,
+                        contractId=post,
+                        companyName=company,
+                        contents=maintenanceSW["contents"],
+                        price=int(maintenanceSW["price"]),
+                    )
+                else:
+                    maintenanceSWInstance = Purchasetypea.objects.get(typeId=int(maintenanceSW["typeId"]))
+                    maintenanceSWInstance.companyName = company
+                    maintenanceSWInstance.contents = maintenanceSW["contents"]
+                    maintenanceSWInstance.price = int(maintenanceSW["price"])
+                    maintenanceSWInstance.save()
+                    jsonTypeId.append(int(maintenanceSW["typeId"]))
+
+            delMaintenanceSW = list(set(typeId) - set(jsonTypeId))
+            if delMaintenanceSW:
+                for Id in delMaintenanceSW:
+                    Purchasetypea.objects.filter(typeId=Id).delete()
+            # 5. 인력지원 자사
+            jsonSupportInternal = json.loads(request.POST['jsonSupportInternal'])
+            typeId = list(i[0] for i in Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=5)).values_list('typeId'))
+            jsonTypeId = []
+            for supportInternal in jsonSupportInternal:
+                if supportInternal['typeId'] == '추가':
+                    Purchasetypeb.objects.create(
+                        classNumber=5,
+                        contractId=post,
+                        classification=supportInternal["type"],
+                        times=int(supportInternal["times"] or 0) or None,
+                        sites=int(supportInternal["sites"] or 0) or None,
+                        units=int(supportInternal["units"]),
+                        price=int(supportInternal["price"]),
+                    )
+                else:
+                    supportInternalInstance = Purchasetypeb.objects.get(typeId=int(supportInternal["typeId"]))
+                    supportInternalInstance.classification = supportInternal["type"]
+                    supportInternalInstance.times = int(supportInternal["times"] or 0) or None
+                    supportInternalInstance.sites = int(supportInternal["sites"] or 0) or None
+                    supportInternalInstance.units = int(supportInternal["units"])
+                    supportInternalInstance.price = int(supportInternal["price"])
+                    supportInternalInstance.save()
+                    jsonTypeId.append(int(supportInternal["typeId"]))
+
+            delSupportInternal = list(set(typeId) - set(jsonTypeId))
+            if delSupportInternal:
+                for Id in delSupportInternal:
+                    Purchasetypeb.objects.filter(typeId=Id).delete()
+            # 6. 인력지원 타사
+            jsonSupportExternal = json.loads(request.POST['jsonSupportExternal'])
+            typeId = list(i[0] for i in Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=6)).values_list('typeId'))
+            jsonTypeId = []
+            for supportExternal in jsonSupportExternal:
+                if supportExternal['typeId'] == '추가':
+                    Purchasetypec.objects.create(
+                        classNumber=6,
+                        contractId=post,
+                        classification=supportExternal["type"],
+                        contents=supportExternal["contents"],
+                        price=int(supportExternal["price"]),
+                    )
+                else:
+                    supportExternalInstance = Purchasetypec.objects.get(typeId=int(supportExternal["typeId"]))
+                    supportExternalInstance.classification = supportExternal["type"]
+                    supportExternalInstance.contents = supportExternal["contents"]
+                    supportExternalInstance.price = int(supportExternal["price"])
+                    supportExternalInstance.save()
+                    jsonTypeId.append(int(supportExternal["typeId"]))
+
+            delSupportExternal = list(set(typeId) - set(jsonTypeId))
+            if delSupportExternal:
+                for Id in delSupportExternal:
+                    Purchasetypec.objects.filter(typeId=Id).delete()
+            # 7. DB COSTS
+            jsonDbCosts = json.loads(request.POST['jsonDbCosts'])
+            typeId = list(i[0] for i in Purchasetyped.objects.filter(Q(contractId=contractId) & Q(classNumber=7)).values_list('typeId'))
+            jsonTypeId = []
+            for dbCosts in jsonDbCosts:
+                if dbCosts['typeId'] == '추가':
+                    Purchasetyped.objects.create(
+                        classNumber=7,
+                        contractId=post,
+                        contractNo=dbCosts["number"],
+                        contractStartDate=dbCosts["start"] or None,
+                        contractEndDate=dbCosts["end"] or None,
+                        price=int(dbCosts["price"]),
+                    )
+                else:
+                    dbCostsInstance = Purchasetyped.objects.get(typeId=int(dbCosts["typeId"]))
+                    dbCostsInstance.contractNo = dbCosts["number"]
+                    dbCostsInstance.contractStartDate = dbCosts["start"] or None
+                    dbCostsInstance.contractEndDate = dbCosts["end"] or None
+                    dbCostsInstance.price = int(dbCosts["price"])
+                    dbCostsInstance.save()
+                    jsonTypeId.append(int(dbCosts["typeId"]))
+
+            delDbCosts = list(set(typeId) - set(jsonTypeId))
+            if delDbCosts:
+                for Id in delDbCosts:
+                    Purchasetyped.objects.filter(typeId=Id).delete()
+            # 8. 기타
+            jsonOthers = json.loads(request.POST['jsonOthers'])
+            typeId = list(i[0] for i in Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=8)).values_list('typeId'))
+            jsonTypeId = []
+            for others in jsonOthers:
+                if others['typeId'] == '추가':
+                    Purchasetypec.objects.create(
+                        classNumber=8,
+                        contractId=post,
+                        classification=others["type"],
+                        contents=others["contents"],
+                        price=int(others["price"]),
+                    )
+                else:
+                    othersInstance = Purchasetypec.objects.get(typeId=int(others["typeId"]))
+                    othersInstance.classification = others["type"]
+                    othersInstance.contents = others["contents"]
+                    othersInstance.price = int(others["price"])
+                    othersInstance.save()
+                    jsonTypeId.append(int(others["typeId"]))
+
+            delOthers = list(set(typeId) - set(jsonTypeId))
+            if delOthers:
+                for Id in delOthers:
+                    Purchasetypec.objects.filter(typeId=Id).delete()
+
             return redirect('sales:viewcontract', str(contractId))
 
     else:

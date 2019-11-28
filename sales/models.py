@@ -267,8 +267,8 @@ class Purchasetyped(models.Model):
     typeId = models.AutoField(primary_key=True)
     contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
     contractNo = models.CharField(max_length=50)
-    contractStartDate = models.DateField()
-    contractEndDate = models.DateField()
+    contractStartDate = models.DateField(null=True, blank=True)
+    contractEndDate = models.DateField(null=True, blank=True)
     price = models.IntegerField()
     classNumber = models.IntegerField(choices=classNumberChoices)
 
