@@ -133,13 +133,13 @@
             </b>
             </h5>
             <div class="input-group" style="width: 200px;">
-              <select class="form-control">
+              <select id="documentType" class="form-control">
                 <option>매출견적서</option>
                 <option>수주통보서</option>
                 <option>매출발행</option>
                 <option>선발주</option>
               </select>
-              <button class="btn btn-secondary">결재</button>
+              <button class="btn btn-secondary" onclick="post_document()">결재</button>
             </div>
           </div>
 
@@ -175,13 +175,35 @@
               </td>
             </tr>
             <tr>
-              <td><a href="#" onclick="open_download('매입견적서')"><img class="td-img" src="/media/icon/prepare.png"></a></td>
-              <td><a href="#" onclick="open_download('매출견적서')"><img class="td-img" src="/media/icon/prepare.png"></a></td>
-              <td><a href="#" onclick="open_download('계약서')"><img class="td-img" src="/media/icon/prepare.png"></a></td>
-              <td><a href="#" onclick="open_download('수주통보서')"><img class="td-img" src="/media/icon/ordernoti.png"></a></td>
-              <td><a href="#" onclick="open_download('매입발주서')"><img class="td-img" src="/media/icon/ordernoti.png"></a></td>
-              <td><a href="#" onclick="open_download('납품,구축,검수확인서')"><img class="td-img" src="/media/icon/ordernoti.png"></a></td>
-              <td><a href="#" onclick="open_download('매출발행')"><img class="td-img" src="/media/icon/ordermail_grey.png"></a></td>
+              <td><a href="#" onclick="open_download('매입견적서')">
+
+
+                ({{ files_a | length }}건)
+              </a></td>
+              <td><a href="#" onclick="open_download('매출견적서')">
+                <img class="td-img" src="/media/icon/prepare.png"><br>
+                ({{ files_b | length }}건)
+              </a></td>
+              <td><a href="#" onclick="open_download('계약서')">
+                <img class="td-img" src="/media/icon/prepare.png"><br>
+                ({{ files_c | length }}건)
+              </a></td>
+              <td><a href="#" onclick="open_download('수주통보서')">
+                <img class="td-img" src="/media/icon/ordernoti.png"><br>
+                ({{ files_d | length }}건)
+              </a></td>
+              <td><a href="#" onclick="open_download('매입발주서')">
+                <img class="td-img" src="/media/icon/ordernoti.png"><br>
+                ({{ files_e | length }}건)
+              </a></td>
+              <td><a href="#" onclick="open_download('납품,구축,검수확인서')">
+                <img class="td-img" src="/media/icon/ordernoti.png"><br>
+                ({{ files_f | length }}건)
+              </a></td>
+              <td><a href="#" onclick="open_download('매출발행')">
+                <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
+                ({{ files_g | length }}건)
+              </a></td>
             </tr>
             <tr>
               <td></td>
@@ -1195,19 +1217,25 @@
           let filesF = $('tr[name=filesF]');
           let filesG = $('tr[name=filesG]');
 
-          if (!filesA.hasClass('')) {
+          if (!filesA.hasClass('d-none')) {
               filesA.addClass('d-none')
-          } else if (!filesB.hasClass('d-none')) {
+          }
+          if (!filesB.hasClass('d-none')) {
               filesB.addClass('d-none')
-          } else if (!filesC.hasClass('d-none')) {
+          }
+          if (!filesC.hasClass('d-none')) {
               filesC.addClass('d-none')
-          } else if (!filesD.hasClass('d-none')) {
+          }
+          if (!filesD.hasClass('d-none')) {
               filesD.addClass('d-none')
-          } else if (!filesE.hasClass('d-none')) {
+          }
+          if (!filesE.hasClass('d-none')) {
               filesE.addClass('d-none')
-          } else if (!filesF.hasClass('d-none')) {
+          }
+          if (!filesF.hasClass('d-none')) {
               filesF.addClass('d-none')
-          } else if (!filesG.hasClass('d-none')) {
+          }
+          if (!filesG.hasClass('d-none')) {
               filesG.addClass('d-none')
           }
 
@@ -1315,6 +1343,12 @@
           } else {
               obj.addClass(classname)
           }
+      }
+
+      function post_document() {
+          let documentType = $('#documentType').val();
+
+          window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
       }
 
       $(document).ready(function () {

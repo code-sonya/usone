@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^showdocumentform/$', views.show_documentform, name='showdocumentform'),
     url(r'^modifydocumentform/(?P<formId>.+)/$', views.modify_documentform, name='modifydocumentform'),
 
+    # 완료 문서 조회
     url(r'^showdocument/end/all/$', views.show_document_end_all, name='showdocumentendall'),
     url(r'^showdocument/end/write/$', views.show_document_end_write, name='showdocumentendwrite'),
     url(r'^showdocument/end/approval/$', views.show_document_end_approval, name='showdocumentendapproval'),
@@ -22,6 +23,7 @@ urlpatterns = [
     url(r'^showdocument/end/reject/$', views.show_document_end_reject, name='showdocumentendreject'),
     url(r'^showdocument/temp/$', views.show_document_temp, name='showdocumenttemp'),
 
+    # 진행 문서 조회
     url(r'^showdocument/ing/all/$', views.show_document_ing_all, name='showdocumentingall'),
     url(r'^showdocument/ing/done/$', views.show_document_ing_done, name='showdocumentingdone'),
     url(r'^showdocument/ing/do/$', views.show_document_ing_do, name='showdocumentingdo'),
@@ -31,4 +33,5 @@ urlpatterns = [
     url(r'^viewdocument/(?P<documentId>.+)/$', views.view_document, name='viewdocument'),
     url(r'^approvedocument/(?P<approvalId>.+)/$', views.approve_document, name='approvedocument'),
     url(r'^returndocument/(?P<approvalId>.+)/$', views.return_document, name='returndocument'),
+    url(r'^postcontractdocument/(?P<contractId>.+)/(?P<documentType>.+)/$', views.post_contract_document, name='postcontractdocument'),
 ]
