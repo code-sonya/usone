@@ -121,151 +121,76 @@
             수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
             {% endif %}
           </div>
-          <div class="input-group-btn">
-            <select class="form-control">
-              <option>매출견적서</option>
-              <option>수주통보서</option>
-              <option>매출발행</option>
-              <option>선발주</option>
-            </select>
-            <button class="btn btn-secondary ml-2">결재</button>
-          </div>
         </div>
 
         <div class="card-body">
 
-          <h5 class="text-dark mb-3"><b>
-            <span id="processDown" onclick="downClick('process', 'processUp', 'processDown')">▼</span>
-            <span id="processUp" class="d-none" onclick="upClick('process', 'processUp', 'processDown')">▶</span>
-            진행단계
-          </b></h5>
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="text-dark mb-3"><b>
+              <span id="processDown" onclick="downClick('process', 'processUp', 'processDown')">▼</span>
+              <span id="processUp" class="d-none" onclick="upClick('process', 'processUp', 'processDown')">▶</span>
+              진행단계
+            </b>
+            </h5>
+            <div class="input-group" style="width: 200px;">
+              <select class="form-control">
+                <option>매출견적서</option>
+                <option>수주통보서</option>
+                <option>매출발행</option>
+                <option>선발주</option>
+              </select>
+              <button class="btn btn-secondary">결재</button>
+            </div>
+          </div>
+
           <table id="process" class="flow-table">
             <tr>
-              <td><b>매입견적서</b> <a href="#" id="" onclick="open_upload('매입견적서')"><i class="fas fa-paperclip"></i></a></td>
-              <td><b>매출견적서</b> <a href="#" id="" onclick="open_upload('매출견적서')"><i class="fas fa-paperclip"></i></a></td>
-              <td><b>계약서</b> <a href="#" id="" onclick="open_upload('계약서')"><i class="fas fa-paperclip"></i></a></td>
-              <td><b>수주통보서</b> <a href="#" id="" onclick="open_upload('수주통보서')"><i class="fas fa-paperclip"></i></a></td>
-              <td><b>매입발주서</b> <a href="#" id="" onclick="open_upload('매입발주서')"><i class="fas fa-paperclip"></i></a></td>
-              <td><b>납품,구축,검수확인서</b> <a href="#" id="" onclick="open_upload('납품,구축,검수확인서')"><i class="fas fa-paperclip"></i></a></td>
-              <td><b>매출발행</b> <a href="#" id="" onclick="open_upload('매출발행')"><i class="fas fa-paperclip"></i></a></td>
+              <td>
+                <b>매입견적서</b>
+                <a href="#" onclick="open_upload('매입견적서')"><i class="fas fa-paperclip"></i></a>
+              </td>
+              <td>
+                <b>매출견적서</b>
+                <a href="#" onclick="open_upload('매출견적서')"><i class="fas fa-paperclip"></i></a>
+              </td>
+              <td>
+                <b>계약서</b>
+                <a href="#" onclick="open_upload('계약서')"><i class="fas fa-paperclip"></i></a>
+              </td>
+              <td>
+                <b>수주통보서</b>
+                <a href="#" onclick="open_upload('수주통보서')"><i class="fas fa-paperclip"></i></a>
+              </td>
+              <td>
+                <b>매입발주서</b>
+                <a href="#" onclick="open_upload('매입발주서')"><i class="fas fa-paperclip"></i></a>
+              </td>
+              <td>
+                <b>납품,구축,검수확인서</b>
+                <a href="#" onclick="open_upload('납품,구축,검수확인서')"><i class="fas fa-paperclip"></i></a>
+              </td>
+              <td>
+                <b>매출발행</b>
+                <a href="#" onclick="open_upload('매출발행')"><i class="fas fa-paperclip"></i></a>
+              </td>
             </tr>
             <tr>
-              <td><img class="td-img" src="/media/icon/prepare.png"></td>
-              <td><img class="td-img" src="/media/icon/prepare.png"></td>
-              <td><img class="td-img" src="/media/icon/prepare.png"></td>
-              <td><img class="td-img" src="/media/icon/ordernoti.png"></td>
-              <td><img class="td-img" src="/media/icon/ordernoti.png"></td>
-              <td><img class="td-img" src="/media/icon/ordernoti.png"></td>
-              <td><img class="td-img" src="/media/icon/ordermail_grey.png"></td>
+              <td><a href="#" onclick="open_download('매입견적서')"><img class="td-img" src="/media/icon/prepare.png"></a></td>
+              <td><a href="#" onclick="open_download('매출견적서')"><img class="td-img" src="/media/icon/prepare.png"></a></td>
+              <td><a href="#" onclick="open_download('계약서')"><img class="td-img" src="/media/icon/prepare.png"></a></td>
+              <td><a href="#" onclick="open_download('수주통보서')"><img class="td-img" src="/media/icon/ordernoti.png"></a></td>
+              <td><a href="#" onclick="open_download('매입발주서')"><img class="td-img" src="/media/icon/ordernoti.png"></a></td>
+              <td><a href="#" onclick="open_download('납품,구축,검수확인서')"><img class="td-img" src="/media/icon/ordernoti.png"></a></td>
+              <td><a href="#" onclick="open_download('매출발행')"><img class="td-img" src="/media/icon/ordermail_grey.png"></a></td>
             </tr>
             <tr>
-              <td>
-                <div class="row">
-                  <div class="col-xl-6"><a href="#" onclick="switch_id_class('filesRow', 'd-none')">[첨부파일]</a></div>
-                  <div class="col-xl-6">[결재완료]</div>
-                </div>
-              </td>
-              <td>
-                <div class="row">
-                  <div class="col-xl-6">[첨부파일]</div>
-                  <div class="col-xl-6">[결재완료]</div>
-                </div>
-              </td>
-              <td>
-                <div class="row">
-                  <div class="col-xl-6">[첨부파일]</div>
-                  <div class="col-xl-6">[결재완료]</div>
-                </div>
-              </td>
-              <td>
-                <div class="row">
-                  <div class="col-xl-6">[첨부파일]</div>
-                  <div class="col-xl-6">[결재완료]</div>
-                </div>
-              </td>
-              <td>
-                <div class="row">
-                  <div class="col-xl-6">[첨부파일]</div>
-                  <div class="col-xl-6">[결재완료]</div>
-                </div>
-              </td>
-              <td>
-                <div class="row">
-                  <div class="col-xl-6">[첨부파일]</div>
-                  <div class="col-xl-6">[결재완료]</div>
-                </div>
-              </td>
-              <td>
-                <div class="row">
-                  <div class="col-xl-6">[첨부파일]</div>
-                  <div class="col-xl-6">[결재완료]</div>
-                </div>
-              </td>
-            </tr>
-            <tr id="filesRow" class="d-none">
-              <td class="align-text-top">
-                {% if files_a %}
-                  {% for f in files_a %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
-                      {{ f.fileName }} ({{ f.fileSize }}MB)
-                    </a><br>
-                  {% endfor %}
-                {% endif %}
-              </td>
-              <td class="align-text-top">
-                {% if files_b %}
-                  {% for f in files_b %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
-                      {{ f.fileName }} ({{ f.fileSize }}MB)
-                    </a><br>
-                  {% endfor %}
-                {% endif %}
-              </td>
-              <td  class="align-text-top">
-                {% if files_c %}
-                  {% for f in files_c %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
-                      {{ f.fileName }} ({{ f.fileSize }}MB)
-                    </a><br>
-                  {% endfor %}
-                {% endif %}
-              </td>
-              <td class="align-text-top">
-                {% if files_d %}
-                  {% for f in files_d %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
-                      {{ f.fileName }} ({{ f.fileSize }}MB)
-                    </a><br>
-                  {% endfor %}
-                {% endif %}
-              </td>
-              <td class="align-text-top">
-                {% if files_e %}
-                  {% for f in files_e %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
-                      {{ f.fileName }} ({{ f.fileSize }}MB)
-                    </a><br>
-                  {% endfor %}
-                {% endif %}
-              </td>
-              <td class="align-text-top">
-                {% if files_f %}
-                  {% for f in files_f %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
-                      {{ f.fileName }} ({{ f.fileSize }}MB)
-                    </a><br>
-                  {% endfor %}
-                {% endif %}
-              </td>
-              <td class="align-text-top">
-                {% if files_g %}
-                  {% for f in files_g %}
-                    <a href="/media/{{ f.file }}" title="{{ f.fileName }} ({{ f.fileSize }}MB)" download>
-                      {{ f.fileName }} ({{ f.fileSize }}MB)
-                    </a><br>
-                  {% endfor %}
-                {% endif %}
-              </td>
+              <td></td>
+              <td>[결재완료]</td>
+              <td></td>
+              <td>[결재완료]</td>
+              <td></td>
+              <td></td>
+              <td>[결재완료]</td>
             </tr>
           </table>
 
@@ -675,7 +600,7 @@
   </div>
 
 
-  <!-- file upload modal 모달 화면 -->
+  <!-- file upload modal -->
   <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
@@ -714,6 +639,92 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-info" href="#" onclick="btn_upload()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- file download modal -->
+  <div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="downloadModalLabel">첨부파일 다운로드</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="20%"><b>일시</b></td>
+              <td width="20%"><b>작성자</b></td>
+              <td width="40%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for f in files_a %}
+              <tr name="filesA" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_b %}
+              <tr name="filesB" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_c %}
+              <tr name="filesC" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_d %}
+              <tr name="filesD" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_e %}
+              <tr name="filesE" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_f %}
+              <tr name="filesF" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_g %}
+              <tr name="filesG" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1171,6 +1182,50 @@
           $('#fileType').text(fileType);
           $('#uploadModalLabel').text(fileType + ' 등록');
           $('#uploadModal').modal('show');
+      }
+
+      function open_download(fileType) {
+          $('#downloadModalLabel').text(fileType + ' 목록');
+          $('#downloadModal').modal('show');
+          let filesA = $('tr[name=filesA]');
+          let filesB = $('tr[name=filesB]');
+          let filesC = $('tr[name=filesC]');
+          let filesD = $('tr[name=filesD]');
+          let filesE = $('tr[name=filesE]');
+          let filesF = $('tr[name=filesF]');
+          let filesG = $('tr[name=filesG]');
+
+          if (!filesA.hasClass('')) {
+              filesA.addClass('d-none')
+          } else if (!filesB.hasClass('d-none')) {
+              filesB.addClass('d-none')
+          } else if (!filesC.hasClass('d-none')) {
+              filesC.addClass('d-none')
+          } else if (!filesD.hasClass('d-none')) {
+              filesD.addClass('d-none')
+          } else if (!filesE.hasClass('d-none')) {
+              filesE.addClass('d-none')
+          } else if (!filesF.hasClass('d-none')) {
+              filesF.addClass('d-none')
+          } else if (!filesG.hasClass('d-none')) {
+              filesG.addClass('d-none')
+          }
+
+          if (fileType === '매입견적서') {
+              filesA.removeClass('d-none');
+          } else if (fileType === '매출견적서') {
+              filesB.removeClass('d-none');
+          } else if (fileType === '계약서') {
+              filesC.removeClass('d-none');
+          } else if (fileType === '수주통보서') {
+              filesD.removeClass('d-none');
+          } else if (fileType === '매입발주서') {
+              filesE.removeClass('d-none');
+          } else if (fileType === '납품,구축,검수확인서') {
+              filesF.removeClass('d-none');
+          } else if (fileType === '매출발행') {
+              filesG.removeClass('d-none');
+          }
       }
 
       function btn_upload() {
