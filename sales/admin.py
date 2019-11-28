@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, Contractfile, Purchasetypea, Purchasetypeb, Purchasetypec
+from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, Contractfile, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped
 
 
 @admin.register(Contract)
@@ -98,3 +98,10 @@ class PurchasetypecAdmin(admin.ModelAdmin):
     list_display = ('typeId', 'contractId', 'classification', 'contents', 'price', 'classNumber')
     list_filter = ('contractId', 'classNumber')
     list_display_links = ['typeId', 'contractId', 'classification', 'contents', 'price', 'classNumber']
+
+
+@admin.register(Purchasetyped)
+class PurchasetypedAdmin(admin.ModelAdmin):
+    list_display = ('typeId', 'contractId', 'contractNo', 'contractStartDate', 'contractEndDate', 'price', 'classNumber')
+    list_filter = ('contractId', 'classNumber')
+    list_display_links = ['typeId', 'contractId', 'contractNo', 'contractStartDate', 'contractEndDate', 'price', 'classNumber']
