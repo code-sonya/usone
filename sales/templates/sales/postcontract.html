@@ -2232,6 +2232,40 @@
               maintenanceSWCounter++;
           });
 
+          {% if maintenanceSWs %}
+              {% for maintenanceSW in maintenanceSWs %}
+              console.log("{{ maintenanceSW.companyName }}");
+                  c4.row.add([
+                      '<div class="d-none" value="0" name="maintenanceSWTypeId" id="maintenanceSW0' + maintenanceSWCounter + '">추가</div>',
+                      '<input class="magicsearch input-form" autocomplete="off" data-id="{{ maintenanceSW.companyName }}" type="text" style="width: 200px;" name="maintenanceSWCompany" ' +
+                      'id="maintenanceSW1' + maintenanceHWCounter + '" onkeydown="magicsearchtab(maintenanceSW1' + maintenanceSWCounter + ')">',
+                      '<input class="input-form" type="text" style="width: 350px;" value="{{ maintenanceSW.contents }}" name="maintenanceSWContents" id="maintenanceSW2' + maintenanceSWCounter + '">',
+                      '<input class="money input-form"  name="maintenanceSWPrice" value="{{ maintenanceSW.price }}" style="width: 200px;" id="maintenanceSW3' + maintenanceSWCounter + '">',
+                      '<i class="fas fa-times-circle" name="remove">'
+                  ]);
+                  maintenanceSWCounter++;
+              {% endfor %}
+              c4.draw();
+              console.log(maintenanceSWCounter);
+              for (var c = 0; c < maintenanceSWCounter; c++) {
+                  $('#maintenanceSW1' + c).magicsearch({
+                      dataSource: companyList,
+                      fields: 'value',
+                      id: 'id',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                      maxShow: 100,
+                  });
+              }
+              $('.money').simpleMoneyFormat();
+
+              $('input[name=maintenanceSWPrice]').on("change keyup paste input", function() {
+                  totalPrice('maintenanceSWPrice', 'totalMaintenanceSWPrice');
+              });
+          {% endif %}
+
            $('#maintenanceSW').on('click', 'i', function () {
               c4
                   .row($(this).parents('tr'))
@@ -2269,7 +2303,8 @@
           $('#addSupportInternal').on('click', function () {
             c5.row.add([
                 '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">추가</div>',
-                '<input class="input-form" type="text" style="width: 200px;" name="supportInternalType" id="supportInternal1' + supportInternalCounter + '">',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="supportInternalType" ' +
+                'id="supportInternal1' + supportInternalCounter + '" onkeydown="magicsearchtab(supportInternal1' + supportInternalCounter + ')">',
                 '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalTimes" id="supportInternal2' + supportInternalCounter + '">',
                 '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalSites" id="supportInternal3' + supportInternalCounter + '">',
                 '<input class="input-form" type="digit" style="width: 200px;" name="supportInternalUnits" id="supportInternal4' + supportInternalCounter + '">',
@@ -2277,11 +2312,57 @@
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
+            $('#supportInternal1' + supportInternalCounter).magicsearch({
+                dataSource: {{ classificationB | safe }},
+                fields: 'value',
+                id: 'id',
+                format: '%value%',
+                multiStyle: {space: 5, width: 80},
+                noResult: '검색결과없음',
+                focusShow: true,
+                maxShow: 100,
+            });
             $('input[name=supportInternalPrice]').on("change keyup paste input", function() {
                 totalPrice('supportInternalPrice', 'totalSupportInternalPrice');
             });
               supportInternalCounter++;
           });
+
+          {% if supportInternals %}
+              {% for supportInternal in supportInternals %}
+              console.log("{{ supportInternal.classification }}");
+                  c5.row.add([
+                      '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">추가</div>',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" data-id="{{ supportInternal.classification }}" name="supportInternalType" ' +
+                      'id="supportInternal1' + supportInternalCounter + '" onkeydown="magicsearchtab(supportInternal1' + supportInternalCounter + ')">',
+                      '<input class="input-form" type="digit" style="width: 50px;" value="{{ supportInternal.times }}" name="supportInternalTimes" id="supportInternal2' + supportInternalCounter + '">',
+                      '<input class="input-form" type="digit" style="width: 50px;" value="{{ supportInternal.sites }}" name="supportInternalSites" id="supportInternal3' + supportInternalCounter + '">',
+                      '<input class="input-form" type="digit" style="width: 200px;" value="{{ supportInternal.units }}" name="supportInternalUnits" id="supportInternal4' + supportInternalCounter + '">',
+                      '<input class="money input-form"  value="{{ supportInternal.price }}" name="supportInternalPrice" style="width: 200px;" id="supportInternal5' + supportInternalCounter + '">',
+                      '<i class="fas fa-times-circle" name="remove">'
+                  ]);
+                  supportInternalCounter++;
+              {% endfor %}
+              c5.draw();
+              console.log(supportInternalCounter);
+              for (var c = 0; c < supportInternalCounter; c++) {
+                  $('#supportInternal1' + c).magicsearch({
+                      dataSource: {{ classificationB | safe }},
+                      fields: 'value',
+                      id: 'id',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                      maxShow: 100,
+                  });
+              }
+              $('.money').simpleMoneyFormat();
+
+              $('input[name=supportInternalPrice]').on("change keyup paste input", function() {
+                  totalPrice('supportInternalPrice', 'totalSupportInternalPrice');
+              });
+          {% endif %}
 
            $('#supportInternal').on('click', 'i', function () {
               c5
@@ -2317,18 +2398,64 @@
           $('#addSupportExternal').on('click', function () {
             c6.row.add([
                 '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">추가</div>',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="supportExternalType" ' +
+                'id="supportExternal1' + supportExternalCounter + '" onkeydown="magicsearchtab(supportExternal1' + supportExternalCounter + ')">',
                 '<input class="input-form" type="text" style="width: 200px;" name="supportExternalType" id="supportExternal1' + supportExternalCounter + '">',
                 '<input class="input-form" type="text" style="width: 350px;" name="supportExternalContents" id="supportExternal2' + supportExternalCounter + '">',
                 '<input class="money input-form"  name="supportExternalPrice" style="width: 200px;" id="supportExternal3' + supportExternalCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
+            $('#supportExternal1' + supportExternalCounter).magicsearch({
+                dataSource: {{ classificationC | safe }},
+                fields: 'value',
+                id: 'id',
+                format: '%value%',
+                multiStyle: {space: 5, width: 80},
+                noResult: '검색결과없음',
+                focusShow: true,
+                maxShow: 100,
+            });
             $('input[name=supportExternalPrice]').on("change keyup paste input", function() {
                 totalPrice('supportExternalPrice', 'totalSupportExternalPrice');
             });
 
               supportExternalCounter++;
           });
+
+          {% if supportExternals %}
+              {% for supportExternal in supportExternals %}
+              console.log("{{ supportExternal.classification }}");
+                  c6.row.add([
+                      '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">추가</div>',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" data-id="{{ supportExternal.classification }}" name="supportExternalType" ' +
+                      'id="supportExternal1' + supportExternalCounter + '" onkeydown="magicsearchtab(supportExternal1' + supportExternalCounter + ')">',
+                      '<input class="input-form" type="text" style="width: 350px;" value="{{ supportExternal.contents }}" name="supportExternalContents" id="supportExternal2' + supportExternalCounter + '">',
+                      '<input class="money input-form" value="{{ supportExternal.price }}" name="supportExternalPrice" style="width: 200px;" id="supportExternal3' + supportExternalCounter + '">',
+                      '<i class="fas fa-times-circle" name="remove">'
+                  ]);
+                  supportExternalCounter++;
+              {% endfor %}
+              c6.draw();
+              console.log(supportExternalCounter);
+              for (var c = 0; c < supportExternalCounter; c++) {
+                  $('#supportExternal1' + c).magicsearch({
+                      dataSource: {{ classificationC | safe }},
+                      fields: 'value',
+                      id: 'id',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                      maxShow: 100,
+                  });
+              }
+              $('.money').simpleMoneyFormat();
+
+              $('input[name=supportExternalPrice]').on("change keyup paste input", function() {
+                  totalPrice('supportExternalPrice', 'totalSupportExternalPrice');
+              });
+          {% endif %}
 
            $('#supportExternal').on('click', 'i', function () {
               c6
@@ -2378,6 +2505,26 @@
               dbCostsCounter++;
           });
 
+          {% if dbCosts %}
+              {% for dbCost in dbCosts %}
+              console.log("{{ dbCosts.classification }}");
+                  c7.row.add([
+                      '<div class="d-none" value="0" name="dbCostsTypeId" id="dbCosts0' + dbCostsCounter + '">추가</div>',
+                      '<input class="input-form" type="text" style="width: 130px;" value="{{ dbCost.contractNo }}" name="dbCostsNumber" id="dbCosts1' + dbCostsCounter + '">',
+                      '<input class="input-form" type="date" style="width: 200px;" value="{{ dbCost.contractStartDate }}" name="dbCostsStart" id="dbCosts2' + dbCostsCounter + '">',
+                      '<input class="input-form" type="date" style="width: 200px;" value="{{ dbCost.contractEndDate }}" name="dbCostsEnd" id="dbCosts3' + dbCostsCounter + '">',
+                      '<input class="money input-form" value="{{ dbCost.price }}" name="dbCostsPrice" style="width: 200px;" id="dbCosts4' + dbCostsCounter + '">',
+                      '<i class="fas fa-times-circle" name="remove">'
+                  ]);
+                  dbCostsCounter++;
+              {% endfor %}
+              c7.draw();
+              $('.money').simpleMoneyFormat();
+              $('input[name=dbCostsPrice]').on("change keyup paste input", function() {
+                  totalPrice('dbCostsPrice', 'totalDbCostsPrice');
+              });
+          {% endif %}
+
            $('#dbCosts').on('click', 'i', function () {
               c7
                   .row($(this).parents('tr'))
@@ -2412,17 +2559,70 @@
           $('#addOthers').on('click', function () {
             c8.row.add([
                 '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">추가</div>',
-                '<input class="input-form" type="text" style="width: 200px;" name="othersType" id="others1' + othersCounter + '">',
+                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="othersType" ' +
+                'id="others1' + othersCounter + '" onkeydown="magicsearchtab(others1' + othersCounter + ')">',
+                // '<input class="input-form" type="text" style="width: 200px;" name="othersType" id="others1' + othersCounter + '">',
                 '<input class="input-form" type="text" style="width: 350px;" name="othersContents" id="others2' + othersCounter + '">',
                 '<input class="money input-form"  name="othersPrice" style="width: 200px;" id="others3' + othersCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
+            $('#others1' + othersCounter).magicsearch({
+                dataSource: {{ classificationC | safe }},
+                fields: 'value',
+                id: 'id',
+                format: '%value%',
+                multiStyle: {space: 5, width: 80},
+                noResult: '검색결과없음',
+                focusShow: true,
+                maxShow: 100,
+            });
             $('input[name=othersPrice]').on("change keyup paste input", function() {
                 totalPrice('othersPrice', 'totalOthersPrice');
             });
 
               othersCounter++;
+          });
+
+          {% if others %}
+              {% for other in others %}
+              console.log("{{ other.classification }}");
+                  c8.row.add([
+                      '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">추가</div>',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" data-id="{{ other.classification }}" name="othersType" ' +
+                      'id="others1' + othersCounter + '" onkeydown="magicsearchtab(others1' + othersCounter + ')">',
+                      '<input class="input-form" type="text" style="width: 350px;" value="{{ other.contents }}" name="othersContents" id="others2' + othersCounter + '">',
+                      '<input class="money input-form" value="{{ other.price }}" name="othersPrice" style="width: 200px;" id="others3' + othersCounter + '">',
+                      '<i class="fas fa-times-circle" name="remove">'
+                  ]);
+                  othersCounter++;
+              {% endfor %}
+              c8.draw();
+              console.log(othersCounter);
+              for (var c = 0; c < othersCounter; c++) {
+                  $('#others1' + c).magicsearch({
+                      dataSource: {{ classificationC | safe }},
+                      fields: 'value',
+                      id: 'id',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                      maxShow: 100,
+                  });
+              }
+              $('.money').simpleMoneyFormat();
+
+              $('input[name=othersPrice]').on("change keyup paste input", function() {
+                  totalPrice('othersPrice', 'totalOthersPrice');
+              });
+          {% endif %}
+
+           $('#supportExternal').on('click', 'i', function () {
+              c6
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
           });
 
            $('#others').on('click', 'i', function () {

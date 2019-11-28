@@ -19,7 +19,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped
-from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award
+from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
 from datetime import datetime, timedelta, date
@@ -219,23 +219,15 @@ def post_contract(request):
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
 
-        costCompany = [
-            {'id': '법인카드', 'value': '법인카드'},
-            {'id': '프로젝트비용', 'value': '프로젝트비용'},
-            {'id': 'OMM', 'value': 'OMM'},
-            {'id': '이자비용', 'value': '이자비용'},
-            {'id': '지원금', 'value': '지원금'},
-            {'id': '인건비', 'value': '인건비'},
-            {'id': '교육비', 'value': '교육비'},
-            {'id': '대손상각비', 'value': '대손상각비'},
-            {'id': '미정', 'value': '미정'},
-        ]
+        costCompany, classificationB, classificationC = magicsearch()
 
         context = {
             'form': form,
             'companyNames': companyNames,
             'empNames': empNames,
             'costCompany': costCompany,
+            'classificationB': classificationB,
+            'classificationC': classificationC,
         }
         return render(request, 'sales/postcontract.html', context)
 
@@ -510,17 +502,7 @@ def modify_contract(request, contractId):
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
 
-        costCompany = [
-            {'id': '법인카드', 'value': '법인카드'},
-            {'id': '프로젝트비용', 'value': '프로젝트비용'},
-            {'id': 'OMM', 'value': 'OMM'},
-            {'id': '이자비용', 'value': '이자비용'},
-            {'id': '지원금', 'value': '지원금'},
-            {'id': '인건비', 'value': '인건비'},
-            {'id': '교육비', 'value': '교육비'},
-            {'id': '대손상각비', 'value': '대손상각비'},
-            {'id': '미정', 'value': '미정'},
-        ]
+        costCompany, classificationB, classificationC = magicsearch()
 
         context = {
             'form': form,
@@ -535,6 +517,8 @@ def modify_contract(request, contractId):
             'companyNames': companyNames,
             'empNames': empNames,
             'costCompany': costCompany,
+            'classificationB': classificationB,
+            'classificationC': classificationC,
             'goodsHWs': goodsHWs,
             'goodsSWs': goodsSWs,
             'maintenanceHWs': maintenanceHWs,
