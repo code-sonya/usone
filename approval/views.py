@@ -959,3 +959,9 @@ def return_document(request, approvalId):
     approvals.update(approvalStatus='정지')
 
     return redirect('approval:viewdocument', approval.documentId_id)
+
+
+def post_contract_document(request, contractId, documentType):
+    print(contractId)
+    print(documentType)
+    return redirect('sales:viewcontract', contractId)
