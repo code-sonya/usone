@@ -5,7 +5,7 @@ app_name = 'approval'
 
 urlpatterns = [
     url(r'^postdocument/$', views.post_document, name='postdocumnet'),
-    url(r'^modifydocument/(?P<documentId>.+)/$', views.modify_document, name='modifydocumnet'),
+    url(r'^modifydocument/(?P<documentId>.+)/$', views.modify_document, name='modifydocument'),
     url(r'^postdocumentform/$', views.post_documentform, name='postdocumnetform'),
     url(r'^documentcategoryasjson/$', views.documentcategory_asjson, name='documentcategoryasjson'),
     url(r'^documentformasjson/$', views.documentform_asjson, name='documentformasjson'),

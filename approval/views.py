@@ -12,6 +12,7 @@ from xhtml2pdf import pisa
 from django.db.models import Sum, FloatField, F, Case, When, Count, Q
 
 from service.models import Employee
+from sales.models import Contract
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
 from .functions import data_format, who_approval, template_format
 
@@ -299,6 +300,7 @@ def modify_document(request, documentId):
     else:
         # 임시저장 문서
         document = Document.objects.get(documentId=documentId)
+        print(document)
 
         # 참조자 자동완성
         empList = Employee.objects.filter(Q(empStatus='Y'))
@@ -962,6 +964,50 @@ def return_document(request, approvalId):
 
 
 def post_contract_document(request, contractId, documentType):
-    print(contractId)
-    print(documentType)
-    return redirect('sales:viewcontract', contractId)
+    # 연결된 계약
+    contract = Contract.objects.get(contractId=contractId)
+
+    # 문서 종류 선택
+    formId = Documentform.objects.get(
+        categoryId__firstCategory='영업',
+        categoryId__secondCategory='일반',
+        formTitle=documentType,
+    )
+
+    # 문서번호 자동생성 (yymmdd-000)
+    yymmdd = str(datetime.date.today()).replace('-', '')[2:]
+    todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
+    documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
+
+    # 문서 등록
+    document = Document.objects.create(
+        documentNumber=documentNumber,
+        writeEmp=request.user.employee,
+        formId=formId,
+        preservationYear=formId.preservationYear,
+        securityLevel=formId.securityLevel,
+        title='[' + contract.contractName + '] ' + documentType + ' 결재 자동생성',
+        contentHtml='<p>계약명 : <a href="/sales/viewcontract/' + contractId + '/">' + contract.contractName + '</a></p>' +
+                    formId.formHtml,
+        writeDatetime=datetime.datetime.now(),
+        modifyDatetime=datetime.datetime.now(),
+        documentStatus='임시',
+        contractId=contract,
+    )
+
+    # 결재선 등록
+    Approval.objects.create(
+        documentId=document,
+        approvalEmp=request.user.employee,
+        approvalStep=1,
+        approvalCategory='결재',
+    )
+    for a in Approvalform.objects.filter(formId=formId):
+        Approval.objects.create(
+            documentId=document,
+            approvalEmp=a.approvalEmp,
+            approvalStep=a.approvalStep,
+            approvalCategory=a.approvalCategory,
+        )
+
+    return redirect('approval:modifydocument', document.documentId)

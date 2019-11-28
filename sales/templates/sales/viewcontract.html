@@ -176,33 +176,109 @@
             </tr>
             <tr>
               <td><a href="#" onclick="open_download('매입견적서')">
-
-
-                ({{ files_a | length }}건)
+                {% if files_a|length == 0 %}
+                  <img class="td-img" src="/media/icon/prepare_grey.png"><br>
+                {% elif files_a|length == 1 %}
+                  <img class="td-img" src="/media/icon/prepare1.png"><br>
+                {% elif files_a|length == 2 %}
+                  <img class="td-img" src="/media/icon/prepare2.png"><br>
+                {% elif files_a|length == 3 %}
+                  <img class="td-img" src="/media/icon/prepare3.png"><br>
+                {% elif files_a|length == 4 %}
+                  <img class="td-img" src="/media/icon/prepare4.png"><br>
+                {% elif files_a|length > 5 %}
+                  <img class="td-img" src="/media/icon/prepare5.png"><br>
+                {% endif %}
               </a></td>
               <td><a href="#" onclick="open_download('매출견적서')">
-                <img class="td-img" src="/media/icon/prepare.png"><br>
-                ({{ files_b | length }}건)
+                {% if files_b|length == 0 %}
+                  <img class="td-img" src="/media/icon/prepare_grey.png"><br>
+                {% elif files_b|length == 1 %}
+                  <img class="td-img" src="/media/icon/prepare1.png"><br>
+                {% elif files_b|length == 2 %}
+                  <img class="td-img" src="/media/icon/prepare2.png"><br>
+                {% elif files_b|length == 3 %}
+                  <img class="td-img" src="/media/icon/prepare3.png"><br>
+                {% elif files_b|length == 4 %}
+                  <img class="td-img" src="/media/icon/prepare4.png"><br>
+                {% elif files_b|length > 5 %}
+                  <img class="td-img" src="/media/icon/prepare5.png"><br>
+                {% endif %}
               </a></td>
               <td><a href="#" onclick="open_download('계약서')">
-                <img class="td-img" src="/media/icon/prepare.png"><br>
-                ({{ files_c | length }}건)
+                {% if files_c|length == 0 %}
+                  <img class="td-img" src="/media/icon/prepare_grey.png"><br>
+                {% elif files_c|length == 1 %}
+                  <img class="td-img" src="/media/icon/prepare1.png"><br>
+                {% elif files_c|length == 2 %}
+                  <img class="td-img" src="/media/icon/prepare2.png"><br>
+                {% elif files_c|length == 3 %}
+                  <img class="td-img" src="/media/icon/prepare3.png"><br>
+                {% elif files_c|length == 4 %}
+                  <img class="td-img" src="/media/icon/prepare4.png"><br>
+                {% elif files_c|length > 5 %}
+                  <img class="td-img" src="/media/icon/prepare5.png"><br>
+                {% endif %}
               </a></td>
               <td><a href="#" onclick="open_download('수주통보서')">
-                <img class="td-img" src="/media/icon/ordernoti.png"><br>
-                ({{ files_d | length }}건)
+                {% if files_d|length == 0 %}
+                  <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
+                {% elif files_d|length == 1 %}
+                  <img class="td-img" src="/media/icon/ordernoti1.png"><br>
+                {% elif files_d|length == 2 %}
+                  <img class="td-img" src="/media/icon/ordernoti2.png"><br>
+                {% elif files_d|length == 3 %}
+                  <img class="td-img" src="/media/icon/ordernoti3.png"><br>
+                {% elif files_d|length == 4 %}
+                  <img class="td-img" src="/media/icon/ordernoti4.png"><br>
+                {% elif files_d|length > 5 %}
+                  <img class="td-img" src="/media/icon/ordernoti5.png"><br>
+                {% endif %}
               </a></td>
               <td><a href="#" onclick="open_download('매입발주서')">
-                <img class="td-img" src="/media/icon/ordernoti.png"><br>
-                ({{ files_e | length }}건)
+                {% if files_e|length == 0 %}
+                  <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
+                {% elif files_e|length == 1 %}
+                  <img class="td-img" src="/media/icon/ordernoti1.png"><br>
+                {% elif files_e|length == 2 %}
+                  <img class="td-img" src="/media/icon/ordernoti2.png"><br>
+                {% elif files_e|length == 3 %}
+                  <img class="td-img" src="/media/icon/ordernoti3.png"><br>
+                {% elif files_e|length == 4 %}
+                  <img class="td-img" src="/media/icon/ordernoti4.png"><br>
+                {% elif files_e|length > 5 %}
+                  <img class="td-img" src="/media/icon/ordernoti5.png"><br>
+                {% endif %}
               </a></td>
               <td><a href="#" onclick="open_download('납품,구축,검수확인서')">
-                <img class="td-img" src="/media/icon/ordernoti.png"><br>
-                ({{ files_f | length }}건)
+                {% if files_f|length == 0 %}
+                  <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
+                {% elif files_f|length == 1 %}
+                  <img class="td-img" src="/media/icon/ordermail1.png"><br>
+                {% elif files_f|length == 2 %}
+                  <img class="td-img" src="/media/icon/ordermail2.png"><br>
+                {% elif files_f|length == 3 %}
+                  <img class="td-img" src="/media/icon/ordermail3.png"><br>
+                {% elif files_f|length == 4 %}
+                  <img class="td-img" src="/media/icon/ordermail4.png"><br>
+                {% elif files_f|length > 5 %}
+                  <img class="td-img" src="/media/icon/ordermail5.png"><br>
+                {% endif %}
               </a></td>
               <td><a href="#" onclick="open_download('매출발행')">
-                <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
-                ({{ files_g | length }}건)
+                {% if files_g|length == 0 %}
+                  <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
+                {% elif files_g|length == 1 %}
+                  <img class="td-img" src="/media/icon/ordermail1.png"><br>
+                {% elif files_g|length == 2 %}
+                  <img class="td-img" src="/media/icon/ordermail2.png"><br>
+                {% elif files_g|length == 3 %}
+                  <img class="td-img" src="/media/icon/ordermail3.png"><br>
+                {% elif files_g|length == 4 %}
+                  <img class="td-img" src="/media/icon/ordermail4.png"><br>
+                {% elif files_g|length > 5 %}
+                  <img class="td-img" src="/media/icon/ordermail5.png"><br>
+                {% endif %}
               </a></td>
             </tr>
             <tr>
