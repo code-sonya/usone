@@ -7,35 +7,37 @@
 
 
 {% block css %}
-<style>
-  .table {
-    color: #333333;
-  }
+  <style>
+    .file-table {
+      color: #333333;
+      width: 100%;
+      margin-bottom: 2rem;
+    }
 
-  .table td, .table th {
-    padding: .75rem;
-    vertical-align: middle;
-    border-bottom: 1px solid #e3e6f0;
-    font-size: 14px;
-    text-align: center;
-    white-space: nowrap;
-  }
+    .file-table td, .file-table th {
+      padding: .75rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #e3e6f0;
+      font-size: 14px;
+      text-align: center;
+      white-space: nowrap;
+    }
 
-  .pc-table {
-    color: #333333;
-    table-layout: fixed;
-    width: 100%;
-  }
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+    }
 
-  .pc-table td, .pc-table th {
-    padding: 3px 10px;
-    text-align: center;
-    vertical-align: middle;
-    font-size: 16px;
-    border: 1px solid lightgrey;
-  }
+    .pc-table td, .pc-table th {
+      padding: 3px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 16px;
+      border: 1px solid lightgrey;
+    }
 
-</style>
+  </style>
 {% endblock %}
 
 
@@ -126,7 +128,7 @@
       <div class="row">
         <div class="col-6">
           <label class="font-weight-bold text-primary mt-3">첨부파일</label>
-          <table class="table">
+          <table class="file-table">
             <thead>
             <tr>
               <td width="65%"><b>파일명</b></td>
@@ -145,7 +147,7 @@
         </div>
         <div class="col-6">
           <label class="font-weight-bold text-primary mt-3">관련문서</label>
-          <table class="table">
+          <table class="file-table">
             <thead>
             <tr>
               <td class="d-none">documentId</td>

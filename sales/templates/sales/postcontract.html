@@ -17,6 +17,28 @@
       color: #6e707e;
       width: 170px;
     }
+
+    .td-img {
+      max-width: 40%;
+      height: auto;
+    }
+
+    .flow-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .flow-table td, .flow-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border-top: 0px dotted #858796a3;
+    }
+
   </style>
 
 {% endblock %}
@@ -40,6 +62,55 @@
         <div class="card-body">
           <form id="ContractForm" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
+            <h5 class="text-dark mb-3"><b>
+              <span id="processDown" onclick="downClick('process', 'processUp', 'processDown')">▼</span>
+              <span id="processUp" class="d-none" onclick="upClick('process', 'processUp', 'processDown')">▶</span>
+              진행단계
+            </b></h5>
+            <table id="process" class="flow-table">
+              <tr>
+                <td>매입견적서</td>
+                <td>매출견적서</td>
+                <td>계약서</td>
+                <td>수주통보서</td>
+                <td>매입발주서</td>
+                <td>납품,구축,검수확인서</td>
+                <td>매출발행</td>
+              </tr>
+              <tr>
+                <td><img class="td-img" src="/media/icon/prepare.png"></td>
+                <td><img class="td-img" src="/media/icon/prepare.png"></td>
+                <td><img class="td-img" src="/media/icon/prepare.png"></td>
+                <td><img class="td-img" src="/media/icon/ordernoti.png"></td>
+                <td><img class="td-img" src="/media/icon/ordernoti.png"></td>
+                <td><img class="td-img" src="/media/icon/ordernoti.png"></td>
+                <td><img class="td-img" src="/media/icon/ordermail_grey.png"></td>
+              </tr>
+              <tr>
+                <td>[업로드완료]</td>
+                <td>[업로드완료]</td>
+                <td>[업로드완료]</td>
+                <td>[업로드완료]</td>
+                <td>[업로드완료]</td>
+                <td>[업로드완료]</td>
+                <td>[업로드완료]</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>[결재완료]</td>
+                <td></td>
+                <td>[결재완료]</td>
+                <td></td>
+                <td></td>
+                <td>[결재완료]</td>
+              </tr>
+            </table>
+
+            <h5 class="text-dark mb-3"><b>
+              <span id="OpportunityDown" onclick="downClick('Opportunity', 'OpportunityUp', 'OpportunityDown')">▼</span>
+              <span id="OpportunityUp" class="d-none" onclick="upClick('Opportunity', 'OpportunityUp', 'OpportunityDown')">▶</span>
+              계약내용
+            </b></h5>
             <div id="Opportunity">
               <div class="form-group row">
                 <div class="col-2 mb-3">
@@ -1375,6 +1446,18 @@
               price += Number($('input[name=' + inputName + ']').eq(i).val().replace(/,/g, ''));
           }
           $('.' + className).text(price.toLocaleString());
+      }
+
+      function downClick(table, up, down) {
+          $('#' + table).addClass('d-none');
+          $('#' + up).removeClass('d-none');
+          $('#' + down).addClass('d-none');
+      }
+
+      function upClick(table, up, down) {
+          $('#' + table).removeClass('d-none');
+          $('#' + up).addClass('d-none');
+          $('#' + down).removeClass('d-none');
       }
 
       $(document).ready(function () {

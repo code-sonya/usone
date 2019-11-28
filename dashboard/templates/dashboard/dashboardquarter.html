@@ -2217,12 +2217,11 @@
                   "month": filterArray['month'],
                   "maincategory": filterArray['maincategory'],
                   "subcategory": filterArray['subcategory'],
-                  "industry": filterArray['industry'],
+                  "industry": filterArray['i127ndustry'],
                   "salestype": filterArray['salestype'],
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
-                  console.log(returnData)
                   for (var i = 0; i < returnData.length; i++) {
                       table.row.add(returnData[i])
                   }
