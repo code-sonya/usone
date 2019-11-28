@@ -1123,3 +1123,42 @@ daily_report_sql3 = """
         where c.salePrice = r.totalRevenuePrice
     ) t;
 """
+
+
+def magicsearch():
+    costCompany = [
+        {'id': '법인카드', 'value': '법인카드'},
+        {'id': '프로젝트비용', 'value': '프로젝트비용'},
+        {'id': 'OMM', 'value': 'OMM'},
+        {'id': '이자비용', 'value': '이자비용'},
+        {'id': '지원금', 'value': '지원금'},
+        {'id': '인건비', 'value': '인건비'},
+        {'id': '교육비', 'value': '교육비'},
+        {'id': '대손상각비', 'value': '대손상각비'},
+        {'id': '미정', 'value': '미정'},
+    ]
+
+    classificationB = [
+        {'id': '상품_HW', 'value': '상품_HW'},
+        {'id': '상품_SW', 'value': '상품_SW'},
+        {'id': '유지보수_HW', 'value': '유지보수_HW'},
+        {'id': '유지보수_SW', 'value': '유지보수_SW'},
+        {'id': 'PM상주', 'value': 'PM상주'},
+        {'id': '기타', 'value': '기타'},
+    ]
+
+    classificationC = [
+        {'id': '상품_HW', 'value': '상품_HW'},
+        {'id': '상품_SW', 'value': '상품_SW'},
+        {'id': '유지보수_HW', 'value': '유지보수_HW'},
+        {'id': '유지보수_SW', 'value': '유지보수_SW'},
+        {'id': 'PM상주', 'value': 'PM상주'},
+        {'id': '프로젝트비용', 'value': '프로젝트비용'},
+        {'id': '사업진행비용', 'value': '사업진행비용'},
+        {'id': '교육', 'value': '교육'},
+        {'id': '교육쿠폰', 'value': '교육쿠폰'},
+        {'id': '부자재매입', 'value': '부자재매입'},
+        {'id': '기타', 'value': '기타'},
+    ]
+
+    return costCompany, classificationB, classificationC
