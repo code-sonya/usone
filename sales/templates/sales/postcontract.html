@@ -2038,7 +2038,7 @@
               {% for goodsHW in goodsHWs %}
               console.log("{{ goodsHW.companyName }}");
                   c1.row.add([
-                      '<div class="d-none" value="0" name="goodsHWTypeId" id="goodsHW0' + goodsHWCounter + '">추가</div>',
+                      '<div class="d-none" value="0" name="goodsHWTypeId" id="goodsHW0' + goodsHWCounter + '">{{ goodsHW.typeId }}</div>',
                       '<input class="magicsearch input-form" autocomplete="off" data-id="{{ goodsHW.companyName }}" type="text" style="width: 200px;" name="goodsHWCompany" ' +
                       'id="goodsHW1' + goodsHWCounter + '" onkeydown="magicsearchtab(goodsHW1' + goodsHWCounter + ')">',
                       '<input class="input-form" type="text" style="width: 350px;" value="{{ goodsHW.contents }}" name="goodsHWContents" id="goodsHW2' + goodsHWCounter + '">',
@@ -2133,7 +2133,7 @@
               {% for goodsSW in goodsSWs %}
               console.log("{{ goodsSW.companyName }}");
                   c2.row.add([
-                      '<div class="d-none" value="0" name="goodsSWTypeId" id="goodsSW0' + goodsSWCounter + '">추가</div>',
+                      '<div class="d-none" value="0" name="goodsSWTypeId" id="goodsSW0' + goodsSWCounter + '">{{ goodsSW.typeId }}</div>',
                       '<input class="magicsearch input-form" autocomplete="off" data-id="{{ goodsSW.companyName }}" type="text" style="width: 200px;" name="goodsSWCompany" ' +
                       'id="goodsSW1' + goodsSWCounter + '" onkeydown="magicsearchtab(goodsSW1' + goodsSWCounter + ')">',
                       '<input class="input-form" type="text" style="width: 350px;" value="{{ goodsSW.contents }}" name="goodsSWContents" id="goodsSW2' + goodsSWCounter + '">',
@@ -2226,7 +2226,7 @@
               {% for maintenanceHW in maintenanceHWs %}
               console.log("{{ maintenanceHW.companyName }}");
                   c3.row.add([
-                      '<div class="d-none" value="0" name="maintenanceHWTypeId" id="maintenanceHW0' + maintenanceHWCounter + '">추가</div>',
+                      '<div class="d-none" value="0" name="maintenanceHWTypeId" id="maintenanceHW0' + maintenanceHWCounter + '">{{ maintenanceHW.typeId }}</div>',
                       '<input class="magicsearch input-form" autocomplete="off" data-id="{{ maintenanceHW.companyName }}" type="text" style="width: 200px;" name="maintenanceHWCompany" ' +
                       'id="maintenanceHW1' + maintenanceHWCounter + '" onkeydown="magicsearchtab(maintenanceHW1' + maintenanceHWCounter + ')">',
                       '<input class="input-form" type="text" style="width: 350px;" value="{{ maintenanceHW.contents }}" name="maintenanceHWContents" id="maintenanceHW2' + maintenanceHWCounter + '">',
@@ -2319,7 +2319,7 @@
               {% for maintenanceSW in maintenanceSWs %}
               console.log("{{ maintenanceSW.companyName }}");
                   c4.row.add([
-                      '<div class="d-none" value="0" name="maintenanceSWTypeId" id="maintenanceSW0' + maintenanceSWCounter + '">추가</div>',
+                      '<div class="d-none" value="0" name="maintenanceSWTypeId" id="maintenanceSW0' + maintenanceSWCounter + '">{{ maintenanceSW.typeId }}</div>',
                       '<input class="magicsearch input-form" autocomplete="off" data-id="{{ maintenanceSW.companyName }}" type="text" style="width: 200px;" name="maintenanceSWCompany" ' +
                       'id="maintenanceSW1' + maintenanceHWCounter + '" onkeydown="magicsearchtab(maintenanceSW1' + maintenanceSWCounter + ')">',
                       '<input class="input-form" type="text" style="width: 350px;" value="{{ maintenanceSW.contents }}" name="maintenanceSWContents" id="maintenanceSW2' + maintenanceSWCounter + '">',
@@ -2415,7 +2415,7 @@
               {% for supportInternal in supportInternals %}
               console.log("{{ supportInternal.classification }}");
                   c5.row.add([
-                      '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">추가</div>',
+                      '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">{{ supportInternal.typeId }}</div>',
                       '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" data-id="{{ supportInternal.classification }}" name="supportInternalType" ' +
                       'id="supportInternal1' + supportInternalCounter + '" onkeydown="magicsearchtab(supportInternal1' + supportInternalCounter + ')">',
                       '<input class="input-form" type="digit" style="width: 50px;" value="{{ supportInternal.times }}" name="supportInternalTimes" id="supportInternal2' + supportInternalCounter + '">',
@@ -2510,7 +2510,7 @@
               {% for supportExternal in supportExternals %}
               console.log("{{ supportExternal.classification }}");
                   c6.row.add([
-                      '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">추가</div>',
+                      '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">{{ supportExternal.typeId }}</div>',
                       '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" data-id="{{ supportExternal.classification }}" name="supportExternalType" ' +
                       'id="supportExternal1' + supportExternalCounter + '" onkeydown="magicsearchtab(supportExternal1' + supportExternalCounter + ')">',
                       '<input class="input-form" type="text" style="width: 350px;" value="{{ supportExternal.contents }}" name="supportExternalContents" id="supportExternal2' + supportExternalCounter + '">',
@@ -2592,7 +2592,7 @@
               {% for dbCost in dbCosts %}
               console.log("{{ dbCosts.classification }}");
                   c7.row.add([
-                      '<div class="d-none" value="0" name="dbCostsTypeId" id="dbCosts0' + dbCostsCounter + '">추가</div>',
+                      '<div class="d-none" value="0" name="dbCostsTypeId" id="dbCosts0' + dbCostsCounter + '">{{ dbCost.typeId }}</div>',
                       '<input class="input-form" type="text" style="width: 130px;" value="{{ dbCost.contractNo }}" name="dbCostsNumber" id="dbCosts1' + dbCostsCounter + '">',
                       '<input class="input-form" type="date" style="width: 200px;" value="{{ dbCost.contractStartDate }}" name="dbCostsStart" id="dbCosts2' + dbCostsCounter + '">',
                       '<input class="input-form" type="date" style="width: 200px;" value="{{ dbCost.contractEndDate }}" name="dbCostsEnd" id="dbCosts3' + dbCostsCounter + '">',
@@ -2644,7 +2644,6 @@
                 '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">추가</div>',
                 '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="othersType" ' +
                 'id="others1' + othersCounter + '" onkeydown="magicsearchtab(others1' + othersCounter + ')">',
-                // '<input class="input-form" type="text" style="width: 200px;" name="othersType" id="others1' + othersCounter + '">',
                 '<input class="input-form" type="text" style="width: 350px;" name="othersContents" id="others2' + othersCounter + '">',
                 '<input class="money input-form"  name="othersPrice" style="width: 200px;" id="others3' + othersCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
@@ -2671,7 +2670,7 @@
               {% for other in others %}
               console.log("{{ other.classification }}");
                   c8.row.add([
-                      '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">추가</div>',
+                      '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">{{ other.typeId }}</div>',
                       '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" data-id="{{ other.classification }}" name="othersType" ' +
                       'id="others1' + othersCounter + '" onkeydown="magicsearchtab(others1' + othersCounter + ')">',
                       '<input class="input-form" type="text" style="width: 350px;" value="{{ other.contents }}" name="othersContents" id="others2' + othersCounter + '">',
