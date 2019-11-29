@@ -9,10 +9,10 @@ from django.shortcuts import render, redirect
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
-from django.db.models import Sum, FloatField, F, Case, When, Count, Q
+from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max
 
 from service.models import Employee
-from sales.models import Contract
+from sales.models import Contract, Revenue, Purchase, Contractfile
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
 from .functions import data_format, who_approval, template_format
 
@@ -986,14 +986,15 @@ def return_document(request, approvalId):
 
 
 def post_contract_document(request, contractId, documentType):
-    # 연결된 계약
-    contract = Contract.objects.get(contractId=contractId)
-
+    # 결재 문서 양식명
+    formTitle = ''
+    if documentType == '선발주':
+        formTitle = '선발주품의서'
     # 문서 종류 선택
     formId = Documentform.objects.get(
         categoryId__firstCategory='영업',
         categoryId__secondCategory='일반',
-        formTitle=documentType,
+        formTitle=formTitle,
     )
 
     # 문서번호 자동생성 (yymmdd-000)
@@ -1001,8 +1002,56 @@ def post_contract_document(request, contractId, documentType):
     todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
     documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
 
-    contractText = '<p>계약명 : <a href="/sales/viewcontract/' + contractId + '/" target="_blank">' + \
-                   '[' + contract.contractCode + '] ' + contract.contractName + '</a></p>'
+    # 문서에 필요내용 자동입력
+    # 계약(contract), 매출(revenues), 매입(purchases), 계약파일(files)
+    contract = Contract.objects.get(contractId=contractId)
+    revenues = Revenue.objects.filter(contractId=contract)
+    purchases = Purchase.objects.filter(contractId=contract)
+    files = Contractfile.objects.filter(contractId=contract)
+
+    # 계약명(contractName)
+    contractName = '<a href="/sales/viewcontract/' + contractId + '/">[' + contract.contractCode + '] ' + contract.contractName + '</a>'
+
+    # 매출처(revenueCompany)
+    revenueCompany = ''
+    for company in revenues.values('revenueCompany__companyNameKo').distinct():
+        if not revenueCompany:
+            revenueCompany += company['revenueCompany__companyNameKo']
+        else:
+            revenueCompany += (', ' + company['revenueCompany__companyNameKo'])
+
+    # 매출액(revenuePrice), GP(profitPrice)
+    revenuePrice = revenues.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
+    profitPrice = revenues.aggregate(Sum('revenueProfitPrice'))['revenueProfitPrice__sum']
+    profitRatio = round(profitPrice / revenuePrice * 100)
+
+    # 매입처(purchaseCompany)
+    purchaseCompany = ''
+    for company in purchases.values('purchaseCompany__companyNameKo').distinct():
+        if not purchaseCompany:
+            purchaseCompany += company['purchaseCompany__companyNameKo']
+        else:
+            purchaseCompany += (', ' + company['purchaseCompany__companyNameKo'])
+
+    # 매입액(purchasePrice)
+    purchasePrice = purchases.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
+
+    # 매입견적서(purchaseEstimate)
+    lastFile = files.filter(fileCategory='매입견적서')
+    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+    purchaseEstimate = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+
+    contentHtml = formId.formHtml
+    # 4. 선발주
+    if formTitle == '선발주품의서':
+        contentHtml = contentHtml.replace('계약명자동입력', contractName)
+        contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
+        contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
+        contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
+        contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
+        contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
+        contentHtml = contentHtml.replace('매입견적서링크', purchaseEstimate)
 
     # 문서 등록
     document = Document.objects.create(
@@ -1011,8 +1060,8 @@ def post_contract_document(request, contractId, documentType):
         formId=formId,
         preservationYear=formId.preservationYear,
         securityLevel=formId.securityLevel,
-        title='[' + contract.contractName + '] ' + documentType + ' 결재 자동생성',
-        contentHtml=contractText + formId.formHtml,
+        title='[' + contract.contractName + '] ' + formTitle + ' 결재 자동생성',
+        contentHtml=contentHtml,
         writeDatetime=datetime.datetime.now(),
         modifyDatetime=datetime.datetime.now(),
         documentStatus='임시',
