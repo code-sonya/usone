@@ -38,6 +38,12 @@ def post_document(request):
         todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
         documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
 
+        # 문서 전처리 (\n 없애고, '를 "로 변경)
+        HTML = request.POST['contentHtml']
+        HTML = HTML.replace('\'', '"')
+        HTML = HTML.replace('\r', '')
+        HTML = HTML.replace('\n', '')
+
         # 문서 등록
         document = Document.objects.create(
             documentNumber=documentNumber,
@@ -46,7 +52,7 @@ def post_document(request):
             preservationYear=preservationYear,
             securityLevel=request.POST['securityLevel'][0],
             title=request.POST['title'],
-            contentHtml=request.POST['contentHtml'],
+            contentHtml=HTML,
             writeDatetime=datetime.datetime.now(),
             modifyDatetime=datetime.datetime.now(),
             documentStatus=request.POST['documentStatus'],
@@ -194,6 +200,11 @@ def modify_document(request, documentId):
 
         document.securityLevel = request.POST['securityLevel'][0]
         document.title = request.POST['title']
+        # 문서 전처리 (\n 없애고, '를 "로 변경)
+        HTML = request.POST['contentHtml']
+        HTML = HTML.replace('\'', '"')
+        HTML = HTML.replace('\r', '')
+        HTML = HTML.replace('\n', '')
         document.contentHtml = request.POST['contentHtml']
         document.modifyDatetime = datetime.datetime.now()
         document.documentStatus = request.POST['documentStatus']
@@ -300,7 +311,6 @@ def modify_document(request, documentId):
     else:
         # 임시저장 문서
         document = Document.objects.get(documentId=documentId)
-        print(document)
 
         # 참조자 자동완성
         empList = Employee.objects.filter(Q(empStatus='Y'))
@@ -346,12 +356,19 @@ def post_documentform(request):
             firstCategory=request.POST['firstCategory'],
             secondCategory=request.POST['secondCategory'],
         )
+
+        # 문서 전처리 (\n 없애고, '를 "로 변경)
+        HTML = request.POST['formHtml']
+        HTML = HTML.replace('\'', '"')
+        HTML = HTML.replace('\r', '')
+        HTML = HTML.replace('\n', '')
+
         documentformId = Documentform.objects.create(
             categoryId=categoryId,
             approvalFormat=request.POST['approvalFormat'],
             formNumber=request.POST['formNumber'],
             formTitle=request.POST['formTitle'],
-            formHtml=request.POST['formHtml'],
+            formHtml=HTML,
             preservationYear=request.POST['preservationYear'],
             securityLevel=request.POST['securityLevel'],
             comment=request.POST['comment'],
@@ -436,7 +453,12 @@ def modify_documentform(request, formId):
         form.formNumber = request.POST['formNumber']
         form.approvalFormat = request.POST['approvalFormat']
         form.formTitle = request.POST['formTitle']
-        form.formHtml = request.POST['formHtml']
+        # 문서 전처리 (\n 없애고, '를 "로 변경)
+        HTML = request.POST['formHtml']
+        HTML = HTML.replace('\'', '"')
+        HTML = HTML.replace('\r', '')
+        HTML = HTML.replace('\n', '')
+        form.formHtml = HTML
         form.preservationYear = request.POST['preservationYear']
         form.securityLevel = request.POST['securityLevel']
         form.comment = request.POST['comment']
@@ -979,6 +1001,9 @@ def post_contract_document(request, contractId, documentType):
     todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
     documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
 
+    contractText = '<p>계약명 : <a href="/sales/viewcontract/' + contractId + '/" target="_blank">' + \
+                   '[' + contract.contractCode + '] ' + contract.contractName + '</a></p>'
+
     # 문서 등록
     document = Document.objects.create(
         documentNumber=documentNumber,
@@ -987,8 +1012,7 @@ def post_contract_document(request, contractId, documentType):
         preservationYear=formId.preservationYear,
         securityLevel=formId.securityLevel,
         title='[' + contract.contractName + '] ' + documentType + ' 결재 자동생성',
-        contentHtml='<p>계약명 : <a href="/sales/viewcontract/' + contractId + '/">' + contract.contractName + '</a></p>' +
-                    formId.formHtml,
+        contentHtml=contractText + formId.formHtml,
         writeDatetime=datetime.datetime.now(),
         modifyDatetime=datetime.datetime.now(),
         documentStatus='임시',
