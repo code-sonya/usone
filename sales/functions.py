@@ -14,7 +14,7 @@ from django.db.models.functions import Coalesce
 from hr.models import Employee
 
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped
 from service.models import Company, Customer, Servicereport
 from django.db.models import Q
 from datetime import datetime, timedelta, date
@@ -1144,7 +1144,6 @@ def magicsearch():
         {'id': '유지보수_HW', 'value': '유지보수_HW'},
         {'id': '유지보수_SW', 'value': '유지보수_SW'},
         {'id': 'PM상주', 'value': 'PM상주'},
-        {'id': '기타', 'value': '기타'},
     ]
 
     classificationC = [
@@ -1162,3 +1161,34 @@ def magicsearch():
     ]
 
     return costCompany, classificationB, classificationC
+
+
+def summaryPurchase(contractId, salePrice):
+    # 1. 상품_HW = 상품_HW (1)
+    # 2. 상품_SW = 상품_SW, DB COSTS (2, 7)
+    # 3. 용역_HW = 유지보수_HW, 인력지원_자사_HW, 인력지원_타사_HW(3, 5, 6) - 상품_HW, 유지보수_HW
+    # 4. 용역_SW = 유지보수_SW, 인력지원_자사_SW, 인력지원_타사_SW(4, 5, 6) - 상품_SW, 유지보수_SW, PM_상주는 어디로?
+    # 5. 기타 = 기타 (8)
+    HW_lst = ['상품_HW', '유지보수_HW']
+    SW_lst = ['상품_SW', '유지보수_SW']
+    sumType1 = 0
+    sumType2 = 0
+    sumType3 = 0
+    sumType4 = 0
+    sumType5 = 0
+
+    sumType1 += Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=1)).aggregate(Sum('price'))['price__sum'] or 0
+    sumType2 += Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=2)).aggregate(Sum('price'))['price__sum'] or 0
+    sumType2 += Purchasetyped.objects.filter(Q(contractId=contractId) & Q(classNumber=7)).aggregate(Sum('price'))['price__sum'] or 0
+    sumType3 += Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=3)).aggregate(Sum('price'))['price__sum'] or 0
+    sumType3 += Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=5) & Q(classification__in=HW_lst)).aggregate(Sum('price'))['price__sum'] or 0
+    sumType3 += Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=6) & Q(classification__in=HW_lst)).aggregate(Sum('price'))['price__sum'] or 0
+    sumType4 += Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=4)).aggregate(Sum('price'))['price__sum'] or 0
+    sumType4 += Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=5) & Q(classification__in=SW_lst)).aggregate(Sum('price'))['price__sum'] or 0
+    sumType4 += Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=6) & Q(classification__in=SW_lst)).aggregate(Sum('price'))['price__sum'] or 0
+    sumType5 += Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=8)).aggregate(Sum('price'))['price__sum'] or 0
+
+    sumPurchase = sumType1 + sumType2 + sumType3 + sumType4 + sumType5
+    profit = salePrice - sumPurchase
+    return {'sumPurchase': sumPurchase, 'profit': profit, 'sumType1': sumType1, 'sumType2': sumType2, 'sumType3': sumType3, 'sumType4': sumType4, 'sumType5': sumType5}
+

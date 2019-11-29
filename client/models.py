@@ -9,6 +9,7 @@ class Company(models.Model):
     companyName = models.CharField(max_length=100, primary_key=True)
     companyNameKo = models.CharField(max_length=100, unique=True)
     companyNumber = models.CharField(max_length=30, null=True, blank=True)
+    ceo = models.CharField(max_length=30, null=True, blank=True)
     saleEmpId = models.ForeignKey(Employee, null=True, blank=True, on_delete=models.CASCADE, related_name='saleEmpID')
     solutionMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='solutionMainEmpID')
     solutionSubEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='solutionSubEmpId')

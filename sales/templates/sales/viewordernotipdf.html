@@ -1,0 +1,241 @@
+{% load staticfiles %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+  <meta charset="utf-8">
+
+  <style type="text/css">
+    @font-face {
+      font-family: KBIZHanmaumMyungjo;
+      src: url({% static '/mail/KBIZHanmaumMyungjo.ttf' %});
+    }
+
+    html {
+      font-family: KBIZHanmaumMyungjo, serif;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin-left: 20pt;
+      margin-right: 20pt;
+      margin-top: 20pt;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid grey;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 13px;
+      border-top: 1px dotted #858796a3;
+      background-color: #ebfaff;
+    }
+
+
+  </style>
+</head>
+<body>
+<div style="text-align: center;">
+  <strong style="font-size: 25px;">수주통보서</strong>
+</div>
+<br>
+<table width="400px" align="right">
+  <tr class="thtd" style="height: 30px">
+    <td class="thtd" rowspan="2" colspan="2" style="background-color:gainsboro">결재</td>
+    <td class="thtd" colspan="3" style="background-color:gainsboro">담당자</td>
+    <td class="thtd" colspan="3" style="background-color:gainsboro">경지부</td>
+    <td class="thtd" colspan="3" style="background-color:gainsboro">팀장</td>
+    <td class="thtd" colspan="3" style="background-color:gainsboro">사장</td>
+    <td class="thtd" colspan="3" style="background-color:gainsboro">대표이사</td>
+  </tr>
+  <tr class="thtd" style="height: 60px">
+    <td class="thtd" colspan="3"></td>
+    <td class="thtd" colspan="3"></td>
+    <td class="thtd" colspan="3"></td>
+    <td class="thtd" colspan="3"></td>
+    <td class="thtd" colspan="3"></td>
+  </tr>
+</table>
+<div style="font-size: 14px">발행일자 : {{ today.year }}년 {{ today.month }} 월 {{ today.day }}일</div>
+<table>
+  <tr>
+    <td colspan="5">
+      <table>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;font-size: 13px">부서</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;font-size: 13px">영업대표</td>
+          <td class="thtd" colspan="3" style="background-color:#ebfaff;font-size: 13px">계약명</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1">{{ contract.empDeptName }}</td>
+          <td class="thtd" colspan="1">{{ contract.empName }}</td>
+          <td class="thtd" colspan="3">[{{ contract.contractCode }}] {{ contract.contractName }}</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="padding-right: 5px">
+      <div style="font-size: 15px;padding-top: 10px"><b>* 계약정보</b></div>
+      <table>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">구분</td>
+          <td class="thtd" colspan="2" style="background-color:#ebfaff">내용</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">거래처</td>
+          <td class="thtd" colspan="2" >{{ contract.saleCompanyName.companyNameKo }}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">최종고객사</td>
+          <td class="thtd" colspan="2" >{{ contract.endCompanyName.companyNameKo }}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">대분류/소분류</td>
+          <td class="thtd" colspan="2" >{{ contract.mainCategory }}({{ contract.subCategory }})</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">산업군</td>
+          <td class="thtd" colspan="2" >{{ contract.saleIndustry }}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">판매유형</td>
+          <td class="thtd" colspan="2" >{{ contract.saleType }}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">계약일</td>
+          <td class="thtd" colspan="2" >{{ contract.contractDate }}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">계약기간</td>
+          <td class="thtd" colspan="2" >{% if contract.contractStep == 'Firm' and contract.contractStartDate %}{{ contract.contractStartDate }} ~ {{ contract.contractEndDate }}{% else %}-{% endif %}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">계약금액</td>
+          <td class="thtd" colspan="2" >{{ contract.salePrice | intcomma }}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">수금조건</td>
+          <td class="thtd" colspan="2" >{{ contract.depositCondition }}{% if contract.depositCondition == '계산서 발행 후' %} {{ contract.depositConditionDay }}일 이내{% endif %}</td>
+        </tr>
+      </table>
+    </td>
+    <td colspan="3">
+      <div style="font-size: 15px;padding-top: 10px;"><b>* CoG정보</b></div>
+      <table>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">구분</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">매출금액</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">매입금액</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">마진금액</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">상품_HW</td>
+          <td class="thtd" colspan="1" rowspan="5">{{ contract.salePrice | intcomma }}</td>
+          <td class="thtd" colspan="1">{{ summary.sumType1 | intcomma }}</td>
+          <td class="thtd" colspan="1" rowspan="5">{{ summary.profit | intcomma }}</td>
+        </tr>
+         <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">상품_SW</td>
+          <td class="thtd" colspan="1">{{ summary.sumType2 | intcomma }}</td>
+        </tr>
+         <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">용역_HW</td>
+          <td class="thtd" colspan="1">{{ summary.sumType3 | intcomma }}</td>
+        </tr>
+         <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">용역_SW</td>
+          <td class="thtd" colspan="1">{{ summary.sumType4 | intcomma }}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">기타</td>
+          <td class="thtd" colspan="1">{{ summary.sumType5 | intcomma }}</td>
+        </tr>
+         <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">총 합계</td>
+          <td class="thtd" colspan="1">{{ contract.salePrice | intcomma }}</td>
+          <td class="thtd" colspan="1">{{ summary.sumPurchase | intcomma }}</td>
+          <td class="thtd" colspan="1">{{ summary.profit | intcomma }}</td>
+        </tr>
+      </table>
+      <div style="font-size: 15px;padding-top: 3px;"><b>* 마진율분석</b></div>
+      <table>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;font-size: 12px">마진율</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;font-size: 12px">목표마진율</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;font-size: 12px">분석결과</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1">{{ contract.profitRatio | floatformat }}%</td>
+          <td class="thtd" colspan="1">15%</td>
+          {% if result > 0 %}
+          <td class="thtd" style="color:red;" colspan="1">{{ result }}%</td>
+          {% else %}
+          <td class="thtd" style="color:blue;" colspan="1">{{ result }}%</td>
+          {% endif %}
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="padding-right: 5px">
+      <div style="font-size: 15px;padding-top: 10px"><b>* 고객정보</b></div>
+      <table>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="4" style="background-color:gainsboro">대표자</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="4">{{ contract.saleCompanyName.ceo }}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="4" style="background-color:gainsboro">주소</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="4">{{ contract.saleCompanyName.companyAddress }}</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="2" style="background-color:gainsboro">영업담당자</td>
+          <td class="thtd" colspan="2" style="background-color:gainsboro">세금계산서담당자</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="2"></td>
+          <td class="thtd" colspan="2"></td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="2"></td>
+          <td class="thtd" colspan="2"></td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="2"></td>
+          <td class="thtd" colspan="2"></td>
+        </tr>
+      </table>
+    </td>
+    <td colspan="3">
+      <div style="font-size: 15px;padding-top: 10px;"><b>* 기타정보</b></div>
+      <table style="background-color:gainsboro;">
+        <tr class="thtd" style="height: 25px;text-align: left;">
+          <td colspan="5" style="height: 200px;"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

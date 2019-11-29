@@ -19,7 +19,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile
-from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch
+from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase
 
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
@@ -3101,7 +3101,6 @@ def save_contract_files(request, contractId):
 @login_required
 @csrf_exempt
 def contract_details(request):
-    print(request.POST)
     contractId = request.POST['contractId']
     table = request.POST['table']
     classNumber = request.POST['classNumber']
@@ -3127,5 +3126,26 @@ def contract_details(request):
 
     structure = json.dumps(list(purchaseTypes), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def view_ordernoti_pdf(request, contractId):
+    context = viewContract(contractId)
+    today = datetime.today()
+    context['today'] = today
+    context['result'] = context['contract'].profitRatio - 15.0
+    context['summary'] = summaryPurchase(contractId, context['contract'].salePrice)
+    print(context['summary'])
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{}_수주통보서.pdf"'.format(contractId)
+    template = get_template('sales/viewordernotipdf.html')
+    html = template.render(context, request)
+
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
 
 
