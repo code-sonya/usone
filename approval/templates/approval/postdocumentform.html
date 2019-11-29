@@ -488,6 +488,11 @@
             disableGrammar: true,
         });
         formHtml.summernote('code', '{{ form.formHtml | safe }}');
+
+        $('.note-input').on("propertychange change keyup paste input", function() {
+            let currentVal = $(this).val();
+            $(this).attr('value', currentVal);
+        })
     })
 
   </script>
