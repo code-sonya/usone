@@ -3101,7 +3101,6 @@ def save_contract_files(request, contractId):
 @login_required
 @csrf_exempt
 def contract_details(request):
-    print(request.POST)
     contractId = request.POST['contractId']
     table = request.POST['table']
     classNumber = request.POST['classNumber']

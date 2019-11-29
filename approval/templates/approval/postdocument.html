@@ -561,6 +561,11 @@
 
             title.val(val.title);
             contentHtml.summernote('code', val.html);
+            $('.note-input').on("propertychange change keyup paste input", function() {
+                let currentVal = $(this).val();
+                $(this).attr('value', currentVal);
+                console.log(currentVal);
+            });
 
             approvalFormat.val(val.approvalFormat);
 

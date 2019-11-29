@@ -492,7 +492,9 @@
         $('.note-input').on("propertychange change keyup paste input", function() {
             let currentVal = $(this).val();
             $(this).attr('value', currentVal);
-        })
+            console.log(currentVal);
+        });
+
     })
 
   </script>

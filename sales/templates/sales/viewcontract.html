@@ -1607,8 +1607,20 @@
 
       function post_document() {
           let documentType = $('#documentType').val();
+          let purchases = {{ purchases | length }};  // 매입(세금계산서 접수) 개수
+          let purchaseEstimate = {{ files_a | length }};  // 매입발주서 개수
 
-          window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
+          if (documentType === '선발주') {
+              if (purchaseEstimate === 0) {
+                  alert('매입견적서를 업로드해주세요.')
+              }
+              else if (purchases === 0) {
+                  alert('매입(세금계산서 접수 항목)을 입력해주세요.')
+              }
+              else {
+                  window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
+              }
+          }
       }
 
       $(document).ready(function () {
