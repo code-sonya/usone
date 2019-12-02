@@ -192,11 +192,18 @@ def show_fuel(request):
         y = datetime.today().year
         m = datetime.today().month
     startdate = str(datetime(y, m, 1).date())
-    enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
+    if m == 12:
+        enddate = str((datetime(y+1, 1, 1) - timedelta(days=1)).date())
+    else:
+        enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
 
     btnStatus = 'N'
-    if datetime(y, m+1, 5) > datetime.today():
-        btnStatus = 'Y'
+    if m == 12:
+        if datetime(y+1, 1, 5) > datetime.today():
+            btnStatus = 'Y'
+    else:
+        if datetime(y, m+1, 5) > datetime.today():
+            btnStatus = 'Y'
     context = {
         'empId': request.user.employee.empId,
         'startdate': startdate,
@@ -247,7 +254,10 @@ def admin_fuel(request):
         y = datetime.today().year
         m = datetime.today().month
     startdate = str(datetime(y, m, 1).date())
-    enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
+    if m == 12:
+        enddate = str((datetime(y+1, 1, 1) - timedelta(days=1)).date())
+    else:
+        enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
     context = {
         'yearmonth': '{}-{}'.format(y, m),
         'startdate': startdate,
