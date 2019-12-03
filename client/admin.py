@@ -11,6 +11,6 @@ class CompanyAdmin(admin.ModelAdmin):
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ('customerName', 'companyName', 'customerEmail')
-    list_filter = ('companyName',)
-    list_display_links = ['customerName']
+    list_display = ('customerName', 'companyName', 'customerEmail', 'customerType',)
+    list_filter = ('companyName', 'customerType',)
+    list_display_links = ['customerName', 'companyName', 'customerEmail', 'customerType',]

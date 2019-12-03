@@ -34,6 +34,7 @@ class Company(models.Model):
 
 class Customer(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'))
+    typeChoices = (('솔루션', '솔루션'), ('DB', 'DB'), ('영업', '영업'), ('세금', '세금'))
 
     customerId = models.AutoField(primary_key=True)
     customerName = models.CharField(max_length=10)
@@ -41,6 +42,7 @@ class Customer(models.Model):
     customerDeptName = models.CharField(max_length=30, null=True, blank=True)
     customerPhone = models.CharField(max_length=20, null=True, blank=True)
     customerEmail = models.CharField(max_length=254, null=True, blank=True)
+    customerType = models.CharField(max_length=10, choices=typeChoices, null=True, blank=True)
     customerStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     class Meta:
