@@ -1,26 +1,16 @@
 # -*- coding: utf-8 -*-
-import json
 
-from django.contrib.auth.decorators import login_required
-from django.core import serializers
-from django.db.models import Sum, FloatField, F, Count
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect, reverse
-from django.template.loader import get_template
-from django.views.decorators.csrf import csrf_exempt
-from xhtml2pdf import pisa
-from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models.functions import Coalesce
-from hr.models import Employee
-
-from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped
-from service.models import Company, Customer, Servicereport
-from django.db.models import Q
 from datetime import datetime, timedelta, date
-import pandas as pd
-from xhtml2pdf import pisa
-from service.functions import link_callback
+
+from django.db.models import Q
+from django.db.models import Sum, F, Count
+from django.db.models.functions import Coalesce
+
+from hr.models import Employee
+from service.models import Servicereport
+from approval.models import Document
+from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile, Purchasetypea, \
+    Purchasetypeb, Purchasetypec, Purchasetyped
 
 
 def viewContract(contractId):
@@ -32,6 +22,9 @@ def viewContract(contractId):
     files_e = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매입발주서').order_by('uploadDatetime')
     files_f = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='납품,구축,검수확인서').order_by('uploadDatetime')
     files_g = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출발행').order_by('uploadDatetime')
+
+    # 결재문서
+    documents = Document.objects.filter(contractId=contractId).exclude(documentStatus='임시')
 
     # 계약, 세부정보, 매출, 매입, 계약서 명, 수주통보서 명
     contract = Contract.objects.get(contractId=contractId)
@@ -170,6 +163,8 @@ def viewContract(contractId):
         'files_e': files_e,
         'files_f': files_f,
         'files_g': files_g,
+        # 결재문서
+        'documents': documents,
         # 계약, 세부사항, 매출, 매입, 원가, 계약서 명, 수주통보서 명
         'contract': contract,
         'services': services,

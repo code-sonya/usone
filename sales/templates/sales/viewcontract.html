@@ -132,14 +132,15 @@
               진행단계
             </b>
             </h5>
-            <div class="input-group" style="width: 200px;">
+            <div class="input-group" style="width: 300px;">
               <select id="documentType" class="form-control">
                 <option>매출견적서</option>
                 <option>수주통보서</option>
                 <option>매출발행</option>
                 <option>선발주</option>
               </select>
-              <button class="btn btn-secondary" onclick="post_document()">결재</button>
+              <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;&nbsp;
+              <button class="btn btn-warning" onclick="show_document()">문서함</button>
             </div>
           </div>
 
@@ -281,15 +282,6 @@
                   <img class="td-img" src="/media/icon/ordermail5.png"><br>
                 {% endif %}
               </a></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>[결재완료]</td>
-              <td></td>
-              <td>[결재완료]</td>
-              <td></td>
-              <td></td>
-              <td>[결재완료]</td>
             </tr>
           </table>
 
@@ -881,7 +873,6 @@
     </div>
   </div>
 
-
   <!-- file upload modal -->
   <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -1005,6 +996,47 @@
                 <td class="text-right">{{ f.fileSize }} MB</td>
               </tr>
             {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- document modal -->
+  <div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="documentModalLabel">문서함</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="15%"><b>기안일시</b></td>
+              <td width="10%"><b>작성자</b></td>
+              <td width="65%"><b>문서명</b></td>
+              <td width="10%"><b>상태</b></td>
+            </tr>
+            </thead>
+            <tbody>
+              {% for document in documents %}
+                <tr>
+                  <td>{{ document.draftDatetime | date:"Y.m.d H:i" }}</td>
+                  <td>{{ document.writeEmp }}</td>
+                  <td class="text-left">
+                    <a href="/approval/viewdocument/{{ document.documentId }}" target="_blank">[{{ document.documentNumber }}]</a>
+                    {{ document.title }}
+                  </td>
+                  <td>{{ document.documentStatus }}</td>
+                </tr>
+              {% endfor %}
             </tbody>
           </table>
         </div>
@@ -1609,18 +1641,50 @@
           let documentType = $('#documentType').val();
           let purchases = {{ purchases | length }};  // 매입(세금계산서 접수) 개수
           let purchaseEstimate = {{ files_a | length }};  // 매입발주서 개수
+          let revenueEstimate = {{ files_b | length }};  // 매출발주서 개수
+          let contractPaper = {{ files_c | length }};  // 계약서 개수
+          let orderPaper = {{ files_d | length }};  // 수주통보서 개수
+          let confirmPaper = {{ files_f | length }};  // 납품,구축,검수확인서 개수
 
-          if (documentType === '선발주') {
+          if (documentType === '매출견적서') {
               if (purchaseEstimate === 0) {
                   alert('매입견적서를 업로드해주세요.')
-              }
-              else if (purchases === 0) {
+              } else if (revenueEstimate === 0) {
+                  alert('매출견적서를 업로드해주세요.')
+              } else if (purchases === 0) {
                   alert('매입(세금계산서 접수 항목)을 입력해주세요.')
+              } else {
+                  window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
               }
-              else {
+          } else if (documentType === '수주통보서') {
+              if (contractPaper === 0) {
+                  alert('계약서를 업로드해주세요.')
+              } else if (orderPaper === 0) {
+                  alert('수주통보서를 업로드해주세요.')
+              } else {
+                  window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
+              }
+          } else if (documentType === '매출발행') {
+              if (orderPaper === 0) {
+                  alert('수주통보서를 업로드해주세요.')
+              } else if (confirmPaper === 0) {
+                  alert('납품,구축,검수확인서를 업로드해주세요.')
+              } else {
+                  window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
+              }
+          } else if (documentType === '선발주') {
+              if (purchaseEstimate === 0) {
+                  alert('매입견적서를 업로드해주세요.')
+              } else if (purchases === 0) {
+                  alert('매입(세금계산서 접수 항목)을 입력해주세요.')
+              } else {
                   window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
               }
           }
+      }
+
+      function show_document() {
+          $('#documentModal').modal('show');
       }
 
       $(document).ready(function () {

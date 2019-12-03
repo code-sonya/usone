@@ -343,6 +343,8 @@ def showdocumentform_asjson(request):
         secondCategory=F('categoryId__secondCategory'),
     ).values(
         'formId', 'formNumber', 'firstCategory', 'secondCategory', 'formTitle', 'comment'
+    ).order_by(
+        'categoryId__firstCategory', 'formNumber'
     )
 
     structure = json.dumps(list(documentforms), cls=DjangoJSONEncoder)
@@ -988,7 +990,13 @@ def return_document(request, approvalId):
 def post_contract_document(request, contractId, documentType):
     # 결재 문서 양식명
     formTitle = ''
-    if documentType == '선발주':
+    if documentType == '매출견적서':
+        formTitle = '매출견적서'
+    elif documentType == '수주통보서':
+        formTitle = '수주통보서'
+    elif documentType == '매출발행':
+        formTitle = '매출발행'
+    elif documentType == '선발주':
         formTitle = '선발주품의서'
     # 문서 종류 선택
     formId = Documentform.objects.get(
@@ -1010,7 +1018,8 @@ def post_contract_document(request, contractId, documentType):
     files = Contractfile.objects.filter(contractId=contract)
 
     # 계약명(contractName)
-    contractName = '<a href="/sales/viewcontract/' + contractId + '/">[' + contract.contractCode + '] ' + contract.contractName + '</a>'
+    contractName = '<a href="/sales/viewcontract/' + contractId + '/" target="_blank">[' + contract.contractCode + '] ' + \
+                   contract.contractName + '</a>'
 
     # 매출처(revenueCompany)
     revenueCompany = ''
@@ -1042,15 +1051,54 @@ def post_contract_document(request, contractId, documentType):
     lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
     purchaseEstimate = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
+    # 매출견적서(revenueEstimate)
+    lastFile = files.filter(fileCategory='매출견적서')
+    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+    revenueEstimate = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+
+    # 계약서(contractPaper)
+    lastFile = files.filter(fileCategory='계약서')
+    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+    contractPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+
+    # 수주통보서(orderPaper)
+    lastFile = files.filter(fileCategory='수주통보서')
+    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+    orderPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+
+    # 확인서(confirmPaper)
+    lastFile = files.filter(fileCategory='납품,구축,검수확인서')
+    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+    confirmPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+
     contentHtml = formId.formHtml
+    contentHtml = contentHtml.replace('계약명자동입력', contractName)
+    contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
+    contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
+    contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
+    contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
+    contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
+    # 1. 매출견적서
+    if formTitle == '매출견적서':
+        contentHtml = contentHtml.replace('매입견적서링크', purchaseEstimate)
+        contentHtml = contentHtml.replace('매출견적서링크', revenueEstimate)
+
+    # 2. 수주통보서
+    if formTitle == '수주통보서':
+        contentHtml = contentHtml.replace('계약서링크', contractPaper)
+        contentHtml = contentHtml.replace('수주통보서링크', orderPaper)
+
+    # 3. 매출발행
+    if formTitle == '매출발행':
+        contentHtml = contentHtml.replace('수주통보서링크', orderPaper)
+        contentHtml = contentHtml.replace('납품,구축,검수확인서링크', confirmPaper)
+
     # 4. 선발주
     if formTitle == '선발주품의서':
-        contentHtml = contentHtml.replace('계약명자동입력', contractName)
-        contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
-        contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
-        contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
-        contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
-        contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
         contentHtml = contentHtml.replace('매입견적서링크', purchaseEstimate)
 
     # 문서 등록
