@@ -1,0 +1,103 @@
+{% load staticfiles %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+  <meta charset="utf-8">
+
+  <style type="text/css">
+    @font-face {
+      font-family: KBIZHanmaumMyungjo;
+      src: url({% static '/mail/KBIZHanmaumMyungjo.ttf' %});
+    }
+
+    html {
+      font-family: KBIZHanmaumMyungjo, serif;
+    }
+
+    @page {
+      margin-left: 40pt;
+      margin-right: 40pt;
+      margin-top: 50pt;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid grey;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 5px;
+      vertical-align: middle;
+      font-size: 15px;
+      border-top: 1px dotted #858796a3;
+      background-color: #ebfaff;
+    }
+
+
+  </style>
+</head>
+<body>
+<div style="text-align: center;">
+  <strong style="font-size: 35px;">납품(설치) 검수 확인서</strong>
+</div>
+<br>
+<br>
+<table>
+  <tr>
+    <td colspan="4">
+      <table>
+        <tr class="thtd" style="height: 40px">
+          <td class="thtd" colspan="1" rowspan="4" style="background-color:#ebfaff;">최&nbsp; &nbsp;종 &nbsp; &nbsp;검&nbsp; &nbsp;수</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">납&nbsp; &nbsp; &nbsp; 품 &nbsp; &nbsp; &nbsp; 사</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">영&nbsp; &nbsp;업 &nbsp; &nbsp;대&nbsp; &nbsp;표</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">서&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 명</td>
+        </tr>
+        <tr class="thtd" style="height: 50px">
+          <td class="thtd" colspan="1">유니원아이앤씨</td>
+          <td class="thtd" colspan="1">{{ contract.empName }}</td>
+          <td class="thtd" colspan="1" style="text-align: left; margin-left: 5px"></td>
+        </tr>
+        <tr class="thtd" style="height: 50px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">고&nbsp; &nbsp; &nbsp; 객 &nbsp; &nbsp; &nbsp; 사</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">담&nbsp; &nbsp; &nbsp; 당 &nbsp; &nbsp; &nbsp; 자</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">서&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 명</td>
+        </tr>
+        <tr class="thtd" style="height: 50px">
+          <td class="thtd" colspan="1">{{ contract.saleCompanyName.companyNameKo }}</td>
+          <td class="thtd" colspan="1"></td>
+          <td class="thtd" colspan="1" style="text-align: left; margin-left: 5px"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr class="thtd" style="height: 40px">
+    <td colspan="1" style="background-color:#ebfaff;">계&nbsp; &nbsp; &nbsp; 약 &nbsp; &nbsp; &nbsp; 명</td>
+    <td colspan="3" style="text-align: left; margin-left: 5px">[{{ contract.contractCode }}]{{ contract.contractName }}</td>
+  </tr>
+  <tr class="thtd" style="height: 40px">
+    <td colspan="1" style="background-color:#ebfaff;">검&nbsp; &nbsp;수 &nbsp; &nbsp;일&nbsp; &nbsp;자</td>
+    <td colspan="3"></td>
+  </tr>
+  <tr class="thtd" style="height: 500px">
+    <td colspan="1" style="background-color:#ebfaff;">내&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 용</td>
+    <td colspan="3"></td>
+  </tr>
+  <tr class="thtd" style="height: 150px">
+    <td colspan="1" style="background-color:#ebfaff;">비&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 고</td>
+    <td colspan="3"></td>
+  </tr>
+</table>
+</body>
+</html>

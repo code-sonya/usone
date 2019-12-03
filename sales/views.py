@@ -3235,4 +3235,21 @@ def view_ordernoti_pdf(request, contractId):
     return response
 
 
+@login_required
+@csrf_exempt
+def view_confirm_pdf(request, contractId):
+    contract = Contract.objects.get(contractId=contractId)
+    context = {
+        'contract': contract
+    }
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{}_수주통보서.pdf"'.format(contractId)
+    template = get_template('sales/viewconfirmpdf.html')
+    html = template.render(context, request)
+
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
 
