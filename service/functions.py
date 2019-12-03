@@ -147,7 +147,7 @@ def overtime_extrapay(startDatetime, endDatetime):
     endDatetime = pd.Timestamp(endDatetime)
     beforeOvertime = datetime.datetime(startDatetime.year, startDatetime.month, startDatetime.day, 6, 0)
     startOvertime = datetime.datetime(startDatetime.year, startDatetime.month, startDatetime.day, 22, 0)
-    endOvertime = datetime.datetime(startDatetime.year, startDatetime.month, startDatetime.day + 1, 6, 0)
+    endOvertime = datetime.datetime(startDatetime.year, startDatetime.month, startDatetime.day, 6, 0) + datetime.timedelta(days=1)
 
     # 같은날이면 초과근무 일수도 있고 아닐수도 있음.
     if startDatetime.date() == endDatetime.date():
