@@ -1187,3 +1187,23 @@ def summaryPurchase(contractId, salePrice):
     profit = salePrice - sumPurchase
     return {'sumPurchase': sumPurchase, 'profit': profit, 'sumType1': sumType1, 'sumType2': sumType2, 'sumType3': sumType3, 'sumType4': sumType4, 'sumType5': sumType5}
 
+def detailPurchase(contractId, classNumber):
+    if classNumber in [1, 2, 3, 4]:
+        return Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=classNumber)), Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=classNumber)).aggregate(Sum('price'))['price__sum'] or 0
+    if classNumber == 5:
+        return Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=classNumber)), Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=classNumber)).aggregate(Sum('price'))['price__sum'] or 0
+    if classNumber in [6, 8]:
+        return Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=classNumber)), Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=classNumber)).aggregate(Sum('price'))['price__sum'] or 0
+    if classNumber == 7:
+        return Purchasetyped.objects.filter(Q(contractId=contractId) & Q(classNumber=classNumber)), Purchasetyped.objects.filter(Q(contractId=contractId) & Q(classNumber=classNumber)).aggregate(Sum('price'))['price__sum'] or 0
+
+def date_list(startDatetime, endDatetime):
+    startDate = datetime.datetime(year=int(startDatetime[:4]), month=int(startDatetime[5:7]), day=int(startDatetime[8:10]))
+    endDate = datetime.datetime(year=int(endDatetime[:4]), month=int(endDatetime[5:7]), day=int(endDatetime[8:10]))
+    dateRange = [(startDate + datetime.timedelta(months=x)).date() for x in range(0, (endDate - startDate).days + 1)]
+    return dateRange
+
+
+
+
+
