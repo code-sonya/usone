@@ -40,7 +40,6 @@
 
     .pc-table td, .pc-table th {
       padding: 5px 5px;
-      text-align: center;
       vertical-align: middle;
       font-size: 13px;
       border-top: 1px dotted #858796a3;
@@ -80,12 +79,12 @@
         <tr class="thtd" style="height: 25px">
           <td class="thtd" colspan="1" style="background-color:#ebfaff;font-size: 13px">부&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 서</td>
           <td class="thtd" colspan="1" style="background-color:#ebfaff;font-size: 13px">영&nbsp; 업&nbsp; &nbsp;대&nbsp; 표</td>
-          <td class="thtd" colspan="3" style="background-color:#ebfaff;font-size: 13px">계&nbsp; &nbsp; &nbsp;약&nbsp; &nbsp; &nbsp;명</td>
+          <td class="thtd" colspan="3" style="background-color:#ebfaff;font-size: 13px">계&nbsp; &nbsp; &nbsp; 약&nbsp; &nbsp; &nbsp;명</td>
         </tr>
         <tr class="thtd" style="height: 25px">
           <td class="thtd" colspan="1">{{ contract.empDeptName }}</td>
           <td class="thtd" colspan="1">{{ contract.empName }}</td>
-          <td class="thtd" colspan="3">[{{ contract.contractCode }}] {{ contract.contractName }}</td>
+          <td class="thtd" colspan="3" style="text-align: left; margin-left: 5px">[{{ contract.contractCode }}] {{ contract.contractName }}</td>
         </tr>
       </table>
     </td>
@@ -107,16 +106,16 @@
           <td class="thtd" colspan="2" style="text-align: left; margin-left: 5px">{{ contract.endCompanyName.companyNameKo }}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="1" style="background-color:#ebfaff">대분류/소분류</td>
-          <td class="thtd" colspan="2" style="text-align: left; margin-left: 5px">{{ contract.mainCategory }}({{ contract.subCategory }})</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">대&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
+          <td class="thtd" colspan="2" style="text-align: left; margin-left: 5px">{{ contract.mainCategory }}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="1" style="background-color:#ebfaff">산&nbsp; &nbsp; &nbsp;업&nbsp; &nbsp; &nbsp;군</td>
-          <td class="thtd" colspan="2" style="text-align: left; margin-left: 5px">{{ contract.saleIndustry }}</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">소&nbsp; &nbsp; &nbsp;분&nbsp; &nbsp; &nbsp;류</td>
+          <td class="thtd" colspan="2" style="text-align: left; margin-left: 5px">{{ contract.subCategory }}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="1" style="background-color:#ebfaff">판&nbsp; 매&nbsp; &nbsp;유&nbsp; 형</td>
-          <td class="thtd" colspan="2" style="text-align: left; margin-left: 5px">{{ contract.saleType }}</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">산업군·판매유형</td>
+          <td class="thtd" colspan="2" style="text-align: left; margin-left: 5px">{{ contract.saleIndustry }}·{{ contract.saleType }}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
           <td class="thtd" colspan="1" style="background-color:#ebfaff">계&nbsp; &nbsp; &nbsp;약&nbsp; &nbsp; &nbsp;일</td>
@@ -128,7 +127,7 @@
         </tr>
         <tr class="thtd" style="height: 25px">
           <td class="thtd" colspan="1" style="background-color:#ebfaff">계&nbsp; 약&nbsp; &nbsp;금&nbsp; 액</td>
-          <td class="thtd" colspan="2" style="text-align: right; margin-right: 0px">{{ contract.salePrice | intcomma }} 원</td>
+          <td class="thtd" colspan="2" style="text-align: right; margin-right: 0px">{{ contract.salePrice | intcomma }}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
           <td class="thtd" colspan="1" style="background-color:#ebfaff">수&nbsp; 금&nbsp; &nbsp;조&nbsp; 건</td>
@@ -146,29 +145,29 @@
           <td class="thtd" colspan="1" style="background-color:#ebfaff">마&nbsp; 진&nbsp; &nbsp;금&nbsp; 액</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="1" style="background-color:#ebfaff">상품_HW</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">상&nbsp; 품&nbsp; &nbsp; H&nbsp; W</td>
           <td class="thtd" colspan="1" rowspan="5" style="text-align: right; margin-right: 5px">{{ contract.salePrice | intcomma }}</td>
           <td class="thtd" colspan="1" style="text-align: right; margin-right: 5px">{{ summary.sumType1 | intcomma }}</td>
           <td class="thtd" colspan="1" rowspan="5" style="text-align: right; margin-right: 5px">{{ summary.profit | intcomma }}</td>
         </tr>
          <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="1" style="background-color:#ebfaff">상품_SW</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">상&nbsp; 품&nbsp; &nbsp; S&nbsp; W</td>
           <td class="thtd" colspan="1" style="text-align: right; margin-right: 5px">{{ summary.sumType2 | intcomma }}</td>
         </tr>
          <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="1" style="background-color:#ebfaff">용역_HW</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">용&nbsp; 역&nbsp; &nbsp; H&nbsp;  W</td>
           <td class="thtd" colspan="1" style="text-align: right; margin-right: 5px">{{ summary.sumType3 | intcomma }}</td>
         </tr>
          <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="1" style="background-color:#ebfaff">용역_SW</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">용&nbsp; 역&nbsp; &nbsp; S&nbsp;  W</td>
           <td class="thtd" colspan="1" style="text-align: right; margin-right: 5px">{{ summary.sumType4 | intcomma }}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="1" style="background-color:#ebfaff">기타</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">기&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 타</td>
           <td class="thtd" colspan="1" style="text-align: right; margin-right: 5px">{{ summary.sumType5 | intcomma }}</td>
         </tr>
          <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="1" style="background-color:#ebfaff">총 합계</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff">합&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 계</td>
           <td class="thtd" colspan="1" style="text-align: right; margin-right: 5px">{{ contract.salePrice | intcomma }}</td>
           <td class="thtd" colspan="1" style="text-align: right; margin-right: 5px">{{ summary.sumPurchase | intcomma }}</td>
           <td class="thtd" colspan="1" style="text-align: right; margin-right: 5px">{{ summary.profit | intcomma }}</td>
@@ -198,19 +197,19 @@
       <div style="font-size: 15px;padding-top: 10px"><b>* 고객정보</b></div>
       <table>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="4" style="background-color:gainsboro">대표자</td>
+          <td class="thtd" colspan="4" style="background-color:gainsboro">대&nbsp; &nbsp; &nbsp; 표&nbsp; &nbsp; &nbsp;자</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="4">{{ contract.saleCompanyName.ceo }}</td>
+          <td class="thtd" colspan="4" >{% if contract.saleCompanyName.ceo %}{{ contract.saleCompanyName.ceo }}{% else %} - {% endif %}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="4" style="background-color:gainsboro">주소</td>
+          <td class="thtd" colspan="4" style="background-color:gainsboro">주&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 소</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="4">{{ contract.saleCompanyName.companyAddress }}</td>
+          <td class="thtd" colspan="4">{% if contract.saleCompanyName.companyAddress %}{{ contract.saleCompanyName.companyAddress }}{% else %} - {% endif %}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="2" style="background-color:gainsboro">영업담당자</td>
+          <td class="thtd" colspan="2" style="background-color:gainsboro">영 업 담 당 자</td>
           <td class="thtd" colspan="2" style="background-color:gainsboro">세금계산서담당자</td>
         </tr>
         <tr class="thtd" style="height: 25px">
@@ -236,6 +235,344 @@
       </table>
     </td>
   </tr>
+</table>
+<table>
+  <tr>
+    <td colspan="6">
+      <table>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">거&nbsp; &nbsp; &nbsp; 래&nbsp; &nbsp; &nbsp;처</td>
+          <td class="thtd" colspan="2" style="background-color:#ebfaff;">계&nbsp; &nbsp; &nbsp; 약&nbsp; &nbsp; &nbsp;명</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">계&nbsp; 약&nbsp; &nbsp;금&nbsp; 액</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">마&nbsp; 진&nbsp; &nbsp;금&nbsp; 액</td>
+          <td class="thtd" colspan="1" style="background-color:#ebfaff;">마&nbsp; &nbsp; &nbsp; 진&nbsp; &nbsp; &nbsp;율</td>
+        </tr>
+        <tr class="thtd" style="height: 25px">
+          <td class="thtd" colspan="1">{{ contract.saleCompanyName.companyNameKo }}</td>
+          <td class="thtd" colspan="2">[{{ contract.contractCode }}] {{ contract.contractName }}</td>
+          <td class="thtd" colspan="1" style="text-align: right;margin-right: 5px">{{ contract.salePrice | intcomma }}</td>
+          <td class="thtd" colspan="1" style="text-align: right;margin-right: 5px">{{ contract.profitPrice | intcomma }}</td>
+          <td class="thtd" colspan="1">{{ contract.profitRatio | intcomma }}%</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="padding-right: 3px;vertical-align: top">
+      <div style="font-size: 15px;padding-top: 10px;"><b>* 하도급계약</b></div>
+      <div style="font-size: 13px;padding-top: 10px;">1. 상품_HW</div>
+      <table>
+        <tr class="thtd" style="height: 25px;background-color:#ebfaff;font-size: 11px;">
+          <td style="background-color:#ebfaff;">거래처</td>
+          <td style="background-color:#ebfaff;">내역</td>
+          <td style="background-color:#ebfaff;">금액</td>
+        </tr>
+        {% if class1 %}
+          {% for class in class1 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td>{{ class.companyName.companyNameKo }}</td>
+            <td>{{ class.contents }}</td>
+            <td style="text-align: right">{{ class.price | intcomma }}</td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        {% if sum_class1 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td colspan="2" style="background-color:#ebfaff;">TOTAL</td>
+            <td style="text-align: right">{{ sum_class1 | intcomma }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    </td>
+    <td colspan="2" style="padding-right: 3px;vertical-align: top">
+      <div style="font-size: 15px;padding-top: 10px;color: white;">.</div>
+      <div style="font-size: 13px;padding-top: 10px;">2. 유지보수_HW</div>
+      <table>
+        <tr class="thtd" style="height: 25px;background-color:#ebfaff;font-size: 11px;">
+          <td style="background-color:#ebfaff;">거래처</td>
+          <td style="background-color:#ebfaff;">내역</td>
+          <td style="background-color:#ebfaff;">금액</td>
+        </tr>
+        {% if class3 %}
+          {% for class in class3 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td>{{ class.companyName.companyNameKo }}</td>
+            <td>{{ class.contents }}</td>
+            <td style="text-align: right">{{ class.price | intcomma }}</td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        {% if sum_class3 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td colspan="2" style="background-color:#ebfaff;">TOTAL</td>
+            <td style="text-align: right">{{ sum_class3 | intcomma }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    </td>
+    <td colspan="2" style="vertical-align: top;">
+      <div style="font-size: 15px;padding-top: 10px;color: white;">.</div>
+      <div style="font-size: 13px;padding-top: 10px;">3. 인력지원_자사</div>
+      <table>
+        <tr class="thtd" style="height: 25px;background-color:#ebfaff;font-size: 11px;">
+          <td style="background-color:#ebfaff;">구분</td>
+          <td style="background-color:#ebfaff;">횟수</td>
+          <td style="background-color:#ebfaff;">SITE수</td>
+          <td style="background-color:#ebfaff;">단가</td>
+          <td style="background-color:#ebfaff;">금액</td>
+        </tr>
+        {% if class5 %}
+          {% for class in class5 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td>{{ class.classification }}</td>
+            <td>{{ class.times }}</td>
+            <td>{{ class.sites }}</td>
+            <td>{{ class.units }}</td>
+            <td style="text-align: right">{{ class.price | intcomma }}</td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        {% if sum_class5 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td colspan="4" style="background-color:#ebfaff;">TOTAL</td>
+            <td style="text-align: right">{{ sum_class5 | intcomma }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="padding-right: 3px;vertical-align: top">
+      <div style="font-size: 13px;padding-top: 10px;">4. 상품_SW</div>
+      <table>
+        <tr class="thtd" style="height: 25px;background-color:#ebfaff;font-size: 11px;">
+          <td style="background-color:#ebfaff;">거래처</td>
+          <td style="background-color:#ebfaff;">내역</td>
+          <td style="background-color:#ebfaff;">금액</td>
+        </tr>
+        {% if class2 %}
+          {% for class in class2 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td>{{ class.companyName.companyNameKo }}</td>
+            <td>{{ class.contents }}</td>
+            <td style="text-align: right">{{ class.price | intcomma }}</td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        {% if sum_class2 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td colspan="2" style="background-color:#ebfaff;">TOTAL</td>
+            <td style="text-align: right">{{ sum_class2 | intcomma }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    </td>
+    <td colspan="2" style="padding-right: 3px;vertical-align: top;">
+      <div style="font-size: 13px;padding-top: 10px;">5. 유지보수_SW</div>
+      <table>
+        <tr class="thtd" style="height: 25px;background-color:#ebfaff;font-size: 11px;">
+          <td style="background-color:#ebfaff;">거래처</td>
+          <td style="background-color:#ebfaff;">내역</td>
+          <td style="background-color:#ebfaff;">금액</td>
+        </tr>
+        {% if class4 %}
+          {% for class in class4 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td>{{ class.companyName.companyNameKo }}</td>
+            <td>{{ class.contents }}</td>
+            <td style="text-align: right">{{ class.price | intcomma }}</td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        {% if sum_class4 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td colspan="2" style="background-color:#ebfaff;">TOTAL</td>
+            <td style="text-align: right">{{ sum_class4 | intcomma }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    </td>
+    <td colspan="2" style="vertical-align: top;">
+      <div style="font-size: 13px;padding-top: 10px;">6. 인력지원_타사</div>
+      <table>
+        <tr class="thtd" style="height: 25px;background-color:#ebfaff;font-size: 11px;">
+          <td style="background-color:#ebfaff;">구분</td>
+          <td style="background-color:#ebfaff;">내역</td>
+          <td style="background-color:#ebfaff;">금액</td>
+        </tr>
+        {% if class6 %}
+          {% for class in class6 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td>{{ class.classification }}</td>
+            <td>{{ class.contents }}</td>
+            <td style="text-align: right">{{ class.price | intcomma }}</td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        {% if sum_class6 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td colspan="2" style="background-color:#ebfaff;">TOTAL</td>
+            <td style="text-align: right">{{ sum_class6 | intcomma }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="padding-right: 3px;vertical-align: top;">
+      <div style="font-size: 13px;padding-top: 10px;">7. DB_COSTS</div>
+      <table>
+        <tr class="thtd" style="height: 25px;font-size: 11px;">
+          <td style="background-color:#ebfaff;">계약번호</td>
+          <td style="background-color:#ebfaff;">계약기간</td>
+          <td style="background-color:#ebfaff;">금액</td>
+        </tr>
+        {% if class7 %}
+          {% for class in class7 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td>{{ class.contractNo }}</td>
+            <td>{% if class.contractStartDate %}{{ class.contractStartDate }}{% endif %}~{% if class.contractEndDate %}{{ class.contractEndDate }}{% endif %}</td>
+            <td style="text-align: right">{{ class.price | intcomma }}</td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        {% if sum_class7 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td colspan="2" style="background-color:#ebfaff;">TOTAL</td>
+            <td style="text-align: right">{{ sum_class7 | intcomma }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    </td>
+    <td colspan="2" style="padding-right: 3px;vertical-align: top">
+      <div style="font-size: 13px;padding-top: 10px;">8. 기타</div>
+      <table>
+        <tr class="thtd" style="height: 25px;background-color:#ebfaff;font-size: 11px;">
+          <td style="background-color:#ebfaff;">구분</td>
+          <td style="background-color:#ebfaff;">내역</td>
+          <td style="background-color:#ebfaff;">금액</td>
+        </tr>
+        {% if class8 %}
+          {% for class in class8 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td>{{ class.classification }}</td>
+            <td>{{ class.contents }}</td>
+            <td style="text-align: right">{{ class.price | intcomma }}</td>
+          </tr>
+          {% endfor %}
+        {% endif %}
+        {% if sum_class8 %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td colspan="2" style="background-color:#ebfaff;">TOTAL</td>
+            <td style="text-align: right">{{ sum_class8 | intcomma }}</td>
+          </tr>
+        {% endif %}
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <div style="font-size: 15px;padding-top: 10px"><b>* BILLING SCHEDULE</b></div>
+    </td>
+  </tr>
+  {% for year in yearList %}
+  <tr>
+    <td colspan="6">
+      <table>
+        <tr class="thtd" style="height: 25px;font-size: 11px;">
+          <td colspan="1" style="background-color: #ebfaff;">구분</td>
+          <td colspan="2" style="background-color: #ebfaff;">업체명</td>
+          {% for month in year %}
+          <td style="background-color: #ebfaff;">{{ month }}</td>
+          {% endfor %}
+          <td style="background-color: #ebfaff;">TOTAL</td>
+        </tr>
+        {% for billing in rBillingSchedule %}
+          {% if billing.list == year %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td>매출</td>
+            <td colspan="2">{{ billing.name }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.1 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.2 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.3 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.4 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.5 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.6 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.7 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.8 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.9 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.10 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.11 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px">{{ billing.12 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ billing.sum | intcomma }}</td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+        {% for sumBilling in sumrBillingSchedule %}
+          {% if sumBilling.list == year %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;">
+            <td colspan="3"style="background-color: gainsboro">TOTAL</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.1 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.2 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.3 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.4 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.5 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.6 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.7 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.8 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.9 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.10 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.11 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.12 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.sum | intcomma }}</td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+        {% for billing in pBillingSchedule %}
+          {% if billing.list == year %}
+            <tr class="thtd" style="height: 25px;font-size: 11px;">
+              <td>매입</td>
+              <td colspan="2">{{ billing.name }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.1 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.2 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.3 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.4 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.5 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.6 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.7 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.8 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.9 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.10 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.11 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px">{{ billing.12 | intcomma }}</td>
+              <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ billing.sum | intcomma }}</td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+        {% for sumBilling in sumpBillingSchedule %}
+          {% if sumBilling.list == year %}
+          <tr class="thtd" style="height: 25px;font-size: 11px;margin-bottom: 5px">
+            <td colspan="3"style="background-color: gainsboro">TOTAL</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.1 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.2 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.3 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.4 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.5 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.6 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.7 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.8 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.9 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.10 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.11 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.12 | intcomma }}</td>
+            <td style="text-align: right;margin: 3px;background-color: gainsboro">{{ sumBilling.sum | intcomma }}</td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </table>
+    </td>
+  </tr>
+  {% endfor %}
 </table>
 </body>
 </html>
