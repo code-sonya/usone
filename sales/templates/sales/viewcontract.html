@@ -168,7 +168,7 @@
                 <a href="#" onclick="open_upload('매입발주서')"><i class="fas fa-paperclip"></i></a>
               </td>
               <td>
-                <a href="/sales/viewconfirmpdf/{{ contract.contractId }}/" onclick=""><i class="far fa-file-pdf"></i></a>
+                <a data-toggle="modal" data-target="#confirmModal" class="text-success"><i class="fas fa-pen-alt"></i></a>
                 <b>납품,구축,검수확인서</b>
                 <a href="#" onclick="open_upload('납품,구축,검수확인서')"><i class="fas fa-paperclip"></i></a>
               </td>
@@ -1045,6 +1045,54 @@
     </div>
   </div>
 
+  <!-- confirm modal -->
+  <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="confirmModalLabel">납품(설치) 검수확인서 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="confirmForm" action="/sales/viewconfirmpdf/{{ contract.contractId }}/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_confirm();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+               <div class="col-6">
+                <label for="confirmCustomer" class="text-primary">검수 담당자</label>
+                <input name="confirmCustomer" type="text" id="confirmCustomer" class="form-control" value="{{ contract.confirmCustomer }}">
+              </div>
+              <div class="col-6">
+                <label for="confirmDate" class="text-primary">검수 일자</label>
+                <input name="confirmDate" type="date" id="confirmDate" class="form-control" max="9999-12-31" value="{{ contract.confirmDate | date:"Y-m-d" }}">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="confirmContents" class="text-primary">내용</label>
+                <textarea name="confirmContents" id="confirmContents" class="form-control" style="height: 400px">{{ contract.confirmContents }}</textarea>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="confirmComment" class="text-primary">비고</label>
+                <textarea name="confirmComment" id="confirmComment" class="form-control" style="height: 100px">{{ contract.confirmComment }}</textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-success" href="#" onclick="btn_confirm()">pdf생성</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 
 
@@ -1579,6 +1627,18 @@
           }).appendTo(uploadForm);
 
           uploadForm.submit();
+      }
+
+      function btn_confirm() {
+          const confirmform = $("#confirmForm");
+          // const confirmCustomer = $("#confirmCustomer").val();
+          // console.log(confirmCustomer);
+          // $('<input />', {
+          //     type: 'hidden',
+          //     name: 'comfirm',
+          //     value: confirmCustomer
+          // }).appendTo(confirmform);
+          confirmform.submit();
       }
 
       function downClick(table, up, down) {

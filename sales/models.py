@@ -45,6 +45,10 @@ class Contract(models.Model):
     writeDatetime = models.DateTimeField(null=True, blank=True)
     editEmpId = models.ForeignKey(Employee, on_delete=models.SET_NULL, related_name='editEmpId', null=True, blank=True)
     editDatetime = models.DateTimeField(null=True, blank=True)
+    confirmCustomer = models.CharField(max_length=20, null=True, blank=True)
+    confirmDate = models.DateField(null=True, blank=True)
+    confirmContents = models.TextField(null=True, blank=True)
+    confirmComment = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return self.contractName

@@ -3238,18 +3238,47 @@ def view_ordernoti_pdf(request, contractId):
 @login_required
 @csrf_exempt
 def view_confirm_pdf(request, contractId):
-    contract = Contract.objects.get(contractId=contractId)
-    context = {
-        'contract': contract
-    }
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="{}_수주통보서.pdf"'.format(contractId)
-    template = get_template('sales/viewconfirmpdf.html')
-    html = template.render(context, request)
+    if request.method == 'POST':
+        contract = Contract.objects.get(contractId=contractId)
+        print(request.POST)
+        confirmDate = request.POST['confirmDate']
+        confirmCustomer = request.POST['confirmCustomer']
+        confirmContents = request.POST['confirmContents']
+        confirmComment = request.POST['confirmComment']
+        if confirmDate:
+            contract.confirmDate = confirmDate
+        if confirmCustomer:
+            contract.confirmCustomer = confirmCustomer
+        if confirmContents:
+            contract.confirmContents = confirmContents
+        if confirmComment:
+            contract.confirmComment = confirmComment
+        contract.save()
+        context = {
+            'contract': contract
+        }
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="{}_수주통보서.pdf"'.format(contractId)
+        template = get_template('sales/viewconfirmpdf.html')
+        html = template.render(context, request)
 
-    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
-    if pisaStatus.err:
-        return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    return response
+        pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+        if pisaStatus.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+    else:
+        contract = Contract.objects.get(contractId=contractId)
+        context = {
+            'contract': contract
+        }
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="{}_수주통보서.pdf"'.format(contractId)
+        template = get_template('sales/viewconfirmpdf.html')
+        html = template.render(context, request)
+
+        pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+        if pisaStatus.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
 
 
