@@ -1,5 +1,6 @@
 import json
 import datetime
+from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
@@ -14,8 +15,8 @@ from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max
 from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
-from .functions import data_format, who_approval, template_format, mail_approval, mail_document
-
+from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
+from sales.functions import detailPurchase, summaryPurchase
 
 @login_required
 def post_document(request):
@@ -1063,58 +1064,487 @@ def post_contract_document(request, contractId, documentType):
 
     # 매입견적서(purchaseEstimate)
     lastFile = files.filter(fileCategory='매입견적서')
-    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
-    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
-    purchaseEstimate = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+    if lastFile:
+        maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+        lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+        purchaseEstimate = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
     # 매출견적서(revenueEstimate)
     lastFile = files.filter(fileCategory='매출견적서')
-    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
-    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
-    revenueEstimate = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+    if lastFile:
+        maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+        lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+        revenueEstimate = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
     # 계약서(contractPaper)
     lastFile = files.filter(fileCategory='계약서')
-    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
-    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
-    contractPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+    if lastFile:
+        maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+        lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+        contractPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
     # 수주통보서(orderPaper)
     lastFile = files.filter(fileCategory='수주통보서')
-    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
-    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
-    orderPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+    if lastFile:
+        maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+        lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+        orderPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
     # 확인서(confirmPaper)
     lastFile = files.filter(fileCategory='납품,구축,검수확인서')
-    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
-    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
-    confirmPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+    if lastFile:
+        maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+        lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+        confirmPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
     contentHtml = formId.formHtml
-    contentHtml = contentHtml.replace('계약명자동입력', contractName)
-    contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
-    contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
-    contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
-    contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
-    contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
     # 1. 매출견적서
     if formTitle == '매출견적서':
+        contentHtml = contentHtml.replace('계약명자동입력', contractName)
+        contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
+        contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
+        contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
+        contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
+        contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
         contentHtml = contentHtml.replace('매입견적서링크', purchaseEstimate)
         contentHtml = contentHtml.replace('매출견적서링크', revenueEstimate)
 
     # 2. 수주통보서
     if formTitle == '수주통보서':
-        contentHtml = contentHtml.replace('계약서링크', contractPaper)
-        contentHtml = contentHtml.replace('수주통보서링크', orderPaper)
+        # 계약 내용 요약
+        contentHtml = contentHtml.replace('부서자동입력', contract.empDeptName)
+        contentHtml = contentHtml.replace('영업대표자동입력', contract.empName)
+        contentHtml = contentHtml.replace('계약명자동입력', contractName)
+
+        # 계약정보
+        contentHtml = contentHtml.replace('거래처자동입력', contract.saleCompanyName.companyNameKo)
+        if contract.endCompanyName:
+            contentHtml = contentHtml.replace('최종고객사자동입력', contract.endCompanyName.companyNameKo)
+        else:
+            contentHtml = contentHtml.replace('최종고객사자동입력', '')
+        contentHtml = contentHtml.replace('대분류자동입력', contract.mainCategory)
+        contentHtml = contentHtml.replace('소분류자동입력', contract.subCategory)
+        contentHtml = contentHtml.replace('산업군,판매유형자동입력', contract.saleIndustry + '·' + contract.saleType)
+        contentHtml = contentHtml.replace('계약일자동입력', str(contract.contractDate))
+        if contract.contractStartDate or contract.contractEndDate:
+            contentHtml = contentHtml.replace(
+                '계약기간자동입력', str(contract.contractStartDate) + '~' + str(contract.contractEndDate)
+            )
+        else:
+            contentHtml = contentHtml.replace('계약기간자동입력', '')
+        contentHtml = contentHtml.replace('계약금액자동입력', format(contract.salePrice, ',') + '  ')
+        if contract.depositCondition == '계산서 발행 후':
+            contentHtml = contentHtml.replace(
+                '수금조건자동입력', contract.depositCondition + ' ' + str(contract.depositConditionDay) + '일 이내'
+            )
+        elif contract.depositCondition == '당월' or contract.depositCondition == '익월':
+            contentHtml = contentHtml.replace(
+                '수금조건자동입력', contract.depositCondition + ' ' + str(contract.depositConditionDay) + '일'
+            )
+        else:
+            contentHtml = contentHtml.replace(
+                '수금조건자동입력', contract.depositCondition
+            )
+
+        # CoG정보
+        contentHtml = contentHtml.replace('매출금액자동입력', format(revenuePrice, ','))
+        contentHtml = contentHtml.replace('매출합계자동입력', format(revenuePrice, ','))
+        contentHtml = contentHtml.replace('마진금액자동입력', format(profitPrice, ','))
+        contentHtml = contentHtml.replace('마진합계자동입력', format(profitPrice, ','))
+        summary = summaryPurchase(contractId, contract.salePrice)
+        contentHtml = contentHtml.replace('상품HW매입금액자동입력', intcomma(summary['sumType1']))
+        contentHtml = contentHtml.replace('상품SW매입금액자동입력', intcomma(summary['sumType2']))
+        contentHtml = contentHtml.replace('용역HW매입금액자동입력', intcomma(summary['sumType3']))
+        contentHtml = contentHtml.replace('용역SW매입금액자동입력', intcomma(summary['sumType4']))
+        contentHtml = contentHtml.replace('기타매입금액자동입력', intcomma(summary['sumType5']))
+        contentHtml = contentHtml.replace('매입합계자동입력', intcomma(summary['sumPurchase']))
+
+        # 마진율분석
+        contentHtml = contentHtml.replace('마진율자동입력', str(profitRatio) + '%')
+        if (profitRatio - 15) > 0:
+            contentHtml = contentHtml.replace('>마진분석결과자동입력', ' style="color: red;">' + str(profitRatio-15) + '%')
+        else:
+            contentHtml = contentHtml.replace('>마진분석결과자동입력', ' style="color: blue;">' + str(profitRatio - 15) + '%')
+
+        # 고객정보
+        if contract.saleCompanyName.ceo:
+            contentHtml = contentHtml.replace('고객대표자자동입력', contract.saleCompanyName.ceo)
+        else:
+            contentHtml = contentHtml.replace('고객대표자자동입력', '')
+        if contract.saleCompanyName.companyAddress:
+            contentHtml = contentHtml.replace('고객주소자동입력', contract.saleCompanyName.companyAddress)
+        else:
+            contentHtml = contentHtml.replace('고객주소자동입력', '')
+        if contract.saleCustomerId:
+            contentHtml = contentHtml.replace('영업담당자이름자동입력', contract.saleCustomerId.customerName)
+            contentHtml = contentHtml.replace('영업담당자연락처자동입력', contract.saleCustomerId.customerPhone)
+            contentHtml = contentHtml.replace('영업담당자이메일자동입력', contract.saleCustomerId.customerEmail)
+        else:
+            contentHtml = contentHtml.replace('영업담당자이름자동입력', '')
+            contentHtml = contentHtml.replace('영업담당자연락처자동입력', '')
+            contentHtml = contentHtml.replace('영업담당자이메일자동입력', '')
+
+        if contract.saleTaxCustomerId:
+            contentHtml = contentHtml.replace('세금담당자이름자동입력', contract.saleTaxCustomerId.customerName)
+            contentHtml = contentHtml.replace('세금담당자연락처자동입력', contract.saleTaxCustomerId.customerPhone)
+            contentHtml = contentHtml.replace('세금담당자이메일자동입력', contract.saleTaxCustomerId.customerEmail)
+        else:
+            contentHtml = contentHtml.replace('세금담당자이름자동입력', '')
+            contentHtml = contentHtml.replace('세금담당자연락처자동입력', '')
+            contentHtml = contentHtml.replace('세금담당자이메일자동입력', '')
+
+        # 하도급계약
+        tempClass = {}
+        for i in range(1, 9):
+            tempClass[str(i)], tempClass['sum_'+str(i)] = detailPurchase(contractId, i)
+
+        tempStr = ''
+        if tempClass['1']:
+            for t in tempClass['1']:
+                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
+                    <td>''' + t.companyName.companyNameKo + '''</td>
+                    <td>''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                    </tr>'''
+        contentHtml = contentHtml.replace('<tr><td colspan="3">상품HW테이블자동입력</td></tr>', tempStr)
+        contentHtml = contentHtml.replace('상품HW합계자동입력', format(tempClass['sum_1'], ','))
+
+        tempStr = ''
+        if tempClass['2']:
+            for t in tempClass['2']:
+                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
+                    <td>''' + t.companyName.companyNameKo + '''</td>
+                    <td>''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                    </tr>'''
+        contentHtml = contentHtml.replace('<tr><td colspan="3">상품SW테이블자동입력</td></tr>', tempStr)
+        contentHtml = contentHtml.replace('상품SW합계자동입력', format(tempClass['sum_2'], ','))
+
+        tempStr = ''
+        if tempClass['3']:
+            for t in tempClass['3']:
+                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
+                    <td>''' + t.companyName.companyNameKo + '''</td>
+                    <td>''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                    </tr>'''
+        contentHtml = contentHtml.replace('<tr><td colspan="3">유지보수HW테이블자동입력</td></tr>', tempStr)
+        contentHtml = contentHtml.replace('유지보수HW합계자동입력', format(tempClass['sum_3'], ','))
+
+        tempStr = ''
+        if tempClass['4']:
+            for t in tempClass['4']:
+                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
+                    <td>''' + t.companyName.companyNameKo + '''</td>
+                    <td>''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                    </tr>'''
+        contentHtml = contentHtml.replace('<tr><td colspan="3">유지보수SW테이블자동입력</td></tr>', tempStr)
+        contentHtml = contentHtml.replace('유지보수SW합계자동입력', format(tempClass['sum_4'], ','))
+
+        tempStr = ''
+        if tempClass['5']:
+            for t in tempClass['5']:
+                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
+                    <td>''' + t.classification + '''</td>
+                    <td>''' + str(t.times) + '''</td>
+                    <td>''' + str(t.sites) + '''</td>
+                    <td>''' + format(t.units, ',') + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                    </tr>'''
+        contentHtml = contentHtml.replace('<tr><td colspan="5">인력지원자사자동입력</td></tr>', tempStr)
+        contentHtml = contentHtml.replace('인력지원자사합계자동입력', format(tempClass['sum_5'], ','))
+
+        tempStr = ''
+        if tempClass['6']:
+            for t in tempClass['6']:
+                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
+                    <td>''' + t.classification + '''</td>
+                    <td>''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                    </tr>'''
+        contentHtml = contentHtml.replace('<tr><td colspan="3">인력지원타사자동입력</td></tr>', tempStr)
+        contentHtml = contentHtml.replace('인력지원타사합계자동입력', format(tempClass['sum_6'], ','))
+
+        tempStr = ''
+        if tempClass['7']:
+            for t in tempClass['7']:
+                if t.contractStartDate or t.contractEndDate:
+                    contractDate = str(t.contractStartDate) + ' ~ ' + str(t.contractEndDate)
+                else:
+                    contractDate = ''
+                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
+                    <td>''' + t.contractNo + '''</td>
+                    <td>''' + contractDate + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                    </tr>'''
+        contentHtml = contentHtml.replace('<tr><td colspan="3">DBCOSTS테이블자동입력</td></tr>', tempStr)
+        contentHtml = contentHtml.replace('DBCOSTS합계자동입력', format(tempClass['sum_7'], ','))
+
+        tempStr = ''
+        if tempClass['8']:
+            for t in tempClass['8']:
+                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
+                            <td>''' + t.classification + '''</td>
+                            <td>''' + t.contents + '''</td>
+                            <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                            </tr>'''
+        contentHtml = contentHtml.replace('<tr><td colspan="3">기타테이블자동입력</td></tr>', tempStr)
+        contentHtml = contentHtml.replace('기타합계자동입력', format(tempClass['sum_8'], ','))
+
+        # Billing Schedule
+        pMinYear = purchases.aggregate(Min('predictBillingDate__year'))
+        pMaxYear = purchases.aggregate(Max('predictBillingDate__year'))
+        rMinYear = revenues.aggregate(Min('predictBillingDate__year'))
+        rMaxYear = revenues.aggregate(Max('predictBillingDate__year'))
+        if pMinYear['predictBillingDate__year__min'] < rMinYear['predictBillingDate__year__min']:
+            minYear = pMinYear
+        else:
+            minYear = rMinYear
+        if pMaxYear['predictBillingDate__year__max'] > rMaxYear['predictBillingDate__year__max']:
+            maxYear = pMaxYear
+        else:
+            maxYear = rMaxYear
+        delta = relativedelta(years=+1)
+
+        yearList = []
+        y = minYear['predictBillingDate__year__min']
+        while y <= maxYear['predictBillingDate__year__max']:
+            yearList.append(y)
+            y += delta
+
+        monthList = []
+        for y in yearList:
+            dateList = []
+            for d in range(1, 13):
+                dateList.append('{}-{}'.format(y.year, str(d).zfill(2)))
+            monthList.append(dateList)
+
+        groupPurchases = purchases.values(
+            'predictBillingDate__year', 'predictBillingDate__month', 'purchaseCompany'
+        ).annotate(
+            price=Sum('purchasePrice')
+        )
+        groupRevenues = revenues.values(
+            'predictBillingDate__year', 'predictBillingDate__month', 'revenueCompany'
+        ).annotate(
+            price=Sum('revenuePrice')
+        )
+        groupMonthPurchases = purchases.values(
+            'predictBillingDate__year', 'predictBillingDate__month'
+        ).annotate(
+            price=Sum('purchasePrice')
+        )
+        groupMonthRevenues = revenues.values(
+            'predictBillingDate__year', 'predictBillingDate__month'
+        ).annotate(
+            price=Sum('revenuePrice')
+        )
+        companyPurchases = purchases.values_list('purchaseCompany__companyName', flat=True).distinct()
+        companyRevenues = revenues.values_list('revenueCompany__companyName', flat=True).distinct()
+
+        pBillingSchedule = []
+        sumpBillingSchedule = []
+        rBillingSchedule = []
+        sumrBillingSchedule = []
+        for month in monthList:
+            sumrBillingSchedule.append({
+                'list': month, 'year': month[0][:4], 'name': 'sum',
+                '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0
+            })
+            sumpBillingSchedule.append({
+                'list': month, 'year': month[0][:4], 'name': 'sum',
+                '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0
+            })
+            for c in list(set(companyPurchases)):
+                pBillingSchedule.append({
+                    'list': month, 'year': month[0][:4], 'name': c,
+                    '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0
+                })
+            for c in list(set(companyRevenues)):
+                rBillingSchedule.append({
+                    'list': month, 'year': month[0][:4], 'name': c,
+                    '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0
+                })
+
+        # 매입
+        for group in groupPurchases:
+            for schedule in pBillingSchedule:
+                if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['purchaseCompany']:
+                    schedule[str(group['predictBillingDate__month'])] = group['price']
+                    schedule['sum'] += group['price']
+        for groupMonth in groupMonthPurchases:
+            for sumBilling in sumpBillingSchedule:
+                if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
+                    sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
+                    sumBilling['sum'] += groupMonth['price']
+
+        # 매출
+        for group in groupRevenues:
+            for schedule in rBillingSchedule:
+                if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['revenueCompany']:
+                    schedule[str(group['predictBillingDate__month'])] = group['price']
+                    schedule['sum'] += group['price']
+        for groupMonth in groupMonthRevenues:
+            for sumBilling in sumrBillingSchedule:
+                if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
+                    sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
+                    sumBilling['sum'] += groupMonth['price']
+
+        tempStr = ''
+        for year in monthList:
+            tempStr += '<tr><td><table width="100%">'
+            # 구분, 업체명, 날짜
+            tempStr += '''
+              <tr class="thtd" style="height: 25px; font-size: 11px;">
+                <td style="background-color: #ebfaff;" width="6%">구분</td>
+                <td style="background-color: #ebfaff;" width="16%">업체명</td>
+            '''
+            for month in year:
+                tempStr += '''
+                <td style="background-color: #ebfaff;" width="6%">''' + str(month) + '''</td>
+                '''
+            tempStr += '''
+                <td style="background-color: #ebfaff;" width="6%">TOTAL</td>
+              </tr>
+            '''
+            # 업체별 매출
+            for billing in rBillingSchedule:
+                if billing['list'] == year:
+                    tempStr += '''
+              <tr class="thtd" style="height: 25px; font-size: 11px;">
+                <td>매출</td>
+                <td>''' + billing['name'] + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['3']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['4']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['5']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['6']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['7']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['8']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['9']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['10']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['11']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['12']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(billing['sum']) + '''</td>
+              </tr>
+                    '''
+            # 매출 총합
+            for sumBilling in sumrBillingSchedule:
+                if sumBilling['list'] == year:
+                    tempStr += '''
+              <tr class="thtd" style="height: 25px; font-size: 11px;">
+                <td colspan="2" style="background-color: gainsboro">TOTAL</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['1']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['2']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['3']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['4']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['5']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['6']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['7']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['8']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['9']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['10']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['11']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['12']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + intcomma(sumBilling['sum']) + '''</td>
+              </tr>
+                    '''
+            # 업체별 매입
+            for billing in pBillingSchedule:
+                if billing['list'] == year:
+                    tempStr += '''
+              <tr class="thtd" style="height: 25px; font-size: 11px;">
+                <td>매입</td>
+                <td>''' + billing['name'] + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['3']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['4']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['5']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['6']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['7']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['8']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['9']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['10']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['11']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['12']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(billing['sum']) + '''</td>
+              </tr>
+                    '''
+            # 매입총합
+            for sumBilling in sumpBillingSchedule:
+                if sumBilling['list'] == year:
+                    tempStr += '''
+              <tr class="thtd" style="height: 25px; font-size: 11px; margin-bottom: 5px">
+                <td colspan="2"style="background-color: gainsboro">TOTAL</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['1']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['2']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['3']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['4']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['5']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['6']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['7']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['8']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['9']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['10']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['11']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['12']) + '''</td>
+                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                ''' + intcomma(sumBilling['sum']) + '''</td>
+              </tr>
+                    '''
+            tempStr += '</table></td></tr>'
+
+        contentHtml = contentHtml.replace('<tr><td>빌링스케쥴자동입력</td></tr>', tempStr)
 
     # 3. 매출발행
     if formTitle == '매출발행':
+        contentHtml = contentHtml.replace('계약명자동입력', contractName)
+        contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
+        contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
+        contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
+        contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
+        contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
         contentHtml = contentHtml.replace('수주통보서링크', orderPaper)
         contentHtml = contentHtml.replace('납품,구축,검수확인서링크', confirmPaper)
 
     # 4. 선발주
     if formTitle == '선발주품의서':
+        contentHtml = contentHtml.replace('계약명자동입력', contractName)
+        contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
+        contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
+        contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
+        contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
+        contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
         contentHtml = contentHtml.replace('매입견적서링크', purchaseEstimate)
 
     # 문서 등록

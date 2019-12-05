@@ -542,7 +542,7 @@ def modify_contract(request, contractId):
                 company = Company.objects.get(companyNameKo=maintenanceHW["company"])
                 if maintenanceHW['typeId'] == '추가':
                     Purchasetypea.objects.create(
-                        classNumber=1,
+                        classNumber=3,
                         contractId=post,
                         companyName=company,
                         contents=maintenanceHW["contents"],
@@ -568,7 +568,7 @@ def modify_contract(request, contractId):
                 company = Company.objects.get(companyNameKo=maintenanceSW["company"])
                 if maintenanceSW['typeId'] == '추가':
                     Purchasetypea.objects.create(
-                        classNumber=1,
+                        classNumber=4,
                         contractId=post,
                         companyName=company,
                         contents=maintenanceSW["contents"],
