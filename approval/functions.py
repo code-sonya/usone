@@ -1,7 +1,7 @@
 from .models import Approvalform, Approval
 from django.db.models import Q, Min, Max
 
-from .models import Approvalform, Approval
+from .models import Approvalform, Approval, Documentfile
 from service.models import Employee
 from django.db.models import Q
 import smtplib
@@ -318,8 +318,47 @@ def mail_approval(employee, document):
         return {'result': e}
 
 
+def mail_document(toEmail, fromEmail, document):
+    title = "'{}' 문서 공유".format(document.title)
+    html = documenthtml(document)
+    toEmail = toEmail
+    fromEmail = fromEmail
+
+    msg = MIMEMultipart("alternative")
+    msg["From"] = fromEmail
+    msg["To"] = toEmail
+    msg["Subject"] = Header(s=title, charset="utf-8")
+    msg.attach(MIMEText(html, "html", _charset="utf-8"))
+
+    smtp = smtplib.SMTP(smtp_server, smtp_port)
+    smtp.login(userid, passwd)
+    smtp.sendmail(fromEmail, toEmail, msg.as_string())
+    smtp.close()
+    # #메일 전송
+    # try:
+    #     title = "'{}' 문서 공유".format(document.title)
+    #     html = documenthtml(document)
+    #     toEmail = toEmail
+    #     fromEmail = fromEmail
+    #
+    #     msg = MIMEMultipart("alternative")
+    #     msg["From"] = fromEmail
+    #     msg["To"] = toEmail
+    #     msg["Subject"] = Header(s=title, charset="utf-8")
+    #     msg.attach(MIMEText(html, "html", _charset="utf-8"))
+    #
+    #     smtp = smtplib.SMTP(smtp_server, smtp_port)
+    #     smtp.login(userid, passwd)
+    #     smtp.sendmail(fromEmail, toEmail, msg.as_string())
+    #     smtp.close()
+    #     return {'result': 'ok'}
+    # except Exception as e:
+    #     print(e)
+    #     return {'result': e}
+
+
 def approvalhtml(document):
-    url='http://127.0.0.1:8000/'
+    url = "http://127.0.0.1:8000/"
     html = """
     <html lang="ko">
     <head>
@@ -378,4 +417,97 @@ def approvalhtml(document):
     </body>
     </html>
     """
+    return html
+
+
+def documenthtml(document):
+    url = "http://127.0.0.1:8000/"
+    preservationYear = str(document.preservationYear)
+    draftDatetime = ''
+    approveDatetime = ''
+    if document.preservationYear == 9999:
+        preservationYear = '영구'
+    if document.draftDatetime:
+        draftDatetime = str(document.draftDatetime)[:16]
+    if document.approveDatetime:
+        approveDatetime = str(document.approveDatetime)[:16]
+
+    files = Documentfile.objects.filter(documentId=document.documentId)
+
+    html = """
+    <html lang="ko">
+    <head>
+    <meta charset="utf-8">
+      <style type="text/css">
+        @font-face {
+          font-family: JejuGothic;
+          src: url({% static '/mail/JejuGothic.ttf' %});
+        }
+
+        html {
+          font-family: JejuGothic, serif;
+        }
+
+      </style>
+    </head>
+    <body>
+        <div style="text-align:center;width: 60%;margin-bottom:30px;font-size:30px;font-family:bold;">""" + document.formId.formTitle + """</div>
+        <table style="table-layout: fixed;width: 60%;border-collapse: collapse;margin-bottom: 1rem;border: 1px solid #858796a3;">
+          <tbody>
+          <tr style="height:40px;border: 1px solid #858796a3;vertical-align: middle;padding: 8px 15px;">
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 10%;background-color: #f8f9fc;text-align: center;font-weight:bold;" colspan="1">문서 종류</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 40%;text-align: left;padding-left:10px;" colspan="4">
+              """ + document.formId.categoryId.firstCategory + """ >
+              """ + document.formId.categoryId.secondCategory + """ >
+              """ + document.formId.formTitle + """
+            </td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 10%;background-color: #f8f9fc;text-align: center;font-weight:bold;" colspan="1">문서 번호</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 40%;text-align: left;padding-left:10px;" colspan="4" colspan="4">""" + document.documentNumber + """</td>
+          </tr>
+          <tr style="height:40px;border: 1px solid #858796a3;vertical-align: middle;padding: 8px 15px;">
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 10%;background-color: #f8f9fc;text-align: center;font-weight:bold;" colspan="1">기안 부서</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 40%;text-align: left;padding-left:10px;" colspan="4" colspan="4">""" + document.writeEmp.empDeptName + """</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 10%;background-color: #f8f9fc;text-align: center;font-weight:bold;" colspan="1">기안자</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 40%;text-align: left;padding-left:10px;" colspan="4" colspan="4">""" + document.writeEmp.empName + """</td>
+          </tr>
+          <tr style="height:40px;border: 1px solid #858796a3;vertical-align: middle;padding: 8px 15px;">
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 10%;background-color: #f8f9fc;text-align: center;font-weight:bold;" colspan="1">보존 연한</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 40%;text-align: left;padding-left:10px;" colspan="4" colspan="4">
+              """ + preservationYear + """
+            </td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 10%;background-color: #f8f9fc;text-align: center;font-weight:bold;" colspan="1">보안 등급</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 40%;text-align: left;padding-left:10px;" colspan="4" colspan="4">""" + document.securityLevel + """등급</td>
+          </tr>
+          <tr style="height:40px;border: 1px solid #858796a3;vertical-align: middle;padding: 8px 15px;">
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 10%;background-color: #f8f9fc;text-align: center;font-weight:bold;" colspan="1">기안 일시</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 40%;text-align: left;padding-left:10px;" colspan="4" colspan="4">""" + draftDatetime + """</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 10%;background-color: #f8f9fc;text-align: center;font-weight:bold;" colspan="1">완료 일시</td>
+            <td style="border: 1px solid #858796a3;vertical-align: middle;width: 40%;text-align: left;padding-left:10px;" colspan="4" colspan="4">""" + approveDatetime + """</td>
+          </tr>
+      </tbody>
+    </table>
+
+    <table style="table-layout: fixed;width: 100%;border-collapse: collapse;margin-bottom: 1rem;">
+      <tr style="height:60px;vertical-align: middle;padding: 8px 15px;">
+        <td>
+          <h3>""" + document.title + """</h3>
+        </td>
+      </tr>
+      <tr style="vertical-align: middle;padding: 8px 15px;">
+        <td>
+          """ + document.contentHtml + """
+          <br>
+        </td>
+      </tr>
+    </table>
+    """
+
+    if files:
+        html += '<table width="60%"><tr><td><b>첨부파일</b></td></tr>'
+        for f in files:
+            html += '<tr><td><a href="'+url+'media/' + str(f.file) + '" download>' + f.fileName + ' (' + str(f.fileSize) + 'MB)</a></td></tr>'
+        html += '</table>'
+
+    html += "</div></body></html>"
+
     return html

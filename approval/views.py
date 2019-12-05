@@ -14,7 +14,7 @@ from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max
 from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
-from .functions import data_format, who_approval, template_format, mail_approval
+from .functions import data_format, who_approval, template_format, mail_approval, mail_document
 
 
 @login_required
@@ -1148,3 +1148,15 @@ def post_contract_document(request, contractId, documentType):
         )
 
     return redirect('approval:modifydocument', document.documentId)
+
+
+@login_required
+def view_documentemail(request, documentId):
+    if request.method == 'POST':
+        document = Document.objects.get(documentId=documentId)
+        print(request.POST)
+        empEmail = request.POST['empEmail']
+        if empEmail:
+            mail_document(empEmail, request.user.employee.empEmail, document)
+
+        return redirect('approval:viewdocument', document.documentId)
