@@ -4,6 +4,16 @@ from django.db.models import Q, Min, Max
 from .models import Approvalform, Approval
 from service.models import Employee
 from django.db.models import Q
+import smtplib
+from email import encoders
+from email.header import Header
+from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from io import BytesIO
+from django.template import loader
+from usone.security import smtp_server, smtp_port, userid, passwd
 
 
 def data_format(ID, user, approvalFormat, document, model):
@@ -200,23 +210,23 @@ def who_approval(documentId):
 
 def template_format(documentId):
     approvals = Approval.objects.filter(Q(documentId__documentId=documentId))
-    apply = approvals.filter(approvalCategory='신청')\
-        .order_by('approvalStep')\
+    apply = approvals.filter(approvalCategory='신청') \
+        .order_by('approvalStep') \
         .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    process = approvals.filter(approvalCategory='승인')\
-        .order_by('approvalStep')\
+    process = approvals.filter(approvalCategory='승인') \
+        .order_by('approvalStep') \
         .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    reference = approvals.filter(approvalCategory='참조')\
-        .order_by('approvalStep')\
+    reference = approvals.filter(approvalCategory='참조') \
+        .order_by('approvalStep') \
         .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    approval = approvals.filter(approvalCategory='결재')\
-        .order_by('approvalStep')\
+    approval = approvals.filter(approvalCategory='결재') \
+        .order_by('approvalStep') \
         .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    agreement = approvals.filter(approvalCategory='합의')\
-        .order_by('approvalStep')\
+    agreement = approvals.filter(approvalCategory='합의') \
+        .order_by('approvalStep') \
         .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    financial = approvals.filter(approvalCategory='재무합의')\
-        .order_by('approvalStep')\
+    financial = approvals.filter(approvalCategory='재무합의') \
+        .order_by('approvalStep') \
         .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
 
     if apply:
@@ -224,7 +234,7 @@ def template_format(documentId):
         for a in apply:
             applylst.append(a)
         if len(apply) % 9 != 0:
-            for i in range(9-(len(apply) % 9)):
+            for i in range(9 - (len(apply) % 9)):
                 applylst.append({})
         apply = [{'name': '신청', 'data': applylst}]
     else:
@@ -234,7 +244,7 @@ def template_format(documentId):
         for p in process:
             processlst.append(p)
         if len(process) % 9 != 0:
-            for i in range(9-(len(process) % 9)):
+            for i in range(9 - (len(process) % 9)):
                 processlst.append({})
         process = [{'name': '승인', 'data': processlst}]
     else:
@@ -244,7 +254,7 @@ def template_format(documentId):
         for r in reference:
             referencelst.append(r)
         if len(reference) % 9 != 0:
-            for i in range(9-(len(reference) % 9)):
+            for i in range(9 - (len(reference) % 9)):
                 referencelst.append({})
         reference = [{'name': '참조', 'data': referencelst}]
     else:
@@ -255,7 +265,7 @@ def template_format(documentId):
         for a in approval:
             approvallst.append(a)
         if len(approval) % 9 != 0:
-            for i in range(9-(len(approval) % 9)):
+            for i in range(9 - (len(approval) % 9)):
                 approvallst.append({})
         approval = [{'name': '결재', 'data': approvallst}]
     else:
@@ -266,7 +276,7 @@ def template_format(documentId):
         for a in agreement:
             agreementlst.append(a)
         if len(agreement) % 9 != 0:
-            for i in range(9-(len(agreement) % 9)):
+            for i in range(9 - (len(agreement) % 9)):
                 agreementlst.append({})
         agreement = [{'name': '합의', 'data': agreementlst}]
     else:
@@ -276,11 +286,96 @@ def template_format(documentId):
         for f in financial:
             financiallst.append(f)
         if len(financial) % 9 != 0:
-            for i in range(9-(len(financial) % 9)):
+            for i in range(9 - (len(financial) % 9)):
                 financiallst.append({})
         financial = [{'name': '재무합의', 'data': financiallst}]
     else:
         financial = [{'name': '재무합의', 'data': [{} for i in range(9)]}]
 
-
     return apply, process, reference, approval, agreement, financial
+
+
+def mail_approval(employee, document):
+    #메일 전송
+    try:
+        title = "'{}' 문서 결재 요청".format(document.title)
+        html = approvalhtml(document)
+        toEmail = employee.empEmail
+        fromEmail = 'usone@unioneinc.co.kr'
+
+        msg = MIMEMultipart("alternative")
+        msg["From"] = fromEmail
+        msg["To"] = toEmail
+        msg["Subject"] = Header(s=title, charset="utf-8")
+        msg.attach(MIMEText(html, "html", _charset="utf-8"))
+
+        smtp = smtplib.SMTP(smtp_server, smtp_port)
+        smtp.login(userid, passwd)
+        smtp.sendmail(fromEmail, toEmail, msg.as_string())
+        smtp.close()
+        return {'result': 'ok'}
+    except Exception as e:
+        return {'result': e}
+
+
+def approvalhtml(document):
+    url='http://127.0.0.1:8000/'
+    html = """
+    <html lang="ko">
+    <head>
+    <meta charset="utf-8">
+      <style type="text/css">
+        @font-face {
+          font-family: JejuGothic;
+          src: url({% static '/mail/JejuGothic.ttf' %});
+        }
+
+        html {
+          font-family: JejuGothic, serif;
+        }
+
+      </style>
+    </head>
+    <body>
+      <div style="border: 2px solid white;width: 600px;height: 500px;text-align: center;">
+        <div style="text-align: center;margin-top:50px">
+         <strong style="font-size: 30px;">USONE 전자결재 알림</strong>
+        </div>
+        <br>
+        <br>
+        <div style="text-align:center">
+        <table>
+          <tr>
+            <td colspan="4">
+              <table style="margin:30px;border: 1px solid #858796a3;border-collapse: collapse;">
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;종&nbsp; &nbsp;류</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.formId.formTitle +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;번&nbsp; &nbsp;호</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.documentNumber +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;제&nbsp; &nbsp;목</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.title +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">기&nbsp; &nbsp; &nbsp; 안 &nbsp; &nbsp; &nbsp; 자</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.writeEmp.empName +"""</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr style="height: 60px">
+            <td style="text-align: center;width: 550px">
+              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a href='"""+url+""""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
+            </td>
+          </tr>
+        </table>
+      </div>
+      </div>
+    </body>
+    </html>
+    """
+    return html
