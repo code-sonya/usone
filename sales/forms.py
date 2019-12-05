@@ -24,7 +24,7 @@ class ContractForm(forms.ModelForm):
 
     class Meta:
         model = Contract
-        fields = ('contractCode', 'contractName', 'contractStep', 'empId', 'saleCompanyNames', 'saleCustomerId', 'endCompanyNames', 'saleType', 'saleIndustry',
+        fields = ('contractCode', 'contractName', 'contractStep', 'empId', 'saleCompanyNames', 'saleCustomerId', 'saleTaxCustomerId', 'endCompanyNames', 'saleType', 'saleIndustry',
                   'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate', 'depositCondition', 'depositConditionDay',
                   'contractPaper', 'modifyContractPaper', 'orderPaper', 'comment')
 
@@ -34,6 +34,7 @@ class ContractForm(forms.ModelForm):
             'contractStep': forms.Select(attrs={'class': 'form-control', 'id': 'contractStep'}),
             'empId': forms.Select(attrs={'class': 'form-control', 'id': 'empId'}),
             'saleCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleCustomerId'}),
+            'saleTaxCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleTaxCustomerId'}),
             'saleType': forms.Select(attrs={'class': 'form-control', 'id': "saleType"}),
             'saleIndustry': forms.Select(attrs={'class': 'form-control', 'id': "saleIndustry"}),
             'salePrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'salePrice'}),

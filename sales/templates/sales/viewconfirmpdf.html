@@ -76,7 +76,7 @@
         </tr>
         <tr class="thtd" style="height: 50px">
           <td class="thtd" colspan="1">{{ contract.saleCompanyName.companyNameKo }}</td>
-          <td class="thtd" colspan="1"></td>
+          <td class="thtd" colspan="1">{%if contract.confirmCustomer%}{{ contract.confirmCustomer}}{% endif %}</td>
           <td class="thtd" colspan="1" style="text-align: left; margin-left: 5px"></td>
         </tr>
       </table>
@@ -88,15 +88,15 @@
   </tr>
   <tr class="thtd" style="height: 40px">
     <td colspan="1" style="background-color:#ebfaff;">검&nbsp; &nbsp;수 &nbsp; &nbsp;일&nbsp; &nbsp;자</td>
-    <td colspan="3"></td>
+    <td colspan="3" style="text-align: left; margin-left: 5px">{{ contract.confirmDate }}</td>
   </tr>
   <tr class="thtd" style="height: 500px">
     <td colspan="1" style="background-color:#ebfaff;">내&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 용</td>
-    <td colspan="3"></td>
+    <td colspan="3" style="text-align: left; margin-left: 5px; vertical-align: top;padding-top: 5px;">{%if contract.confirmContents %}{{ contract.confirmContents }}{% endif %}</td>
   </tr>
   <tr class="thtd" style="height: 150px">
     <td colspan="1" style="background-color:#ebfaff;">비&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 고</td>
-    <td colspan="3"></td>
+    <td colspan="3" style="text-align: left; margin-left: 5px;vertical-align: top;padding-top: 5px;">{% if contract.confirmComment %}{{ contract.confirmComment }}{% endif %} </td>
   </tr>
 </table>
 </body>

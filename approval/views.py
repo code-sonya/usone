@@ -15,7 +15,7 @@ from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max
 from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
-from .functions import data_format, who_approval, template_format, intcomma
+from .functions import data_format, who_approval, template_format, intcomma, mail_approval
 from sales.functions import detailPurchase
 
 
@@ -152,6 +152,16 @@ def post_document(request):
                     approvalStep=a['approvalStep'],
                     approvalCategory=a['approvalCategory'],
                 )
+
+        whoApproval = who_approval(document.documentId)
+        if len(whoApproval['do']) == 0:
+            document.documentStatus = '완료'
+            document.save()
+            return redirect("approval:showdocumentendall")
+        else:
+            for empId in whoApproval['do']:
+                employee = Employee.objects.get(empId=empId)
+                mail_approval(employee, document)
 
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
@@ -960,11 +970,17 @@ def approve_document(request, approvalId):
     approval.approvalDatetime = now
     approval.save()
 
-    if len(who_approval(approval.documentId_id)['do']) == 0:
+    whoApproval = who_approval(approval.documentId_id)
+    if len(whoApproval['do']) == 0:
         document = Document.objects.get(documentId=approval.documentId_id)
         document.documentStatus = '완료'
         document.approveDatetime = now
         document.save()
+    else:
+        for empId in whoApproval['do']:
+            employee = Employee.objects.get(empId=empId)
+            document = Document.objects.get(documentId=approval.documentId_id)
+            mail_approval(employee, document)
 
     return redirect('approval:viewdocument', approval.documentId_id)
 
