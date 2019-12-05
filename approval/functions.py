@@ -282,5 +282,12 @@ def template_format(documentId):
     else:
         financial = [{'name': '재무합의', 'data': [{} for i in range(9)]}]
 
-
     return apply, process, reference, approval, agreement, financial
+
+
+def intcomma(num):
+    num = int(num or 0)
+    result = format(num, ',')
+    if result == '0':
+        result = ''
+    return result
