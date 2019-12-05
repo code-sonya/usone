@@ -16,7 +16,7 @@ from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
 from .functions import data_format, who_approval, template_format, intcomma, mail_approval
-from sales.functions import detailPurchase
+from sales.functions import detailPurchase, summaryPurchase
 
 
 @login_required
@@ -1152,6 +1152,13 @@ def post_contract_document(request, contractId, documentType):
         contentHtml = contentHtml.replace('매출합계자동입력', format(revenuePrice, ','))
         contentHtml = contentHtml.replace('마진금액자동입력', format(profitPrice, ','))
         contentHtml = contentHtml.replace('마진합계자동입력', format(profitPrice, ','))
+        summary = summaryPurchase(contractId, contract.salePrice)
+        contentHtml = contentHtml.replace('상품HW매입금액자동입력', intcomma(summary['sumType1']))
+        contentHtml = contentHtml.replace('상품SW매입금액자동입력', intcomma(summary['sumType2']))
+        contentHtml = contentHtml.replace('용역HW매입금액자동입력', intcomma(summary['sumType3']))
+        contentHtml = contentHtml.replace('용역SW매입금액자동입력', intcomma(summary['sumType4']))
+        contentHtml = contentHtml.replace('기타매입금액자동입력', intcomma(summary['sumType5']))
+        contentHtml = contentHtml.replace('매입합계자동입력', intcomma(summary['sumPurchase']))
 
         # 마진율분석
         contentHtml = contentHtml.replace('마진율자동입력', str(profitRatio) + '%')
@@ -1165,11 +1172,27 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('고객대표자자동입력', contract.saleCompanyName.ceo)
         else:
             contentHtml = contentHtml.replace('고객대표자자동입력', '')
-
         if contract.saleCompanyName.companyAddress:
             contentHtml = contentHtml.replace('고객주소자동입력', contract.saleCompanyName.companyAddress)
         else:
             contentHtml = contentHtml.replace('고객주소자동입력', '')
+        if contract.saleCustomerId:
+            contentHtml = contentHtml.replace('영업담당자이름자동입력', contract.saleCustomerId.customerName)
+            contentHtml = contentHtml.replace('영업담당자연락처자동입력', contract.saleCustomerId.customerPhone)
+            contentHtml = contentHtml.replace('영업담당자이메일자동입력', contract.saleCustomerId.customerEmail)
+        else:
+            contentHtml = contentHtml.replace('영업담당자이름자동입력', '')
+            contentHtml = contentHtml.replace('영업담당자연락처자동입력', '')
+            contentHtml = contentHtml.replace('영업담당자이메일자동입력', '')
+
+        if contract.saleTaxCustomerId:
+            contentHtml = contentHtml.replace('세금담당자이름자동입력', contract.saleTaxCustomerId.customerName)
+            contentHtml = contentHtml.replace('세금담당자연락처자동입력', contract.saleTaxCustomerId.customerPhone)
+            contentHtml = contentHtml.replace('세금담당자이메일자동입력', contract.saleTaxCustomerId.customerEmail)
+        else:
+            contentHtml = contentHtml.replace('세금담당자이름자동입력', '')
+            contentHtml = contentHtml.replace('세금담당자연락처자동입력', '')
+            contentHtml = contentHtml.replace('세금담당자이메일자동입력', '')
 
         # 하도급계약
         tempClass = {}
