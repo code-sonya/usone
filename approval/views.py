@@ -968,11 +968,17 @@ def approve_document(request, approvalId):
     approval.approvalDatetime = now
     approval.save()
 
-    if len(who_approval(approval.documentId_id)['do']) == 0:
+    whoApproval = who_approval(approval.documentId_id)
+    if len(whoApproval['do']) == 0:
         document = Document.objects.get(documentId=approval.documentId_id)
         document.documentStatus = '완료'
         document.approveDatetime = now
         document.save()
+    else:
+        for empId in whoApproval['do']:
+            employee = Employee.objects.get(empId=empId)
+            document = Document.objects.get(documentId=approval.documentId_id)
+            mail_approval(employee, document)
 
     return redirect('approval:viewdocument', approval.documentId_id)
 

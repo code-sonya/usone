@@ -51,6 +51,10 @@ def post_contract(request):
                 post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             else:
                 post.saleCustomerName = ''
+            if form.clean()['saleTaxCustomerId']:
+                post.saleTaxCustomerName = form.clean()['saleTaxCustomerId'].customerName
+            else:
+                post.saleTaxCustomerName = ''
             post.mainCategory = json.loads(request.POST['jsonItem'])[0]['mainCategory']
             post.subCategory = json.loads(request.POST['jsonItem'])[0]['subCategory']
             post.save()
@@ -307,6 +311,10 @@ def modify_contract(request, contractId):
                 post.saleCustomerName = form.clean()['saleCustomerId'].customerName
             else:
                 post.saleCustomerName = ''
+            if form.clean()['saleTaxCustomerId']:
+                post.saleTaxCustomerName = form.clean()['saleTaxCustomerId'].customerName
+            else:
+                post.saleTaxCustomerName = ''
             post.mainCategory = json.loads(request.POST['jsonItem'])[0]['mainCategory']
             post.subCategory = json.loads(request.POST['jsonItem'])[0]['subCategory']
             post.save()
@@ -1698,6 +1706,11 @@ def save_transfercontract(request):
             saleCustomerId = None
 
         try:
+            saleTaxCustomerId = Customer.objects.get(customerId=contract.saleTaxCustomerId)
+        except:
+            saleTaxCustomerId = None
+
+        try:
             endCompanyName = Company.objects.get(companyName=contract.endCompanyName)
         except:
             endCompanyName = None
@@ -1711,6 +1724,8 @@ def save_transfercontract(request):
             saleCompanyName=Company.objects.get(companyName=contract.saleCompanyName),
             saleCustomerId=saleCustomerId,
             saleCustomerName=contract.saleCustomerName or None,
+            saleTaxCustomerId=saleTaxCustomerId,
+            saleTaxCustomerName=contract.saleTaxCustomerName or None,
             endCompanyName=endCompanyName,
             saleType=contract.saleType,
             saleIndustry=contract.saleIndustry,

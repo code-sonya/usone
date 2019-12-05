@@ -75,7 +75,10 @@
                 <div class="col-2 mb-3">
                   <label for="contractCode" class="font-weight-bold text-primary"> 관리번호 </label> {{ form.contractCode }}
                 </div>
-                <div class="col-8 mb-3">
+                <div class="col-2 mb-3">
+                  <label for="empId" class="font-weight-bold text-primary"> 영업대표 </label> {{ form.empId }}
+                </div>
+                <div class="col-6 mb-3">
                   <label for="contractName" class="font-weight-bold text-primary"> 계약명 </label> {{ form.contractName }}
                 </div>
               </div>
@@ -88,13 +91,13 @@
                   <label for="saleIndustry" class="font-weight-bold text-primary"> 산업군 </label> {{ form.saleIndustry }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="empId" class="font-weight-bold text-primary"> 영업대표 </label> {{ form.empId }}
-                </div>
-                <div class="col-2 mb-3">
                   <label for="saleCompanyNames" class="font-weight-bold text-primary"> 거래처 </label> {{ form.saleCompanyNames }}
                 </div>
                 <div class="col-2 mb-3">
                   <label for="saleCustomerId" class="font-weight-bold"> 거래처 담당자 </label> {{ form.saleCustomerId }}
+                </div>
+                 <div class="col-2 mb-3">
+                  <label for="saleTaxCustomerId" class="font-weight-bold"> 거래처 세금담당자 </label> {{ form.saleTaxCustomerId }}
                 </div>
                 <div class="col-2 mb-3">
                   <label for="endCompanyNames" class="font-weight-bold"> 최종고객사 </label> {{ form.endCompanyNames }}
@@ -697,12 +700,20 @@
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
                           var salecompany = returnData;
+                          console.log(salecompany);
                           $('#saleCustomerId').empty();
                           $('#saleCustomerId').append('<option value="" selected="">---------</option>');
 
                           for (var count = 0; count < salecompany.length; count++) {
                               var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
                               $('#saleCustomerId').append(option);
+                          }
+                          $('#saleTaxCustomerId').empty();
+                          $('#saleTaxCustomerId').append('<option value="" selected="">---------</option>');
+
+                          for (var count = 0; count < salecompany.length; count++) {
+                              var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
+                              $('#saleTaxCustomerId').append(option);
                           }
                       }
                   });
@@ -1447,6 +1458,13 @@
                           for (var count = 0; count < salecompany.length; count++) {
                               var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
                               $('#saleCustomerId').append(option);
+                          }
+                          $('#saleTaxCustomerId').empty();
+                          $('#saleTaxCustomerId').append('<option value="" selected="">---------</option>');
+
+                          for (var count = 0; count < salecompany.length; count++) {
+                              var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
+                              $('#saleTaxCustomerId').append(option);
                           }
                       }
                   });

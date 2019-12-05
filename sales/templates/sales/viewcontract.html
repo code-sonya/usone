@@ -326,7 +326,10 @@
                   {{ contract.saleCompanyName.companyNameKo }}
                 </a>
                 <a href="/client/viewcustomer/{{ contract.saleCustomerId.customerId }}" class="text-dark">
-                  {% if contract.saleCustomerName %} ({{ contract.saleCustomerName }}){% endif %}
+                  {% if contract.saleCustomerName %} (영업담당자:{{ contract.saleCustomerName }}){% endif %}
+                </a>
+                <a href="/client/viewcustomer/{{ contract.saleTaxCustomerId.customerId }}" class="text-dark">
+                  {% if contract.saleTaxCustomerName %} (세금담당자:{{ contract.saleTaxCustomerName }}){% endif %}
                 </a>
               </td>
               <td class="bg-light">최 종 고 객 사</td>

@@ -20,7 +20,7 @@
       size: A4 landscape;
       margin-left: 20pt;
       margin-right: 20pt;
-      margin-top: 20pt;
+      margin-top: 30pt;
     }
 
     .thtd {
@@ -51,26 +51,28 @@
 </head>
 <body>
 <div style="text-align: center;">
-  <strong style="font-size: 25px;">수주통보서</strong>
+  <strong style="font-size: 35px;">수주통보서</strong>
 </div>
 <br>
-<table width="400px" align="right">
-  <tr class="thtd" style="height: 30px">
-    <td class="thtd" rowspan="2" colspan="2" style="background-color:gainsboro">결재</td>
-    <td class="thtd" colspan="3" style="background-color:gainsboro">담당자</td>
-    <td class="thtd" colspan="3" style="background-color:gainsboro">경지부</td>
-    <td class="thtd" colspan="3" style="background-color:gainsboro">팀장</td>
-    <td class="thtd" colspan="3" style="background-color:gainsboro">사장</td>
-    <td class="thtd" colspan="3" style="background-color:gainsboro">대표이사</td>
-  </tr>
-  <tr class="thtd" style="height: 60px">
-    <td class="thtd" colspan="3"></td>
-    <td class="thtd" colspan="3"></td>
-    <td class="thtd" colspan="3"></td>
-    <td class="thtd" colspan="3"></td>
-    <td class="thtd" colspan="3"></td>
-  </tr>
-</table>
+<br>
+<br>
+<!--<table width="400px" align="right">-->
+  <!--<tr class="thtd" style="height: 30px">-->
+    <!--<td class="thtd" rowspan="2" colspan="2" style="background-color:gainsboro">결재</td>-->
+    <!--<td class="thtd" colspan="3" style="background-color:gainsboro">담당자</td>-->
+    <!--<td class="thtd" colspan="3" style="background-color:gainsboro">경지부</td>-->
+    <!--<td class="thtd" colspan="3" style="background-color:gainsboro">팀장</td>-->
+    <!--<td class="thtd" colspan="3" style="background-color:gainsboro">사장</td>-->
+    <!--<td class="thtd" colspan="3" style="background-color:gainsboro">대표이사</td>-->
+  <!--</tr>-->
+  <!--<tr class="thtd" style="height: 60px">-->
+    <!--<td class="thtd" colspan="3"></td>-->
+    <!--<td class="thtd" colspan="3"></td>-->
+    <!--<td class="thtd" colspan="3"></td>-->
+    <!--<td class="thtd" colspan="3"></td>-->
+    <!--<td class="thtd" colspan="3"></td>-->
+  <!--</tr>-->
+<!--</table>-->
 <div style="font-size: 14px">발행일자 : {{ today.year }}년 {{ today.month }} 월 {{ today.day }}일</div>
 <table>
   <tr>
@@ -213,16 +215,16 @@
           <td class="thtd" colspan="2" style="background-color:gainsboro">세금계산서담당자</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="2"></td>
-          <td class="thtd" colspan="2"></td>
+          <td class="thtd" colspan="2">{% if contract.saleCustomerName %}{{ contract.saleCustomerName }}{% else %} - {% endif %}</td>
+          <td class="thtd" colspan="2">{% if contract.saleTaxCustomerName %}{{ contract.saleTaxCustomerName }}{% else %} - {% endif %}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="2"></td>
-          <td class="thtd" colspan="2"></td>
+          <td class="thtd" colspan="2">{% if contract.saleCustomerId.customerPhone %}{{ contract.saleCustomerId.customerPhone }}{% else %} - {% endif %}</td>
+          <td class="thtd" colspan="2">{% if contract.saleTaxCustomerId.customerPhone %}{{ contract.saleTaxCustomerId.customerPhone }}{% else %} - {% endif %}</td>
         </tr>
         <tr class="thtd" style="height: 25px">
-          <td class="thtd" colspan="2"></td>
-          <td class="thtd" colspan="2"></td>
+          <td class="thtd" colspan="2">{% if contract.saleCustomerId.customerEmail %}<a>{{ contract.saleCustomerId.customerEmail }}</a>{% else %} - {% endif %}</td>
+          <td class="thtd" colspan="2">{% if contract.saleTaxCustomerId.customerEmail %}<a>{{ contract.saleTaxCustomerId.customerEmail }}</a>{% else %} - {% endif %}</td>
         </tr>
       </table>
     </td>
@@ -256,6 +258,8 @@
         </tr>
       </table>
     </td>
+    <br>
+    <br>
   </tr>
   <tr>
     <td colspan="2" style="padding-right: 3px;vertical-align: top">
