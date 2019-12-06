@@ -555,24 +555,34 @@ def fuel_asjson(request):
 @login_required
 @csrf_exempt
 def view_overhour(request, extraPayId):
-    extrapay = ExtraPay.objects.filter(Q(extraPayId=extraPayId))\
-        .values('overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empSalary', 'empId__empDeptName', 'empId__empCode', 'extraPayId', 'empId__empPosition_id__positionName',
-                'compensatedComment', 'compensatedHour', 'payStatus').first()
-    overhours = OverHour.objects.filter(Q(extraPayId=extraPayId) &
-                                        ~Q(overHour=0) &
-                                        Q(overHourStatus='Y'))
-    sum_overhours = overhours.aggregate(sumOverhour=Sum('overHour'),
-                                        sumOverhourWeekDay=Sum('overHourWeekDay'),
-                                        sumServicehour=Round(Sum('serviceId__serviceHour')),
-                                        sumOverhourCost=Sum('overHourCost'),
-                                        sumOverhourCostWeekDay=Sum('overHourCostWeekDay'),
-                                        sumFoodCost=Sum('foodCost'))
-    foodcosts = OverHour.objects.filter(Q(extraPayId=extraPayId) &
-                                        Q(overHour=0) &
-                                        Q(overHourStatus='Y'))
-    sum_foodcosts = foodcosts.aggregate(sumServicehour=Sum('serviceId__serviceHour'),
-                                        sumFoodCost=Sum('foodCost'))
-
+    extrapay = ExtraPay.objects.filter(
+        Q(extraPayId=extraPayId)
+    ).values(
+        'overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empSalary', 'empId__empDeptName',
+        'empId__empCode', 'extraPayId', 'empId__empPosition_id__positionName', 'compensatedComment', 'compensatedHour', 'payStatus'
+    ).first()
+    overhours = OverHour.objects.filter(
+        Q(extraPayId=extraPayId) &
+        ~Q(overHour=0) &
+        Q(overHourStatus='Y')
+    ).order_by('overHourStartDate')
+    sum_overhours = overhours.aggregate(
+        sumOverhour=Sum('overHour'),
+        sumOverhourWeekDay=Sum('overHourWeekDay'),
+        sumServicehour=Round(Sum('serviceId__serviceHour')),
+        sumOverhourCost=Sum('overHourCost'),
+        sumOverhourCostWeekDay=Sum('overHourCostWeekDay'),
+        sumFoodCost=Sum('foodCost')
+    )
+    foodcosts = OverHour.objects.filter(
+        Q(extraPayId=extraPayId) &
+        Q(overHour=0) &
+        Q(overHourStatus='Y')
+    )
+    sum_foodcosts = foodcosts.aggregate(
+        sumServicehour=Sum('serviceId__serviceHour'),
+        sumFoodCost=Sum('foodCost')
+    )
 
     if extrapay['payStatus'] == 'N':
         real_extraPay = int(((sum_overhours['sumOverhour'] or 0)-(extrapay['compensatedHour'] or 0))*1.5*extrapay['empId__empSalary'])
@@ -598,7 +608,7 @@ def view_overhour(request, extraPayId):
             'foodCost': 0,
             'sumPay': int(sum_overhours['sumOverhourCost'] + sum_overhours['sumOverhourCostWeekDay']),
         }
-    context={
+    context = {
         'overhour': overhours,
         'extrapay': extrapay,
         'foodcosts': foodcosts,
