@@ -35,6 +35,7 @@ class Employee(models.Model):
     empPhone = models.CharField(max_length=20)
     empEmail = models.EmailField(max_length=254)
     empDeptName = models.CharField(max_length=30, choices=empDeptNameChoices, default='미정')
+    departmentName = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
     dispatchCompany = models.CharField(max_length=100, default='내근')
     message = models.CharField(max_length=200, default='내근 업무 내용을 작성해 주세요.', help_text='내근 업무 내용을 작성해 주세요.')
     carId = models.ForeignKey("extrapay.Car", on_delete=models.SET_NULL, null=True, blank=True)
@@ -69,3 +70,14 @@ class Punctuality(models.Model):
 
     def __str__(self):
         return str(self.punctualityId)
+
+
+class Department(models.Model):
+    deptId = models.AutoField(primary_key=True)
+    deptName = models.CharField(max_length=20)
+    deptManager = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    deptLevel = models.IntegerField(default=0)
+    parentDept = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.deptName)

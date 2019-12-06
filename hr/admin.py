@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Position, Employee, Attendance, Punctuality
+from .models import Position, Employee, Attendance, Punctuality, Department
 
 
 @admin.register(Position)
@@ -37,3 +37,10 @@ class PunctualityAdmin(admin.ModelAdmin):
     list_display = ('punctualityId', 'empId', 'punctualityDate', 'punctualityType', 'comment')
     list_filter = ('punctualityDate', 'punctualityType' , 'comment')
     list_display_links = ['punctualityId', 'empId', 'punctualityDate', 'punctualityType', 'comment']
+
+
+@admin.register(Department)
+class DepartmentAdmin(admin.ModelAdmin):
+    list_display = ('deptId', 'deptName', 'deptManager', 'deptLevel', 'parentDept')
+    list_filter = ('deptName',)
+    list_display_links = ['deptId', 'deptName', 'deptManager', 'deptLevel', 'parentDept']

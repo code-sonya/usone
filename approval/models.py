@@ -90,3 +90,12 @@ class Approvalform(models.Model):
     approvalEmp = models.ForeignKey(Employee, on_delete=models.PROTECT)
     approvalStep = models.IntegerField(default=0)
     approvalCategory = models.CharField(max_length=10, default='처리')
+
+
+class Documentcomment(models.Model):
+    commentId = models.AutoField(primary_key=True)
+    documentId = models.ForeignKey(Document, on_delete=models.CASCADE)
+    author = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    comment = models.CharField(max_length=255)
+    created = models.DateTimeField()
+    updated = models.DateTimeField()
