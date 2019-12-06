@@ -601,12 +601,12 @@ def view_overhour(request, extraPayId):
     else:
         sum_costs = {
             'extraPayDate': '{}.{}'.format(extrapay['overHourDate__year'], extrapay['overHourDate__month']),
-            'overHour': sum_overhours['sumOverhour'] + sum_overhours['sumOverhourWeekDay'],
+            'overHour': (sum_overhours['sumOverhour'] or 0) + (sum_overhours['sumOverhourWeekDay'] or 0),
             'compensatedHour': extrapay['compensatedHour'],
-            'extraPayHour': sum_overhours['sumOverhour'] + sum_overhours['sumOverhourWeekDay']-(extrapay['compensatedHour'] or 0),
-            'extraPay': int(sum_overhours['sumOverhourCost'] + sum_overhours['sumOverhourCostWeekDay']),
+            'extraPayHour': (sum_overhours['sumOverhour'] or 0) + (sum_overhours['sumOverhourWeekDay'] or 0) - (extrapay['compensatedHour'] or 0),
+            'extraPay': int((sum_overhours['sumOverhourCost'] or 0) + (sum_overhours['sumOverhourCostWeekDay'] or 0)),
             'foodCost': 0,
-            'sumPay': int(sum_overhours['sumOverhourCost'] + sum_overhours['sumOverhourCostWeekDay']),
+            'sumPay': int((sum_overhours['sumOverhourCost'] or 0) + (sum_overhours['sumOverhourCostWeekDay'] or 0)),
         }
     context = {
         'overhour': overhours,
@@ -621,7 +621,7 @@ def view_overhour(request, extraPayId):
 
 @login_required
 @csrf_exempt
-def overhour_all(request,searchdate):
+def overhour_all(request):
     if request.method == 'POST':
         todayYear = int(request.POST['searchdate'][:4])
         todayMonth = int(request.POST['searchdate'][5:7])
@@ -645,19 +645,25 @@ def overhour_all(request,searchdate):
         sumEmp['sumfoodCost'] += sum['sumfoodCost']
         sumEmp['sumCost'] += sum['sumCost']
 
+    sumEmp['sumoverHour'] = round(sumEmp['sumoverHour'], 2)
+    sumEmp['sumcompensatedHour'] = round(sumEmp['sumcompensatedHour'], 2)
+    sumEmp['sumoverandfoodCost'] = round(sumEmp['sumoverandfoodCost'], 2)
+    sumEmp['sumfoodCost'] = round(sumEmp['sumfoodCost'], 2)
+    sumEmp['sumCost'] = round(sumEmp['sumCost'], 2)
+
     sumAll = (sumEmp['sumCost'] or 0) + (sumSupport['sumCost'] or 0)
     context = {
-            'today':today,
-            'todayYear': todayYear,
-            'todayMonth': todayMonth,
-            'extrapayInfra': extrapayInfra,
-            'extrapaySolution': extrapaySolution,
-            'extrapayDB': extrapayDB,
-            'extrapaySupport': extrapaySupport,
-            'sumEmp': sumEmp,
-            'sumSupport': sumSupport,
-            'sumAll': sumAll,
-            }
+        'today': today,
+        'todayYear': todayYear,
+        'todayMonth': todayMonth,
+        'extrapayInfra': extrapayInfra,
+        'extrapaySolution': extrapaySolution,
+        'extrapayDB': extrapayDB,
+        'extrapaySupport': extrapaySupport,
+        'sumEmp': sumEmp,
+        'sumSupport': sumSupport,
+        'sumAll': sumAll,
+    }
     return render(request, 'extrapay/overhourall.html', context)
 
 

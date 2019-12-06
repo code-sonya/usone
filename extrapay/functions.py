@@ -82,7 +82,8 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
             else:
                 sumoverhourweekday = 0
 
-            extrapay_dict['empDeptName']=extrapay.empId.empDeptName
+            extrapay_dict['extraPayId'] = extrapay.extraPayId
+            extrapay_dict['empDeptName'] = extrapay.empId.empDeptName
             extrapay_dict['empPosition'] = extrapay.empId.empPosition.positionName
             extrapay_dict['empName'] = extrapay.empName
             extrapay_dict['sumOverhour'] = sumoverhour
