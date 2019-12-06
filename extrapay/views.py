@@ -783,6 +783,12 @@ def view_extrapay_pdf(request, yearmonth):
         sumEmp['sumfoodCost'] += sum['sumfoodCost']
         sumEmp['sumCost'] += sum['sumCost']
 
+    sumEmp['sumoverHour'] = round(sumEmp['sumoverHour'], 2)
+    sumEmp['sumcompensatedHour'] = round(sumEmp['sumcompensatedHour'], 2)
+    sumEmp['sumoverandfoodCost'] = round(sumEmp['sumoverandfoodCost'], 2)
+    sumEmp['sumfoodCost'] = round(sumEmp['sumfoodCost'], 2)
+    sumEmp['sumCost'] = round(sumEmp['sumCost'], 2)
+
     sumAll = (sumEmp['sumCost'] or 0) + (sumSupport['sumCost'] or 0)
     context = {
         'todayYear': todayYear,
