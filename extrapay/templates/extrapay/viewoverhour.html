@@ -116,7 +116,7 @@
         <tbody>
         {% for row in overhour %}
         <tr class="thtd">
-          <td class="thtd" colspan="1">{{ row.serviceId.serviceDate }}</a></td>
+          <td class="thtd" colspan="1">{{ row.serviceId.serviceDate }}</td>
           <td class="thtd" colspan="2">{{ row.serviceId.companyName }}</td>
           <td class="thtd" colspan="1">{{ row.serviceId.serviceBeginDatetime | date:"Y/m/d H:i"}}</td>
           <td class="thtd" colspan="1">{{ row.serviceId.serviceFinishDatetime | date:"Y/m/d H:i"}}</td>

@@ -16,7 +16,7 @@ from hr.models import Employee
 from noticeboard.models import Board
 from sales.models import Contract
 from extrapay.models import OverHour, ExtraPay
-from .forms import ServicereportForm, ServiceformForm
+from .forms import ServicereportForm, ServiceformForm, AdminServiceForm
 from .functions import *
 from .models import Serviceform, Geolocation
 
@@ -509,10 +509,20 @@ def modify_service(request, serviceId):
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
-            post.serviceBeginDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-            post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-            post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            if post.serviceStatus == 'N':
+                post.serviceBeginDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            elif post.serviceStatus == 'B':
+                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            elif post.serviceStatus == 'S':
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            elif post.serviceStatus == 'E':
+                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
             post.serviceDate = str(post.serviceBeginDatetime)[:10]
             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
             post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
@@ -885,8 +895,13 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
             overhourcost = emp.empSalary*overhour*1.5
 
             # IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
+            service_year = service.serviceDate.year
             service_month = service.serviceDate.month
-            extrapay = ExtraPay.objects.filter(Q(overHourDate__month=service_month) & Q(empId=service.empId_id)).first()
+            extrapay = ExtraPay.objects.filter(
+                Q(overHourDate__year=service_year) &
+                Q(overHourDate__month=service_month) &
+                Q(empId=service.empId_id)
+            ).first()
             if extrapay:
                 sumOverHour = extrapay.sumOverHour
                 extrapay.sumOverHour = float(sumOverHour)+float(overhour)
@@ -929,3 +944,205 @@ def change_contracts_name(request):
         temp.save()
 
     return redirect('service:showservices')
+
+
+@login_required
+def admin_service(request, serviceId):
+    # 로그인 사용자 정보
+    empId = Employee(empId=request.user.employee.empId)
+    if empId.empId == 1:
+        serviceInstance = Servicereport.objects.get(serviceId=serviceId)
+        geoInstance = Geolocation.objects.get(serviceId=serviceId)
+
+        if request.method == "POST":
+            form = AdminServiceForm(request.POST, instance=serviceInstance)
+
+            if form.is_valid():
+                # 일정(Servicereport) 수정
+                post = form.save(commit=False)
+                if request.POST['contractId']:
+                    post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
+                else:
+                    post.contractId = None
+                post.serviceBeginDatetime = form.clean()['begindate'] + ' ' + form.clean()['begintime']
+                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceFinishDatetime = form.clean()['finishdate'] + ' ' + form.clean()['finishtime']
+                post.serviceDate = str(post.serviceBeginDatetime)[:10]
+                post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+                post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
+                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.coWorker = request.POST['coWorkerId']
+
+                # 초과근무 등록
+                if post.empName == '이현수':
+                    post.serviceOverHour, overhour, min_date, max_date = overtime_extrapay_etc(
+                        str(post.serviceBeginDatetime), str(post.serviceFinishDatetime)
+                    )
+                else:
+                    post.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(
+                        str(post.serviceBeginDatetime), str(post.serviceFinishDatetime)
+                    )
+                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.serviceStatus = 'Y'
+                post.save()
+
+                # 기존 초과근무 삭제
+                overhourInstance = OverHour.objects.filter(serviceId=post).first()
+                if overhourInstance:
+                    extrapay = ExtraPay.objects.filter(
+                        Q(overHourDate__year=post.serviceDate[:4]) &
+                        Q(overHourDate__month=post.serviceDate[5:7]) &
+                        Q(empId=post.empId_id)
+                    ).first()
+                    if extrapay:
+                        extrapay.sumOverHour = float(extrapay.sumOverHour) - overhourInstance.overHour
+                        extrapay.save()
+                    overhourInstance.delete()
+
+                # 식대
+                foodcosts = cal_foodcost(str(post.serviceBeginDatetime), str(post.serviceFinishDatetime))
+                if foodcosts > 0 or overhour > 0:
+                    emp = Employee.objects.get(empId=post.empId_id)
+                    overhourcost = emp.empSalary * overhour * 1.5
+
+                    # 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성 (이 부분 수정)
+                    service_year = post.serviceDate[:4]
+                    service_month = post.serviceDate[5:7]
+                    extrapay = ExtraPay.objects.filter(
+                        Q(overHourDate__year=service_year) &
+                        Q(overHourDate__month=service_month) &
+                        Q(empId=post.empId_id)
+                    ).first()
+                    if extrapay:
+                        extrapay.sumOverHour = float(extrapay.sumOverHour) + float(overhour)
+                        extrapay.save()
+                    else:
+                        extrapay = ExtraPay.objects.create(
+                            empId=post.empId,
+                            empName=post.empName,
+                            overHourDate=post.serviceDate,
+                            sumOverHour=overhour,
+                        )
+
+                    OverHour.objects.create(
+                        serviceId=post,
+                        empId=post.empId,
+                        empName=post.empName,
+                        overHourTitle=post.serviceTitle,
+                        overHourStartDate=min_date,
+                        overHourEndDate=max_date,
+                        overHour=overhour,
+                        overHourCost=overhourcost,
+                        foodCost=foodcosts,
+                        extraPayId=extrapay,
+                    )
+
+                # 위치 정보 수정
+                post = Geolocation.objects.get(serviceId=serviceId)
+                post.beginLatitude = float(form.clean()['beginLatitude'])
+                post.beginLongitude = float(form.clean()['beginLongitude'])
+                post.startLatitude = float(form.clean()['startLatitude'])
+                post.startLongitude = float(form.clean()['startLongitude'])
+                post.endLatitude = float(form.clean()['endLatitude'])
+                post.endLongitude = float(form.clean()['endLongitude'])
+                post.finishLatitude = float(form.clean()['finishLatitude'])
+                post.finishLongitude = float(form.clean()['finishLongitude'])
+
+                # 거리, 경로, 길찾기 결과코드
+                latlngs = [
+                    [post.beginLatitude, post.beginLongitude],
+                    [post.startLatitude, post.startLongitude],
+                    [post.endLatitude, post.endLongitude],
+                    [post.finishLatitude, post.finishLongitude],
+                ]
+                distance, path, distanceCode, tollMoney = naver_distance(latlngs)
+                post.distance = distance
+                post.path = path
+                post.tollMoney = tollMoney
+                post.distanceCode = distanceCode
+
+                # 거리 계산 비율
+                beginAlias, beginRegion = reverse_geo(post.beginLatitude, post.beginLongitude)
+                startAlias, startRegion = reverse_geo(post.startLatitude, post.startLongitude)
+                endAlias, endRegion = reverse_geo(post.endLatitude, post.endLongitude)
+                finishAlias, finishRegion = reverse_geo(post.finishLatitude, post.finishLongitude)
+                if beginAlias not in ['서울', '경기'] or startAlias not in ['서울', '경기'] or \
+                        endAlias not in ['서울', '경기'] or finishAlias not in ['서울', '경기']:
+                    post.distanceRatio = 1.0
+
+                # 출발, 시작, 종료, 도착 위치
+                if distanceCode == 0:
+                    post.beginLocation = beginRegion
+                    post.startLocation = startRegion
+                    post.endLocation = endRegion
+                    post.finishLocation = finishRegion
+
+                post.save()
+
+                return redirect('service:viewservice', serviceId)
+        else:
+            form = AdminServiceForm(instance=serviceInstance)
+            form.fields['begindate'].initial = str(serviceInstance.serviceBeginDatetime)[:10]
+            form.fields['begintime'].initial = str(serviceInstance.serviceBeginDatetime)[11:16]
+            form.fields['startdate'].initial = str(serviceInstance.serviceStartDatetime)[:10]
+            form.fields['starttime'].initial = str(serviceInstance.serviceStartDatetime)[11:16]
+            form.fields['enddate'].initial = str(serviceInstance.serviceEndDatetime)[:10]
+            form.fields['endtime'].initial = str(serviceInstance.serviceEndDatetime)[11:16]
+            form.fields['finishdate'].initial = str(serviceInstance.serviceFinishDatetime)[:10]
+            form.fields['finishtime'].initial = str(serviceInstance.serviceFinishDatetime)[11:16]
+            form.fields['beginLatitude'].initial = str(geoInstance.beginLatitude)
+            form.fields['beginLongitude'].initial = str(geoInstance.beginLongitude)
+            form.fields['startLatitude'].initial = str(geoInstance.startLatitude)
+            form.fields['startLongitude'].initial = str(geoInstance.startLongitude)
+            form.fields['endLatitude'].initial = str(geoInstance.endLatitude)
+            form.fields['endLongitude'].initial = str(geoInstance.endLongitude)
+            form.fields['finishLatitude'].initial = str(geoInstance.finishLatitude)
+            form.fields['finishLongitude'].initial = str(geoInstance.finishLongitude)
+
+            # 계약명 자동완성
+            contractList = Contract.objects.filter(
+                Q(endCompanyName__isnull=False)
+                # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+            )
+            contracts = []
+            for contract in contractList:
+                temp = {
+                    'id': contract.pk,
+                    'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
+                             str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
+                             str(contract.contractEndDate)[2:].replace('-', '.') + ')',
+                    'company': contract.endCompanyName.pk
+                }
+                contracts.append(temp)
+
+            if Servicereport.objects.get(serviceId=serviceId).contractId:
+                contractId = Servicereport.objects.get(serviceId=serviceId).contractId.contractId
+            else:
+                contractId = ''
+
+            # 고객사명 자동완성
+            companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
+            companyNames = []
+            for company in companyList:
+                temp = {'id': company.pk, 'value': company.pk}
+                companyNames.append(temp)
+
+            # 동행자 자동완성
+            empList = Employee.objects.filter(Q(empStatus='Y'))
+            empNames = []
+            for emp in empList:
+                temp = {'id': emp.empId, 'value': emp.empName}
+                empNames.append(temp)
+
+            context = {
+                'form': form,
+                'service': serviceInstance,
+                'contracts': contracts,
+                'companyNames': companyNames,
+                'empNames': empNames,
+                'contractId': contractId,
+                'companyName': serviceInstance.companyName,
+                'coWorkers': serviceInstance.coWorker,
+            }
+            return render(request, 'service/adminservice.html', context)

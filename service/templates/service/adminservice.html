@@ -1,0 +1,348 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  일정관리
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">
+            [No.{{ service.serviceId }}]
+            {{ service.empId.empName }} {{ service.empId.empPosition.positionName }}
+            ({{ service.serviceStatus }})
+          </h6>
+        </div>
+
+        <div class="card-body">
+          <form id="ServicereportForm" method="POST">
+            {% csrf_token %}
+            <div class="form-group row">
+              <div class="col-12">
+                <label for="contracts" class="font-weight-bold text-secondary"> 계약명 </label> {{ form.contracts }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-6">
+                <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
+              </div>
+              <div class="col-6">
+                <label for="serviceType" class="font-weight-bold text-primary"> 일정 구분 </label> {{ form.serviceType }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-3">
+                <label for="begindate" class="font-weight-bold text-primary"> 출발 일자 </label> {{ form.begindate }}
+              </div>
+              <div class="col-3">
+                <label for="begintime" class="font-weight-bold text-primary"> 출발 시간 </label> {{ form.begintime }}
+              </div>
+              <div class="col-3">
+                <label for="beginLatitude" class="font-weight-bold text-primary"> 출발 위도 </label> {{ form.beginLatitude }}
+              </div>
+              <div class="col-3">
+                <label for="beginLongitude" class="font-weight-bold text-primary"> 출발 위도 </label> {{ form.beginLongitude }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-3">
+                <label for="startdate" class="font-weight-bold text-primary"> 시작 일자 </label> {{ form.startdate }}
+              </div>
+              <div class="col-3">
+                <label for="starttime" class="font-weight-bold text-primary"> 시작 시간 </label> {{ form.starttime }}
+              </div>
+              <div class="col-3">
+                <label for="startLatitude" class="font-weight-bold text-primary"> 시작 위도 </label> {{ form.startLatitude }}
+              </div>
+              <div class="col-3">
+                <label for="startLongitude" class="font-weight-bold text-primary"> 시작 위도 </label> {{ form.startLongitude }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-3">
+                <label for="enddate" class="font-weight-bold text-primary"> 종료 일자 </label> {{ form.enddate }}
+              </div>
+              <div class="col-3">
+                <label for="endtime" class="font-weight-bold text-primary"> 종료 시간 </label> {{ form.endtime }}
+              </div>
+              <div class="col-3">
+                <label for="endLatitude" class="font-weight-bold text-primary"> 종료 위도 </label> {{ form.endLatitude }}
+              </div>
+              <div class="col-3">
+                <label for="endLongitude" class="font-weight-bold text-primary"> 종료 위도 </label> {{ form.endLongitude }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-3">
+                <label for="finishdate" class="font-weight-bold text-primary"> 도착 일자 </label> {{ form.finishdate }}
+              </div>
+              <div class="col-3">
+                <label for="finishtime" class="font-weight-bold text-primary"> 도착 시간 </label> {{ form.finishtime }}
+              </div>
+              <div class="col-3">
+                <label for="finishLatitude" class="font-weight-bold text-primary"> 종료 위도 </label> {{ form.finishLatitude }}
+              </div>
+              <div class="col-3">
+                <label for="finishLongitude" class="font-weight-bold text-primary"> 종료 위도 </label> {{ form.finishLongitude }}
+              </div>
+            </div>
+            {% if form.serviceTitle.value == None %} <!-- 일정 등록 화면과 일정 수정 화면 구분 -->
+              <div class="form-group row">
+                <div class="col-sm-6 text-center">
+                  <div class="form-group row">
+                    <div class="col-6 text-center">
+                      <input type="radio" id="for1" name="for" value="for_n" checked/>
+                      <label for="for1"> 기본등록 </label>
+                    </div>
+                    <div class="col-6 text-center">
+                      <input type="radio" id="for2" name="for" value="for_my"/>
+                      <label for="for2"> 매월반복 </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-6 text-center">
+                  <div class="form-group row">
+                    <div class="col-6 text-center">
+                      <input type="radio" id="for3" name="for" value="for_hn"/>
+                      <label for="for3"> 기간(휴일제외) </label>
+                    </div>
+                    <div class="col-6 text-center">
+                      <input type="radio" id="for4" name="for" value="for_hy"/>
+                      <label for="for4"> 기간(휴일포함) </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+            <div class="form-group row">
+              <div class="col-6">
+                <label for="serviceLocation" class="font-weight-bold text-primary"> 지역 구분 </label> {{ form.serviceLocation }}
+              </div>
+              <div class="col-6">
+                <label for="directgo" class="font-weight-bold text-primary"> 직출 여부 </label> {{ form.directgo }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="coWorkers" class="font-weight-bold text-primary"> 동행자 <span class="text-danger">(초과근무 시 필수 작성)</span> </label> {{ form.coWorkers }}
+            </div>
+            <div class="form-group">
+              <label for="serviceTitle" class="font-weight-bold text-primary"> 제목 </label> {{ form.serviceTitle }}
+            </div>
+            <div class="form-group">
+              <label for="serviceDetails" class="font-weight-bold text-primary"> 내용 </label> {{ form.serviceDetails }}
+            </div>
+
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+            </div>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function showVal(newVal) {
+          $('#enddate').val(newVal);
+      }
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              history.back();
+          } else {
+              return false;
+          }
+      }
+
+      function btn_save() {
+          const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g, '/') +
+              ' ' + document.getElementById("starttime").value);
+          const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g, '/') +
+              ' ' + document.getElementById("endtime").value);
+          const diff = ((serviceEndDatetime - serviceStartDatetime) / 3600000).toFixed(1);
+
+          let Form = document.getElementById("ServicereportForm");
+          const coWorkers = document.getElementById('coWorkers').getAttribute('data-id');
+          let coWorkerInput = document.createElement("input");
+          coWorkerInput.setAttribute("type", "hidden");
+          coWorkerInput.setAttribute("name", "coWorkerId");
+          coWorkerInput.setAttribute("value", coWorkers);
+          Form.appendChild(coWorkerInput);
+
+          const contracts = document.getElementById('contracts').getAttribute('data-id');
+          let contractInput = document.createElement("input");
+          contractInput.setAttribute("type", "hidden");
+          contractInput.setAttribute("name", "contractId");
+          contractInput.setAttribute("value", contracts);
+          Form.appendChild(contractInput);
+
+          if (document.getElementById("companyName").value === '') {
+              alert("고객사 명을 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("serviceType").value === '') {
+              alert("일정 구분을 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("serviceTitle").value === '') {
+              alert("제목을 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("serviceDetails").value === '') {
+              alert("내용을 입력해주세요.");
+              return false;
+          }
+          if (diff < 0) {
+              alert("시작일시가 종료일시보다 느립니다. 확인해주세요.");
+              return false;
+          }
+          if (diff > 12) {
+              if (confirm("일정이 12시간 이상입니다.\n반복 일정은 반복 등록 기능을 사용해주세요.\n일정 등록 하시겠습니까?") === true) {
+                  Form.submit();
+              }
+          } else if (confirm("일정 등록 하시겠습니까?") === true) {
+              Form.submit();
+          }
+      }
+
+      function applyform(companyName, serviceType, serviceStartTime, serviceEndTime, serviceLocation, directgo, serviceTitle, serviceDetails) {
+          $('#companyName').val(companyName);
+          $('#serviceType').val(serviceType);
+          $('#starttime').val(serviceStartTime);
+          $('#endtime').val(serviceEndTime);
+          $('#serviceLocation').val(serviceLocation);
+          $('#directgo').val(directgo);
+          $('#serviceTitle').val(serviceTitle);
+          $('#serviceDetails').val(serviceDetails);
+          document.getElementById("companyName").style.backgroundColor = "#e8f0fe";
+          document.getElementById("serviceType").style.backgroundColor = "#e8f0fe";
+          document.getElementById("starttime").style.backgroundColor = "#e8f0fe";
+          document.getElementById("endtime").style.backgroundColor = "#e8f0fe";
+          document.getElementById("serviceLocation").style.backgroundColor = "#e8f0fe";
+          document.getElementById("directgo").style.backgroundColor = "#e8f0fe";
+          document.getElementById("serviceTitle").style.backgroundColor = "#e8f0fe";
+          document.getElementById("serviceDetails").style.backgroundColor = "#e8f0fe";
+      }
+
+      var value = "";
+
+      function magicsearchtab(input) {
+          value = $(input).attr('data-id');
+          $(input).blur(function () {
+              if (value !== "") {
+                  $(input).trigger('set', {id: value});
+              }
+          });
+      }
+
+      $(document).ready(function () {
+          const contracts = document.getElementById('contracts');
+
+          {% if contractId %}
+              contracts.setAttribute("data-id", "{{ contractId }}");
+          {% endif %}
+
+          $('#contracts').magicsearch({
+              dataSource: {{ contracts|safe }},
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              noResult: '검색결과없음',
+              focusShow: true,
+              maxShow: 100,
+              success: function ($input, data) {
+                  $('#companyName').trigger('set', {id: data.company});
+              }
+          });
+          contracts.removeAttribute("style");
+          contracts.parentElement.removeAttribute("style");
+
+          const companyName = document.getElementById('companyName');
+          {% if companyName %}
+              companyName.setAttribute("data-id", "{{ companyName }}");
+          {% endif %}
+
+          $('#companyName').magicsearch({
+              dataSource: {{ companyNames|safe }},
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              noResult: '검색결과없음',
+              focusShow: true,
+          });
+          companyName.removeAttribute("style");
+          companyName.parentElement.removeAttribute("style");
+
+          const coWorkers = document.getElementById('coWorkers');
+          {% if coWorkers %}
+              coWorkers.setAttribute("data-id", "{{ coWorkers }}");
+          {% endif %}
+
+          $('#coWorkers').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'value',
+              id: 'id',
+              multiple: true,
+              multiField: 'value',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: false,
+          });
+          coWorkers.removeAttribute("style");
+          coWorkers.parentElement.removeAttribute("style");
+
+          $('#companyName').on("propertychange change keyup paste input", function () {
+              document.getElementById("companyName").style.backgroundColor = "#fff";
+          });
+          $('#serviceType').on("propertychange change keyup paste input", function () {
+              document.getElementById("serviceType").style.backgroundColor = "#fff";
+          });
+          $('#starttime').on("propertychange change keyup paste input", function () {
+              document.getElementById("starttime").style.backgroundColor = "#fff";
+          });
+          $('#endtime').on("propertychange change keyup paste input", function () {
+              document.getElementById("endtime").style.backgroundColor = "#fff";
+          });
+          $('#serviceLocation').on("propertychange change keyup paste input", function () {
+              document.getElementById("serviceLocation").style.backgroundColor = "#fff";
+          });
+          $('#directgo').on("propertychange change keyup paste input", function () {
+              document.getElementById("directgo").style.backgroundColor = "#fff";
+          });
+          $('#serviceTitle').on("propertychange change keyup paste input", function () {
+              document.getElementById("serviceTitle").style.backgroundColor = "#fff";
+          });
+          $('#serviceDetails').on("propertychange change keyup paste input", function () {
+              document.getElementById("serviceDetails").style.backgroundColor = "#fff";
+          });
+      });
+
+  </script>
+
+{% endblock %}

@@ -55,6 +55,11 @@
     <div id="serviceReport" class="col-xl-8 d-none" style="z-index: 2">
       <div class="text-right mb-3" style="min-width: 1000px">
         {% if service.empId.empId == user.employee.empId %}
+              {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
+               <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+                  <i class="fas fa-file-signature text-gray-100"></i>
+                </a>
+              {% endif %}
           <a href="#" class="btn btn-info" style="width: 50px; height: 42px;" onclick="location.href='/mail/{{ service.serviceId }}'">
             <i class="fas fa-envelope text-gray-100" style="font-size: 1.5em;"></i>
           </a>
@@ -223,6 +228,11 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
+            {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
+             <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+                <i class="fas fa-file-signature text-gray-100"></i>
+              </a>
+            {% endif %}
             {% if service.empId.empId == user.employee.empId %}
             <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
               <i class="fas fa-envelope text-gray-100"></i>
@@ -269,12 +279,12 @@
             </tr>
             <tr>
               <td class="text-center"><b>시작일시</b></td>
-              <td>{{ service.serviceBeginDatetime | date:"Y. m. d(D" | slice:"0:14" }})
+              <td>{{ service.serviceStartDatetime | date:"Y. m. d(D" | slice:"0:14" }})
                 {{ service.serviceStartDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
               <td class="text-center"><b>종료일시</b></td>
-              <td>{{ service.serviceFinishDatetime | date:"Y. m. d(D" | slice:"0:14" }})
+              <td>{{ service.serviceEndDatetime | date:"Y. m. d(D" | slice:"0:14" }})
                 {{ service.serviceEndDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
@@ -312,10 +322,12 @@
                 <span class="text text-white">게시글 보기</span>
               </a>
             {% endif %}
-            <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-              <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-              <span class="text p-2"> 계약명 수정 </span>
-            </a>
+            {% if service.empId == user.employee %}
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+                <span class="text p-2"> 계약명 수정 </span>
+              </a>
+            {% endif %}
           </div>
 
         </div>
