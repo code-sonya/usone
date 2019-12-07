@@ -1201,10 +1201,13 @@ def post_contract_document(request, contractId, documentType):
         tempStr = ''
         if tempClass['1']:
             for t in tempClass['1']:
-                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
-                    <td>''' + t.companyName.companyNameKo + '''</td>
-                    <td>''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                tempStr += '''<tr style="height: 25px;">
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.companyName.companyNameKo + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
                     </tr>'''
         contentHtml = contentHtml.replace('<tr><td colspan="3">상품HW테이블자동입력</td></tr>', tempStr)
         contentHtml = contentHtml.replace('상품HW합계자동입력', format(tempClass['sum_1'], ','))
@@ -1212,10 +1215,13 @@ def post_contract_document(request, contractId, documentType):
         tempStr = ''
         if tempClass['2']:
             for t in tempClass['2']:
-                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
-                    <td>''' + t.companyName.companyNameKo + '''</td>
-                    <td>''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                tempStr += '''<tr style="height: 25px;">
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.companyName.companyNameKo + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
                     </tr>'''
         contentHtml = contentHtml.replace('<tr><td colspan="3">상품SW테이블자동입력</td></tr>', tempStr)
         contentHtml = contentHtml.replace('상품SW합계자동입력', format(tempClass['sum_2'], ','))
@@ -1223,10 +1229,13 @@ def post_contract_document(request, contractId, documentType):
         tempStr = ''
         if tempClass['3']:
             for t in tempClass['3']:
-                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
-                    <td>''' + t.companyName.companyNameKo + '''</td>
-                    <td>''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                tempStr += '''<tr style="height: 25px;">
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.companyName.companyNameKo + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
                     </tr>'''
         contentHtml = contentHtml.replace('<tr><td colspan="3">유지보수HW테이블자동입력</td></tr>', tempStr)
         contentHtml = contentHtml.replace('유지보수HW합계자동입력', format(tempClass['sum_3'], ','))
@@ -1234,10 +1243,13 @@ def post_contract_document(request, contractId, documentType):
         tempStr = ''
         if tempClass['4']:
             for t in tempClass['4']:
-                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
-                    <td>''' + t.companyName.companyNameKo + '''</td>
-                    <td>''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                tempStr += '''<tr style="height: 25px;">
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.companyName.companyNameKo + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
                     </tr>'''
         contentHtml = contentHtml.replace('<tr><td colspan="3">유지보수SW테이블자동입력</td></tr>', tempStr)
         contentHtml = contentHtml.replace('유지보수SW합계자동입력', format(tempClass['sum_4'], ','))
@@ -1245,12 +1257,17 @@ def post_contract_document(request, contractId, documentType):
         tempStr = ''
         if tempClass['5']:
             for t in tempClass['5']:
-                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
-                    <td>''' + t.classification + '''</td>
-                    <td>''' + str(t.times) + '''</td>
-                    <td>''' + str(t.sites) + '''</td>
-                    <td>''' + format(t.units, ',') + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                tempStr += '''<tr style="height: 25px;">
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.classification + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + str(t.times) + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + str(t.sites) + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + format(t.units, ',') + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
                     </tr>'''
         contentHtml = contentHtml.replace('<tr><td colspan="5">인력지원자사자동입력</td></tr>', tempStr)
         contentHtml = contentHtml.replace('인력지원자사합계자동입력', format(tempClass['sum_5'], ','))
@@ -1258,10 +1275,13 @@ def post_contract_document(request, contractId, documentType):
         tempStr = ''
         if tempClass['6']:
             for t in tempClass['6']:
-                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
-                    <td>''' + t.classification + '''</td>
-                    <td>''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                tempStr += '''<tr style="height: 25px;">
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.classification + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
                     </tr>'''
         contentHtml = contentHtml.replace('<tr><td colspan="3">인력지원타사자동입력</td></tr>', tempStr)
         contentHtml = contentHtml.replace('인력지원타사합계자동입력', format(tempClass['sum_6'], ','))
@@ -1273,10 +1293,13 @@ def post_contract_document(request, contractId, documentType):
                     contractDate = str(t.contractStartDate) + ' ~ ' + str(t.contractEndDate)
                 else:
                     contractDate = ''
-                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
-                    <td>''' + t.contractNo + '''</td>
-                    <td>''' + contractDate + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
+                tempStr += '''<tr style="height: 25px;">
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.contractNo + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + contractDate + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
                     </tr>'''
         contentHtml = contentHtml.replace('<tr><td colspan="3">DBCOSTS테이블자동입력</td></tr>', tempStr)
         contentHtml = contentHtml.replace('DBCOSTS합계자동입력', format(tempClass['sum_7'], ','))
@@ -1284,11 +1307,14 @@ def post_contract_document(request, contractId, documentType):
         tempStr = ''
         if tempClass['8']:
             for t in tempClass['8']:
-                tempStr += '''<tr class="thtd" style="height: 25px; font-size: 11px;">
-                            <td>''' + t.classification + '''</td>
-                            <td>''' + t.contents + '''</td>
-                            <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + format(t.price, ',') + '''</td>
-                            </tr>'''
+                tempStr += '''<tr style="height: 25px;">
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.classification + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+                    ''' + t.contents + '''</td>
+                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
+                    </tr>'''
         contentHtml = contentHtml.replace('<tr><td colspan="3">기타테이블자동입력</td></tr>', tempStr)
         contentHtml = contentHtml.replace('기타합계자동입력', format(tempClass['sum_8'], ','))
 
@@ -1396,7 +1422,7 @@ def post_contract_document(request, contractId, documentType):
             tempStr += '<tr><td><table width="100%">'
             # 구분, 업체명, 날짜
             tempStr += '''
-              <tr class="thtd" style="height: 25px; font-size: 11px;">
+              <tr style="height: 25px; font-size: 11px;">
                 <td style="background-color: #ebfaff;" width="6%">구분</td>
                 <td style="background-color: #ebfaff;" width="16%">업체명</td>
             '''
@@ -1412,7 +1438,7 @@ def post_contract_document(request, contractId, documentType):
             for billing in rBillingSchedule:
                 if billing['list'] == year:
                     tempStr += '''
-              <tr class="thtd" style="height: 25px; font-size: 11px;">
+              <tr style="height: 25px; font-size: 11px;">
                 <td>매출</td>
                 <td>''' + billing['name'] + '''</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
@@ -1435,7 +1461,7 @@ def post_contract_document(request, contractId, documentType):
             for sumBilling in sumrBillingSchedule:
                 if sumBilling['list'] == year:
                     tempStr += '''
-              <tr class="thtd" style="height: 25px; font-size: 11px;">
+              <tr style="height: 25px; font-size: 11px;">
                 <td colspan="2" style="background-color: gainsboro">TOTAL</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['1']) + '''</td>
@@ -1469,7 +1495,7 @@ def post_contract_document(request, contractId, documentType):
             for billing in pBillingSchedule:
                 if billing['list'] == year:
                     tempStr += '''
-              <tr class="thtd" style="height: 25px; font-size: 11px;">
+              <tr style="height: 25px; font-size: 11px;">
                 <td>매입</td>
                 <td>''' + billing['name'] + '''</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
@@ -1492,7 +1518,7 @@ def post_contract_document(request, contractId, documentType):
             for sumBilling in sumpBillingSchedule:
                 if sumBilling['list'] == year:
                     tempStr += '''
-              <tr class="thtd" style="height: 25px; font-size: 11px; margin-bottom: 5px">
+              <tr style="height: 25px; font-size: 11px; margin-bottom: 5px">
                 <td colspan="2"style="background-color: gainsboro">TOTAL</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['1']) + '''</td>
