@@ -1061,7 +1061,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="confirmForm" action="/sales/viewconfirmpdf/{{ contract.contractId }}/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_confirm();}">
+          <form id="confirmForm" action="/sales/viewconfirmpdf/{{ contract.contractId }}/" method="POST">
             {% csrf_token %}
             <div class="row mb-1">
                <div class="col-6">
@@ -1716,8 +1716,6 @@
           } else if (documentType === '수주통보서') {
               if (contractPaper === 0) {
                   alert('계약서를 업로드해주세요.')
-              } else if (orderPaper === 0) {
-                  alert('수주통보서를 업로드해주세요.')
               } else {
                   window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
               }

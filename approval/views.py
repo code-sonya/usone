@@ -314,6 +314,17 @@ def modify_document(request, documentId):
                     approvalStep=a['approvalStep'],
                     approvalCategory=a['approvalCategory'],
                 )
+
+        whoApproval = who_approval(document.documentId)
+        if len(whoApproval['do']) == 0:
+            document.documentStatus = '완료'
+            document.save()
+            return redirect("approval:showdocumentendall")
+        else:
+            for empId in whoApproval['do']:
+                employee = Employee.objects.get(empId=empId)
+                mail_approval(employee, document)
+
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
         else:
