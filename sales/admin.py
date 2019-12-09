@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, Contractfile, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped
+from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, Contractfile,\
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchasecategory
 
 
 @admin.register(Contract)
@@ -79,6 +80,13 @@ class ContractfileAdmin(admin.ModelAdmin):
     list_display_links = ['fileId', 'fileCategory', 'fileName', 'fileSize']
 
 
+@admin.register(Purchasefile)
+class PurchasefileAdmin(admin.ModelAdmin):
+    list_display = ('fileId', 'fileCategory', 'fileName', 'purchaseCompany')
+    list_filter = ('fileId', 'fileCategory', 'fileName', 'purchaseCompany')
+    list_display_links = ['fileId', 'fileCategory', 'fileName', 'purchaseCompany']
+
+
 @admin.register(Purchasetypea)
 class PurchasetypeaAdmin(admin.ModelAdmin):
     list_display = ('typeId', 'contractId', 'companyName', 'contents', 'price', 'classNumber')
@@ -105,3 +113,10 @@ class PurchasetypedAdmin(admin.ModelAdmin):
     list_display = ('typeId', 'contractId', 'contractNo', 'contractStartDate', 'contractEndDate', 'price', 'classNumber')
     list_filter = ('contractId', 'classNumber')
     list_display_links = ['typeId', 'contractId', 'contractNo', 'contractStartDate', 'contractEndDate', 'price', 'classNumber']
+
+
+@admin.register(Purchasecategory)
+class PurchasecategoryAdmin(admin.ModelAdmin):
+    list_display = ('categoryId', 'purchaseType', 'categoryName', 'orderNumber')
+    list_filter = ('purchaseType',)
+    list_display_links = ['categoryId', 'purchaseType', 'categoryName', 'orderNumber']

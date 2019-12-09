@@ -22,8 +22,6 @@ class Contract(models.Model):
     saleCompanyName = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='saleCompanyName')
     saleCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleCustomerId', null=True, blank=True)
     saleCustomerName = models.CharField(max_length=10, null=True, blank=True)
-    saleCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleCustomerId', null=True, blank=True)
-    saleCustomerName = models.CharField(max_length=10, null=True, blank=True)
     saleTaxCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleTaxCustomerId', null=True, blank=True)
     saleTaxCustomerName = models.CharField(max_length=10, null=True, blank=True)
     endCompanyName = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='endCompanyName', null=True, blank=True)
@@ -226,6 +224,18 @@ class Contractfile(models.Model):
     file = models.FileField(upload_to="contract/%Y_%m")
 
 
+class Purchasefile(models.Model):
+    fileId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    purchaseCompany = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
+    fileCategory = models.CharField(max_length=100)
+    fileName = models.CharField(max_length=200)
+    fileSize = models.FloatField()
+    uploadEmp = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    uploadDatetime = models.DateTimeField(null=True, blank=True)
+    file = models.FileField(upload_to="contract/%Y_%m")
+
+
 class Purchasetypea(models.Model):
     classNumberChoices = ((1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9))
     typeId = models.AutoField(primary_key=True)
@@ -287,3 +297,13 @@ class Purchasetyped(models.Model):
 
     def __str__(self):
         return '{} {}'.format(self.contractNo, self.contractId)
+
+
+class Purchasecategory(models.Model):
+    categoryId = models.AutoField(primary_key=True)
+    purchaseType = models.CharField(max_length=50)
+    categoryName = models.CharField(max_length=50)
+    orderNumber = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.categoryId) + ' ' + self.purchaseType + ' ' + self.categoryName
