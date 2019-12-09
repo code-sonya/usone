@@ -703,7 +703,7 @@ def modify_contract(request, contractId):
         costs = Cost.objects.filter(contractId=contractId)
         saleCompanyNames = Contract.objects.get(contractId=contractId).saleCompanyName
         endCompanyNames = Contract.objects.get(contractId=contractId).endCompanyName
-        contractPaper = str(form.save(commit=False).contractPaper).split('/')[-1]
+        # contractPaper = str(form.save(commit=False).contractPaper).split('/')[-1]
         orderPaper = str(form.save(commit=False).orderPaper).split('/')[-1]
         goodsHWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=1))
         goodsSWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=2))
@@ -736,7 +736,7 @@ def modify_contract(request, contractId):
             'costs': costs,
             'saleCompanyNames': saleCompanyNames,
             'endCompanyNames': endCompanyNames,
-            'contractPaper': contractPaper,
+            # 'contractPaper': contractPaper,
             'orderPaper': orderPaper,
             'companyNames': companyNames,
             'empNames': empNames,
@@ -3161,83 +3161,90 @@ def view_ordernoti_pdf(request, contractId):
     purchases = context['purchases']
     revenues = context['revenues']
 
-    pMinYear = purchases.aggregate(Min('predictBillingDate__year'))
-    pMaxYear = purchases.aggregate(Max('predictBillingDate__year'))
-    rMinYear = revenues.aggregate(Min('predictBillingDate__year'))
-    rMaxYear = revenues.aggregate(Max('predictBillingDate__year'))
-    if pMinYear['predictBillingDate__year__min'] < rMinYear['predictBillingDate__year__min']:
-        minYear = pMinYear
-    else:
-        minYear = rMinYear
-    if pMaxYear['predictBillingDate__year__max'] > rMaxYear['predictBillingDate__year__max']:
-        maxYear = pMaxYear
-    else:
-        maxYear = rMaxYear
+    if len(purchases) > 0 or len(revenues) > 0:
+        if len(purchases) == 0:
+            pMinYear = {'predictBillingDate__year__min': date(2999, 12, 31)}
+            pMaxYear = {'predictBillingDate__year__max': date(1999, 12, 31)}
+        else:
+            pMinYear = purchases.aggregate(Min('predictBillingDate__year'))
+            pMaxYear = purchases.aggregate(Max('predictBillingDate__year'))
+        if len(revenues) == 0:
+            rMinYear = {'predictBillingDate__year__min': date(2999, 12, 31)}
+            rMaxYear = {'predictBillingDate__year__max': date(1999, 12, 31)}
+        else:
+            rMinYear = revenues.aggregate(Min('predictBillingDate__year'))
+            rMaxYear = revenues.aggregate(Max('predictBillingDate__year'))
 
-    delta = relativedelta(years=+1)
-    yearList = []
-    y = minYear['predictBillingDate__year__min']
-    while y <= maxYear['predictBillingDate__year__max']:
-        yearList.append(y)
-        y += delta
-    monthList = []
-    for y in yearList:
-        dateList = []
-        for d in range(1, 13):
-            dateList.append('{}-{}'.format(y.year, str(d).zfill(2)))
-        monthList.append(dateList)
-    context['yearList'] = monthList
+        if pMinYear['predictBillingDate__year__min'] < rMinYear['predictBillingDate__year__min']:
+            minYear = pMinYear
+        else:
+            minYear = rMinYear
+        if pMaxYear['predictBillingDate__year__max'] > rMaxYear['predictBillingDate__year__max']:
+            maxYear = pMaxYear
+        else:
+            maxYear = rMaxYear
 
-    # billingSchedule
-    groupPurchases = purchases.values('predictBillingDate__year', 'predictBillingDate__month', 'purchaseCompany').annotate(price=Sum('purchasePrice'))
-    groupRevenues = revenues.values('predictBillingDate__year', 'predictBillingDate__month', 'revenueCompany').annotate(price=Sum('revenuePrice'))
-    groupMonthPurchases = purchases.values('predictBillingDate__year', 'predictBillingDate__month').annotate(price=Sum('purchasePrice'))
-    groupMonthRevenues = revenues.values('predictBillingDate__year', 'predictBillingDate__month').annotate(price=Sum('revenuePrice'))
-    companyPurchases = purchases.values_list('purchaseCompany__companyName', flat=True).distinct()
-    companyRevenues = revenues.values_list('revenueCompany__companyName', flat=True).distinct()
+        delta = relativedelta(years=+1)
+        yearList = []
+        y = minYear['predictBillingDate__year__min']
+        while y <= maxYear['predictBillingDate__year__max']:
+            yearList.append(y)
+            y += delta
+        monthList = []
+        for y in yearList:
+            dateList = []
+            for d in range(1, 13):
+                dateList.append('{}-{}'.format(y.year, str(d).zfill(2)))
+            monthList.append(dateList)
+        context['yearList'] = monthList
 
-    pBillingSchedule = []
-    sumpBillingSchedule = []
-    rBillingSchedule = []
-    sumrBillingSchedule = []
-    for month in monthList:
-        sumrBillingSchedule.append(
-            {'list': month, 'year': month[0][:4], 'name': 'sum', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
-        sumpBillingSchedule.append(
-            {'list': month, 'year': month[0][:4], 'name': 'sum', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
-        for c in list(set(companyPurchases)):
-            pBillingSchedule.append({'list':month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
-        for c in list(set(companyRevenues)):
-            rBillingSchedule.append({'list':month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
-    # 매입
-    for group in groupPurchases:
-        for schedule in pBillingSchedule:
-            if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['purchaseCompany']:
-                schedule[str(group['predictBillingDate__month'])] = group['price']
-                schedule['sum'] += group['price']
-    for groupMonth in groupMonthPurchases:
-        for sumBilling in sumpBillingSchedule:
-            if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
-                sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
-                sumBilling['sum'] += groupMonth['price']
-    # 매출
-    for group in groupRevenues:
-        for schedule in rBillingSchedule:
-            if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['revenueCompany']:
-                schedule[str(group['predictBillingDate__month'])] = group['price']
-                schedule['sum'] += group['price']
-    for groupMonth in groupMonthRevenues:
-        for sumBilling in sumrBillingSchedule:
-            if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
-                sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
-                sumBilling['sum'] += groupMonth['price']
-    context['pBillingSchedule'] = pBillingSchedule
-    context['sumpBillingSchedule'] = sumpBillingSchedule
-    context['rBillingSchedule'] = rBillingSchedule
-    context['sumrBillingSchedule'] = sumrBillingSchedule
-    print(rBillingSchedule)
-    print(pBillingSchedule)
-    # print(sumpBillingSchedule, sumrBillingSchedule)
+        # billingSchedule
+        groupPurchases = purchases.values('predictBillingDate__year', 'predictBillingDate__month', 'purchaseCompany').annotate(price=Sum('purchasePrice'))
+        groupRevenues = revenues.values('predictBillingDate__year', 'predictBillingDate__month', 'revenueCompany').annotate(price=Sum('revenuePrice'))
+        groupMonthPurchases = purchases.values('predictBillingDate__year', 'predictBillingDate__month').annotate(price=Sum('purchasePrice'))
+        groupMonthRevenues = revenues.values('predictBillingDate__year', 'predictBillingDate__month').annotate(price=Sum('revenuePrice'))
+        companyPurchases = purchases.values_list('purchaseCompany__companyName', flat=True).distinct()
+        companyRevenues = revenues.values_list('revenueCompany__companyName', flat=True).distinct()
+
+        pBillingSchedule = []
+        sumpBillingSchedule = []
+        rBillingSchedule = []
+        sumrBillingSchedule = []
+        for month in monthList:
+            sumrBillingSchedule.append(
+                {'list': month, 'year': month[0][:4], 'name': 'sum', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
+            sumpBillingSchedule.append(
+                {'list': month, 'year': month[0][:4], 'name': 'sum', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
+            for c in list(set(companyPurchases)):
+                pBillingSchedule.append({'list':month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
+            for c in list(set(companyRevenues)):
+                rBillingSchedule.append({'list':month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
+        # 매입
+        for group in groupPurchases:
+            for schedule in pBillingSchedule:
+                if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['purchaseCompany']:
+                    schedule[str(group['predictBillingDate__month'])] = group['price']
+                    schedule['sum'] += group['price']
+        for groupMonth in groupMonthPurchases:
+            for sumBilling in sumpBillingSchedule:
+                if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
+                    sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
+                    sumBilling['sum'] += groupMonth['price']
+        # 매출
+        for group in groupRevenues:
+            for schedule in rBillingSchedule:
+                if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['revenueCompany']:
+                    schedule[str(group['predictBillingDate__month'])] = group['price']
+                    schedule['sum'] += group['price']
+        for groupMonth in groupMonthRevenues:
+            for sumBilling in sumrBillingSchedule:
+                if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
+                    sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
+                    sumBilling['sum'] += groupMonth['price']
+        context['pBillingSchedule'] = pBillingSchedule
+        context['sumpBillingSchedule'] = sumpBillingSchedule
+        context['rBillingSchedule'] = rBillingSchedule
+        context['sumrBillingSchedule'] = sumrBillingSchedule
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="{}_수주통보서.pdf"'.format(contractId)

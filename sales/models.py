@@ -22,8 +22,6 @@ class Contract(models.Model):
     saleCompanyName = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='saleCompanyName')
     saleCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleCustomerId', null=True, blank=True)
     saleCustomerName = models.CharField(max_length=10, null=True, blank=True)
-    saleCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleCustomerId', null=True, blank=True)
-    saleCustomerName = models.CharField(max_length=10, null=True, blank=True)
     saleTaxCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleTaxCustomerId', null=True, blank=True)
     saleTaxCustomerName = models.CharField(max_length=10, null=True, blank=True)
     endCompanyName = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='endCompanyName', null=True, blank=True)
