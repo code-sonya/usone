@@ -9,7 +9,7 @@ from .models import Contract, Goal, Purchase
 class ContractForm(forms.ModelForm):
     saleCompanyNames = forms.CharField(
         max_length=200, required=False, widget=forms.TextInput(attrs={
-            'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(saleCompanyNames)'}
+            'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(saleCompanyNames)', 'onchange': "typeChange()"}
         )
     )
     endCompanyNames = forms.CharField(

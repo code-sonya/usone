@@ -1427,11 +1427,11 @@
       function typeChange() {
           const saleType = $("#saleType").val();
           const saleCompanyNames = $("#saleCompanyNames").attr('data-id');
-          console.log(saleCompanyNames);
-          console.log(saleType);
+          const endCompanyNames = $('#endCompanyNames');
           if(saleType == '직판'){
-              const endCompanyNames = $('#endCompanyNames');
               endCompanyNames.trigger('set',{id: saleCompanyNames});
+          }else{
+              endCompanyNames.trigger('clear');
           }
       }
 
@@ -1461,8 +1461,8 @@
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
                           const saleType = $("#saleType").val();
+                          const endCompanyNames = $('#endCompanyNames');
                           if(saleType == '직판'){
-                              const endCompanyNames = $('#endCompanyNames');
                               endCompanyNames.trigger('set',{id: data.id});
                           }
                           var salecompany = returnData;
