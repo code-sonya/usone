@@ -35,7 +35,7 @@ class ContractForm(forms.ModelForm):
             'empId': forms.Select(attrs={'class': 'form-control', 'id': 'empId'}),
             'saleCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleCustomerId'}),
             'saleTaxCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleTaxCustomerId'}),
-            'saleType': forms.Select(attrs={'class': 'form-control', 'id': "saleType"}),
+            'saleType': forms.Select(attrs={'class': 'form-control', 'id': "saleType", 'onchange': "typeChange()"}),
             'saleIndustry': forms.Select(attrs={'class': 'form-control', 'id': "saleIndustry"}),
             'salePrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'salePrice'}),
             'profitPrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profitPrice'}),

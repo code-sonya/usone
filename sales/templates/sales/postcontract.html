@@ -700,7 +700,11 @@
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
                           var salecompany = returnData;
-                          console.log(salecompany);
+                          const saleType = $("#saleType").val();
+                          if(saleType == '직판'){
+                              const endCompanyNames = $('#endCompanyNames');
+                              endCompanyNames.trigger('set',{id: data.id});
+                          }
                           $('#saleCustomerId').empty();
                           $('#saleCustomerId').append('<option value="" selected="">---------</option>');
 
@@ -1427,6 +1431,18 @@
           $('#' + down).removeClass('d-none');
       }
 
+      function typeChange() {
+          const saleType = $("#saleType").val();
+          const saleCompanyNames = $("#saleCompanyNames").attr('data-id');
+          console.log(saleCompanyNames);
+          console.log(saleType);
+          if(saleType == '직판'){
+              const endCompanyNames = $('#endCompanyNames');
+              endCompanyNames.trigger('set',{id: saleCompanyNames});
+          }
+      }
+
+
       $(document).ready(function () {
 
           // 거래처 자동완성
@@ -1451,6 +1467,11 @@
                       data: {"saleCompanyName": data.id},
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
+                          const saleType = $("#saleType").val();
+                          if(saleType == '직판'){
+                              const endCompanyNames = $('#endCompanyNames');
+                              endCompanyNames.trigger('set',{id: data.id});
+                          }
                           var salecompany = returnData;
                           $('#saleCustomerId').empty();
                           $('#saleCustomerId').append('<option value="" selected="">---------</option>');
@@ -1473,8 +1494,8 @@
           saleCompanyNames.removeAttribute("style");
           saleCompanyNames.parentElement.removeAttribute("style");
 
-          // 최종고객사 자동완성
           const endCompanyNames = document.getElementById('endCompanyNames');
+          // 최종고객사 자동완성
           {% if endCompanyNames %}
               endCompanyNames.setAttribute("data-id", "{{ endCompanyNames }}");
           {% endif %}
