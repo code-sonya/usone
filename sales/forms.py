@@ -21,14 +21,13 @@ class ContractForm(forms.ModelForm):
     class Meta:
         model = Contract
         fields = (
-            'contractName', 'contractStep', 'empId', 'saleCompanyNames', 'saleCustomerId', 'saleTaxCustomerId', 'endCompanyNames',
+            'contractName', 'empId', 'saleCompanyNames', 'saleCustomerId', 'saleTaxCustomerId', 'endCompanyNames',
             'saleType', 'saleIndustry', 'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate',
             'depositCondition', 'depositConditionDay', 'contractPaper', 'modifyContractPaper', 'orderPaper', 'comment'
         )
 
         widgets = {
             'contractName': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractName'}),
-            'contractStep': forms.Select(attrs={'class': 'form-control', 'id': 'contractStep'}),
             'empId': forms.Select(attrs={'class': 'form-control', 'id': 'empId'}),
             'saleCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleCustomerId'}),
             'saleTaxCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleTaxCustomerId'}),

@@ -1026,6 +1026,7 @@ def post_contract_document(request, contractId, documentType):
         formTitle = '매출발행'
     elif documentType == '선발주':
         formTitle = '선발주품의서'
+
     # 문서 종류 선택
     formId = Documentform.objects.get(
         categoryId__firstCategory='영업',
@@ -1109,18 +1110,8 @@ def post_contract_document(request, contractId, documentType):
         confirmPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
     contentHtml = formId.formHtml
-    # 1. 매출견적서
-    if formTitle == '매출견적서':
-        contentHtml = contentHtml.replace('계약명자동입력', contractName)
-        contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
-        contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
-        contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
-        contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
-        contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
-        contentHtml = contentHtml.replace('매입견적서링크', purchaseEstimate)
-        contentHtml = contentHtml.replace('매출견적서링크', revenueEstimate)
 
-    # 2. 수주통보서
+    # 1. 수주통보서
     if formTitle == '수주통보서':
         # 계약 내용 요약
         contentHtml = contentHtml.replace('부서자동입력', contract.empDeptName)
@@ -1563,7 +1554,7 @@ def post_contract_document(request, contractId, documentType):
 
         contentHtml = contentHtml.replace('<tr><td>빌링스케쥴자동입력</td></tr>', tempStr)
 
-    # 3. 매출발행
+    # 2. 매출발행
     if formTitle == '매출발행':
         contentHtml = contentHtml.replace('계약명자동입력', contractName)
         contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
@@ -1574,7 +1565,7 @@ def post_contract_document(request, contractId, documentType):
         contentHtml = contentHtml.replace('수주통보서링크', orderPaper)
         contentHtml = contentHtml.replace('납품,구축,검수확인서링크', confirmPaper)
 
-    # 4. 선발주
+    # 3. 선발주
     if formTitle == '선발주품의서':
         contentHtml = contentHtml.replace('계약명자동입력', contractName)
         contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)

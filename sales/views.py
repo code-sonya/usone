@@ -57,10 +57,11 @@ def post_contract(request):
                 post.saleTaxCustomerName = ''
             post.mainCategory = json.loads(request.POST['jsonItem'])[0]['mainCategory']
             post.subCategory = json.loads(request.POST['jsonItem'])[0]['subCategory']
-            yy = str(datetime.now().year)[2:]
-            mm = str(datetime.now().month).zfill(2)
-            count = str(len(Contract.objects.filter(contractCode__startswith=yy)) + 1).zfill(3)
-            post.contractCode = yy + mm + '-' + count
+
+            count = [int(code[-3:]) for code in Contract.objects.filter(contractCode__startswith='Oppty').values_list('contractCode', flat=True)]
+            count.append(0)
+            codeNumber = str(max(count) + 1)
+            post.contractCode = 'Oppty-' + codeNumber
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
@@ -234,6 +235,7 @@ def post_contract(request):
 
         context = {
             'form': form,
+            'contractStep': 'Opportunity',
             'companyNames': companyNames,
             'empNames': empNames,
             'costCompany': costCompany,
@@ -734,6 +736,7 @@ def modify_contract(request, contractId):
 
         context = {
             'form': form,
+            'contractStep': contractInstance.contractStep,
             'items': items,
             'revenues': revenues.order_by('predictBillingDate'),
             'purchases': purchases.order_by('predictBillingDate'),
