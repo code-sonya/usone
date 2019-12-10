@@ -57,6 +57,10 @@ def post_contract(request):
                 post.saleTaxCustomerName = ''
             post.mainCategory = json.loads(request.POST['jsonItem'])[0]['mainCategory']
             post.subCategory = json.loads(request.POST['jsonItem'])[0]['subCategory']
+            yy = str(datetime.now().year)[2:]
+            mm = str(datetime.now().month).zfill(2)
+            count = str(len(Contract.objects.filter(contractCode__startswith=yy)) + 1).zfill(3)
+            post.contractCode = yy + mm + '-' + count
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])

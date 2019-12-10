@@ -73,12 +73,9 @@
                   <label for="contractStep" class="font-weight-bold text-primary"> 단계 </label> {{ form.contractStep }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="contractCode" class="font-weight-bold text-primary"> 관리번호 </label> {{ form.contractCode }}
-                </div>
-                <div class="col-2 mb-3">
                   <label for="empId" class="font-weight-bold text-primary"> 영업대표 </label> {{ form.empId }}
                 </div>
-                <div class="col-6 mb-3">
+                <div class="col-8 mb-3">
                   <label for="contractName" class="font-weight-bold text-primary"> 계약명 </label> {{ form.contractName }}
                 </div>
               </div>
@@ -760,10 +757,6 @@
       }
 
       function btn_save() {
-          if (document.getElementById("contractCode").value === '') {
-              alert("관리번호를 입력해주세요.");
-              return false;
-          }
           if (document.getElementById("contractName").value === '') {
               alert("계약명을 입력해주세요.");
               return false;
