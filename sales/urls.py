@@ -73,4 +73,5 @@ urlpatterns = [
     url(r'^savecontractfiles/(?P<contractId>.+)/$', views.save_contract_files, name='savecontractfiles'),
     url(r'^viewordernotipdf/(?P<contractId>.+)/$', views.view_ordernoti_pdf, name='viewordernotipdf'),
     url(r'^viewconfirmpdf/(?P<contractId>.+)/$', views.view_confirm_pdf, name='viewconfirmpdf'),
+    url(r'^savecustomer/$', views.save_customer, name='savecustomer'),
 ]
