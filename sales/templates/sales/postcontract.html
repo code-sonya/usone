@@ -53,8 +53,11 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> 영업기회 및 계약 등록 </h6>
           <div class="dropdown no-arrow">
+            <a class="dropdown-toggle mr-2" href="#" role="button" id="customerLink" data-toggle="modal" data-target="#customerModal">
+              <i class="fas fa-user-edit fa-fw text-success"></i>
+            </a>
             <a class="dropdown-toggle" href="#" role="button" id="companyLink" data-toggle="modal" data-target="#companyModal">
-              <i class="fas fa-hotel fa-fw text-gray-600"></i>
+              <i class="fas fa-hotel fa-fw text-warning"></i>
             </a>
           </div>
         </div>
@@ -543,7 +546,7 @@
     </div>
   </div>
 
-  <!-- Filter Modal -->
+  <!-- company Modal -->
   <div class="modal fade" id="companyModal" tabindex="-1" role="dialog" aria-labelledby="companyModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -604,6 +607,62 @@
     </div>
   </div>
 
+  <!-- customer Modal -->
+  <div class="modal fade" id="customerModal" tabindex="-1" role="dialog" aria-labelledby="customerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="customerModalLabel">담당자등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="customerForm" onkeydown="javascript: if (event.keyCode == 13) {btn_customer();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="customerCompany" class="font-weight-bold text-primary">고객사 명</label>
+                <input type="text" class="magicsearch form-control" id="customerCompany" name="customerCompany" autocomplete="off" onkeydown="magicsearchtab(customerCompany)">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12 mb-6 mb-sm-0">
+                <label for="customerName" class="font-weight-bold text-primary">담당자 명</label>
+                <input type="text" class="form-control" id="customerName" name="customerName">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="customerDept" class="font-weight-bold text-secondary">담당자 부서</label>
+                <input class="form-control" id="customerDept" name="customerDept">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="customerPhone" class="font-weight-bold text-secondary">담당자 연락처</label>
+                <input class="form-control" id="customerPhone" name="customerPhone">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="customerEmail" class="font-weight-bold text-secondary">담당자 이메일</label>
+                <input class="form-control" id="customerEmail" name="customerEmail">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_customer()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -618,9 +677,11 @@
       companyList ={{ companyNames|safe }};
 
       function magicsearchtab(input) {
+          console.log(input);
           value = $(input).attr('data-id');
           $(input).blur(function() {
               if (value !== "") {
+                  console.log(value);
                   $(input).trigger('set', {id: value});
               }
           });
@@ -681,6 +742,48 @@
 
       }
 
+      function btn_customer() {
+          const customerCompany = $("#customerCompany").attr('data-id');
+          const customerName = document.getElementById("customerName").value;
+          const customerDept = document.getElementById("customerDept").value;
+          const customerPhone = document.getElementById("customerPhone").value;
+          const customerEmail = document.getElementById("customerEmail").value;
+
+          if (customerCompany === '') {
+              alert("고객사 명을 선택해주세요.");
+              return false;
+          }
+
+          if (customerName === '') {
+              alert("담당자 명 입력해주세요.");
+              return false;
+          }
+
+          $.ajax({
+              url: "{% url 'sales:savecustomer' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "customerCompany": customerCompany,
+                  "customerName": customerName,
+                  "customerDept": customerDept,
+                  "customerPhone": customerPhone,
+                  "customerEmail": customerEmail
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData == 'N') {
+                      alert('이미 등록된 고객입니다.');
+                  } else if(returnData == 'Y') {
+                      $('.close').click();
+                      alert('등록이 완료되었습니다.');
+                  }
+              }
+          });
+
+
+      }
+
       function replaceMagic() {
           $('#saleCompanyNames').magicsearch({
               dataSource: companyList,
@@ -699,7 +802,11 @@
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
                           var salecompany = returnData;
-                          console.log(salecompany);
+                          const saleType = $("#saleType").val();
+                          if(saleType == '직판'){
+                              const endCompanyNames = $('#endCompanyNames');
+                              endCompanyNames.trigger('set',{id: data.id});
+                          }
                           $('#saleCustomerId').empty();
                           $('#saleCustomerId').append('<option value="" selected="">---------</option>');
 
@@ -1456,7 +1563,33 @@
           $('#' + down).removeClass('d-none');
       }
 
+      function typeChange() {
+          const saleType = $("#saleType").val();
+          const saleCompanyNames = $("#saleCompanyNames").attr('data-id');
+          const endCompanyNames = $('#endCompanyNames');
+          if(saleType == '직판'){
+              endCompanyNames.trigger('set',{id: saleCompanyNames});
+          }else{
+              endCompanyNames.trigger('clear');
+          }
+      }
+
+
       $(document).ready(function () {
+          // 담당자 등록 고객사명 자동완성
+          const customerCompany = document.getElementById('customerCompany');
+          $('#customerCompany').magicsearch({
+              dataSource: companyList,
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+          });
+
+          customerCompany.removeAttribute("style");
+          customerCompany.parentElement.removeAttribute("style");
 
           // 거래처 자동완성
           const saleCompanyNames = document.getElementById('saleCompanyNames');
@@ -1480,6 +1613,11 @@
                       data: {"saleCompanyName": data.id},
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
+                          const saleType = $("#saleType").val();
+                          const endCompanyNames = $('#endCompanyNames');
+                          if(saleType == '직판'){
+                              endCompanyNames.trigger('set',{id: data.id});
+                          }
                           var salecompany = returnData;
                           $('#saleCustomerId').empty();
                           $('#saleCustomerId').append('<option value="" selected="">---------</option>');
@@ -1502,8 +1640,8 @@
           saleCompanyNames.removeAttribute("style");
           saleCompanyNames.parentElement.removeAttribute("style");
 
-          // 최종고객사 자동완성
           const endCompanyNames = document.getElementById('endCompanyNames');
+          // 최종고객사 자동완성
           {% if endCompanyNames %}
               endCompanyNames.setAttribute("data-id", "{{ endCompanyNames }}");
           {% endif %}

@@ -237,6 +237,7 @@ def post_contract(request):
             'form': form,
             'contractStep': 'Opportunity',
             'companyNames': companyNames,
+            'companyList': companyList,
             'empNames': empNames,
             'costCompany': costCompany,
             'classificationB': classificationB,
@@ -3309,5 +3310,33 @@ def view_confirm_pdf(request, contractId):
         if pisaStatus.err:
             return HttpResponse('We had some errors <pre>' + html + '</pre>')
         return response
+
+
+@login_required
+def save_customer(request):
+    companyName = Company.objects.get(companyName=request.POST['customerCompany'])
+    customerName = request.POST['customerName']
+    if request.POST['customerDept']:
+        customerDept = request.POST['customerDept']
+    else:
+        customerDept = None
+
+    if request.POST['customerPhone']:
+        customerPhone = request.POST['customerPhone']
+    else:
+        customerPhone = None
+
+    if request.POST['customerEmail']:
+        customerEmail = request.POST['customerEmail']
+    else:
+        customerEmail = None
+
+    if Customer.objects.filter(companyName=companyName, customerName__icontains=customerName).first():
+        result = 'N'
+    else:
+        Customer.objects.create(companyName=companyName, customerName=customerName, customerDeptName=customerDept, customerPhone=customerPhone, customerEmail=customerEmail)
+        result = 'Y'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
 
 

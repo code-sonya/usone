@@ -9,7 +9,7 @@ from .models import Contract, Goal, Purchase
 class ContractForm(forms.ModelForm):
     saleCompanyNames = forms.CharField(
         max_length=200, required=False, widget=forms.TextInput(attrs={
-            'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(saleCompanyNames)'}
+            'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(saleCompanyNames)', 'onchange': "typeChange()"}
         )
     )
     endCompanyNames = forms.CharField(
@@ -31,7 +31,7 @@ class ContractForm(forms.ModelForm):
             'empId': forms.Select(attrs={'class': 'form-control', 'id': 'empId'}),
             'saleCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleCustomerId'}),
             'saleTaxCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleTaxCustomerId'}),
-            'saleType': forms.Select(attrs={'class': 'form-control', 'id': "saleType"}),
+            'saleType': forms.Select(attrs={'class': 'form-control', 'id': "saleType", 'onchange': "typeChange()"}),
             'saleIndustry': forms.Select(attrs={'class': 'form-control', 'id': "saleIndustry"}),
             'salePrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'salePrice'}),
             'profitPrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profitPrice'}),
