@@ -18,7 +18,8 @@ from django.views.decorators.http import require_POST
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile,Purchasecategory
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase
 
@@ -57,11 +58,12 @@ def post_contract(request):
                 post.saleTaxCustomerName = ''
             post.mainCategory = json.loads(request.POST['jsonItem'])[0]['mainCategory']
             post.subCategory = json.loads(request.POST['jsonItem'])[0]['subCategory']
+            post.save()
 
-            count = [int(code[-3:]) for code in Contract.objects.filter(contractCode__startswith='Oppty').values_list('contractCode', flat=True)]
-            count.append(0)
-            codeNumber = str(max(count) + 1)
-            post.contractCode = 'Oppty-' + codeNumber
+            # 관리번호 자동생성
+            yy = str(datetime.now().year)[2:]
+            mm = str(datetime.now().month).zfill(2)
+            post.contractCode = 'O-' + yy + mm + '-' + str(post.contractId)
             post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
@@ -3381,6 +3383,32 @@ def costcontents_asjson(request):
     structure = json.dumps(list(costcontents), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
-costcontents_asjson
+@login_required
+def change_contract_step(request, contractStep, contractId):
+    contract = Contract.objects.get(contractId=contractId)
+    contract.contractStep = contractStep
 
+    if contractStep == 'Firm':
+        # 관리번호 자동생성
+        yy = str(contract.contractDate)[2:4]
+        mm = str(contract.contractDate)[5:7]
+        count = [int(code[-3:]) for code in Contract.objects.filter(Q(contractCode__startswith=yy)).values_list('contractCode', flat=True)]
+        count.append(0)
+        codeNumber = str(max(count) + 1).zfill(3)
+        contract.contractCode = yy + mm + '-' + codeNumber
+    elif contractStep == 'Drop':
+        # 매출, 매입, 원가, 하도급 삭제(매출 발행 또는 매입 접수 항목은 삭제하지 않음.)
+        Revenue.objects.filter(Q(contractId=contract) & (Q(billingDate__isnull=True) & Q(depositDate__isnull=True))).delete()
+        Purchase.objects.filter(Q(contractId=contract) & (Q(billingDate__isnull=True) & Q(withdrawDate__isnull=True))).delete()
+        Cost.objects.filter(contractId=contract).delete()
+        Purchasetypea.objects.filter(contractId=contract).delete()
+        Purchasetypeb.objects.filter(contractId=contract).delete()
+        Purchasetypec.objects.filter(contractId=contract).delete()
+        Purchasetyped.objects.filter(contractId=contract).delete()
+        # 관리번호 변경
+        yy = str(datetime.now().year)[2:]
+        mm = str(datetime.now().month).zfill(2)
+        contract.contractCode = 'D-' + yy + mm + '-' + contractId
 
+    contract.save()
+    return redirect('sales:viewcontract', contractId)

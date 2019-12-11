@@ -74,6 +74,7 @@ urlpatterns = [
     url(r'^viewordernotipdf/(?P<contractId>.+)/$', views.view_ordernoti_pdf, name='viewordernotipdf'),
     url(r'^viewconfirmpdf/(?P<contractId>.+)/$', views.view_confirm_pdf, name='viewconfirmpdf'),
     url(r'^savecustomer/$', views.save_customer, name='savecustomer'),
+    url(r'^changecontractstep/(?P<contractStep>.+)/(?P<contractId>.+)/$', views.change_contract_step, name='changecontractstep'),
     url(r'^savecategory/$', views.save_category, name='savecategory'),
     url(r'^savecostcontents/$', views.save_costcontents, name='savecostcontents'),
     url(r'^maincategoryasjson/$', views.maincategory_asjson, name='maincategory_ajax_url'),
