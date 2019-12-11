@@ -9,8 +9,8 @@ from django.db.models.functions import Coalesce
 from hr.models import Employee
 from service.models import Servicereport
 from approval.models import Document
-from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile, Purchasetypea, \
-    Purchasetypeb, Purchasetypec, Purchasetyped
+from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile,\
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped
 
 
 def viewContract(contractId):
@@ -32,6 +32,10 @@ def viewContract(contractId):
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
     costs = Cost.objects.filter(contractId=contractId)
+    purchaseTypeA = Purchasetypea.objects.filter(contractId=contractId)
+    purchaseTypeB = Purchasetypea.objects.filter(contractId=contractId)
+    purchaseTypeC = Purchasetypea.objects.filter(contractId=contractId)
+    purchaseTypeD = Purchasetypea.objects.filter(contractId=contractId)
     services = Servicereport.objects.filter(
         Q(contractId=contractId) & 
         Q(serviceStatus='Y') & 
@@ -176,6 +180,10 @@ def viewContract(contractId):
         'purchases': purchases.order_by('predictBillingDate'),
         'sumPurchasePrice': sumPurchasePrice,
         'costs': costs.order_by('billingDate'),
+        'purchaseTypeA': purchaseTypeA,
+        'purchaseTypeB': purchaseTypeB,
+        'purchaseTypeC': purchaseTypeC,
+        'purchaseTypeD': purchaseTypeD,
         'contractPaper': contractPaper,
         'orderPaper': orderPaper,
         # 연도 별 매출·이익 기여도
