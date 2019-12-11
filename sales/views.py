@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST
 from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
-from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile
+from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile,Purchasecategory
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase
 
@@ -734,7 +734,6 @@ def modify_contract(request, contractId):
             empNames.append(temp)
 
         costCompany, classificationB, classificationC = magicsearch()
-
         context = {
             'form': form,
             'contractStep': contractInstance.contractStep,
@@ -3359,5 +3358,29 @@ def maincategory_asjson(request):
     maincategory = Category.objects.all().values('mainCategory').distinct()
     structure = json.dumps(list(maincategory), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def save_costcontents(request):
+    costContents = request.POST['costContents']
+    category = '매입_미접수'
+    if Purchasecategory.objects.filter(purchaseType=category, categoryName=costContents).first():
+        result = 'N'
+    else:
+        Purchasecategory.objects.create(purchaseType=category, categoryName=costContents)
+        result = 'Y'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def costcontents_asjson(request):
+    category = '매입_미접수'
+    costcontents = Purchasecategory.objects.filter(purchaseType=category).values('categoryName').distinct()
+    structure = json.dumps(list(costcontents), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+costcontents_asjson
 
 

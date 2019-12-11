@@ -279,7 +279,11 @@
                     <th></th>
                     <th></th>
                     <th class="font-weight-bold text-primary">매입연도</th>
-                    <th class="font-weight-bold text-primary">매입내역</th>
+                    <th class="font-weight-bold text-primary">매입내역
+                      <a class="dropdown-toggle mr-2 text-white" href="#" role="button" id="costContentsLink" data-toggle="modal" data-target="#costContentsModal">
+                        <i class="fas fa-plus-circle fa-fw text-info"></i>
+                      </a>
+                    </th>
                     <th class="font-weight-bold text-primary">매입금액</th>
                     <th>비고</th>
                     <th><i id="addCost" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
@@ -703,6 +707,38 @@
     </div>
   </div>
 
+  <!-- costContents Modal -->
+  <div class="modal fade" id="costContentsModal" tabindex="-1" role="dialog" aria-labelledby="costContentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="costContentsModalLabel">매입내역 항목 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="costContentsForm" onkeydown="javascript: if (event.keyCode == 13) {btn_costContents();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="costContents" class="font-weight-bold text-primary">매입항목 명</label>
+                <input type="text" class="magicsearch form-control" id="costContents" name="costContents" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_costContents()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -711,6 +747,7 @@
   <script type="text/javascript">
 
       var itemCounter = 0;
+      var costCounter = 0;
       var value = "";
       var resultcompanyName;
       var resultcompanyNameKo;
@@ -901,6 +938,49 @@
                               console.log(exists);
                               if(exists==false){
                                   $('#item1'+count).append(option);
+                              }
+
+                      }
+                  }
+              }
+          });
+      }
+
+      function btn_costContents(){
+          const costContents = document.getElementById("costContents").value;
+
+          if (costContents === '') {
+              alert("매입항목 명을 입력해주세요.");
+              return false;
+          }
+
+          $.ajax({
+              url: "{% url 'sales:savecostcontents' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "costContents": costContents,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData == 'N') {
+                      alert('이미 등록된 매입항목입니다.');
+                  } else if(returnData == 'Y') {
+                      $('.close').click();
+                      alert('등록이 완료되었습니다.');
+                      const option = $("<option value=" + costContents + ">" + costContents + "</option>");
+                      for (var count = 0; count < costCounter; count++) {
+                              var exists = false;
+                              $('#cost5'+count+' option').each(function(){
+                                  if (this.value == costContents ) {
+                                      console.log(this.value);
+                                      exists = true;
+                                      return false;
+                                  }
+                              });
+                              console.log(exists);
+                              if(exists==false){
+                                  $('#cost5'+count).append(option);
                               }
 
                       }
@@ -2180,8 +2260,6 @@
               ],
           });
 
-          var costCounter = 0;
-
           $('#addCost').on('click', function () {
               t4.row.add([
                   '<div class="d-none" value="0" name="costId" id="cost0' + costCounter + '">추가</div>',
@@ -2190,29 +2268,36 @@
                   'onchange="changeBillingDates(\'cost2' + costCounter + '\',\'cost1' + costCounter + '\')">',
                   '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost3' + costCounter + '">',
                   '<input class="input-form" type="number" min="1000" max="9999" name="costDate" id="cost4' + costCounter + '">',
-                  '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="costCompany" ' +
-                  'id="cost5' + costCounter + '" onkeydown="magicsearchtab(cost5' + costCounter + ')">',
+                  '<select style="width:255px" class="input-form" id="cost5' + costCounter + '" name="costCompany" ></select>',
                   '<input class="money input-form" style="width: 255px;"  name="costPrice" id="cost6' + costCounter + '">',
                   '<input class="input-form" type="text" name="costComment" id="cost7' + costCounter + '">',
                   '<i class="fas fa-times-circle" name="remove">'
               ]).draw(false);
               $('.money').simpleMoneyFormat();
-              $('#cost5' + costCounter).magicsearch({
-                  dataSource: {{ costCompany | safe }},
-                  fields: 'value',
-                  id: 'id',
-                  format: '%value%',
-                  multiStyle: {space: 5, width: 80},
-                  noResult: '검색결과없음',
-                  focusShow: true,
-                  maxShow: 100,
+              $.ajax({
+                      url: "{% url 'sales:costcontents_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var costcontents = returnData;
+                          $('#cost5'+costCounter).empty();
+                          $('#cost5'+costCounter).append('<option value="" selected="">------</option>');
+                          for (var count = 0; count < costcontents.length; count++) {
+                              var option = $("<option value=" + costcontents[count].categoryName + ">" + costcontents[count].categoryName + "</option>");
+                              $('#cost5'+costCounter).append(option);
+                          }
+                          costCounter++;
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
+
               });
 
               $('input[name=costPrice]').on("change keyup paste input", function() {
                   totalPrice('costPrice', 'totalCostPrice');
               });
 
-              costCounter++;
           });
 
           {% if costs %}
@@ -2224,26 +2309,34 @@
                       'onchange="changeBillingDates(\'cost2' + costCounter + '\',\'cost1' + costCounter + '\')">',
                       '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost3' + costCounter + '" value="">',
                       '<input class="input-form" type="number" min="1000" max="9999" name="costDate" id="cost4' + costCounter + '" value="{{ cost.billingDate | date:"Y" }}">',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="costCompany" id="cost5' + costCounter + '" data-id="{{ cost.costCompany }}" onkeydown="magicsearchtab(cost5' + costCounter + ')">',
+                      '<select style="width:255px" class="input-form" id="cost5' + costCounter + '" name="costCompany"></select>',
                       '<input class="money input-form" style="width: 255px;" name="costPrice" id="cost6' + costCounter + '" value="{{ cost.costPrice }}">',
                       '<input class="input-form" type="text" name="costComment" id="cost7' + costCounter + '" value="{{ cost.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
                   ]);
-                  costCounter++;
+                  $.ajax({
+                      url: "{% url 'sales:costcontents_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var costcontents = returnData;
+                          $('#cost5'+costCounter).empty();
+                          $('#cost5'+costCounter).append('<option value="" selected="">------</option>');
+                          for (var count = 0; count < costcontents.length; count++) {
+                              var option = $("<option value=" + costcontents[count].categoryName + ">" + costcontents[count].categoryName + "</option>");
+                              $('#cost5'+costCounter).append(option);
+                          }
+                          $('#cost5' + costCounter).val("{{ cost.costCompany }}").prop("selected", true);
+                          costCounter++;;
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
+
+                  });
               {% endfor %}
               t4.draw();
-              for (var c = 0; c < costCounter; c++) {
-                  $('#cost5' + c).magicsearch({
-                      dataSource: {{ costCompany | safe }},
-                      fields: 'value',
-                      id: 'id',
-                      format: '%value%',
-                      multiStyle: {space: 5, width: 80},
-                      noResult: '검색결과없음',
-                      focusShow: true,
-                      maxShow: 100,
-                  });
-              }
+
               $('.money').simpleMoneyFormat();
 
               $('input[name=costPrice]').on("change keyup paste input", function() {
