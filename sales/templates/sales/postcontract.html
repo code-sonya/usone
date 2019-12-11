@@ -404,7 +404,11 @@
                     <thead style="width:100%">
                     <tr>
                       <th>체크</th>
-                      <th class="font-weight-bold text-primary">구분</th>
+                      <th class="font-weight-bold text-primary">구분
+                        <a class="dropdown-toggle mr-2 text-white" href="#" role="button" id="classificationBLink" data-toggle="modal" data-target="#classificationBModal">
+                          <i class="fas fa-plus-circle fa-fw text-info"></i>
+                        </a>
+                      </th>
                       <th>횟수</th>
                       <th>사이트수</th>
                       <th class="font-weight-bold text-primary">단가</th>
@@ -731,6 +735,38 @@
     </div>
   </div>
 
+  <!-- classificationB Modal -->
+  <div class="modal fade" id="classificationBModal" tabindex="-1" role="dialog" aria-labelledby="classificationBModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="classificationBModalLabel">인력지원_자사서비스 구분 항목 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="classificationBForm" onkeydown="javascript: if (event.keyCode == 13) {btn_classificationB();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="costContents" class="font-weight-bold text-primary">구분항목 명</label>
+                <input type="text" class="magicsearch form-control" id="classificationB" name="costContents" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_classificationB()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -740,6 +776,7 @@
 
       var itemCounter = 0;
       var costCounter = 0;
+      var supportInternalCounter = 0;
       var value = "";
       var resultcompanyName;
       var resultcompanyNameKo;
@@ -917,7 +954,6 @@
                   } else if(returnData == 'Y') {
                       $('.close').click();
                       alert('등록이 완료되었습니다.');
-                      const option = $("<option value=" + mainCategory + ">" + mainCategory + "</option>");
                       for (var count = 0; count < itemCounter; count++) {
                               var exists = false;
                               $('#item1'+count+' option').each(function(){
@@ -929,6 +965,7 @@
                               });
                               console.log(exists);
                               if(exists==false){
+                                  const option = $("<option value=" + mainCategory + ">" + mainCategory + "</option>");
                                   $('#item1'+count).append(option);
                               }
 
@@ -947,11 +984,12 @@
           }
 
           $.ajax({
-              url: "{% url 'sales:savecostcontents' %}",
+              url: "{% url 'sales:saveclassification' %}",
               method: 'POST',
               cache: false,
               data: {
-                  "costContents": costContents,
+                  "classification": "매입_미접수",
+                  "categoryName": costContents,
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
@@ -960,7 +998,7 @@
                   } else if(returnData == 'Y') {
                       $('.close').click();
                       alert('등록이 완료되었습니다.');
-                      const option = $("<option value=" + costContents + ">" + costContents + "</option>");
+                      console.log(costCounter);
                       for (var count = 0; count < costCounter; count++) {
                               var exists = false;
                               $('#cost5'+count+' option').each(function(){
@@ -972,6 +1010,7 @@
                               });
                               console.log(exists);
                               if(exists==false){
+                                  const option = $("<option value=" + costContents + ">" + costContents + "</option>");
                                   $('#cost5'+count).append(option);
                               }
 
@@ -979,6 +1018,50 @@
                   }
               }
           });
+      }
+
+      function btn_classificationB(){
+          const classificationB = document.getElementById("classificationB").value;
+          if (classificationB === '') {
+              alert("구분항목 명을 입력해주세요.");
+              return false;
+          }
+
+          $.ajax({
+              url: "{% url 'sales:saveclassification' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "classification": "classificationB",
+                  "categoryName": classificationB,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData == 'N') {
+                      alert('이미 등록된 구분 항목입니다.');
+                  } else if(returnData == 'Y') {
+                      $('.close').click();
+                      alert('등록이 완료되었습니다.');
+                      for (var count = 0; count < supportInternalCounter; count++) {
+                              var exists = false;
+                              $('#supportInternal1'+count+' option').each(function(){
+                                  if (this.value == classificationB ) {
+                                      console.log(this.value);
+                                      exists = true;
+                                      return false;
+                                  }
+                              });
+                              console.log(exists);
+                              if(exists==false){
+                                  const option = $("<option value=" + classificationB + ">" + classificationB + "</option>");
+                                  $('#supportInternal1'+count).append(option);
+                              }
+
+                      }
+                  }
+              }
+          });
+
       }
 
       function replaceMagic() {
@@ -1222,7 +1305,7 @@
               var data = new Object();
               data.costId = $('div[name="costId"]').eq(i).text();
               data.costDate = $('input[name="costDate"]').eq(i).val();
-              data.costCompany = $('input[name="costCompany"]').eq(i).val();
+              data.costCompany = $('select[name="costCompany"]').eq(i).val();
               data.costPrice = $('input[name="costPrice"]').eq(i).val();
               data.costComment = $('input[name="costComment"]').eq(i).val();
               listCost.push(data);
@@ -1393,7 +1476,7 @@
               }
               var data = new Object();
               data.typeId = $('div[name="supportInternalTypeId"]').eq(i).text();
-              data.type = $('input[name="supportInternalType"]').eq(i).val();
+              data.type = $('select[name="supportInternalType"]').eq(i).val();
               data.times = $('input[name="supportInternalTimes"]').eq(i).val();
               data.sites = $('input[name="supportInternalSites"]').eq(i).val();
               data.units = $('input[name="supportInternalUnits"]').eq(i).val();
@@ -2243,9 +2326,10 @@
               ]).draw(false);
               $('.money').simpleMoneyFormat();
               $.ajax({
-                      url: "{% url 'sales:costcontents_ajax_url' %}",
+                      url: "{% url 'sales:classification_ajax_url' %}",
                       method: 'POST',
                       cache: false,
+                      data: {'classification': '매입_미접수'},
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
                           var costcontents = returnData;
@@ -2283,9 +2367,10 @@
                       '<i class="fas fa-times-circle" name="remove">'
                   ]);
                   $.ajax({
-                      url: "{% url 'sales:costcontents_ajax_url' %}",
+                      url: "{% url 'sales:classification_ajax_url' %}",
                       method: 'POST',
                       cache: false,
+                      data: {'classification': '매입_미접수'},
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
                           var costcontents = returnData;
@@ -2720,13 +2805,11 @@
               ],
           });
 
-          var supportInternalCounter = 0;
 
           $('#addSupportInternal').on('click', function () {
             c5.row.add([
                 '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="supportInternalType" ' +
-                'id="supportInternal1' + supportInternalCounter + '" onkeydown="magicsearchtab(supportInternal1' + supportInternalCounter + ')">',
+                '<select style="width:255px" class="input-form" id="supportInternal1' + supportInternalCounter + '" name="supportInternalType"></select>',
                 '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalTimes" id="supportInternal2' + supportInternalCounter + '">',
                 '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalSites" id="supportInternal3' + supportInternalCounter + '">',
                 '<input class="input-form" type="digit" style="width: 200px;" name="supportInternalUnits" id="supportInternal4' + supportInternalCounter + '">',
@@ -2734,20 +2817,30 @@
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
             $('.money').simpleMoneyFormat();
-            $('#supportInternal1' + supportInternalCounter).magicsearch({
-                dataSource: {{ classificationB | safe }},
-                fields: 'value',
-                id: 'id',
-                format: '%value%',
-                multiStyle: {space: 5, width: 80},
-                noResult: '검색결과없음',
-                focusShow: true,
-                maxShow: 100,
+            $.ajax({
+                      url: "{% url 'sales:classification_ajax_url' %}",
+                      method: 'POST',
+                      data: {'classification': 'classificationB'},
+                      cache: false,
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var classification = returnData;
+                          console.log(classification);
+                          $('#supportInternal1'+supportInternalCounter).empty();
+                          $('#supportInternal1'+supportInternalCounter).append('<option value="" selected="">------</option>');
+                          for (var count = 0; count < classification.length; count++) {
+                              var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
+                              $('#supportInternal1'+supportInternalCounter).append(option);
+                          }
+                          supportInternalCounter++;
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
+
             });
             $('input[name=supportInternalPrice]').on("change keyup paste input", function() {
                 totalPrice('supportInternalPrice', 'totalSupportInternalPrice');
             });
-              supportInternalCounter++;
           });
 
           {% if supportInternals %}
@@ -2755,30 +2848,36 @@
               console.log("{{ supportInternal.classification }}");
                   c5.row.add([
                       '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">{{ supportInternal.typeId }}</div>',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" data-id="{{ supportInternal.classification }}" name="supportInternalType" ' +
-                      'id="supportInternal1' + supportInternalCounter + '" onkeydown="magicsearchtab(supportInternal1' + supportInternalCounter + ')">',
+                      '<select style="width:255px" class="input-form" id="supportInternal1' + supportInternalCounter + '" name="supportInternalType"></select>',
                       '<input class="input-form" type="digit" style="width: 50px;" value="{{ supportInternal.times }}" name="supportInternalTimes" id="supportInternal2' + supportInternalCounter + '">',
                       '<input class="input-form" type="digit" style="width: 50px;" value="{{ supportInternal.sites }}" name="supportInternalSites" id="supportInternal3' + supportInternalCounter + '">',
                       '<input class="input-form" type="digit" style="width: 200px;" value="{{ supportInternal.units }}" name="supportInternalUnits" id="supportInternal4' + supportInternalCounter + '">',
                       '<input class="money input-form"  value="{{ supportInternal.price }}" name="supportInternalPrice" style="width: 200px;" id="supportInternal5' + supportInternalCounter + '">',
                       '<i class="fas fa-times-circle" name="remove">'
                   ]);
-                  supportInternalCounter++;
+                  $.ajax({
+                      url: "{% url 'sales:classification_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      data: {'classification': 'classificationB'},
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var classification = returnData;
+                          $('#supportInternal1'+supportInternalCounter).empty();
+                          $('#supportInternal1'+supportInternalCounter).append('<option value="" selected="">------</option>');
+                          for (var count = 0; count < classification.length; count++) {
+                              var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
+                              $('#supportInternal1'+supportInternalCounter).append(option);
+                          }
+                          $('#supportInternal1' + supportInternalCounter).val("{{ supportInternal.classification }}").prop("selected", true);
+                          supportInternalCounter++;;
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
+
+                  });
               {% endfor %}
               c5.draw();
-              console.log(supportInternalCounter);
-              for (var c = 0; c < supportInternalCounter; c++) {
-                  $('#supportInternal1' + c).magicsearch({
-                      dataSource: {{ classificationB | safe }},
-                      fields: 'value',
-                      id: 'id',
-                      format: '%value%',
-                      multiStyle: {space: 5, width: 80},
-                      noResult: '검색결과없음',
-                      focusShow: true,
-                      maxShow: 100,
-                  });
-              }
               $('.money').simpleMoneyFormat();
 
               $('input[name=supportInternalPrice]').on("change keyup paste input", function() {
