@@ -777,6 +777,42 @@
                   } else if(returnData == 'Y') {
                       $('.close').click();
                       alert('등록이 완료되었습니다.');
+
+                      $.ajax({
+                      url: "{% url 'sales:salemanager_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      data: {"saleCompanyName": customerCompany},
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          const saleCompanyNames =  $('#saleCompanyNames');
+                          saleCompanyNames.trigger('set',{id: customerCompany});
+
+                          var salecompany = returnData;
+                          // 판매 유형
+                          const saleType = $("#saleType").val();
+                          if(saleType == '직판'){
+                              // 최종 고객사 명
+                              const endCompanyNames = $('#endCompanyNames');
+                              endCompanyNames.trigger('set',{id: customerCompany});
+                          }
+                          $('#saleCustomerId').empty();
+                          $('#saleCustomerId').append('<option value="" selected="">---------</option>');
+
+                          for (var count = 0; count < salecompany.length; count++) {
+                              var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
+                              $('#saleCustomerId').append(option);
+                          }
+                          $('#saleTaxCustomerId').empty();
+                          $('#saleTaxCustomerId').append('<option value="" selected="">---------</option>');
+
+                          for (var count = 0; count < salecompany.length; count++) {
+                              var option = $("<option value=" + salecompany[count].pk + ">" + salecompany[count].fields.customerName + "</option>");
+                              $('#saleTaxCustomerId').append(option);
+                          }
+                      }
+                    });
+
                   }
               }
           });
@@ -801,9 +837,12 @@
                       data: {"saleCompanyName": data.id},
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
+                          console.log(data.id);
                           var salecompany = returnData;
+                          // 판매 유형
                           const saleType = $("#saleType").val();
                           if(saleType == '직판'){
+                              // 최종 고객사 명
                               const endCompanyNames = $('#endCompanyNames');
                               endCompanyNames.trigger('set',{id: data.id});
                           }
