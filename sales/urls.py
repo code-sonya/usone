@@ -5,6 +5,7 @@ app_name = 'sales'
 
 urlpatterns = [
     url(r'^postcontract/', views.post_contract, name='postcontract'),
+    url(r'^copycontract/(?P<contractId>.+)/$', views.copy_contract, name='copycontract'),
     url(r'^showcontracts/', views.show_contracts, name='showcontracts'),
     url(r'^salemanagerjson/$', views.salemanager_asjson, name='salemanager_ajax_url'),
     url(r'^viewcontract/(?P<contractId>.+)/$', views.view_contract, name='viewcontract'),

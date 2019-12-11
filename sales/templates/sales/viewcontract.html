@@ -132,15 +132,17 @@
               진행단계
             </b>
             </h5>
-            <div class="input-group" style="width: 300px;">
-              <select id="documentType" class="form-control">
-                <option>수주통보서</option>
-                <option>매출발행</option>
-                <option>선발주</option>
-              </select>
-              <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;&nbsp;
-              <button class="btn btn-warning" onclick="show_document()">문서함</button>
-            </div>
+            {% if contract.contractStep != 'Drop' %}
+              <div class="input-group" style="width: 300px;">
+                <select id="documentType" class="form-control">
+                  <option>수주통보서</option>
+                  <option>매출발행</option>
+                  <option>선발주</option>
+                </select>
+                <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;&nbsp;
+                <button class="btn btn-warning" onclick="show_document()">문서함</button>
+              </div>
+            {% endif %}
           </div>
 
           <table id="process" class="flow-table">
@@ -879,13 +881,19 @@
 
       {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
         <div class="text-center" style="padding: 0px 20px 20px 20px">
-          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-            <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
-            <span class="text"> 삭제 </span>
-          </a>
+          {% if contract.contractStep == 'Opportunity' %}
+            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+              <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+              <span class="text"> 삭제 </span>
+            </a>
+          {% endif %}
           <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
             <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
             <span class="text"> 수정 </span>
+          </a>
+          <a href="#" class="btn btn-success btn-icon-split" onclick="btn_copy()">
+            <span class="icon text-white-50"> <i class="fas fa-arrow-right"> </i> </span>
+            <span class="text"> 복사 </span>
           </a>
         </div>
       {% endif %}
@@ -1572,6 +1580,12 @@
       function btn_delete() {
           if (confirm("계약 삭제시, 매출 정보까지 함께 삭제됩니다.\n삭제 하시겠습니까?") === true) {
               location.href = '/sales/deletecontract/' + {{ contract.contractId }} +'/';
+          }
+      }
+
+      function btn_copy() {
+          if (confirm("이 계약과 동일한 계약을 생성하시겠습니까?") === true) {
+              location.href = '/sales/copycontract/' + {{ contract.contractId }} +'/';
           }
       }
 
