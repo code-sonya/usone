@@ -170,7 +170,11 @@
                   <thead style="width:100%">
                   <tr>
                     <th>구분</th>
-                    <th class="font-weight-bold text-primary">대분류</th>
+                    <th class="font-weight-bold text-primary">대분류
+                      <a class="dropdown-toggle mr-2 text-white" href="#" role="button" id="categoryLink" data-toggle="modal" data-target="#categoryModal">
+                        <i class="fas fa-plus-circle fa-fw text-info"></i>
+                      </a>
+                    </th>
                     <th class="font-weight-bold text-primary">소분류</th>
                     <th>상세내용</th>
                     <th class="font-weight-bold text-primary">금액</th>
@@ -663,6 +667,42 @@
     </div>
   </div>
 
+  <!-- category Modal -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" role="dialog" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="categoryModalLabel">세부사항 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="categoryForm" onkeydown="javascript: if (event.keyCode == 13) {btn_category();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="main" class="font-weight-bold text-primary">대분류 명</label>
+                <input type="text" class="magicsearch form-control" id="main" name="main" required>
+              </div>
+               <div class="col-6">
+                <label for="sub" class="font-weight-bold text-primary">소분류 명</label>
+                <input type="text" class="magicsearch form-control" id="sub" name="sub" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_category()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -670,6 +710,7 @@
 
   <script type="text/javascript">
 
+      var itemCounter = 0;
       var value = "";
       var resultcompanyName;
       var resultcompanyNameKo;
@@ -816,8 +857,56 @@
                   }
               }
           });
+      }
 
+      function btn_category(){
+          const mainCategory = document.getElementById("main").value;
+          const subCategory = document.getElementById("sub").value;
 
+          if (mainCategory === '') {
+              alert("대분류 명을 입력해주세요.");
+              return false;
+          }
+
+          if (subCategory === '') {
+              alert("소분류 명을 입력해주세요.");
+              return false;
+          }
+
+          $.ajax({
+              url: "{% url 'sales:savecategory' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "mainCategory": mainCategory,
+                  "subCategory": subCategory,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData == 'N') {
+                      alert('이미 등록된 세부사항입니다.');
+                  } else if(returnData == 'Y') {
+                      $('.close').click();
+                      alert('등록이 완료되었습니다.');
+                      const option = $("<option value=" + mainCategory + ">" + mainCategory + "</option>");
+                      for (var count = 0; count < itemCounter; count++) {
+                              var exists = false;
+                              $('#item1'+count+' option').each(function(){
+                                  if (this.value == mainCategory ) {
+                                      console.log(this.value);
+                                      exists = true;
+                                      return false;
+                                  }
+                              });
+                              console.log(exists);
+                              if(exists==false){
+                                  $('#item1'+count).append(option);
+                              }
+
+                      }
+                  }
+              }
+          });
       }
 
       function replaceMagic() {
@@ -1753,30 +1842,41 @@
               ],
           });
 
-          var itemCounter = 0;
 
           $('#addItem').on('click', function () {
               t1.row.add([
                   '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">추가</div>',
                   '<select style="width:200px" class="input-form" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
-                  '<option value="" selected="selected">--대분류--</option>' +
-                  '<option value="상품_Oracle">상품_Oracle</option>' +
-                  '<option value="상품_IBM">상품_IBM</option>' +
-                  '<option value="상품_Lenovo">상품_Lenovo</option>' +
-                  '<option value="상품_DELL">상품_DELL</option>' +
-                  '<option value="상품_기타">상품_기타</option>' +
-                  '<option value="용역_유지보수">용역_유지보수</option>' +
-                  '<option value="용역_기술지원">용역_기술지원</option></select>',
+                  '</select>',
                   '<select style="width:200px" class="input-form" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
                   '<input style="width:200px" class="input-form" type="text" name="itemName" id="item3' + itemCounter + '">',
                   '<input style="width:200px" class="money input-form" name="itemPrice" id="item4' + itemCounter + '">',
                   '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
-              itemCounter++;
               $('.money').simpleMoneyFormat();
+              $.ajax({
+                      url: "{% url 'sales:maincategory_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var maincategory = returnData;
+                          $('#item1'+itemCounter).empty();
+                          $('#item1'+itemCounter).append('<option value="" selected="">--대분류--</option>');
+                          for (var count = 0; count < maincategory.length; count++) {
+                              var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
+                              $('#item1'+itemCounter).append(option);
+                          }
+                          itemCounter++;
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
+
+              });
               $('input[name=itemPrice]').on("change keyup paste input", function() {
                   totalPrice('itemPrice', 'totalItemPrice');
               });
+
           });
 
           {% if items %}
@@ -1784,22 +1884,35 @@
                   t1.row.add([
                       '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
                       '<select style="width:200px" class="input-form" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
-                      '<option value="" selected="selected">--대분류--</option>' +
-                      '<option value="상품_Oracle">상품_Oracle</option>' +
-                      '<option value="상품_IBM">상품_IBM</option>' +
-                      '<option value="상품_Lenovo">상품_Lenovo</option>' +
-                      '<option value="상품_DELL">상품_DELL</option>' +
-                      '<option value="상품_기타">상품_기타</option>' +
-                      '<option value="용역_유지보수">용역_유지보수</option>' +
-                      '<option value="용역_기술지원">용역_기술지원</option></select>',
+                      '</select>',
                       '<select style="width:200px" class="input-form" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
                       '<input style="width:200px" class="input-form" type="text" name="itemName" id="item3' + itemCounter + '" value="{{ item.itemName }}">',
                       '<input style="width:200px" class="money input-form" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
                       '<i class="fas fa-times-circle" name="remove" >'
                   ]).draw(false);
-                  $('#item1' + itemCounter).val("{{ item.mainCategory }}").prop("selected", true);
-                  itemChangeAdd("item1" + itemCounter, "item2" + itemCounter, "{{ item.subCategory }}", itemCounter);
-                  itemCounter++;
+
+                  $.ajax({
+                      url: "{% url 'sales:maincategory_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var maincategory = returnData;
+                          $('#item1'+itemCounter).empty();
+                          $('#item1'+itemCounter).append('<option value="" selected="">--대분류--</option>');
+                          for (var count = 0; count < maincategory.length; count++) {
+                              var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
+                              $('#item1'+itemCounter).append(option);
+                          }
+                          $('#item1' + itemCounter).val("{{ item.mainCategory }}").prop("selected", true);
+                          itemChangeAdd("item1" + itemCounter, "item2" + itemCounter, "{{ item.subCategory }}", itemCounter);
+                          itemCounter++;
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
+
+                  });
+
               {% endfor %}
               $('.money').simpleMoneyFormat();
               $('input[name=itemPrice]').on("change keyup paste input", function() {

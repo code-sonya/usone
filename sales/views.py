@@ -3339,4 +3339,25 @@ def save_customer(request):
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+@login_required
+def save_category(request):
+    mainCategory = request.POST['mainCategory']
+    subCategory = request.POST['subCategory']
+
+    if Category.objects.filter(mainCategory=mainCategory, subCategory=subCategory).first():
+        result = 'N'
+    else:
+        Category.objects.create(mainCategory=mainCategory, subCategory=subCategory)
+        result = 'Y'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def maincategory_asjson(request):
+    maincategory = Category.objects.all().values('mainCategory').distinct()
+    structure = json.dumps(list(maincategory), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
 
