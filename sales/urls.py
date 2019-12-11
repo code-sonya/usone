@@ -76,7 +76,7 @@ urlpatterns = [
     url(r'^savecustomer/$', views.save_customer, name='savecustomer'),
     url(r'^changecontractstep/(?P<contractStep>.+)/(?P<contractId>.+)/$', views.change_contract_step, name='changecontractstep'),
     url(r'^savecategory/$', views.save_category, name='savecategory'),
-    url(r'^savecostcontents/$', views.save_costcontents, name='savecostcontents'),
     url(r'^maincategoryasjson/$', views.maincategory_asjson, name='maincategory_ajax_url'),
-    url(r'^costcontentsasjson/$', views.costcontents_asjson, name='costcontents_ajax_url'),
+    url(r'^classificationasjson/$', views.classification_asjson, name='classification_ajax_url'),
+    url(r'^saveclassification/$', views.save_classification, name='saveclassification'),
 ]

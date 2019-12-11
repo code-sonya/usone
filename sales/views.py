@@ -241,7 +241,7 @@ def post_contract(request):
             'companyNames': companyNames,
             'companyList': companyList,
             'empNames': empNames,
-            'costCompany': costCompany,
+            # 'costCompany': costCompany,
             'classificationB': classificationB,
             'classificationC': classificationC,
         }
@@ -461,7 +461,9 @@ def modify_contract(request, contractId):
             jsonCost = json.loads(request.POST['jsonCost'])
             costId = list(i[0] for i in Cost.objects.filter(contractId=contractId).values_list('costId'))
             jsonCostId = []
+
             for cost in jsonCost:
+                print(cost)
                 if cost['costId'] == '추가':
                     Cost.objects.create(
                         contractId=post,
@@ -3363,22 +3365,9 @@ def maincategory_asjson(request):
 
 
 @login_required
-def save_costcontents(request):
-    costContents = request.POST['costContents']
-    category = '매입_미접수'
-    if Purchasecategory.objects.filter(purchaseType=category, categoryName=costContents).first():
-        result = 'N'
-    else:
-        Purchasecategory.objects.create(purchaseType=category, categoryName=costContents)
-        result = 'Y'
-    structure = json.dumps(result, cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
-
-
-@login_required
 @csrf_exempt
-def costcontents_asjson(request):
-    category = '매입_미접수'
+def classification_asjson(request):
+    category = request.POST['classification']
     costcontents = Purchasecategory.objects.filter(purchaseType=category).values('categoryName').distinct()
     structure = json.dumps(list(costcontents), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -3412,3 +3401,16 @@ def change_contract_step(request, contractStep, contractId):
 
     contract.save()
     return redirect('sales:viewcontract', contractId)
+
+
+@login_required
+def save_classification(request):
+    category = request.POST['classification']
+    categoryName = request.POST['categoryName']
+    if Purchasecategory.objects.filter(purchaseType=category, categoryName=categoryName).first():
+        result = 'N'
+    else:
+        Purchasecategory.objects.create(purchaseType=category, categoryName=categoryName)
+        result = 'Y'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
