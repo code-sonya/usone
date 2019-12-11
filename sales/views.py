@@ -316,7 +316,7 @@ def copy_contract(request, contractId):
         purchaseTypeD.contractId = contract
         purchaseTypeD.save()
 
-    return redirect('sales:viewcontract', contractId)
+    return redirect('sales:modifycontract', contract.contractId)
 
 
 @login_required
