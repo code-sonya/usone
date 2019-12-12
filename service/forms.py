@@ -6,7 +6,7 @@ from .models import Servicereport, Serviceform
 
 class ServicereportForm(forms.ModelForm):
     startdate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={
-        'class': 'form-control', 'type': 'date', "max": '9999-12-31', 'id': 'startdate'
+        'class': 'form-control', 'type': 'date', "max": '9999-12-31', 'id': 'startdate', 'onchange': 'showVal(this.value)'
     }))
     starttime = forms.CharField(max_length=16, widget=forms.TextInput(attrs={
         'class': 'form-control', 'type': 'time', 'id': 'starttime'
