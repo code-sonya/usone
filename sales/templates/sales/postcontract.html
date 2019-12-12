@@ -168,7 +168,7 @@
                   <tr>
                     <th>구분</th>
                     <th class="font-weight-bold text-primary">대분류
-                      <a class="dropdown-toggle mr-2 text-white" href="#" role="button" id="categoryLink" data-toggle="modal" data-target="#categoryModal">
+                      <a class="text-white" href="#" role="button" id="categoryLink" data-toggle="modal" data-target="#categoryModal">
                         <i class="fas fa-plus-circle fa-fw text-info"></i>
                       </a>
                     </th>
@@ -273,7 +273,7 @@
                   <th></th>
                   <th class="font-weight-bold text-primary">매입연도</th>
                   <th class="font-weight-bold text-primary">매입내역
-                    <a class="dropdown-toggle mr-2 text-white" href="#" role="button" id="costContentsLink" data-toggle="modal" data-target="#costContentsModal">
+                    <a class="text-white" href="#" role="button" id="costContentsLink" data-toggle="modal" data-target="#costContentsModal">
                       <i class="fas fa-plus-circle fa-fw text-info"></i>
                     </a>
                   </th>
@@ -405,7 +405,7 @@
                     <tr>
                       <th>체크</th>
                       <th class="font-weight-bold text-primary">구분
-                        <a class="dropdown-toggle mr-2 text-white" href="#" role="button" id="classificationBLink" data-toggle="modal" data-target="#classificationBModal">
+                        <a class="text-white" href="#" role="button" id="classificationBLink" data-toggle="modal" data-target="#classificationBModal">
                           <i class="fas fa-plus-circle fa-fw text-info"></i>
                         </a>
                       </th>
@@ -435,7 +435,11 @@
                     <thead style="width:100%">
                     <tr>
                       <th>체크</th>
-                      <th class="font-weight-bold text-primary">구분</th>
+                      <th class="font-weight-bold text-primary">구분
+                        <a class="text-white" href="#" role="button" id="classificationC1Link" data-toggle="modal" data-target="#classificationC1Modal">
+                          <i class="fas fa-plus-circle fa-fw text-info"></i>
+                        </a>
+                      </th>
                       <th class="font-weight-bold text-primary">내역</th>
                       <th class="font-weight-bold text-primary">금액</th>
                       <th><i id="addSupportExternal" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
@@ -455,33 +459,6 @@
               </div>
 
               <div class="form-group row">
-                <!--<div class="col-xl-6">-->
-                <!--<div class="text-dark mb-3"><b>7. 프로젝트</b></div>-->
-                <!--<table id="project" class="display" style="width:100%">-->
-                <!--<thead style="width:100%">-->
-                <!--<tr>-->
-                <!--<th>체크</th>-->
-                <!--<th class="font-weight-bold text-primary">구분</th>-->
-                <!--<th>횟수</th>-->
-                <!--<th>사이트수</th>-->
-                <!--<th class="font-weight-bold text-primary">단가</th>-->
-                <!--<th class="font-weight-bold text-primary">금액</th>-->
-                <!--<th><i id="addProject" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>-->
-                <!--</tr>-->
-                <!--</thead>-->
-                <!--<tfoot>-->
-                <!--<tr>-->
-                <!--<th></th>-->
-                <!--<th></th>-->
-                <!--<th></th>-->
-                <!--<th></th>-->
-                <!--<th>TOTAL : </th>-->
-                <!--<th><span class="totalProjectPrice"></span></th>-->
-                <!--<th></th>-->
-                <!--</tr>-->
-                <!--</tfoot>-->
-                <!--</table>-->
-                <!--</div>-->
                 <div class="col-xl-6">
                   <div class="text-dark mb-3"><b>7. DB COSTS</b></div>
                   <table id="dbCosts" class="display" style="width:100%">
@@ -513,7 +490,11 @@
                     <thead style="width:100%">
                     <tr>
                       <th>체크</th>
-                      <th class="font-weight-bold text-primary">구분</th>
+                      <th class="font-weight-bold text-primary">구분
+                        <a class="text-white" href="#" role="button" id="classificationC2Link" data-toggle="modal" data-target="#classificationC2Modal">
+                            <i class="fas fa-plus-circle fa-fw text-info"></i>
+                        </a>
+                      </th>
                       <th class="font-weight-bold text-primary">내역</th>
                       <th class="font-weight-bold text-primary">금액</th>
                       <th><i id="addOthers" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
@@ -741,7 +722,7 @@
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="classificationBModalLabel">인력지원_자사서비스 구분 항목 등록</h5>
+          <h5 class="modal-title" id="classificationBModalLabel">구분 항목 등록(인력지원_자사서비스)</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
@@ -753,7 +734,7 @@
             <div class="row mb-1">
               <div class="col-12">
                 <label for="costContents" class="font-weight-bold text-primary">구분항목 명</label>
-                <input type="text" class="magicsearch form-control" id="classificationB" name="costContents" required>
+                <input type="text" class="form-control" id="classificationB" name="costContents" required>
               </div>
             </div>
           </form>
@@ -762,6 +743,70 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-info" href="#" onclick="btn_classificationB()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- classificationC1 Modal -->
+  <div class="modal fade" id="classificationC1Modal" tabindex="-1" role="dialog" aria-labelledby="classificationC1ModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="classificationC1ModalLabel">구분 항목 등록(인력지원_타사서비스)</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="classificationC1Form" onkeydown="javascript: if (event.keyCode == 13) {btn_classificationB();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="costContents" class="font-weight-bold text-primary">구분항목 명</label>
+                <input type="text" class="form-control" id="classificationC_1" name="costContents" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_classification()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- classificationC2 Modal -->
+  <div class="modal fade" id="classificationC2Modal" tabindex="-1" role="dialog" aria-labelledby="classificationC2ModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="classificationC2ModalLabel">구분 항목 등록(기타)</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="classificationCForm" onkeydown="javascript: if (event.keyCode == 13) {btn_classificationB();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="costContents" class="font-weight-bold text-primary">구분항목 명</label>
+                <input type="text" class="form-control" id="classificationC_2" name="costContents" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_classification()">등록</a>
         </div>
       </div>
     </div>
@@ -777,6 +822,7 @@
       var itemCounter = 0;
       var costCounter = 0;
       var supportInternalCounter = 0;
+      var supportExternalCounter = 0;
       var value = "";
       var resultcompanyName;
       var resultcompanyNameKo;
@@ -1512,7 +1558,7 @@
               }
               var data = new Object();
               data.typeId = $('div[name="supportExternalTypeId"]').eq(i).text();
-              data.type = $('input[name="supportExternalType"]').eq(i).val();
+              data.type = $('select[name="supportExternalType"]').eq(i).val();
               data.contents = $('input[name="supportExternalContents"]').eq(i).val();
               console.log($('input[name="supportExternalPrice"]').eq(i).val());
               data.price = Number($('input[name="supportExternalPrice"]').eq(i).val().replace(/,/g, ''));
@@ -1576,7 +1622,7 @@
               }
               var data = new Object();
               data.typeId = $('div[name="othersTypeId"]').eq(i).text();
-              data.type = $('input[name="othersType"]').eq(i).val();
+              data.type = $('select[name="othersType"]').eq(i).val();
               data.contents = $('input[name="othersContents"]').eq(i).val();
               console.log($('input[name="othersPrice"]').eq(i).val());
               data.price = Number($('input[name="othersPrice"]').eq(i).val().replace(/,/g, ''));
@@ -2927,33 +2973,41 @@
               ],
           });
 
-          var supportExternalCounter = 0;
 
           $('#addSupportExternal').on('click', function () {
             c6.row.add([
                 '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="supportExternalType" ' +
-                'id="supportExternal1' + supportExternalCounter + '" onkeydown="magicsearchtab(supportExternal1' + supportExternalCounter + ')">',
+                '<select style="width:200px" class="input-form" id="supportExternal1' + supportExternalCounter + '" name="supportExternalType"></select>',
                 '<input class="input-form" type="text" style="width: 350px;" name="supportExternalContents" id="supportExternal2' + supportExternalCounter + '">',
                 '<input class="money input-form"  name="supportExternalPrice" style="width: 200px;" id="supportExternal3' + supportExternalCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
-            $('.money').simpleMoneyFormat();
-            $('#supportExternal1' + supportExternalCounter).magicsearch({
-                dataSource: {{ classificationC | safe }},
-                fields: 'value',
-                id: 'id',
-                format: '%value%',
-                multiStyle: {space: 5, width: 80},
-                noResult: '검색결과없음',
-                focusShow: true,
-                maxShow: 100,
+            $.ajax({
+                      url: "{% url 'sales:classification_ajax_url' %}",
+                      method: 'POST',
+                      data: {'classification': 'classificationC1',
+                            'contractId':''},
+                      cache: false,
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var classification = returnData;
+                          console.log(classification);
+                          $('#supportExternal1'+supportExternalCounter).empty();
+                          $('#supportExternal1'+supportExternalCounter).append('<option value="" selected="">------</option>');
+                          for (var count = 0; count < classification.length; count++) {
+                              var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
+                              $('#supportExternal1'+supportExternalCounter).append(option);
+                          }
+                          supportExternalCounter++;
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
+
             });
+            $('.money').simpleMoneyFormat();
             $('input[name=supportExternalPrice]').on("change keyup paste input", function() {
                 totalPrice('supportExternalPrice', 'totalSupportExternalPrice');
             });
-
-              supportExternalCounter++;
           });
 
           {% if supportExternals %}
@@ -2961,8 +3015,7 @@
               console.log("{{ supportExternal.classification }}");
                   c6.row.add([
                       '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">{{ supportExternal.typeId }}</div>',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" data-id="{{ supportExternal.classification }}" name="supportExternalType" ' +
-                      'id="supportExternal1' + supportExternalCounter + '" onkeydown="magicsearchtab(supportExternal1' + supportExternalCounter + ')">',
+                      '<select style="width:200px" class="input-form" id="supportExternal1' + supportExternalCounter + '" name="supportExternalType"></select>',
                       '<input class="input-form" type="text" style="width: 350px;" value="{{ supportExternal.contents }}" name="supportExternalContents" id="supportExternal2' + supportExternalCounter + '">',
                       '<input class="money input-form" value="{{ supportExternal.price }}" name="supportExternalPrice" style="width: 200px;" id="supportExternal3' + supportExternalCounter + '">',
                       '<i class="fas fa-times-circle" name="remove">'
@@ -2970,19 +3023,31 @@
                   supportExternalCounter++;
               {% endfor %}
               c6.draw();
-              console.log(supportExternalCounter);
-              for (var c = 0; c < supportExternalCounter; c++) {
-                  $('#supportExternal1' + c).magicsearch({
-                      dataSource: {{ classificationC | safe }},
-                      fields: 'value',
-                      id: 'id',
-                      format: '%value%',
-                      multiStyle: {space: 5, width: 80},
-                      noResult: '검색결과없음',
-                      focusShow: true,
-                      maxShow: 100,
+              $.ajax({
+                      url: "{% url 'sales:classification_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      data: {'classification': 'classificationC1',
+                            "contractId":"{{ contractId }}",
+                      },
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var classification = returnData[0];
+                          var data = returnData[1];
+                          for(var i=0;i<data.length;i++){
+                              $('#supportExternal1'+i).empty();
+                              $('#supportExternal1'+i).append('<option value="" selected="">------</option>');
+                              for (var count = 0; count < classification.length; count++) {
+                                  var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
+                                  $('#supportExternal1'+i).append(option);
+                              }
+                              $('#supportExternal1' + i).val(data[i].classification).prop("selected", true);
+                          }
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
+
                   });
-              }
               $('.money').simpleMoneyFormat();
 
               $('input[name=supportExternalPrice]').on("change keyup paste input", function() {
@@ -3092,28 +3157,35 @@
           $('#addOthers').on('click', function () {
             c8.row.add([
                 '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="othersType" ' +
-                'id="others1' + othersCounter + '" onkeydown="magicsearchtab(others1' + othersCounter + ')">',
+                '<select style="width:200px" class="input-form" id="others1' + othersCounter + '" name="othersType"></select>',
                 '<input class="input-form" type="text" style="width: 350px;" name="othersContents" id="others2' + othersCounter + '">',
                 '<input class="money input-form"  name="othersPrice" style="width: 200px;" id="others3' + othersCounter + '">',
                 '<i class="fas fa-times-circle" name="remove">'
             ]).draw(false);
-            $('.money').simpleMoneyFormat();
-            $('#others1' + othersCounter).magicsearch({
-                dataSource: {{ classificationC | safe }},
-                fields: 'value',
-                id: 'id',
-                format: '%value%',
-                multiStyle: {space: 5, width: 80},
-                noResult: '검색결과없음',
-                focusShow: true,
-                maxShow: 100,
+            $.ajax({
+                      url: "{% url 'sales:classification_ajax_url' %}",
+                      method: 'POST',
+                      data: {'classification': 'classificationC2',
+                            'contractId':''},
+                      cache: false,
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var classification = returnData;
+                          $('#others1'+othersCounter).empty();
+                          $('#others1'+othersCounter).append('<option value="" selected="">------</option>');
+                          for (var count = 0; count < classification.length; count++) {
+                              var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
+                              $('#others1'+othersCounter).append(option);
+                          }
+                          othersCounter++;
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
             });
+            $('.money').simpleMoneyFormat();
             $('input[name=othersPrice]').on("change keyup paste input", function() {
                 totalPrice('othersPrice', 'totalOthersPrice');
             });
-
-              othersCounter++;
           });
 
           {% if others %}
@@ -3121,8 +3193,7 @@
               console.log("{{ other.classification }}");
                   c8.row.add([
                       '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">{{ other.typeId }}</div>',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" data-id="{{ other.classification }}" name="othersType" ' +
-                      'id="others1' + othersCounter + '" onkeydown="magicsearchtab(others1' + othersCounter + ')">',
+                      '<select style="width:200px" class="input-form" id="others1' + othersCounter + '" name="othersType"></select>',
                       '<input class="input-form" type="text" style="width: 350px;" value="{{ other.contents }}" name="othersContents" id="others2' + othersCounter + '">',
                       '<input class="money input-form" value="{{ other.price }}" name="othersPrice" style="width: 200px;" id="others3' + othersCounter + '">',
                       '<i class="fas fa-times-circle" name="remove">'
@@ -3130,21 +3201,33 @@
                   othersCounter++;
               {% endfor %}
               c8.draw();
-              console.log(othersCounter);
-              for (var c = 0; c < othersCounter; c++) {
-                  $('#others1' + c).magicsearch({
-                      dataSource: {{ classificationC | safe }},
-                      fields: 'value',
-                      id: 'id',
-                      format: '%value%',
-                      multiStyle: {space: 5, width: 80},
-                      noResult: '검색결과없음',
-                      focusShow: true,
-                      maxShow: 100,
-                  });
-              }
-              $('.money').simpleMoneyFormat();
+              $.ajax({
+                      url: "{% url 'sales:classification_ajax_url' %}",
+                      method: 'POST',
+                      cache: false,
+                      data: {'classification': 'classificationC2',
+                            "contractId":"{{ contractId }}",
+                      },
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var classification = returnData[0];
+                          var data = returnData[1];
+                          for(var i=0;i<data.length;i++){
+                              $('#others1'+i).empty();
+                              $('#others1'+i).append('<option value="" selected="">------</option>');
+                              for (var count = 0; count < classification.length; count++) {
+                                  var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
+                                  $('#others1'+i).append(option);
+                              }
+                              $('#others1' + i).val(data[i].classification).prop("selected", true);
+                          }
+                      },error:function(request,status,error){
+                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                      }
 
+                  });
+
+              $('.money').simpleMoneyFormat();
               $('input[name=othersPrice]').on("change keyup paste input", function() {
                   totalPrice('othersPrice', 'totalOthersPrice');
               });

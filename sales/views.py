@@ -3454,15 +3454,18 @@ def classification_asjson(request):
         jsonList = []
         costcontents = Purchasecategory.objects.filter(purchaseType=category).values('categoryName').distinct()
         jsonList.append(list(costcontents))
-        if category == 'classificationB':
-            data = Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=5)).values('classification')
-        elif category == '매입_미접수':
+        if category == '매입_미접수':
             data = Cost.objects.filter(contractId=contractId).values('costCompany')
+        elif category == 'classificationB':
+            data = Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=5)).values('classification')
+        elif category == 'classificationC1':
+            data = Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=6)).values('classification')
+        elif category == 'classificationC2':
+            data = Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=8)).values('classification')
         jsonList.append(list(data))
     else:
         costcontents = Purchasecategory.objects.filter(purchaseType=category).values('categoryName').distinct()
         jsonList = list(costcontents)
-    print(jsonList)
     structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
