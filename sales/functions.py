@@ -31,11 +31,12 @@ def viewContract(contractId):
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
+    purchaseCompany = list(purchases.values_list('purchaseCompany__companyNameKo', flat=True).distinct().order_by('purchaseCompany__companyNameKo'))
     costs = Cost.objects.filter(contractId=contractId)
     purchaseTypeA = Purchasetypea.objects.filter(contractId=contractId)
-    purchaseTypeB = Purchasetypea.objects.filter(contractId=contractId)
-    purchaseTypeC = Purchasetypea.objects.filter(contractId=contractId)
-    purchaseTypeD = Purchasetypea.objects.filter(contractId=contractId)
+    purchaseTypeB = Purchasetypeb.objects.filter(contractId=contractId)
+    purchaseTypeC = Purchasetypec.objects.filter(contractId=contractId)
+    purchaseTypeD = Purchasetyped.objects.filter(contractId=contractId)
     services = Servicereport.objects.filter(
         Q(contractId=contractId) & 
         Q(serviceStatus='Y') & 
@@ -178,6 +179,7 @@ def viewContract(contractId):
         'sumRevenueProfitPrice': sumRevenueProfitPrice,
         'sumRevenueProfitRatio': sumRevenueProfitRatio,
         'purchases': purchases.order_by('predictBillingDate'),
+        'purchaseCompany': purchaseCompany,
         'sumPurchasePrice': sumPurchasePrice,
         'costs': costs.order_by('billingDate'),
         'purchaseTypeA': purchaseTypeA,
