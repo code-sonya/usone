@@ -3198,6 +3198,33 @@ def save_contract_files(request, contractId):
         return redirect('sales:viewcontract', contractId)
 
 
+def save_purchase_files(request, contractId):
+    if request.method == 'POST':
+        print(request.POST)
+        print(request.FILES)
+        # # 1. 첨부파일 업로드 정보
+        # jsonFile = json.loads(request.POST['jsonFile'])
+        # filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
+        # filesName = []  # [fileName1, fileName2, ...]
+        # for i in jsonFile:
+        #     filesInfo[i['fileName']] = i['fileSize']
+        #     filesName.append(i['fileName'])
+        #
+        # # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
+        # for f in request.FILES.getlist('files'):
+        #     if f.name in filesName:
+        #         Contractfile.objects.create(
+        #             contractId=Contract.objects.get(contractId=contractId),
+        #             fileCategory=request.POST['fileType'],
+        #             fileName=f.name,
+        #             fileSize=filesInfo[f.name][:-2],
+        #             file=f,
+        #             uploadEmp=request.user.employee,
+        #             uploadDatetime=datetime.now(),
+        #         )
+        return redirect('sales:viewcontract', contractId)
+
+
 @login_required
 @csrf_exempt
 def contract_details(request):
