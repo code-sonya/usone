@@ -3502,12 +3502,13 @@ def change_contract_step(request, contractStep, contractId):
 
 @login_required
 def save_classification(request):
-    category = request.POST['classification']
+    classification = request.POST['classification']
     categoryName = request.POST['categoryName']
-    if Purchasecategory.objects.filter(purchaseType=category, categoryName=categoryName).first():
+    print(classification, categoryName)
+    if Purchasecategory.objects.filter(purchaseType=classification, categoryName=categoryName).first():
         result = 'N'
     else:
-        Purchasecategory.objects.create(purchaseType=category, categoryName=categoryName)
+        Purchasecategory.objects.create(purchaseType=classification, categoryName=categoryName)
         result = 'Y'
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
