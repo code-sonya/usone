@@ -958,14 +958,14 @@
 
         <div class="modal-body">
           <form id="purchaseUploadForm" method="POST" enctype="multipart/form-data"
-                action="/sales/savecontractfiles/{{ contract.contractId }}/">
+                action="/sales/savepurchasefiles/{{ contract.contractId }}/">
             {% csrf_token %}
           </form>
           <span id="purchaseFileType" class="d-none"></span>
           <table class="file-table">
             <thead>
             <tr>
-              <td width="30%"><select id="purchaseCompany" class="form-control"></select></td>
+              <td width="30%"><select id="purchaseCompany" class="form-control" onchange="change_purchase_file(this)"></select></td>
               <td width="40%"><b>파일명</b></td>
               <td width="15%"><b>파일크기</b></td>
               <td width="15%" id="purchaseFiles"></td>
@@ -978,7 +978,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_upload()">등록</a>
+          <a class="btn btn-info" href="#" onclick="btn_purchase_upload()">등록</a>
         </div>
       </div>
     </div>
@@ -1722,6 +1722,43 @@
           uploadForm.submit();
       }
 
+      function btn_purchase_upload() {
+          let fileType = $('#purchaseFileType').text();
+          let purchaseUploadForm = $('#purchaseUploadForm');
+          let fileLength = {{ purchaseCompany | length }};
+          let filesName;
+          let filesSize;
+          let listFile;
+          let data;
+
+          // 파일종류
+          $('<input />', {
+              type: 'hidden',
+              name: 'fileType',
+              value: fileType,
+          }).appendTo(purchaseUploadForm);
+
+          // 첨부파일
+          for (let i=0; i<fileLength; i++){
+              purchaseUploadForm.append($("#purchaseFiles" + i.toString()));
+              filesName = $('td[name="purchaseFilesName' + i.toString() + '"]');
+              filesSize = $('td[name="purchaseFilesSize' + i.toString() + '"]');
+              listFile = [];
+              for (let i = 0; i < filesName.length; i++) {
+                  data = {};
+                  data.fileName = filesName[i].innerText;
+                  data.fileSize = filesSize[i].innerText;
+                  listFile.push(data);
+              }
+              $('<input />', {
+                  type: 'hidden',
+                  name: 'jsonFile' + i.toString(),
+                  value: JSON.stringify(listFile)
+              }).appendTo(purchaseUploadForm);
+          }
+          purchaseUploadForm.submit();
+      }
+
       function btn_confirm() {
           const confirmform = $("#confirmForm");
           confirmform.submit();
@@ -1767,6 +1804,27 @@
               tr += '<td><i class="fas fa-times-circle" name="remove" onclick="remove_row(this)"></i></td>';
               tr += '</tr>';
               filesTbody.append(tr);
+          }
+      }
+
+      function purchase_file_names(id) {
+          let idNum = id.slice(-1);
+          let purchaseCompany = $('#purchaseCompany option:selected').text();
+          let files = $('#' + id).get(0).files;
+          let purchaseFilesTbody = $('#purchaseFilesTbody');
+          let file;
+          let tr;
+          $('tr[name="tr' + idNum +  '"]').remove();
+
+          for (let i = 0; i < files.length; i++) {
+              file = files[i];
+              tr = '<tr name="tr' + idNum + '">';
+              tr += '<td name="purchaseCompanies' + idNum + '">' + purchaseCompany + '</td>';
+              tr += '<td class="text-left" name="purchaseFilesName' + idNum + '">' + file.name + '</td>';
+              tr += '<td name="purchaseFilesSize' + idNum + '">' + (file.size / 1048576).toFixed(2) + 'MB</td>';
+              tr += '<td><i class="fas fa-times-circle" name="remove" onclick="remove_row(this)"></i></td>';
+              tr += '</tr>';
+              purchaseFilesTbody.append(tr);
           }
       }
 
@@ -1820,6 +1878,20 @@
 
       function show_document() {
           $('#documentModal').modal('show');
+      }
+
+      function change_purchase_file(obj) {
+          let purchaseFile;
+          const selectLength = obj.length;
+          const thisValue = obj.value;
+
+          for (let i=0; i<selectLength; i++) {
+              purchaseFile = $('#purchaseFile' + i.toString());
+              if (! (purchaseFile.hasClass('d-none'))) {
+                  purchaseFile.addClass('d-none');
+              }
+          }
+          $('#purchaseFile' + thisValue).removeClass('d-none');
       }
 
       $(document).ready(function () {
@@ -2998,19 +3070,28 @@
           const purchaseFiles = $('#purchaseFiles');
           let option;
           let input_file;
-
-          {% for c in purchaseCompany %}
-              option = '<option>' + '{{ c }}' + '</option>';
-              purchaseCompany.append(option);
-          {% endfor %}
-
-          let companyCount = 0;
+          let companyCount;
           let strCount;
+
+          companyCount = 0;
           {% for c in purchaseCompany %}
               strCount = companyCount.toString();
-              input_file = '<label class="m-0 btn btn-info btn-icon-split">';
+              option = '<option value="' + strCount + '">' + '{{ c }}' + '</option>';
+              purchaseCompany.append(option);
+              companyCount += 1;
+          {% endfor %}
+
+          companyCount = 0;
+          {% for c in purchaseCompany %}
+              strCount = companyCount.toString();
+              {% if forloop.first %}
+                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split">';
+              {% else %}
+                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split d-none">';
+              {% endif %}
               input_file += '<span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>';
-              input_file += '<input name="purchaseFiles' + strCount + '" type="file" multiple="multiple" class="d-none" onchange=file_names(this.id)>';
+              input_file += '<input id="purchaseFiles' + strCount + '" name="purchaseFiles' + strCount + '" ' +
+                  'type="file" multiple="multiple" class="d-none" onchange=purchase_file_names(this.id)>';
               input_file += '</label>';
               purchaseFiles.append(input_file);
               companyCount += 1;
