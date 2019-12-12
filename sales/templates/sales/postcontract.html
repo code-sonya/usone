@@ -1681,6 +1681,7 @@
       }
 
       function itemChangeAdd(main, sub, subCategory, itemCounter) {
+          console.log(main, sub, subCategory, itemCounter);
           if ($.type(main) === 'string') {
               main = '#' + main
           }
@@ -1688,6 +1689,7 @@
               sub = '#' + sub
           }
           var selectItem = $(main).val();
+          console.log(selectItem);
 
           $.ajax({
               url: "{% url 'sales:category_ajax_url' %}",
@@ -1989,6 +1991,7 @@
                       url: "{% url 'sales:maincategory_ajax_url' %}",
                       method: 'POST',
                       cache: false,
+                      data:{"contractId": ''},
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
                           var maincategory = returnData;
@@ -2021,30 +2024,32 @@
                       '<input style="width:200px" class="money input-form" name="itemPrice" id="item4' + itemCounter + '" value="{{ item.itemPrice }}">',
                       '<i class="fas fa-times-circle" name="remove" >'
                   ]).draw(false);
-
-                  $.ajax({
-                      url: "{% url 'sales:maincategory_ajax_url' %}",
-                      method: 'POST',
-                      cache: false,
-                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                      success: function (returnData) {
-                          var maincategory = returnData;
-                          $('#item1'+itemCounter).empty();
-                          $('#item1'+itemCounter).append('<option value="" selected="">--대분류--</option>');
-                          for (var count = 0; count < maincategory.length; count++) {
-                              var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
-                              $('#item1'+itemCounter).append(option);
-                          }
-                          $('#item1' + itemCounter).val("{{ item.mainCategory }}").prop("selected", true);
-                          itemChangeAdd("item1" + itemCounter, "item2" + itemCounter, "{{ item.subCategory }}", itemCounter);
-                          itemCounter++;
-                      },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-                      }
-
-                  });
-
+                  itemCounter++;
               {% endfor %}
+              $.ajax({
+                  url: "{% url 'sales:maincategory_ajax_url' %}",
+                  method: 'POST',
+                  cache: false,
+                  data: {"contractId":"{{ contractId }}"},
+                  headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                  success: function (returnData) {
+                      var category = returnData[0];
+                      var data = returnData[1];
+                      for(var i=0;i<data.length;i++){
+                          $('#item1'+i).empty();
+                          $('#item1'+i).append('<option value="" selected="">--대분류--</option>');
+                          for (var count = 0; count < category.length; count++) {
+                              var option = $("<option value=" + category[count].mainCategory + ">" + category[count].mainCategory + "</option>");
+                              $('#item1'+i).append(option);
+                          }
+                          $('#item1' + i).val(data[i].mainCategory).prop("selected", true);
+                          itemChangeAdd("item1" + i, "item2" + i, data[i].subCategory, i);
+                      }
+                  },error:function(request,status,error){
+                          alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  }
+              });
+
               $('.money').simpleMoneyFormat();
               $('input[name=itemPrice]').on("change keyup paste input", function() {
                   totalPrice('itemPrice', 'totalItemPrice');
@@ -2329,7 +2334,8 @@
                       url: "{% url 'sales:classification_ajax_url' %}",
                       method: 'POST',
                       cache: false,
-                      data: {'classification': '매입_미접수'},
+                      data: {'classification': '매입_미접수',
+                             'contractId':''},
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
                           var costcontents = returnData;
@@ -2366,32 +2372,34 @@
                       '<input class="input-form" type="text" name="costComment" id="cost7' + costCounter + '" value="{{ cost.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
                   ]);
-                  $.ajax({
-                      url: "{% url 'sales:classification_ajax_url' %}",
-                      method: 'POST',
-                      cache: false,
-                      data: {'classification': '매입_미접수'},
-                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                      success: function (returnData) {
-                          var costcontents = returnData;
-                          $('#cost5'+costCounter).empty();
-                          $('#cost5'+costCounter).append('<option value="" selected="">------</option>');
-                          for (var count = 0; count < costcontents.length; count++) {
-                              var option = $("<option value=" + costcontents[count].categoryName + ">" + costcontents[count].categoryName + "</option>");
-                              $('#cost5'+costCounter).append(option);
-                          }
-                          $('#cost5' + costCounter).val("{{ cost.costCompany }}").prop("selected", true);
-                          costCounter++;;
-                      },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-                      }
-
-                  });
+                  costCounter++;
               {% endfor %}
               t4.draw();
+              $.ajax({
+                          url: "{% url 'sales:classification_ajax_url' %}",
+                          method: 'POST',
+                          cache: false,
+                          data: {'classification': '매입_미접수',
+                                'contractId': '{{ contractId }}'},
+                          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                          success: function (returnData) {
+                              var classification = returnData[0];
+                              var data = returnData[1];
+                              for(var i=0;i<data.length;i++){
+                                  $('#cost5'+i).empty();
+                                  $('#cost5'+i).append('<option value="" selected="">------</option>');
+                                  for (var count = 0; count < classification.length; count++) {
+                                      var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
+                                      $('#cost5'+i).append(option);
+                                  }
+                                  $('#cost5' + i).val(data[i].costCompany).prop("selected", true);
+                              }
+                          },error:function(request,status,error){
+                                  alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                          }
+              });
 
               $('.money').simpleMoneyFormat();
-
               $('input[name=costPrice]').on("change keyup paste input", function() {
                   totalPrice('costPrice', 'totalCostPrice');
               });
@@ -2820,7 +2828,8 @@
             $.ajax({
                       url: "{% url 'sales:classification_ajax_url' %}",
                       method: 'POST',
-                      data: {'classification': 'classificationB'},
+                      data: {'classification': 'classificationB',
+                            'contractId':''},
                       cache: false,
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
@@ -2855,31 +2864,35 @@
                       '<input class="money input-form"  value="{{ supportInternal.price }}" name="supportInternalPrice" style="width: 200px;" id="supportInternal5' + supportInternalCounter + '">',
                       '<i class="fas fa-times-circle" name="remove">'
                   ]);
-                  $.ajax({
+                  supportInternalCounter++;
+              {% endfor %}
+              c5.draw();
+              $.ajax({
                       url: "{% url 'sales:classification_ajax_url' %}",
                       method: 'POST',
                       cache: false,
-                      data: {'classification': 'classificationB'},
+                      data: {'classification': 'classificationB',
+                            "contractId":"{{ contractId }}",
+                      },
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
-                          var classification = returnData;
-                          $('#supportInternal1'+supportInternalCounter).empty();
-                          $('#supportInternal1'+supportInternalCounter).append('<option value="" selected="">------</option>');
-                          for (var count = 0; count < classification.length; count++) {
-                              var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
-                              $('#supportInternal1'+supportInternalCounter).append(option);
+                          var classification = returnData[0];
+                          var data = returnData[1];
+                          for(var i=0;i<data.length;i++){
+                              $('#supportInternal1'+i).empty();
+                              $('#supportInternal1'+i).append('<option value="" selected="">------</option>');
+                              for (var count = 0; count < classification.length; count++) {
+                                  var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
+                                  $('#supportInternal1'+i).append(option);
+                              }
+                              $('#supportInternal1' + i).val(data[i].classification).prop("selected", true);
                           }
-                          $('#supportInternal1' + supportInternalCounter).val("{{ supportInternal.classification }}").prop("selected", true);
-                          supportInternalCounter++;;
                       },error:function(request,status,error){
                               alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
                       }
 
                   });
-              {% endfor %}
-              c5.draw();
               $('.money').simpleMoneyFormat();
-
               $('input[name=supportInternalPrice]').on("change keyup paste input", function() {
                   totalPrice('supportInternalPrice', 'totalSupportInternalPrice');
               });

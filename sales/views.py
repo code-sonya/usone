@@ -615,8 +615,8 @@ def modify_contract(request, contractId):
                 else:
                     supportInternalInstance = Purchasetypeb.objects.get(typeId=int(supportInternal["typeId"]))
                     supportInternalInstance.classification = supportInternal["type"]
-                    supportInternalInstance.times = int(supportInternal["times"] or 0) or None
-                    supportInternalInstance.sites = int(supportInternal["sites"] or 0) or None
+                    supportInternalInstance.times = int(supportInternal["times"] or 0) or 0
+                    supportInternalInstance.sites = int(supportInternal["sites"] or 0) or 0
                     supportInternalInstance.units = int(supportInternal["units"])
                     supportInternalInstance.price = int(supportInternal["price"])
                     supportInternalInstance.save()
@@ -747,6 +747,7 @@ def modify_contract(request, contractId):
             'costs': costs,
             'saleCompanyNames': saleCompanyNames,
             'endCompanyNames': endCompanyNames,
+            'contractId': contractId,
             # 'contractPaper': contractPaper,
             'orderPaper': orderPaper,
             'companyNames': companyNames,
@@ -3359,8 +3360,17 @@ def save_category(request):
 @login_required
 @csrf_exempt
 def maincategory_asjson(request):
-    maincategory = Category.objects.all().values('mainCategory').distinct()
-    structure = json.dumps(list(maincategory), cls=DjangoJSONEncoder)
+    contractId = request.POST['contractId']
+    if contractId:
+        items = Contractitem.objects.filter(contractId=contractId).values('mainCategory', 'subCategory')
+        maincategory = Category.objects.all().values('mainCategory').distinct()
+        jsonList = []
+        jsonList.append(list(maincategory))
+        jsonList.append(list(items))
+    else:
+        maincategory = Category.objects.all().values('mainCategory').distinct()
+        jsonList = list(maincategory)
+    structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
 
@@ -3368,8 +3378,21 @@ def maincategory_asjson(request):
 @csrf_exempt
 def classification_asjson(request):
     category = request.POST['classification']
-    costcontents = Purchasecategory.objects.filter(purchaseType=category).values('categoryName').distinct()
-    structure = json.dumps(list(costcontents), cls=DjangoJSONEncoder)
+    contractId = request.POST['contractId']
+    if contractId:
+        jsonList = []
+        costcontents = Purchasecategory.objects.filter(purchaseType=category).values('categoryName').distinct()
+        jsonList.append(list(costcontents))
+        if category == 'classificationB':
+            data = Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=5)).values('classification')
+        elif category == '매입_미접수':
+            data = Cost.objects.filter(contractId=contractId).values('costCompany')
+        jsonList.append(list(data))
+    else:
+        costcontents = Purchasecategory.objects.filter(purchaseType=category).values('categoryName').distinct()
+        jsonList = list(costcontents)
+    print(jsonList)
+    structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
 @login_required
