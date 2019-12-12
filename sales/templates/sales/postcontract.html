@@ -195,7 +195,7 @@
             <div id="revenuediv">
               <hr class="divider">
               <h5 class="text-dark mb-3"><b>▼ 매출세부정보</b>
-                <a class="text-white" href="#" role="button" id="revenuesLink" data-toggle="modal" data-target="#billingModal">
+                <a class="text-white" href="#" role="button" id="revenuesLink" data-toggle="modal" data-target="#billingRevenueModal">
                   <i class="fas fa-calendar-check fa-fw text-success"></i>
                 </a>
               </h5>
@@ -235,7 +235,7 @@
               <hr class="divider">
               <h5 class="text-dark mb-3"><b>▼ 매입세부정보</b></h5>
               <h5 class="text-dark mb-3"><b>&nbsp;&nbsp;&nbsp;(세금계산서 접수항목)</b>
-                <a class="text-white" href="#" role="button" id="purchasesLink" data-toggle="modal" data-target="#billingModal">
+                <a class="text-white" href="#" role="button" id="purchasesLink" data-toggle="modal" data-target="#billingPurchaseModal">
                   <i class="fas fa-calendar-check fa-fw text-success"></i>
                 </a>
               </h5>
@@ -272,7 +272,7 @@
             <div id="costdiv">
               <hr class="divider">
               <h5 class="text-dark mb-3"><b>&nbsp;&nbsp;&nbsp;(세금계산서 미접수항목)</b>
-                <a class="text-white" href="#" role="button" id="costsLink" data-toggle="modal" data-target="#billingModal">
+                <a class="text-white" href="#" role="button" id="costsLink" data-toggle="modal" data-target="#billingCostModal">
                   <i class="fas fa-calendar-check fa-fw text-success"></i>
                 </a>
               </h5>
@@ -824,23 +824,38 @@
     </div>
   </div>
 
-  <!-- billing Modal -->
-  <div class="modal fade" id="billingModal" tabindex="-1" role="dialog" aria-labelledby="billingModalLabel" aria-hidden="true">
+  <!-- billingRevenue Modal -->
+  <div class="modal fade" id="billingRevenueModal" tabindex="-1" role="dialog" aria-labelledby="billingRevenueModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-success text-gray-100">
-          <h5 class="modal-title" id="billingModalLabel">빌링스케줄 생성</h5>
+          <h5 class="modal-title" id="billingRevenueModalLabel">매출 빌링스케줄 생성</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
 
         <div class="modal-body">
-          <form id="billingForm" onkeydown="javascript: if (event.keyCode == 13) {btn_billing();}">
+          <form id="billingRevenueForm" onkeydown="javascript: if (event.keyCode == 13) {btn_billing('revenue');}">
             {% csrf_token %}
             <div class="row mb-1">
-              <div class="col-12">
+              <div class="col-6">
+                <label for="revenueCompanyName" class="font-weight-bold text-primary">회사 명</label>
+                <input type="text" class="magicsearch form-control" autocomplete="off" id="revenueCompanyName" name="revenueCompanyName"
+                       onkeydown="magicsearchtab(revenueCompanyName)">
+              </div>
+              <div class="col-6">
+                <label for="revenueDate" class="font-weight-bold text-primary">빌링 시작 월</label>
+                <input type="month" max="9999-12-31" class="form-control" id="revenueDate" name="revenueDate" required>
+              </div>
+              <div class="col-6">
+                <label for="revenuePrice" class="font-weight-bold text-primary">금액</label>
+                <input type="number" class="form-control" id="revenuePrice" name="revenuePrice" required>
+              </div>
+              <div class="col-6">
+                <label for="revenueTimes" class="font-weight-bold text-primary">분할 횟수</label>
+                <input type="number" class="form-control" id="revenueTimes" name="revenueTimes" required>
               </div>
             </div>
           </form>
@@ -848,7 +863,99 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-success" href="#" onclick="btn_billing()">생성</a>
+          <a class="btn btn-success" href="#" onclick="btn_billing('revenue')">생성</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- billingPurchase Modal -->
+  <div class="modal fade" id="billingPurchaseModal" tabindex="-1" role="dialog" aria-labelledby="billingPurchaseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="billingPurchaseModalLabel">매입(세금계산서접수) 빌링스케줄 생성</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="billingPurchaseForm" onkeydown="javascript: if (event.keyCode == 13) {btn_billing('purchase');}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="purchaseCompanyName" class="font-weight-bold text-primary">회사 명</label>
+                <input type="text" class="magicsearch form-control" autocomplete="off" id="purchaseCompanyName" name="revenueCompanyName"
+                       onkeydown="magicsearchtab(purchaseCompanyName)">
+                <!--<input type="text" class="form-control" id="purchaseCompanyName" name="purchaseCompanyName" required>-->
+              </div>
+              <div class="col-6">
+                <label for="purchaseDate" class="font-weight-bold text-primary">빌링 시작 월</label>
+                <input type="month" max="9999-12-31" class="form-control" id="purchaseDate" name="purchaseDate" required>
+              </div>
+              <div class="col-6">
+                <label for="purchasePrice" class="font-weight-bold text-primary">금액</label>
+                <input type="number" class="form-control" id="purchasePrice" name="purchasePrice" required>
+              </div>
+              <div class="col-6">
+                <label for="purchaseTimes" class="font-weight-bold text-primary">분할 횟수</label>
+                <input type="number" class="form-control" id="purchaseTimes" name="purchaseTimes" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-success" href="#" onclick="btn_billing('purchase')">생성</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- billingCost Modal -->
+  <div class="modal fade" id="billingCostModal" tabindex="-1" role="dialog" aria-labelledby="billingCostModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="billingCostModalLabel">매입(세금계산서미접수) 빌링스케줄 생성</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="billingCostForm" onkeydown="javascript: if (event.keyCode == 13) {btn_billing('cost');}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="costCompanyName" class="font-weight-bold text-primary">회사 명</label>
+                <input type="text" class="magicsearch form-control" autocomplete="off" id="costCompanyName" name="costCompanyName"
+                       onkeydown="magicsearchtab(costCompanyName)">
+                <!--<input type="text" class="form-control" id="costCompanyName" name="costCompanyName" required>-->
+              </div>
+              <div class="col-6">
+                <label for="costDate" class="font-weight-bold text-primary">빌링 시작 월</label>
+                <input type="month" max="9999-12-31" class="form-control" id="costDate" name="costDate" required>
+              </div>
+              <div class="col-6">
+                <label for="costPrice" class="font-weight-bold text-primary">금액</label>
+                <input type="number" class="form-control" id="costPrice" name="costPrice" required>
+              </div>
+              <div class="col-6">
+                <label for="costTimes" class="font-weight-bold text-primary">분할 횟수</label>
+                <input type="number" class="form-control" id="costTimes" name="costTimes" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-success" href="#" onclick="btn_billing('cost')">생성</a>
         </div>
       </div>
     </div>
@@ -1192,6 +1299,118 @@
           });
 
       }
+
+      function btn_billing(classification){
+          let company = '';
+          let date = '';
+          let price = '';
+          let times = '';
+          if(classification =="revenue"){
+               company = document.getElementById("revenueCompanyName").value;
+               date = document.getElementById("revenueDate").value;
+               price = document.getElementById("revenuePrice").value;
+               times = document.getElementById("revenueTimes").value;
+
+          }else if(classification =="purchase"){
+               company = document.getElementById("purchaseCompanyName").value;
+               date = document.getElementById("purchaseDate").value;
+               price = document.getElementById("purchasePrice").value;
+               times = document.getElementById("purchaseTimes").value;
+
+          }else if(classification =="cost"){
+               company = document.getElementById("costCompanyName").value;
+               date = document.getElementById("costDate").value;
+               price = document.getElementById("costPrice").value;
+               times = document.getElementById("costTimes").value;
+          }
+
+          if (company === '') {
+              alert("회사 명을 입력해주세요.");
+              return false;
+          }
+          if (date === '') {
+              alert("예상 빌링 시작일을 입력해주세요.");
+              return false;
+          }
+          if (price === '') {
+              alert("금액을 입력해주세요.");
+              return false;
+          }
+          if (times === '') {
+              alert("분할 횟수를 입력해주세요.");
+              return false;
+          }
+
+          console.log(company, date, price, times);
+          $.ajax({
+              url: "{% url 'sales:calculatebilling' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "company": company,
+                  "date": date,
+                  "price": price,
+                  "times": times,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData == 'N') {
+                      alert('오류가 발생했습니다 관리자에게 문의하세요 :)');
+                  } else if(returnData == 'Y') {
+                      $('.close').click();
+                      alert('빌링스케줄이 생성되었습니다.');
+                      if(classification =="revenue"){
+                          console.log(classification);
+                          // for (var count = 0; count < supportInternalCounter; count++) {
+                          //     var exists = false;
+                          //     $('#supportInternal1'+count+' option').each(function(){
+                          //         if (this.value == categoryName ) {
+                          //             exists = true;
+                          //             return false;
+                          //         }
+                          //     });
+                          //     if(exists==false){
+                          //         const option = $("<option value=" + categoryName + ">" + categoryName + "</option>");
+                          //         $('#supportInternal1'+count).append(option);
+                          //     }
+                          // }
+                      }else if(classification =="purchase") {
+                          console.log(classification);
+                          // for (var count = 0; count < supportExternalCounter; count++) {
+                          //     var exists = false;
+                          //     $('#supportExternal1'+count+' option').each(function(){
+                          //         if (this.value == categoryName ) {
+                          //             exists = true;
+                          //             return false;
+                          //         }
+                          //     });
+                          //     if(exists==false){
+                          //         const option = $("<option value=" + categoryName + ">" + categoryName + "</option>");
+                          //         $('#supportExternal1'+count).append(option);
+                          //     }
+                          // }
+                      }else if(classification =="cost") {
+                          console.log(classification);
+                          // for (var count = 0; count < othersCounter; count++) {
+                          //     var exists = false;
+                          //     $('#others1'+count+' option').each(function(){
+                          //         if (this.value == categoryName ) {
+                          //             exists = true;
+                          //             return false;
+                          //         }
+                          //     });
+                          //     if(exists==false){
+                          //         const option = $("<option value=" + categoryName + ">" + categoryName + "</option>");
+                          //         $('#others1'+count).append(option);
+                          //     }
+                          // }
+                      }
+                  }
+              }
+          });
+
+      }
+
 
       function replaceMagic() {
           $('#saleCompanyNames').magicsearch({
@@ -1966,6 +2185,51 @@
 
 
       $(document).ready(function () {
+          // 빌링스케줄 생성(매출) 고객사명 자동완성
+          const revenueCompanyName = document.getElementById('revenueCompanyName');
+          $('#revenueCompanyName').magicsearch({
+              dataSource: companyList,
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+          });
+
+          revenueCompanyName.removeAttribute("style");
+          revenueCompanyName.parentElement.removeAttribute("style");
+
+          // 빌링스케줄 생성(접수) 고객사명 자동완성
+          const purchaseCompanyName = document.getElementById('purchaseCompanyName');
+          $('#purchaseCompanyName').magicsearch({
+              dataSource: companyList,
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+          });
+
+          purchaseCompanyName.removeAttribute("style");
+          purchaseCompanyName.parentElement.removeAttribute("style");
+
+          // 빌링스케줄 생성(미접수) 고객사명 자동완성
+          const costCompanyName = document.getElementById('costCompanyName');
+          $('#costCompanyName').magicsearch({
+              dataSource: companyList,
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+          });
+
+          costCompanyName.removeAttribute("style");
+          costCompanyName.parentElement.removeAttribute("style");
+
           // 담당자 등록 고객사명 자동완성
           const customerCompany = document.getElementById('customerCompany');
           $('#customerCompany').magicsearch({

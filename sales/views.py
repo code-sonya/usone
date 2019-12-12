@@ -21,7 +21,7 @@ from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
-    empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase
+    empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase, billing_schedule
 
 from service.models import Company, Customer
 from django.db.models import Q, Value, F, CharField, IntegerField
@@ -3511,4 +3511,23 @@ def save_classification(request):
         Purchasecategory.objects.create(purchaseType=classification, categoryName=categoryName)
         result = 'Y'
     structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def calculate_billing(request):
+    try:
+        company = request.POST['company']
+        date = request.POST['date']
+        price = int(request.POST['price'])
+        times = int(request.POST['times'])
+        billing = billing_schedule(company, date, price, times)
+        jsonList = []
+        jsonList.append({'result': 'Y'})
+        jsonList.append(billing)
+    except Exception as e:
+        print(e)
+        jsonList = list({'result':'N'})
+    print(jsonList)
+    structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
