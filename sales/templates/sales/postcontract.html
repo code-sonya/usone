@@ -796,7 +796,7 @@
 
       function btn_cancel() {
           if (confirm("취소 하시겠습니까?") === true) {
-              location.href = "/sales/showcontracts"
+              history.back();
           } else {
               return false;
           }

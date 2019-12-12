@@ -249,6 +249,77 @@ def post_contract(request):
 
 
 @login_required
+def copy_contract(request, contractId):
+    beforeContract = Contract.objects.get(contractId=contractId)
+    contract = Contract.objects.get(contractId=contractId)
+    contract.pk = None
+    contract.save()
+
+    # 관리번호 자동생성
+    yy = str(datetime.now().year)[2:]
+    mm = str(datetime.now().month).zfill(2)
+    contract.contractCode = 'O-' + yy + mm + '-' + str(contract.contractId)
+
+    # 생성로그, 수정로그
+    contract.writeEmpId = Employee.objects.get(empId=request.user.employee.empId)
+    contract.writeDatetime = datetime.now()
+    contract.editEmpId = Employee.objects.get(empId=request.user.employee.empId)
+    contract.editDatetime = datetime.now()
+
+    # 확인서 내용은 삭제
+    contract.confirmCustomer = ''
+    contract.confirmDate = None
+    contract.confirmContents = ''
+    contract.confirmComment = ''
+    contract.save()
+
+    # 세부사항, 매출, 매입, 원가, 하도급 생성
+    items = Contractitem.objects.filter(contractId=beforeContract)
+    revenues = Revenue.objects.filter(contractId=beforeContract)
+    purchases = Purchase.objects.filter(contractId=beforeContract)
+    costs = Cost.objects.filter(contractId=beforeContract)
+    purchaseTypeAs = Purchasetypea.objects.filter(contractId=beforeContract)
+    purchaseTypeBs = Purchasetypeb.objects.filter(contractId=beforeContract)
+    purchaseTypeCs = Purchasetypec.objects.filter(contractId=beforeContract)
+    purchaseTypeDs = Purchasetyped.objects.filter(contractId=beforeContract)
+
+    for item in items:
+        item.pk = None
+        item.contractId = contract
+        item.save()
+    for revenue in revenues:
+        revenue.pk = None
+        revenue.contractId = contract
+        revenue.save()
+    for purchase in purchases:
+        purchase.pk = None
+        purchase.contractId = contract
+        purchase.save()
+    for cost in costs:
+        cost.pk = None
+        cost.contractId = contract
+        cost.save()
+    for purchaseTypeA in purchaseTypeAs:
+        purchaseTypeA.pk = None
+        purchaseTypeA.contractId = contract
+        purchaseTypeA.save()
+    for purchaseTypeB in purchaseTypeBs:
+        purchaseTypeB.pk = None
+        purchaseTypeB.contractId = contract
+        purchaseTypeB.save()
+    for purchaseTypeC in purchaseTypeCs:
+        purchaseTypeC.pk = None
+        purchaseTypeC.contractId = contract
+        purchaseTypeC.save()
+    for purchaseTypeD in purchaseTypeDs:
+        purchaseTypeD.pk = None
+        purchaseTypeD.contractId = contract
+        purchaseTypeD.save()
+
+    return redirect('sales:modifycontract', contract.contractId)
+
+
+@login_required
 def show_contracts(request):
     employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
 
