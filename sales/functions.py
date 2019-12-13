@@ -18,13 +18,13 @@ def viewContract(contractId):
     files_a = Purchasefile.objects.filter(contractId__contractId=contractId, fileCategory='매입견적서').order_by('uploadDatetime')
     files_b = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출견적서').order_by('uploadDatetime')
     files_c = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='계약서').order_by('uploadDatetime')
-    files_d = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='수주통보서').order_by('uploadDatetime')
     files_e = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매입발주서').order_by('uploadDatetime')
     files_f = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='납품,구축,검수확인서').order_by('uploadDatetime')
     files_g = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출발행').order_by('uploadDatetime')
 
     # 결재문서
     documents = Document.objects.filter(contractId=contractId).exclude(documentStatus='임시')
+    ordernotis = documents.filter(formId__formTitle='수주통보서', documentStatus='완료')
 
     # 계약, 세부정보, 매출, 매입, 계약서 명, 수주통보서 명
     contract = Contract.objects.get(contractId=contractId)
@@ -164,12 +164,12 @@ def viewContract(contractId):
         'files_a': files_a,
         'files_b': files_b,
         'files_c': files_c,
-        'files_d': files_d,
         'files_e': files_e,
         'files_f': files_f,
         'files_g': files_g,
         # 결재문서
         'documents': documents,
+        'ordernotis': ordernotis,
         # 계약, 세부사항, 매출, 매입, 원가, 계약서 명, 수주통보서 명
         'contract': contract,
         'services': services,

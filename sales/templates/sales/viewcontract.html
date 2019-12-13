@@ -160,9 +160,8 @@
                 <a href="#" onclick="open_upload('계약서')"><i class="fas fa-paperclip"></i></a>
               </td>
               <td>
-                <a href="/sales/viewordernotipdf/{{ contract.contractId }}/" onclick=""><i class="far fa-file-pdf"></i></a>
                 <b>수주통보서</b>
-                <a href="#" onclick="open_upload('수주통보서')"><i class="fas fa-paperclip"></i></a>
+                <a href="/sales/viewordernotipdf/{{ contract.contractId }}/" onclick=""><i class="far fa-file-pdf"></i></a>
               </td>
               <td>
                 <b>매입발주서</b>
@@ -224,18 +223,18 @@
                   <img class="td-img" src="/media/icon/prepare5.png"><br>
                 {% endif %}
               </a></td>
-              <td><a href="#" onclick="open_download('수주통보서')">
-                {% if files_d|length == 0 %}
+              <td><a href="#" onclick="open_ordernoti_download('수주통보서')">
+                {% if ordernotis|length == 0 %}
                   <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
-                {% elif files_d|length == 1 %}
+                {% elif ordernotis|length == 1 %}
                   <img class="td-img" src="/media/icon/ordernoti1.png"><br>
-                {% elif files_d|length == 2 %}
+                {% elif ordernotis|length == 2 %}
                   <img class="td-img" src="/media/icon/ordernoti2.png"><br>
-                {% elif files_d|length == 3 %}
+                {% elif ordernotis|length == 3 %}
                   <img class="td-img" src="/media/icon/ordernoti3.png"><br>
-                {% elif files_d|length == 4 %}
+                {% elif ordernotis|length == 4 %}
                   <img class="td-img" src="/media/icon/ordernoti4.png"><br>
-                {% elif files_d|length > 5 %}
+                {% elif ordernotis|length > 5 %}
                   <img class="td-img" src="/media/icon/ordernoti5.png"><br>
                 {% endif %}
               </a></td>
@@ -986,7 +985,7 @@
 
   <!-- file download modal -->
   <div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
@@ -1064,7 +1063,7 @@
 
   <!-- purchase estimate file download modal -->
   <div class="modal fade" id="purchaseDownloadModal" tabindex="-1" role="dialog" aria-labelledby="purchaseDownloadModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
@@ -1076,7 +1075,7 @@
 
         <div class="modal-body">
           {% for company in purchaseCompany %}
-            {{ company }}
+            <b class="text-dark">{{ company }}</b>
             <table class="file-table">
               <thead>
               <tr>
@@ -1088,12 +1087,14 @@
               </thead>
               <tbody>
               {% for f in files_a %}
-                <tr name="filesA" class="d-none">
+                {% if f.purchaseCompany.companyNameKo == company %}
+                <tr name="filesA">
                   <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
                   <td>{{ f.uploadEmp.empName }}</td>
                   <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
                   <td class="text-right">{{ f.fileSize }} MB</td>
                 </tr>
+                {% endif %}
               {% endfor %}
               </tbody>
             </table>
@@ -1121,7 +1122,8 @@
             <tr>
               <td width="15%"><b>기안일시</b></td>
               <td width="10%"><b>작성자</b></td>
-              <td width="65%"><b>문서명</b></td>
+              <td width="10%"><b>문서번호</b></td>
+              <td width="55%"><b>문서명</b></td>
               <td width="10%"><b>상태</b></td>
             </tr>
             </thead>
@@ -1130,10 +1132,48 @@
                 <tr>
                   <td>{{ document.draftDatetime | date:"Y.m.d H:i" }}</td>
                   <td>{{ document.writeEmp }}</td>
-                  <td class="text-left">
-                    <a href="/approval/viewdocument/{{ document.documentId }}" target="_blank">[{{ document.documentNumber }}]</a>
-                    {{ document.title }}
-                  </td>
+                  <td><a href="/approval/viewdocument/{{ document.documentId }}" target="_blank">{{ document.documentNumber }}</a></td>
+                  <td class="text-left">{{ document.title }}</td>
+                  <td>{{ document.documentStatus }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ordernoti document modal -->
+  <div class="modal fade" id="ordernotiModal" tabindex="-1" role="dialog" aria-labelledby="ordernotiModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="ordernotiModalLabel">수주통보서 문서함</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="15%"><b>기안일시</b></td>
+              <td width="10%"><b>작성자</b></td>
+              <td width="10%"><b>문서번호</b></td>
+              <td width="55%"><b>문서명</b></td>
+              <td width="10%"><b>상태</b></td>
+            </tr>
+            </thead>
+            <tbody>
+              {% for document in ordernotis %}
+                <tr>
+                  <td>{{ document.draftDatetime | date:"Y.m.d H:i" }}</td>
+                  <td>{{ document.writeEmp }}</td>
+                  <td><a href="/approval/viewdocument/{{ document.documentId }}" target="_blank">{{ document.documentNumber }}</a></td>
+                  <td class="text-left">{{ document.title }}</td>
                   <td>{{ document.documentStatus }}</td>
                 </tr>
               {% endfor %}
@@ -1678,7 +1718,6 @@
           $('#downloadModal').modal('show');
           let filesB = $('tr[name=filesB]');
           let filesC = $('tr[name=filesC]');
-          let filesD = $('tr[name=filesD]');
           let filesE = $('tr[name=filesE]');
           let filesF = $('tr[name=filesF]');
           let filesG = $('tr[name=filesG]');
@@ -1688,9 +1727,6 @@
           }
           if (!filesC.hasClass('d-none')) {
               filesC.addClass('d-none')
-          }
-          if (!filesD.hasClass('d-none')) {
-              filesD.addClass('d-none')
           }
           if (!filesE.hasClass('d-none')) {
               filesE.addClass('d-none')
@@ -1706,8 +1742,6 @@
               filesB.removeClass('d-none');
           } else if (fileType === '계약서') {
               filesC.removeClass('d-none');
-          } else if (fileType === '수주통보서') {
-              filesD.removeClass('d-none');
           } else if (fileType === '매입발주서') {
               filesE.removeClass('d-none');
           } else if (fileType === '납품,구축,검수확인서') {
@@ -1720,6 +1754,11 @@
       function open_purchase_download(fileType) {
           $('#purchaseDownloadModalLabel').text(fileType + ' 목록');
           $('#purchaseDownloadModal').modal('show');
+      }
+
+      function open_ordernoti_download(fileType) {
+          $('#ordernotiModalLabel').text(fileType + ' 문서함');
+          $('#ordernotiModal').modal('show');
       }
 
       function btn_upload() {
@@ -1883,7 +1922,6 @@
           let purchaseEstimate = {{ files_a | length }};  // 매입발주서 개수
           let revenueEstimate = {{ files_b | length }};  // 매출견적서 개수
           let contractPaper = {{ files_c | length }};  // 계약서 개수
-          let orderPaper = {{ files_d | length }};  // 수주통보서 개수
           let confirmPaper = {{ files_f | length }};  // 납품,구축,검수확인서 개수
 
           if (documentType === '수주통보서') {
@@ -1893,9 +1931,7 @@
                   window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
               }
           } else if (documentType === '매출발행') {
-              if (orderPaper === 0) {
-                  alert('수주통보서를 업로드해주세요.')
-              } else if (confirmPaper === 0) {
+              if (confirmPaper === 0) {
                   alert('납품,구축,검수확인서를 업로드해주세요.')
               } else {
                   window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType, '_blank');
