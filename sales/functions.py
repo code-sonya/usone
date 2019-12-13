@@ -1229,17 +1229,22 @@ def date_list(startDatetime, endDatetime):
     return dateRange
 
 
-def billing_schedule(company, date, price, times):
+def billing_schedule(company, date, times, price, profit):
     billing = []
     if price == 0:
         billing_price = 0
     else:
         billing_price = round(price/times)
 
+    if profit == 0:
+        billing_profit = 0
+    else:
+        billing_profit = round(profit/times)
+
     date = datetime(year=int(date[:4]), month=int(date[5:7]), day=1)
-    for billing_times in range(1, times+1):
+    for billing_times in range(0, times):
         billing_date = date + relativedelta(months=billing_times)
-        schedule = {'company': company, 'date': '{}-{}'.format(billing_date.year, str(billing_date.month).zfill(2)), 'price': billing_price, 'times': billing_times}
+        schedule = {'company': company, 'date': '{}-{}'.format(billing_date.year, str(billing_date.month).zfill(2)), 'times': billing_times, 'price': billing_price, 'profit': billing_profit}
         billing.append(schedule)
 
     return billing
