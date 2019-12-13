@@ -10,12 +10,12 @@ from hr.models import Employee
 from service.models import Servicereport
 from approval.models import Document
 from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile,\
-    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile
 
 
 def viewContract(contractId):
     # 첨부파일
-    files_a = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매입견적서').order_by('uploadDatetime')
+    files_a = Purchasefile.objects.filter(contractId__contractId=contractId, fileCategory='매입견적서').order_by('uploadDatetime')
     files_b = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출견적서').order_by('uploadDatetime')
     files_c = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='계약서').order_by('uploadDatetime')
     files_d = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='수주통보서').order_by('uploadDatetime')
