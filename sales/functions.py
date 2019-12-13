@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta, date
-
+from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.db.models import Sum, F, Count
 from django.db.models.functions import Coalesce
@@ -1227,6 +1227,22 @@ def date_list(startDatetime, endDatetime):
     endDate = datetime.datetime(year=int(endDatetime[:4]), month=int(endDatetime[5:7]), day=int(endDatetime[8:10]))
     dateRange = [(startDate + datetime.timedelta(months=x)).date() for x in range(0, (endDate - startDate).days + 1)]
     return dateRange
+
+
+def billing_schedule(company, date, price, times):
+    billing = []
+    if price == 0:
+        billing_price = 0
+    else:
+        billing_price = round(price/times)
+
+    date = datetime(year=int(date[:4]), month=int(date[5:7]), day=1)
+    for billing_times in range(1, times+1):
+        billing_date = date + relativedelta(months=billing_times)
+        schedule = {'company': company, 'date': '{}-{}'.format(billing_date.year, str(billing_date.month).zfill(2)), 'price': billing_price, 'times': billing_times}
+        billing.append(schedule)
+
+    return billing
 
 
 

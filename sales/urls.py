@@ -81,4 +81,5 @@ urlpatterns = [
     url(r'^maincategoryasjson/$', views.maincategory_asjson, name='maincategory_ajax_url'),
     url(r'^classificationasjson/$', views.classification_asjson, name='classification_ajax_url'),
     url(r'^saveclassification/$', views.save_classification, name='saveclassification'),
+    url(r'^calculatebilling/$', views.calculate_billing, name='calculatebilling'),
 ]
