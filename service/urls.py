@@ -23,4 +23,5 @@ urlpatterns = [
         views.post_geolocation, name='postgeolocation'),
     url(r'^changecontractsname/', views.change_contracts_name, name='changecontractsname'),
     url(r'^adminservice/(?P<serviceId>.+)/$', views.admin_service, name='adminservice'),
+    url(r'^saveconfirmfiles/(?P<contractId>.+)/$', views.save_confirm_files, name='savepurchasefiles'),
 ]

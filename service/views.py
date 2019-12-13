@@ -19,6 +19,7 @@ from extrapay.models import OverHour, ExtraPay
 from .forms import ServicereportForm, ServiceformForm, AdminServiceForm
 from .functions import *
 from .models import Serviceform, Geolocation
+from sales.models import Contractfile
 
 
 @login_required
@@ -1146,3 +1147,29 @@ def admin_service(request, serviceId):
                 'coWorkers': serviceInstance.coWorker,
             }
             return render(request, 'service/adminservice.html', context)
+
+
+def save_confirm_files(request, contractId):
+    if request.method == 'POST':
+
+        # 1. 첨부파일 업로드 정보
+        jsonFile = json.loads(request.POST['jsonFile'])
+        filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
+        filesName = []  # [fileName1, fileName2, ...]
+        for i in jsonFile:
+            filesInfo[i['fileName']] = i['fileSize']
+            filesName.append(i['fileName'])
+
+        # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
+        for f in request.FILES.getlist('files'):
+            if f.name in filesName:
+                Contractfile.objects.create(
+                    contractId=Contract.objects.get(contractId=contractId),
+                    fileCategory='납품/검수확인서',
+                    fileName=f.name,
+                    fileSize=filesInfo[f.name][:-2],
+                    file=f,
+                    uploadEmp=request.user.employee,
+                    uploadDatetime=datetime.now(),
+                )
+        return redirect('sales:viewcontract', contractId)
