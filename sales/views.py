@@ -19,7 +19,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
-    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase
 
@@ -3200,28 +3200,34 @@ def save_contract_files(request, contractId):
 
 def save_purchase_files(request, contractId):
     if request.method == 'POST':
-        print(request.POST)
-        print(request.FILES)
-        # # 1. 첨부파일 업로드 정보
-        # jsonFile = json.loads(request.POST['jsonFile'])
-        # filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
-        # filesName = []  # [fileName1, fileName2, ...]
-        # for i in jsonFile:
-        #     filesInfo[i['fileName']] = i['fileSize']
-        #     filesName.append(i['fileName'])
-        #
-        # # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
-        # for f in request.FILES.getlist('files'):
-        #     if f.name in filesName:
-        #         Contractfile.objects.create(
-        #             contractId=Contract.objects.get(contractId=contractId),
-        #             fileCategory=request.POST['fileType'],
-        #             fileName=f.name,
-        #             fileSize=filesInfo[f.name][:-2],
-        #             file=f,
-        #             uploadEmp=request.user.employee,
-        #             uploadDatetime=datetime.now(),
-        #         )
+        fileType = request.POST['fileType']
+        contract = Contract.objects.get(contractId=contractId)
+
+        for fileKey in request.FILES.keys():
+            tempJsonFile = json.loads(request.POST[fileKey.replace('purchaseFiles', 'jsonFile')])
+            company = ''
+            tempFilesInfo = {}
+            tempFilesName = []
+            tempBool = True
+            for i in tempJsonFile:
+                if tempBool:
+                    company = Company.objects.get(companyNameKo=i['companyName'])
+                    tempBool = False
+                tempFilesInfo[i['fileName']] = i['fileSize']
+                tempFilesName.append(i['fileName'])
+
+            for f in request.FILES.getlist(fileKey):
+                if f.name in tempFilesName:
+                    Purchasefile.objects.create(
+                        contractId=contract,
+                        purchaseCompany=company,
+                        fileCategory=fileType,
+                        fileName=f.name,
+                        fileSize=tempFilesInfo[f.name][:-2],
+                        file=f,
+                        uploadEmp=request.user.employee,
+                        uploadDatetime=datetime.now(),
+                    )
         return redirect('sales:viewcontract', contractId)
 
 

@@ -1070,6 +1070,92 @@
     </div>
   </div>
 
+  <!-- purchase estimate file download modal -->
+  <div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="downloadModalLabel">첨부파일 다운로드</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="20%"><b>일시</b></td>
+              <td width="20%"><b>작성자</b></td>
+              <td width="40%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for f in files_a %}
+              <tr name="filesA" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_b %}
+              <tr name="filesB" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_c %}
+              <tr name="filesC" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_d %}
+              <tr name="filesD" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_e %}
+              <tr name="filesE" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_f %}
+              <tr name="filesF" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            {% for f in files_g %}
+              <tr name="filesG" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- document modal -->
   <div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
@@ -1726,6 +1812,7 @@
           let fileType = $('#purchaseFileType').text();
           let purchaseUploadForm = $('#purchaseUploadForm');
           let fileLength = {{ purchaseCompany | length }};
+          let companyName;
           let filesName;
           let filesSize;
           let listFile;
@@ -1741,11 +1828,13 @@
           // 첨부파일
           for (let i=0; i<fileLength; i++){
               purchaseUploadForm.append($("#purchaseFiles" + i.toString()));
+              companyName = $('td[name="purchaseCompanyName' + i.toString() + '"]');
               filesName = $('td[name="purchaseFilesName' + i.toString() + '"]');
               filesSize = $('td[name="purchaseFilesSize' + i.toString() + '"]');
               listFile = [];
               for (let i = 0; i < filesName.length; i++) {
                   data = {};
+                  data.companyName = companyName[i].innerText;
                   data.fileName = filesName[i].innerText;
                   data.fileSize = filesSize[i].innerText;
                   listFile.push(data);
@@ -1819,7 +1908,7 @@
           for (let i = 0; i < files.length; i++) {
               file = files[i];
               tr = '<tr name="tr' + idNum + '">';
-              tr += '<td name="purchaseCompanies' + idNum + '">' + purchaseCompany + '</td>';
+              tr += '<td name="purchaseCompanyName' + idNum + '">' + purchaseCompany + '</td>';
               tr += '<td class="text-left" name="purchaseFilesName' + idNum + '">' + file.name + '</td>';
               tr += '<td name="purchaseFilesSize' + idNum + '">' + (file.size / 1048576).toFixed(2) + 'MB</td>';
               tr += '<td><i class="fas fa-times-circle" name="remove" onclick="remove_row(this)"></i></td>';
