@@ -178,7 +178,7 @@ def viewContract(contractId):
         'sumRevenuePrice': sumRevenuePrice,
         'sumRevenueProfitPrice': sumRevenueProfitPrice,
         'sumRevenueProfitRatio': sumRevenueProfitRatio,
-        'purchases': purchases.order_by('predictBillingDate'),
+        'purchases': purchases.order_by('predictBillingDate', 'purchaseCompany__companyNameKo'),
         'purchaseCompany': purchaseCompany,
         'sumPurchasePrice': sumPurchasePrice,
         'costs': costs.order_by('billingDate'),
