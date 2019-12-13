@@ -54,10 +54,10 @@
           <h6 class="m-0 h3 text-gray-800"> 영업기회 및 계약 등록 </h6>
           <div class="dropdown no-arrow">
             <a class="dropdown-toggle mr-2" href="#" role="button" id="customerLink" data-toggle="modal" data-target="#customerModal">
-              <i class="fas fa-user-edit fa-fw text-success"></i>
+              <i class="fas fa-user-edit text-success"></i>
             </a>
             <a class="dropdown-toggle" href="#" role="button" id="companyLink" data-toggle="modal" data-target="#companyModal">
-              <i class="fas fa-hotel fa-fw text-warning"></i>
+              <i class="fas fa-city text-warning"></i>
             </a>
           </div>
         </div>
@@ -196,7 +196,7 @@
               <hr class="divider">
               <h5 class="text-dark mb-3"><b>▼ 매출세부정보</b>
                 <a class="text-white" href="#" role="button" id="revenuesLink" data-toggle="modal" data-target="#billingRevenueModal">
-                  <i class="fas fa-calendar-check fa-fw text-success"></i>
+                  <i class="fas fa-divide text-danger"></i>
                 </a>
               </h5>
               <table id="revenue" class="display" style="width:100%">
@@ -236,7 +236,7 @@
               <h5 class="text-dark mb-3"><b>▼ 매입세부정보</b></h5>
               <h5 class="text-dark mb-3"><b>&nbsp;&nbsp;&nbsp;(세금계산서 접수항목)</b>
                 <a class="text-white" href="#" role="button" id="purchasesLink" data-toggle="modal" data-target="#billingPurchaseModal">
-                  <i class="fas fa-calendar-check fa-fw text-success"></i>
+                  <i class="fas fa-divide text-danger"></i>
                 </a>
               </h5>
               <table id="purchase" class="display" style="width:100%">
@@ -548,7 +548,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
 
-        <div class="modal-header bg-info text-gray-100">
+        <div class="modal-header bg-warning text-gray-100">
           <h5 class="modal-title" id="filterModalLabel">고객사 등록</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
@@ -598,7 +598,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_register()">등록</a>
+          <a class="btn btn-warning" href="#" onclick="btn_register()">등록</a>
         </div>
       </div>
     </div>
@@ -609,7 +609,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
 
-        <div class="modal-header bg-info text-gray-100">
+        <div class="modal-header bg-success text-gray-100">
           <h5 class="modal-title" id="customerModalLabel">담당자등록</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
@@ -654,7 +654,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_customer()">등록</a>
+          <a class="btn btn-success" href="#" onclick="btn_customer()">등록</a>
         </div>
       </div>
     </div>
@@ -829,7 +829,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
 
-        <div class="modal-header bg-success text-gray-100">
+        <div class="modal-header bg-danger text-gray-100">
           <h5 class="modal-title" id="billingRevenueModalLabel">매출 빌링스케줄 생성</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
@@ -871,7 +871,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-success" href="#" onclick="btn_billing('revenue')">생성</a>
+          <a class="btn btn-danger" href="#" onclick="btn_billing('revenue')">생성</a>
         </div>
       </div>
     </div>
@@ -882,7 +882,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
 
-        <div class="modal-header bg-success text-gray-100">
+        <div class="modal-header bg-danger text-gray-100">
           <h5 class="modal-title" id="billingPurchaseModalLabel">매입(세금계산서접수) 빌링스케줄 생성</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
@@ -916,7 +916,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-success" href="#" onclick="btn_billing('purchase')">생성</a>
+          <a class="btn btn-danger" href="#" onclick="btn_billing('purchase')">생성</a>
         </div>
       </div>
     </div>
@@ -1340,6 +1340,8 @@
                                   $('#revenue6' + count).val(data[count].price.toLocaleString());
                                   $('#revenue7' + count).val(data[count].profit.toLocaleString());
                               }
+                              totalPrice('revenuePrice', 'totalRevenuePrice');
+                              totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
                           }else{
                                 for (var count = 0; count < data.length; count++) {
                                     $('#addRevenue').click();
@@ -1351,6 +1353,9 @@
                                     $('#revenue6' + i).val(data[count].price.toLocaleString());
                                     $('#revenue7' + i).val(data[count].profit.toLocaleString());
                                 }
+                                totalPrice('revenuePrice', 'totalRevenuePrice');
+                                totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
+
                           }
                       }else if(classification =="purchase") {
                           if (purchaseCounter == 1 & $('#purchase10').val() == '') {
@@ -1365,6 +1370,7 @@
                                   $('#purchase5' + count).trigger('set', {id: data[count].company});
                                   $('#purchase6' + count).val(data[count].price.toLocaleString());
                               }
+                              totalPrice('purchasePrice', 'totalPurchasePrice');
                           } else {
                               for (var count = 0; count < data.length; count++) {
                                   $('#addPurchase').click();
@@ -1375,6 +1381,7 @@
                                   $('#purchase5' + count).trigger('set', {id: data[count].company});
                                   $('#purchase6' + count).val(data[count].price.toLocaleString());
                               }
+                              totalPrice('purchasePrice', 'totalPurchasePrice');
                           }
                       }
                   }
