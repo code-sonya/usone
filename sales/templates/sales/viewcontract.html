@@ -179,7 +179,7 @@
               </td>
             </tr>
             <tr>
-              <td><a href="#" onclick="open_download('매입견적서')">
+              <td><a href="#" onclick="open_purchase_download('매입견적서')">
                 {% if files_a|length == 0 %}
                   <img class="td-img" src="/media/icon/prepare_grey.png"><br>
                 {% elif files_a|length == 1 %}
@@ -1007,14 +1007,6 @@
             </tr>
             </thead>
             <tbody>
-            {% for f in files_a %}
-              <tr name="filesA" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
-              </tr>
-            {% endfor %}
             {% for f in files_b %}
               <tr name="filesB" class="d-none">
                 <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
@@ -1071,86 +1063,41 @@
   </div>
 
   <!-- purchase estimate file download modal -->
-  <div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadModalLabel" aria-hidden="true">
+  <div class="modal fade" id="purchaseDownloadModal" tabindex="-1" role="dialog" aria-labelledby="purchaseDownloadModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="downloadModalLabel">첨부파일 다운로드</h5>
+          <h5 class="modal-title" id="purchaseDownloadModalLabel">매입견적서 다운로드</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
 
         <div class="modal-body">
-          <table class="file-table">
-            <thead>
-            <tr>
-              <td width="20%"><b>일시</b></td>
-              <td width="20%"><b>작성자</b></td>
-              <td width="40%"><b>파일명</b></td>
-              <td width="20%"><b>파일크기</b></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for f in files_a %}
-              <tr name="filesA" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
+          {% for company in purchaseCompany %}
+            {{ company }}
+            <table class="file-table">
+              <thead>
+              <tr>
+                <td width="20%"><b>일시</b></td>
+                <td width="20%"><b>작성자</b></td>
+                <td width="40%"><b>파일명</b></td>
+                <td width="20%"><b>파일크기</b></td>
               </tr>
-            {% endfor %}
-            {% for f in files_b %}
-              <tr name="filesB" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
-              </tr>
-            {% endfor %}
-            {% for f in files_c %}
-              <tr name="filesC" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
-              </tr>
-            {% endfor %}
-            {% for f in files_d %}
-              <tr name="filesD" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
-              </tr>
-            {% endfor %}
-            {% for f in files_e %}
-              <tr name="filesE" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
-              </tr>
-            {% endfor %}
-            {% for f in files_f %}
-              <tr name="filesF" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
-              </tr>
-            {% endfor %}
-            {% for f in files_g %}
-              <tr name="filesG" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+              {% for f in files_a %}
+                <tr name="filesA" class="d-none">
+                  <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                  <td>{{ f.uploadEmp.empName }}</td>
+                  <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                  <td class="text-right">{{ f.fileSize }} MB</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -1729,7 +1676,6 @@
       function open_download(fileType) {
           $('#downloadModalLabel').text(fileType + ' 목록');
           $('#downloadModal').modal('show');
-          let filesA = $('tr[name=filesA]');
           let filesB = $('tr[name=filesB]');
           let filesC = $('tr[name=filesC]');
           let filesD = $('tr[name=filesD]');
@@ -1737,9 +1683,6 @@
           let filesF = $('tr[name=filesF]');
           let filesG = $('tr[name=filesG]');
 
-          if (!filesA.hasClass('d-none')) {
-              filesA.addClass('d-none')
-          }
           if (!filesB.hasClass('d-none')) {
               filesB.addClass('d-none')
           }
@@ -1759,9 +1702,7 @@
               filesG.addClass('d-none')
           }
 
-          if (fileType === '매입견적서') {
-              filesA.removeClass('d-none');
-          } else if (fileType === '매출견적서') {
+          if (fileType === '매출견적서') {
               filesB.removeClass('d-none');
           } else if (fileType === '계약서') {
               filesC.removeClass('d-none');
@@ -1774,6 +1715,11 @@
           } else if (fileType === '매출발행') {
               filesG.removeClass('d-none');
           }
+      }
+
+      function open_purchase_download(fileType) {
+          $('#purchaseDownloadModalLabel').text(fileType + ' 목록');
+          $('#purchaseDownloadModal').modal('show');
       }
 
       function btn_upload() {
