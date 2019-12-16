@@ -14,6 +14,7 @@ from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max
 
 from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile, Purchasefile
+from client.models import Company
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
 from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
 from sales.functions import detailPurchase, summaryPurchase
@@ -1573,25 +1574,29 @@ def post_contract_document(request, contractId, documentType):
         contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
 
         if request.method == 'POST':
+            files = Purchasefile.objects.filter(contractId=contract, fileCategory='매입견적서')
             purchaseIds = json.loads(request.POST['purchaseIds'])
             purchaseInAdvance = purchases.filter(purchaseId__in=purchaseIds)
             purchaseCompany = ''
+            purchaseEstimate = ''
             for company in purchaseInAdvance.values('purchaseCompany__companyNameKo').distinct():
-                if not purchaseCompany:
-                    purchaseCompany += company['purchaseCompany__companyNameKo']
+                companyName = company['purchaseCompany__companyNameKo']
+                purchaseCompany += (companyName + ', ')
+                companyObj = Company.objects.get(companyNameKo=companyName)
+                lastFile = files.filter(purchaseCompany=companyObj)
+                if lastFile:
+                    maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
+                    lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
+                    purchaseEstimate += '&nbsp;&nbsp; ' + companyName + ' : ' + \
+                                        '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a><br>'
                 else:
-                    purchaseCompany += (', ' + company['purchaseCompany__companyNameKo'])
-
-            files = Purchasefile.objects.filter(contractId=contract, fileCategory='매입견적서')
-            if files:
-                maxUploadDatetime = files.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
-                files = files.get(uploadDatetime=maxUploadDatetime)
-                purchaseEstimate = '<a href="/media/' + str(files.file) + '" download>' + files.fileName + '</a>'
+                    purchaseEstimate += '&nbsp;&nbsp; ' + companyName + ' : ' + '첨부파일 없음<br>'
+            purchaseCompany = purchaseCompany[:-2]
 
             purchasePrice = purchaseInAdvance.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
             contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
             contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
-            # contentHtml = contentHtml.replace('매입견적서링크', purchaseEstimate)
+            contentHtml = contentHtml.replace('매입견적서링크', purchaseEstimate)
 
     # 문서 등록
     document = Document.objects.create(
