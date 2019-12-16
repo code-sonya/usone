@@ -41,6 +41,21 @@
       border-top: 1px dotted #858796a3;
     }
 
+    .file-table {
+      color: #333333;
+      width: 100%;
+      margin-bottom: 2rem;
+    }
+
+    .file-table td, .file-table th {
+      padding: .75rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #e3e6f0;
+      font-size: 14px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
     @media (max-width:1199px){.mobile-table td, .mobile-table th{font-size: 16px; padding: 4px;}}
     @media (min-width:1200px){.mobile-table td, .mobile-table th{font-size: 18px; padding: 8px;}}
   </style>
@@ -225,9 +240,12 @@
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
             {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-             <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-                <i class="fas fa-file-signature text-gray-100"></i>
-              </a>
+              <a href="#" role="button" id="uploadLink" data-toggle="modal" data-target="#uploadModal" class="btn btn-success">
+                  <i class="fas fa-user-cog text-gray-100"></i>
+               </a>
+               <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+                  <i class="fas fa-pen text-gray-100"></i>
+               </a>
             {% endif %}
             {% if service.empId.empId == user.employee.empId %}
             <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
@@ -235,7 +253,7 @@
             </a>
             {% endif %}
             <a href="#" class="btn btn-danger" onclick="location.href='/service/viewservicepdf/{{ service.serviceId }}'">
-              <i class="fas fa-file-pdf text-gray-100"></i>
+              <i class="fas fa-download text-gray-100"></i>
             </a>
           </div>
         </div>
@@ -326,6 +344,50 @@
     <div class="col-xl-2"></div>
   </div>
 
+  <!-- confirm Modal -->
+  <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="uploadModalLabel">첨부파일 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="uploadForm" method="POST" enctype="multipart/form-data"
+                action="/sales/saveconfirmfiles/{{ contract.contractId }}/">
+            {% csrf_token %}
+          </form>
+          <span id="fileType" class="d-none"></span>
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="65%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
+              <td width="15%">
+                <label class="m-0 btn btn-info btn-icon-split">
+                  <span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>
+                  <input id="files" name="files" type="file" multiple="multiple" class="d-none" onchange=file_names(this.id)>
+                </label>
+              </td>
+            </tr>
+            </thead>
+            <tbody id="filesTbody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_upload()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 {% endblock %}
 
@@ -336,6 +398,48 @@
 
       function btn_board() {
           location.href = '/noticeboard/postboard/' + {{ service.serviceId }} +'/';
+      }
+
+      function file_names(id) {
+          let files = $('#' + id).get(0).files;
+          let filesTbody = $('#filesTbody');
+          let file;
+          let tr;
+          filesTbody.empty();
+
+          for (let i = 0; i < files.length; i++) {
+              file = files[i];
+              tr = '<tr>';
+              tr += '<td class="text-left" name="filesName">' + file.name + '</td>';
+              tr += '<td name="filesSize">' + (file.size / 1048576).toFixed(2) + 'MB</td>';
+              tr += '<td><i class="fas fa-times-circle" name="remove" onclick="remove_row(this)"></i></td>';
+              tr += '</tr>';
+              filesTbody.append(tr);
+          }
+      }
+
+      function btn_upload() {
+          let uploadForm = $('#uploadForm');
+
+          // 첨부파일
+          uploadForm.append($("#files"));
+          let filesName = $('td[name="filesName"]');
+          let filesSize = $('td[name="filesSize"]');
+          let listFile = [];
+          let data;
+          for (let i = 0; i < filesName.length; i++) {
+              data = {};
+              data.fileName = filesName[i].innerText;
+              data.fileSize = filesSize[i].innerText;
+              listFile.push(data);
+          }
+          $('<input />', {
+              type: 'hidden',
+              name: 'jsonFile',
+              value: JSON.stringify(listFile)
+          }).appendTo(uploadForm);
+
+          uploadForm.submit();
       }
 
   </script>
