@@ -230,10 +230,6 @@
             <span class="text text-white">게시글 보기</span>
           </a>
         {% endif %}
-        <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-          <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-          <span class="text p-2"> 수정 </span>
-        </a>
       </div>
     </div>
 
@@ -340,12 +336,6 @@
                 <span class="text text-white">게시글 보기</span>
               </a>
             {% endif %}
-            {% if service.empId == user.employee %}
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
-                <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
-                <span class="text p-2"> 계약명 수정 </span>
-              </a>
-            {% endif %}
           </div>
 
         </div>
@@ -408,12 +398,6 @@
 
       function btn_board() {
           location.href = '/noticeboard/postboard/' + {{ service.serviceId }} +'/';
-      }
-
-      function btn_modify() {
-          if (confirm("계약명을 수정 하시겠습니까?") === true) {
-              location.href = '/service/modifyservice/' + {{ service.serviceId }} +'/';
-          }
       }
 
       function file_names(id) {
