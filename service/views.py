@@ -22,6 +22,7 @@ from .models import Serviceform, Geolocation
 from sales.models import Contractfile
 
 
+
 @login_required
 @csrf_exempt
 def service_asjson(request):
@@ -1151,6 +1152,8 @@ def admin_service(request, serviceId):
 
 def save_confirm_files(request, contractId):
     if request.method == 'POST':
+        # 0. serviceId 정보
+        serviceId = request.POST['serviceId']
 
         # 1. 첨부파일 업로드 정보
         jsonFile = json.loads(request.POST['jsonFile'])
@@ -1165,11 +1168,11 @@ def save_confirm_files(request, contractId):
             if f.name in filesName:
                 Contractfile.objects.create(
                     contractId=Contract.objects.get(contractId=contractId),
-                    fileCategory='납품/검수확인서',
+                    fileCategory='납품,구축,검수확인서',
                     fileName=f.name,
                     fileSize=filesInfo[f.name][:-2],
                     file=f,
                     uploadEmp=request.user.employee,
-                    uploadDatetime=datetime.now(),
+                    uploadDatetime=datetime.datetime.now(),
                 )
-        return redirect('sales:viewcontract', contractId)
+        return redirect('service:viewservice', serviceId)

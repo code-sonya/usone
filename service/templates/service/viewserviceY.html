@@ -243,18 +243,18 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
-            {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-              <a href="#" role="button" id="uploadLink" data-toggle="modal" data-target="#uploadModal" class="btn btn-success">
-                  <i class="fas fa-user-cog text-gray-100"></i>
-               </a>
-               <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-                  <i class="fas fa-pen text-gray-100"></i>
-               </a>
-            {% endif %}
             {% if service.empId.empId == user.employee.empId %}
-            <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
-              <i class="fas fa-envelope text-gray-100"></i>
-            </a>
+              <a href="#" role="button" id="uploadLink" data-toggle="modal" data-target="#uploadModal" class="btn btn-success">
+                <i class="fas fa-user-cog text-gray-100"></i>
+              </a>
+              {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
+              <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+                <i class="fas fa-pen text-gray-100"></i>
+              </a>
+              {% endif %}
+              <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
+                <i class="fas fa-envelope text-gray-100"></i>
+              </a>
             {% endif %}
             <a href="#" class="btn btn-danger" onclick="location.href='/service/viewservicepdf/{{ service.serviceId }}'">
               <i class="fas fa-download text-gray-100"></i>
@@ -359,7 +359,7 @@
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
 
-        <div class="modal-header bg-info text-gray-100">
+        <div class="modal-header bg-success text-gray-100">
           <h5 class="modal-title" id="uploadModalLabel">첨부파일 등록</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
@@ -368,7 +368,7 @@
 
         <div class="modal-body">
           <form id="uploadForm" method="POST" enctype="multipart/form-data"
-                action="/sales/saveconfirmfiles/{{ contract.contractId }}/">
+                action="/service/saveconfirmfiles/{{ service.contractId.contractId }}/">
             {% csrf_token %}
           </form>
           <span id="fileType" class="d-none"></span>
@@ -378,7 +378,7 @@
               <td width="65%"><b>파일명</b></td>
               <td width="20%"><b>파일크기</b></td>
               <td width="15%">
-                <label class="m-0 btn btn-info btn-icon-split">
+                <label class="m-0 btn btn-success btn-icon-split">
                   <span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>
                   <input id="files" name="files" type="file" multiple="multiple" class="d-none" onchange=file_names(this.id)>
                 </label>
@@ -392,7 +392,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_upload()">등록</a>
+          <a class="btn btn-success" href="#" onclick="btn_upload()">등록</a>
         </div>
       </div>
     </div>
@@ -435,27 +435,49 @@
       }
 
       function btn_upload() {
-          let uploadForm = $('#uploadForm');
+          let contractId = "{{ service.contractId.contractId }}";
+          let serviceId = "{{ service.serviceId }}";
 
-          // 첨부파일
-          uploadForm.append($("#files"));
-          let filesName = $('td[name="filesName"]');
-          let filesSize = $('td[name="filesSize"]');
-          let listFile = [];
-          let data;
-          for (let i = 0; i < filesName.length; i++) {
-              data = {};
-              data.fileName = filesName[i].innerText;
-              data.fileSize = filesSize[i].innerText;
-              listFile.push(data);
+          if (contractId != "None"){
+              let uploadForm = $('#uploadForm');
+              // 첨부파일
+              uploadForm.append($("#files"));
+              let filesName = $('td[name="filesName"]');
+              let filesSize = $('td[name="filesSize"]');
+              let listFile = [];
+              let data;
+              for (let i = 0; i < filesName.length; i++) {
+                  data = {};
+                  data.fileName = filesName[i].innerText;
+                  data.fileSize = filesSize[i].innerText;
+                  listFile.push(data);
+              }
+              $('<input />', {
+                  type: 'hidden',
+                  name: 'jsonFile',
+                  value: JSON.stringify(listFile)
+              }).appendTo(uploadForm);
+
+              $('<input />', {
+                  type: 'hidden',
+                  name: 'serviceId',
+                  value: serviceId
+              }).appendTo(uploadForm);
+
+              let msg = "납품,구축,검수확인서를 업로드 하시겠습니까? \n";
+              if (confirm(msg) === true) {
+                  uploadForm.submit();
+              }
+
+          }else{
+              alert("계약명이 있어야 검수확인서 업로드가 가능합니다.");
           }
-          $('<input />', {
-              type: 'hidden',
-              name: 'jsonFile',
-              value: JSON.stringify(listFile)
-          }).appendTo(uploadForm);
 
-          uploadForm.submit();
+      }
+
+      function remove_row(obj) {
+          let row = $(obj).parent().parent();
+          row.remove();
       }
 
   </script>
