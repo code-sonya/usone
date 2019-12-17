@@ -4,13 +4,12 @@ from dateutil.relativedelta import relativedelta
 
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
-from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max
+from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max, Value, CharField
 
 from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile, Purchasefile
@@ -157,7 +156,7 @@ def post_document(request):
         if len(whoApproval['do']) == 0:
             document.documentStatus = '완료'
             document.save()
-            return redirect("approval:showdocumentendall")
+            return redirect("approval:showdocumentdone")
         else:
             for empId in whoApproval['do']:
                 employee = Employee.objects.get(empId=empId)
@@ -166,7 +165,7 @@ def post_document(request):
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
         else:
-            return redirect("approval:showdocumentingdone")
+            return redirect("approval:showdocumenting")
 
     else:
         # 참조자 자동완성
@@ -320,7 +319,7 @@ def modify_document(request, documentId):
         if len(whoApproval['do']) == 0:
             document.documentStatus = '완료'
             document.save()
-            return redirect("approval:showdocumentendall")
+            return redirect("approval:showdocumentdone")
         else:
             for empId in whoApproval['do']:
                 employee = Employee.objects.get(empId=empId)
@@ -329,7 +328,7 @@ def modify_document(request, documentId):
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
         else:
-            return redirect("approval:showdocumentingdone")
+            return redirect("approval:showdocumenting")
 
     else:
         # 임시저장 문서
@@ -687,152 +686,245 @@ def post_documentcategory(request):
 def showdocument_asjson(request):
     empId = request.user.employee.empId
     if request.method == 'GET':
-        documentStatus = request.GET['documentStatus']
         category = request.GET['category']
 
-        documentsId = []
-        documents = Document.objects.filter(documentStatus=documentStatus)
+        documentsIngDone = []  # 진행, 완료
+        documentsIngWait = []  # 진행, 대기
+        documentsIngWill = []  # 진행, 예정
+        documentsIngCheck = []  # 진행, 참조
+        documentsDoneWrite = []  # 완료, 기안
+        documentsDoneApproval = []  # 완료, 결재
+        documentsDoneCheck = []  # 완료, 참조
+        documentsDoneReject = []  # 완료, 반려
+        documentsDoneView = []  # 완료, 조회
+        documentsTemp = []  # 임시
 
-        if documentStatus == '진행':
-            tempDocumentsId = []
-            for document in documents:
-                approvalEmpId = [
-                    i['approvalEmp__empId'] for i in Approval.objects.filter(
-                        documentId__documentId=document.documentId
-                    ).values(
-                        'approvalEmp__empId'
-                    )
-                ]
-                if empId in approvalEmpId:
-                    tempDocumentsId.append(document.documentId)
-            if category == '전체':
-                documentsId = tempDocumentsId
-            elif category == '진행':
+        if category == '전체' or category == '진행':
+            # 진행
+            tempDocumentsId = Approval.objects.filter(
+                documentId__documentStatus='진행',
+                approvalEmp=request.user.employee,
+            ).values_list('documentId__documentId', flat=True)
+
+            for documentId in tempDocumentsId:
+                # 진행, 완료
+                if empId in who_approval(documentId)['done']:
+                    documentsIngDone.append(documentId)
+                # 진행, 대기
+                elif empId in who_approval(documentId)['do']:
+                    documentsIngWait.append(documentId)
+                # 진행, 예정
+                elif empId in who_approval(documentId)['will']:
+                    documentsIngWill.append(documentId)
+                # 진행, 참조
+                elif empId in who_approval(documentId)['check']:
+                    documentsIngCheck.append(documentId)
+
+        if category == '전체' or category == '완료':
+            # 완료
+            tempDocumentsId = Approval.objects.filter(
+                documentId__documentStatus='완료',
+                approvalEmp=request.user.employee,
+            ).exclude(
+                approvalCategory='참조'
+            ).values_list('documentId__documentId', flat=True)
+
+            for documentId in tempDocumentsId:
+                document = Document.objects.get(documentId=documentId)
+                # 보존연한체크
+                if document.preservationDate() > datetime.datetime.now():
+                    # 완료, 기안
+                    if empId == document.writeEmp.empId:
+                        documentsDoneWrite.append(documentId)
+                    # 완료, 결재
+                    else:
+                        documentsDoneApproval.append(documentId)
+
+            tempDocumentsId = Approval.objects.filter(
+                documentId__documentStatus='완료',
+                approvalEmp=request.user.employee,
+                approvalCategory='참조',
+            ).values_list('documentId__documentId', flat=True)
+
+            for documentId in tempDocumentsId:
+                document = Document.objects.get(documentId=documentId)
+                # 보존연한체크
+                if document.preservationDate() > datetime.datetime.now():
+                    # 완료, 참조
+                    documentsDoneCheck.append(documentId)
+
+            tempDocumentsId = Approval.objects.filter(
+                documentId__documentStatus='반려',
+                approvalEmp=request.user.employee,
+            ).values_list('documentId__documentId', flat=True)
+
+            for documentId in tempDocumentsId:
+                document = Document.objects.get(documentId=documentId)
+                # 보존연한체크
+                if document.preservationDate() > datetime.datetime.now():
+                    # 완료, 반려
+                    documentsDoneReject.append(documentId)
+
+            # 조회 권한에 따라 문서 추가
+            tempDocumentsId = Approval.objects.filter(
+                documentId__documentStatus='완료',
+                documentId__securityLevel='C',
+            ).exclude(
+                approvalEmp=request.user.employee,
+            ).values_list('documentId__documentId', flat=True)
+
+            for documentId in tempDocumentsId:
+                document = Document.objects.get(documentId=documentId)
+                if document.preservationDate() > datetime.datetime.now():
+                    documentsDoneView.append(documentId)
+
+            if request.user.employee.empPosition.positionName == '임원':
+                tempDocumentsId = Approval.objects.filter(
+                    documentId__documentStatus='완료',
+                    documentId__securityLevel='B',
+                ).exclude(
+                    approvalEmp=request.user.employee,
+                ).values_list('documentId__documentId', flat=True)
+
                 for documentId in tempDocumentsId:
-                    if empId in who_approval(documentId)['done']:
-                        documentsId.append(documentId)
-            elif category == '대기':
+                    document = Document.objects.get(documentId=documentId)
+                    if document.preservationDate() > datetime.datetime.now():
+                        documentsDoneView.append(documentId)
+
+            if request.user.employee.empId <= 2:
+                tempDocumentsId = Approval.objects.filter(
+                    documentId__documentStatus='완료',
+                    documentId__securityLevel='A',
+                ).exclude(
+                    approvalEmp=request.user.employee,
+                ).values_list('documentId__documentId', flat=True)
+
                 for documentId in tempDocumentsId:
-                    if empId in who_approval(documentId)['do']:
-                        documentsId.append(documentId)
-            elif category == '확인':
-                for documentId in tempDocumentsId:
-                    if empId in who_approval(documentId)['check']:
-                        documentsId.append(documentId)
-            elif category == '예정':
-                for documentId in tempDocumentsId:
-                    if empId in who_approval(documentId)['will']:
-                        documentsId.append(documentId)
+                    document = Document.objects.get(documentId=documentId)
+                    if document.preservationDate() > datetime.datetime.now():
+                        documentsDoneView.append(documentId)
 
-        elif documentStatus == '완료':
-            tempDocumentsId = []
-            for document in documents:
-                preservationDate = datetime.date(
-                    year=min(document.writeDatetime.year + document.preservationYear, 9999),
-                    month=document.writeDatetime.month,
-                    day=document.writeDatetime.day,
-                )
-                # 보존연한체크 (문서 기안일 + 보존연한 > today)
-                if preservationDate > datetime.date.today():
-                    # 보안등급체크 (C: 전체 조회)
-                    if document.securityLevel == 'C':
-                        tempDocumentsId.append(document.documentId)
-                    # 보안등급체크 (B: 본인과 임원 조회)
-                    elif document.securityLevel == 'B':
-                        if request.user.employee.empPosition.positionName == '임원':
-                            tempDocumentsId.append(document.documentId)
-                        else:
-                            approvalEmpId = [
-                                i['approvalEmp__empId'] for i in Approval.objects.filter(
-                                    documentId__documentId=document.documentId
-                                ).values(
-                                    'approvalEmp__empId'
-                                )
-                            ]
-                            if empId in approvalEmpId:
-                                tempDocumentsId.append(document.documentId)
-                    # 보안등급체크 (A: 본인과 대표이사 조회)
-                    elif document.securityLevel == 'A':
-                        if request.user.employee.empId <= 2:
-                            tempDocumentsId.append(document.documentId)
-                        else:
-                            approvalEmpId = [
-                                i['approvalEmp__empId'] for i in Approval.objects.filter(
-                                    documentId__documentId=document.documentId
-                                ).values(
-                                    'approvalEmp__empId'
-                                )
-                            ]
-                            if empId in approvalEmpId:
-                                tempDocumentsId.append(document.documentId)
-                    # 보안등급체크 (S: 본인만 조회)
-                    elif document.securityLevel == 'S':
-                        approvalEmpId = [
-                            i['approvalEmp__empId'] for i in Approval.objects.filter(
-                                documentId__documentId=document.documentId
-                            ).values(
-                                'approvalEmp__empId'
-                            )
-                        ]
-                        if empId in approvalEmpId:
-                            tempDocumentsId.append(document.documentId)
-            if category == '전체':
-                documentsId = tempDocumentsId
+        if category == '임시':
+            documentsTemp = list(Document.objects.filter(
+                documentStatus='임시',
+                writeEmp=request.user.employee
+            ).values_list('documentId', flat=True))
 
-            # 내가 기안자 인 경우
-            elif category == '기안':
-                for documentId in tempDocumentsId:
-                    if empId == Document.objects.get(documentId=documentId).writeEmp.empId:
-                        documentsId.append(documentId)
-
-            # 내가 기안자가 아니고, 참조자도 아닌 경우
-            elif category == '결재':
-                for documentId in tempDocumentsId:
-                    checkEmpId = [
-                        i['approvalEmp__empId'] for i in Approval.objects.filter(
-                            documentId__documentId=documentId,
-                            approvalCategory='참조',
-                        ).values(
-                            'approvalEmp__empId'
-                        )
-                    ]
-                    if empId != Document.objects.get(documentId=documentId).writeEmp.empId:
-                        if empId not in checkEmpId:
-                            documentsId.append(documentId)
-
-            # 문서상태가 완료이면서, 내가 참조자에 들어가 있는 문서
-            elif category == '참조':
-                for documentId in tempDocumentsId:
-                    checkEmpId = [
-                        i['approvalEmp__empId'] for i in Approval.objects.filter(
-                            documentId__documentId=documentId,
-                            approvalCategory='참조',
-                        ).values(
-                            'approvalEmp__empId'
-                        )
-                    ]
-                    if empId in checkEmpId:
-                        documentsId.append(documentId)
-
-        # 문서 상태가 반려인 경우
-        elif documentStatus == '반려':
-            for document in documents:
-                documentsId.append(document.documentId)
-
-        # 문서 상태가 임시저장인 경우
-        elif documentStatus == '임시':
-            for document in documents:
-                documentsId.append(document.documentId)
-
-        returnDocuments = Document.objects.filter(
-            documentId__in=documentsId
+        returnIngDone = Document.objects.filter(
+            documentId__in=documentsIngDone
         ).annotate(
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
+            displayStatus=Value('진행중', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+        returnIngWait = Document.objects.filter(
+            documentId__in=documentsIngWait
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus=Value('결재대기', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+        returnIngWill = Document.objects.filter(
+            documentId__in=documentsIngWill
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus=Value('결재예정', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+        returnIngCheck = Document.objects.filter(
+            documentId__in=documentsIngCheck
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus=Value('참조문서', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+        returnDoneWrite = Document.objects.filter(
+            documentId__in=documentsDoneWrite
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus=Value('기안문서', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+        returnDoneApproval = Document.objects.filter(
+            documentId__in=documentsDoneApproval
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus=Value('결재문서', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+        returnDoneCheck = Document.objects.filter(
+            documentId__in=documentsDoneCheck
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus=Value('참조문서', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+        returnDoneReject = Document.objects.filter(
+            documentId__in=documentsDoneReject
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus=Value('반려문서', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+        returnDoneView = Document.objects.filter(
+            documentId__in=documentsDoneView
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus=Value('조회가능', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+        returnTemp = Document.objects.filter(
+            documentId__in=documentsTemp
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus=Value('임시', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+        )
+
+        returnDocuments = returnIngDone.union(
+            returnIngWait, returnIngWill, returnIngCheck,
+            returnDoneWrite, returnDoneApproval, returnDoneCheck, returnDoneReject, returnDoneView,
+            returnTemp
         )
 
         structure = json.dumps(list(returnDocuments), cls=DjangoJSONEncoder)
@@ -840,91 +932,25 @@ def showdocument_asjson(request):
 
 
 @login_required
-def show_document_end_all(request):
+def show_document_all(request):
     context = {
-        'documentStatus': '완료',
         'category': '전체',
     }
     return render(request, 'approval/showdocument.html', context)
 
 
 @login_required
-def show_document_end_write(request):
+def show_document_ing(request):
     context = {
-        'documentStatus': '완료',
-        'category': '기안',
-    }
-    return render(request, 'approval/showdocument.html', context)
-
-
-@login_required
-def show_document_end_approval(request):
-    context = {
-        'documentStatus': '완료',
-        'category': '결재',
-    }
-    return render(request, 'approval/showdocument.html', context)
-
-
-@login_required
-def show_document_end_check(request):
-    context = {
-        'documentStatus': '완료',
-        'category': '참조',
-    }
-    return render(request, 'approval/showdocument.html', context)
-
-
-@login_required
-def show_document_end_reject(request):
-    context = {
-        'documentStatus': '완료',
-        'category': '반려',
-    }
-    return render(request, 'approval/showdocument.html', context)
-
-
-@login_required
-def show_document_ing_all(request):
-    context = {
-        'documentStatus': '진행',
-        'category': '전체',
-    }
-    return render(request, 'approval/showdocument.html', context)
-
-
-@login_required
-def show_document_ing_done(request):
-    context = {
-        'documentStatus': '진행',
         'category': '진행',
     }
     return render(request, 'approval/showdocument.html', context)
 
 
 @login_required
-def show_document_ing_do(request):
+def show_document_done(request):
     context = {
-        'documentStatus': '진행',
-        'category': '대기',
-    }
-    return render(request, 'approval/showdocument.html', context)
-
-
-@login_required
-def show_document_ing_check(request):
-    context = {
-        'documentStatus': '진행',
-        'category': '확인',
-    }
-    return render(request, 'approval/showdocument.html', context)
-
-
-@login_required
-def show_document_ing_will(request):
-    context = {
-        'documentStatus': '진행',
-        'category': '예정',
+        'category': '완료',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -932,7 +958,6 @@ def show_document_ing_will(request):
 @login_required
 def show_document_temp(request):
     context = {
-        'documentStatus': '임시',
         'category': '임시',
     }
     return render(request, 'approval/showdocument.html', context)

@@ -15,7 +15,7 @@
 {% block content %}
   <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-      <h6 class="m-0 h3 text-gray-800">전자 문서</h6>
+      <h6 class="m-0 h3 text-gray-800">전자 결재 ({{ category }})</h6>
       <div class="dropdown no-arrow">
         <a class="dropdown-toggle" href="/approval/postdocument/" role="button">
           <i class="fas fa-plus fa-fw text-gray-400"></i>
@@ -103,7 +103,7 @@
                     targets: 5,
                     width: "5%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "documentStatus",
+                    data: "displayStatus",
                 },
                 {
                     targets: 6,
@@ -130,12 +130,16 @@
                 },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                {% if documentStatus == '임시' %}
-                    $('td', nRow).eq(3).text(aData.modifyDatetime.split('-').join('.').split('T').slice(0, 1));
-                {% else %}
+                if (aData.draftDatetime) {
                     $('td', nRow).eq(3).text(aData.draftDatetime.split('-').join('.').split('T').slice(0, 1));
-                {% endif %}
+                } else {
+                    $('td', nRow).eq(3).text(aData.modifyDatetime.split('-').join('.').split('T').slice(0, 1));
+                }
                 $('td', nRow).eq(4).text(aData.formNumber + '. ' + aData.formTitle);
+                if (aData.displayStatus === '결재대기') {
+                    $('td', nRow).eq(5).css('color', 'red');
+                    $('td', nRow).css('background-color', '#ffe6e6');
+                }
             }
         });
 

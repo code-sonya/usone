@@ -38,7 +38,7 @@
 <div id="wrapper">
 
   <!-- Sidebar -->
-  <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
+  <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
 
     <!-- Sidebar - Brand -->
@@ -46,17 +46,17 @@
       <div class="sidebar-brand-text mx-4">USONE</div>
     </a>
 
-    {% if user.employee.empId == 2 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-      <li class="nav-item">
-        <a class="nav-link" href="/sales/dailyreport/">
-          <i class="fas fa-fw fa-newspaper text-white"></i>
-          <span class="text-white">데일리리포트</span></a>
-        <a class="nav-link" href="/sales/monthlybill/">
-            <i class="fas fa-fw fa-money-bill text-white"></i>
-            <span class="text-white">손익계산서</span></a>
-      </li>
-      <!-- Divider -->
-    {% endif %}
+    <!--{% if user.employee.empId == 2 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}-->
+      <!--<li class="nav-item">-->
+        <!--<a class="nav-link" href="/sales/dailyreport/">-->
+          <!--<i class="fas fa-fw fa-newspaper text-white"></i>-->
+          <!--<span class="text-white">데일리리포트</span></a>-->
+        <!--<a class="nav-link" href="/sales/monthlybill/">-->
+            <!--<i class="fas fa-fw fa-money-bill text-white"></i>-->
+            <!--<span class="text-white">손익계산서</span></a>-->
+      <!--</li>-->
+      <!--&lt;!&ndash; Divider &ndash;&gt;-->
+    <!--{% endif %}-->
 
     {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
       <!-- Nav Item - Dashboard -->
@@ -68,10 +68,14 @@
         <div id="collapseDashboard" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header">데이터분석</h6>
+            <a class="collapse-item" href="/sales/dailyreport/">데일리리포트</a>
+            <a class="collapse-item" href="/sales/monthlybill/">손익계산서</a>
+            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/dashboard/quarter/">연간 예상 영업 실적 </a>
             <a class="collapse-item" href="/dashboard/goal/">영업 목표 분석</a>
             <a class="collapse-item" href="/dashboard/credit/">미수금/미지급 현황</a>
             <a class="collapse-item" href="/dashboard/service/">엔지니어 지원 통계</a>
+            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/dashboard/location/">외근 현황</a>
           </div>
         </div>
@@ -185,6 +189,24 @@
         </a>
       </li>
     {% endif %}
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval" aria-expanded="true" aria-controls="collapseApproval">
+        <i class="far fa-fw fa-calendar-check text-white"></i>
+        <span class="text-white">전자결재</span>
+      </a>
+      <div id="collapseApproval" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <a class="collapse-item" href="/approval/postdocument/">문서 작성</a>
+          <h6 class="collapse-header">━━━ 문서함 ━━━</h6>
+          <a class="collapse-item" href="/approval/showdocument/all/">전체</a>
+          <a class="collapse-item" href="/approval/showdocument/ing/">진행</a>
+          <a class="collapse-item" href="/approval/showdocument/done/">완료</a>
+          <a class="collapse-item" href="/approval/showdocument/temp/">임시</a>
+          <h6 class="collapse-header">━━━ 관&nbsp;&nbsp;&nbsp;&nbsp;리 ━━━</h6>
+          <a class="collapse-item" href="/approval/showdocumentform/">문서 양식 관리</a>
+        </div>
+      </div>
+    </li>
 
     <!-- Nav Item - 유류비 -->
     <li class="nav-item">
@@ -209,42 +231,12 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
 
-    <!-- Nav Item - Daily Report -->
-    <li class="nav-item">
-      <a class="nav-link" href="#" onclick="btn_dayreport('/service/dayreport/')">
-        <i class="fas fa-fw fa-pencil-ruler text-white"></i>
-        <span class="text-white">일일업무</span></a>
-    </li>
-
-    <!-- Nav Item - Approval -->
-    <li class="nav-item">
-      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval" aria-expanded="true" aria-controls="collapseApproval">
-        <i class="far fa-fw fa-calendar-check text-white"></i>
-        <span class="text-white">전자결재</span>
-      </a>
-      <div id="collapseApproval" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-        <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="/approval/postdocument/">문서 작성</a>
-          <h6 class="collapse-header">━━━ 진행중 ━━━</h6>
-          <a class="collapse-item" href="/approval/showdocument/ing/all">전체</a>
-          <a class="collapse-item" href="/approval/showdocument/ing/done">진행</a>
-          <a class="collapse-item" href="/approval/showdocument/ing/do">대기</a>
-          <a class="collapse-item" href="/approval/showdocument/ing/check">확인</a>
-          <a class="collapse-item" href="/approval/showdocument/ing/will">예정</a>
-          <h6 class="collapse-header">━━━ 문서함 ━━━</h6>
-          <a class="collapse-item" href="/approval/showdocument/end/all">전체</a>
-          <a class="collapse-item" href="/approval/showdocument/end/write">기안</a>
-          <a class="collapse-item" href="/approval/showdocument/end/approval">결재</a>
-          <a class="collapse-item" href="/approval/showdocument/end/check">참조</a>
-          <a class="collapse-item" href="/approval/showdocument/end/reject">반려</a>
-          <a class="collapse-item" href="/approval/showdocument/temp">임시</a>
-          <h6 class="collapse-header">━━━ 관&nbsp;&nbsp;&nbsp;&nbsp;리 ━━━</h6>
-          <a class="collapse-item" href="/approval/showdocumentform/">문서 양식 관리</a>
-
-
-        </div>
-      </div>
-    </li>
+    <!--&lt;!&ndash; Nav Item - Daily Report &ndash;&gt;-->
+    <!--<li class="nav-item">-->
+      <!--<a class="nav-link" href="#" onclick="btn_dayreport('/service/dayreport/')">-->
+        <!--<i class="fas fa-fw fa-pencil-ruler text-white"></i>-->
+        <!--<span class="text-white">일일업무</span></a>-->
+    <!--</li>-->
 
     <!-- Nav Item - Daily Report -->
     <li class="nav-item">
@@ -254,18 +246,21 @@
       </a>
       <div id="collapseSchedule" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
+          <h6 class="collapse-header">일정관리</h6>
+          <a class="collapse-item" href="#" onclick="btn_dayreport('/service/dayreport/')">일일업무</a>
+          <a class="collapse-item" href="#" onclick="btn_dayreport('/scheduler/scheduler/')">캘린더</a>
           <a class="collapse-item" href="/service/showservices/">일정관리</a>
           <a class="collapse-item" href="/service/showvacations/">휴가관리</a>
         </div>
       </div>
     </li>
 
-    <!-- Nav Item - Calendar -->
-    <li class="nav-item">
-      <a class="nav-link" href="#" onclick="btn_dayreport('/scheduler/scheduler/')">
-        <i class="fas fa-fw fa-calendar-alt text-white"></i>
-        <span class="text-white">캘린더</span></a>
-    </li>
+    <!--&lt;!&ndash; Nav Item - Calendar &ndash;&gt;-->
+    <!--<li class="nav-item">-->
+      <!--<a class="nav-link" href="#" onclick="btn_dayreport('/scheduler/scheduler/')">-->
+        <!--<i class="fas fa-fw fa-calendar-alt text-white"></i>-->
+        <!--<span class="text-white">캘린더</span></a>-->
+    <!--</li>-->
 
     <!-- Nav Item - Board -->
     <li class="nav-item">
@@ -508,6 +503,18 @@
             $('#' + money[count].id).val(money[count].value.replace(/,/g, ''));
         }
     }
+    $(window).resize(function() {
+        var w = window.innerWidth;
+        if(w<990){
+            if($('#accordionSidebar').hasClass('toggled')){
+                console.log('22')
+
+            }else{
+                $('#accordionSidebar').addClass('toggled');
+            }
+        }
+    });
+
 
 </script>
 </body>
