@@ -511,11 +511,18 @@
             $('#' + money[count].id).val(money[count].value.replace(/,/g, ''));
         }
     }
+    $(window).resize(function() {
+        var w = window.innerWidth;
+        if(w<990){
+            if($('#accordionSidebar').hasClass('toggled')){
+                console.log('22')
 
-    var w = window.innerWidth;
-    if(w<990){
-        $('#accordionSidebar').addClass('toggled');
-    }
+            }else{
+                $('#accordionSidebar').addClass('toggled');
+            }
+        }
+    });
+
 
 </script>
 </body>

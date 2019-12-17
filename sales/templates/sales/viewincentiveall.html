@@ -59,8 +59,12 @@
 
 
 {% block content %}
-
-  <div class="">
+  <div class="d-lg-none text-center">
+    <span class="text-dark">
+      ※ <span class="text-primary">PC 환경</span>에서만 확인 가능합니다.
+    </span>
+  </div>
+  <div class="d-none d-lg-block">
     <div class="card shadow mb-4">
 
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -76,12 +80,7 @@
       </div>
 
       <div class="card-body">
-        <div class="d-lx-none text-center">
-          <span class="text-dark">
-              ※ <span class="text-primary">PC 환경</span>에서만 확인 가능합니다.
-            </span>
-         </div>
-        <table class="pc-table d-none d-lg-block">
+        <table class="pc-table">
           <thead class="bg-light thtd">
           <tr class="thtd">
             <td class="thtd" colspan="3">구분</td>
