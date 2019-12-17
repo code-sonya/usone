@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'sales',
     'extrapay',
     'approval',
+    'logs',
 ]
 
 MIDDLEWARE = [
