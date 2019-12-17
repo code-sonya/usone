@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 from django.db import models
 from hr.models import Employee
 from service.models import Servicereport
@@ -44,6 +46,16 @@ class Document(models.Model):
     documentStatus = models.CharField(max_length=10, default='임시')
     serviceId = models.ForeignKey(Servicereport, on_delete=models.SET_NULL, null=True, blank=True)
     contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def preservationDate(self):
+        if self.preservationYear == 9999:
+            return datetime(9999, 12, 31)
+        else:
+            return datetime(
+                self.preservationYear + self.writeDatetime.year,
+                self.writeDatetime.month,
+                self.writeDatetime.day
+            )
 
 
 class Documentfile(models.Model):
