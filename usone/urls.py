@@ -37,6 +37,8 @@ urlpatterns = [
     url(r'^sales/', include('sales.urls')),
     url(r'^extrapay/', include('extrapay.urls')),
     url(r'^approval/', include('approval.urls')),
+    url(r'^logs/', include('logs.urls')),
+
 ]
 
 urlpatterns += static(

@@ -8,6 +8,7 @@ class DownloadLog(models.Model):
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
     downloadDatetime = models.DateTimeField()
+    downloadType = models.CharField(max_length=50, null=True, blank=True)
     downloadUrl = models.CharField(max_length=100)
 
     def __str__(self):
