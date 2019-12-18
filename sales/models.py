@@ -310,10 +310,19 @@ class Purchasecategory(models.Model):
         return str(self.categoryId) + ' ' + self.purchaseType + ' ' + self.categoryName
 
 
+class Purchaseorderform(models.Model):
+    formId = models.AutoField(primary_key=True)
+    formNumber = models.IntegerField(default=0)
+    formTitle = models.CharField(max_length=200)
+    formHtml = models.TextField()
+    comment = models.CharField(max_length=200, default='')
+
+
 class Purchaseorder(models.Model):
     orderId = models.AutoField(primary_key=True)
     contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
     purchaseCompany = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
+    formId = models.ForeignKey(Purchaseorderform, on_delete=models.SET_NULL, null=True, blank=True)
     writeEmp = models.ForeignKey(Employee, on_delete=models.PROTECT)
     title = models.CharField(max_length=200)
     contentHtml = models.TextField()

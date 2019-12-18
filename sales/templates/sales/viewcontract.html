@@ -1301,7 +1301,7 @@
               <td width="5%"><input class="ckbxall2" type="checkbox"></td>
               <td width="15%"><b>매입예정월</b></td>
               <td width="20%">
-                <select class="form-control" onchange="change_purchase_company(this)">
+                <select id="purchaseOrderCompany" class="form-control" onchange="change_purchase_company(this)">
                   <option value="">매입처선택</option>
                   {% for c in purchaseCompany %}
                   <option value="{{ c }}">{{ c }}</option>
@@ -2105,33 +2105,30 @@
 
       function change_purchase_company(obj) {
           const purchasesNotBillingCompany = $('td[name="purchasesNotBillingCompany"]');
+          const ckbx2 = $('.ckbx2');
           for (let i=0; i<purchasesNotBillingCompany.length; i++) {
               if (purchasesNotBillingCompany.eq(i).text() === obj.value) {
                   purchasesNotBillingCompany.eq(i).parent().removeClass('d-none');
+                  ckbx2.eq(i).addClass('ckbx-checked');
               } else {
                   purchasesNotBillingCompany.eq(i).parent().addClass('d-none');
+                  ckbx2.eq(i).removeClass('ckbx-checked');
               }
           }
       }
 
       function post_purchase_order() {
-          let documentType = $('#documentType').val();
-          let purchases = {{ purchases | length }};  // 매입(세금계산서 접수) 개수
-          let purchaseEstimate = {{ files_a | length }};  // 매입견적서 개수
-          let revenueEstimate = {{ files_b | length }};  // 매출견적서 개수
-          let contractPaper = {{ files_c | length }};  // 계약서 개수
-          let confirmPaper = {{ files_f | length }};  // 납품,구축,검수확인서 개수
-
-          let len = $('.ckbx').length;
+          let purchaseOrderCompany = $('#purchaseOrderCompany').val();
+          let len = $('.ckbx2').length;
           let idList = [];
           for (let i=0; i<len; i++) {
-              if ($('.ckbx').eq(i).is(":checked")) {
-                  idList.push($('span[name="purchaseId"]').eq(i).text());
+              if ($('.ckbx2').eq(i).is(":checked")) {
+                  idList.push($('span[name="purchaseId2"]').eq(i).text());
               }
           }
 
-          let form = $('#purchaseInAdvanceForm');
-          form.attr("action", "/approval/postcontractdocument/{{ contract.contractId }}/" + documentType + "/");
+          let form = $('#purchaseOrderForm');
+          form.attr("action", "/sales/postpurchaseorder/{{ contract.contractId }}/" + purchaseOrderCompany + "/");
           $('<input />', {
               type: 'hidden',
               name: 'purchaseIds',
@@ -3318,8 +3315,9 @@
           $('.ckbx').click(function () {
               $('.ckbxall').prop('checked', false);
           });
+          // 여기부터
           $('.ckbxall2').click(function () {
-              $('.ckbx2').prop('checked', this.checked);
+              $('.ckbx2.ckbx-checked').prop('checked', this.checked);
           });
           $('.ckbx2').click(function () {
               $('.ckbxall2').prop('checked', false);
@@ -3351,7 +3349,7 @@
               {% endif %}
               input_file += '<span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>';
               input_file += '<input id="purchaseFiles' + strCount + '" name="purchaseFiles' + strCount + '" ' +
-                  'type="file" multiple="multiple" class="d-none" onchange=purchase_file_names(this.id)>';
+                  'type="file" multiple="multiple" class="d-none" onchange="purchase_file_names(this.id)">';
               input_file += '</label>';
               purchaseFiles.append(input_file);
               companyCount += 1;
