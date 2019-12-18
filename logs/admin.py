@@ -4,9 +4,9 @@ from .models import DownloadLog, OrderLog, ApprovalLog
 
 @admin.register(DownloadLog)
 class DownloadLogAdmin(admin.ModelAdmin):
-    list_display = ('downloadLogId', 'empId', 'contractId', 'downloadDatetime', 'downloadUrl')
-    list_filter = ('empId', 'contractId')
-    list_display_links = ['downloadLogId', 'empId', 'contractId', 'downloadDatetime', 'downloadUrl']
+    list_display = ('downloadLogId', 'empId', 'contractId', 'downloadDatetime', 'downloadType', 'downloadName')
+    list_filter = ('empId', 'contractId', 'downloadType')
+    list_display_links = ['downloadLogId', 'empId', 'contractId', 'downloadDatetime', 'downloadType', 'downloadName']
 
 @admin.register(OrderLog)
 class OrderLogAdmin(admin.ModelAdmin):
@@ -17,6 +17,6 @@ class OrderLogAdmin(admin.ModelAdmin):
 
 @admin.register(ApprovalLog)
 class ApprovalLogAdmin(admin.ModelAdmin):
-    list_display = ('approvalLogId', 'empId', 'toEmail', 'contractId', 'approvalDatetime', 'approvalUrl')
-    list_filter = ('empId', 'toEmail', 'contractId')
-    list_display_links = ['approvalLogId', 'empId', 'toEmail', 'contractId', 'approvalDatetime', 'approvalUrl']
+    list_display = ('approvalLogId', 'empId', 'toEmail', 'documentId', 'approvalDatetime', 'approvalStatus')
+    list_filter = ('empId', 'toEmail', 'documentId', 'approvalStatus')
+    list_display_links = ['approvalLogId', 'empId', 'toEmail', 'documentId', 'approvalDatetime', 'approvalStatus']

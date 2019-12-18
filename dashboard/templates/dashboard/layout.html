@@ -42,8 +42,8 @@
 
 
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#" onclick="btn_dayreport('/service/dayreport/')">
-      <div class="sidebar-brand-text mx-4">USONE</div>
+    <a class="sidebar-brand d-flex align-items-center justify-content-center m-2" href="#" onclick="btn_dayreport('/service/dayreport/')">
+      <div class="sidebar-brand-text mx-4"><img src="/media/logo/usails.png" width="120px"></div>
     </a>
 
     <!--{% if user.employee.empId == 2 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}-->
@@ -57,7 +57,6 @@
       <!--</li>-->
       <!--&lt;!&ndash; Divider &ndash;&gt;-->
     <!--{% endif %}-->
-
     {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
       <!-- Nav Item - Dashboard -->
       <li class="nav-item">
@@ -278,6 +277,26 @@
 
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
+
+    {% if user.is_staff %}
+      <li class="nav-item">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="true" aria-controls="collapseSettings">
+            <i class="fas fa-fw fa-tools text-white"></i>
+            <span class="text-white">설정</span>
+          </a>
+          <div id="collapseSettings" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">━━━ 정보 등록 ━━━</h6>
+              <a class="collapse-item" href="#">부서등록</a>
+              <a class="collapse-item" href="#">직원등록</a>
+              <h6 class="collapse-header">━━━ 이력 관리 ━━━</h6>
+              <a class="collapse-item" href="/logs/showdownloads">문서다운로드이력</a>
+              <a class="collapse-item" href="/extrapay/overhourall/">매입발주서전송이력</a>
+              <a class="collapse-item" href="/logs/showapprovals/">전자결재공유이력</a>
+            </div>
+          </div>
+        </li>
+    {% endif %}
 
     <!-- Sidebar Toggler (Sidebar) -->
     <div class="text-center d-none d-md-inline">

@@ -15,6 +15,7 @@ from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile, Purchasefile
 from client.models import Company
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
+from logs.models import ApprovalLog
 from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
 from sales.functions import detailPurchase, summaryPurchase
 
@@ -1660,9 +1661,28 @@ def post_contract_document(request, contractId, documentType):
 def view_documentemail(request, documentId):
     if request.method == 'POST':
         document = Document.objects.get(documentId=documentId)
-        print(request.POST)
         empEmail = request.POST['empEmail']
+        address = request.POST['address']
+
+        empEmail ='{}@{}'.format(empEmail, address)
         if empEmail:
-            mail_document(empEmail, request.user.employee.empEmail, document)
+            result = mail_document(empEmail, request.user.employee.empEmail, document)
+
+        if result == 'Y':
+            ApprovalLog.objects.create(
+                empId=Employee(empId=request.user.employee.empId),
+                toEmail=empEmail,
+                approvalDatetime=datetime.datetime.now(),
+                documentId=document,
+            )
+        else:
+            ApprovalLog.objects.create(
+                empId=Employee(empId=request.user.employee.empId),
+                toEmail=empEmail,
+                approvalDatetime=datetime.datetime.now(),
+                documentId=document,
+                approvalStatus='전송실패',
+                approvalError=result,
+            )
 
         return redirect('approval:viewdocument', document.documentId)
