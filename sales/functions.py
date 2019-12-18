@@ -10,7 +10,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from approval.models import Document
 from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile,\
-    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform
 
 
 def viewContract(contractId):
@@ -158,6 +158,9 @@ def viewContract(contractId):
     else:
         companyTotalWithdraw['total_ratio_withdraw'] = round(companyTotalWithdraw['total_filter_withdraw'] / companyTotalWithdraw['total_sum_withdraw'] * 100)
 
+    # 매입발주서 양식
+    purchaseOrderForm = list(Purchaseorderform.objects.all().values_list('formTitle', flat=True).order_by('formNumber'))
+
     context = {
         'revenueId': '',
         'purchaseId': '',
@@ -201,6 +204,8 @@ def viewContract(contractId):
         'companyTotalDeposit': companyTotalDeposit,
         'companyWithdraw': companyWithdraw,
         'companyTotalWithdraw': companyTotalWithdraw,
+        # 매입발주서양식
+        'purchaseOrderForm': purchaseOrderForm,
     }
 
     return context

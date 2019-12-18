@@ -313,7 +313,7 @@ class Purchasecategory(models.Model):
 class Purchaseorderform(models.Model):
     formId = models.AutoField(primary_key=True)
     formNumber = models.IntegerField(default=0)
-    formTitle = models.CharField(max_length=200)
+    formTitle = models.CharField(max_length=200, unique=True)
     formHtml = models.TextField()
     comment = models.CharField(max_length=200, default='')
 

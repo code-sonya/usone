@@ -1293,7 +1293,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="purchaseOrderForm" method="POST">{% csrf_token %}</form>
+          <form id="purchaseOrderForm" method="GET">{% csrf_token %}</form>
           <table class="file-table">
             <thead>
             <tr>
@@ -1328,6 +1328,13 @@
         </div>
 
         <div class="modal-footer">
+          <a href="/sales/postpurchaseorderform/"><i class="fas fa-plus-circle fa-fw text-info"></i></a>
+          <select id="purchaseOrderFormTitle" class="form-control" style="width: 180px;">
+            <option value="">발주서양식선택</option>
+            {% for f in purchaseOrderForm %}
+              <option value="{{ f }}">{{ f }}</option>
+            {% endfor %}
+          </select>
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-info" href="#" onclick="post_purchase_order()">발주</a>
         </div>
@@ -2119,6 +2126,11 @@
 
       function post_purchase_order() {
           let purchaseOrderCompany = $('#purchaseOrderCompany').val();
+          let purchaseOrderFormTitle = $('#purchaseOrderFormTitle').val();
+          if (!purchaseOrderFormTitle) {
+              alert('매입발주서양식을 선택해주세요');
+              return false;
+          }
           let len = $('.ckbx2').length;
           let idList = [];
           for (let i=0; i<len; i++) {
@@ -2129,6 +2141,11 @@
 
           let form = $('#purchaseOrderForm');
           form.attr("action", "/sales/postpurchaseorder/{{ contract.contractId }}/" + purchaseOrderCompany + "/");
+          $('<input />', {
+              type: 'hidden',
+              name: 'purchaseOrderFormTitle',
+              value: purchaseOrderFormTitle
+          }).appendTo(form);
           $('<input />', {
               type: 'hidden',
               name: 'purchaseIds',

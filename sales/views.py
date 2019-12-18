@@ -18,9 +18,10 @@ from django.views.decorators.http import require_POST
 from hr.models import Employee
 from service.models import Servicereport
 from client.models import Company, Customer
-from .forms import ContractForm, GoalForm
+from .forms import ContractForm, GoalForm, PurchaseorderformForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
-    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
+    Purchaseorderform, Purchaseorder
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase, billing_schedule
 
@@ -3573,9 +3574,48 @@ def calculate_billing(request):
 
 
 @login_required
-def post_purchase_order(request, contractId, purchaseOrderCompany):
-    company = Company.objects.get(companyNameKo=purchaseOrderCompany)
-    print(request.POST)
-    print(contractId)
-    print(company)
-    return redirect('sales:viewcontract', contractId)
+def post_purchase_order(request, contractId, purchaseOrderCompanyName):
+    contract = Contract.objects.get(contractId=contractId)
+    purchaseOrderCompany = Company.objects.get(companyNameKo=purchaseOrderCompanyName)
+    emp = request.user.employee
+    if request.method == 'POST':
+        formTitle = request.POST['formTitle']
+        purchaseOrderForm = Purchaseorderform.objects.get(formTitle=formTitle)
+        Purchaseorder.objects.create(
+            contractId=contract,
+            purchaseCompany=purchaseOrderCompany,
+            formId=purchaseOrderForm,
+            writeEmp=emp,
+            title=request.POST['title'],
+            contentHtml=request.POST['contentHtml'],
+            writeDatetime=datetime.now(),
+            modifyDatetime=datetime.now(),
+        )
+        return redirect('sales:viewcontract', contractId)
+    else:
+        formTitle = request.GET['purchaseOrderFormTitle']
+        purchaseOrderForm = Purchaseorderform.objects.get(formTitle=formTitle)
+        contentHtml = purchaseOrderForm.formHtml
+        context = {
+            'purchaseOrderCompany': purchaseOrderCompany,
+            'formTitle': formTitle,
+            'contentHtml': contentHtml,
+        }
+        return render(request, 'sales/postpurchaseorder.html', context)
+
+
+@login_required
+def post_purchase_order_form(request):
+    if request.method == 'POST':
+        form = PurchaseorderformForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.formHtml = request.POST['formHtml']
+            post.save()
+        return redirect('sales:postpurchaseorderform')
+    else:
+        form = PurchaseorderformForm()
+        context = {
+            'form': form,
+        }
+        return render(request, 'sales/postpurchaseorderform.html', context)

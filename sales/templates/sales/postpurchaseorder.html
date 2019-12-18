@@ -52,34 +52,22 @@
 {% block content %}
   <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-      <h6 class="m-0 h3 text-gray-800">매입발주서 양식</h6>
+      <h6 class="m-0 h3 text-gray-800">{{ purchaseOrderCompany.companyNameKo }} 매입발주서</h6>
     </div>
 
     <div class="card-body">
-      <form id="purchaseOrderForm" method="post">
-        {% csrf_token %}
-        <div class="row mb-3">
-          <div class="col-1">
-            <label for="formNumber" class="font-weight-bold text-primary">NO.</label>
-            {{ form.formNumber }}
-          </div>
-          <div class="col-11">
-            <label for="formTitle" class="font-weight-bold text-primary">발주서종류명</label>
-            {{ form.formTitle }}
-          </div>
+      <form id="purchaseOrder" method="POST">{% csrf_token %}</form>
+      <div class="row mb-3">
+        <div class="col-12">
+          <label for="title" class="font-weight-bold text-primary">제목</label>
+          <input id="title" name="title" class="form-control">
         </div>
-        <div class="row mb-3">
-          <div class="col-12">
-            <label for="comment" class="font-weight-bold text-primary">발주서종류설명</label>
-            {{ form.comment }}
-          </div>
-        </div>
-        <div class="d-flex flex-row align-items-center justify-content-between">
-          <label for="formHtml" class="font-weight-bold text-primary">발주서양식</label>
-          <span>※ 문서편집기 하단을 드래그 하여 크기를 조정할 수 있습니다.</span>
-        </div>
-        <div id="formHtml"></div>
-      </form>
+      </div>
+      <div class="d-flex flex-row align-items-center justify-content-between">
+        <label for="contentHtml" class="font-weight-bold text-primary">본문</label>
+        <span>※ 문서편집기 하단을 드래그 하여 크기를 조정할 수 있습니다.</span>
+      </div>
+      <div id="contentHtml"></div>
     </div>
     <div class="text-center mb-3">
       <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
@@ -100,27 +88,21 @@
   <script type="text/javascript">
       // 문서 양식 등록
       function btn_save() {
-          const form = $('#purchaseOrderForm');
-          if (!$('#formNumber').val()) {
-              alert('번호를 입력해주세요.');
-              return false;
-          }
-          if (!$('#formTitle').val()) {
-              alert('발주서종류명을 입력해주세요.');
-              return false;
-          }
-          if (!$('#comment').val()) {
-              alert('발주서종류설명을 입력해주세요.');
-              return false;
-          }
-          if (!$('#formHtml').summernote('code')) {
-              alert('발주서양식을 입력해주세요.');
-              return false;
-          }
+          const form = $('#purchaseOrder');
           $('<input />', {
               type: 'hidden',
-              name: 'formHtml',
-              value: $('#formHtml').summernote('code')
+              name: 'title',
+              value: $('#title').val()
+          }).appendTo(form);
+          $('<input />', {
+              type: 'hidden',
+              name: 'formTitle',
+              value: '{{ formTitle }}'
+          }).appendTo(form);
+          $('<input />', {
+              type: 'hidden',
+              name: 'contentHtml',
+              value: $('#contentHtml').summernote('code')
           }).appendTo(form);
           form.submit();
       }
@@ -133,16 +115,16 @@
               ['insert', ['picture', 'link', 'table', 'hr']],
               ['util', ['codeview', 'help']]
           ];
-          let formHtml = $('#formHtml');
-          formHtml.summernote({
-              placeholder: '발주서양식 내용 작성',
+          let contentHtml = $('#contentHtml');
+          contentHtml.summernote({
+              placeholder: '매입발주서 내용 작성',
               tabsize: 2,
-              height: document.documentElement.clientHeight * 0.5,
+              height: document.documentElement.clientHeight * 0.7,
               toolbar: toolbar,
               spellCheck: false,
               disableGrammar: true,
           });
-          formHtml.summernote('code', '{{ form.formHtml | safe }}');
+          contentHtml.summernote('code', '{{ contentHtml | safe }}');
       })
 
   </script>
