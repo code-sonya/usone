@@ -88,6 +88,7 @@ class Purchase(models.Model):
     withdrawDate = models.DateField(null=True, blank=True)
     billingTime = models.CharField(max_length=10, null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
+    purchaseOrder = models.ForeignKey('Purchaseorder', on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class Cost(models.Model):
@@ -307,3 +308,37 @@ class Purchasecategory(models.Model):
 
     def __str__(self):
         return str(self.categoryId) + ' ' + self.purchaseType + ' ' + self.categoryName
+
+
+class Purchaseorderform(models.Model):
+    formId = models.AutoField(primary_key=True)
+    formNumber = models.IntegerField(default=0)
+    formTitle = models.CharField(max_length=200)
+    formHtml = models.TextField()
+    comment = models.CharField(max_length=200, default='')
+
+
+class Purchaseorder(models.Model):
+    orderId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    purchaseCompany = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
+    formId = models.ForeignKey(Purchaseorderform, on_delete=models.SET_NULL, null=True, blank=True)
+    writeEmp = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    title = models.CharField(max_length=200)
+    contentHtml = models.TextField()
+    writeDatetime = models.DateTimeField()
+    modifyDatetime = models.DateTimeField()
+    sendDatetime = models.DateTimeField(null=True, blank=True)
+    sendCount = models.IntegerField(default=0)
+
+
+class Purchaseorderfile(models.Model):
+    fileId = models.AutoField(primary_key=True)
+    purchaseOrder = models.ForeignKey(Purchaseorder, on_delete=models.CASCADE, null=True, blank=True)
+    purchaseCompany = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
+    fileCategory = models.CharField(max_length=100)
+    fileName = models.CharField(max_length=200)
+    fileSize = models.FloatField()
+    uploadEmp = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    uploadDatetime = models.DateTimeField(null=True, blank=True)
+    file = models.FileField(upload_to="contract/%Y_%m")

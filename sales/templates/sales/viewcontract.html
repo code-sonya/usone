@@ -165,7 +165,7 @@
               </td>
               <td>
                 <b>매입발주서</b>
-                <a href="#" onclick="open_upload('매입발주서')"><i class="fas fa-paperclip"></i></a>
+                <a href="#" onclick="open_purchase_order('매입발주서')"><i class="fas fa-file-signature"></i></a>
               </td>
               <td>
                 <a data-toggle="modal" data-target="#confirmModal" class="text-success"><i class="fas fa-pen-alt"></i></a>
@@ -1280,6 +1280,66 @@
     </div>
   </div>
 
+  <!-- purchase order modal -->
+  <div class="modal fade" id="purchaseOrderModal" tabindex="-1" role="dialog" aria-labelledby="purchaseOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="purchaseOrderModalLabel">매입 발주 항목 선택</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="purchaseOrderForm" method="POST">{% csrf_token %}</form>
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td class="d-none"></td>
+              <td width="5%"><input class="ckbxall2" type="checkbox"></td>
+              <td width="15%"><b>매입예정월</b></td>
+              <td width="20%">
+                <select id="purchaseOrderCompany" class="form-control" onchange="change_purchase_company(this)">
+                  <option value="">매입처선택</option>
+                  {% for c in purchaseCompany %}
+                  <option value="{{ c }}">{{ c }}</option>
+                  {% endfor %}
+                </select>
+              </td>
+              <td width="20%"><b>매입금액</b></td>
+              <td width="45%"><b>비고</b></td>
+            </tr>
+            </thead>
+            <tbody>
+              {% for purchase in purchasesNotBilling %}
+                <tr class="d-none">
+                  <td class="d-none"><span name="purchaseId2">{{ purchase.purchaseId }}</span></td>
+                  <td><input name="purchase2" class="ckbx2" type="checkbox"></td>
+                  <td>{{ purchase.predictBillingDate | date:"Y.m" }}</td>
+                  <td name="purchasesNotBillingCompany">{{ purchase.purchaseCompany.companyNameKo }}</td>
+                  <td class="text-right">{{ purchase.purchasePrice | intcomma }}</td>
+                  <td class="text-left">{{ purchase.comment }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="post_purchase_order()">발주</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
 
 
 
@@ -1780,6 +1840,10 @@
           $('#purchaseUploadModal').modal('show');
       }
 
+      function open_purchase_order(fileType) {
+          $('#purchaseOrderModal').modal('show');
+      }
+
       function open_download(fileType) {
           $('#downloadModalLabel').text(fileType + ' 목록');
           $('#downloadModal').modal('show');
@@ -1986,7 +2050,7 @@
       function post_document() {
           let documentType = $('#documentType').val();
           let purchases = {{ purchases | length }};  // 매입(세금계산서 접수) 개수
-          let purchaseEstimate = {{ files_a | length }};  // 매입발주서 개수
+          let purchaseEstimate = {{ files_a | length }};  // 매입견적서 개수
           let revenueEstimate = {{ files_b | length }};  // 매출견적서 개수
           let contractPaper = {{ files_c | length }};  // 계약서 개수
           let confirmPaper = {{ files_f | length }};  // 납품,구축,검수확인서 개수
@@ -2017,7 +2081,7 @@
       function post_purchase() {
           let documentType = $('#documentType').val();
           let purchases = {{ purchases | length }};  // 매입(세금계산서 접수) 개수
-          let purchaseEstimate = {{ files_a | length }};  // 매입발주서 개수
+          let purchaseEstimate = {{ files_a | length }};  // 매입견적서 개수
           let revenueEstimate = {{ files_b | length }};  // 매출견적서 개수
           let contractPaper = {{ files_c | length }};  // 계약서 개수
           let confirmPaper = {{ files_f | length }};  // 납품,구축,검수확인서 개수
@@ -2056,6 +2120,40 @@
               }
           }
           $('#purchaseFile' + thisValue).removeClass('d-none');
+      }
+
+      function change_purchase_company(obj) {
+          const purchasesNotBillingCompany = $('td[name="purchasesNotBillingCompany"]');
+          const ckbx2 = $('.ckbx2');
+          for (let i=0; i<purchasesNotBillingCompany.length; i++) {
+              if (purchasesNotBillingCompany.eq(i).text() === obj.value) {
+                  purchasesNotBillingCompany.eq(i).parent().removeClass('d-none');
+                  ckbx2.eq(i).addClass('ckbx-checked');
+              } else {
+                  purchasesNotBillingCompany.eq(i).parent().addClass('d-none');
+                  ckbx2.eq(i).removeClass('ckbx-checked');
+              }
+          }
+      }
+
+      function post_purchase_order() {
+          let purchaseOrderCompany = $('#purchaseOrderCompany').val();
+          let len = $('.ckbx2').length;
+          let idList = [];
+          for (let i=0; i<len; i++) {
+              if ($('.ckbx2').eq(i).is(":checked")) {
+                  idList.push($('span[name="purchaseId2"]').eq(i).text());
+              }
+          }
+
+          let form = $('#purchaseOrderForm');
+          form.attr("action", "/sales/postpurchaseorder/{{ contract.contractId }}/" + purchaseOrderCompany + "/");
+          $('<input />', {
+              type: 'hidden',
+              name: 'purchaseIds',
+              value: JSON.stringify(idList)
+          }).appendTo(form);
+          form.submit();
       }
 
       $(document).ready(function () {
@@ -3236,6 +3334,13 @@
           $('.ckbx').click(function () {
               $('.ckbxall').prop('checked', false);
           });
+          // 여기부터
+          $('.ckbxall2').click(function () {
+              $('.ckbx2.ckbx-checked').prop('checked', this.checked);
+          });
+          $('.ckbx2').click(function () {
+              $('.ckbxall2').prop('checked', false);
+          });
 
           // 매입견적서 업로드 화면
           const purchaseCompany = $('#purchaseCompany');
@@ -3263,7 +3368,7 @@
               {% endif %}
               input_file += '<span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>';
               input_file += '<input id="purchaseFiles' + strCount + '" name="purchaseFiles' + strCount + '" ' +
-                  'type="file" multiple="multiple" class="d-none" onchange=purchase_file_names(this.id)>';
+                  'type="file" multiple="multiple" class="d-none" onchange="purchase_file_names(this.id)">';
               input_file += '</label>';
               purchaseFiles.append(input_file);
               companyCount += 1;
