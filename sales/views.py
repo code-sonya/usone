@@ -17,19 +17,18 @@ from django.views.decorators.http import require_POST
 
 from hr.models import Employee
 from service.models import Servicereport
+from client.models import Company, Customer
 from .forms import ContractForm, GoalForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase, billing_schedule
 
-from service.models import Company, Customer
-from django.db.models import Q, Value, F, CharField, IntegerField
+from django.db.models import Q, Value, F, CharField, IntegerField, Max, Min
 from datetime import datetime, timedelta, date
 import pandas as pd
 from xhtml2pdf import pisa
 from service.functions import link_callback
-from django.db.models import Max, Min
 from dateutil.relativedelta import relativedelta
 
 
@@ -3571,3 +3570,12 @@ def calculate_billing(request):
     structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
     print(structure)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def post_purchase_order(request, contractId, purchaseOrderCompany):
+    company = Company.objects.get(companyNameKo=purchaseOrderCompany)
+    print(request.POST)
+    print(contractId)
+    print(company)
+    return redirect('sales:viewcontract', contractId)
