@@ -525,7 +525,7 @@ def modify_service(request, serviceId):
                 post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
             post.serviceDate = str(post.serviceBeginDatetime)[:10]
             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
-            post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
+            post.serviceOverHour = overtime(form.clean()['startdate'] + ' ' + form.clean()['starttime'], post.serviceFinishDatetime)
             post.serviceRegHour = post.serviceHour - post.serviceOverHour
             post.coWorker = request.POST['coWorkerId']
             post.save()
