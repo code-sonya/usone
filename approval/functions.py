@@ -304,7 +304,7 @@ def intcomma(num):
 
 
 def mail_approval(employee, document):
-    #메일 전송
+    # 결재요청 메일 전송
     try:
         title = "'{}' 문서 결재 요청".format(document.title)
         html = approvalhtml(document)
@@ -327,7 +327,7 @@ def mail_approval(employee, document):
 
 
 def mail_document(toEmail, fromEmail, document):
-    #메일 전송
+    # 전자결재 공유 메일 전송
     try:
         title = "'{}' 문서 공유".format(document.title)
         html = documenthtml(document)

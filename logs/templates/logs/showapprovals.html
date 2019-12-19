@@ -58,11 +58,12 @@
             <table id="showapprovals" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>다운로드일</th>
+                <th>문서공유일자</th>
                 <th>부서</th>
-                <th>성함</th>
-                <th>문서분류</th>
+                <th>발신자</th>
+                <th>수신자</th>
                 <th>문서명</th>
+                <th>전송상태</th>
                 <th class="d-none">downloadLogId</th>
               </tr>
               </thead>
@@ -104,11 +105,11 @@
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="empDeptName" class="font-weight-light text-primary">부서</label>
+                <label for="empDeptName" class="font-weight-light text-primary">발신자부서</label>
                 <input class="form-control" id="empDeptName" name="empDeptName">
               </div>
               <div class="col-6">
-                <label for="empName" class="font-weight-light text-primary">성함</label>
+                <label for="empName" class="font-weight-light text-primary">발신자성함</label>
                 <input class="form-control" id="empName" name="empName">
               </div>
             </div>
@@ -158,24 +159,25 @@
                   {data: "approvalDatetime"},
                   {data: "empId__empDeptName"},
                   {data: "empId__empName"},
+                  {data: "toEmail"},
                   {data: "documentId__title"},
                   {data: "approvalStatus"},
                   {data: "approvalLogId"},
 
               ],
               "columnDefs": [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none d-xl-table-cell"},
+                  {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                     "render": function (data, type, row) {
-                        return '<div><a href="/approval/viewdocument/'+ row['documentId__documentId']+'/"download>' + data + '</a></div>'
+                        return '<div><a href="/approval/viewdocument/'+ row['documentId__documentId']+'/">' + data + '</a></div>'
                     },
-                    targets: 3, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"
+                    targets: 4, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"
                   },
-                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  // {targets: 4, width: "40%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, className: "d-none"}
+                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "d-none"}
               ],
               dom: 'Blfrtip',
               buttons: [
