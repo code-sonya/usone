@@ -996,9 +996,10 @@
         </div>
 
         <div class="modal-body">
+          <!--<div class="text-center m-5 d-none" id="noFile"><h5>업로드된 <span class="text-info">파일</span>이 없습니다.</h5></div>-->
           <table class="file-table">
             <thead>
-            <tr>
+            <tr id="head" class="text-secondary">
               <td width="20%"><b>일시</b></td>
               <td width="20%"><b>작성자</b></td>
               <td width="40%"><b>파일명</b></td>
@@ -1059,7 +1060,7 @@
 
         <div class="modal-body">
           {% for company in purchaseCompany %}
-            <b class="text-dark">{{ company }}</b>
+            <div class="text-dark ml-2"> ▼ {{ company }}</div>
             <table class="file-table">
               <thead>
               <tr>
@@ -1180,7 +1181,7 @@
         </div>
         <div class="modal-body">
           {% for company in purchaseCompany %}
-            <b class="text-dark">{{ company }}</b>
+            <div class="text-dark ml-2"> ▼ {{ company }}</div>
             <table class="file-table">
               <thead>
               <tr>
@@ -1892,6 +1893,7 @@
       }
 
       function open_download(fileType) {
+          // $('#noFile');
           $('#downloadModalLabel').text(fileType + ' 목록');
           $('#downloadModal').modal('show');
           let filesB = $('tr[name=filesB]');
@@ -1899,6 +1901,8 @@
           let filesE = $('tr[name=filesE]');
           let filesF = $('tr[name=filesF]');
           let filesG = $('tr[name=filesG]');
+          let nofile = $('#noFile');
+          let head = $('#head');
 
           if (!filesB.hasClass('d-none')) {
               filesB.addClass('d-none')
@@ -1918,14 +1922,49 @@
 
           if (fileType === '매출견적서') {
               filesB.removeClass('d-none');
+              // if(filesB.length == 0){
+              //     nofile.removeClass('d-none');
+              //     head.hasClass('d-none');
+              // }else{
+              //     nofile.hasClass('d-none');
+              //     head.removeClass('d-none');
+              // }
           } else if (fileType === '계약서') {
               filesC.removeClass('d-none');
+              // if(filesC.length == 0){
+              //     nofile.removeClass('d-none');
+              //     head.hasClass('d-none');
+              // }else{
+              //     nofile.hasClass('d-none');
+              //     head.removeClass('d-none');
+              // }
           } else if (fileType === '매입발주서') {
               filesE.removeClass('d-none');
+              // if(filesE.length == 0){
+              //     nofile.removeClass('d-none');
+              //     head.hasClass('d-none');
+              // }else{
+              //     nofile.hasClass('d-none');
+              //     head.removeClass('d-none');
+              // }
           } else if (fileType === '납품,구축,검수확인서') {
               filesF.removeClass('d-none');
+              // if(filesF.length == 0){
+              //     nofile.removeClass('d-none');
+              //     head.hasClass('d-none');
+              // }else{
+              //     nofile.hasClass('d-none');
+              //     head.removeClass('d-none');
+              // }
           } else if (fileType === '매출발행') {
               filesG.removeClass('d-none');
+              // if(filesG.length == 0){
+              //     nofile.removeClass('d-none');
+              //     head.hasClass('d-none');
+              // }else{
+              //     nofile.hasClass('d-none');
+              //     head.removeClass('d-none');
+              // }
           }
       }
 
