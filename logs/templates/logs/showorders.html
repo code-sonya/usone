@@ -221,6 +221,12 @@
                   if (aData.approvalDatetime != "") {
                       $('td:eq(0)', nRow).text(replaceAll(aData.approvalDatetime,"-","."));
                   }
+                  if (aData.orderStatus === '전송실패') {
+                    $('td', nRow).eq(5).css('color', 'red');
+                    $('td', nRow).css('background-color', '#ffe6e6');
+                  }else{
+                       $('td', nRow).eq(5).css('color', 'green');
+                  }
               }
 
           });
