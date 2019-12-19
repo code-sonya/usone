@@ -10,7 +10,7 @@ from hr.models import Employee
 from service.models import Servicereport
 from approval.models import Document
 from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile,\
-    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder
 
 
 def viewContract(contractId):
@@ -158,8 +158,9 @@ def viewContract(contractId):
     else:
         companyTotalWithdraw['total_ratio_withdraw'] = round(companyTotalWithdraw['total_filter_withdraw'] / companyTotalWithdraw['total_sum_withdraw'] * 100)
 
-    # 매입발주서 양식
+    # 매입발주서
     purchaseOrderForm = list(Purchaseorderform.objects.all().values_list('formTitle', flat=True).order_by('formNumber'))
+    purchaseOrderDocument = Purchaseorder.objects.filter(contractId=contract)
 
     context = {
         'revenueId': '',
@@ -171,9 +172,11 @@ def viewContract(contractId):
         'files_e': files_e,
         'files_f': files_f,
         'files_g': files_g,
-        # 결재문서
+        # 결재문서, 매입발주서
         'documents': documents,
         'ordernotis': ordernotis,
+        'purchaseOrderForm': purchaseOrderForm,
+        'purchaseOrderDocument': purchaseOrderDocument,
         # 계약, 세부사항, 매출, 매입, 원가, 계약서 명, 수주통보서 명
         'contract': contract,
         'services': services,
@@ -204,8 +207,6 @@ def viewContract(contractId):
         'companyTotalDeposit': companyTotalDeposit,
         'companyWithdraw': companyWithdraw,
         'companyTotalWithdraw': companyTotalWithdraw,
-        # 매입발주서양식
-        'purchaseOrderForm': purchaseOrderForm,
     }
 
     return context

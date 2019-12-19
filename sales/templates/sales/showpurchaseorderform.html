@@ -1,0 +1,108 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  영업관리
+{% endblock %}
+
+
+{% block css %}
+  <style>
+  </style>
+{% endblock %}
+
+
+{% block content %}
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h6 class="m-0 h3 text-gray-800">매입발주서 양식</h6>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <div class="dropdown no-arrow">
+        <a class="dropdown-toggle" href="/sales/postpurchaseorderform/" role="button">
+          <i class="fas fa-plus fa-fw text-gray-400"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="table-responsive mt-3">
+        <table id="showpurchaseorderform" class="hover row-border">
+          <thead>
+          <tr>
+            <th>번호</th>
+            <th>양식명</th>
+            <th>양식설명</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+
+    $(document).ready(function() {
+        let table = $('#showpurchaseorderform').DataTable({
+            "processing": true,
+            "ajax": {
+                "processing": true,
+                "type": 'GET',
+                "data": {},
+                "url": "{% url 'sales:showpurchaseorderformasjson' %}",
+                "dataSrc": ""
+            },
+            "columnDefs": [
+                {
+                    targets: 0,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "formNumber",
+                },
+                {
+                    targets: 1,
+                    width: "40%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "formTitle",
+                },
+                {
+                    targets: 2,
+                    width: "50%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "comment"
+                },
+            ],
+            "deferRender": true,
+            "searching": true,
+            "paging": true,
+            "info": false,
+            "scrollY": "60vh",
+            "scrollX": false,
+            "scrollCollapse": true,
+            "order": [[0, 'asc']],
+            "language": {
+                "lengthMenu": "_MENU_ 개씩 보기",
+                "search": "검색:",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "다음",
+                    "previous": "이전"
+                },
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+
+            }
+        });
+
+        $("#showpurchaseorderform").on("click", 'tr', function () {
+            const data = table.row(this).data();
+            location.href = '/sales/modifypurchaseorderform/' + data.formId + '/'
+        });
+    })
+
+  </script>
+{% endblock %}

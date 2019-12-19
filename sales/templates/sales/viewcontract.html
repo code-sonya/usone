@@ -189,7 +189,7 @@
                   <img class="td-img" src="/media/icon/prepare3.png"><br>
                 {% elif files_a|length == 4 %}
                   <img class="td-img" src="/media/icon/prepare4.png"><br>
-                {% elif files_a|length > 5 %}
+                {% elif files_a|length >= 5 %}
                   <img class="td-img" src="/media/icon/prepare5.png"><br>
                 {% endif %}
               </a></td>
@@ -204,7 +204,7 @@
                   <img class="td-img" src="/media/icon/prepare3.png"><br>
                 {% elif files_b|length == 4 %}
                   <img class="td-img" src="/media/icon/prepare4.png"><br>
-                {% elif files_b|length > 5 %}
+                {% elif files_b|length >= 5 %}
                   <img class="td-img" src="/media/icon/prepare5.png"><br>
                 {% endif %}
               </a></td>
@@ -219,7 +219,7 @@
                   <img class="td-img" src="/media/icon/prepare3.png"><br>
                 {% elif files_c|length == 4 %}
                   <img class="td-img" src="/media/icon/prepare4.png"><br>
-                {% elif files_c|length > 5 %}
+                {% elif files_c|length >= 5 %}
                   <img class="td-img" src="/media/icon/prepare5.png"><br>
                 {% endif %}
               </a></td>
@@ -234,22 +234,22 @@
                   <img class="td-img" src="/media/icon/ordernoti3.png"><br>
                 {% elif ordernotis|length == 4 %}
                   <img class="td-img" src="/media/icon/ordernoti4.png"><br>
-                {% elif ordernotis|length > 5 %}
+                {% elif ordernotis|length >= 5 %}
                   <img class="td-img" src="/media/icon/ordernoti5.png"><br>
                 {% endif %}
               </a></td>
-              <td><a href="#" onclick="open_download('매입발주서')">
-                {% if files_e|length == 0 %}
+              <td><a href="#" onclick="open_purchase_order_document('매입발주서')">
+                {% if purchaseOrderDocument|length == 0 %}
                   <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
-                {% elif files_e|length == 1 %}
+                {% elif purchaseOrderDocument|length == 1 %}
                   <img class="td-img" src="/media/icon/ordernoti1.png"><br>
-                {% elif files_e|length == 2 %}
+                {% elif purchaseOrderDocument|length == 2 %}
                   <img class="td-img" src="/media/icon/ordernoti2.png"><br>
-                {% elif files_e|length == 3 %}
+                {% elif purchaseOrderDocument|length == 3 %}
                   <img class="td-img" src="/media/icon/ordernoti3.png"><br>
-                {% elif files_e|length == 4 %}
+                {% elif purchaseOrderDocument|length == 4 %}
                   <img class="td-img" src="/media/icon/ordernoti4.png"><br>
-                {% elif files_e|length > 5 %}
+                {% elif purchaseOrderDocument|length >= 5 %}
                   <img class="td-img" src="/media/icon/ordernoti5.png"><br>
                 {% endif %}
               </a></td>
@@ -264,7 +264,7 @@
                   <img class="td-img" src="/media/icon/ordermail3.png"><br>
                 {% elif files_f|length == 4 %}
                   <img class="td-img" src="/media/icon/ordermail4.png"><br>
-                {% elif files_f|length > 5 %}
+                {% elif files_f|length >= 5 %}
                   <img class="td-img" src="/media/icon/ordermail5.png"><br>
                 {% endif %}
               </a></td>
@@ -279,7 +279,7 @@
                   <img class="td-img" src="/media/icon/ordermail3.png"><br>
                 {% elif files_g|length == 4 %}
                   <img class="td-img" src="/media/icon/ordermail4.png"><br>
-                {% elif files_g|length > 5 %}
+                {% elif files_g|length >= 5 %}
                   <img class="td-img" src="/media/icon/ordermail5.png"><br>
                 {% endif %}
               </a></td>
@@ -901,7 +901,7 @@
 
   <!-- file upload modal -->
   <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
@@ -989,7 +989,7 @@
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="downloadModalLabel">첨부파일 다운로드</h5>
+          <h5 class="modal-title" id="downloadModalLabel">첨부파일 목록</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
@@ -1168,6 +1168,51 @@
     </div>
   </div>
 
+  <!-- purchase order document modal -->
+  <div class="modal fade" id="purchaseOrderDocumentModal" tabindex="-1" role="dialog" aria-labelledby="purchaseOrderDocumentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="purchaseOrderDocumentModalLabel">매입발주서 문서함</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% for company in purchaseCompany %}
+            <b class="text-dark">{{ company }}</b>
+            <table class="file-table">
+              <thead>
+              <tr>
+                <td width="20%"><b>일시</b></td>
+                <td width="20%"><b>작성자</b></td>
+                <td width="40%"><b>매입발주서</b></td>
+                <td width="20%"><b>발송시간</b></td>
+              </tr>
+              </thead>
+              <tbody>
+                {% for document in purchaseOrderDocument %}
+                  {% if document.purchaseCompany.companyNameKo == company %}
+                    <tr>
+                      <td>{{ document.modifyDatetime | date:"Y.m.d H:i" }}</td>
+                      <td>{{ document.writeEmp }}</td>
+                      <td class="text-left">
+                        <a href="/sales/viewpurchaseorder/{{ document.orderId }}">
+                          {{ document.title }}
+                        </a>
+                      </td>
+                      <td>{% if document.sendDatetime %}{{ document.sendDatetime }}{% else %}-{% endif %}</td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- purchase in advance modal -->
   <div class="modal fade" id="purchaseInAdvanceModal" tabindex="-1" role="dialog" aria-labelledby="purchaseInAdvanceModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
@@ -1194,7 +1239,7 @@
             </tr>
             </thead>
             <tbody>
-              {% for purchase in purchases %}
+              {% for purchase in purchasesNotBilling %}
                 <tr>
                   <td class="d-none"><span name="purchaseId">{{ purchase.purchaseId }}</span></td>
                   <td><input name="purchase" class="ckbx" type="checkbox"></td>
@@ -1293,7 +1338,8 @@
                 </select>
               </td>
               <td width="20%"><b>매입금액</b></td>
-              <td width="45%"><b>비고</b></td>
+              <td width="15%"><b>비고</b></td>
+              <td width="25%"><b>발주서</b></td>
             </tr>
             </thead>
             <tbody>
@@ -1305,6 +1351,13 @@
                   <td name="purchasesNotBillingCompany">{{ purchase.purchaseCompany.companyNameKo }}</td>
                   <td class="text-right">{{ purchase.purchasePrice | intcomma }}</td>
                   <td class="text-left">{{ purchase.comment }}</td>
+                  <td>
+                    {% if purchase.purchaseOrder.title %}
+                      <a href="/sales/modifypurchaseorder/{{ purchase.purchaseOrder.orderId }}/" target="_blank">{{ purchase.purchaseOrder.title }}</a>
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>
@@ -1312,6 +1365,7 @@
         </div>
 
         <div class="modal-footer">
+          <a href="/sales/showpurchaseorderform/"><i class="far fa-file-alt fa-fw text-info"></i></a>
           <a href="/sales/postpurchaseorderform/"><i class="fas fa-plus-circle fa-fw text-info"></i></a>
           <select id="purchaseOrderFormTitle" class="form-control" style="width: 180px;">
             <option value="">발주서양식선택</option>
@@ -1884,6 +1938,12 @@
           $('#ordernotiModalLabel').text(fileType + ' 문서함');
           $('#ordernotiModal').modal('show');
       }
+
+      function open_purchase_order_document(fileType) {
+          $('#purchaseOrderDocumentModalLabel').text(fileType + ' 문서함');
+          $('#purchaseOrderDocumentModal').modal('show');
+      }
+
 
       function btn_upload() {
           let fileType = $('#fileType').text();

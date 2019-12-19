@@ -83,5 +83,11 @@ urlpatterns = [
     url(r'^saveclassification/$', views.save_classification, name='saveclassification'),
     url(r'^calculatebilling/$', views.calculate_billing, name='calculatebilling'),
     url(r'^postpurchaseorder/(?P<contractId>.+)/(?P<purchaseOrderCompanyName>.+)/$', views.post_purchase_order, name='postpurchaseorder'),
+    url(r'^modifypurchaseorder/(?P<orderId>.+)/$', views.modify_purchase_order, name='modifypurchaseorder'),
+    url(r'^viewpurchaseorder/(?P<orderId>.+)/$', views.view_purchase_order, name='viewpurchaseorder'),
+    url(r'^deletepurchaseorder/(?P<orderId>.+)/$', views.delete_purchase_order, name='deletepurchaseorder'),
     url(r'^postpurchaseorderform/$', views.post_purchase_order_form, name='postpurchaseorderform'),
+    url(r'^showpurchaseorderform/$', views.show_purchase_order_form, name='showpurchaseorderform'),
+    url(r'^modifypurchaseorderform/(?P<formId>.+)/$', views.modify_purchase_order_form, name='modifypurchaseorderform'),
+    url(r'^showpurchaseorderformasjson/$', views.showpurchaseorderform_asjson, name='showpurchaseorderformasjson'),
 ]

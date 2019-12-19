@@ -3579,9 +3579,10 @@ def post_purchase_order(request, contractId, purchaseOrderCompanyName):
     purchaseOrderCompany = Company.objects.get(companyNameKo=purchaseOrderCompanyName)
     emp = request.user.employee
     if request.method == 'POST':
+        purchaseIds = json.loads(request.POST['purchaseIds'])
         formTitle = request.POST['formTitle']
         purchaseOrderForm = Purchaseorderform.objects.get(formTitle=formTitle)
-        Purchaseorder.objects.create(
+        purchaseOrder = Purchaseorder.objects.create(
             contractId=contract,
             purchaseCompany=purchaseOrderCompany,
             formId=purchaseOrderForm,
@@ -3591,8 +3592,13 @@ def post_purchase_order(request, contractId, purchaseOrderCompanyName):
             writeDatetime=datetime.now(),
             modifyDatetime=datetime.now(),
         )
+        for purchaseId in purchaseIds:
+            purchaseInstance = Purchase.objects.get(purchaseId=purchaseId)
+            purchaseInstance.purchaseOrder = purchaseOrder
+            purchaseInstance.save()
         return redirect('sales:viewcontract', contractId)
     else:
+        purchaseIds = json.loads(request.GET['purchaseIds'])
         formTitle = request.GET['purchaseOrderFormTitle']
         purchaseOrderForm = Purchaseorderform.objects.get(formTitle=formTitle)
         contentHtml = purchaseOrderForm.formHtml
@@ -3600,8 +3606,51 @@ def post_purchase_order(request, contractId, purchaseOrderCompanyName):
             'purchaseOrderCompany': purchaseOrderCompany,
             'formTitle': formTitle,
             'contentHtml': contentHtml,
+            'emp': emp,
+            'purchaseIds': purchaseIds,
         }
         return render(request, 'sales/postpurchaseorder.html', context)
+
+
+@login_required
+def modify_purchase_order(request, orderId):
+    purchaseOrder = Purchaseorder.objects.get(orderId=orderId)
+    purchaseOrderCompany = purchaseOrder.purchaseCompany
+    emp = purchaseOrder.writeEmp
+    if request.method == 'POST':
+        purchaseOrder.title = request.POST['title']
+        purchaseOrder.contentHtml = request.POST['contentHtml']
+        purchaseOrder.modifyDatetime = datetime.now()
+        purchaseOrder.save()
+        return redirect('sales:viewpurchaseorder', purchaseOrder.orderId)
+    else:
+        formTitle = purchaseOrder.formId.formTitle
+        contentHtml = purchaseOrder.contentHtml
+        context = {
+            'purchaseOrderCompany': purchaseOrderCompany,
+            'formTitle': formTitle,
+            'contentHtml': contentHtml,
+            'emp': emp,
+            'purchaseOrder': purchaseOrder,
+        }
+        return render(request, 'sales/postpurchaseorder.html', context)
+
+
+@login_required
+def delete_purchase_order(request, orderId):
+    purchaseOrder = Purchaseorder.objects.get(orderId=orderId)
+    contractId = purchaseOrder.contractId.contractId
+    purchaseOrder.delete()
+    return redirect('sales:viewcontract', contractId)
+
+
+@login_required
+def view_purchase_order(request, orderId):
+    purchaseOrder = Purchaseorder.objects.get(orderId=orderId)
+    context = {
+        'purchaseOrder': purchaseOrder,
+    }
+    return render(request, 'sales/viewpurchaseorder.html', context)
 
 
 @login_required
@@ -3617,5 +3666,50 @@ def post_purchase_order_form(request):
         form = PurchaseorderformForm()
         context = {
             'form': form,
+        }
+        return render(request, 'sales/postpurchaseorderform.html', context)
+
+
+@login_required
+def show_purchase_order_form(request):
+    if request.method == 'POST':
+        form = PurchaseorderformForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.formHtml = request.POST['formHtml']
+            post.save()
+        return redirect('sales:postpurchaseorderform')
+    else:
+        form = PurchaseorderformForm()
+        context = {
+            'form': form,
+        }
+        return render(request, 'sales/showpurchaseorderform.html', context)
+
+
+@login_required
+def showpurchaseorderform_asjson(request):
+    purchaseorderforms = Purchaseorderform.objects.all().values('formId', 'formNumber', 'formTitle', 'comment').order_by('formNumber')
+
+    structure = json.dumps(list(purchaseorderforms), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def modify_purchase_order_form(request, formId):
+    instance = Purchaseorderform.objects.get(formId=formId)
+    if request.method == 'POST':
+        form = PurchaseorderformForm(request.POST, instance=instance)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.formHtml = request.POST['formHtml']
+            post.save()
+        return redirect('sales:showpurchaseorderform')
+    else:
+        form = PurchaseorderformForm(instance=instance)
+        formHtml = instance.formHtml
+        context = {
+            'form': form,
+            'formHtml': formHtml,
         }
         return render(request, 'sales/postpurchaseorderform.html', context)
