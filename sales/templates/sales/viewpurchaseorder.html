@@ -90,6 +90,62 @@
   {% endif %}
   </div>
 
+  <!-- email Modal -->
+  <div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="documentModalLabel">매입발주서 전송</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="emailForm" action="/approval/viewdocumentemail/{{ document.documentId }}/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_email();}">
+            {% csrf_token %}
+            <label class="text-primary mb-0">수신자</label>
+            <div class="row mb-1">
+              <div class="col-3 pr-0 mb-sm-0">
+                <input type="text" class="form-control" id="empEmail" name="empEmail">
+              </div>
+              <div class="col-1 pt-1">
+                <span class="text-info">@</span>
+              </div>
+              <div class="col-4 pl-0">
+                <input type="text" class="form-control" id="address" name="address">
+              </div>
+              <div class="col-4 pl-0 mb-sm-0">
+                <select type="text" class="form-control" id="selectaddress" name="selectaddress" onchange="change_email(this.value)">
+                  <option value="직접입력">직접입력</option>
+                  <option value="unioneinc.co.kr">unioneinc.co.kr</option>
+                  <option value="naver.com">naver.com</option>
+                  <option value="gmail.com">gmail.com</option>
+                  <option value="hanmail.com">hanmail.net</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="selectpurchase" class="text-primary">매입견적서 선택</label>
+                <select type="text" class="form-control" id="selectpurchase" name="selectpurchase">
+                  <option value="">------</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_email()">전송</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 {% endblock %}
 
 
