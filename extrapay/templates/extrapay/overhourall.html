@@ -83,7 +83,7 @@
             {% endifchanged %}
             <td class="thtd">{{ row.empPosition }}</td>
             <td class="thtd"><a href="/extrapay/viewoverhour/{{ row.extraPayId }}/">{{ row.empName }}</a></td>
-            <td class="thtd text-right">{{ row.sumOverhour }}</td>
+            <td class="thtd text-right">{{ row.sumOverhour |floatformat:"2"}}</td>
             <td class="thtd text-right">{{ row.compensatedHour }}</td>
             <td class="thtd text-right">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
             <td class="thtd text-right">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
@@ -102,7 +102,7 @@
             {% endifchanged %}
             <td class="thtd">{{ row.empPosition }}</td>
             <td class="thtd"><a href="/extrapay/viewoverhour/{{ row.extraPayId }}/">{{ row.empName }}</a></td>
-            <td class="thtd text-right">{{ row.sumOverhour }}</td>
+            <td class="thtd text-right">{{ row.sumOverhour |floatformat:"2"}}</td>
             <td class="thtd text-right">{{ row.compensatedHour }}</td>
             <td class="thtd text-right">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
             <td class="thtd text-right">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
@@ -121,7 +121,7 @@
             {% endifchanged %}
             <td class="thtd">{{ row.empPosition }}</td>
             <td class="thtd"><a href="/extrapay/viewoverhour/{{ row.extraPayId }}/">{{ row.empName }}</a></td>
-            <td class="thtd text-right">{{ row.sumOverhour }}</td>
+            <td class="thtd text-right">{{ row.sumOverhour |floatformat:"2"}}</td>
             <td class="thtd text-right">{{ row.compensatedHour }}</td>
             <td class="thtd text-right">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
             <td class="thtd text-right">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
@@ -131,7 +131,7 @@
           {% endif %}
           <tr class="thtd" style="background-color: lightsalmon">
             <td class="thtd" colspan="3">소계</td>
-            <td class="thtd text-right">{{ sumEmp.sumoverHour }}</td>
+            <td class="thtd text-right">{{ sumEmp.sumoverHour |floatformat:"2"}}</td>
             <td class="thtd text-right">{{ sumEmp.sumcompensatedHour }}</td>
             <td class="thtd text-right">{{ sumEmp.sumoverandfoodCost |floatformat:0|intcomma }}</td>
             <td class="thtd text-right">{{ sumEmp.sumfoodCost |floatformat:0|intcomma }}</td>
@@ -161,7 +161,7 @@
             <td class="thtd">주임</td>
             <td class="thtd">{{ row.empName }}</td>
             <td class="thtd text-right">{{ row.sumOverhourWeekday }}</td>
-            <td class="thtd text-right">{{ row.sumOverhour }}</td>
+            <td class="thtd text-right">{{ row.sumOverhour |floatformat:"2"}}</td>
             <td class="thtd text-right">{{ row.overHourCostWeekDay |floatformat:0|intcomma }}</td>
             <td class="thtd text-right">{{ row.sumOverhourCost |floatformat:0|intcomma }}</td>
             <td class="thtd text-right">{{ row.sumCost |floatformat:0|intcomma }}</td>
@@ -170,7 +170,7 @@
           <tr class="thtd" style="background-color: lightsalmon">
             <td class="thtd" colspan="3">소계</td>
             <td class="thtd text-right">{{ sumSupport.sumOverhourWeekday }}</td>
-            <td class="thtd text-right">{{ sumSupport.sumOverhour }}</td>
+            <td class="thtd text-right">{{ sumSupport.sumOverhour |floatformat:"2"}}</td>
             <td class="thtd text-right">{{ sumSupport.overHourCostWeekDay |floatformat:0|intcomma }}</td>
             <td class="thtd text-right">{{ sumSupport.sumOverhourCost |floatformat:0|intcomma }}</td>
             <td class="thtd text-right">{{ sumSupport.sumCost |floatformat:0|intcomma }}</td>
