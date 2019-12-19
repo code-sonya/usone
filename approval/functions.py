@@ -327,42 +327,27 @@ def mail_approval(employee, document):
 
 
 def mail_document(toEmail, fromEmail, document):
-    title = "'{}' 문서 공유".format(document.title)
-    html = documenthtml(document)
-    toEmail = toEmail
-    fromEmail = fromEmail
+    #메일 전송
+    try:
+        title = "'{}' 문서 공유".format(document.title)
+        html = documenthtml(document)
+        toEmail = toEmail
+        fromEmail = fromEmail
 
-    msg = MIMEMultipart("alternative")
-    msg["From"] = fromEmail
-    msg["To"] = toEmail
-    msg["Subject"] = Header(s=title, charset="utf-8")
-    msg.attach(MIMEText(html, "html", _charset="utf-8"))
+        msg = MIMEMultipart("alternative")
+        msg["From"] = fromEmail
+        msg["To"] = toEmail
+        msg["Subject"] = Header(s=title, charset="utf-8")
+        msg.attach(MIMEText(html, "html", _charset="utf-8"))
 
-    smtp = smtplib.SMTP(smtp_server, smtp_port)
-    smtp.login(userid, passwd)
-    smtp.sendmail(fromEmail, toEmail, msg.as_string())
-    smtp.close()
-    # #메일 전송
-    # try:
-    #     title = "'{}' 문서 공유".format(document.title)
-    #     html = documenthtml(document)
-    #     toEmail = toEmail
-    #     fromEmail = fromEmail
-    #
-    #     msg = MIMEMultipart("alternative")
-    #     msg["From"] = fromEmail
-    #     msg["To"] = toEmail
-    #     msg["Subject"] = Header(s=title, charset="utf-8")
-    #     msg.attach(MIMEText(html, "html", _charset="utf-8"))
-    #
-    #     smtp = smtplib.SMTP(smtp_server, smtp_port)
-    #     smtp.login(userid, passwd)
-    #     smtp.sendmail(fromEmail, toEmail, msg.as_string())
-    #     smtp.close()
-    #     return {'result': 'ok'}
-    # except Exception as e:
-    #     print(e)
-    #     return {'result': e}
+        smtp = smtplib.SMTP(smtp_server, smtp_port)
+        smtp.login(userid, passwd)
+        smtp.sendmail(fromEmail, toEmail, msg.as_string())
+        smtp.close()
+        return 'Y'
+    except Exception as e:
+        print(e)
+        return e
 
 
 def approvalhtml(document):

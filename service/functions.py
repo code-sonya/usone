@@ -582,15 +582,26 @@ def cal_foodcost(str_start_datetime, str_end_datetime):
 
     for date in dateRange:
         s_week = date['start'].weekday()
+        start_date = date['start'].date()
+        end_date = date['end'].date()
         start_hour = date['start'].hour
+        start_min = date['start'].minute
         end_hour = date['end'].hour
-        if end_hour == 0:
+        end_min = date['end'].minute
+    
+        if start_date != end_date and end_hour == 0:
             end_hour = 24
 
         # 주말이거나 공휴일일 때
         if s_week in [5, 6] or is_holiday_startdate != 0:
+            # 조식대
+            # 7:00시 이전 출근
+            # 7:00시 이후 퇴근
             if start_hour <= 7 and end_hour >= 7:
-                foodcosts += 8000
+                if start_hour == 7 and start_min != 0:
+                    foodcosts += 0
+                else:
+                    foodcosts += 8000
 
             if start_hour <= 12 and end_hour >= 13:
                 foodcosts += 8000
@@ -599,10 +610,18 @@ def cal_foodcost(str_start_datetime, str_end_datetime):
                 foodcosts += 8000
         else:
             # 평일 석식 오후 6시 이후 모두 지급 (단, 8시 이전 근무 종료자 제외)
+            # 18:00시 이전 출근시엔 20:00시 초과 퇴근
+            # 20:00시 초과 퇴근
             if start_hour >= 18 and end_hour >= 20: #시작시간이 6시를 넘기고 & 종료시간은 8시보다 커야함
-                foodcosts += 8000
-            elif end_hour >= 20: # 정규근무시간에서 플러스 8시넘어서 했을 때
-                foodcosts += 8000
+                if end_hour == 20 and end_min == 0:
+                    foodcosts += 0
+                else:
+                    foodcosts += 8000
+            elif end_hour >= 20:
+                if end_hour == 20 and end_min == 0:
+                    foodcosts += 0
+                else:
+                    foodcosts += 8000
     return foodcosts
 
 

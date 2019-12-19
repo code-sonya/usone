@@ -269,9 +269,23 @@
           <form id="emailForm" action="/approval/viewdocumentemail/{{ document.documentId }}/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_email();}">
             {% csrf_token %}
             <div class="row mb-1">
-              <div class="col-12 mb-6 mb-sm-0">
-                <label for="empEmail" class="font-weight-light text-primary">이메일</label>
+              <div class="col-3 pr-0 mb-sm-0">
                 <input type="text" class="form-control" id="empEmail" name="empEmail">
+              </div>
+              <div class="col-1 pt-1">
+                <span class="text-info">@</span>
+              </div>
+              <div class="col-4 pl-0">
+                <input type="text" class="form-control" id="address" name="address">
+              </div>
+              <div class="col-4 pl-0 mb-sm-0">
+                <select type="text" class="form-control" id="selectaddress" name="selectaddress" onchange="change_email(this.value)">
+                  <option value="직접입력">직접입력</option>
+                  <option value="unioneinc.co.kr">unioneinc.co.kr</option>
+                  <option value="naver.com">naver.com</option>
+                  <option value="gmail.com">gmail.com</option>
+                  <option value="hanmail.com">hanmail.net</option>
+                </select>
               </div>
             </div>
           </form>
@@ -290,6 +304,20 @@
 
 {% block script %}
 <script type="text/javascript">
+    function change_email(val) {
+        const address = $("#address");
+        if(val=='직접입력'){
+            address.removeAttr("readonly");
+            address.val('');
+
+        }else{
+            address.val(val);
+            address.attr("readonly",true);
+        }
+
+
+
+    }
     function btn_email() {
         const emailForm = $("#emailForm");
         emailForm.submit();

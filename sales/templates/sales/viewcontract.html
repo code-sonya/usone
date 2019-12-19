@@ -1010,7 +1010,7 @@
               <tr name="filesB" class="d-none">
                 <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
                 <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-left"><a onclick="downloadLog('/media/{{ f.file }}','매출견적서')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
                 <td class="text-right">{{ f.fileSize }} MB</td>
               </tr>
             {% endfor %}
@@ -1018,23 +1018,7 @@
               <tr name="filesC" class="d-none">
                 <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
                 <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
-              </tr>
-            {% endfor %}
-            {% for f in files_d %}
-              <tr name="filesD" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                <td class="text-right">{{ f.fileSize }} MB</td>
-              </tr>
-            {% endfor %}
-            {% for f in files_e %}
-              <tr name="filesE" class="d-none">
-                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-left"><a onclick="downloadLog('/media/{{ f.file }}','계약서')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
                 <td class="text-right">{{ f.fileSize }} MB</td>
               </tr>
             {% endfor %}
@@ -1042,7 +1026,7 @@
               <tr name="filesF" class="d-none">
                 <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
                 <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-left"><a onclick="downloadLog('/media/{{ f.file }}','납품,구축,검수확인서')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
                 <td class="text-right">{{ f.fileSize }} MB</td>
               </tr>
             {% endfor %}
@@ -1050,7 +1034,7 @@
               <tr name="filesG" class="d-none">
                 <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
                 <td>{{ f.uploadEmp.empName }}</td>
-                <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-left"><a onclick="downloadLog('/media/{{ f.file }}','매출발행')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
                 <td class="text-right">{{ f.fileSize }} MB</td>
               </tr>
             {% endfor %}
@@ -1091,7 +1075,7 @@
                 <tr name="filesA">
                   <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
                   <td>{{ f.uploadEmp.empName }}</td>
-                  <td class="text-left"><a href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                  <td class="text-left"><a onclick="downloadLog('/media/{{ f.file }}', '매입견적서')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
                   <td class="text-right">{{ f.fileSize }} MB</td>
                 </tr>
                 {% endif %}
@@ -1784,6 +1768,27 @@
 {% block script %}
 
   <script type="text/javascript">
+
+      function downloadLog(downloadUrl, downloadType) {
+          const contractId = "{{ contract.contractId }}";
+          $.ajax({
+            url: "{% url 'logs:insertdownloadlog' %}",
+            method: 'POST',
+            cache: false,
+            data: {"downloadUrl": downloadUrl,
+                  "downloadType": downloadType,
+                  "contractId": contractId,
+                   },
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                console.log(returnData)
+            },
+              error:function(request,status,error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            }
+        });
+
+      }
 
       function btn_firm() {
           let msg = "Firm으로 전환 하시겠습니까?\n" +
