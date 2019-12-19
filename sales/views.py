@@ -21,7 +21,7 @@ from client.models import Company, Customer
 from .forms import ContractForm, GoalForm, PurchaseorderformForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase, billing_schedule
 
@@ -3596,7 +3596,7 @@ def post_purchase_order(request, contractId, purchaseOrderCompanyName):
             purchaseInstance = Purchase.objects.get(purchaseId=purchaseId)
             purchaseInstance.purchaseOrder = purchaseOrder
             purchaseInstance.save()
-        return redirect('sales:viewcontract', contractId)
+        return redirect('sales:viewpurchaseorder', purchaseOrder.orderId)
     else:
         purchaseIds = json.loads(request.GET['purchaseIds'])
         formTitle = request.GET['purchaseOrderFormTitle']
@@ -3648,9 +3648,16 @@ def delete_purchase_order(request, orderId):
 def view_purchase_order(request, orderId):
     purchaseOrder = Purchaseorder.objects.get(orderId=orderId)
     purchaseOrderFiles = Purchaseorderfile.objects.filter(purchaseOrder=purchaseOrder)
+    relatedPurchaseEstimate = Relatedpurchaseestimate.objects.filter(purchaseOrder=purchaseOrder)
+    purchaseFiles = Purchasefile.objects.filter(
+        contractId=purchaseOrder.contractId,
+        purchaseCompany=purchaseOrder.purchaseCompany
+    )
     context = {
         'purchaseOrder': purchaseOrder,
         'purchaseOrderFiles': purchaseOrderFiles,
+        'relatedPurchaseEstimate': relatedPurchaseEstimate,
+        'purchaseFiles': purchaseFiles,
     }
     return render(request, 'sales/viewpurchaseorder.html', context)
 
@@ -3746,4 +3753,25 @@ def delete_purchase_order_file(request, fileId):
     purchaseOrderFile = Purchaseorderfile.objects.get(fileId=fileId)
     orderId = purchaseOrderFile.purchaseOrder.orderId
     purchaseOrderFile.delete()
+    return redirect('sales:viewpurchaseorder', orderId)
+
+
+@login_required
+def upload_related_purchase_estimate(request, orderId):
+    purchaseOrder = Purchaseorder.objects.get(orderId=orderId)
+    purchaseFileIds = json.loads(request.POST['purchaseFileIds'])
+    if purchaseFileIds:
+        for fileId in purchaseFileIds:
+            Relatedpurchaseestimate.objects.create(
+                purchaseOrder=purchaseOrder,
+                purchaseEstimate=Purchasefile.objects.get(fileId=fileId),
+            )
+    return redirect('sales:viewpurchaseorder', orderId)
+
+
+@login_required
+def delete_related_purchase_estimate(request, relatedId):
+    relatedPurchaseEstimate = Relatedpurchaseestimate.objects.get(relatedId=relatedId)
+    orderId = relatedPurchaseEstimate.purchaseOrder.orderId
+    relatedPurchaseEstimate.delete()
     return redirect('sales:viewpurchaseorder', orderId)

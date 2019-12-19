@@ -341,3 +341,9 @@ class Purchaseorderfile(models.Model):
     uploadEmp = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     uploadDatetime = models.DateTimeField(null=True, blank=True)
     file = models.FileField(upload_to="contract/%Y_%m")
+
+
+class Relatedpurchaseestimate(models.Model):
+    relatedId = models.AutoField(primary_key=True)
+    purchaseOrder = models.ForeignKey(Purchaseorder, on_delete=models.PROTECT)
+    purchaseEstimate = models.ForeignKey(Purchasefile, on_delete=models.PROTECT)

@@ -93,4 +93,6 @@ urlpatterns = [
     url(r'^uploadpurchaseorderfiles/(?P<orderId>.+)/$', views.upload_purchase_order_files, name='uploadpurchaseorderfiles'),
     url(r'^deletepurchaseorderfile/(?P<fileId>.+)/$', views.delete_purchase_order_file, name='deletepurchaseorderfile'),
     url(r'^deletepurchaseorderform/(?P<formId>.+)/$', views.delete_purchase_order_form, name='deletepurchaseorderform'),
+    url(r'^uploadrelatedpurchaseestimate/(?P<orderId>.+)/$', views.upload_related_purchase_estimate, name='uploadrelatedpurchaseestimate'),
+    url(r'^deleterelatedpurchaseestimate/(?P<relatedId>.+)/$', views.delete_related_purchase_estimate, name='deleterelatedpurchaseestimate'),
 ]

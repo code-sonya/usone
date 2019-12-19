@@ -80,9 +80,38 @@
             </tbody>
           </table>
         </div>
+
+        <div class="col-6">
+          <label class="font-weight-bold text-primary mt-3">매입견적서</label>
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="30%"><b>매입처</b></td>
+              <td width="35%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
+              <td width="15%">
+                <label class="m-0 btn btn-info btn-icon-split">
+                  <span class="icon text-white-100" role="button" data-toggle="modal" data-target="#purchaseEstimateModal">
+                    <i class="fas fa-file-upload"></i>
+                  </span>
+                </label>
+              </td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for estimate in relatedPurchaseEstimate %}
+              <tr>
+                <td>{{ estimate.purchaseEstimate.purchaseCompany.companyNameKo }}</td>
+                <td class="text-left">{{ estimate.purchaseEstimate.fileName }}</td>
+                <td class="text-right">{{ estimate.purchaseEstimate.fileSize }} MB</td>
+                <td><i class="fas fa-times-circle" onclick="estimate_delete({{ estimate.relatedId }})"></i></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-
 
     {% if purchaseOrder.writeEmp == request.user.employee and purchaseOrder.sendDatetime is None %}
     <div class="text-center mb-3">
@@ -153,6 +182,57 @@
     </div>
   </div>
 
+  <!-- purchase estimate file download modal -->
+  <div class="modal fade" id="purchaseEstimateModal" tabindex="-1" role="dialog" aria-labelledby="purchaseEstimateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="purchaseEstimateModalLabel">매입견적서 목록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="purchaseFileForm" method="POST">{% csrf_token %}</form>
+          <div class="text-dark ml-2"> ▼ {{ purchaseOrder.purchaseCompany.companyNameKo }}</div>
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td class="d-none"></td>
+              <td width="5%"><input class="ckbxall" type="checkbox"></td>
+              <td width="20%"><b>일시</b></td>
+              <td width="20%"><b>작성자</b></td>
+              <td width="40%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for f in purchaseFiles %}
+              <tr>
+                <td name="purchaseFileId" class="d-none">{{ f.fileId }}</td>
+                <td><input class="ckbx" type="checkbox"></td>
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left">
+                  <a onclick="downloadLog('/media/{{ f.file }}', '매입견적서')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a>
+                </td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="post_related()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 {% endblock %}
 
@@ -168,12 +248,40 @@
       }
 
       function file_delete(fileId) {
-          console.log(fileId);
           location.href = '/sales/deletepurchaseorderfile/' + fileId + '/';
       }
 
-      $(document).ready(function () {
+      function estimate_delete(relatedId) {
+          location.href = '/sales/deleterelatedpurchaseestimate/' + relatedId + '/';
+      }
 
+      function post_related() {
+          const form =$('#purchaseFileForm');
+          form.attr("action", "/sales/uploadrelatedpurchaseestimate/{{ purchaseOrder.orderId }}/");
+
+          let len = $('.ckbx').length;
+          let idList = [];
+          for (let i=0; i<len; i++) {
+              if ($('.ckbx').eq(i).is(":checked")) {
+                  idList.push($('td[name="purchaseFileId"]').eq(i).text());
+              }
+          }
+
+          $('<input />', {
+              type: 'hidden',
+              name: 'purchaseFileIds',
+              value: JSON.stringify(idList)
+          }).appendTo(form);
+          form.submit();
+      }
+
+      $(document).ready(function () {
+          $('.ckbxall').click(function () {
+              $('.ckbx').prop('checked', this.checked);
+          });
+          $('.ckbx').click(function () {
+              $('.ckbxall').prop('checked', false);
+          });
       })
 
   </script>
