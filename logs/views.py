@@ -118,6 +118,52 @@ def approval_asjson(request):
     if empName:
         approvals = approvals.filter(empId__empName__icontains=empName)
 
-    downloads = approvals.values('approvalDatetime', 'empId__empDeptName', 'empId__empName', 'documentId__title', 'documentId__documentId', 'approvalStatus', 'approvalLogId')
+    downloads = approvals.values('approvalDatetime', 'empId__empDeptName', 'empId__empName', 'toEmail', 'documentId__title', 'documentId__documentId', 'approvalStatus', 'approvalLogId')
     structure = json.dumps(list(downloads), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def show_orders(request):
+    if request.method == "POST":
+        empDeptName = request.POST["empDeptName"]
+        empName = request.POST["empName"]
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+
+    else:
+        empDeptName = ''
+        empName = ''
+        startdate = ''
+        enddate = ''
+
+    context = {
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'startdate': startdate,
+        'enddate': enddate,
+    }
+    return render(request, 'logs/showorders.html', context)
+
+
+@login_required
+@csrf_exempt
+def order_asjson(request):
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    empDeptName = request.POST['empDeptName']
+    empName = request.POST['empName']
+
+    orders = OrderLog.objects.all()
+    if startdate:
+        orders = orders.filter(orderDatetime__gte=startdate)
+    if enddate:
+        orders = orders.filter(orderDatetime__lte=enddate)
+    if empDeptName:
+        orders = orders.filter(empId__empDeptName__icontains=empDeptName)
+    if empName:
+        orders = orders.filter(empId__empName__icontains=empName)
+
+    orders = orders.values('orderDatetime', 'empId__empDeptName', 'empId__empName', 'toEmail', 'orderId__title', 'orderId__orderId', 'orderStatus', 'orderLogId')
+    structure = json.dumps(list(orders), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

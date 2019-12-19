@@ -10,9 +10,9 @@ class DownloadLogAdmin(admin.ModelAdmin):
 
 @admin.register(OrderLog)
 class OrderLogAdmin(admin.ModelAdmin):
-    list_display = ('orderLogId', 'empId', 'toEmail', 'contractId', 'orderDatetime', 'orderUrl')
-    list_filter = ('empId', 'toEmail', 'contractId')
-    list_display_links = ['orderLogId', 'empId', 'toEmail', 'contractId', 'orderDatetime', 'orderUrl']
+    list_display = ('orderLogId', 'empId', 'toEmail', 'orderId', 'orderDatetime', 'orderStatus')
+    list_filter = ('empId', 'toEmail', 'orderId', 'orderStatus')
+    list_display_links = ['orderLogId', 'empId', 'toEmail', 'orderId', 'orderDatetime', 'orderStatus']
 
 
 @admin.register(ApprovalLog)

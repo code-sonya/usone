@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, timedelta
+from datetime import datetime
 import json
+import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, F, Case, When, Value, CharField
@@ -13,9 +14,9 @@ from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from service.models import Servicereport, Geolocation
 from service.functions import dayreport_query2
-from sales.models import Contract, Category, Contractitem, Revenue, Goal, Purchase
+from sales.models import Contract, Contractitem, Revenue, Goal, Purchase
 from hr.models import Employee
-from django.db.models import functions
+from dateutil.relativedelta import relativedelta
 from django.db.models.functions import Coalesce
 from usone.security import MAP_KEY, testMAP_KEY
 
@@ -30,48 +31,34 @@ def dashboard_service(request):
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
 
-    # default : 주 단위 (월~일)
+    # default : 월 단위 (월~일)
     else:
-        today = datetime.today()
-        startdate = (today - timedelta(days=today.weekday())).date()
-        enddate = startdate + timedelta(days=6)
+        today = datetime.datetime.today()
+        startdate = datetime.datetime(today.year, today.month, 1)
+        enddate = startdate + relativedelta(months=1) - relativedelta(days=1)
 
-    if  request.user.employee.empDeptName == "임원" or request.user.employee.empDeptName == "경영지원본부":
-        all_support_data = Servicereport.objects.filter((Q(serviceDate__gte=startdate) &
-                                                         Q(serviceDate__lte=enddate)) & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀'))).exclude(serviceType="교육")
+    all_support_data = Servicereport.objects.filter((Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')) & Q(serviceStatus='Y')).exclude(serviceType="교육")
 
-        all_support_time = all_support_data.aggregate(Sum('serviceHour'), Count('serviceHour'))
+    if startdate:
+        all_support_data = all_support_data.filter(Q(serviceDate__gte=startdate))
 
-        all_support_Overtime = all_support_data.aggregate(Sum('serviceOverHour'))
+    if enddate:
+        all_support_data = all_support_data.filter(Q(serviceDate__lte=enddate))
 
-        # 고객사별 지원통계
-        customer_support_time = all_support_data.values('companyName').annotate(sum_supportTime=Sum('serviceHour'))
+    all_support_time = all_support_data.aggregate(Sum('serviceHour'), Count('serviceHour'))
 
-        # 엔지니어별 지원통계
-        emp_support_time = all_support_data.values('empName').annotate(sum_supportTime=Sum('serviceHour'))\
-                                                            .annotate(sum_supportCount=Count('empName'))\
-                                                            .annotate(sum_overTime=Sum('serviceOverHour'))
-        # 타입별 지원통계
-        type_support_time = all_support_data.values('serviceType').annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType')
+    all_support_Overtime = all_support_data.aggregate(Sum('serviceOverHour'))
 
-    else:
-        # 전체 지원 통계
-        all_support_data = Servicereport.objects.filter(Q(serviceDate__gte=startdate) &
-                                                        Q(serviceDate__lte=enddate) &
-                                                        Q(empDeptName=request.user.employee.empDeptName)).exclude(serviceType="교육")
+    # 고객사별 지원통계
+    customer_support_time = all_support_data.values('companyName').annotate(sum_supportTime=Sum('serviceHour')).order_by('-sum_supportTime')
 
-        all_support_time = all_support_data.aggregate(Sum('serviceHour'), Count('serviceHour'))
+    # 엔지니어별 지원통계
+    emp_support_time = all_support_data.values('empName').annotate(sum_supportTime=Sum('serviceHour'))\
+                                                        .annotate(sum_supportCount=Count('empName'))\
+                                                        .annotate(sum_overTime=Sum('serviceOverHour'))
+    # 타입별 지원통계
+    type_support_time = all_support_data.values('serviceType').annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType')
 
-        all_support_Overtime = all_support_data.aggregate(Sum('serviceOverHour'))
-
-        # 고객사별 지원통계
-        customer_support_time = all_support_data.values('companyName').annotate(sum_supportTime=Sum('serviceHour'))
-
-        # 엔지니어별 지원통계
-        emp_support_time = all_support_data.values('empName').annotate(sum_supportTime=Sum('serviceHour')).annotate(sum_supportCount=Count('empName')).annotate(sum_overTime=Sum('serviceOverHour'))
-
-        # 타입별 지원통계
-        type_support_time = all_support_data.annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType')
 
     type_count = [i for i in range(len(type_support_time))]
     multi_type = zip(type_support_time, type_count)
@@ -664,8 +651,12 @@ def service_asjson(request):
     empname = request.POST['empname']
     servicetype = request.POST['servicetype']
     overhour = request.POST['overhour']
+    services = Servicereport.objects.all()
 
-    services = Servicereport.objects.filter(Q(serviceDate__gte=startdate) & Q(serviceDate__lte=enddate))
+    if startdate:
+        services = Servicereport.objects.filter(Q(serviceDate__gte=startdate))
+    if enddate:
+        services = Servicereport.objects.filter(Q(serviceDate__lte=enddate))
 
     if company:
         services = services.filter(Q(companyName=company))
