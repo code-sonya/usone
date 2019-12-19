@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import json
-import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, F, Case, When, Value, CharField
@@ -16,7 +16,6 @@ from service.models import Servicereport, Geolocation
 from service.functions import dayreport_query2
 from sales.models import Contract, Contractitem, Revenue, Goal, Purchase
 from hr.models import Employee
-from dateutil.relativedelta import relativedelta
 from django.db.models.functions import Coalesce
 from usone.security import MAP_KEY, testMAP_KEY
 
@@ -33,8 +32,8 @@ def dashboard_service(request):
 
     # default : 월 단위 (월~일)
     else:
-        today = datetime.datetime.today()
-        startdate = datetime.datetime(today.year, today.month, 1)
+        today = datetime.today()
+        startdate = datetime(today.year, today.month, 1)
         enddate = startdate + relativedelta(months=1) - relativedelta(days=1)
 
     all_support_data = Servicereport.objects.filter((Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')) & Q(serviceStatus='Y')).exclude(serviceType="교육")
