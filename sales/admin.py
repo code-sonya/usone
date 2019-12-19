@@ -139,6 +139,6 @@ class PurchaseorderAdmin(admin.ModelAdmin):
 
 @admin.register(Purchaseorderfile)
 class PurchaseorderfileAdmin(admin.ModelAdmin):
-    list_display = ('fileId', 'purchaseOrder', 'purchaseCompany', 'fileName')
+    list_display = ('fileId', 'purchaseOrder', 'fileName')
     list_filter = ('purchaseOrder',)
-    list_display_links = ['fileId', 'purchaseOrder', 'purchaseCompany', 'fileName']
+    list_display_links = ['fileId', 'purchaseOrder', 'fileName']

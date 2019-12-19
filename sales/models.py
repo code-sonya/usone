@@ -335,7 +335,6 @@ class Purchaseorder(models.Model):
 class Purchaseorderfile(models.Model):
     fileId = models.AutoField(primary_key=True)
     purchaseOrder = models.ForeignKey(Purchaseorder, on_delete=models.CASCADE, null=True, blank=True)
-    purchaseCompany = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     fileCategory = models.CharField(max_length=100)
     fileName = models.CharField(max_length=200)
     fileSize = models.FloatField()

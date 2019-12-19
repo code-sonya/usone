@@ -8,43 +8,20 @@
 
 {% block css %}
   <style>
-    .pc-table {
-      color: #333333;
-      table-layout: fixed;
-      width: 100%;
-    }
-
-    .pc-table td, .pc-table th {
-      padding: 3px 10px;
-      text-align: center;
-      vertical-align: middle;
-      font-size: 16px;
-      border: 1px solid lightgrey;
-    }
-
-    .pc-table-main td, .pc-table-main th {
-      padding: 5px;
-      text-align: center;
-      vertical-align: middle;
-      font-size: 18px;
-      border-top: 1px dotted #858796a3;
-    }
-
-    .mobile-table {
+    .file-table {
       color: #333333;
       width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
     }
 
-    .mobile-table td, .mobile-table th {
-      padding: 5px 10px;
-      text-align: center;
+    .file-table td, .file-table th {
+      padding: .75rem;
       vertical-align: middle;
+      border-bottom: 1px solid #e3e6f0;
       font-size: 14px;
-      border-top: 1px dotted #858796a3;
+      text-align: center;
+      white-space: nowrap;
     }
-
   </style>
 {% endblock %}
 
@@ -67,14 +44,45 @@
     <div class="card-body">
       <label class="font-weight-bold text-primary">제목</label>
       <div class="mb-3 ml-2">
-        <h4 class="h4 text-gray-900">{{ purchaseOrder.title }}</h4>
+        <h5 class="h5 text-gray-900">{{ purchaseOrder.title }}</h5>
       </div>
 
       <label for="contentHtml" class="font-weight-bold text-primary">본문</label>
       <div class="mb-3 ml-2 text-gray-900">
         {{ purchaseOrder.contentHtml | safe }}
       </div>
+
+      <div class="row">
+        <div class="col-6">
+          <label class="font-weight-bold text-primary mt-3">첨부파일</label>
+          <form id="filesForm" method="POST" enctype="multipart/form-data" class="d-none">{% csrf_token %}</form>
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="65%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
+              <td width="15%">
+                <label class="m-0 btn btn-info btn-icon-split">
+                  <span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>
+                  <input id="files" name="files" type="file" multiple="multiple" class="d-none" onchange=file_upload()>
+                </label>
+              </td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for file in purchaseOrderFiles %}
+              <tr>
+                <td class="text-left">{{ file.fileName }}</td>
+                <td class="text-right">{{ file.fileSize }} MB</td>
+                <td><i class="fas fa-times-circle" onclick="file_delete({{ file.fileId }})"></i></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+
 
     {% if purchaseOrder.writeEmp == request.user.employee and purchaseOrder.sendDatetime is None %}
     <div class="text-center mb-3">
@@ -95,6 +103,18 @@
 
 {% block script %}
   <script type="text/javascript">
+
+      function file_upload() {
+          let form = $('#filesForm');
+          form.attr("action", "/sales/uploadpurchaseorderfiles/{{ purchaseOrder.orderId }}/");
+          form.append($("#files"));
+          form.submit();
+      }
+
+      function file_delete(fileId) {
+          console.log(fileId);
+          location.href = '/sales/deletepurchaseorderfile/' + fileId + '/';
+      }
 
       $(document).ready(function () {
 

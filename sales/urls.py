@@ -90,4 +90,7 @@ urlpatterns = [
     url(r'^showpurchaseorderform/$', views.show_purchase_order_form, name='showpurchaseorderform'),
     url(r'^modifypurchaseorderform/(?P<formId>.+)/$', views.modify_purchase_order_form, name='modifypurchaseorderform'),
     url(r'^showpurchaseorderformasjson/$', views.showpurchaseorderform_asjson, name='showpurchaseorderformasjson'),
+    url(r'^uploadpurchaseorderfiles/(?P<orderId>.+)/$', views.upload_purchase_order_files, name='uploadpurchaseorderfiles'),
+    url(r'^deletepurchaseorderfile/(?P<fileId>.+)/$', views.delete_purchase_order_file, name='deletepurchaseorderfile'),
+    url(r'^deletepurchaseorderform/(?P<formId>.+)/$', views.delete_purchase_order_form, name='deletepurchaseorderform'),
 ]
