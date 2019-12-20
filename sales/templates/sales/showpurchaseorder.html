@@ -1,0 +1,235 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  매입발주서 관리
+{% endblock %}
+
+
+{% block css %}
+  <style>
+  </style>
+{% endblock %}
+
+
+{% block content %}
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h6 class="m-0 h3 text-gray-800">매입발주서 관리</h6>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <div class="dropdown no-arrow">
+        <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+          <i class="fas fa-filter fa-fw text-gray-400"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="table-responsive mt-3">
+        <table id="showpurchaseorder" class="hover row-border">
+          <thead>
+          <tr>
+            <th>수정일시</th>
+            <th>작성자</th>
+            <th>매입처</th>
+            <th>계약명</th>
+            <th>매입발주서</th>
+            <th>마지막발송시간</th>
+            <th>orderId</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="text-primary">시작일자(수정일자)</label>
+                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" value="{{ startdate }}">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="enddate" class="text-primary">종료일자(수정일자)</label>
+                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" value="{{ enddate }}">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="empDeptName" class="text-primary">영업부서</label>
+                <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
+                  <option value="전체">전체</option>
+                  <option value="영업1팀" {% if empDeptName == '영업1팀' %}selected{% endif %}>영업1팀</option>
+                  <option value="영업2팀" {% if empDeptName == '영업2팀' %}selected{% endif %}>영업2팀</option>
+                  {#                  <option value="영업3팀">영업3팀</option>#}
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="empName" class="text-primary">영업담당자</label>
+                <select class="form-control" id="empName" name="empName">
+                  <option value='전체'>전체</option>
+                  {% if empDeptName != '전체' %}
+                    {% for e in employees %}
+                      {% if e.empDeptName == empDeptName %}
+                        <option value="{{ e.empName }}" {% if empName and empName == e.empName %}selected{% endif %}>{{ e.empName }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    {% for e in employees %}
+                      <option value="{{ e.empName }}" {% if e.empName == empName %}selected{% endif %}>{{ e.empName }}</option>
+                    {% endfor %}
+                  {% endif %}
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="contractName" class="text-primary">계약명</label>
+                <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="purchaseCompany" class="text-primary">매입처</label>
+                <input class="form-control" id="purchaseCompany" name="purchaseCompany" value="{{ purchaseCompany }}">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+    function btn_filter() {
+          document.getElementById("filterForm").submit();
+    }
+
+    function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 16);
+    }
+
+    $(document).ready(function() {
+        let table = $('#showpurchaseorder').DataTable({
+            "processing": true,
+            "ajax": {
+                "processing": true,
+                "type": 'POST',
+                "data": {
+                      "startdate": "{{ startdate }}",
+                      "enddate": "{{ enddate }}",
+                      "contractName": "{{ contractName }}",
+                      "empDeptName": "{{ empDeptName }}",
+                      "empName": "{{ empName }}",
+                      "purchaseCompany": "{{ purchaseCompany }}",
+                },
+                "url": "{% url 'sales:showpurchaseorderasjson' %}",
+                "dataSrc": ""
+            },
+            "columnDefs": [
+                {
+                    targets: 0,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "modifyDatetime",
+                },
+                {
+                    targets: 1,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "writeEmp__empName",
+                },
+                 {
+                    targets: 2,
+                    width: "10%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "purchaseCompany"
+                },
+                {
+                    targets: 3,
+                    width: "30%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "contractId__contractName"
+                },
+                {
+                    targets: 4,
+                    width: "30%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "title"
+                },
+                {
+                    targets: 5,
+                    width: "10%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "sendDatetime"
+                },
+                {
+                    targets: 6,
+                    width: "0%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "orderId",
+                    visible: false,
+                },
+            ],
+            "deferRender": true,
+            "searching": true,
+            "paging": true,
+            "info": false,
+            "scrollY": "60vh",
+            "scrollX": false,
+            "scrollCollapse": true,
+            "order": [[0, 'asc']],
+            "language": {
+                "lengthMenu": "_MENU_ 개씩 보기",
+                "search": "검색:",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "다음",
+                    "previous": "이전"
+                },
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(0)', nRow).text(replaceAll(aData.modifyDatetime, "-", "."));
+                  console.log(aData.sendDatetime);
+                  if(aData.sendDatetime == null){
+                      $('td:eq(5)', nRow).text('-');
+                  }else{
+                      $('td:eq(5)', nRow).text(replaceAll(aData.sendDatetime, "-", "."));
+                  }
+
+            },
+        });
+
+        $("#showpurchaseorder").on("click", 'tr', function () {
+            const data = table.row(this).data();
+            location.href = '/sales/viewpurchaseorder/' + data.orderId + '/'
+        });
+    })
+
+  </script>
+{% endblock %}

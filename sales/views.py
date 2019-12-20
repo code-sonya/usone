@@ -3821,6 +3821,8 @@ def send_purchaseorder(request, orderId):
                 orderId=orders,
                 orderDatetime=datetime.now(),
             )
+            orders.sendDatetime=datetime.now()
+            orders.save()
         else:
             OrderLog.objects.create(
                 empId=Employee(empId=request.user.employee.empId),
@@ -3832,3 +3834,77 @@ def send_purchaseorder(request, orderId):
             )
 
         return redirect('sales:viewpurchaseorder', orderId)
+
+
+@login_required
+def show_purchaseorder(request):
+    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+
+    if request.method == "POST":
+        startdate = request.POST["startdate"]
+        enddate = request.POST["enddate"]
+        contractName = request.POST["contractName"]
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        purchaseCompany = request.POST['purchaseCompany']
+
+    else:
+        startdate = ''
+        enddate = ''
+        contractName = ''
+        empDeptName = '전체'
+        empName = ''
+        purchaseCompany = ''
+
+    context = {
+        'employees': employees,
+        'startdate': startdate,
+        'enddate': enddate,
+        'contractName': contractName,
+        'empDeptName': empDeptName,
+        'empName': empName,
+        'purchaseCompany': purchaseCompany,
+    }
+
+    return render(request, 'sales/showpurchaseorder.html', context)
+
+
+@login_required
+@csrf_exempt
+def showpurchaseorder_asjson(request):
+    startdate = request.POST["startdate"]
+    enddate = request.POST["enddate"]
+    contractName = request.POST["contractName"]
+    empDeptName = request.POST['empDeptName']
+    empName = request.POST['empName']
+    purchaseCompany = request.POST['purchaseCompany']
+
+    if request.user.employee.empDeptName in ['임원','경영지원부'] or request.user.is_staff:
+        purchaseorders = Purchaseorder.objects.all()
+    else:
+        purchaseorders = Purchaseorder.objects.filter(Q(writeEmp=request.user.employee.empId))
+
+    if startdate:
+        purchaseorders = purchaseorders.filter(Q(modifyDatetime__gte=startdate))
+
+    if enddate:
+        purchaseorders = purchaseorders.filter(Q(modifyDatetime__lte=enddate))
+
+    if contractName:
+        purchaseorders = purchaseorders.filter(Q(contractId__contractName__icontains=contractName))
+
+    if empDeptName != '전체':
+        purchaseorders = purchaseorders.filter(Q(writeEmp__empDeptName__icontains=empDeptName))
+
+    if empName != '전체':
+        purchaseorders = purchaseorders.filter(Q(writeEmp__empName__icontains=empName))
+
+    if purchaseCompany:
+        purchaseorders = purchaseorders.filter(Q(purchaseCompany__companyNameKo__icontains=purchaseCompany))
+
+    purchaseorders = purchaseorders.\
+        values('modifyDatetime', 'writeEmp__empName', 'contractId__contractName', 'contractId__contractId', 'purchaseCompany', 'title', 'sendDatetime', 'orderId').order_by('-modifyDatetime')
+    structure = json.dumps(list(purchaseorders), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
