@@ -217,6 +217,18 @@
 {% block script %}
   <script type="text/javascript">
 
+      function change_email(val) {
+        const address = $("#address");
+        if(val=='직접입력'){
+            address.removeAttr("readonly");
+            address.val('');
+
+        }else{
+            address.val(val);
+            address.attr("readonly",true);
+        }
+      }
+
       function btn_email() {
         const emailForm = $("#emailForm");
         emailForm.submit();

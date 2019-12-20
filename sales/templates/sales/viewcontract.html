@@ -1369,12 +1369,12 @@
         <div class="modal-footer">
           <!--<a href="/sales/showpurchaseorderform/"><i class="far fa-file-alt fa-fw text-info"></i></a>-->
           <!--<a href="/sales/postpurchaseorderform/"><i class="fas fa-plus-circle fa-fw text-info"></i></a>-->
-          <!--<select id="purchaseOrderFormTitle" class="form-control" style="width: 180px;">-->
-            <!--<option value="">발주서양식선택</option>-->
-            <!--{% for f in purchaseOrderForm %}-->
-              <!--<option value="{{ f }}">{{ f }}</option>-->
-            <!--{% endfor %}-->
-          <!--</select>-->
+          <select id="purchaseOrderFormTitle" class="form-control" style="width: 180px;">
+            <option value="">발주서양식선택</option>
+            {% for f in purchaseOrderForm %}
+              <option value="{{ f }}">{{ f }}</option>
+            {% endfor %}
+          </select>
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-info" href="#" onclick="post_purchase_order()">발주</a>
         </div>

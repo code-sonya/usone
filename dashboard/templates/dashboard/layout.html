@@ -545,12 +545,12 @@
     $(window).resize(function() {
         var w = window.innerWidth;
         if(w<990){
-            if($('#accordionSidebar').hasClass('toggled')){
-                console.log('22')
-
-            }else{
+            if($('#accordionSidebar').hasClass('toggled')) {
                 $('#accordionSidebar').addClass('toggled');
             }
+            // }else{
+            //     $('#accordionSidebar').addClass('toggled');
+            // }
         }
     });
 
