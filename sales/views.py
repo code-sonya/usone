@@ -3578,38 +3578,57 @@ def post_purchase_order(request, contractId, purchaseOrderCompanyName):
     contract = Contract.objects.get(contractId=contractId)
     purchaseOrderCompany = Company.objects.get(companyNameKo=purchaseOrderCompanyName)
     emp = request.user.employee
-    if request.method == 'POST':
-        purchaseIds = json.loads(request.POST['purchaseIds'])
-        formTitle = request.POST['formTitle']
-        purchaseOrderForm = Purchaseorderform.objects.get(formTitle=formTitle)
-        purchaseOrder = Purchaseorder.objects.create(
-            contractId=contract,
-            purchaseCompany=purchaseOrderCompany,
-            formId=purchaseOrderForm,
-            writeEmp=emp,
-            title=request.POST['title'],
-            contentHtml=request.POST['contentHtml'],
-            writeDatetime=datetime.now(),
-            modifyDatetime=datetime.now(),
-        )
-        for purchaseId in purchaseIds:
-            purchaseInstance = Purchase.objects.get(purchaseId=purchaseId)
-            purchaseInstance.purchaseOrder = purchaseOrder
-            purchaseInstance.save()
-        return redirect('sales:viewpurchaseorder', purchaseOrder.orderId)
+
+    purchaseIds = json.loads(request.POST['purchaseIds'])
+    purchasePrice = Purchase.objects.filter(purchaseId__in=purchaseIds).aggregate(sum=Sum('purchasePrice'))['sum']
+    formTitle = request.POST['purchaseOrderFormTitle']
+    purchaseOrderForm = Purchaseorderform.objects.get(formTitle=formTitle)
+
+    contentHtml = purchaseOrderForm.formHtml
+    contentHtml = contentHtml.replace('매입처자동입력', purchaseOrderCompany.companyNameKo)
+    if purchaseOrderCompany.ceo:
+        contentHtml = contentHtml.replace('매입처대표이사자동입력', purchaseOrderCompany.ceo)
     else:
-        purchaseIds = json.loads(request.GET['purchaseIds'])
-        formTitle = request.GET['purchaseOrderFormTitle']
-        purchaseOrderForm = Purchaseorderform.objects.get(formTitle=formTitle)
-        contentHtml = purchaseOrderForm.formHtml
-        context = {
-            'purchaseOrderCompany': purchaseOrderCompany,
-            'formTitle': formTitle,
-            'contentHtml': contentHtml,
-            'emp': emp,
-            'purchaseIds': purchaseIds,
-        }
-        return render(request, 'sales/postpurchaseorder.html', context)
+        contentHtml = contentHtml.replace('매입처대표이사자동입력', '')
+    contentHtml = contentHtml.replace('매입처전화번호자동입력', '')
+    if purchaseOrderCompany.companyNumber:
+        contentHtml = contentHtml.replace('매입처사업자번호자동입력', purchaseOrderCompany.companyNumber)
+    else:
+        contentHtml = contentHtml.replace('매입처사업자번호자동입력', '')
+    if purchaseOrderCompany.companyAddress:
+        contentHtml = contentHtml.replace('매입처주소자동입력', purchaseOrderCompany.companyAddress)
+    else:
+        contentHtml = contentHtml.replace('매입처주소자동입력', '')
+    contentHtml = contentHtml.replace('매입처수신자자동입력', '')
+    contentHtml = contentHtml.replace('매입처직통자동입력', '')
+    contentHtml = contentHtml.replace('매입처팩스자동입력', '')
+
+    today = str(datetime.today())
+    contentHtml = contentHtml.replace('발주일자동입력', today[:4] + '. ' + today[5:7] + '. ' + today[8:10])
+    contentHtml = contentHtml.replace('영업대표자동입력', contract.empName + ' ' + contract.empId.empPosition.positionName)
+    contentHtml = contentHtml.replace('영업대표직통자동입력', contract.empId.empPhone)
+    contentHtml = contentHtml.replace('총발주금액자동입력별도', format(purchasePrice, ','))
+    contentHtml = contentHtml.replace('총발주금액자동입력포함', format(int(purchasePrice*1.1), ','))
+
+    purchaseOrder = Purchaseorder.objects.create(
+        contractId=contract,
+        purchaseCompany=purchaseOrderCompany,
+        formId=purchaseOrderForm,
+        writeEmp=emp,
+        title=purchaseOrderCompanyName + ' 매입발주서 자동생성',
+        contentHtml=contentHtml,
+        writeDatetime=datetime.now(),
+        modifyDatetime=datetime.now(),
+    )
+    for purchaseId in purchaseIds:
+        purchaseInstance = Purchase.objects.get(purchaseId=purchaseId)
+        purchaseInstance.purchaseOrder = purchaseOrder
+        purchaseInstance.save()
+
+    purchaseOrder.contentHtml = contentHtml.replace('발주번호자동입력', 'UN' + today[2:4] + today[5:7] + today[8:10] + '-' + str(purchaseOrder.orderId))
+    purchaseOrder.save()
+
+    return redirect('sales:modifypurchaseorder', purchaseOrder.orderId)
 
 
 @login_required
