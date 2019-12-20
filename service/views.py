@@ -618,7 +618,6 @@ def copy_service(request, serviceId):
         directgo=instance.directgo,
         serviceTitle=instance.serviceTitle,
         serviceDetails=instance.serviceDetails,
-        serviceStatus=instance.serviceStatus,
     )
     return redirect('scheduler', instance.serviceDate)
 

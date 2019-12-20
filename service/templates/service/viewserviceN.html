@@ -122,7 +122,7 @@
           </table>
 
           {% if service.empId.empId == user.employee.empId and service.serviceStatus != 'Y' %}
-            <div class="text-center">
+            <div class="text-center mb-2">
               {% if service.serviceStatus == 'N' %}
               <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
                 <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
@@ -156,14 +156,13 @@
               </a>
               {% endif %}
             </div>
-          {% elif service.empId.empId != user.employee.empId and service.serviceStatus == 'N' %}
-            <div class="text-center">
-              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_copy()">
-                <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
-                <span class="text"> 복사 </span>
-              </a>
-            </div>
           {% endif %}
+          <div class="text-center">
+            <a href="#" class="btn btn-warning btn-icon-split" onclick="btn_copy()">
+              <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
+              <span class="text p-2"> 복사 </span>
+            </a>
+          </div>
 
         </div>
       </div>
