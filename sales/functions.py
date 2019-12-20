@@ -2,15 +2,28 @@
 
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
-from django.db.models import Q
 from django.db.models import Sum, F, Count
 from django.db.models.functions import Coalesce
+import os
+import smtplib
+from email import encoders
+from email.header import Header
+from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from io import BytesIO
+from service.functions import link_callback
+from xhtml2pdf import pisa
 
-from hr.models import Employee
 from service.models import Servicereport
 from approval.models import Document
 from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile,\
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder
+from service.models import Employee
+from django.db.models import Q
+from django.template import loader
+from usone.security import smtp_server, smtp_port, userid, passwd
 
 
 def viewContract(contractId):
@@ -1256,6 +1269,73 @@ def billing_schedule(company, date, times, price, profit):
         billing.append(schedule)
 
     return billing
+
+
+def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpurchaseestimate):
+    # 매입발주서 메일 전송
+    try:
+        title = "[{}] 매입발주서".format(orders.contractId.contractName)
+        html = purchaseorderhtml(orders)
+        toEmail = toEmail
+        fromEmail = fromEmail
+
+        msg = MIMEMultipart("alternative")
+        msg["From"] = fromEmail
+        msg["To"] = toEmail
+        msg["Subject"] = Header(s=title, charset="utf-8")
+        msg.attach(MIMEText(html, "html", _charset="utf-8"))
+
+        # pdf 첨부
+        template_path = 'sales/viewpurchaseorderpdf.html'
+        template = loader.get_template(template_path)
+        context = {
+            'orders': orders,
+        }
+        html = template.render(context)
+        src = BytesIO(html.encode('utf-8'))
+        dest = BytesIO()
+
+        pdfStatus = pisa.pisaDocument(src, dest, encoding='utf-8', link_callback=link_callback)
+        if not pdfStatus.err:
+            pdf = dest.getvalue()
+            pdffile = MIMEBase("application/pdf", "application/x-pdf")
+            pdffile.set_payload(pdf)
+            encoders.encode_base64(pdffile)
+            pdffile.add_header("Content-Disposition", "attachment", filename=title + '.pdf')
+            msg.attach(pdffile)
+
+        smtp = smtplib.SMTP(smtp_server, smtp_port)
+        smtp.login(userid, passwd)
+        smtp.sendmail(fromEmail, toEmail, msg.as_string())
+        smtp.close()
+        return 'Y'
+    except Exception as e:
+        print(e)
+        return e
+
+
+def purchaseorderhtml(orders):
+    html = """
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+      <div>
+        """+ orders.contentHtml + """
+      </div>
+      <p style="text-align: center; font-size:12px">
+        [ 유니원아이앤씨(주) (Unione I&C) ]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        대표전화 : 02-780-0039&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Call Center : 02-780-2502&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Fax : 02-780-2503&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        HomePage : http://www.unioneinc.co.kr/
+      </p>
+    </body>
+    </html>
+    """
+    return html
 
 
 

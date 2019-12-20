@@ -95,4 +95,5 @@ urlpatterns = [
     url(r'^deletepurchaseorderform/(?P<formId>.+)/$', views.delete_purchase_order_form, name='deletepurchaseorderform'),
     url(r'^uploadrelatedpurchaseestimate/(?P<orderId>.+)/$', views.upload_related_purchase_estimate, name='uploadrelatedpurchaseestimate'),
     url(r'^deleterelatedpurchaseestimate/(?P<relatedId>.+)/$', views.delete_related_purchase_estimate, name='deleterelatedpurchaseestimate'),
+    url(r'^sendpurchaseorder/(?P<orderId>.+)/$', views.send_purchaseorder, name='deleterelatedpsendpurchaseorderurchaseestimate'),
 ]

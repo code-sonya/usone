@@ -18,12 +18,13 @@ from django.views.decorators.http import require_POST
 from hr.models import Employee
 from service.models import Servicereport
 from client.models import Company, Customer
+from logs.models import OrderLog
 from .forms import ContractForm, GoalForm, PurchaseorderformForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
     Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
-    empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase, billing_schedule
+    empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase, billing_schedule, mail_purchaseorder
 
 from django.db.models import Q, Value, F, CharField, IntegerField, Max, Min
 from datetime import datetime, timedelta, date
@@ -3779,3 +3780,36 @@ def delete_related_purchase_estimate(request, relatedId):
     orderId = relatedPurchaseEstimate.purchaseOrder.orderId
     relatedPurchaseEstimate.delete()
     return redirect('sales:viewpurchaseorder', orderId)
+
+
+@login_required
+def send_purchaseorder(request, orderId):
+    if request.method == 'POST':
+        orders = Purchaseorder.objects.get(orderId=orderId)
+        purchaseorderfile = Purchaseorderfile.objects.filter(purchaseOrder=orderId)
+        relatedpurchaseestimate = Relatedpurchaseestimate.objects.filter(purchaseOrder=orderId)
+        empEmail = request.POST['empEmail']
+        address = request.POST['address']
+
+        empEmail ='{}@{}'.format(empEmail, address)
+        if empEmail:
+            result = mail_purchaseorder(empEmail, request.user.employee.empEmail, orders, purchaseorderfile, relatedpurchaseestimate)
+
+        if result == 'Y':
+            OrderLog.objects.create(
+                empId=Employee(empId=request.user.employee.empId),
+                toEmail=empEmail,
+                orderId=orders,
+                orderDatetime=datetime.now(),
+            )
+        else:
+            OrderLog.objects.create(
+                empId=Employee(empId=request.user.employee.empId),
+                toEmail=empEmail,
+                orderDatetime=datetime.now(),
+                orderId=orders,
+                orderStatus='전송실패',
+                orderError=result,
+            )
+
+        return redirect('sales:viewpurchaseorder', orderId)
