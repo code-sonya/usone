@@ -91,10 +91,6 @@
   <script type="text/javascript">
       // 문서 양식 등록
       function btn_save() {
-          let idList = [];
-          {% for i in purchaseIds %}
-              idList.push('{{ i }}');
-          {% endfor %}
           const form = $('#purchaseOrder');
           $('<input />', {
               type: 'hidden',
@@ -105,11 +101,6 @@
               type: 'hidden',
               name: 'formTitle',
               value: '{{ formTitle }}'
-          }).appendTo(form);
-          $('<input />', {
-              type: 'hidden',
-              name: 'purchaseIds',
-              value: JSON.stringify(idList)
           }).appendTo(form);
           $('<input />', {
               type: 'hidden',
