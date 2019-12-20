@@ -1304,6 +1304,24 @@ def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpur
             pdffile.add_header("Content-Disposition", "attachment", filename=title + '.pdf')
             msg.attach(pdffile)
 
+        # 첨부파일 첨부
+        for file in purchaseorderfile:
+            path = r'{}{}'.format('media/', file.file)
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(open(path, 'rb').read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename=os.path.basename(path))
+            msg.attach(part)
+
+        # 매입견적서 첨부
+        for estimate in relatedpurchaseestimate:
+            path = r'{}{}'.format('media/', estimate.purchaseEstimate.file)
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(open(path, 'rb').read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment", filename=os.path.basename(path))
+            msg.attach(part)
+
         smtp = smtplib.SMTP(smtp_server, smtp_port)
         smtp.login(userid, passwd)
         smtp.sendmail(fromEmail, toEmail, msg.as_string())

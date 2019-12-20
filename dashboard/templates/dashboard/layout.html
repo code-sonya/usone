@@ -85,7 +85,7 @@
       <!-- Nav Item - 영업관리 -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
-          <i class="fas fa-fw fa-folder text-white"></i>
+          <i class="fas fa-fw fa-briefcase text-white"></i>
           <span class="text-white">영업관리</span>
         </a>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
@@ -120,12 +120,30 @@
         </div>
       </li>
     {% endif %}
-
+    {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
+      <!-- Nav Item - 영업관리 -->
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFiles" aria-expanded="true" aria-controls="collapseFiles">
+          <i class="fas fa-fw fa-folder text-white"></i>
+          <span class="text-white">문서관리</span>
+        </a>
+        <div id="collapseFiles" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <a class="collapse-item" href="/sales/showcontracts/">수주통보서</a>
+            <a class="collapse-item" href="/sales/showrevenues/">매입발주서</a>
+            {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
+            <a class="collapse-item" href="/sales/showpurchaseorderform/">매입발주서양식</a>
+            {% endif %}
+          </div>
+        </div>
+      </li>
+    {% endif %}
     {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or '영업' in user.employee.empDeptName %}
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInsentive" aria-expanded="true" aria-controls="collapseUtilities">
-          <i class="fas fa-fw fa-money-bill-alt text-white"></i>
+          <i class="fas fa-fw fa-won-sign text-white"></i>
           <span class="text-white">인센티브</span>
         </a>
         <div id="collapseInsentive" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
@@ -165,7 +183,7 @@
       <!-- Nav Item - 근태관리 -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHr" aria-expanded="true" aria-controls="collapseHr">
-          <i class="fas fa-fw fa-folder text-white"></i>
+          <i class="fas fa-fw fa-user-check text-white"></i>
           <span class="text-white">근태관리</span>
         </a>
         <div id="collapseHr" class="collapse" aria-labelledby="headingHr" data-parent="#accordionSidebar">
@@ -192,7 +210,7 @@
     <!-- Nav Item - 유류비 -->
     <li class="nav-item">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFuel" aria-expanded="true" aria-controls="collapseFuel">
-        <i class="fas fa-fw fa-money-bill-alt text-white"></i>
+        <i class="fas fa-fw fa-car text-white"></i>
         <span class="text-white">유류비</span>
       </a>
       <div id="collapseFuel" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
@@ -238,7 +256,7 @@
 
     <li class="nav-item">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval" aria-expanded="true" aria-controls="collapseApproval">
-        <i class="far fa-fw fa-calendar-check text-white"></i>
+        <i class="far fa-fw fa-paper-plane text-white"></i>
         <span class="text-white">전자결재</span>
       </a>
       <div id="collapseApproval" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
@@ -267,7 +285,7 @@
     <!-- Nav Item - Board -->
     <li class="nav-item">
       <a class="nav-link" href="/noticeboard/showboards">
-        <i class="fas fa-fw fa-file text-white"></i>
+        <i class="fas fa-fw fa-clipboard text-white"></i>
         <span class="text-white">게시판</span></a>
     </li>
 
