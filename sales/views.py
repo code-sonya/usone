@@ -3742,7 +3742,11 @@ def modify_purchase_order_form(request, formId):
         form = PurchaseorderformForm(request.POST, instance=instance)
         if form.is_valid():
             post = form.save(commit=False)
-            post.formHtml = request.POST['formHtml']
+            HTML = request.POST['formHtml']
+            HTML = HTML.replace('\'', '"')
+            HTML = HTML.replace('\r', '')
+            HTML = HTML.replace('\n', '')
+            post.formHtml = HTML
             post.save()
         return redirect('sales:showpurchaseorderform')
     else:
