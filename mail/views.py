@@ -17,13 +17,13 @@ from django.shortcuts import render, redirect
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from xhtml2pdf import pisa
+from smtplib import SMTP_SSL
 
 from client.models import Company, Customer
-from hr.models import Employee
+from hr.models import Employee, AdminEmail
 from service.functions import link_callback, num_to_str_position
 from service.models import Servicereport
 from .functions import servicereporthtml
-from usone.security import smtp_server, smtp_port, userid, passwd
 
 
 @login_required
@@ -58,6 +58,10 @@ def selectreceiver(request, serviceId):
 @csrf_exempt
 def sendmail(request, serviceId):
     if request.method == 'POST':
+        # smtp 정보
+        email = AdminEmail.objects.aggregate(Max('adminId'))
+        email = AdminEmail.objects.get(adminId=email['adminId__max'])
+
         servicereport = Servicereport.objects.get(serviceId=serviceId)
         if servicereport.coWorker:
             coWorker = ''
@@ -119,8 +123,11 @@ def sendmail(request, serviceId):
             pdffile.add_header("Content-Disposition", "attachment", filename=title + '.pdf')
             msg.attach(pdffile)
 
-        smtp = smtplib.SMTP(smtp_server, smtp_port)
-        smtp.login(userid, passwd)
+        if email.smtpSecure == 'TSL':
+            smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
+        elif email.smtpServer == 'SSL':
+            smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
+        smtp.login(email.smtpEmail, email.smtpPassword)
         smtp.sendmail(empEmail, emailList, msg.as_string())
         smtp.close()
 

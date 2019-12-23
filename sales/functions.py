@@ -15,15 +15,16 @@ from email.mime.text import MIMEText
 from io import BytesIO
 from service.functions import link_callback
 from xhtml2pdf import pisa
+from smtplib import SMTP_SSL
 
 from service.models import Servicereport
 from approval.models import Document
 from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile,\
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder
+from hr.models import AdminEmail
 from service.models import Employee
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.template import loader
-from usone.security import smtp_server, smtp_port, userid, passwd
 
 
 def viewContract(contractId):
@@ -1272,6 +1273,9 @@ def billing_schedule(company, date, times, price, profit):
 
 
 def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpurchaseestimate):
+    # smtp 정보
+    email = AdminEmail.objects.aggregate(Max('adminId'))
+    email = AdminEmail.objects.get(adminId=email['adminId__max'])
     # 매입발주서 메일 전송
     try:
         title = "[{}] 매입발주서".format(orders.contractId.contractName)
@@ -1322,8 +1326,11 @@ def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpur
             part.add_header("Content-Disposition", "attachment", filename=os.path.basename(path))
             msg.attach(part)
 
-        smtp = smtplib.SMTP(smtp_server, smtp_port)
-        smtp.login(userid, passwd)
+        if email.smtpSecure == 'TSL':
+            smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
+        elif email.smtpServer == 'SSL':
+            smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
+        smtp.login(email.smtpEmail, email.smtpPassword)
         smtp.sendmail(fromEmail, toEmail, msg.as_string())
         smtp.close()
         return 'Y'

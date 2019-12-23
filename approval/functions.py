@@ -7,6 +7,7 @@ from hr.models import AdminEmail
 from django.db.models import Q
 import smtplib
 from email import encoders
+from smtplib import SMTP_SSL
 from email.header import Header
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
@@ -320,7 +321,10 @@ def mail_approval(employee, document):
         msg["Subject"] = Header(s=title, charset="utf-8")
         msg.attach(MIMEText(html, "html", _charset="utf-8"))
 
-        smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
+        if email.smtpSecure == 'TSL':
+            smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
+        elif email.smtpServer == 'SSL':
+            smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
         smtp.login(email.smtpEmail, email.smtpPassword)
         smtp.sendmail(fromEmail, toEmail, msg.as_string())
         smtp.close()
@@ -334,7 +338,6 @@ def mail_document(toEmail, fromEmail, document):
     # smtp 정보
     email = AdminEmail.objects.aggregate(Max('adminId'))
     email = AdminEmail.objects.get(adminId=email['adminId__max'])
-    print(email)
     # 전자결재 공유 메일 전송
     try:
         title = "'{}' 문서 공유".format(document.title)
@@ -347,8 +350,10 @@ def mail_document(toEmail, fromEmail, document):
         msg["To"] = toEmail
         msg["Subject"] = Header(s=title, charset="utf-8")
         msg.attach(MIMEText(html, "html", _charset="utf-8"))
-
-        smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
+        if email.smtpSecure == 'TSL':
+            smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
+        elif email.smtpServer == 'SSL':
+            smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
         smtp.login(email.smtpEmail, email.smtpPassword)
         smtp.sendmail(fromEmail, toEmail, msg.as_string())
         smtp.close()
