@@ -2,12 +2,13 @@
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Q, Min, Max
 from django.shortcuts import render, redirect, reverse
 from sales.models import Contract, Category, Revenue, Contractitem, Goal, Purchase
 from service.models import Company, Customer, Servicereport, Vacation
 from extrapay.models import Car
 import pandas as pd
-from .models import Attendance, Employee, Punctuality
+from .models import Attendance, Employee, Punctuality, AdminEmail
 from django.db.models import Q
 from django.db.models import Sum, Count
 from django.http import HttpResponse
@@ -260,3 +261,42 @@ def modify_absence(request, punctualityId):
             'punctuality': punctuality
         }
         return render(request, 'hr/modifyabsence.html', context)
+
+
+@login_required
+@csrf_exempt
+def email_registration(request):
+    if request.method == "POST":
+        smtpEmail = '{}@{}'.format(request.POST['smtpEmail'], request.POST['address'])
+        smtpPassword = request.POST['smtpPassword']
+        smtpServer = request.POST['smtpServer']
+        smtpPort = request.POST['smtpPort']
+        smtpSecure = request.POST['smtpSecure']
+        smtpDatetime = datetime.datetime.now()
+
+        AdminEmail.objects.create(
+            smtpEmail=smtpEmail,
+            smtpPassword=smtpPassword,
+            smtpServer=smtpServer,
+            smtpPort=smtpPort,
+            smtpSecure=smtpSecure,
+            smtpDatetime=smtpDatetime,
+        )
+
+    adminEmail = AdminEmail.objects.aggregate(Max('adminId'))
+    if adminEmail['adminId__max']:
+        adminEmail = AdminEmail.objects.get(adminId=adminEmail['adminId__max'])
+        email = adminEmail.smtpEmail.split('@')
+        id = email[0]
+        address = email[1]
+    else:
+        adminEmail = ''
+        id = ''
+        address = ''
+
+    context = {
+        'adminEmail': adminEmail,
+        'id': id,
+        'address': address,
+    }
+    return render(request, 'hr/emailregistration.html', context)
