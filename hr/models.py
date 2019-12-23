@@ -14,28 +14,22 @@ class Position(models.Model):
 
 
 class Employee(models.Model):
-    empDeptNameChoices = (
-        ('임원', '임원'),
-        ('경영지원본부', '경영지원본부'),
-        ('영업1팀', '영업1팀'),
-        ('영업2팀', '영업2팀'),
-        ('영업3팀', '영업3팀'),
-        ('인프라서비스사업팀', '인프라서비스사업팀'),
-        ('솔루션지원팀', '솔루션지원팀'),
-        ('DB지원팀', 'DB지원팀'),
-        ('미정', '미정')
+    statusChoices = (
+        ('Y', '재직'), ('N', '퇴사')
     )
-    statusChoices = (('Y', 'Y'), ('N', 'N'))
+    managerChoices = (
+        ('Y', '부서장'), ('N', '팀원')
+    )
 
     empId = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     empCode = models.CharField(max_length=20, null=True, blank=True)
     empName = models.CharField(max_length=10)
     empPosition = models.ForeignKey(Position, on_delete=models.PROTECT)
-    empManager = models.CharField(max_length=1, choices=statusChoices, default='N')
+    empManager = models.CharField(max_length=1, choices=managerChoices, default='N')
     empPhone = models.CharField(max_length=20)
     empEmail = models.EmailField(max_length=254)
-    empDeptName = models.CharField(max_length=30, choices=empDeptNameChoices, default='미정')
+    empDeptName = models.CharField(max_length=30, null=True, blank=True)
     departmentName = models.ForeignKey('Department', on_delete=models.SET_NULL, null=True, blank=True)
     dispatchCompany = models.CharField(max_length=100, default='내근')
     message = models.CharField(max_length=200, default='내근 업무 내용을 작성해 주세요.', help_text='내근 업무 내용을 작성해 주세요.')
@@ -75,7 +69,7 @@ class Punctuality(models.Model):
 
 class Department(models.Model):
     deptId = models.AutoField(primary_key=True)
-    deptName = models.CharField(max_length=20)
+    deptName = models.CharField(max_length=20, unique=True)
     deptManager = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     deptLevel = models.IntegerField(default=0)
     parentDept = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
