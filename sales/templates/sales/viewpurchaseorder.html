@@ -34,6 +34,8 @@
         {{ purchaseOrder.purchaseCompany.companyNameKo }}
         매입발주서
       </h6>
+      <input id="smtpEmail"  type="text" value="{{ email.smtpEmail }}" class="invisible">
+      <input id="smtpStatus" type="text" value="{{ email.smtpStatus }}" class="invisible">
       <div class="dropdown no-arrow">
         <a class="dropdown-toggle" href="#" role="button" id="emailLink" data-toggle="modal" data-target="#emailModal">
           <i class="fas fa-at fa-fw text-info"></i>
@@ -219,19 +221,25 @@
 
       function change_email(val) {
         const address = $("#address");
-        if(val=='직접입력'){
-            address.removeAttr("readonly");
-            address.val('');
+          if (val == '직접입력') {
+              address.removeAttr("readonly");
+              address.val('');
 
-        }else{
-            address.val(val);
-            address.attr("readonly",true);
-        }
+          } else {
+              address.val(val);
+              address.attr("readonly", true);
+          }
       }
 
       function btn_email() {
+        const smtpEmail = $('#smtpEmail').val();
+        const smtpStatus = $('#smtpStatus').val();
         const emailForm = $("#emailForm");
-        emailForm.submit();
+        if(smtpStatus == '정상' && smtpEmail != '') {
+            emailForm.submit();
+        }else{
+            alert('이메일 전송기능은 SMTP 설정이 되어있어야 사용가능합니다.\n 관리자 이메일등록을 해주세요 :)');
+        }
       }
 
       function file_upload() {

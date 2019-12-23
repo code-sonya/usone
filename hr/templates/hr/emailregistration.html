@@ -1,0 +1,238 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  관리자이메일등록
+{% endblock %}
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border: 1px solid lightgray;
+    }
+
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+
+          <h6 class="m-0 h3 text-gray-800"> 관리자 이메일 등록 </h6>
+
+        </div>
+        <h6 class="ml-4 mr-4 mt-3 mb-2"> ※ <span class="text-danger">전자결재 공유, 전자결재 이메일 알림</span> 기능을 사용하기 위해서는 관리자 이메일 등록이 반드시 필요합니다.</h6>
+
+        <div class="card-body pt-1">
+          <div class="row">
+            <div class="col-xl-12">
+              <form class="form-group" method="POST" id="adminForm">
+                {% csrf_token %}
+              <table class="pc-table m-1">
+                <thead>
+                <tr class="bg-info text-white">
+                  <td width="25%" class="text-center"><b>구 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;분</b></td>
+                  <td width="75%" class="text-center"><b>내 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;용</b></td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td class="text-center text-primary" style="vertical-align: middle;"><b>아&nbsp; &nbsp; &nbsp; &nbsp;이&nbsp; &nbsp; &nbsp; &nbsp;디</b></td>
+                  <td class="text-center">
+                    <div class="row">
+                      <div class="col-3 pr-0 mb-sm-0">
+                        <input type="text" class="form-control" id="smtpEmail" name="smtpEmail" value="{{ id }}">
+                      </div>
+                      <div class="col-1 pt-1">
+                        <span class="text-info">@</span>
+                      </div>
+                      <div class="col-4 pl-0">
+                        <input type="text" class="form-control" id="address" name="address"  value="{{ address }}">
+                      </div>
+                      <div class="col-4 pl-0 mb-sm-0">
+                        <select type="text" class="form-control" id="selectaddress" name="selectaddress" onchange="change_email(this.value)">
+                          <option value="직접입력">직접입력</option>
+                          <option value="unioneinc.co.kr">unioneinc.co.kr</option>
+                          <option value="naver.com">naver.com</option>
+                          <option value="gmail.com">gmail.com</option>
+                          <option value="hanmail.net">hanmail.net</option>
+                        </select>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center text-primary" style="vertical-align: middle;"><b>비&nbsp; &nbsp;&nbsp;밀 &nbsp;&nbsp;번&nbsp; &nbsp;&nbsp;호</b></td>
+                  <td class="text-center">
+                    <input type="password" class="form-control" id="smtpPassword" name="smtpPassword" value="{{ adminEmail.smtpPassword }}">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center text-primary" style="vertical-align: middle;"><b>SMTP &nbsp; &nbsp;Server</b></td>
+                  <td class="text-center">
+                    <input type="text" class="form-control" id="smtpServer" name="smtpServer" value="{{ adminEmail.smtpServer }}">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center text-primary" style="vertical-align: middle;"><b>SMTP &nbsp; &nbsp; &nbsp; Port</b></td>
+                  <td class="text-center">
+                    <input type="number" class="form-control" id="smtpPort" name="smtpPort" value="{{ adminEmail.smtpPort }}">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center" style="vertical-align: middle;"><b>보&nbsp; &nbsp;&nbsp;안 &nbsp;&nbsp;연&nbsp; &nbsp;&nbsp;결</b></td>
+                  <td class="text-center">
+                    <select class="form-control" id="smtpSecure" name="smtpSecure" value="{{ adminEmail.smtpSecure }}" >
+                       <option value="TLS">TLS</option>
+                       <option value="SSL">SSL</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="text-center" style="vertical-align: middle;"><b>상 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;태</b></td>
+                  <td class="text-center">
+                    <input type="text" class="form-control" id="smtpStatus" name="smtpStatus" value="{{ adminEmail.smtpStatus }}" readonly>
+                  </td>
+                </tr>
+                  <tr>
+                    <td class="text-center" style="vertical-align: middle;"><b>수&nbsp; &nbsp;&nbsp;정 &nbsp;&nbsp;일&nbsp; &nbsp;&nbsp;자</b></td>
+                    <td>
+                      <input class="form-control" type="date" id="smtpDatetime" name="smtpDatetime" value='{{ adminEmail.smtpDatetime | date:"Y-m-d"  }}' readonly>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="text-center mt-3">
+                <a href="#" class="btn btn-info btn-icon-split" onclick="btn_save()">
+                  <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                  <span class="text"> 저장 </span>
+                </a>
+              </div>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6"></div>
+
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+    function change_email(val) {
+        const address = $("#address");
+        const smtpServer = $("#smtpServer");
+        const smtpPort = $("#smtpPort");
+        const smtpSecure = $("#smtpSecure");
+        if(val=='직접입력'){
+            address.removeAttr("readonly");
+            address.val('');
+            smtpServer.attr("readonly",false);
+            smtpServer.val('');
+            smtpPort.attr("readonly",false);
+            smtpPort.val(587);
+            smtpSecure.attr("readonly",false);
+            smtpSecure.val('');
+
+        }else{
+            address.val(val);
+            address.attr("readonly",true);
+            if(val=='unioneinc.co.kr'){
+                smtpServer.val('mail.unioneinc.co.kr');
+                smtpServer.attr("readonly",true);
+                smtpPort.val(587);
+                smtpPort.attr("readonly",true);
+                smtpSecure.val('TLS');
+                smtpSecure.attr("readonly",true);
+            }else if(val=='gmail.com'){
+                smtpServer.val('smtp.gmail.com');
+                smtpServer.attr("readonly",true);
+                smtpPort.val(587);
+                smtpPort.attr("readonly",true);
+                smtpSecure.val("SSL");
+                smtpSecure.attr("readonly",true);
+            }else if(val=='naver.com'){
+                smtpServer.val('smtp.naver.com');
+                smtpServer.attr("readonly",true);
+                smtpPort.val(587);
+                smtpPort.attr("readonly",true);
+                smtpSecure.val("TLS");
+                smtpSecure.attr("readonly",true);
+            }else if(val=='hanmail.net'){
+                smtpServer.val('smtp.daum.net');
+                smtpServer.attr("readonly",true);
+                smtpPort.val(465);
+                smtpPort.attr("readonly",true);
+                smtpSecure.val('SSL');
+                smtpSecure.attr("readonly",true);
+            }
+        }
+
+    }
+    function btn_save() {
+        const smtpEmail = $('#smtpEmail').val();
+        const address = $("#address").val();
+        const smtpPassword = $('#smtpPassword').val();
+        const smtpServer = $('#smtpServer').val();
+        const smtpPort = $('#smtpPort').val();
+        const smtpSecure = $('#smtpSecure').val();
+        if(smtpEmail!=''&&address!=''&&smtpPassword!=''&&smtpServer!=''&&smtpPort!=''){
+            $.ajax({
+              url:  "{% url 'hr:adminemail_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  'smtpEmail': smtpEmail,
+                  'address':address,
+                  'smtpPassword':smtpPassword,
+                  'smtpServer':smtpServer,
+                  'smtpPort':smtpPort,
+                  'smtpSecure':smtpSecure,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success:function (returnData) {
+                  if(returnData=='Y'){
+                      alert("이메일 등록이 완료 되었습니다 :)");
+                  }else{
+                      alert(returnData);
+                  }
+
+              },error:function(request,status,error){
+                  alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  alert("오류가 발생했습니다 Usails에 문의하세요")
+            }
+          });
+
+        }else{
+            alert('필수 항목들을 모두 입력해 주세요.')
+        }
+
+    }
+  </script>
+{% endblock %}

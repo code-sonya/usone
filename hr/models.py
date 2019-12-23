@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import User
+from django import forms
 
 
 class Position(models.Model):
@@ -75,3 +76,17 @@ class Department(models.Model):
 
     def __str__(self):
         return str(self.deptName)
+
+class AdminEmail(models.Model):
+    adminId = models.AutoField(primary_key=True)
+    smtpServer = models.CharField(max_length=20)
+    smtpPort = models.CharField(max_length=10)
+    smtpEmail = models.CharField(max_length=20)
+    smtpPassword = models.CharField(forms.PasswordInput, max_length=20)
+    smtpSecure = models.CharField(max_length=10, null=True, blank=True)
+    smtpDatetime = models.DateTimeField(null=True, blank=True)
+    smtpStatus = models.CharField(max_length=10, default='정상')
+
+    def __str__(self):
+        return str(self.adminId)
+

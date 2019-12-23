@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Position, Employee, Attendance, Punctuality, Department
+from .models import Position, Employee, Attendance, Punctuality, Department, AdminEmail
 
 
 @admin.register(Position)
@@ -44,3 +44,9 @@ class DepartmentAdmin(admin.ModelAdmin):
     list_display = ('deptId', 'deptName', 'deptManager', 'deptLevel', 'parentDept')
     list_filter = ('deptName',)
     list_display_links = ['deptId', 'deptName', 'deptManager', 'deptLevel', 'parentDept']
+
+@admin.register(AdminEmail)
+class AdminEmailAdmin(admin.ModelAdmin):
+    list_display = ('adminId', 'smtpServer', 'smtpPort', 'smtpEmail', 'smtpDatetime', 'smtpStatus', 'smtpSecure')
+    list_filter = ('smtpSecure', 'smtpStatus')
+    list_display_links = ['adminId', 'smtpServer', 'smtpPort', 'smtpEmail', 'smtpDatetime', 'smtpStatus', 'smtpSecure']

@@ -23,4 +23,6 @@ urlpatterns = [
     url(r'^modifyabsence/(?P<punctualityId>.+)/$', views.modify_absence, name='modifyabsence'),
     url(r'^checkdepartment/$', views.check_department, name='checkdepartment'),
     url(r'^checkprofile/$', views.check_profile, name='checkprofile'),
+    url(r'^emailregistration/$', views.email_registration, name='emailregistration'),
+    url(r'^adminemailasjson/$', views.adminemail_asjson, name='adminemail_ajax_url'),
 ]
