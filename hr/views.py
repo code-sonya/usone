@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+import json
+
+import pandas as pd
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect, reverse
-from sales.models import Contract, Category, Revenue, Contractitem, Goal, Purchase
-from service.models import Company, Customer, Servicereport, Vacation
-from extrapay.models import Car
-import pandas as pd
-from .models import Attendance, Employee, Punctuality
-from django.db.models import Q
-from django.db.models import Sum, Count
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Q, F
 from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
-import datetime
-from .functions import employee_empPosition, save_punctuality, check_absence, year_absence
-import json
-from django.core.serializers.json import DjangoJSONEncoder
+
+from extrapay.models import Car
+from .forms import EmployeeForm, DepartmentForm
+from .functions import save_punctuality, check_absence, year_absence
+from .models import Attendance, Employee, Punctuality, Department
 
 
 @login_required
@@ -48,6 +48,86 @@ def profile(request):
 
 
 @login_required
+def show_profiles(request):
+    context = {}
+    return render(request, 'hr/showprofiles.html', context)
+
+
+@login_required
+def showprofiles_asjson(request):
+    employees = Employee.objects.all().annotate(
+        userName=F('user__username'),
+        positionName=F('empPosition__positionName'),
+        lastLogin=F('user__last_login'),
+    ).values(
+        'empId', 'userName', 'empName', 'empDeptName', 'positionName',
+        'empPhone', 'empEmail', 'lastLogin', 'empStatus',
+    )
+
+    structure = json.dumps(list(employees), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def view_profile(request, empId):
+    employee = Employee.objects.get(empId=empId)
+
+    if request.method == 'POST':
+        form = EmployeeForm(request.POST, instance=employee)
+        post = form.save(commit=False)
+        post.empDeptName = post.departmentName.deptName
+        post.save()
+
+    else:
+        form = EmployeeForm(instance=employee)
+
+    context = {
+        'employee': employee,
+        'form': form,
+    }
+    return render(request, 'hr/viewprofile.html', context)
+
+
+@login_required
+def show_departments(request):
+    context = {}
+    return render(request, 'hr/showdepartments.html', context)
+
+
+@login_required
+def showdepartments_asjson(request):
+    departments = Department.objects.all().annotate(
+        deptManagerName=F('deptManager__empName'),
+        parentDeptName=F('parentDept__deptName'),
+    ).values(
+        'deptId', 'deptName', 'deptManagerName', 'deptLevel', 'parentDeptName',
+    )
+
+    structure = json.dumps(list(departments), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def view_department(request, deptId):
+    dept = Department.objects.get(deptId=deptId)
+
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST, instance=dept)
+        post = form.save(commit=False)
+        post.save()
+        Employee.objects.filter(departmentName=dept).update(empDeptName=post.deptName)
+        return redirect('hr:showdepartments')
+
+    else:
+        form = DepartmentForm(instance=dept)
+        context = {
+            'dept': dept,
+            'form': form,
+        }
+        return render(request, 'hr/viewdepartment.html', context)
+
+
+@login_required
 @csrf_exempt
 def show_punctuality(request, day=None):
     template = loader.get_template('hr/showpunctuality.html')
@@ -55,10 +135,10 @@ def show_punctuality(request, day=None):
         day = str(datetime.datetime.today())[:10]
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
 
-    if datetime.datetime.weekday(Date) == 0 :
+    if datetime.datetime.weekday(Date) == 0:
         beforeDate = Date - datetime.timedelta(days=3)
         afterDate = Date + datetime.timedelta(days=1)
-    elif datetime.datetime.weekday(Date) == 4 :
+    elif datetime.datetime.weekday(Date) == 4:
         beforeDate = Date - datetime.timedelta(days=1)
         afterDate = Date + datetime.timedelta(days=3)
     else:
@@ -81,17 +161,35 @@ def show_punctuality(request, day=None):
     punctuality = Punctuality.objects.filter(punctualityDate=day).order_by('empId__empPosition')
     punctualityList = []
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='경영지원본부').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+        punctuality.filter(empId__empDeptName='경영지원본부').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='영업1팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+        punctuality.filter(empId__empDeptName='영업1팀').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='영업2팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+        punctuality.filter(empId__empDeptName='영업2팀').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='인프라서비스사업팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+        punctuality.filter(empId__empDeptName='인프라서비스사업팀').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='솔루션지원팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+        punctuality.filter(empId__empDeptName='솔루션지원팀').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='DB지원팀').values('empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'))
+        punctuality.filter(empId__empDeptName='DB지원팀').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
 
     for pun in punctualityList:
         for user in pun:
@@ -102,7 +200,6 @@ def show_punctuality(request, day=None):
                     user['absenceDate'].append(a.punctualityDate)
                 user['absenceCount'] = len(absence)
 
-    print(punctualityList)
     context = {
         'day': day,
         'Date': Date,
@@ -249,12 +346,12 @@ def modify_absence(request, punctualityId):
         punctuality.punctualityType = punctualityType
         punctuality.comment = comment
         punctuality.save()
-        print(punctuality)
         return redirect('hr:viewabsence', punctualityId)
 
     else:
         punctuality = Punctuality.objects.filter(Q(punctualityId=punctualityId))
-        punctuality = punctuality.values('punctualityDate', 'empId__empDeptName', 'empId__empName', 'punctualityType', 'comment', 'punctualityId').first()
+        punctuality = punctuality.values('punctualityDate', 'empId__empDeptName', 'empId__empName', 'punctualityType', 'comment',
+                                         'punctualityId').first()
 
         context = {
             'punctuality': punctuality

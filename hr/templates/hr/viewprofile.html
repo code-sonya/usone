@@ -1,0 +1,112 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  직원관리
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">{{ employee.empName }}님 프로필</h6>
+        </div>
+        <div class="card-body">
+          <div class="text-center">
+            <img src="/media/icon/profile.png" width="11%">
+          </div>
+          <br>
+
+          <table class="table">
+            <tbody>
+            <tr>
+              <td class="text-center align-middle bg-light" style="width: 20%"><b>아&nbsp;&nbsp;이&nbsp;&nbsp;디</b></td>
+              <td class="text-center" style="width: 30%"><b>{{ employee.user.username }}</b></td>
+              <td class="text-center align-middle bg-light" style="width: 20%"><b>비밀번호</b></td>
+              <td class="text-center" style="width: 30%">
+                <b><a href="#" class="btn btn-warning btn-icon-split btn-sm" target="_blank"
+                      onclick="location.href='/admin/auth/user/{{ employee.empId }}/password'">
+                  <span class="icon text-white-50"><i class="fas fa-arrow-right"></i></span>
+                  <span class="text">비밀번호 변경</span>
+                </a></b>
+              </td>
+            </tr>
+            <form class="form-group" method="POST" id="empForm">
+              {% csrf_token %}
+              <tr>
+                <td class="text-center align-middle bg-light"><b>입&nbsp;&nbsp;사&nbsp;&nbsp;일</b></td>
+                <td>{{ form.empStartDate }}</td>
+                <td class="text-center align-middle bg-light"><b>퇴&nbsp;&nbsp;사&nbsp;&nbsp;일</b></td>
+                <td>{{ form.empEndDate }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>사&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;번</b></td>
+                <td>{{ form.empCode }}</td>
+                <td class="text-center align-middle bg-light"><b>재직상태</b></td>
+                <td>{{ form.empStatus }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>성&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;함</b></td>
+                <td>{{ form.empName }}</td>
+                <td class="text-center align-middle bg-light"><b>직&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;급</b></td>
+                <td>{{ form.empPosition }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>부&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;서</b></td>
+                <td>{{ form.departmentName }}</td>
+                <td class="text-center align-middle bg-light"><b>부서장여부<br>(부서내순위)</b></td>
+                <td>
+                  <div class="d-flex flex-row align-items-center justify-content-between">
+                    {{ form.empManager }} {{ form.empRank }}
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>전화번호</b></td>
+                <td>{{ form.empPhone }}</td>
+                <td class="text-center align-middle bg-light"><b>이&nbsp;&nbsp;메&nbsp;&nbsp;일</b></td>
+                <td>{{ form.empEmail }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>차&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;량</b></td>
+                <td>{{ form.carId }} ※ 유류비 청구 기준 차량</td>
+                <td class="text-center align-middle bg-light"><b>시&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;급</b></td>
+                <td>{{ form.empSalary }} ※ 시간외수당 청구 기준 금액</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>내근문구</b></td>
+                <td colspan="3">{{ form.message }} ※ 일일업무 메뉴에서 내근 시 표기되는 내용입니다.</td>
+              </tr>
+            </form>
+            </tbody>
+          </table>
+          <div class="text-center">
+            <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+              <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+              <span class="text"> 저장 </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2"></div>
+
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+      function btn_save() {
+          if (confirm('수정 하시겠습니까?')) {
+              const empForm = $('#empForm');
+              empForm.submit();
+          }
+      }
+  </script>
+{% endblock %}

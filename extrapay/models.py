@@ -44,7 +44,7 @@ class Car(models.Model):
     kpl = models.FloatField()
 
     def __str__(self):
-        return self.oilType + ', ' + self.carType
+        return self.oilType + ', ' + self.carType + ' (' + self.comment + ')'
 
 
 class Oil(models.Model):
