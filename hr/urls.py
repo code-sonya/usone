@@ -14,4 +14,5 @@ urlpatterns = [
     url(r'^viewabsence/(?P<punctualityId>.+)/$', views.view_absence, name='viewabsence'),
     url(r'^modifyabsence/(?P<punctualityId>.+)/$', views.modify_absence, name='modifyabsence'),
     url(r'^emailregistration/$', views.email_registration, name='emailregistration'),
+    url(r'^adminemailasjson/$', views.adminemail_asjson, name='adminemail_ajax_url'),
 ]

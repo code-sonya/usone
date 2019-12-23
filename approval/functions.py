@@ -3,6 +3,7 @@ from django.db.models import Q, Min, Max
 
 from .models import Approvalform, Approval, Documentfile
 from service.models import Employee
+from hr.models import AdminEmail
 from django.db.models import Q
 import smtplib
 from email import encoders
@@ -13,7 +14,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from io import BytesIO
 from django.template import loader
-from usone.security import smtp_server, smtp_port, userid, passwd
 
 
 def data_format(ID, user, approvalFormat, document, model):
@@ -304,6 +304,9 @@ def intcomma(num):
 
 
 def mail_approval(employee, document):
+    # smtp 정보
+    email = AdminEmail.objects.aggregate(Max('adminId'))
+    email = AdminEmail.objects.get(adminId=email['adminId__max'])
     # 결재요청 메일 전송
     try:
         title = "'{}' 문서 결재 요청".format(document.title)
@@ -317,16 +320,21 @@ def mail_approval(employee, document):
         msg["Subject"] = Header(s=title, charset="utf-8")
         msg.attach(MIMEText(html, "html", _charset="utf-8"))
 
-        smtp = smtplib.SMTP(smtp_server, smtp_port)
-        smtp.login(userid, passwd)
+        smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
+        smtp.login(email.smtpEmail, email.smtpPassword)
         smtp.sendmail(fromEmail, toEmail, msg.as_string())
         smtp.close()
         return {'result': 'ok'}
     except Exception as e:
+        print(e)
         return {'result': e}
 
 
 def mail_document(toEmail, fromEmail, document):
+    # smtp 정보
+    email = AdminEmail.objects.aggregate(Max('adminId'))
+    email = AdminEmail.objects.get(adminId=email['adminId__max'])
+    print(email)
     # 전자결재 공유 메일 전송
     try:
         title = "'{}' 문서 공유".format(document.title)
@@ -340,13 +348,12 @@ def mail_document(toEmail, fromEmail, document):
         msg["Subject"] = Header(s=title, charset="utf-8")
         msg.attach(MIMEText(html, "html", _charset="utf-8"))
 
-        smtp = smtplib.SMTP(smtp_server, smtp_port)
-        smtp.login(userid, passwd)
+        smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
+        smtp.login(email.smtpEmail, email.smtpPassword)
         smtp.sendmail(fromEmail, toEmail, msg.as_string())
         smtp.close()
         return 'Y'
     except Exception as e:
-        print(e)
         return e
 
 

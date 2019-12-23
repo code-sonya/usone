@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 import datetime
-from .functions import employee_empPosition, save_punctuality, check_absence, year_absence
+from .functions import employee_empPosition, save_punctuality, check_absence, year_absence, adminemail_test
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -266,23 +266,6 @@ def modify_absence(request, punctualityId):
 @login_required
 @csrf_exempt
 def email_registration(request):
-    if request.method == "POST":
-        smtpEmail = '{}@{}'.format(request.POST['smtpEmail'], request.POST['address'])
-        smtpPassword = request.POST['smtpPassword']
-        smtpServer = request.POST['smtpServer']
-        smtpPort = request.POST['smtpPort']
-        smtpSecure = request.POST['smtpSecure']
-        smtpDatetime = datetime.datetime.now()
-
-        AdminEmail.objects.create(
-            smtpEmail=smtpEmail,
-            smtpPassword=smtpPassword,
-            smtpServer=smtpServer,
-            smtpPort=smtpPort,
-            smtpSecure=smtpSecure,
-            smtpDatetime=smtpDatetime,
-        )
-
     adminEmail = AdminEmail.objects.aggregate(Max('adminId'))
     if adminEmail['adminId__max']:
         adminEmail = AdminEmail.objects.get(adminId=adminEmail['adminId__max'])
@@ -300,3 +283,37 @@ def email_registration(request):
         'address': address,
     }
     return render(request, 'hr/emailregistration.html', context)
+
+
+@login_required
+@csrf_exempt
+def adminemail_asjson(request):
+    smtpEmail = '{}@{}'.format(request.POST['smtpEmail'], request.POST['address'])
+    smtpPassword = request.POST['smtpPassword']
+    smtpServer = request.POST['smtpServer']
+    smtpPort = request.POST['smtpPort']
+    smtpSecure = request.POST['smtpSecure']
+    smtpDatetime = datetime.datetime.now()
+    result = adminemail_test(smtpEmail, smtpPassword, smtpServer, smtpPort, smtpSecure)
+    if result == 'Y':
+        AdminEmail.objects.create(
+            smtpEmail=smtpEmail,
+            smtpPassword=smtpPassword,
+            smtpServer=smtpServer,
+            smtpPort=smtpPort,
+            smtpSecure=smtpSecure,
+            smtpDatetime=smtpDatetime,
+        )
+    else:
+        AdminEmail.objects.create(
+            smtpEmail=smtpEmail,
+            smtpPassword=smtpPassword,
+            smtpServer=smtpServer,
+            smtpPort=smtpPort,
+            smtpSecure=smtpSecure,
+            smtpDatetime=smtpDatetime,
+            smtpStatus=result,
+        )
+        result = '입력하신정보가 올바르지 않습니다.\n다시 확인해 주세요.'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

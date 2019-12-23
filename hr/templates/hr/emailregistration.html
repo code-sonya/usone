@@ -77,7 +77,7 @@
                           <option value="unioneinc.co.kr">unioneinc.co.kr</option>
                           <option value="naver.com">naver.com</option>
                           <option value="gmail.com">gmail.com</option>
-                          <option value="hanmail.com">hanmail.net</option>
+                          <option value="hanmail.net">hanmail.net</option>
                         </select>
                       </div>
                     </div>
@@ -102,9 +102,12 @@
                   </td>
                 </tr>
                 <tr>
-                  <td class="text-center text-primary" style="vertical-align: middle;"><b>보&nbsp; &nbsp;&nbsp;안 &nbsp;&nbsp;연&nbsp; &nbsp;&nbsp;결</b></td>
+                  <td class="text-center" style="vertical-align: middle;"><b>보&nbsp; &nbsp;&nbsp;안 &nbsp;&nbsp;연&nbsp; &nbsp;&nbsp;결</b></td>
                   <td class="text-center">
-                    <input type="text" class="form-control" id="smtpSecure" name="smtpSecure" value="{{ adminEmail.smtpSecure }}">
+                    <select class="form-control" id="smtpSecure" name="smtpSecure" value="{{ adminEmail.smtpSecure }}" >
+                       <option value="TLS">TLS</option>
+                       <option value="SSL">SSL</option>
+                    </select>
                   </td>
                 </tr>
                 <tr>
@@ -165,7 +168,7 @@
                 smtpServer.attr("readonly",true);
                 smtpPort.val(587);
                 smtpPort.attr("readonly",true);
-                smtpSecure.val('사용안함');
+                smtpSecure.val('TLS');
                 smtpSecure.attr("readonly",true);
             }else if(val=='gmail.com'){
                 smtpServer.val('smtp.gmail.com');
@@ -182,17 +185,54 @@
                 smtpSecure.val("TLS");
                 smtpSecure.attr("readonly",true);
             }else if(val=='hanmail.net'){
-                smtpServer.val('smtp.gmail.com');
+                smtpServer.val('smtp.daum.net');
                 smtpServer.attr("readonly",true);
-                smtpPort.val(587);
+                smtpPort.val(465);
                 smtpPort.attr("readonly",true);
+                smtpSecure.val('SSL');
+                smtpSecure.attr("readonly",true);
             }
         }
 
     }
     function btn_save() {
-        const adminForm = document.getElementById('adminForm');
-        adminForm.submit();
+        const smtpEmail = $('#smtpEmail').val();
+        const address = $("#address").val();
+        const smtpPassword = $('#smtpPassword').val();
+        const smtpServer = $('#smtpServer').val();
+        const smtpPort = $('#smtpPort').val();
+        const smtpSecure = $('#smtpSecure').val();
+        if(smtpEmail!=''&&address!=''&&smtpPassword!=''&&smtpServer!=''&&smtpPort!=''){
+            $.ajax({
+              url:  "{% url 'hr:adminemail_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  'smtpEmail': smtpEmail,
+                  'address':address,
+                  'smtpPassword':smtpPassword,
+                  'smtpServer':smtpServer,
+                  'smtpPort':smtpPort,
+                  'smtpSecure':smtpSecure,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success:function (returnData) {
+                  if(returnData=='Y'){
+                      alert("이메일 등록이 완료 되었습니다 :)");
+                  }else{
+                      alert(returnData);
+                  }
+
+              },error:function(request,status,error){
+                  alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  alert("오류가 발생했습니다 Usails에 문의하세요")
+            }
+          });
+
+        }else{
+            alert('필수 항목들을 모두 입력해 주세요.')
+        }
+
     }
   </script>
 {% endblock %}

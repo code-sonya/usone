@@ -14,6 +14,7 @@ from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max,
 from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile, Purchasefile
 from client.models import Company
+from hr.models import AdminEmail
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
 from logs.models import ApprovalLog
 from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
@@ -984,6 +985,9 @@ def view_document(request, documentId):
             'dept': emp.empDeptName,
         }
         empNames.append(temp)
+    # smtp 정보
+    email = AdminEmail.objects.aggregate(Max('adminId'))
+    email = AdminEmail.objects.get(adminId=email['adminId__max'])
 
     context = {
         'document': document,
@@ -994,6 +998,7 @@ def view_document(request, documentId):
         'reference': reference,
         'do_approval': do_approval,
         'check_approval': check_approval,
+        'email': email
     }
     return render(request, 'approval/viewdocument.html', context)
 
@@ -1686,3 +1691,5 @@ def view_documentemail(request, documentId):
             )
 
         return redirect('approval:viewdocument', document.documentId)
+
+
