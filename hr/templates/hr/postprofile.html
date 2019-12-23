@@ -1,0 +1,164 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  직원관리
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">신규 직원 등록</h6>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <tbody>
+            <form class="form-group" method="POST" id="empForm">
+              {% csrf_token %}
+              <tr>
+                <td class="text-center align-middle bg-light text-primary" style="width: 20%"><b>아&nbsp;&nbsp;이&nbsp;&nbsp;디</b></td>
+                <td class="text-center" style="width: 30%">{{ userForm.username }}</td>
+                <td class="text-center align-middle bg-light text-primary" style="width: 20%"><b>비밀번호</b></td>
+                <td class="text-center" style="width: 30%">{{ userForm.password }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light text-primary"><b>입&nbsp;&nbsp;사&nbsp;&nbsp;일</b></td>
+                <td>{{ empForm.empStartDate }}</td>
+                <td class="text-center align-middle bg-light"><b>퇴&nbsp;&nbsp;사&nbsp;&nbsp;일</b></td>
+                <td>{{ empForm.empEndDate }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>사&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;번</b></td>
+                <td>{{ empForm.empCode }} ※ 근태 관리 기준</td>
+                <td class="text-center align-middle bg-light text-primary"><b>재직상태</b></td>
+                <td>{{ empForm.empStatus }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light text-primary"><b>성&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;함</b></td>
+                <td>{{ empForm.empName }}</td>
+                <td class="text-center align-middle bg-light text-primary"><b>직&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;급</b></td>
+                <td>{{ empForm.empPosition }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light text-primary"><b>부&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;서</b></td>
+                <td>{{ empForm.departmentName }}</td>
+                <td class="text-center align-middle bg-light text-primary"><b>부서장여부<br>(부서내순위)</b></td>
+                <td>
+                  <div class="d-flex flex-row align-items-center justify-content-between">
+                    {{ empForm.empManager }} {{ empForm.empRank }}
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light text-primary"><b>전화번호</b></td>
+                <td>{{ empForm.empPhone }}</td>
+                <td class="text-center align-middle bg-light text-primary"><b>이&nbsp;&nbsp;메&nbsp;&nbsp;일</b></td>
+                <td>{{ empForm.empEmail }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>차&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;량</b></td>
+                <td>{{ empForm.carId }} ※ 유류비 청구 기준 차량</td>
+                <td class="text-center align-middle bg-light"><b>시&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;급</b></td>
+                <td>{{ empForm.empSalary }} ※ 시간외수당 청구 기준 금액</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>내근문구</b></td>
+                <td colspan="3">{{ empForm.message }} ※ 일일업무 메뉴에서 내근 시 표기되는 내용입니다.</td>
+              </tr>
+            </form>
+            </tbody>
+          </table>
+          <div class="text-center">
+            <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+              <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+              <span class="text"> 저장 </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2"></div>
+
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+      function btn_save() {
+          const username = $('#username').val();
+          const password = $('#password').val();
+          const empStartDate = $('#empStartDate').val();
+          const empCode = $('#empCode').val();
+          const empName = $('#empName').val();
+          const empPosition = $('#empPosition').val();
+          const departmentName = $('#departmentName').val();
+          const empPhone = $('#empPhone').val();
+          const empEmail = $('#empEmail').val();
+
+          if (!username) {
+              alert('아이디를 입력해주세요.');
+              return false;
+          }
+          if (!password) {
+              alert('비밀번호를 입력해주세요.');
+              return false;
+          }
+          if (!empStartDate) {
+              alert('입사일을 입력해주세요.');
+              return false;
+          }
+          if (!empName) {
+              alert('성함을 입력해주세요.');
+              return false;
+          }
+          if (!empPosition) {
+              alert('직급을 입력해주세요.');
+              return false;
+          }
+          if (!departmentName) {
+              alert('부서를 입력해주세요.');
+              return false;
+          }
+          if (!empPhone) {
+              alert('전화번호를 입력해주세요.');
+              return false;
+          }
+          if (!empEmail) {
+              alert('이메일을 입력해주세요.');
+              return false;
+          }
+
+          if (confirm('등록 하시겠습니까?')) {
+              $.ajax({
+                  url: "{% url 'hr:checkprofile' %}",
+                  method: 'GET',
+                  cache: false,
+                  data: {
+                      "username": username,
+                      "empCode": empCode,
+                  },
+                  headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                  success: function (returnData) {
+                      if (returnData === 'usernameN') {
+                          alert('이미 등록된 아이디입니다.\n다시 확인해주세요.');
+                          return false;
+                      } else if (returnData === 'empCodeN') {
+                          alert('이미 등록된 사번입니다.\n다시 확인해주세요.');
+                          return false;
+                      } else {
+                          const empForm = $('#empForm');
+                          empForm.submit();
+                      }
+                  }
+              });
+          }
+      }
+  </script>
+{% endblock %}

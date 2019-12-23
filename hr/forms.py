@@ -1,5 +1,18 @@
 from django import forms
+from django.contrib.auth.models import User
 from .models import Employee, Department
+
+
+class UserForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'id': 'username'}),
+            'password': forms.TextInput(attrs={'class': 'form-control', 'id': 'password'}),
+        }
 
 
 class EmployeeForm(forms.ModelForm):
@@ -18,8 +31,8 @@ class EmployeeForm(forms.ModelForm):
             'empPhone': forms.TextInput(attrs={'class': 'form-control', 'id': 'empPhone'}),
             'empEmail': forms.TextInput(attrs={'class': 'form-control', 'id': 'empEmail'}),
             'carId': forms.Select(attrs={'class': 'form-control', 'id': 'carId'}),
-            'empStartDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'empStartDate'}),
-            'empEndDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'empEndDate'}),
+            'empStartDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'empStartDate'}),
+            'empEndDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'empEndDate'}),
             'empStatus': forms.Select(attrs={'class': 'form-control', 'id': 'empStatus'}),
             'empManager': forms.Select(attrs={'class': 'form-control', 'id': 'empManager'}),
             'message': forms.TextInput(attrs={'class': 'form-control', 'id': 'message'}),

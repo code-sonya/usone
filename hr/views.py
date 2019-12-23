@@ -14,7 +14,7 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 
 from extrapay.models import Car
-from .forms import EmployeeForm, DepartmentForm
+from .forms import EmployeeForm, DepartmentForm, UserForm
 from .functions import save_punctuality, check_absence, year_absence
 from .models import Attendance, Employee, Punctuality, Department
 
@@ -77,15 +77,53 @@ def view_profile(request, empId):
         post = form.save(commit=False)
         post.empDeptName = post.departmentName.deptName
         post.save()
+        return redirect('hr:showprofiles')
 
     else:
         form = EmployeeForm(instance=employee)
 
-    context = {
-        'employee': employee,
-        'form': form,
-    }
-    return render(request, 'hr/viewprofile.html', context)
+        context = {
+            'employee': employee,
+            'form': form,
+        }
+        return render(request, 'hr/viewprofile.html', context)
+
+
+@login_required
+def post_profile(request):
+    if request.method == 'POST':
+        userForm = UserForm(request.POST)
+        if userForm.is_valid():
+            new_user = User.objects.create_user(**userForm.cleaned_data)
+
+        empForm = EmployeeForm(request.POST)
+        post = empForm.save(commit=False)
+        post.user = new_user
+        post.empDeptName = post.departmentName.deptName
+        post.save()
+        return redirect('hr:showprofiles')
+
+    else:
+        userForm = UserForm()
+        empForm = EmployeeForm()
+
+        context = {
+            'userForm': userForm,
+            'empForm': empForm,
+        }
+        return render(request, 'hr/postprofile.html', context)
+
+
+@login_required
+def check_profile(request):
+    result = 'Y'
+    if Employee.objects.filter(user__username=request.GET['username']):
+        result = 'usernameN'
+    elif Employee.objects.filter(empCode=request.GET['empCode']):
+        result = 'empCodeN'
+
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
@@ -125,6 +163,32 @@ def view_department(request, deptId):
             'form': form,
         }
         return render(request, 'hr/viewdepartment.html', context)
+
+
+@login_required
+def post_department(request):
+    if request.method == 'POST':
+        form = DepartmentForm(request.POST)
+        form.save()
+        return redirect('hr:showdepartments')
+
+    else:
+        form = DepartmentForm()
+        context = {
+            'form': form,
+        }
+        return render(request, 'hr/postdepartment.html', context)
+
+
+@login_required
+def check_department(request):
+    dept = Department.objects.filter(deptName=request.GET['deptName'])
+    if dept:
+        result = 'N'
+    else:
+        result = 'Y'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
 
 
 @login_required

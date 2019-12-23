@@ -68,7 +68,7 @@ class Punctuality(models.Model):
 
 class Department(models.Model):
     deptId = models.AutoField(primary_key=True)
-    deptName = models.CharField(max_length=20)
+    deptName = models.CharField(max_length=20, unique=True)
     deptManager = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     deptLevel = models.IntegerField(default=0)
     parentDept = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
