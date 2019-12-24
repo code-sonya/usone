@@ -1717,7 +1717,10 @@ def counting_asjson(request):
         displayStatus=Value('결재대기', output_field=CharField())
     ).aggregate(Count('empName'))
     result = returnIngWait['empName__count']
-
+    if returnIngWait['empName__count']:
+        result = returnIngWait['empName__count']
+    else:
+        result = 0
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
