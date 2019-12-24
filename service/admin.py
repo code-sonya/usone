@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Servicereport, Serviceform, Vacation, Geolocation
+from .models import Servicereport, Serviceform, Vacation, Geolocation, Servicetype
 
 
 @admin.register(Servicereport)
@@ -28,3 +28,10 @@ class GeolocationAdmin(admin.ModelAdmin):
     list_display = ('geolocationId', 'serviceId', 'startLatitude', 'startLongitude', 'endLatitude', 'endLongitude')
     list_filter = ('geolocationId',)
     list_display_links = ['geolocationId', 'serviceId', 'startLatitude', 'startLongitude', 'endLatitude', 'endLongitude']
+
+
+@admin.register(Servicetype)
+class ServicetypeAdmin(admin.ModelAdmin):
+    list_display = ('typeId', 'typeName', 'orderNumber')
+    list_filter = ('typeName',)
+    list_display_links = ['typeId', 'typeName', 'orderNumber']

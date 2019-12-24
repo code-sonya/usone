@@ -7,6 +7,15 @@ from sales.models import Contract
 from extrapay.models import OverHour
 
 
+class Servicetype(models.Model):
+    typeId = models.AutoField(primary_key=True)
+    typeName = models.CharField(max_length=30)
+    orderNumber = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.typeName
+
+
 class Servicereport(models.Model):
     serviceTypeChoices = (
         ('교육', '교육'),
@@ -35,7 +44,7 @@ class Servicereport(models.Model):
     empName = models.CharField(max_length=10)
     empDeptName = models.CharField(max_length=30)
     companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
-    serviceType = models.CharField(max_length=30, choices=serviceTypeChoices)
+    serviceType = models.ForeignKey(Servicetype, on_delete=models.SET_NULL, null=True, blank=True)
     serviceBeginDatetime = models.DateTimeField(null=True, blank=True)
     serviceStartDatetime = models.DateTimeField(null=True, blank=True)
     serviceEndDatetime = models.DateTimeField(null=True, blank=True)

@@ -14,9 +14,9 @@ from hr.models import Employee
 from noticeboard.models import Board
 from sales.models import Contract
 from extrapay.models import OverHour, ExtraPay
-from .forms import ServicereportForm, ServiceformForm, AdminServiceForm
+from .forms import ServicereportForm, ServiceformForm, AdminServiceForm, ServiceTypeForm
 from .functions import *
-from .models import Serviceform, Geolocation
+from .models import Servicereport, Vacation, Serviceform, Geolocation, Servicetype
 from sales.models import Contractfile
 
 
@@ -114,7 +114,7 @@ def post_service(request, postdate):
                 post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
                 post.serviceRegHour = post.serviceHour - post.serviceOverHour
                 post.save()
-                return redirect('scheduler', str(post.serviceBeginDatetime)[:10])
+                return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
 
             # 매월반복
             elif for_status == 'for_my':
@@ -154,7 +154,7 @@ def post_service(request, postdate):
                         serviceDetails=post.serviceDetails,
                         serviceStatus=post.serviceStatus,
                     )
-                return redirect('scheduler', firstDate)
+                return redirect('scheduler:scheduler', firstDate)
 
             # 기간(휴일제외)
             elif for_status == 'for_hn':
@@ -196,7 +196,7 @@ def post_service(request, postdate):
                             serviceDetails=post.serviceDetails,
                             serviceStatus=post.serviceStatus,
                         )
-                return redirect('scheduler', firstDate)
+                return redirect('scheduler:scheduler', firstDate)
 
             # 기간(휴일포함)
             elif for_status == 'for_hy':
@@ -236,7 +236,7 @@ def post_service(request, postdate):
                         serviceDetails=post.serviceDetails,
                         serviceStatus=post.serviceStatus,
                     )
-                return redirect('scheduler', firstDate)
+                return redirect('scheduler:scheduler', firstDate)
 
     else:
         form = ServicereportForm()
@@ -315,7 +315,7 @@ def post_vacation(request):
                 vacationDate=vacationDate,
                 vacationType=vacationType
             )
-        return redirect('scheduler', dateArray[0])
+        return redirect('scheduler:scheduler', dateArray[0])
 
     else:
         context = {}
@@ -479,13 +479,13 @@ def save_service(request, serviceId):
     service.serviceStatus = 'Y'
     service.serviceFinishDatetime = datetime.datetime.now()
     service.save()
-    return redirect('scheduler', str(datetime.datetime.today())[:10])
+    return redirect('scheduler:scheduler', str(datetime.datetime.today())[:10])
 
 
 @login_required
 def delete_service(request, serviceId):
     Servicereport.objects.filter(serviceId=serviceId).delete()
-    return redirect('scheduler', str(datetime.datetime.today())[:10])
+    return redirect('scheduler:scheduler', str(datetime.datetime.today())[:10])
 
 
 @login_required
@@ -528,7 +528,7 @@ def modify_service(request, serviceId):
             post.serviceRegHour = post.serviceHour - post.serviceOverHour
             post.coWorker = request.POST['coWorkerId']
             post.save()
-            return redirect('scheduler', str(post.serviceBeginDatetime)[:10])
+            return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
     else:
         form = ServicereportForm(instance=instance)
         form.fields['startdate'].initial = str(instance.serviceBeginDatetime)[:10]
@@ -616,7 +616,7 @@ def copy_service(request, serviceId):
         serviceTitle=instance.serviceTitle,
         serviceDetails=instance.serviceDetails,
     )
-    return redirect('scheduler', instance.serviceDate)
+    return redirect('scheduler:scheduler', instance.serviceDate)
 
 
 @login_required
@@ -1172,3 +1172,60 @@ def save_confirm_files(request, contractId):
                     uploadDatetime=datetime.datetime.now(),
                 )
         return redirect('service:viewservice', serviceId)
+
+
+@login_required
+def show_service_type(request):
+    context = {}
+    return render(request, 'service/showservicetype.html', context)
+
+
+@login_required
+def showservicetype_asjson(request):
+    serviceType = Servicetype.objects.all().values(
+        'typeId', 'typeName', 'orderNumber',
+    )
+
+    structure = json.dumps(list(serviceType), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def view_service_type(request, typeId):
+    serviceType = Servicetype.objects.get(typeId=typeId)
+
+    if request.method == 'POST':
+        form = ServiceTypeForm(request.POST, instance=serviceType)
+        form.save()
+        return redirect('service:showservicetype')
+
+    else:
+        form = ServiceTypeForm(instance=serviceType)
+
+        context = {
+            'serviceType': serviceType,
+            'form': form,
+        }
+        return render(request, 'service/postservicetype.html', context)
+
+
+@login_required
+def post_service_type(request):
+    if request.method == 'POST':
+        form = ServiceTypeForm(request.POST)
+        form.save()
+        return redirect('service:showservicetype')
+    else:
+        form = ServiceTypeForm()
+
+        context = {
+            'form': form
+        }
+
+        return render(request, 'service/postservicetype.html', context)
+
+
+@login_required
+def delete_service_type(request, typeId):
+    Servicetype.objects.get(typeId=typeId).delete()
+    return redirect('service:showservicetype')

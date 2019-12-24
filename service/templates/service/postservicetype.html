@@ -1,0 +1,108 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  일정구분관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border: 1px solid lightgray;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">
+            {% if serviceType %}
+              {{ serviceType.typeName }} 정보
+            {% else %}
+              일정구분 등록
+            {% endif %}
+          </h6>
+        </div>
+        <div class="card-body">
+          <table class="pc-table">
+            <tbody>
+            <form class="form-group" method="POST" id="serviceTypeForm">
+              {% csrf_token %}
+              <tr>
+                <td class="text-center align-middle bg-light" style="width: 30%"><b>일정구분</b></td>
+                <td style="width: 70%">{{ form.typeName }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>정렬번호</b></td>
+                <td class="text-left">{{ form.orderNumber }} ※ 일정구분 선택시, 정렬번호 순으로 노출됩니다.</td>
+              </tr>
+            </form>
+            </tbody>
+          </table>
+          <div class="text-center">
+            {% if serviceType %}
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+                <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+                <span class="text"> 삭제 </span>
+              </a>
+            {% endif %}
+            <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+              <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+              <span class="text"> 저장 </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2"></div>
+
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+      function btn_save() {
+          let msg;
+          {% if serviceType %}
+            msg = '수정 하시겠습니까?';
+          {% else %}
+            msg = '등록 하시겠습니까?';
+          {% endif %}
+          if (confirm(msg)) {
+              const serviceTypeForm = $('#serviceTypeForm');
+              serviceTypeForm.submit();
+          }
+      }
+
+      {% if serviceType %}
+      function btn_delete() {
+          if (confirm('삭제 하시겠습니까?')) {
+              location.href = '/service/deleteservicetype/{{ serviceType.typeId }}/'
+          }
+      }
+      {% endif %}
+  </script>
+{% endblock %}

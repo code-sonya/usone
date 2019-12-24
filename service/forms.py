@@ -1,7 +1,7 @@
 from django import forms
 
 from client.models import Company
-from .models import Servicereport, Serviceform
+from .models import Servicereport, Serviceform, Servicetype
 
 
 class ServicereportForm(forms.ModelForm):
@@ -151,4 +151,16 @@ class AdminServiceForm(forms.ModelForm):
             'serviceDetails': forms.Textarea(attrs={
                 'class': 'form-control', 'id': 'serviceDetails', 'readonly': 'readonly',
             }),
+        }
+
+
+class ServiceTypeForm(forms.ModelForm):
+
+    class Meta:
+        model = Servicetype
+        fields = ('typeName', 'orderNumber')
+
+        widgets = {
+            'typeName': forms.TextInput(attrs={'class': 'form-control', 'id': 'typeName'}),
+            'orderNumber': forms.TextInput(attrs={'class': 'form-control', 'id': "orderNumber"}),
         }
