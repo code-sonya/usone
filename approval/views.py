@@ -968,10 +968,6 @@ def show_document_temp(request):
 @login_required
 def view_document(request, documentId):
     document = Document.objects.get(documentId=documentId)
-    # 문서 읽음 처리
-    if document.clicked == 'N':
-        document.clicked = 'Y'
-        document.save()
     files = Documentfile.objects.filter(documentId__documentId=documentId)
     related = Relateddocument.objects.filter(documentId__documentId=documentId)
     apply, process, reference, approval, agreement, financial = template_format(documentId)
