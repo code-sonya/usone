@@ -130,6 +130,7 @@
                 },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                console.log(aData);
                 if (aData.draftDatetime) {
                     $('td', nRow).eq(3).text(aData.draftDatetime.split('-').join('.').split('T').slice(0, 1));
                 } else {
@@ -139,6 +140,12 @@
                 if (aData.displayStatus === '결재대기') {
                     $('td', nRow).eq(5).css('color', 'red');
                     $('td', nRow).css('background-color', '#ffe6e6');
+                }
+                if (aData.displayStatus === '결재예정') {
+                    $('td', nRow).eq(5).css('color', 'blue');
+                }
+                if(aData.clicked == 'N' && aData.displayStatus != '결재대기' && aData.displayStatus != '임시'){
+                    $('td', nRow).css('background-color', '#ebffff');
                 }
             }
         });

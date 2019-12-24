@@ -137,7 +137,7 @@ def post_document(request):
         for a in approval:
             empId = Employee.objects.get(empId=a['approvalEmp'])
             # 기안자는 자동 결재
-            if request.POST['documentStatus'] == '진행' and empId.user == request.user:
+            if request.POST['documentStatus'] == '진행' and empId.user == request.user and a['approvalStep'] == 1:
                 Approval.objects.create(
                     documentId=document,
                     approvalEmp=empId,
@@ -821,7 +821,7 @@ def showdocument_asjson(request):
             displayStatus=Value('진행중', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
         returnIngWait = Document.objects.filter(
             documentId__in=documentsIngWait
@@ -832,7 +832,7 @@ def showdocument_asjson(request):
             displayStatus=Value('결재대기', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
         returnIngWill = Document.objects.filter(
             documentId__in=documentsIngWill
@@ -843,7 +843,7 @@ def showdocument_asjson(request):
             displayStatus=Value('결재예정', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
         returnIngCheck = Document.objects.filter(
             documentId__in=documentsIngCheck
@@ -854,7 +854,7 @@ def showdocument_asjson(request):
             displayStatus=Value('참조문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
         returnDoneWrite = Document.objects.filter(
             documentId__in=documentsDoneWrite
@@ -865,7 +865,7 @@ def showdocument_asjson(request):
             displayStatus=Value('기안문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
         returnDoneApproval = Document.objects.filter(
             documentId__in=documentsDoneApproval
@@ -876,7 +876,7 @@ def showdocument_asjson(request):
             displayStatus=Value('결재문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
         returnDoneCheck = Document.objects.filter(
             documentId__in=documentsDoneCheck
@@ -887,7 +887,7 @@ def showdocument_asjson(request):
             displayStatus=Value('참조문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
         returnDoneReject = Document.objects.filter(
             documentId__in=documentsDoneReject
@@ -898,7 +898,7 @@ def showdocument_asjson(request):
             displayStatus=Value('반려문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
         returnDoneView = Document.objects.filter(
             documentId__in=documentsDoneView
@@ -909,7 +909,7 @@ def showdocument_asjson(request):
             displayStatus=Value('조회가능', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
         returnTemp = Document.objects.filter(
             documentId__in=documentsTemp
@@ -920,7 +920,7 @@ def showdocument_asjson(request):
             displayStatus=Value('임시', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
         )
 
         returnDocuments = returnIngDone.union(
@@ -928,6 +928,7 @@ def showdocument_asjson(request):
             returnDoneWrite, returnDoneApproval, returnDoneCheck, returnDoneReject, returnDoneView,
             returnTemp
         )
+        print(returnDocuments)
 
         structure = json.dumps(list(returnDocuments), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
@@ -968,6 +969,10 @@ def show_document_temp(request):
 @login_required
 def view_document(request, documentId):
     document = Document.objects.get(documentId=documentId)
+    # 문서 읽음 처리
+    if document.clicked == 'N':
+        document.clicked = 'Y'
+        document.save()
     files = Documentfile.objects.filter(documentId__documentId=documentId)
     related = Relateddocument.objects.filter(documentId__documentId=documentId)
     apply, process, reference, approval, agreement, financial = template_format(documentId)

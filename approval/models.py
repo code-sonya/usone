@@ -46,6 +46,7 @@ class Document(models.Model):
     documentStatus = models.CharField(max_length=10, default='임시')
     serviceId = models.ForeignKey(Servicereport, on_delete=models.SET_NULL, null=True, blank=True)
     contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    clicked = models.CharField(max_length=10, default='N')
 
     def preservationDate(self):
         if self.preservationYear == 9999:
