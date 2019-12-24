@@ -144,9 +144,6 @@
                 if (aData.displayStatus === '결재예정') {
                     $('td', nRow).eq(5).css('color', 'blue');
                 }
-                if(aData.clicked == 'N' && aData.displayStatus != '결재대기' && aData.displayStatus != '임시'){
-                    $('td', nRow).css('background-color', '#ebffff');
-                }
             }
         });
 

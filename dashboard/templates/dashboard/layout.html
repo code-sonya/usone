@@ -263,7 +263,10 @@
           <a class="collapse-item" href="/approval/postdocument/">문서 작성</a>
           <h6 class="collapse-header">━━━ 문서함 ━━━</h6>
           <a class="collapse-item" href="/approval/showdocument/all/">전체</a>
-          <a class="collapse-item" href="/approval/showdocument/ing/">진행</a>
+          <a class="collapse-item" href="/approval/showdocument/ing/">진행
+            <span class="text-danger pl-2 pr-2 pt-1 pb-1 m-1" id="counting" style="background-color: gainsboro; border-radius: 15px 15px 15px 15px">1
+            </span>
+          </a>
           <a class="collapse-item" href="/approval/showdocument/done/">완료</a>
           <a class="collapse-item" href="/approval/showdocument/temp/">임시</a>
           {% if user.employee.empDeptName == '경영지원본부' %}
@@ -553,13 +556,29 @@
         }
     }
 
+    function counting() {
+       const counting = $('#counting');
+       $.ajax({
+          url: "{% url 'approval:countingasjson' %}",
+          method: 'POST',
+          cache: false,
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          success: function (returnData) {
+              console.log(returnData);
+              counting.text(returnData);
+          }
+        });
+    }
+
     $(window).resize(function() {
         changeToggled(1200);
     });
 
     $(document).ready(function () {
         changeToggled(1200);
+        counting();
     })
+
 
 </script>
 </body>

@@ -26,4 +26,5 @@ urlpatterns = [
     url(r'^returndocument/(?P<approvalId>.+)/$', views.return_document, name='returndocument'),
     url(r'^postcontractdocument/(?P<contractId>.+)/(?P<documentType>.+)/$', views.post_contract_document, name='postcontractdocument'),
     url(r'^viewdocumentemail/(?P<documentId>.+)/$', views.view_documentemail, name='viewdocumentemail'),
+    url(r'^countingasjson/$', views.counting_asjson, name='countingasjson'),
 ]

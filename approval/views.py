@@ -821,7 +821,7 @@ def showdocument_asjson(request):
             displayStatus=Value('진행중', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
         returnIngWait = Document.objects.filter(
             documentId__in=documentsIngWait
@@ -832,7 +832,7 @@ def showdocument_asjson(request):
             displayStatus=Value('결재대기', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
         returnIngWill = Document.objects.filter(
             documentId__in=documentsIngWill
@@ -843,7 +843,7 @@ def showdocument_asjson(request):
             displayStatus=Value('결재예정', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
         returnIngCheck = Document.objects.filter(
             documentId__in=documentsIngCheck
@@ -854,7 +854,7 @@ def showdocument_asjson(request):
             displayStatus=Value('참조문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
         returnDoneWrite = Document.objects.filter(
             documentId__in=documentsDoneWrite
@@ -865,7 +865,7 @@ def showdocument_asjson(request):
             displayStatus=Value('기안문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
         returnDoneApproval = Document.objects.filter(
             documentId__in=documentsDoneApproval
@@ -876,7 +876,7 @@ def showdocument_asjson(request):
             displayStatus=Value('결재문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
         returnDoneCheck = Document.objects.filter(
             documentId__in=documentsDoneCheck
@@ -887,7 +887,7 @@ def showdocument_asjson(request):
             displayStatus=Value('참조문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
         returnDoneReject = Document.objects.filter(
             documentId__in=documentsDoneReject
@@ -898,7 +898,7 @@ def showdocument_asjson(request):
             displayStatus=Value('반려문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
         returnDoneView = Document.objects.filter(
             documentId__in=documentsDoneView
@@ -909,7 +909,7 @@ def showdocument_asjson(request):
             displayStatus=Value('조회가능', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
         returnTemp = Document.objects.filter(
             documentId__in=documentsTemp
@@ -920,7 +920,7 @@ def showdocument_asjson(request):
             displayStatus=Value('임시', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus', 'clicked'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
         )
 
         returnDocuments = returnIngDone.union(
@@ -1696,4 +1696,32 @@ def view_documentemail(request, documentId):
 
         return redirect('approval:viewdocument', document.documentId)
 
+
+@csrf_exempt
+@login_required
+def counting_asjson(request):
+    empId = request.user.employee.empId
+    documentsIngWait = []
+    tempDocumentsId = Approval.objects.filter(
+        documentId__documentStatus='진행',
+        approvalEmp=request.user.employee,
+    ).values_list('documentId__documentId', flat=True)
+
+    for documentId in tempDocumentsId:
+        # 진행, 대기
+        if empId in who_approval(documentId)['do']:
+            documentsIngWait.append(documentId)
+
+    returnIngWait = Document.objects.filter(
+        documentId__in=documentsIngWait
+    ).annotate(
+        empName=F('writeEmp__empName'),
+        formNumber=F('formId__formNumber'),
+        formTitle=F('formId__formTitle'),
+        displayStatus=Value('결재대기', output_field=CharField())
+    ).aggregate(Count('empName'))
+    result = returnIngWait['empName__count']
+
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
 
