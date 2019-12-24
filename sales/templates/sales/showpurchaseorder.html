@@ -215,7 +215,6 @@
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   $('td:eq(0)', nRow).text(replaceAll(aData.modifyDatetime, "-", "."));
-                  console.log(aData.sendDatetime);
                   if(aData.sendDatetime == null){
                       $('td:eq(5)', nRow).text('-');
                   }else{
