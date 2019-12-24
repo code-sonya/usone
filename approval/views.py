@@ -928,7 +928,6 @@ def showdocument_asjson(request):
             returnDoneWrite, returnDoneApproval, returnDoneCheck, returnDoneReject, returnDoneView,
             returnTemp
         )
-        print(returnDocuments)
 
         structure = json.dumps(list(returnDocuments), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
