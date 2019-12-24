@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import json
 
 from django.contrib.auth.decorators import login_required
@@ -20,7 +18,6 @@ from .forms import ServicereportForm, ServiceformForm, AdminServiceForm
 from .functions import *
 from .models import Serviceform, Geolocation
 from sales.models import Contractfile
-
 
 
 @login_required

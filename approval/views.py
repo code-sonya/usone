@@ -987,7 +987,7 @@ def view_document(request, documentId):
         empNames.append(temp)
     # smtp 정보
     email = AdminEmail.objects.aggregate(Max('adminId'))
-    email = AdminEmail.objects.get(adminId=email['adminId__max'])
+    email = AdminEmail.objects.filter(adminId=email['adminId__max'])
 
     context = {
         'document': document,
