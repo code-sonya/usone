@@ -264,7 +264,7 @@
           <h6 class="collapse-header">━━━ 문서함 ━━━</h6>
           <a class="collapse-item" href="/approval/showdocument/all/">전체</a>
           <a class="collapse-item" href="/approval/showdocument/ing/">진행
-            <span class="text-danger pl-2 pr-2 pt-1 pb-1 m-1" id="counting" style="background-color: gainsboro; border-radius: 15px 15px 15px 15px">1
+            <span class="text-danger pl-2 pr-2 pt-1 pb-1 m-1" id="counting" style="background-color: gainsboro; border-radius: 15px 15px 15px 15px">
             </span>
           </a>
           <a class="collapse-item" href="/approval/showdocument/done/">완료</a>
@@ -564,8 +564,11 @@
           cache: false,
           headers: {'X-CSRFToken': '{{ csrf_token }}'},
           success: function (returnData) {
-              console.log(returnData);
-              counting.text(returnData);
+              if(returnData == 0){
+                  counting.css('background', '');
+              }else{
+                  counting.text(returnData);
+              }
           }
         });
     }
