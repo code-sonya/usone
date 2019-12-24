@@ -6,6 +6,29 @@
 {% endblock %}
 
 
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border: 1px solid lightgray;
+    }
+  </style>
+
+{% endblock %}
+
+
 {% block content %}
 
   <div class="row">
@@ -16,7 +39,7 @@
           <h6 class="m-0 h3 text-gray-800">신규 직원 등록</h6>
         </div>
         <div class="card-body">
-          <table class="table">
+          <table class="pc-table">
             <tbody>
             <form class="form-group" method="POST" id="empForm">
               {% csrf_token %}

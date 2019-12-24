@@ -1,0 +1,170 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  휴일관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div>
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800">휴일 & 사내일정 관리</h6>
+        <div class="dropdown no-arrow">
+          <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+            <i class="fas fa-filter fa-fw text-gray-400"></i>
+          </a>
+          {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a class="dropdown-toggle" href="/scheduler/posteventday/" role="button">
+              <i class="fas fa-plus fa-fw text-gray-400"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="showeventdays" class="hover row-border" style="width: 100%;">
+            <thead>
+            <tr>
+              <th>일자</th>
+              <th>명칭</th>
+              <th>구분</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="text-primary">시작일자</label>
+                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" value="{{ startdate }}">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="enddate" class="text-primary">종료일자</label>
+                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" value="{{ enddate }}">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      function btn_filter() {
+          $("#filterForm").submit();
+      }
+
+      $(document).ready(function () {
+          $('#showeventdays').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'GET',
+                  "data": {
+                      'startdate': '{{ startdate }}',
+                      'enddate': '{{ enddate }}',
+                  },
+                  "url": "{% url 'scheduler:showeventdayasjson' %}",
+                  "dataSrc": ""
+              },
+              "columnDefs": [
+                  {
+                      targets: 0,
+                      width: "33%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "eventDate",
+                  },
+                  {
+                      targets: 1,
+                      width: "33%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "eventName",
+                  },
+                  {
+                      targets: 2,
+                      width: "33%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "eventType"
+                  },
+              ],
+              "deferRender": true,
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": false,
+              "scrollCollapse": true,
+              "order": [[0, 'asc']],
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.eventType === '휴일') {
+                      $('td', nRow).css('color', 'red');
+                  } else if (aData.eventType === '사내일정') {
+                      $('td', nRow).css('color', 'blue');
+                  }
+              },
+              "footerCallback": function () {
+              },
+          });
+
+          const showeventdays = $('#showeventdays').DataTable();
+
+          $("#showeventdays").on("click", 'tr', function () {
+              const data = showeventdays.row(this).data();
+              location.href = '/scheduler/vieweventday/' + data.eventDate + '/'
+          });
+      });
+
+  </script>
+
+{% endblock %}

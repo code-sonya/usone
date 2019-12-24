@@ -36,24 +36,24 @@
     <div class="col-xl-8">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">신규 부서 등록</h6>
+          <h6 class="m-0 h3 text-gray-800">휴일 & 사내일정 등록</h6>
         </div>
         <div class="card-body">
           <table class="pc-table">
             <tbody>
-            <form class="form-group" method="POST" id="deptForm">
+            <form class="form-group" method="POST" id="eventdayForm">
               {% csrf_token %}
               <tr>
-                <td class="text-center align-middle bg-light text-primary" style="width: 20%"><b>부&nbsp;&nbsp;서&nbsp;&nbsp;명</b></td>
-                <td class="text-center" style="width: 30%">{{ form.deptName }}</td>
-                <td class="text-center align-middle bg-light" style="width: 20%"><b>부&nbsp;&nbsp;서&nbsp;&nbsp;장</b></td>
-                <td class="text-center" style="width: 30%">{{ form.deptManager }}</td>
+                <td class="text-center align-middle bg-light" style="width: 30%"><b>일 자</b></td>
+                <td style="width: 70%">{{ form.eventDate }}</td>
               </tr>
               <tr>
-                <td class="text-center align-middle bg-light text-primary"><b>부서단계</b></td>
-                <td>{{ form.deptLevel }}</td>
-                <td class="text-center align-middle bg-light"><b>상위부서</b></td>
-                <td>{{ form.parentDept }}</td>
+                <td class="text-center align-middle bg-light"><b>명 칭</b></td>
+                <td>{{ form.eventName }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light"><b>구 분</b></td>
+                <td>{{ form.eventType }}</td>
               </tr>
             </form>
             </tbody>
@@ -77,32 +77,23 @@
 {% block script %}
   <script type="text/javascript">
       function btn_save() {
-          const deptName = $('#deptName').val();
-          const deptLevel = $('#deptLevel').val();
-
-          if (!deptName) {
-              alert('부서명을 입력해주세요.');
-              return false;
-          }
-          if (!deptLevel) {
-              alert('부서단계를 입력해주세요.');
-              return false;
-          }
-
           if (confirm('등록 하시겠습니까?')) {
+              const eventDate = $('#eventDate').val();
               $.ajax({
-                  url: "{% url 'hr:checkdepartment' %}",
+                  url: "{% url 'scheduler:checkeventday' %}",
                   method: 'GET',
                   cache: false,
-                  data: {"deptName": deptName},
+                  data: {
+                      "eventDate": eventDate,
+                  },
                   headers: {'X-CSRFToken': '{{ csrf_token }}'},
                   success: function (returnData) {
                       if (returnData === 'N') {
-                          alert('이미 등록된 부서입니다.\n다시 확인해주세요.');
+                          alert('이미 등록된 일자입니다.\n다시 확인해주세요.');
                           return false;
                       } else {
-                          const deptForm = $('#deptForm');
-                          deptForm.submit();
+                          const eventdayForm = $('#eventdayForm');
+                          eventdayForm.submit();
                       }
                   }
               });

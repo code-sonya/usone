@@ -6,6 +6,29 @@
 {% endblock %}
 
 
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border: 1px solid lightgray;
+    }
+  </style>
+
+{% endblock %}
+
+
 {% block content %}
 
   <div class="row">
@@ -21,7 +44,7 @@
           </div>
           <br>
 
-          <table class="table">
+          <table class="pc-table">
             <tbody>
             <tr>
               <td class="text-center align-middle bg-light" style="width: 20%"><b>아&nbsp;&nbsp;이&nbsp;&nbsp;디</b></td>

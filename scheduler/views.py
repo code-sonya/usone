@@ -6,13 +6,15 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.core.serializers.json import DjangoJSONEncoder
 
 from service.models import Servicereport, Vacation
 from .models import Eventday
+from .forms import EventdayForm
 
 
 @login_required
@@ -118,3 +120,92 @@ def changeDate(request):
 
     context = {'service_id': serviceId}
     return HttpResponse(json.dumps(context), content_type="application/json")
+
+
+@login_required
+def show_eventday(request):
+    today = str(datetime.datetime.today())[:10]
+    startdate = today[:4] + '-01-01'
+    enddate = ''
+
+    if request.method == 'POST':
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+
+    context = {
+        'startdate': startdate,
+        'enddate': enddate,
+    }
+    return render(request, 'scheduler/showeventday.html', context)
+
+
+@login_required
+def showeventday_asjson(request):
+    startdate = request.GET['startdate']
+    enddate = request.GET['enddate']
+
+    eventDay = Eventday.objects.all()
+    if startdate:
+        eventDay = eventDay.filter(eventDate__gte=startdate)
+    if enddate:
+        eventDay = eventDay.filter(eventDate__lte=enddate)
+    eventDay = eventDay.values('eventDate', 'eventName', 'eventType')
+
+    structure = json.dumps(list(eventDay), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def view_eventday(request, eventDate):
+    eventDay = Eventday.objects.get(eventDate=eventDate)
+
+    if request.method == 'POST':
+        form = EventdayForm(request.POST, instance=eventDay)
+        form.save()
+        return redirect('scheduler:showeventday')
+
+    else:
+        form = EventdayForm(instance=eventDay)
+
+        context = {
+            'eventDay': eventDay,
+            'form': form,
+        }
+
+        return render(request, 'scheduler/vieweventday.html', context)
+
+
+@login_required
+def post_eventday(request):
+    if request.method == 'POST':
+        form = EventdayForm(request.POST)
+        form.save()
+
+        return redirect('scheduler:showeventday')
+
+    else:
+        form = EventdayForm()
+
+        context = {
+            'form': form,
+        }
+
+        return render(request, 'scheduler/posteventday.html', context)
+
+
+@login_required
+def delete_eventday(request, eventDate):
+    Eventday.objects.get(eventDate=eventDate).delete()
+    return redirect('scheduler:showeventday')
+
+
+@login_required
+def check_eventday(request):
+    result = 'Y'
+    if Eventday.objects.filter(eventDate=request.GET['eventDate']):
+        result = 'N'
+
+    print(result)
+
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
