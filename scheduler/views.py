@@ -4,17 +4,18 @@ import json
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Q, Max
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.core.serializers.json import DjangoJSONEncoder
 
+from hr.models import Employee, Department
 from service.models import Servicereport, Vacation
-from .models import Eventday
 from .forms import EventdayForm
+from .models import Eventday
 
 
 @login_required
@@ -34,7 +35,10 @@ def scheduler(request, day=None):
     empId = request.user.employee.empId
     empName = request.user.employee.empName
     empDeptName = request.user.employee.empDeptName
-    DeptList = ['경영지원본부', '영업1팀', '영업2팀', '인프라서비스사업팀', '솔루션지원팀', 'DB지원팀']
+    DeptList = Department.objects.filter(
+        deptName__in=Employee.objects.filter(empStatus='Y').values_list('departmentName__deptName', flat=True).distinct(),
+        deptLevel=Department.objects.all().aggregate(maxLevel=Max('deptLevel'))['maxLevel'],
+    ).values_list('deptName', flat=True)
 
     # 선택한 부서의 일정, 휴가 (기본값은 로그인 사용자의 부서)
     if request.method == "POST":

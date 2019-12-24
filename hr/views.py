@@ -80,6 +80,11 @@ def view_profile(request, empId):
         post = form.save(commit=False)
         post.empDeptName = post.departmentName.deptName
         post.save()
+
+        if employee.empStatus == 'N':
+            emp = User.objects.get(id=employee.empId)
+            emp.is_active = 0
+            emp.save()
         return redirect('hr:showprofiles')
 
     else:
@@ -99,12 +104,17 @@ def post_profile(request):
         if userForm.is_valid():
             new_user = User.objects.create_user(**userForm.cleaned_data)
 
-        empForm = EmployeeForm(request.POST)
-        post = empForm.save(commit=False)
-        post.user = new_user
-        post.empDeptName = post.departmentName.deptName
-        post.save()
-        return redirect('hr:showprofiles')
+            empForm = EmployeeForm(request.POST)
+            post = empForm.save(commit=False)
+            post.user = new_user
+            post.empDeptName = post.departmentName.deptName
+            post.save()
+
+            if post.empStatus == 'N':
+                new_user.is_active = 0
+                new_user.save()
+
+            return redirect('hr:showprofiles')
 
     else:
         userForm = UserForm()
