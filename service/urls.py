@@ -24,4 +24,9 @@ urlpatterns = [
     url(r'^changecontractsname/', views.change_contracts_name, name='changecontractsname'),
     url(r'^adminservice/(?P<serviceId>.+)/$', views.admin_service, name='adminservice'),
     url(r'^saveconfirmfiles/(?P<contractId>.+)/$', views.save_confirm_files, name='savepurchasefiles'),
+    url(r'^showservicetype/$', views.show_service_type, name='showservicetype'),
+    url(r'^showservicetypeasjson/$', views.showservicetype_asjson, name='showservicetypeasjson'),
+    url(r'^viewservicetype/(?P<typeId>.+)/$', views.view_service_type, name='viewservicetype'),
+    url(r'^postservicetype/$', views.post_service_type, name='postservicetype'),
+    url(r'^deleteservicetype/(?P<typeId>.+)/$', views.delete_service_type, name='deleteservicetype'),
 ]

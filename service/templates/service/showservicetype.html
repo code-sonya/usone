@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  부서관리
+  일정구분관리
 {% endblock %}
 
 
@@ -20,10 +20,14 @@
   <div>
     <div class="card shadow mb-4">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="m-0 h3 text-gray-800">부서관리</h6>
+        <h6 class="m-0 h3 text-gray-800">일정구분관리</h6>
         <div class="dropdown no-arrow">
+          <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+            <i class="fas fa-filter fa-fw text-gray-400"></i>
+          </a>
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-            <a class="dropdown-toggle" href="/hr/postdepartment/" role="button">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a class="dropdown-toggle" href="/service/postservicetype/" role="button">
               <i class="fas fa-plus fa-fw text-gray-400"></i>
             </a>
           {% endif %}
@@ -31,14 +35,12 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table id="showdepartments" class="hover row-border" style="width: 100%;">
+          <table id="showservicetype" class="hover row-border" style="width: 100%;">
             <thead>
             <tr>
-              <th>deptId</th>
-              <th>부서명</th>
-              <th>부서관리자</th>
-              <th>부서단계</th>
-              <th>상위부서</th>
+              <th>typeId</th>
+              <th>일정구분</th>
+              <th>정렬번호</th>
             </tr>
             </thead>
           </table>
@@ -55,46 +57,34 @@
   <script type="text/javascript">
 
       $(document).ready(function () {
-          $('#showdepartments').dataTable({
+          $('#showservicetype').dataTable({
               "processing": true,
               "ajax": {
                   "processing": true,
                   "type": 'GET',
                   "data": {
                   },
-                  "url": "{% url 'hr:showdepartmentsasjson' %}",
+                  "url": "{% url 'service:showservicetypeasjson' %}",
                   "dataSrc": ""
               },
               "columnDefs": [
                   {
                       targets: 0,
-                      width: "20%",
+                      width: "33%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "deptId",
+                      data: "typeId",
                   },
                   {
                       targets: 1,
-                      width: "20%",
+                      width: "33%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "deptName",
+                      data: "typeName",
                   },
                   {
                       targets: 2,
-                      width: "20%",
+                      width: "33%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "deptManagerName"
-                  },
-                  {
-                      targets: 3,
-                      width: "20%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "deptLevel",
-                  },
-                  {
-                      targets: 4,
-                      width: "20%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "parentDeptName",
+                      data: "orderNumber"
                   },
               ],
               "deferRender": true,
@@ -104,7 +94,7 @@
               "scrollY": "60vh",
               "scrollX": false,
               "scrollCollapse": true,
-              "order": [[0, 'asc']],
+              "order": [[2, 'asc']],
               "language": {
                   "lengthMenu": "_MENU_ 개씩 보기",
                   "search": "검색:",
@@ -121,11 +111,11 @@
               },
           });
 
-          const showprofiles = $('#showdepartments').DataTable();
+          const showprofiles = $('#showservicetype').DataTable();
 
-          $("#showdepartments").on("click", 'tr', function () {
+          $("#showservicetype").on("click", 'tr', function () {
               const data = showprofiles.row(this).data();
-              location.href = '/hr/viewdepartment/' + data.deptId + '/'
+              location.href = '/service/viewservicetype/' + data.typeId + '/'
           });
       });
 
