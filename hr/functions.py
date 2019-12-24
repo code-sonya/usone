@@ -121,7 +121,6 @@ def save_punctuality(dateList):
                                 user['status'] = '출근'
 
             for user in users:
-                print(user)
                 punctuality = Punctuality.objects.filter(Q(empId=user['employee__empId']) & Q(punctualityDate=user['date']))
                 # 해당날짜에 근태 정보가 있음
                 if punctuality.first():
@@ -247,13 +246,16 @@ def adminemail_test(smtpEmail, smtpPassword, smtpServer, smtpPort, smtpSecure):
 
         if smtpSecure == 'SSL':
             smtp = SMTP_SSL("{}:{}".format(smtpServer, smtpPort))
+            smtp.login(smtpEmail, smtpPassword)
+            smtp.sendmail(fromEmail, toEmail, msg.as_string())
+            smtp.close()
         elif smtpSecure == 'TLS':
             smtp = smtplib.SMTP(smtpServer, smtpPort)
             smtp.ehlo()
             smtp.starttls()  # TLS 사용시 필요
-        smtp.login(smtpEmail, smtpPassword)
-        smtp.sendmail(fromEmail, toEmail, msg.as_string())
-        smtp.close()
+            smtp.login(smtpEmail, smtpPassword)
+            smtp.sendmail(fromEmail, toEmail, msg.as_string())
+            smtp.close()
         return 'Y'
     except Exception as e:
         return e

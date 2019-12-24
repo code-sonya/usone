@@ -17,10 +17,10 @@
     .file-table td, .file-table th {
       padding: .75rem;
       vertical-align: middle;
-      border-bottom: 1px solid #e3e6f0;
+      /*border-bottom: 1px solid #e3e6f0;*/
       font-size: 14px;
       text-align: center;
-      white-space: nowrap;
+      /*white-space: nowrap;*/
     }
   </style>
 {% endblock %}
@@ -48,9 +48,12 @@
       </div>
 
       <label for="contentHtml" class="font-weight-bold text-primary">본문</label>
-      <div class="mb-3 p-2 text-gray-900">
-        {{ purchaseOrder.contentHtml | safe }}
+      <div class="row" style="white-space:nowrap;overflow-x:scroll;">
+         <div class="mb-3 p-2 text-gray-900 col-12">
+          {{ purchaseOrder.contentHtml | safe }}
+         </div>
       </div>
+
 
       <div class="row">
         <div class="col-sm-12 col-xl-6">
@@ -97,8 +100,8 @@
         </div>
       </div>
       <div class="row">
-        <input id="smtpEmail"  type="text" value="{{ email.smtpEmail }}" class="visible">
-        <input id="smtpStatus" type="text" value="{{ email.smtpStatus }}" class="visible">
+        <input id="smtpEmail"  type="text" value="{{ email.smtpEmail }}" class="d-none">
+        <input id="smtpStatus" type="text" value="{{ email.smtpStatus }}" class="d-none">
        </div>
     </div>
     {% if purchaseOrder.writeEmp == request.user.employee and purchaseOrder.sendDatetime is None %}

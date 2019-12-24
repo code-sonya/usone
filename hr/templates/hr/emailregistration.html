@@ -102,9 +102,9 @@
                 <tr>
                   <td class="text-center" style="vertical-align: middle;"><b>보&nbsp; &nbsp;&nbsp;안 &nbsp;&nbsp;연&nbsp; &nbsp;&nbsp;결</b></td>
                   <td class="text-center">
-                    <select class="form-control" id="smtpSecure" name="smtpSecure" value="{{ adminEmail.smtpSecure }}" >
-                       <option value="TLS">TLS</option>
-                       <option value="SSL">SSL</option>
+                    <select class="form-control" id="smtpSecure" name="smtpSecure" >
+                       <option value="TLS" {% if adminEmail.smtpSecure == 'TLS'%} selected {% endif %}>TLS</option>
+                       <option value="SSL" {% if adminEmail.smtpSecure == 'SSL'%} selected {% endif %}>SSL</option>
                     </select>
                   </td>
                 </tr>

@@ -15,12 +15,12 @@
     }
 
     .table td, .table th {
-      padding: .75rem;
+      padding: .5rem;
       vertical-align: middle;
       border-top: 1px solid #e3e6f0;
       font-size: 14px;
       text-align: center;
-      white-space: nowrap;
+      /*white-space: nowrap;*/
     }
 
   </style>
@@ -30,16 +30,16 @@
 
 {% block content %}
   <h2 class="text-center d-none d-xl-block mb-3">
-    <i class="fas fa-angle-left" onclick="location.href='/service/dayreport/{{ beforeDate | date:'Y-m-d' }}/'"></i>
+    <i class="fas fa-angle-left text-warning" onclick="location.href='/service/dayreport/{{ beforeDate | date:'Y-m-d' }}/'"></i>
     {{ Date | date:"Y년 m월 d일" }} ({{ Date | date:"D" | slice:"0:1" }})
-    <i class="fas fa-angle-right" onclick="location.href='/service/dayreport/{{ afterDate | date:'Y-m-d' }}/'"></i>
+    <i class="fas fa-angle-right text-warning" onclick="location.href='/service/dayreport/{{ afterDate | date:'Y-m-d' }}/'"></i>
   </h2>
 
-  <h3 class="text-center d-xl-none mb-3">
-    <i class="fas fa-angle-left" onclick="location.href='/service/dayreport/{{ beforeDate | date:'Y-m-d' }}/'"></i>
+  <h5 class="text-center d-xl-none mb-3">
+    <i class="fas fa-angle-left text-warning" onclick="location.href='/service/dayreport/{{ beforeDate | date:'Y-m-d' }}/'"></i>
     {{ Date | date:"Y년 m월 d일" }} ({{ Date | date:"D" | slice:"0:1" }})
-    <i class="fas fa-angle-right" onclick="location.href='/service/dayreport/{{ afterDate | date:'Y-m-d' }}/'"></i>
-  </h3>
+    <i class="fas fa-angle-right text-warning" onclick="location.href='/service/dayreport/{{ afterDate | date:'Y-m-d' }}/'"></i>
+  </h5>
 
   {% for rown in rows %}
     <div class="row">
@@ -48,7 +48,7 @@
       <div class="col-xl-6">
         <div class="card shadow mb-4">
           <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 h3 text-gray-800">{{ row.title }}</h6>
+            <h5 class="m-0 text-gray-800">{{ row.title }}</h5>
           </div>
           <div class="card-body">
             <!-- 일정 -->

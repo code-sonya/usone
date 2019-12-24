@@ -15,7 +15,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from django.views.decorators.http import require_POST
 
-from hr.models import Employee
+from hr.models import Employee, AdminEmail
 from service.models import Servicereport
 from client.models import Company, Customer
 from logs.models import OrderLog
@@ -3666,6 +3666,10 @@ def delete_purchase_order(request, orderId):
 
 @login_required
 def view_purchase_order(request, orderId):
+    # smtp 정보
+    email = AdminEmail.objects.aggregate(Max('adminId'))
+    email = AdminEmail.objects.filter(adminId=email['adminId__max']).first()
+
     purchaseOrder = Purchaseorder.objects.get(orderId=orderId)
     purchaseOrderFiles = Purchaseorderfile.objects.filter(purchaseOrder=purchaseOrder)
     relatedPurchaseEstimate = Relatedpurchaseestimate.objects.filter(purchaseOrder=purchaseOrder)
@@ -3678,6 +3682,7 @@ def view_purchase_order(request, orderId):
         'purchaseOrderFiles': purchaseOrderFiles,
         'relatedPurchaseEstimate': relatedPurchaseEstimate,
         'purchaseFiles': purchaseFiles,
+        'email': email,
     }
     return render(request, 'sales/viewpurchaseorder.html', context)
 
