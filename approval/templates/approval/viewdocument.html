@@ -114,9 +114,9 @@
               </tr>
               <tr>
               {% for a in approval.data %}
-                <td rowspan="1" height="80px" class="text-center">
+                <td rowspan="1" height="70px" class="text-center">
                 {% if a.approvalStatus == '완료' %}
-                  <div><img src="/media/icon/accepted.png" width="45%"></div>
+                  <div><img src="/media/{{ a.approvalEmp__empStamp }}" width="100%"></div>
                   <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '반려' %}
                   <div><img src="/media/icon/rejected.png" width="45%"></div>
@@ -155,9 +155,9 @@
               </tr>
               <tr>
               {% for a in approval.data %}
-                <td rowspan="1" height="80px" class="text-center">
+                <td rowspan="1" height="70px" class="text-center">
                 {% if a.approvalStatus == '완료' %}
-                  <div><img src="/media/icon/accepted.png" width="45%"></div>
+                  <div><img src="/media/{{ a.approvalEmp__empStamp }}" width="100%"></div>
                   <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '반려' %}
                   <div><img src="/media/icon/rejected.png" width="45%"></div>
@@ -166,7 +166,7 @@
                   {% if user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}
                   <span>
                     <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
-                    <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button></span>
+                    <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button>
                   </span>
                   {% else %}
                   <span>대기</span>
@@ -252,6 +252,33 @@
         </div>
       {% endif %}
     </div>
+
+    <hr>
+    <div>
+      <form id="documentComment" method="POST" enctype="multipart/form-data" class="input-group mb-3">
+        {% csrf_token %}
+        <input name="documentId" class="d-none" value="{{ document.documentId }}">
+        <input name="comment" type="text" class="form-control" onkeydown="javascript: if (event.keyCode == 13) {btn_comment();}">
+        <div class="input-group-append">
+          <button class="btn btn-primary" type="button" onclick="btn_comment()">
+            <i class="fas fa-check fa-sm"></i> 등록
+          </button>
+        </div>
+      </form>
+      <label class="text-primary font-weight-bold mb-3">의견</label>
+      <table class="pc-table">
+
+        {% for comment in comments %}
+        <tbody>
+        <tr>
+          <td class="pc-table-title" style="width: 10%">{{ comment.author }}</td>
+          <td class="pc-table-detail text-left" style="width: 70%">{{ comment.comment }}</td>
+          <td class="pc-table-detail text-center" style="width: 15%">{{ comment.updated | date:"Y.m.d H:i:s" | slice:"2:" }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -329,6 +356,12 @@
         }else{
             alert('이메일 전송기능은 SMTP 설정이 되어있어야 사용가능합니다.\n 관리자 이메일등록을 해주세요 :)');
         }
+    }
+
+    function btn_comment() {
+        const form = $('#documentComment');
+        form.attr('action', '/approval/postdocumentcomment/');
+        form.submit();
     }
 
     $(document).ready(function () {

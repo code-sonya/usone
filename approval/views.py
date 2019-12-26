@@ -15,7 +15,7 @@ from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile, Purchasefile
 from client.models import Company
 from hr.models import AdminEmail
-from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval
+from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval, Documentcomment
 from logs.models import ApprovalLog
 from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
 from sales.functions import detailPurchase, summaryPurchase
@@ -999,9 +999,13 @@ def view_document(request, documentId):
             'dept': emp.empDeptName,
         }
         empNames.append(temp)
+
     # smtp 정보
     email = AdminEmail.objects.aggregate(Max('adminId'))
     email = AdminEmail.objects.filter(adminId=email['adminId__max'])
+
+    # 댓글 정보
+    comments = Documentcomment.objects.filter(documentId=document)
 
     context = {
         'document': document,
@@ -1012,9 +1016,24 @@ def view_document(request, documentId):
         'reference': reference,
         'do_approval': do_approval,
         'check_approval': check_approval,
-        'email': email
+        'email': email,
+        'comments': comments,
     }
     return render(request, 'approval/viewdocument.html', context)
+
+
+@login_required
+def post_document_comment(request):
+    document = Document.objects.get(documentId=request.POST['documentId'])
+    comment = request.POST['comment']
+    Documentcomment.objects.create(
+        documentId=document,
+        author=request.user.employee,
+        comment=comment,
+        created=datetime.datetime.now(),
+        updated=datetime.datetime.now(),
+    )
+    return redirect('approval:viewdocument', request.POST['documentId'])
 
 
 @login_required

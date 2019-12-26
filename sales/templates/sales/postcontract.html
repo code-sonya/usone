@@ -1354,7 +1354,6 @@
                                       $('#addPurchase').click();
                                   }
                                   console.log(data[count]);
-                                  setInterval(10);
                                   $('#purchase1' + count).attr('value', data[count].date);
                                   $('#purchase5' + count).trigger('set', {id: data[count].company});
                                   $('#purchase6' + count).val(data[count].price.toLocaleString());
@@ -1365,10 +1364,9 @@
                                   $('#addPurchase').click();
                                   const i = purchaseCounter - 1;
                                   console.log(i);
-                                  setInterval(10);
-                                  $('#purchase1' + count).attr('value', data[count].date);
-                                  $('#purchase5' + count).trigger('set', {id: data[count].company});
-                                  $('#purchase6' + count).val(data[count].price.toLocaleString());
+                                  $('#purchase1' + i).attr('value', data[count].date);
+                                  $('#purchase5' + i).trigger('set', {id: data[count].company});
+                                  $('#purchase6' + i).val(data[count].price.toLocaleString());
                               }
                               totalPrice('purchasePrice', 'totalPurchasePrice');
                           }

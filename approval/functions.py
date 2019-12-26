@@ -211,24 +211,30 @@ def who_approval(documentId):
 
 def template_format(documentId):
     approvals = Approval.objects.filter(Q(documentId__documentId=documentId))
-    apply = approvals.filter(approvalCategory='신청') \
-        .order_by('approvalStep') \
-        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    process = approvals.filter(approvalCategory='승인') \
-        .order_by('approvalStep') \
-        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    reference = approvals.filter(approvalCategory='참조') \
-        .order_by('approvalStep') \
-        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    approval = approvals.filter(approvalCategory='결재') \
-        .order_by('approvalStep') \
-        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    agreement = approvals.filter(approvalCategory='합의') \
-        .order_by('approvalStep') \
-        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
-    financial = approvals.filter(approvalCategory='재무합의') \
-        .order_by('approvalStep') \
-        .values('approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime')
+    apply = approvals.filter(approvalCategory='신청').order_by('approvalStep').values(
+        'approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalEmp__empStamp',
+        'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime'
+    )
+    process = approvals.filter(approvalCategory='승인').order_by('approvalStep').values(
+        'approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalEmp__empStamp',
+        'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime'
+    )
+    reference = approvals.filter(approvalCategory='참조').order_by('approvalStep').values(
+        'approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalEmp__empStamp',
+        'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime'
+    )
+    approval = approvals.filter(approvalCategory='결재').order_by('approvalStep').values(
+        'approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalEmp__empStamp',
+        'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime'
+    )
+    agreement = approvals.filter(approvalCategory='합의').order_by('approvalStep').values(
+        'approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalEmp__empStamp',
+        'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime'
+    )
+    financial = approvals.filter(approvalCategory='재무합의').order_by('approvalStep').values(
+        'approvalId', 'approvalEmp', 'approvalEmp__empName', 'approvalEmp__empPosition__positionName', 'approvalEmp__empStamp',
+        'approvalStep', 'approvalCategory', 'approvalStatus', 'approvalDatetime'
+    )
 
     if apply:
         applylst = []

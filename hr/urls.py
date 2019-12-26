@@ -25,4 +25,5 @@ urlpatterns = [
     url(r'^checkprofile/$', views.check_profile, name='checkprofile'),
     url(r'^emailregistration/$', views.email_registration, name='emailregistration'),
     url(r'^adminemailasjson/$', views.adminemail_asjson, name='adminemail_ajax_url'),
+    url(r'^uploadempstamp/(?P<empId>.+)/$', views.upload_emp_stamp, name='uploadempstamp'),
 ]

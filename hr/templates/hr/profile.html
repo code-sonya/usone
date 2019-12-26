@@ -84,6 +84,19 @@
                   <td class="text-center" style="vertical-align: middle;"><b>직&nbsp; &nbsp; &nbsp; &nbsp;급</b></td>
                   <td class="text-center"><b>{{ user.employee.empPosition }}</b></td>
                 </tr>
+                <tr>
+                  <td class="text-center" style="vertical-align: middle;"><b>서명 파일</b></td>
+                  <td class="text-center">
+                    <label>
+                      <img id="empStamp" src="/media/{{ user.employee.empStamp }}" width="100px">
+                      <form id="fileForm" method="POST" enctype="multipart/form-data" class="d-none">
+                        {% csrf_token %}
+                        <input name="empStamp" type="file" class="d-none" onchange="file_upload()">
+                      </form>
+                      <br>※ 전자 결재시 사용되는 서명 파일. 클릭하여 변경가능.
+                    </label>
+                  </td>
+                </tr>
                 <form class="form-group" method="POST" id="empForm">
                 {% csrf_token %}
                   <tr>
@@ -146,6 +159,12 @@
     function btn_save() {
         const empForm = document.getElementById('empForm');
         empForm.submit();
+    }
+
+    function file_upload() {
+        let form = $('#fileForm');
+        form.attr("action", "/hr/uploadempstamp/{{ user.employee.empId }}/");
+        form.submit();
     }
   </script>
 {% endblock %}
