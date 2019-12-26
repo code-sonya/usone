@@ -19,12 +19,12 @@ from django.conf.urls import include, url
 from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
-from service import views
+from scheduler import views
 import datetime
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(r'', views.day_report),
+    path(r'', views.scheduler),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^client/', include('client.urls')),
     url(r'^dashboard/', include('dashboard.urls')),
