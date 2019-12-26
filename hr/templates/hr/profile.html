@@ -2,9 +2,30 @@
 
 
 {% block title %}
-  프로필 관리
+  내 정보
 {% endblock %}
 
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border: 1px solid lightgray;
+    }
+  </style>
+
+{% endblock %}
 
 {% block content %}
 
@@ -16,7 +37,7 @@
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
 
-          <h6 class="m-0 h3 text-gray-800"> My profile </h6>
+          <h6 class="m-0 h3 text-gray-800"> 내 정보 </h6>
 
         </div>
 
@@ -29,7 +50,7 @@
           <div class="row">
             <div class="col-xl-2"></div>
             <div class="col-xl-8">
-              <table class="table">
+              <table class="pc-table">
                 <thead>
                 <tr>
                   <td width="30%" class="text-center bg-gray-400"><b>구&nbsp; &nbsp; &nbsp; &nbsp;분</b></td>
@@ -68,36 +89,36 @@
                   <tr>
                     <td class="text-center" style="vertical-align: middle;"><b>전화 번호</b></td>
                     <td>
-                      <input class="form-control" name="empPhone" placeholder="{{ user.employee.empPhone }}">
+                      <input class="form-control" name="empPhone" value="{{ user.employee.empPhone }}">
                     </td>
                   </tr>
                   <tr>
                     <td class="text-center" style="vertical-align: middle;"><b>이&nbsp; 메&nbsp; 일</b></td>
                     <td>
-                      <input class="form-control" name="empEmail" placeholder="{{ user.employee.empEmail }}">
+                      <input class="form-control" name="empEmail" value="{{ user.employee.empEmail }}">
                     </td>
                   </tr>
-                  <tr>
-                    <td class="text-center" style="vertical-align: middle;"><b>차&nbsp; &nbsp; &nbsp; &nbsp;량</b></td>
-                    <td>
-                      <select class="form-control" name="carId">
-                        <option value>---------</option>
-                        {% for car in cars %}
-                        <option value="{{ car.carId }}" {% if user.employee.carId.carId == car.carId %}selected{% endif %}>
-                          {{ car.oilType }}, {{ car.carType }}({{ car.comment }})
-                        </option>
-                        {% endfor %}
-                      </select>
-                      ※ 유류비 청구시 기준이 되는 차량입니다.
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="text-center" style="vertical-align: middle;"><b>내근 문구</b></td>
-                    <td>
-                      <input class="form-control" name="message" placeholder="{{ user.employee.message }}">
-                      ※ 일일업무 메뉴에서 내근 시 표기되는 내용입니다.
-                    </td>
-                  </tr>
+                  <!--<tr>-->
+                    <!--<td class="text-center" style="vertical-align: middle;"><b>차&nbsp; &nbsp; &nbsp; &nbsp;량</b></td>-->
+                    <!--<td>-->
+                      <!--<select class="form-control" name="carId">-->
+                        <!--<option value>-&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;</option>-->
+                        <!--{% for car in cars %}-->
+                        <!--<option value="{{ car.carId }}" {% if user.employee.carId.carId == car.carId %}selected{% endif %}>-->
+                          <!--{{ car.oilType }}, {{ car.carType }}({{ car.comment }})-->
+                        <!--</option>-->
+                        <!--{% endfor %}-->
+                      <!--</select>-->
+                      <!--※ 유류비 청구시 기준이 되는 차량입니다.-->
+                    <!--</td>-->
+                  <!--</tr>-->
+                  <!--<tr>-->
+                    <!--<td class="text-center" style="vertical-align: middle;"><b>내근 문구</b></td>-->
+                    <!--<td>-->
+                      <!--<input class="form-control" name="message" placeholder="{{ user.employee.message }}">-->
+                      <!--※ 일일업무 메뉴에서 내근 시 표기되는 내용입니다.-->
+                    <!--</td>-->
+                  <!--</tr>-->
                 </form>
                 </tbody>
               </table>

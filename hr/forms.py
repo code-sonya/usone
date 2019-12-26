@@ -21,7 +21,8 @@ class EmployeeForm(forms.ModelForm):
         model = Employee
         fields = (
             'empCode', 'empName', 'empPosition', 'empPhone', 'empEmail', 'departmentName', 'empRank',
-            'carId', 'empStartDate', 'empEndDate', 'empStatus', 'empManager', 'message', 'empSalary',
+            'empStartDate', 'empEndDate', 'empStatus', 'empManager',
+            # 'message', 'empSalary',  'carId',
         )
 
         widgets = {
@@ -30,14 +31,14 @@ class EmployeeForm(forms.ModelForm):
             'empPosition': forms.Select(attrs={'class': 'form-control', 'id': 'empPosition'}),
             'empPhone': forms.TextInput(attrs={'class': 'form-control', 'id': 'empPhone'}),
             'empEmail': forms.TextInput(attrs={'class': 'form-control', 'id': 'empEmail'}),
-            'carId': forms.Select(attrs={'class': 'form-control', 'id': 'carId'}),
+            # 'carId': forms.Select(attrs={'class': 'form-control', 'id': 'carId'}),
             'empStartDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'empStartDate'}),
             'empEndDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'empEndDate'}),
             'empStatus': forms.Select(attrs={'class': 'form-control', 'id': 'empStatus'}),
             'empManager': forms.Select(attrs={'class': 'form-control', 'id': 'empManager'}),
-            'message': forms.TextInput(attrs={'class': 'form-control', 'id': 'message'}),
+            # 'message': forms.TextInput(attrs={'class': 'form-control', 'id': 'message'}),
             'departmentName': forms.Select(attrs={'class': 'form-control', 'id': 'departmentName'}),
-            'empSalary': forms.TextInput(attrs={'class': 'form-control', 'id': 'empSalary'}),
+            # 'empSalary': forms.TextInput(attrs={'class': 'form-control', 'id': 'empSalary'}),
             'empRank': forms.TextInput(attrs={'class': 'form-control', 'id': 'empRank'}),
         }
 

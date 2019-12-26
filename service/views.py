@@ -93,10 +93,10 @@ def post_service(request, postdate):
 
         if form.is_valid():
             post = form.save(commit=False)
-            if request.POST['contractId']:
-                post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
-            else:
-                post.contractId = None
+            # if request.POST['contractId']:
+            #     post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
+            # else:
+            #     post.contractId = None
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
@@ -133,7 +133,7 @@ def post_service(request, postdate):
                         post.serviceRegHour = post.serviceHour - post.serviceOverHour
                         timeCalculateFlag = False
                     Servicereport.objects.create(
-                        contractId=post.contractId,
+                        # contractId=post.contractId,
                         serviceDate=post.serviceDate,
                         empId=post.empId,
                         empName=post.empName,
@@ -175,7 +175,7 @@ def post_service(request, postdate):
                             post.serviceRegHour = post.serviceHour - post.serviceOverHour
                             timeCalculateFlag = False
                         Servicereport.objects.create(
-                            contractId=post.contractId,
+                            # contractId=post.contractId,
                             serviceDate=post.serviceDate,
                             empId=post.empId,
                             empName=post.empName,
@@ -215,7 +215,7 @@ def post_service(request, postdate):
                         post.serviceRegHour = post.serviceHour - post.serviceOverHour
                         timeCalculateFlag = False
                     Servicereport.objects.create(
-                        contractId=post.contractId,
+                        # contractId=post.contractId,
                         serviceDate=post.serviceDate,
                         empId=post.empId,
                         empName=post.empName,

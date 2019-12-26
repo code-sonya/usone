@@ -56,11 +56,11 @@
           <form id="ServicereportForm" method="POST">
 
             {% csrf_token %}
-            <div class="form-group row">
-              <div class="col-12">
-                <label for="contracts" class="font-weight-bold text-secondary"> 계약명 </label> {{ form.contracts }}
-              </div>
-            </div>
+            <!--<div class="form-group row">-->
+              <!--<div class="col-12">-->
+                <!--<label for="contracts" class="font-weight-bold text-secondary"> 계약명 </label> {{ form.contracts }}-->
+              <!--</div>-->
+            <!--</div>-->
             <div class="form-group row">
               <div class="col-6">
                 <label for="companyName" class="font-weight-bold text-primary"> 고객사 명 </label> {{ form.companyName }}
@@ -212,12 +212,12 @@
           coWorkerInput.setAttribute("value", coWorkers);
           Form.appendChild(coWorkerInput);
 
-          const contracts = document.getElementById('contracts').getAttribute('data-id');
-          let contractInput = document.createElement("input");
-          contractInput.setAttribute("type", "hidden");
-          contractInput.setAttribute("name", "contractId");
-          contractInput.setAttribute("value", contracts);
-          Form.appendChild(contractInput);
+          // const contracts = document.getElementById('contracts').getAttribute('data-id');
+          // let contractInput = document.createElement("input");
+          // contractInput.setAttribute("type", "hidden");
+          // contractInput.setAttribute("name", "contractId");
+          // contractInput.setAttribute("value", contracts);
+          // Form.appendChild(contractInput);
 
           if (document.getElementById("companyName").value === '') {
               alert("고객사 명을 입력해주세요.");
@@ -279,28 +279,28 @@
       }
 
       $(document).ready(function () {
-          const contracts = document.getElementById('contracts');
+          // const contracts = document.getElementById('contracts');
 
-          {% if contractId %}
-              contracts.setAttribute("data-id", "{{ contractId }}");
-          {% endif %}
-
-          $('#contracts').magicsearch({
-              dataSource: {{ contracts|safe }},
-              fields: 'value',
-              id: 'id',
-              format: '%value%',
-              noResult: '검색결과없음',
-              focusShow: true,
-              maxShow: 100,
-              {% if serviceStatus != 'Y' %}
-                  success: function ($input, data) {
-                      $('#companyName').trigger('set', {id: data.company});
-                  }
-              {% endif %}
-          });
-          contracts.removeAttribute("style");
-          contracts.parentElement.removeAttribute("style");
+          // {% if contractId %}
+          //     contracts.setAttribute("data-id", "{{ contractId }}");
+          // {% endif %}
+          //
+          // $('#contracts').magicsearch({
+          //     dataSource: {{ contracts|safe }},
+          //     fields: 'value',
+          //     id: 'id',
+          //     format: '%value%',
+          //     noResult: '검색결과없음',
+          //     focusShow: true,
+          //     maxShow: 100,
+          //     {% if serviceStatus != 'Y' %}
+          //         success: function ($input, data) {
+          //             $('#companyName').trigger('set', {id: data.company});
+          //         }
+          //     {% endif %}
+          // });
+          // contracts.removeAttribute("style");
+          // contracts.parentElement.removeAttribute("style");
 
           const companyName = document.getElementById('companyName');
           {% if companyName %}

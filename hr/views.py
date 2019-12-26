@@ -31,21 +31,21 @@ def profile(request):
     if request.method == "POST":
         empPhone = request.POST['empPhone'] or user.employee.empPhone
         empEmail = request.POST['empEmail'] or user.employee.empEmail
-        carId = request.POST['carId'] or None
-        if carId:
-            carId = Car.objects.get(carId=carId)
-        message = request.POST['message'] or user.employee.message
+        # carId = request.POST['carId'] or None
+        # if carId:
+        #     carId = Car.objects.get(carId=carId)
+        # message = request.POST['message'] or user.employee.message
 
         user.employee.empPhone = empPhone
         user.employee.empEmail = empEmail
-        user.employee.carId = carId
-        user.employee.message = message
+        # user.employee.carId = carId
+        # user.employee.message = message
         user.employee.save()
 
-    cars = Car.objects.all()
+    # cars = Car.objects.all()
     context = {
         'user': user,
-        'cars': cars,
+        # 'cars': cars,
     }
     return HttpResponse(template.render(context, request))
 

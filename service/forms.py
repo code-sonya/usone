@@ -20,13 +20,15 @@ class ServicereportForm(forms.ModelForm):
     coWorkers = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={
         'class': 'magicsearch form-control', 'id': 'coWorkers', 'autocomplete': 'off'
     }))
-    contracts = forms.CharField(max_length=300, required=False, widget=forms.TextInput(attrs={
-        'class': 'magicsearch form-control', 'id': 'contracts', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(contracts)'
-    }))
+    # contracts = forms.CharField(max_length=300, required=False, widget=forms.TextInput(attrs={
+    #     'class': 'magicsearch form-control', 'id': 'contracts', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(contracts)'
+    # }))
 
     class Meta:
         model = Servicereport
-        fields = ('contractId', 'companyName', 'serviceType',
+        fields = (
+                  # 'contractId',
+                  'companyName', 'serviceType',
                   'startdate', 'starttime', 'enddate', 'endtime',
                   'serviceLocation', 'directgo', 'coWorkers', 'serviceTitle', 'serviceDetails')
 
