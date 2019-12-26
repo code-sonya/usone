@@ -490,3 +490,11 @@ def adminemail_asjson(request):
         result = '입력하신정보가 올바르지 않습니다.\n다시 확인해 주세요.'
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+def upload_emp_stamp(request, empId):
+    emp = Employee.objects.get(empId=empId)
+    for f in request.FILES.getlist('empStamp'):
+        emp.empStamp = f
+        emp.save()
+    return redirect('hr:profile')
