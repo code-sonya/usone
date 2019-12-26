@@ -768,11 +768,10 @@ def showdocument_asjson(request):
                     documentsDoneReject.append(documentId)
 
             # 조회 권한에 따라 문서 추가
+            # C등급 문서는 전체 조회
             tempDocumentsId = Approval.objects.filter(
                 documentId__documentStatus='완료',
                 documentId__securityLevel='C',
-            ).exclude(
-                approvalEmp=request.user.employee,
             ).values_list('documentId__documentId', flat=True)
 
             for documentId in tempDocumentsId:
@@ -780,12 +779,11 @@ def showdocument_asjson(request):
                 if document.preservationDate() > datetime.datetime.now():
                     documentsDoneView.append(documentId)
 
+            # B등급 문서는 임원 조회
             if request.user.employee.empPosition.positionName == '임원':
                 tempDocumentsId = Approval.objects.filter(
                     documentId__documentStatus='완료',
                     documentId__securityLevel='B',
-                ).exclude(
-                    approvalEmp=request.user.employee,
                 ).values_list('documentId__documentId', flat=True)
 
                 for documentId in tempDocumentsId:
@@ -793,12 +791,11 @@ def showdocument_asjson(request):
                     if document.preservationDate() > datetime.datetime.now():
                         documentsDoneView.append(documentId)
 
+            # A등급 문서는 대표이사 조회
             if request.user.employee.empId <= 2:
                 tempDocumentsId = Approval.objects.filter(
                     documentId__documentStatus='완료',
                     documentId__securityLevel='A',
-                ).exclude(
-                    approvalEmp=request.user.employee,
                 ).values_list('documentId__documentId', flat=True)
 
                 for documentId in tempDocumentsId:
@@ -806,22 +803,30 @@ def showdocument_asjson(request):
                     if document.preservationDate() > datetime.datetime.now():
                         documentsDoneView.append(documentId)
 
+            # 조회 문서 중 기존 문서에 있는 것은 제외
+            documentsDoneView = list(
+                set(documentsDoneView) - set(documentsDoneWrite) - set(documentsDoneApproval) - set(documentsDoneCheck) - set(documentsDoneReject)
+            )
+
+        # 임시문서
         if category == '임시':
             documentsTemp = list(Document.objects.filter(
                 documentStatus='임시',
                 writeEmp=request.user.employee
             ).values_list('documentId', flat=True))
 
+        # 각 문서 분류별 displayStatus 설정
         returnIngDone = Document.objects.filter(
             documentId__in=documentsIngDone
         ).annotate(
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('진행중', output_field=CharField())
+            displayStatus1=Value('진행', output_field=CharField()),
+            displayStatus2=Value('진행중', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnIngWait = Document.objects.filter(
             documentId__in=documentsIngWait
@@ -829,10 +834,11 @@ def showdocument_asjson(request):
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('결재대기', output_field=CharField())
+            displayStatus1=Value('진행', output_field=CharField()),
+            displayStatus2=Value('결재대기', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnIngWill = Document.objects.filter(
             documentId__in=documentsIngWill
@@ -840,10 +846,11 @@ def showdocument_asjson(request):
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('결재예정', output_field=CharField())
+            displayStatus1=Value('진행', output_field=CharField()),
+            displayStatus2=Value('결재예정', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnIngCheck = Document.objects.filter(
             documentId__in=documentsIngCheck
@@ -851,10 +858,11 @@ def showdocument_asjson(request):
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('참조문서', output_field=CharField())
+            displayStatus1=Value('진행', output_field=CharField()),
+            displayStatus2=Value('참조문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnDoneWrite = Document.objects.filter(
             documentId__in=documentsDoneWrite
@@ -862,10 +870,11 @@ def showdocument_asjson(request):
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('기안문서', output_field=CharField())
+            displayStatus1=Value('완료', output_field=CharField()),
+            displayStatus2=Value('기안문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnDoneApproval = Document.objects.filter(
             documentId__in=documentsDoneApproval
@@ -873,10 +882,11 @@ def showdocument_asjson(request):
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('결재문서', output_field=CharField())
+            displayStatus1=Value('완료', output_field=CharField()),
+            displayStatus2=Value('결재문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnDoneCheck = Document.objects.filter(
             documentId__in=documentsDoneCheck
@@ -884,10 +894,11 @@ def showdocument_asjson(request):
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('참조문서', output_field=CharField())
+            displayStatus1=Value('완료', output_field=CharField()),
+            displayStatus2=Value('참조문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnDoneReject = Document.objects.filter(
             documentId__in=documentsDoneReject
@@ -895,10 +906,11 @@ def showdocument_asjson(request):
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('반려문서', output_field=CharField())
+            displayStatus1=Value('완료', output_field=CharField()),
+            displayStatus2=Value('반려문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnDoneView = Document.objects.filter(
             documentId__in=documentsDoneView
@@ -906,10 +918,11 @@ def showdocument_asjson(request):
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('조회가능', output_field=CharField())
+            displayStatus1=Value('완료', output_field=CharField()),
+            displayStatus2=Value('조회가능', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnTemp = Document.objects.filter(
             documentId__in=documentsTemp
@@ -917,10 +930,11 @@ def showdocument_asjson(request):
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
-            displayStatus=Value('임시', output_field=CharField())
+            displayStatus1=Value('임시', output_field=CharField()),
+            displayStatus2=Value('임시', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
-            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus'
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
 
         returnDocuments = returnIngDone.union(

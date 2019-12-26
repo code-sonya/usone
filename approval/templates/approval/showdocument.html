@@ -32,13 +32,14 @@
             <th>제목</th>
             <th>기안자</th>
             <th>
-              {% if documentStatus == '임시' %}
-                기안일
-              {% else %}
+              {% if category == '임시' %}
                 수정일
+              {% else %}
+                기안일
               {% endif %}
             </th>
             <th>문서종류</th>
+            <th>상태</th>
             <th>구분</th>
             <th class="d-none">documentId</th>
           </tr>
@@ -62,7 +63,6 @@
                 "processing": true,
                 "type": 'GET',
                 "data": {
-                    'documentStatus': "{{ documentStatus }}",
                     'category': "{{ category }}",
                 },
                 "url": "{% url 'approval:showdocumentasjson' %}",
@@ -77,7 +77,7 @@
                 },
                 {
                     targets: 1,
-                    width: "50%",
+                    width: "45%",
                     className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                     data: "title",
                 },
@@ -103,10 +103,16 @@
                     targets: 5,
                     width: "5%",
                     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    data: "displayStatus",
+                    data: "displayStatus1",
                 },
                 {
                     targets: 6,
+                    width: "5%",
+                    className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    data: "displayStatus2",
+                },
+                {
+                    targets: 7,
                     className: "d-none",
                     data: "documentId",
                 },
@@ -137,11 +143,11 @@
                     $('td', nRow).eq(3).text(aData.modifyDatetime.split('-').join('.').split('T').slice(0, 1));
                 }
                 $('td', nRow).eq(4).text(aData.formNumber + '. ' + aData.formTitle);
-                if (aData.displayStatus === '결재대기') {
+                if (aData.displayStatus2 === '결재대기') {
                     $('td', nRow).eq(5).css('color', 'red');
                     $('td', nRow).css('background-color', '#ffe6e6');
                 }
-                if (aData.displayStatus === '결재예정') {
+                if (aData.displayStatus2 === '결재예정') {
                     $('td', nRow).eq(5).css('color', 'blue');
                 }
             }
