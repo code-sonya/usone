@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^showdocument/temp/$', views.show_document_temp, name='showdocumenttemp'),
 
     url(r'^viewdocument/(?P<documentId>.+)/$', views.view_document, name='viewdocument'),
+    url(r'^postdocumentcomment/$', views.post_document_comment, name='postdocumentcomment'),
     url(r'^approvedocument/(?P<approvalId>.+)/$', views.approve_document, name='approvedocument'),
     url(r'^returndocument/(?P<approvalId>.+)/$', views.return_document, name='returndocument'),
     url(r'^postcontractdocument/(?P<contractId>.+)/(?P<documentType>.+)/$', views.post_contract_document, name='postcontractdocument'),
