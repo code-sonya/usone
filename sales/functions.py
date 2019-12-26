@@ -1274,8 +1274,8 @@ def billing_schedule(company, date, times, price, profit):
 
 def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpurchaseestimate):
     # smtp 정보
-    email = AdminEmail.objects.aggregate(Max('adminId'))
-    email = AdminEmail.objects.get(adminId=email['adminId__max'])
+    email = AdminEmail.objects.filter(Q(smtpStatus='정상')).aggregate(Max('adminId'))
+    email = AdminEmail.objects.get(Q(adminId=email['adminId__max']))
     # 매입발주서 메일 전송
     try:
         title = "[{}] 매입발주서".format(orders.contractId.contractName)
@@ -1326,13 +1326,17 @@ def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpur
             part.add_header("Content-Disposition", "attachment", filename=os.path.basename(path))
             msg.attach(part)
 
-        if email.smtpSecure == 'TSL':
+        if email.smtpSecure == 'TLS':
             smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
+            smtp.login(email.smtpEmail, email.smtpPassword)
+            smtp.sendmail(fromEmail, toEmail, msg.as_string())
+            smtp.close()
         elif email.smtpServer == 'SSL':
             smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
-        smtp.login(email.smtpEmail, email.smtpPassword)
-        smtp.sendmail(fromEmail, toEmail, msg.as_string())
-        smtp.close()
+            smtp.login(email.smtpEmail, email.smtpPassword)
+            smtp.sendmail(fromEmail, toEmail, msg.as_string())
+            smtp.close()
+
         return 'Y'
     except Exception as e:
         print(e)
