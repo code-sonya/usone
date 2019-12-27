@@ -9,7 +9,21 @@
 {% block css %}
 
   <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
 
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 16px;
+      border: 1px solid darkgray;
+    }
   </style>
 
 {% endblock %}
@@ -62,12 +76,36 @@
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
-
+        <div class="h5 text-center mt-4 text-dark"> [ 부서 조직도 ]</div>
         <div class="modal-body">
-            <div class="row mb-1">
+            <div class="row">
               <div class="col-12">
-                <div class="text-secondary text-center h5">조직도</div>
-
+                <table class="pc-table">
+                  {% for deptLevel in deptLevelList %}
+                    <tr>
+                    {% for level in deptLevel.level %}
+                      <td class="d-lg-block d-none bg-warning">
+                        <b>Level <br> {{ level }} </b>
+                      </td>
+                    {% endfor %}
+                    {% for data in deptLevel.data %}
+                      {% if data.level == 0 %}
+                        <td class="bg-primary text-white" colspan="{{ data.colspan }}">
+                          <span><b>[{{ data.deptName }}]</b></span>
+                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
+                        </td>
+                      {% else %}
+                        <td colspan="{{ data.colspan }}">
+                          {% if data.deptName != '-' %}
+                          <span class="text-primary"><b>[{{ data.deptName }}]</b></span>
+                          {% endif %}
+                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
+                        </td>
+                      {% endif %}
+                    {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </table>
               </div>
             </div>
         </div>

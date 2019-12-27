@@ -17,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from extrapay.models import Car
 from .forms import EmployeeForm, DepartmentForm, UserForm
-from .functions import save_punctuality, check_absence, year_absence, adminemail_test
+from .functions import save_punctuality, check_absence, year_absence, adminemail_test, siteMap
 from .models import AdminEmail
 from .models import Attendance, Employee, Punctuality, Department
 
@@ -141,7 +141,10 @@ def check_profile(request):
 
 @login_required
 def show_departments(request):
-    context = {}
+    deptLevelList = siteMap()
+    context = {
+        "deptLevelList": deptLevelList,
+    }
     return render(request, 'hr/showdepartments.html', context)
 
 

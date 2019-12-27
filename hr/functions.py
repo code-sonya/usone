@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
-from django.db.models import Q, Max
-from .models import Attendance, Employee, Punctuality, AdminEmail
+from django.db.models import Q, Max, Min, Count
+from .models import Attendance, Employee, Punctuality, AdminEmail, Department
 from service.models import Servicereport, Vacation
 from scheduler.models import Eventday
 import datetime
@@ -259,3 +259,57 @@ def adminemail_test(smtpEmail, smtpPassword, smtpServer, smtpPort, smtpSecure):
         return 'Y'
     except Exception as e:
         return e
+
+
+def siteMap():
+    departments = Department.objects.all().order_by('deptName')
+    deptLevel_min = departments.aggregate(Min('deptLevel'))['deptLevel__min']
+    deptLevel_max = departments.aggregate(Max('deptLevel'))['deptLevel__max']
+    deptLevelList = []
+    for level in range(deptLevel_min, deptLevel_max+1):
+        print("level: ", level)
+        if deptLevel_min == level:
+            deptList = {'level': str(level), 'data': []}
+            for dept in departments.filter(Q(deptLevel=level)):
+                colspan = siteMapCol(departments, departments, level, deptLevel_max, [dept.deptId])
+                deptdict = dict()
+                deptdict['colspan'] = colspan
+                deptdict['level'] = level
+                deptdict['deptName'] = dept.deptName
+                if dept.deptManager:
+                    deptdict['deptManager'] = dept.deptManager.empName
+                    deptdict['deptManagerPosition'] = dept.deptManager.empPosition.positionName
+                deptList['data'].append(deptdict)
+            deptLevelList.append(deptList)
+
+        else:
+            deptList = {'level': str(level), 'data': []}
+            parentDeptList = list(departments.filter(Q(deptLevel=level-1)).values_list('deptId', flat=True))
+            for parentDept in parentDeptList:
+                department = departments.filter(Q(deptLevel=level) & Q(parentDept=parentDept))
+                for dept in department:
+                    colspan = siteMapCol(departments, department, level, level+1, [dept.deptId])
+                    deptdict = dict()
+                    deptdict['colspan'] = colspan
+                    deptdict['level'] = level
+                    deptdict['deptName'] = dept.deptName
+                    if dept.deptManager:
+                        deptdict['deptManager'] = dept.deptManager.empName
+                        deptdict['deptManagerPosition'] = dept.deptManager.empPosition.positionName
+                    deptList['data'].append(deptdict)
+            deptLevelList.append(deptList)
+    return deptLevelList
+
+
+def siteMapCol(departments, department, deptLevel, deptLevel_max, deptId):
+    if deptLevel_max == deptLevel:
+        print('department:', department)
+        colspan = department.aggregate(Count('deptId'))['deptId__count']
+        if colspan == 0:
+            return 1
+        return colspan
+    else:
+        department = departments.filter(Q(parentDept__in=deptId))
+        deptId = list(department.values_list('deptId', flat=True))
+        return siteMapCol(departments, department, deptLevel + 1, deptLevel_max, deptId)
+
