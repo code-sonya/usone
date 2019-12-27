@@ -498,3 +498,10 @@ def upload_emp_stamp(request, empId):
         emp.empStamp = f
         emp.save()
     return redirect('hr:profile')
+
+
+def redo_default_stamp(request, empId):
+    emp = Employee.objects.get(empId=empId)
+    emp.empStamp = 'stamp/accepted.png'
+    emp.save()
+    return redirect('hr:profile')

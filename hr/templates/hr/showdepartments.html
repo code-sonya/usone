@@ -23,8 +23,12 @@
         <h6 class="m-0 h3 text-gray-800">부서관리</h6>
         <div class="dropdown no-arrow">
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+            <a class="dropdown-toggle mr-2" href="#" role="button" id="siteMapLink" data-toggle="modal" data-target="#siteMapModal">
+              <i class="fas fa-sitemap fa-fw text-success"></i>
+            </a>
+
             <a class="dropdown-toggle" href="/hr/postdepartment/" role="button">
-              <i class="fas fa-plus fa-fw text-gray-400"></i>
+              <i class="fas fa-plus fa-fw text-primary"></i>
             </a>
           {% endif %}
         </div>
@@ -42,6 +46,30 @@
             </tr>
             </thead>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- siteMap Modal -->
+  <div class="modal fade" id="siteMapModal" tabindex="-1" role="dialog" aria-labelledby="siteMapModalLabel" aria-hidden="true">
+    <div class="modal-xl modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="billingPurchaseModalLabel">조직도</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="row mb-1">
+              <div class="col-12">
+                <div class="text-secondary text-center h5">조직도</div>
+
+              </div>
+            </div>
         </div>
       </div>
     </div>

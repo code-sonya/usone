@@ -26,4 +26,5 @@ urlpatterns = [
     url(r'^emailregistration/$', views.email_registration, name='emailregistration'),
     url(r'^adminemailasjson/$', views.adminemail_asjson, name='adminemail_ajax_url'),
     url(r'^uploadempstamp/(?P<empId>.+)/$', views.upload_emp_stamp, name='uploadempstamp'),
+    url(r'^redodefaultstamp/(?P<empId>.+)/$', views.redo_default_stamp, name='redodefaultstamp'),
 ]
