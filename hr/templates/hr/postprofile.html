@@ -84,14 +84,16 @@
                 <td>{{ empForm.empEmail }}</td>
               </tr>
               <tr>
-                <td class="text-center align-middle bg-light"><b>차&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;량</b></td>
-                <td>{{ empForm.carId }} ※ 유류비 청구 기준 차량</td>
+                <td class="text-center align-middle bg-light"><b>보상휴가신청</b></td>
+                <td>{{ empForm.empRewardAvailable }} ※ <span class="text-danger">초과근무</span> 발생시 보상휴가신청 가능여부</td>
                 <td class="text-center align-middle bg-light"><b>시&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;급</b></td>
-                <td>{{ empForm.empSalary }} ※ 시간외수당 청구 기준 금액</td>
+                <td>{{ empForm.empSalary }} ※ <span class="text-danger">시간외수당</span> 청구 기준 금액</td>
               </tr>
               <tr>
+                <td class="text-center align-middle bg-light"><b>차&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;량</b></td>
+                <td>{{ empForm.carId }} ※ <span class="text-danger">유류비</span> 청구 기준 차량</td>
                 <td class="text-center align-middle bg-light"><b>내근문구</b></td>
-                <td colspan="3">{{ empForm.message }} ※ 일일업무 메뉴에서 내근 시 표기되는 내용입니다.</td>
+                <td>{{ empForm.message }} ※ 일일업무 메뉴에서 내근 시 표기되는 내용입니다.</td>
               </tr>
             </form>
             </tbody>
