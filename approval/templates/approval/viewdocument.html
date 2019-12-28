@@ -119,7 +119,7 @@
                   <div><img src="/media/{{ a.approvalEmp__empStamp }}" width="100%"></div>
                   <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '반려' %}
-                  <div><img src="/media/icon/rejected.png" width="45%"></div>
+                  <div><img src="/media/stamp/rejected.png" width="100%"></div>
                   <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                 {% elif a.approvalStatus == '대기' %}
                   {% if user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}

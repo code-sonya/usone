@@ -1,0 +1,236 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  휴가관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 16px;
+      border: 1px solid darkgray;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div>
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800">휴가관리</h6>
+        <div class="dropdown no-arrow">
+          {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+            <a class="dropdown-toggle" href="#" role="button" id="vacationLink" data-toggle="modal" data-target="#vacationModal">
+              <i class="fas fa-plus fa-fw text-primary"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="showdepartments" class="hover row-border" style="width: 100%;">
+            <thead>
+            <tr>
+              <th class="d-none">vacationId</th>
+              <th>부서명</th>
+              <th>성함</th>
+              <th>휴가종류</th>
+              <th>휴가일수</th>
+              <th>휴가생성일시</th>
+              <th>휴가만료일자</th>
+              <th>비고</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- vacation Modal -->
+  <div class="modal fade" id="vacationModal" tabindex="-1" role="dialog" aria-labelledby="vacationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-primary text-gray-100">
+          <h5 class="modal-title" id="billingPurchaseModalLabel">휴가등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="vacationForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_save();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="empId" class="font-weight-bold text-primary">성함</label>
+                <select type="text" class="form-control" autocomplete="off" id="empId" name="empId">
+                  <option value="">------</option>
+                  {% for employee in employees %}
+                  <option value="{{ employee.empId }}">{{ employee.empName }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="vacationType" class="font-weight-bold text-primary">휴가 종류</label>
+                <select type="text" class="form-control" autocomplete="off" id="vacationType" name="vacationType">
+                  <option value="연차">연차</option>
+                  <option value="특별휴가">특별휴가</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="vacationDays" class="font-weight-bold text-primary">휴가 일수</label>
+                <input type="number" step="0.5" max="100" class="form-control" id="vacationDays" name="vacationDays" value=0 >
+              </div>
+              <div class="col-6">
+                <label for="comment" class="font-weight-bold">비고</label>
+                <input type="text" class="form-control"  id="comment" name="comment" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-primary" href="#" onclick="btn_save()">생성</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      function btn_save() {
+          if (document.getElementById("empId").value == '') {
+              alert("성함을 선택해주세요.");
+              return false;
+          }
+          if (document.getElementById("vacationDays").value == '') {
+              alert("휴가일수를 입력해주세요.");
+              return false;
+          }
+          document.getElementById("vacationForm").submit();
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0,16);
+      }
+
+      $(document).ready(function () {
+          $('#showdepartments').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'GET',
+                  "data": {
+                  },
+                  "url": "{% url 'hr:showvacationsasjson' %}",
+                  "dataSrc": ""
+              },
+              "columnDefs": [
+                  {
+                      targets: 0,
+                      width: "5%",
+                      className: "d-none",
+                      data: "vacationId",
+                  },
+                  {
+                      targets: 1,
+                      width: "15%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "empId__empDeptName",
+                  },
+                  {
+                      targets: 2,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "empId__empName"
+                  },
+                  {
+                      targets: 3,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "vacationType",
+                  },
+                  {
+                      targets: 4,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "vacationDays",
+                  },
+                  {
+                      targets: 5,
+                      width: "15%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "creationDateTime",
+                  },
+                  {
+                      targets: 6,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "expirationDate",
+                  },
+                  {
+                      targets: 7,
+                      width: "15%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "comment",
+                  },
+              ],
+              "deferRender": true,
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": false,
+              "scrollCollapse": true,
+              "order": [[5, 'desc']],
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.creationDateTime != "") {
+                      $('td:eq(5)', nRow).text(replaceAll(aData.creationDateTime,"-","."));
+                  }
+              },
+              "footerCallback": function () {
+              },
+          });
+
+      });
+
+  </script>
+
+{% endblock %}

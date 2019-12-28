@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Position, Employee, Attendance, Punctuality, Department, AdminEmail
+from .models import Position, Employee, Attendance, Punctuality, Department, AdminEmail, AdminVacation
 
 
 @admin.register(Position)
@@ -50,3 +50,9 @@ class AdminEmailAdmin(admin.ModelAdmin):
     list_display = ('adminId', 'smtpServer', 'smtpPort', 'smtpEmail', 'smtpDatetime', 'smtpStatus', 'smtpSecure')
     list_filter = ('smtpSecure', 'smtpStatus')
     list_display_links = ['adminId', 'smtpServer', 'smtpPort', 'smtpEmail', 'smtpDatetime', 'smtpStatus', 'smtpSecure']
+
+@admin.register(AdminVacation)
+class AdminVacationAdmin(admin.ModelAdmin):
+    list_display = ('vacationId', 'empId', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDate', 'comment')
+    list_filter = ('empId', 'vacationType')
+    list_display_links = ['vacationId', 'empId', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDate', 'comment']

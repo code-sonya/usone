@@ -6,75 +6,218 @@
 {% endblock %}
 
 
+{% block css %}
+  <style>
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 3px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 16px;
+      border: 1px solid lightgrey;
+    }
+
+    .file-table {
+      color: #333333;
+      width: 100%;
+      margin-bottom: 2rem;
+    }
+
+    .file-table td, .file-table th {
+      padding: .75rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #e3e6f0;
+      font-size: 14px;
+      text-align: center;
+      white-space: nowrap;
+    }
+  </style>
+{% endblock %}
+
+
 {% block content %}
-
-  <div class="row">
-    <div class="col-xl-2"></div>
-
-    <div class="col-xl-8">
-
-      <div class="card shadow mb-4">
-
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-          <h6 class="m-0 h3 text-gray-800"> 휴가등록 </h6>
-
-        </div>
-
-        <div class="card-body">
-
-          <div class="form-group row">
-            <div class="col-6 mb-3 mb-sm-0">
-              <label for="startdate" class="font-weight-bold text-primary"> 시작 일자 </label>
-              <input type="date" max="9999-12-31" name="startdate" class="form-control" id="startdate" onchange="showVal(this.value)" maxlength="16" required="">
-            </div>
-            <div class="col-6">
-              <label for="enddate" class="font-weight-bold text-primary"> 종료 일자 </label>
-              <input type="date" max="9999-12-31" name="enddate" class="form-control" id="enddate" onchange="showTable()" maxlength="16" required="">
-            </div>
-          </div>
-
-          <form id="VacationForm" method="POST">
-
-            {% csrf_token %}
-            <div class="row">
-              <div class="col-lg-3"></div>
-              <div class="col-lg-6">
-                <table id="vacation" class="hover row-border" width="100%" style="width: 100%;">
-                  <thead>
-                  <tr>
-                    <th>휴가일</th>
-                    <th>일차</th>
-                    <th>오전</th>
-                    <th>오후</th>
-                    <th>삭제</th>
-                  </tr>
-                  </thead>
-                </table>
-              </div>
-              <div class="col-lg-3"></div>
-            </div>
-
-            <div class="text-center">
-              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
-                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
-                <span class="text"> 취소 </span>
-              </a>
-              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
-                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-                <span class="text"> 저장 </span>
-              </a>
-            </div>
-
-          </form>
-
-        </div>
-
-      </div>
-
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h6 class="m-0 h3 text-gray-800"> 휴가등록 </h6>
     </div>
 
-    <div class="col-xl-2"></div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="font-weight-bold text-primary">결재선</label>
+        <table class="pc-table">
+          <tr>
+            <td class="bg-light">연차</td>
+            <td class="bg-light">특별휴가</td>
+            <td class="bg-light">보상휴가</td>
+          </tr>
+          <tr>
+            <td>{{ request.user.employee.empAnnualLeave }} 일</td>
+            <td>{{ request.user.employee.empSpecialLeave }} 일</td>
+            <td>{{ rewardVacationDay }} 일</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="mb-3">
+        <label class="font-weight-bold text-primary">결재선</label>
+        <div class="d-none" id="approvalFormat"></div>
+        <div class="col-12 pl-0 pr-0" id="format1">
+          <table class="pc-table">
+            <tr>
+              <td width="20%" class="bg-light">신청</td>
+              <td width="80%"><input id="apply" class="empName magicsearch form-control"></td>
+            </tr>
+            <tr>
+              <td width="20%" class="bg-light">승인</td>
+              <td width="80%"><input id="process" class="empName magicsearch form-control"></td>
+            </tr>
+            <tr>
+              <td width="20%" class="bg-light">참조</td>
+              <td width="80%"><input id="reference" class="empName magicsearch form-control"></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="form-group row">
+        <div class="col-4 mb-3">
+          <label for="startdate" class="font-weight-bold text-primary"> 시작 일자 </label>
+          <input type="date" max="9999-12-31" name="startdate" class="form-control" id="startdate" onchange="showVal(this.value)" maxlength="16">
+        </div>
+        <div class="col-4 mb-3">
+          <label for="enddate" class="font-weight-bold text-primary"> 종료 일자 </label>
+          <input type="date" max="9999-12-31" name="enddate" class="form-control" id="enddate" onchange="showTable()" maxlength="16">
+        </div>
+        <div class="col-4 mb-3">
+          <label for="enddate" class="font-weight-bold text-primary"> 휴가 종류 </label>
+          <select id="vacationCategory" class="form-control" >
+            <option value="">------</option>
+            {% for category in vacationCategory %}
+              <option value="{{ category.categoryId }}">{{ category.categoryName }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <label for="comment" class="font-weight-bold text-primary">사유</label>
+      <input name="comment" class="form-control mb-3" id="comment">
+
+      <form id="VacationForm" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-lg-3"></div>
+          <div class="col-lg-6 mb-3">
+            <table id="vacation" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>휴가일</th>
+                <th>일차</th>
+                <th>오전</th>
+                <th>오후</th>
+                <th>삭제</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+          <div class="col-lg-3"></div>
+        </div>
+      </form>
+
+      <div class="row">
+        <div class="col-6">
+          <label class="font-weight-bold text-primary mt-3">첨부파일</label>
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="65%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
+              <td width="15%">
+                <label class="m-0 btn btn-info btn-icon-split">
+                  <span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>
+                  <input id="files" name="files" type="file" multiple="multiple" class="d-none" onchange=file_names(this.id)>
+                </label>
+              </td>
+            </tr>
+            </thead>
+            <tbody id="filesTbody">
+            </tbody>
+          </table>
+        </div>
+        <div class="col-6">
+          <label class="font-weight-bold text-primary mt-3">관련문서</label>
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td class="d-none">documentId</td>
+              <td width="25%"><b>문서번호</b></td>
+              <td width="40%"><b>문서명</b></td>
+              <td width="20%"><b>기안자</b></td>
+              <td width="15%">
+                <label class="m-0 btn btn-info btn-icon-split" id="filterLink" data-toggle="modal" data-target="#documentModal" onclick="load_table()">
+                  <span class="icon text-white-100"> <i class="fas fa-file-upload"> </i> </span>
+                </label>
+              </td>
+            </tr>
+            </thead>
+            <tbody id="documentsTbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+          <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+          <span class="text"> 취소 </span>
+        </a>
+        <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+          <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+          <span class="text"> 결재 </span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Document Modal -->
+  <div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="documentModalLabel">관련문서 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="documentForm">
+            {% csrf_token %}
+            <table id="documents" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th><input class="ckbxall" type="checkbox"></th>
+                <th>문서번호</th>
+                <th>문서명</th>
+                <th>기안자</th>
+                <th class="d-none">documentId</th>
+              </tr>
+              </thead>
+            </table>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="document_names()">등록</a>
+        </div>
+      </div>
+    </div>
   </div>
 
 {% endblock %}
@@ -168,10 +311,243 @@
       }
 
       function btn_save() {
+          const form = $('#VacationForm');
+          const vacationCategory = $('#vacationCategory').val();
+          const comment = $('#comment').val();
+
+          if (!vacationCategory) {
+              alert('휴가 종류를 선택해주세요.');
+              return false;
+          }
+          if (!comment) {
+              alert('휴가 사유를 입력해주세요.');
+              return false;
+          }
+
+          $('<input />', {
+              type: 'hidden',
+              name: 'vacationCategory',
+              value: vacationCategory
+          }).appendTo(form);
+          $('<input />', {
+              type: 'hidden',
+              name: 'comment',
+              value: comment
+          }).appendTo(form);
+          $('<input />', {
+              type: 'hidden',
+              name: 'apply',
+              value: $('#apply').attr('data-id')
+          }).appendTo(form);
+          $('<input />', {
+              type: 'hidden',
+              name: 'process',
+              value: $('#process').attr('data-id')
+          }).appendTo(form);
+          $('<input />', {
+              type: 'hidden',
+              name: 'reference',
+              value: $('#reference').attr('data-id')
+          }).appendTo(form);
+          // 첨부파일
+          form.append($("#files"));
+          let filesName = $('td[name="filesName"]');
+          let filesSize = $('td[name="filesSize"]');
+          let listFile = [];
+          let data;
+          for (let i = 0; i < filesName.length; i++) {
+              data = {};
+              data.fileName = filesName[i].innerText;
+              data.fileSize = filesSize[i].innerText;
+              listFile.push(data);
+          }
+          $('<input />', {
+              type: 'hidden',
+              name: 'jsonFile',
+              value: JSON.stringify(listFile)
+          }).appendTo(form);
+
+          // 관련문서
+          let documentIds = $('td[name="documentId"]');
+          let listId = [];
+          for (let i = 0; i < documentIds.length; i++) {
+              listId.push(documentIds.eq(i).text());
+          }
+          $('<input />', {
+              type: 'hidden',
+              name: 'relatedDocumentId',
+              value: JSON.stringify(listId)
+          }).appendTo(form);
           if (confirm("휴가등록을 하시겠습니까?") === true) {
               document.getElementById("VacationForm").submit();
           }
       }
+
+      function load_document(data) {
+          const apply = $('#apply');
+          const process = $("#process");
+          const reference = $('#reference');
+          const approvalFormat= $('#approvalFormat');
+
+          const val = data[0];
+          const approvalList = data[1];
+
+          approvalFormat.val(val.approvalFormat);
+
+          apply.trigger('destroy');
+          process.trigger('destroy');
+          reference.trigger('destroy');
+
+          if(approvalList.apply != null){
+              apply.attr("data-id", approvalList.apply);
+          }
+          if(approvalList.process != null){
+              process.attr("data-id", approvalList.process);
+          }
+          if(approvalList.reference != null){
+              reference.attr("data-id", approvalList.reference);
+          }
+
+          $('.empName').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'name',
+              id: 'id',
+              multiple: true,
+              multiField: 'name',
+              format: '%name% %position% (%dept%)',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: false,
+          });
+      }
+
+      function file_names(id) {
+          let files = $('#' + id).get(0).files;
+          let filesTbody = $('#filesTbody');
+          let file;
+          let tr;
+          filesTbody.empty();
+
+          for (let i = 0; i < files.length; i++) {
+              file = files[i];
+              tr = '<tr>';
+              tr += '<td class="text-left" name="filesName">' + file.name + '</td>';
+              tr += '<td name="filesSize">' + (file.size / 1048576).toFixed(2) + 'MB</td>';
+              tr += '<td><i class="fas fa-times-circle" name="remove" onclick="remove_row(this)"></i></td>';
+              tr += '</tr>';
+              filesTbody.append(tr);
+          }
+      }
+
+      function load_table() {
+          setTimeout(function () {
+              if (!$.fn.DataTable.isDataTable('#documents')) {
+                  $('#documents').DataTable({
+                      "processing": true,
+                      "ajax": {
+                          "processing": true,
+                          "type": 'GET',
+                          "data": {
+                              'category': '완료',
+                              'option': '반려제외',
+                          },
+                          "url": "{% url 'approval:showdocumentasjson' %}",
+                          "dataSrc": ""
+                      },
+                      "columnDefs": [
+                          {
+                              targets: 0,
+                              width: "5%",
+                              className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                              orderable: false,
+                              data: null,
+                              defaultContent: '<input class="ckbx" name="ckbx" type=checkbox>',
+                          },
+                          {
+                              targets: 1,
+                              width: "20%",
+                              className: "document-number dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                              data: "documentNumber",
+                          },
+                          {
+                              targets: 2,
+                              width: "55%",
+                              className: "document-title dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                              data: "title"
+                          },
+                          {
+                              targets: 3,
+                              width: "20%",
+                              className: "document-empname dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                              data: "empName",
+                          },
+                          {
+                              targets: 4,
+                              orderable: false,
+                              className: "document-id d-none",
+                              data: "documentId",
+                          },
+                      ],
+                      "deferRender": true,
+                      "searching": false,
+                      "paging": false,
+                      "info": false,
+                      "scrollY": "50vh",
+                      "scrollX": true,
+                      "scrollCollapse": true,
+                      "order": [[1, 'desc']],
+                      "language": {
+                          "lengthMenu": "_MENU_개씩 보기",
+                          "search": "검색:",
+                          "zeroRecords": "결과 없음",
+                          "processing": "로딩중",
+                          "paginate": {
+                              "first": "처음",
+                              "last": "끝",
+                              "next": "→",
+                              "previous": "←"
+                          },
+                      },
+                      "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                      }
+                  });
+              }
+          }, 100);
+      }
+
+      function document_names() {
+          let length = $('.document-id').length;
+          let dataList = [];
+          let data;
+          for (let i = 2; i <= length - 1; i++) {
+              if ($('.ckbx').eq(i - 2).is(":checked")) {
+                  data = {};
+                  data.documentId = $('.document-id').eq(i).text();
+                  data.documentNumber = $('.document-number').eq(i).text();
+                  data.title = $('.document-title').eq(i).text();
+                  data.empName = $('.document-empname').eq(i).text();
+                  dataList.push(data);
+              }
+          }
+
+          let documentsTbody = $('#documentsTbody');
+          let tr;
+          documentsTbody.empty();
+          for (let i = 0; i < dataList.length; i++) {
+              data = dataList[i];
+              tr = '<tr>';
+              tr += '<td class="d-none" name="documentId">' + data.documentId + '</td>';
+              tr += '<td>' + data.documentNumber + '</td>';
+              tr += '<td class="text-left">' + data.title + '</td>';
+              tr += '<td>' + data.empName + '</td>';
+              tr += '<td><i class="fas fa-times-circle" name="remove" onclick="remove_row(this)"></i></td>';
+              tr += '</tr>';
+              documentsTbody.append(tr);
+          }
+
+          $('#documentModal').modal('hide');
+      }
+
 
       $(document).ready(function () {
           const dateToday = new Date();
@@ -183,6 +559,27 @@
           $('#enddate').val(strToday);
 
           showTable();
+
+          $.ajax({
+              url: "{% url 'approval:documentformasjson' %}",
+              method: 'GET',
+              cache: false,
+              data: {
+                  "type": "form",
+                  "firstCategory": '공통',
+                  "secondCategory": '자동생성',
+                  "formTitle": '휴가신청서',
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  load_document(returnData);
+              }
+          });
+
+          $('.ckbxall').click(function () {
+              $('.ckbx').prop('checked', this.checked);
+          });
+
       });
 
   </script>

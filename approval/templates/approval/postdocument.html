@@ -45,6 +45,11 @@
 <div class="card shadow mb-4">
   <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
     <h6 class="m-0 h3 text-gray-800"> 문서 작성 </h6>
+    <div class="dropdown no-arrow">
+      <a class="dropdown-toggle mr-2" href="#" role="button" id="siteMapLink" data-toggle="modal" data-target="#siteMapModal">
+          <i class="fas fa-sitemap fa-fw text-success"></i>
+      </a>
+    </div>
   </div>
 
   <div class="card-body">
@@ -188,7 +193,7 @@
 
 <!-- Document Modal -->
 <div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
 
       <div class="modal-header bg-info text-gray-100">
@@ -222,6 +227,54 @@
     </div>
   </div>
 </div>
+
+<!-- siteMap Modal -->
+  <div class="modal fade" id="siteMapModal" tabindex="-1" role="dialog" aria-labelledby="siteMapModalLabel" aria-hidden="true">
+    <div class="modal-xl modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="billingPurchaseModalLabel">조직도</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="h5 text-center mt-4 text-dark"> [ 부서 조직도 ]</div>
+        <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col-12">
+                <table class="pc-table">
+                  {% for deptLevel in deptLevelList %}
+                    <tr style="border: 1px solid white">
+                    {% for level in deptLevel.level %}
+                      <td class="d-lg-block d-none" style="border: 1px solid white">
+                        <b>Level <br> {{ level }} </b>
+                      </td>
+                    {% endfor %}
+                    {% for data in deptLevel.data %}
+                      {% if data.level == 0 %}
+                        <td class="bg-primary text-white" colspan="{{ data.colspan }}">
+                          <span><b>[{{ data.deptName }}]</b></span>
+                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
+                        </td>
+                      {% else %}
+                        <td colspan="{{ data.colspan }}">
+                          {% if data.deptName != '-' %}
+                          <span class="text-primary"><b>[{{ data.deptName }}]</b></span>
+                          {% endif %}
+                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
+                        </td>
+                      {% endif %}
+                    {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </table>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
 
@@ -564,7 +617,6 @@
             $('.note-input').on("propertychange change keyup paste input", function() {
                 let currentVal = $(this).val();
                 $(this).attr('value', currentVal);
-                console.log(currentVal);
             });
 
             approvalFormat.val(val.approvalFormat);
@@ -686,8 +738,8 @@
                         "processing": true,
                         "type": 'GET',
                         "data": {
-                            'documentStatus': '완료',
-                            'category': '전체',
+                            'category': '완료',
+                            'option': '반려제외',
                         },
                         "url": "{% url 'approval:showdocumentasjson' %}",
                         "dataSrc": ""
@@ -699,7 +751,7 @@
                             className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                             orderable: false,
                             data: null,
-                            defaultContent: '<input class="ckbx" name="ckbx" type=checkbox></input>',
+                            defaultContent: '<input class="ckbx" name="ckbx" type=checkbox>',
                         },
                         {
                             targets: 1,

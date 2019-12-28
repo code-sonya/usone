@@ -9,7 +9,21 @@
 {% block css %}
 
   <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
 
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 16px;
+      border: 1px solid darkgray;
+    }
   </style>
 
 {% endblock %}
@@ -23,8 +37,12 @@
         <h6 class="m-0 h3 text-gray-800">부서관리</h6>
         <div class="dropdown no-arrow">
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+            <a class="dropdown-toggle mr-2" href="#" role="button" id="siteMapLink" data-toggle="modal" data-target="#siteMapModal">
+              <i class="fas fa-sitemap fa-fw text-success"></i>
+            </a>
+
             <a class="dropdown-toggle" href="/hr/postdepartment/" role="button">
-              <i class="fas fa-plus fa-fw text-gray-400"></i>
+              <i class="fas fa-plus fa-fw text-primary"></i>
             </a>
           {% endif %}
         </div>
@@ -42,6 +60,54 @@
             </tr>
             </thead>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- siteMap Modal -->
+  <div class="modal fade" id="siteMapModal" tabindex="-1" role="dialog" aria-labelledby="siteMapModalLabel" aria-hidden="true">
+    <div class="modal-xl modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="billingPurchaseModalLabel">조직도</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="h5 text-center mt-4 text-dark"> [ 부서 조직도 ]</div>
+        <div class="modal-body">
+            <div class="row">
+              <div class="col-12">
+                <table class="pc-table">
+                  {% for deptLevel in deptLevelList %}
+                    <tr style="border: 1px solid white">
+                    {% for level in deptLevel.level %}
+                      <td class="d-lg-block d-none" style="border: 1px solid white">
+                        <b>Level <br> {{ level }} </b>
+                      </td>
+                    {% endfor %}
+                    {% for data in deptLevel.data %}
+                      {% if data.level == 0 %}
+                        <td class="bg-primary text-white" colspan="{{ data.colspan }}">
+                          <span><b>[{{ data.deptName }}]</b></span>
+                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
+                        </td>
+                      {% else %}
+                        <td colspan="{{ data.colspan }}">
+                          {% if data.deptName != '-' %}
+                          <span class="text-primary"><b>[{{ data.deptName }}]</b></span>
+                          {% endif %}
+                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
+                        </td>
+                      {% endif %}
+                    {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </table>
+              </div>
+            </div>
         </div>
       </div>
     </div>

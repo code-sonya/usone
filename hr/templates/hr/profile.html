@@ -27,6 +27,7 @@
 
 {% endblock %}
 
+
 {% block content %}
 
   <div class="row">
@@ -53,8 +54,8 @@
               <table class="pc-table">
                 <thead>
                 <tr>
-                  <td width="30%" class="text-center bg-gray-400"><b>구&nbsp; &nbsp; &nbsp; &nbsp;분</b></td>
-                  <td width="70%" class="text-center bg-gray-400"><b>내&nbsp; &nbsp; &nbsp; &nbsp;용</b></td>
+                  <td width="30%" class="text-center bg-success text-white"><b>구&nbsp; &nbsp; &nbsp; &nbsp;분</b></td>
+                  <td width="70%" class="text-center bg-success text-white"><b>내&nbsp; &nbsp; &nbsp; &nbsp;용</b></td>
                 </tr>
                 </thead>
                 <tbody>
@@ -85,7 +86,15 @@
                   <td class="text-center"><b>{{ user.employee.empPosition }}</b></td>
                 </tr>
                 <tr>
-                  <td class="text-center" style="vertical-align: middle;"><b>서명 파일</b></td>
+                  <td class="text-center" style="vertical-align: middle;">
+                    <b>서명 파일</b>
+                    <div>
+                      <a href="/hr/redodefaultstamp/{{ user.employee.empId }}/" class="btn btn-secondary btn-icon-split btn-sm">
+                        <span class="icon text-white-50"><i class="fas fa-redo"></i></span>
+                        <span class="text">기본서명사용</span>
+                      </a>
+                    </div>
+                  </td>
                   <td class="text-center">
                     <label>
                       <img id="empStamp" src="/media/{{ user.employee.empStamp }}" width="100px">

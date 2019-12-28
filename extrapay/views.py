@@ -274,12 +274,19 @@ def approval_fuel(request, empId):
         y = datetime.today().year
         m = datetime.today().month
     startdate = str(datetime(y, m, 1).date())
-    enddate = str((datetime(y, m+1, 1) - timedelta(days=1)).date())
+    if m == 12:
+        enddate = str((datetime(y + 1, 1, 1) - timedelta(days=1)).date())
+    else:
+        enddate = str((datetime(y, m + 1, 1) - timedelta(days=1)).date())
     empName = Employee.objects.get(empId=empId).empName
     empDeptName = Employee.objects.get(empId=empId).empDeptName
 
     btnStatus = 'N'
-    if datetime(y, m+1, 5) > datetime.today():
+    if m == 12:
+        approvalDate = datetime(y+1, 1, 5)
+    else:
+        approvalDate = datetime(y, m+1, 5)
+    if approvalDate > datetime.today():
         btnStatus = 'Y'
 
     context = {
