@@ -296,6 +296,11 @@ def post_vacation(request):
     empName = emp.empName
     empDeptName = emp.empDeptName
     now = datetime.datetime.now()
+    yyyy = str(now)[:4]
+    mm = str(now)[5:7]
+    # 보상휴가일수
+    rewardVacationDay = 0
+    extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
 
     if request.method == "POST":
         vacationDays = list(request.POST.keys())[1:-8]
@@ -454,24 +459,42 @@ def post_vacation(request):
                 comment=comment,
             )
 
+        if len(whoApproval['do']) == 0:
+            Vacation.objects.filter(documentId=document).update(vacationStatus='Y')
+
+        if vacationCategory.categoryName == '연차':
+            emp.empAnnualLeave -= vacationDay
+            emp.save()
+        elif vacationCategory.categoryName == '특별휴가':
+            emp.empSpecialLeave -= vacationDay
+            emp.save()
+        elif vacationCategory.categoryName == '보상휴가':
+            extraWorkObj = extraWork.first()
+            extraWorkObj.compensatedHour += vacationDay * 8
+            extraWorkObj.save()
+
         return redirect('service:showvacations')
 
     else:
         # 결재자 자동완성
         empList = Employee.objects.filter(Q(empStatus='Y'))
         empNames = []
-        for emp in empList:
+        for e in empList:
             temp = {
-                'id': emp.empId,
-                'name': emp.empName,
-                'position': emp.empPosition.positionName,
-                'dept': emp.empDeptName,
+                'id': e.empId,
+                'name': e.empName,
+                'position': e.empPosition.positionName,
+                'dept': e.empDeptName,
             }
             empNames.append(temp)
+
+        if extraWork:
+            rewardVacationDay += (((extraWork.first().sumOverHour - extraWork.first().compensatedHour) // 4)/2)
 
         context = {
             'empNames': empNames,
             'vacationCategory': Vacationcategory.objects.all(),
+            'rewardVacationDay': rewardVacationDay,
         }
         return render(request, 'service/postvacation.html', context)
 

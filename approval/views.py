@@ -15,6 +15,8 @@ from service.models import Employee
 from sales.models import Contract, Revenue, Purchase, Contractfile, Purchasefile
 from client.models import Company
 from hr.models import AdminEmail
+from service.models import Vacation
+from extrapay.models import ExtraPay
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval, Documentcomment
 from logs.models import ApprovalLog
 from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
@@ -1062,6 +1064,9 @@ def approve_document(request, approvalId):
         document.documentStatus = '완료'
         document.approveDatetime = now
         document.save()
+
+        if document.formId.formTitle == '휴가신청서':
+            Vacation.objects.filter(documentId=document).update(vacationStatus='Y')
     else:
         for empId in whoApproval['do']:
             employee = Employee.objects.get(empId=empId)
@@ -1087,6 +1092,34 @@ def return_document(request, approvalId):
 
     approvals = Approval.objects.filter(Q(documentId=approval.documentId_id) & Q(approvalStatus='대기'))
     approvals.update(approvalStatus='정지')
+
+    if document.formId.formTitle == '휴가신청서':
+        vacations = Vacation.objects.filter(documentId=document)
+        vacations.update(vacationStatus='R')
+        vacationDay = 0
+        for vacation in vacations:
+            if vacation.vacationType == '일차':
+                vacationDay += 1
+            else:
+                vacationDay += 0.5
+
+        emp = document.writeEmp
+        vacationCategory = vacations.first().vacationCategory
+        if vacationCategory.categoryName == '연차':
+            emp.empAnnualLeave += vacationDay
+            emp.save()
+        elif vacationCategory.categoryName == '특별휴가':
+            emp.empSpecialLeave += vacationDay
+            emp.save()
+        elif vacationCategory.categoryName == '보상휴가':
+            now = document.draftDatetime
+            yyyy = str(now)[:4]
+            mm = str(now)[5:7]
+            # 보상휴가일수
+            extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
+            extraWorkObj = extraWork.first()
+            extraWorkObj.compensatedHour -= vacationDay * 8
+            extraWorkObj.save()
 
     return redirect('approval:viewdocument', approval.documentId_id)
 

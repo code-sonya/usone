@@ -49,6 +49,22 @@
     <div class="card-body">
       <div class="mb-3">
         <label class="font-weight-bold text-primary">결재선</label>
+        <table class="pc-table">
+          <tr>
+            <td class="bg-light">연차</td>
+            <td class="bg-light">특별휴가</td>
+            <td class="bg-light">보상휴가</td>
+          </tr>
+          <tr>
+            <td>{{ request.user.employee.empAnnualLeave }} 일</td>
+            <td>{{ request.user.employee.empSpecialLeave }} 일</td>
+            <td>{{ rewardVacationDay }} 일</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="mb-3">
+        <label class="font-weight-bold text-primary">결재선</label>
         <div class="d-none" id="approvalFormat"></div>
         <div class="col-12 pl-0 pr-0" id="format1">
           <table class="pc-table">
