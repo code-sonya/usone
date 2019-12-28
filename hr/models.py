@@ -91,3 +91,15 @@ class AdminEmail(models.Model):
     def __str__(self):
         return str(self.adminId)
 
+
+class AdminVacation(models.Model):
+    vacationId = models.AutoField(primary_key=True)
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    vacationType = models.CharField(max_length=20)
+    vacationDays = models.FloatField()
+    creationDateTime = models.DateTimeField()
+    expirationDateTime = models.DateTimeField(null=True, blank=True)
+    comment = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.vacationId)
