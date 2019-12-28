@@ -222,8 +222,9 @@
                   }
 
               },error:function(request,status,error){
-                  alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-                  alert("오류가 발생했습니다 Usails에 문의하세요")
+                  console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  // alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  // alert("오류가 발생했습니다 Usails에 문의하세요")
             }
           });
 
