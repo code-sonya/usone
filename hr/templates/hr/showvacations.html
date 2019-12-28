@@ -48,11 +48,14 @@
           <table id="showdepartments" class="hover row-border" style="width: 100%;">
             <thead>
             <tr>
-              <th>deptId</th>
+              <th class="d-none">vacationId</th>
               <th>부서명</th>
-              <th>부서관리자</th>
-              <th>부서단계</th>
-              <th>상위부서</th>
+              <th>성함</th>
+              <th>휴가종류</th>
+              <th>휴가일수</th>
+              <th>휴가생성일시</th>
+              <th>휴가만료일자</th>
+              <th>비고</th>
             </tr>
             </thead>
           </table>
@@ -74,7 +77,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="vacationForm" onkeydown="javascript: if (event.keyCode == 13) {btn_save();}">
+          <form id="vacationForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_save();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6">
@@ -133,6 +136,11 @@
           document.getElementById("vacationForm").submit();
       }
 
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0,16);
+      }
+
       $(document).ready(function () {
           $('#showdepartments').dataTable({
               "processing": true,
@@ -141,39 +149,57 @@
                   "type": 'GET',
                   "data": {
                   },
-                  "url": "{% url 'hr:showdepartmentsasjson' %}",
+                  "url": "{% url 'hr:showvacationsasjson' %}",
                   "dataSrc": ""
               },
               "columnDefs": [
                   {
                       targets: 0,
-                      width: "20%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "deptId",
+                      width: "5%",
+                      className: "d-none",
+                      data: "vacationId",
                   },
                   {
                       targets: 1,
-                      width: "20%",
+                      width: "15%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "deptName",
+                      data: "empId__empDeptName",
                   },
                   {
                       targets: 2,
-                      width: "20%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "deptManagerName"
+                      data: "empId__empName"
                   },
                   {
                       targets: 3,
-                      width: "20%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "deptLevel",
+                      data: "vacationType",
                   },
                   {
                       targets: 4,
-                      width: "20%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "parentDeptName",
+                      data: "vacationDays",
+                  },
+                  {
+                      targets: 5,
+                      width: "15%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "creationDateTime",
+                  },
+                  {
+                      targets: 6,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "expirationDate",
+                  },
+                  {
+                      targets: 7,
+                      width: "15%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "comment",
                   },
               ],
               "deferRender": true,
@@ -183,7 +209,7 @@
               "scrollY": "60vh",
               "scrollX": false,
               "scrollCollapse": true,
-              "order": [[0, 'asc']],
+              "order": [[5, 'desc']],
               "language": {
                   "lengthMenu": "_MENU_ 개씩 보기",
                   "search": "검색:",
@@ -195,17 +221,14 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.creationDateTime != "") {
+                      $('td:eq(5)', nRow).text(replaceAll(aData.creationDateTime,"-","."));
+                  }
               },
               "footerCallback": function () {
               },
           });
 
-          const showprofiles = $('#showdepartments').DataTable();
-
-          $("#showdepartments").on("click", 'tr', function () {
-              const data = showprofiles.row(this).data();
-              location.href = '/hr/viewdepartment/' + data.deptId + '/'
-          });
       });
 
   </script>
