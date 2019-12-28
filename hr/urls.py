@@ -29,4 +29,5 @@ urlpatterns = [
     url(r'^redodefaultstamp/(?P<empId>.+)/$', views.redo_default_stamp, name='redodefaultstamp'),
     url(r'^showvacations/$', views.show_vacations, name='showvacations'),
     url(r'^showvacationsasjson/$', views.showvacations_asjson, name='showvacationsasjson'),
+    url(r'^deletevacation/$', views.delete_vacation, name='deletevacation'),
 ]

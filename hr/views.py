@@ -535,6 +535,7 @@ def show_vacations(request):
         elif vacationType == '특별휴가':
             employee.empSpecialLeave += float(vacationDays)
             employee.save()
+        return  redirect('hr:showvacations')
 
     employees = Employee.objects.filter(Q(empStatus='Y'))
     context = {
@@ -551,3 +552,12 @@ def showvacations_asjson(request):
 
     structure = json.dumps(list(vacations), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def delete_vacation(request):
+    if request.method == 'POST' and request.is_ajax():
+        vacationId = request.POST.get('vacationId', None)
+        AdminVacation.objects.filter(vacationId=vacationId).delete()
+        return HttpResponse(json.dumps({'vacationId': vacationId}), content_type="application/json")
