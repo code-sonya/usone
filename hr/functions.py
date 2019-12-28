@@ -231,31 +231,55 @@ def year_absence(year):
 
 def adminemail_test(smtpEmail, smtpPassword, smtpServer, smtpPort, smtpSecure):
     # 관리자 이메일등록 확인
-    try:
-        title = "관리자이메일등록"
-        html = "관리자 이메일등록이 완료되었습니다."
-        toEmail = "slkim@unioneinc.co.kr"
-        fromEmail = smtpEmail
+    title = "관리자이메일등록"
+    html = "관리자 이메일등록이 완료되었습니다."
+    toEmail = "slkim@unioneinc.co.kr"
+    fromEmail = smtpEmail
 
-        msg = MIMEMultipart("alternative")
-        msg["From"] = fromEmail
-        msg["To"] = toEmail
-        msg["Subject"] = Header(s=title, charset="utf-8")
-        msg.attach(MIMEText(html, "html", _charset="utf-8"))
+    msg = MIMEMultipart("alternative")
+    msg["From"] = fromEmail
+    msg["To"] = toEmail
+    msg["Subject"] = Header(s=title, charset="utf-8")
+    msg.attach(MIMEText(html, "html", _charset="utf-8"))
 
-
-        if smtpSecure == 'SSL':
-            smtp = SMTP_SSL("{}:{}".format(smtpServer, smtpPort))
-            smtp.login(smtpEmail, smtpPassword)
-            smtp.sendmail(fromEmail, toEmail, msg.as_string())
-            smtp.close()
-        elif smtpSecure == 'TLS':
-            smtp = smtplib.SMTP(smtpServer, smtpPort)
-            smtp.ehlo()
-            smtp.starttls()  # TLS 사용시 필요
-            smtp.login(smtpEmail, smtpPassword)
-            smtp.sendmail(fromEmail, toEmail, msg.as_string())
-            smtp.close()
-        return 'Y'
-    except Exception as e:
-        return e
+    if smtpSecure == 'SSL':
+        smtp = SMTP_SSL("{}:{}".format(smtpServer, smtpPort))
+        smtp.login(smtpEmail, smtpPassword)
+        smtp.sendmail(fromEmail, toEmail, msg.as_string())
+        smtp.close()
+    elif smtpSecure == 'TLS':
+        smtp = smtplib.SMTP(smtpServer, smtpPort)
+        smtp.ehlo()
+        smtp.starttls()  # TLS 사용시 필요
+        smtp.login(smtpEmail, smtpPassword)
+        smtp.sendmail(fromEmail, toEmail, msg.as_string())
+        smtp.close()
+    return 'Y'
+    # try:
+    #     title = "관리자이메일등록"
+    #     html = "관리자 이메일등록이 완료되었습니다."
+    #     toEmail = "slkim@unioneinc.co.kr"
+    #     fromEmail = smtpEmail
+    #
+    #     msg = MIMEMultipart("alternative")
+    #     msg["From"] = fromEmail
+    #     msg["To"] = toEmail
+    #     msg["Subject"] = Header(s=title, charset="utf-8")
+    #     msg.attach(MIMEText(html, "html", _charset="utf-8"))
+    #
+    #
+    #     if smtpSecure == 'SSL':
+    #         smtp = SMTP_SSL("{}:{}".format(smtpServer, smtpPort))
+    #         smtp.login(smtpEmail, smtpPassword)
+    #         smtp.sendmail(fromEmail, toEmail, msg.as_string())
+    #         smtp.close()
+    #     elif smtpSecure == 'TLS':
+    #         smtp = smtplib.SMTP(smtpServer, smtpPort)
+    #         smtp.ehlo()
+    #         smtp.starttls()  # TLS 사용시 필요
+    #         smtp.login(smtpEmail, smtpPassword)
+    #         smtp.sendmail(fromEmail, toEmail, msg.as_string())
+    #         smtp.close()
+    #     return 'Y'
+    # except Exception as e:
+    #     return e
