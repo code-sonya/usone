@@ -88,7 +88,7 @@ class AdminEmail(models.Model):
     adminId = models.AutoField(primary_key=True)
     smtpServer = models.CharField(max_length=20)
     smtpPort = models.CharField(max_length=10)
-    smtpEmail = models.CharField(max_length=20)
+    smtpEmail = models.CharField(max_length=100)
     smtpPassword = models.CharField(forms.PasswordInput, max_length=20)
     smtpSecure = models.CharField(max_length=10, null=True, blank=True)
     smtpDatetime = models.DateTimeField(null=True, blank=True)
