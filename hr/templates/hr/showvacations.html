@@ -45,7 +45,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table id="showdepartments" class="hover row-border" style="width: 100%;">
+          <table id="showvacations" class="hover row-border" style="width: 100%;">
             <thead>
             <tr>
               <th class="d-none">vacationId</th>
@@ -56,6 +56,7 @@
               <th>휴가생성일시</th>
               <th>휴가만료일자</th>
               <th>비고</th>
+              <th><i class="fas fa-trash"></i></th>
             </tr>
             </thead>
           </table>
@@ -142,7 +143,7 @@
       }
 
       $(document).ready(function () {
-          $('#showdepartments').dataTable({
+          $('#showvacations').dataTable({
               "processing": true,
               "ajax": {
                   "processing": true,
@@ -154,10 +155,10 @@
               },
               "columnDefs": [
                   {
-                      targets: 0,
-                      width: "5%",
-                      className: "d-none",
-                      data: "vacationId",
+                       "render": function (data, type, row) {
+                          return '<div name="vacationId">' + data + '</div>'
+                      },
+                      targets: 0, className: "d-none"
                   },
                   {
                       targets: 1,
@@ -201,6 +202,12 @@
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "comment",
                   },
+                  {
+                       "render": function (data, type, row) {
+                          return '<i class="fas fa-times-circle" name="remove">'
+                      },
+                      targets: 8, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                  },
               ],
               "deferRender": true,
               "searching": true,
@@ -229,7 +236,36 @@
               },
           });
 
+          var table = $('#showvacations').DataTable();
+
+          $('#showvacations').on('click', 'i', function () {
+              const tr = $(this).closest('tr');
+              const row = table.row( tr );
+              const vacationId = row.data().vacationId;
+              const empName = row.data().empId__empName;
+
+              if (confirm(empName+"님의 휴가 정보를 삭제하시겠습니까?") == true) {
+                  table
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+                  $.ajax({
+                              type: "POST",
+                              url: "/hr/deletevacation/",
+                              data: {'vacationId': vacationId},
+                              dataType: "json",
+                              success: function (response) {
+                                  alert('휴가가 삭제되었습니다.')
+                              },
+                              error: function (request, status, error) {
+                                  alert('휴가가 삭제되었습니다.')
+                              },
+                          });
+              }
+          });
+
       });
+
 
   </script>
 
