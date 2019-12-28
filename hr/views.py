@@ -17,8 +17,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from extrapay.models import Car
 from .forms import EmployeeForm, DepartmentForm, UserForm
-from .functions import save_punctuality, check_absence, year_absence, adminemail_test
-from .models import AdminEmail
+from .functions import save_punctuality, check_absence, year_absence, adminemail_test, siteMap
+from .models import AdminEmail, AdminVacation
 from .models import Attendance, Employee, Punctuality, Department
 
 
@@ -141,7 +141,10 @@ def check_profile(request):
 
 @login_required
 def show_departments(request):
-    context = {}
+    deptLevelList = siteMap()
+    context = {
+        "deptLevelList": deptLevelList,
+    }
     return render(request, 'hr/showdepartments.html', context)
 
 
@@ -505,3 +508,41 @@ def redo_default_stamp(request, empId):
     emp.empStamp = 'stamp/accepted.png'
     emp.save()
     return redirect('hr:profile')
+
+
+@login_required
+@csrf_exempt
+def show_vacations(request):
+    if request.POST:
+        print(request.POST)
+        empId = request.POST['empId']
+        vacationType = request.POST['vacationType']
+        vacationDays = request.POST['vacationDays']
+        comment = request.POST['comment']
+        employee = Employee.objects.get(empId=empId)
+        now = datetime.datetime.now()
+        expirationDate=datetime.date(now.year, 12, 31)
+        AdminVacation.objects.create(
+            empId=employee,
+            vacationType=vacationType,
+            vacationDays=vacationDays,
+            creationDateTime=now,
+            expirationDate=expirationDate,
+            comment=comment,
+        )
+
+    employees = Employee.objects.filter(Q(empStatus='Y'))
+    context = {
+        'employees': employees,
+    }
+    return render(request, 'hr/showvacations.html', context)
+
+
+@login_required
+def showvacations_asjson(request):
+    vacations = AdminVacation.objects.all().values(
+        'vacationId', 'empId__empDeptName',  'empId__empName', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDate', 'comment',
+    )
+
+    structure = json.dumps(list(vacations), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
