@@ -20,6 +20,9 @@ class Employee(models.Model):
     managerChoices = (
         ('Y', '부서장'), ('N', '팀원')
     )
+    RewardAvailableChoices = (
+        ('가능', '가능'), ('불가능', '불가능')
+    )
 
     empId = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -39,6 +42,7 @@ class Employee(models.Model):
     empSalary = models.IntegerField(default=0)
     empAnnualLeave = models.FloatField(default=0)
     empSpecialLeave = models.FloatField(default=0)
+    empRewardAvailable = models.CharField(max_length=10, choices=RewardAvailableChoices, default='가능')
     empStartDate = models.DateField(null=True, blank=True)
     empEndDate = models.DateField(null=True, blank=True)
     empStamp = models.FileField(upload_to="stamp/", default='stamp/accepted.png')

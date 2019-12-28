@@ -20,7 +20,7 @@ class EmployeeForm(forms.ModelForm):
     class Meta:
         model = Employee
         fields = (
-            'empCode', 'empName', 'empPosition', 'empPhone', 'empEmail', 'departmentName', 'empRank',
+            'empCode', 'empName', 'empPosition', 'empPhone', 'empEmail', 'departmentName', 'empRank', 'empRewardAvailable',
             'carId', 'empStartDate', 'empEndDate', 'empStatus', 'empManager', 'message', 'empSalary',
         )
 
@@ -31,6 +31,7 @@ class EmployeeForm(forms.ModelForm):
             'empPhone': forms.TextInput(attrs={'class': 'form-control', 'id': 'empPhone'}),
             'empEmail': forms.TextInput(attrs={'class': 'form-control', 'id': 'empEmail'}),
             'carId': forms.Select(attrs={'class': 'form-control', 'id': 'carId'}),
+            'empRewardAvailable': forms.Select(attrs={'class': 'form-control', 'id': 'empRewardAvailable'}),
             'empStartDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'empStartDate'}),
             'empEndDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'empEndDate'}),
             'empStatus': forms.Select(attrs={'class': 'form-control', 'id': 'empStatus'}),

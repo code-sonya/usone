@@ -1076,43 +1076,44 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
 
         # overhour create
         # 석식대
-        foodcosts = cal_foodcost(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        if foodcosts > 0 or overhour > 0:
-            emp = Employee.objects.get(empId=service.empId_id)
-            overhourcost = emp.empSalary*overhour*1.5
+        if service.empId.empRewardAvailable == '가능':
+            foodcosts = cal_foodcost(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
+            if foodcosts > 0 or overhour > 0:
+                emp = Employee.objects.get(empId=service.empId_id)
+                overhourcost = emp.empSalary*overhour*1.5
 
-            # IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
-            service_year = service.serviceDate.year
-            service_month = service.serviceDate.month
-            extrapay = ExtraPay.objects.filter(
-                Q(overHourDate__year=service_year) &
-                Q(overHourDate__month=service_month) &
-                Q(empId=service.empId_id)
-            ).first()
-            if extrapay:
-                sumOverHour = extrapay.sumOverHour
-                extrapay.sumOverHour = float(sumOverHour)+float(overhour)
-                extrapay.save()
-            else:
-                extrapay = ExtraPay.objects.create(
+                # IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
+                service_year = service.serviceDate.year
+                service_month = service.serviceDate.month
+                extrapay = ExtraPay.objects.filter(
+                    Q(overHourDate__year=service_year) &
+                    Q(overHourDate__month=service_month) &
+                    Q(empId=service.empId_id)
+                ).first()
+                if extrapay:
+                    sumOverHour = extrapay.sumOverHour
+                    extrapay.sumOverHour = float(sumOverHour)+float(overhour)
+                    extrapay.save()
+                else:
+                    extrapay = ExtraPay.objects.create(
+                        empId=service.empId,
+                        empName=service.empName,
+                        overHourDate=service.serviceDate,
+                        sumOverHour=overhour,
+                    )
+
+                OverHour.objects.create(
+                    serviceId=service,
                     empId=service.empId,
                     empName=service.empName,
-                    overHourDate=service.serviceDate,
-                    sumOverHour=overhour,
+                    overHourTitle=service.serviceTitle,
+                    overHourStartDate=min_date,
+                    overHourEndDate=max_date,
+                    overHour=overhour,
+                    overHourCost=overhourcost,
+                    foodCost=foodcosts,
+                    extraPayId=extrapay,
                 )
-
-            OverHour.objects.create(
-                serviceId=service,
-                empId=service.empId,
-                empName=service.empName,
-                overHourTitle=service.serviceTitle,
-                overHourStartDate=min_date,
-                overHourEndDate=max_date,
-                overHour=overhour,
-                overHourCost=overhourcost,
-                foodCost=foodcosts,
-                extraPayId=extrapay,
-            )
 
         service.save()
 
@@ -1188,42 +1189,43 @@ def admin_service(request, serviceId):
                     overhourInstance.delete()
 
                 # 식대
-                foodcosts = cal_foodcost(str(post.serviceBeginDatetime), str(post.serviceFinishDatetime))
-                if foodcosts > 0 or overhour > 0:
-                    emp = Employee.objects.get(empId=post.empId_id)
-                    overhourcost = emp.empSalary * overhour * 1.5
+                if post.empId.empRewardAvailable == '가능':
+                    foodcosts = cal_foodcost(str(post.serviceBeginDatetime), str(post.serviceFinishDatetime))
+                    if foodcosts > 0 or overhour > 0:
+                        emp = Employee.objects.get(empId=post.empId_id)
+                        overhourcost = emp.empSalary * overhour * 1.5
 
-                    # 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성 (이 부분 수정)
-                    service_year = post.serviceDate[:4]
-                    service_month = post.serviceDate[5:7]
-                    extrapay = ExtraPay.objects.filter(
-                        Q(overHourDate__year=service_year) &
-                        Q(overHourDate__month=service_month) &
-                        Q(empId=post.empId_id)
-                    ).first()
-                    if extrapay:
-                        extrapay.sumOverHour = float(extrapay.sumOverHour) + float(overhour)
-                        extrapay.save()
-                    else:
-                        extrapay = ExtraPay.objects.create(
+                        # 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성 (이 부분 수정)
+                        service_year = post.serviceDate[:4]
+                        service_month = post.serviceDate[5:7]
+                        extrapay = ExtraPay.objects.filter(
+                            Q(overHourDate__year=service_year) &
+                            Q(overHourDate__month=service_month) &
+                            Q(empId=post.empId_id)
+                        ).first()
+                        if extrapay:
+                            extrapay.sumOverHour = float(extrapay.sumOverHour) + float(overhour)
+                            extrapay.save()
+                        else:
+                            extrapay = ExtraPay.objects.create(
+                                empId=post.empId,
+                                empName=post.empName,
+                                overHourDate=post.serviceDate,
+                                sumOverHour=overhour,
+                            )
+
+                        OverHour.objects.create(
+                            serviceId=post,
                             empId=post.empId,
                             empName=post.empName,
-                            overHourDate=post.serviceDate,
-                            sumOverHour=overhour,
+                            overHourTitle=post.serviceTitle,
+                            overHourStartDate=min_date,
+                            overHourEndDate=max_date,
+                            overHour=overhour,
+                            overHourCost=overhourcost,
+                            foodCost=foodcosts,
+                            extraPayId=extrapay,
                         )
-
-                    OverHour.objects.create(
-                        serviceId=post,
-                        empId=post.empId,
-                        empName=post.empName,
-                        overHourTitle=post.serviceTitle,
-                        overHourStartDate=min_date,
-                        overHourEndDate=max_date,
-                        overHour=overhour,
-                        overHourCost=overhourcost,
-                        foodCost=foodcosts,
-                        extraPayId=extrapay,
-                    )
 
                 # 위치 정보 수정
                 post = Geolocation.objects.get(serviceId=serviceId)

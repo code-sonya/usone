@@ -520,7 +520,7 @@ def show_vacations(request):
         comment = request.POST['comment']
         employee = Employee.objects.get(empId=empId)
         now = datetime.datetime.now()
-        expirationDate=datetime.date(now.year, 12, 31)
+        expirationDate = datetime.date(now.year, 12, 31)
         AdminVacation.objects.create(
             empId=employee,
             vacationType=vacationType,
