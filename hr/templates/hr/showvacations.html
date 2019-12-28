@@ -1,0 +1,195 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  휴가관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 16px;
+      border: 1px solid darkgray;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div>
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800">휴가관리</h6>
+        <div class="dropdown no-arrow">
+          {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+            <a class="dropdown-toggle" href="#" role="button" id="vacationLink" data-toggle="modal" data-target="#vacationModal">
+              <i class="fas fa-plus fa-fw text-primary"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="showdepartments" class="hover row-border" style="width: 100%;">
+            <thead>
+            <tr>
+              <th>deptId</th>
+              <th>부서명</th>
+              <th>부서관리자</th>
+              <th>부서단계</th>
+              <th>상위부서</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- vacation Modal -->
+  <div class="modal fade" id="vacationModal" tabindex="-1" role="dialog" aria-labelledby="vacationModalLabel" aria-hidden="true">
+    <div class="modal-xl modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="billingPurchaseModalLabel">휴가 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+              <div class="col-12">
+                <table class="pc-table">
+                  {% for deptLevel in deptLevelList %}
+                    <tr style="border: 1px solid white">
+                    {% for level in deptLevel.level %}
+                      <td class="d-lg-block d-none" style="border: 1px solid white">
+                        <b>Level <br> {{ level }} </b>
+                      </td>
+                    {% endfor %}
+                    {% for data in deptLevel.data %}
+                      {% if data.level == 0 %}
+                        <td class="bg-primary text-white" colspan="{{ data.colspan }}">
+                          <span><b>[{{ data.deptName }}]</b></span>
+                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
+                        </td>
+                      {% else %}
+                        <td colspan="{{ data.colspan }}">
+                          {% if data.deptName != '-' %}
+                          <span class="text-primary"><b>[{{ data.deptName }}]</b></span>
+                          {% endif %}
+                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
+                        </td>
+                      {% endif %}
+                    {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </table>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      $(document).ready(function () {
+          $('#showdepartments').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'GET',
+                  "data": {
+                  },
+                  "url": "{% url 'hr:showdepartmentsasjson' %}",
+                  "dataSrc": ""
+              },
+              "columnDefs": [
+                  {
+                      targets: 0,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "deptId",
+                  },
+                  {
+                      targets: 1,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "deptName",
+                  },
+                  {
+                      targets: 2,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "deptManagerName"
+                  },
+                  {
+                      targets: 3,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "deptLevel",
+                  },
+                  {
+                      targets: 4,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "parentDeptName",
+                  },
+              ],
+              "deferRender": true,
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": false,
+              "scrollCollapse": true,
+              "order": [[0, 'asc']],
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+              },
+              "footerCallback": function () {
+              },
+          });
+
+          const showprofiles = $('#showdepartments').DataTable();
+
+          $("#showdepartments").on("click", 'tr', function () {
+              const data = showprofiles.row(this).data();
+              location.href = '/hr/viewdepartment/' + data.deptId + '/'
+          });
+      });
+
+  </script>
+
+{% endblock %}

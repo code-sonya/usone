@@ -508,3 +508,15 @@ def redo_default_stamp(request, empId):
     emp.empStamp = 'stamp/accepted.png'
     emp.save()
     return redirect('hr:profile')
+
+
+@login_required
+@csrf_exempt
+def show_vacations(request):
+    if request.POST:
+        print('post')
+    else:
+        print('else')
+
+    context = {}
+    return render(request, 'hr/showvacations.html', context)
