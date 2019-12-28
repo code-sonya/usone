@@ -8,48 +8,31 @@
 
 {% block content %}
 
-  <div class="row">
-
-    <div class="col-xl-2"></div>
-
-    <div class="col-xl-8">
-
-      <div class="card shadow mb-4">
-
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-
-          <h6 class="m-0 h3 text-gray-800"> 휴가 </h6>
-
-          <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="/service/postvacation/">
-              <i class="fas fa-plus fa-sm fa-fw text-gray-400"></i>
-            </a>
-          </div>
-
-        </div>
-
-        <div class="card-body">
-
-          <div class="table-responsive">
-            <table id="showvacation" class="hover row-border" width="100%" style="width: 100%;">
-              <thead>
-              <tr>
-                <th>휴가일</th>
-                <th>휴가구분</th>
-                <th>삭제</th>
-              </tr>
-              </thead>
-            </table>
-          </div>
-
-        </div>
-
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h6 class="m-0 h3 text-gray-800"> 휴가 </h6>
+      <div class="dropdown no-arrow">
+        <a class="dropdown-toggle" href="/service/postvacation/">
+          <i class="fas fa-plus fa-sm fa-fw text-gray-400"></i>
+        </a>
       </div>
-
     </div>
 
-    <div class="col-xl-2"></div>
-
+    <div class="card-body">
+      <div class="table-responsive">
+        <table id="showvacation" class="hover row-border w-100">
+          <thead>
+          <tr>
+            <th>휴가일</th>
+            <th>구분</th>
+            <th>종류</th>
+            <th>사유</th>
+            <th>상태</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
   </div>
 
 {% endblock %}
@@ -67,34 +50,88 @@
       $(document).ready(function () {
 
           const table = $('#showvacation').DataTable({
-              data: [],
-              columns: [
-                  {data: "휴가일"},
-                  {data: "휴가구분"},
-                  {data: "삭제"},
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'GET',
+                  "data": {
+                      'empId': '{{ request.user.employee.empId }}',
+                  },
+                  "url": "{% url 'service:showvacationsasjson' %}",
+                  "dataSrc": ""
+              },
+              "columnDefs": [
+                  {
+                      targets: 0,
+                      width: "15%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "vacationDate"
+                  },
+                  {
+                      targets: 1,
+                      width: "5%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "vacationType",
+                  },
+                  {
+                      targets: 2,
+                      width: "5%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "vacationCategory__categoryName"
+                  },
+                  {
+                      targets: 3,
+                      width: "65%",
+                      className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                      data: "comment",
+                  },
+                  {
+                      targets: 4,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "vacationStatus",
+                  },
               ],
-              columnDefs: [
-                  {targets: 0, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "40%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-              ],
-              "order": [[0, 'desc']],
-              "ordering": true,
+              "deferRender": true,
               "searching": false,
               "paging": false,
               "info": false,
-              "scrollY": "60vh",
+              "scrollY": "50vh",
+              "scrollX": true,
               "scrollCollapse": true,
+              "order": [[0, 'desc']],
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.vacationStatus === 'N') {
+                      $('td:eq(4)', nRow).text('결재진행');
+                  } else if (aData.vacationStatus === 'Y') {
+                      $('td:eq(4)', nRow).text('결재완료');
+                  } else if (aData.vacationStatus === 'R') {
+                      $('td:eq(4)', nRow).text('반려');
+                  }
+              }
           });
 
-          {% for vacation in vacations %}
-              table.row.add( {
-                  "휴가일": "{{ vacation.vacationDate }} ({{ vacation.vacationDate | date:"D" | slice:"0:1" }})",
-                  "휴가구분": "{{ vacation.vacationType }}",
-                  "삭제": "<a href=\"#\" class=\"btn btn-sm btn-danger\" onclick=\"btn_delete({{ vacation.vacationId }})\"><span class=\"icon text-white-50\"> <i class=\"fas fa-trash-alt\"> </i> </span></a>"
-              } ).draw();
-          {% endfor %}
-
+          $("#showvacation").on("click", 'tr', function () {
+              const data = table.row(this).data();
+              if (data.documentId__documentId) {
+                  location.href = '/approval/viewdocument/' + data.documentId__documentId + '/'
+              } else {
+                  alert('2020년 이전의 휴가는 결재문서가 없습니다.');
+                  return false;
+              }
+          });
       });
 
   </script>

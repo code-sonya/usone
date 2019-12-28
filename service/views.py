@@ -431,7 +431,7 @@ def post_vacation(request):
         else:
             for empId in whoApproval['do']:
                 employee = Employee.objects.get(empId=empId)
-                # mail_approval(employee, document)
+                mail_approval(employee, document)
 
         for vacationDate in vacationDays:
             if request.POST[vacationDate] == 'all':
@@ -821,6 +821,18 @@ def show_vacations(request):
         'vacations': vacations,
     }
     return render(request, 'service/showvacations.html', context)
+
+
+@login_required
+def showvacations_asjson(request):
+    emp = Employee.objects.get(empId=request.GET['empId'])
+    vacations = Vacation.objects.filter(empId=emp).values(
+        'vacationDate', 'vacationType', 'vacationCategory__categoryName', 'comment', 'vacationStatus',
+        'documentId__documentId',
+    )
+
+    structure = json.dumps(list(vacations), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
 
 
 @login_required

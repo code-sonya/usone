@@ -107,6 +107,9 @@ class Vacationcategory(models.Model):
     categoryId = models.AutoField(primary_key=True)
     categoryName = models.CharField(max_length=10, unique=True)
 
+    def __str__(self):
+        return self.categoryName
+
 
 class Vacation(models.Model):
     vacationTypeChoices = (

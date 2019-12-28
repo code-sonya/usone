@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^modifyserviceform/(?P<serviceFormId>.+)/$', views.modify_serviceform, name='modifyserviceform'),
     url(r'^deleteserviceform/(?P<serviceFormId>.+)/$', views.delete_serviceform, name='deleteserviceform'),
     url(r'^showvacations/', views.show_vacations, name='showvacations'),
+    url(r'^showvacationsasjson/', views.showvacations_asjson, name='showvacationsasjson'),
     url(r'^deletevacation/(?P<vacationId>.+)/$', views.delete_vacation, name='deletevacation'),
     url(r'^dayreport/(?P<day>.+)/$', views.day_report, name='dayreport'),
     url(r'^json/$', views.service_asjson, name='service_ajax_url'),
