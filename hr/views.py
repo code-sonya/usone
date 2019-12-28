@@ -514,7 +514,6 @@ def redo_default_stamp(request, empId):
 @csrf_exempt
 def show_vacations(request):
     if request.POST:
-        print(request.POST)
         empId = request.POST['empId']
         vacationType = request.POST['vacationType']
         vacationDays = request.POST['vacationDays']
@@ -530,6 +529,12 @@ def show_vacations(request):
             expirationDate=expirationDate,
             comment=comment,
         )
+        if vacationType == '연차':
+            employee.empAnnualLeave += float(vacationDays)
+            employee.save()
+        elif vacationType == '특별휴가':
+            employee.empSpecialLeave += float(vacationDays)
+            employee.save()
 
     employees = Employee.objects.filter(Q(empStatus='Y'))
     context = {

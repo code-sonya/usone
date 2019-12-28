@@ -37,6 +37,8 @@ class Employee(models.Model):
     empAuth = models.CharField(max_length=10, default='일반')
     empRank = models.IntegerField(default=10)
     empSalary = models.IntegerField(default=0)
+    empAnnualLeave = models.FloatField(default=0)
+    empSpecialLeave = models.FloatField(default=0)
     empStartDate = models.DateField(null=True, blank=True)
     empEndDate = models.DateField(null=True, blank=True)
     empStamp = models.FileField(upload_to="stamp/", default='stamp/accepted.png')
