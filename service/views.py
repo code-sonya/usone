@@ -16,8 +16,10 @@ from sales.models import Contract
 from extrapay.models import OverHour, ExtraPay
 from .forms import ServicereportForm, ServiceformForm, AdminServiceForm, ServiceTypeForm
 from .functions import *
-from .models import Servicereport, Vacation, Serviceform, Geolocation, Servicetype
+from approval.functions import who_approval, mail_approval
+from .models import Servicereport, Vacation, Serviceform, Geolocation, Servicetype, Vacationcategory
 from sales.models import Contractfile
+from approval.models import Document, Documentform, Documentfile, Relateddocument, Approval
 
 
 @login_required
@@ -290,35 +292,187 @@ def post_service(request, postdate):
 @login_required
 def post_vacation(request):
     # 로그인 사용자 정보
-    empId = Employee(empId=request.user.employee.empId)
-    empName = request.user.employee.empName
-    empDeptName = request.user.employee.empDeptName
+    emp = request.user.employee
+    empName = emp.empName
+    empDeptName = emp.empDeptName
+    now = datetime.datetime.now()
 
     if request.method == "POST":
-        vacationTypeDict = request.POST
-        dateArray = list(request.POST.keys())[1:]
+        vacationDays = list(request.POST.keys())[1:-8]
 
-        for vacationDate in dateArray:
-            if vacationTypeDict[vacationDate] == 'all':
+        # 문서 종류 선택
+        formId = Documentform.objects.get(
+            categoryId__firstCategory='공통',
+            categoryId__secondCategory='자동생성',
+            formTitle='휴가신청서',
+        )
+
+        preservationYear = formId.preservationYear
+        securityLevel = formId.securityLevel
+        vacationCategory = Vacationcategory.objects.get(categoryId=request.POST['vacationCategory'])
+        comment = request.POST['comment']
+
+        # 문서번호 자동생성 (yymmdd-000)
+        yymmdd = str(datetime.date.today()).replace('-', '')[2:]
+        todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
+        documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
+
+        # 문서 전처리 (\n 없애고, '를 "로 변경)
+        HTML = formId.formHtml
+        HTML = HTML.replace('성함자동입력', empName)
+        HTML = HTML.replace('부서자동입력', empDeptName)
+        HTML = HTML.replace('종류자동입력', vacationCategory.categoryName)
+
+        vacationDay = 0
+        vacationDate = ''
+        weekday = ['월', '화', '수', '목', '금', '토', '일']
+        for day in vacationDays:
+            dtday = datetime.datetime(year=int(day[:4]), month=int(day[5:7]), day=int(day[8:10]))
+            vacationDate += day + '(' + weekday[dtday.weekday()] + ')'
+            if request.POST[day] == 'all':
+                vacationDay += 1
+                vacationDate += ' (일차)<br>'
+            elif request.POST[day] == 'am':
+                vacationDay += 0.5
+                vacationDate += ' (오전반차)<br>'
+            elif request.POST[day] == 'am':
+                vacationDay += 0.5
+                vacationDate += ' (오후반차)<br>'
+            
+        HTML = HTML.replace('일수자동입력', str(vacationDay) + '일')
+        HTML = HTML.replace('기간자동입력', vacationDate)
+        HTML = HTML.replace('사유자동입력', comment)
+
+        # 문서 등록
+        document = Document.objects.create(
+            documentNumber=documentNumber,
+            writeEmp=request.user.employee,
+            formId=formId,
+            preservationYear=preservationYear,
+            securityLevel=securityLevel,
+            title='[휴가신청] ' + empName + '님의 ' + vacationCategory.categoryName + ' 신청의 건',
+            contentHtml=HTML,
+            writeDatetime=now,
+            modifyDatetime=now,
+            draftDatetime=now,
+            documentStatus='진행',
+        )
+
+        # 첨부파일 처리
+        # 1. 첨부파일 업로드 정보
+        jsonFile = json.loads(request.POST['jsonFile'])
+        filesInfo = {}  # {fileName1: fileSize1, fileName2: fileSize2, ...}
+        filesName = []  # [fileName1, fileName2, ...]
+        for i in jsonFile:
+            filesInfo[i['fileName']] = i['fileSize']
+            filesName.append(i['fileName'])
+        # 2. 업로드 된 파일 중, 화면에서 삭제하지 않은 것만 등록
+        for f in request.FILES.getlist('files'):
+            if f.name in filesName:
+                Documentfile.objects.create(
+                    documentId=document,
+                    file=f,
+                    fileName=f.name,
+                    fileSize=filesInfo[f.name][:-2],
+                )
+
+        # 관련문서 처리
+        jsonId = json.loads(request.POST['relatedDocumentId'])
+        for relatedId in jsonId:
+            relatedDocument = Document.objects.get(documentId=relatedId)
+            Relateddocument.objects.create(
+                documentId=document,
+                relatedDocumentId=relatedDocument,
+            )
+
+        # 결재선 처리
+        approval = []
+        if request.POST['apply']:
+            applyList = request.POST['apply'].split(',')
+            for i, a in enumerate(applyList):
+                if a != '':
+                    approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '신청'})
+        if request.POST['process']:
+            processList = request.POST['process'].split(',')
+            for i, p in enumerate(processList):
+                if p != '':
+                    approval.append({'approvalEmp': p, 'approvalStep': i + 1, 'approvalCategory': '승인'})
+        if request.POST['reference']:
+            referenceList = request.POST['reference'].split(',')
+            for i, r in enumerate(referenceList):
+                if r != '':
+                    approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+
+        for a in approval:
+            empId = Employee.objects.get(empId=a['approvalEmp'])
+            # 기안자는 자동 결재
+            if empId.user == request.user and a['approvalStep'] == 1:
+                Approval.objects.create(
+                    documentId=document,
+                    approvalEmp=empId,
+                    approvalStep=a['approvalStep'],
+                    approvalCategory=a['approvalCategory'],
+                    approvalStatus='완료',
+                    approvalDatetime=now,
+                )
+            else:
+                Approval.objects.create(
+                    documentId=document,
+                    approvalEmp=empId,
+                    approvalStep=a['approvalStep'],
+                    approvalCategory=a['approvalCategory'],
+                )
+
+        whoApproval = who_approval(document.documentId)
+        if len(whoApproval['do']) == 0:
+            document.documentStatus = '완료'
+            document.approveDatetime = now
+            document.save()
+        else:
+            for empId in whoApproval['do']:
+                employee = Employee.objects.get(empId=empId)
+                # mail_approval(employee, document)
+
+        for vacationDate in vacationDays:
+            if request.POST[vacationDate] == 'all':
                 vacationType = "일차"
-            elif vacationTypeDict[vacationDate] == 'am':
+            elif request.POST[vacationDate] == 'am':
                 vacationType = "오전반차"
-            elif vacationTypeDict[vacationDate] == 'pm':
+            elif request.POST[vacationDate] == 'pm':
                 vacationType = "오후반차"
             else:
                 vacationType = ""
 
             Vacation.objects.create(
-                empId=empId,
+                documentId=document,
+                empId=emp,
                 empName=empName,
                 empDeptName=empDeptName,
                 vacationDate=vacationDate,
-                vacationType=vacationType
+                vacationType=vacationType,
+                vacationCategory=vacationCategory,
+                comment=comment,
             )
-        return redirect('scheduler:scheduler', dateArray[0])
+
+        return redirect('service:showvacations')
 
     else:
-        context = {}
+        # 결재자 자동완성
+        empList = Employee.objects.filter(Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {
+                'id': emp.empId,
+                'name': emp.empName,
+                'position': emp.empPosition.positionName,
+                'dept': emp.empDeptName,
+            }
+            empNames.append(temp)
+
+        context = {
+            'empNames': empNames,
+            'vacationCategory': Vacationcategory.objects.all(),
+        }
         return render(request, 'service/postvacation.html', context)
 
 

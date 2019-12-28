@@ -193,7 +193,7 @@
 
 <!-- Document Modal -->
 <div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="documentModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
 
       <div class="modal-header bg-info text-gray-100">
@@ -617,7 +617,6 @@
             $('.note-input').on("propertychange change keyup paste input", function() {
                 let currentVal = $(this).val();
                 $(this).attr('value', currentVal);
-                console.log(currentVal);
             });
 
             approvalFormat.val(val.approvalFormat);
@@ -739,8 +738,8 @@
                         "processing": true,
                         "type": 'GET',
                         "data": {
-                            'documentStatus': '완료',
-                            'category': '전체',
+                            'category': '완료',
+                            'option': '반려제외',
                         },
                         "url": "{% url 'approval:showdocumentasjson' %}",
                         "dataSrc": ""
@@ -752,7 +751,7 @@
                             className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                             orderable: false,
                             data: null,
-                            defaultContent: '<input class="ckbx" name="ckbx" type=checkbox></input>',
+                            defaultContent: '<input class="ckbx" name="ckbx" type=checkbox>',
                         },
                         {
                             targets: 1,

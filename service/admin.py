@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Servicereport, Serviceform, Vacation, Geolocation, Servicetype
+from .models import Servicereport, Serviceform, Vacation, Geolocation, Servicetype, Vacationcategory
 
 
 @admin.register(Servicereport)
@@ -35,3 +35,10 @@ class ServicetypeAdmin(admin.ModelAdmin):
     list_display = ('typeId', 'typeName', 'orderNumber')
     list_filter = ('typeName',)
     list_display_links = ['typeId', 'typeName', 'orderNumber']
+
+
+@admin.register(Vacationcategory)
+class VacationcategoryAdmin(admin.ModelAdmin):
+    list_display = ('categoryId', 'categoryName')
+    list_filter = ('categoryName',)
+    list_display_links = ['categoryId', 'categoryName']
