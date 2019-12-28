@@ -426,7 +426,7 @@ def approvalhtml(document):
           </tr>
           <tr style="height: 60px">
             <td style="text-align: center;width: 550px">
-              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a href='"""+url+""""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
+              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a target="_blank" href='"""+url+""""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
             </td>
           </tr>
         </table>
@@ -523,7 +523,7 @@ def documenthtml(document):
     if files:
         html += '<table width="60%"><tr><td><b>첨부파일</b></td></tr>'
         for f in files:
-            html += '<tr><td><a href="'+url+'media/' + str(f.file) + '" download>' + f.fileName + ' (' + str(f.fileSize) + 'MB)</a></td></tr>'
+            html += '<tr><td><a target="_blank" href="'+url+'media/' + str(f.file) + '" download>' + f.fileName + ' (' + str(f.fileSize) + 'MB)</a></td></tr>'
         html += '</table>'
 
     html += "</div></body></html>"
