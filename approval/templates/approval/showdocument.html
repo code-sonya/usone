@@ -144,11 +144,11 @@
                 }
                 $('td', nRow).eq(4).text(aData.formNumber + '. ' + aData.formTitle);
                 if (aData.displayStatus2 === '결재대기') {
-                    $('td', nRow).eq(5).css('color', 'red');
+                    $('td', nRow).eq(6).css('color', 'red');
                     $('td', nRow).css('background-color', '#ffe6e6');
                 }
                 if (aData.displayStatus2 === '결재예정') {
-                    $('td', nRow).eq(5).css('color', 'blue');
+                    $('td', nRow).eq(6).css('color', 'blue');
                 }
             }
         });
