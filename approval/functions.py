@@ -243,9 +243,9 @@ def template_format(documentId):
         if len(apply) % 9 != 0:
             for i in range(9 - (len(apply) % 9)):
                 applylst.append({})
-        apply = [{'name': '신청', 'data': applylst}]
+        apply = [{'name': '신청', 'data': applylst, 'count': len(apply)}]
     else:
-        apply = [{'name': '신청', 'data': [{} for i in range(9)]}]
+        apply = [{'name': '신청', 'data': [{} for i in range(9)], 'count': 0}]
     if process:
         processlst = []
         for p in process:
@@ -253,9 +253,9 @@ def template_format(documentId):
         if len(process) % 9 != 0:
             for i in range(9 - (len(process) % 9)):
                 processlst.append({})
-        process = [{'name': '승인', 'data': processlst}]
+        process = [{'name': '승인', 'data': processlst, 'count': len(process)}]
     else:
-        process = [{'name': '승인', 'data': [{} for i in range(9)]}]
+        process = [{'name': '승인', 'data': [{} for i in range(9)], 'count': 0}]
     if reference:
         referencelst = []
         for r in reference:
@@ -263,9 +263,9 @@ def template_format(documentId):
         if len(reference) % 9 != 0:
             for i in range(9 - (len(reference) % 9)):
                 referencelst.append({})
-        reference = [{'name': '참조', 'data': referencelst}]
+        reference = [{'name': '참조', 'data': referencelst, 'count': len(reference)}]
     else:
-        reference = [{'name': '참조', 'data': [{} for i in range(9)]}]
+        reference = [{'name': '참조', 'data': [{} for i in range(9)], 'count': 0}]
 
     if approval:
         approvallst = []
@@ -274,9 +274,9 @@ def template_format(documentId):
         if len(approval) % 9 != 0:
             for i in range(9 - (len(approval) % 9)):
                 approvallst.append({})
-        approval = [{'name': '결재', 'data': approvallst}]
+        approval = [{'name': '결재', 'data': approvallst, 'count': len(approval)}]
     else:
-        approval = [{'name': '결재', 'data': [{} for i in range(9)]}]
+        approval = [{'name': '결재', 'data': [{} for i in range(9)], 'count': 0}]
 
     if agreement:
         agreementlst = []
@@ -285,9 +285,9 @@ def template_format(documentId):
         if len(agreement) % 9 != 0:
             for i in range(9 - (len(agreement) % 9)):
                 agreementlst.append({})
-        agreement = [{'name': '합의', 'data': agreementlst}]
+        agreement = [{'name': '합의', 'data': agreementlst, 'count': len(agreement)}]
     else:
-        agreement = [{'name': '합의', 'data': [{} for i in range(9)]}]
+        agreement = [{'name': '합의', 'data': [{} for i in range(9)], 'count': 0}]
     if financial:
         financiallst = []
         for f in financial:
@@ -295,9 +295,9 @@ def template_format(documentId):
         if len(financial) % 9 != 0:
             for i in range(9 - (len(financial) % 9)):
                 financiallst.append({})
-        financial = [{'name': '재무합의', 'data': financiallst}]
+        financial = [{'name': '재무합의', 'data': financiallst, 'count': len(financial)}]
     else:
-        financial = [{'name': '재무합의', 'data': [{} for i in range(9)]}]
+        financial = [{'name': '재무합의', 'data': [{} for i in range(9)], 'count': 0}]
 
     return apply, process, reference, approval, agreement, financial
 
@@ -376,7 +376,7 @@ def mail_document(toEmail, fromEmail, document):
 
 
 def approvalhtml(document):
-    url = "http://127.0.0.1:8000/"
+    url = "https://lop.unioneinc.co.kr/"
     html = """
     <html lang="ko">
     <head>
@@ -426,7 +426,7 @@ def approvalhtml(document):
           </tr>
           <tr style="height: 60px">
             <td style="text-align: center;width: 550px">
-              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a href='"""+url+""""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
+              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a href='"""+url+"""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
             </td>
           </tr>
         </table>
@@ -439,7 +439,7 @@ def approvalhtml(document):
 
 
 def documenthtml(document):
-    url = "http://127.0.0.1:8000/"
+    url = "https://lop.unioneinc.co.kr/"
     preservationYear = str(document.preservationYear)
     draftDatetime = ''
     approveDatetime = ''
