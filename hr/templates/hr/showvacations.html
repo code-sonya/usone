@@ -63,46 +63,53 @@
 
   <!-- vacation Modal -->
   <div class="modal fade" id="vacationModal" tabindex="-1" role="dialog" aria-labelledby="vacationModalLabel" aria-hidden="true">
-    <div class="modal-xl modal-dialog" role="document">
+    <div class="modal-dialog" role="document">
       <div class="modal-content">
 
-        <div class="modal-header bg-success text-gray-100">
-          <h5 class="modal-title" id="billingPurchaseModalLabel">휴가 등록</h5>
+        <div class="modal-header bg-primary text-gray-100">
+          <h5 class="modal-title" id="billingPurchaseModalLabel">휴가등록</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
+
         <div class="modal-body">
-            <div class="row">
-              <div class="col-12">
-                <table class="pc-table">
-                  {% for deptLevel in deptLevelList %}
-                    <tr style="border: 1px solid white">
-                    {% for level in deptLevel.level %}
-                      <td class="d-lg-block d-none" style="border: 1px solid white">
-                        <b>Level <br> {{ level }} </b>
-                      </td>
-                    {% endfor %}
-                    {% for data in deptLevel.data %}
-                      {% if data.level == 0 %}
-                        <td class="bg-primary text-white" colspan="{{ data.colspan }}">
-                          <span><b>[{{ data.deptName }}]</b></span>
-                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
-                        </td>
-                      {% else %}
-                        <td colspan="{{ data.colspan }}">
-                          {% if data.deptName != '-' %}
-                          <span class="text-primary"><b>[{{ data.deptName }}]</b></span>
-                          {% endif %}
-                          {% if data.deptManager %}<br> {{ data.deptManager }} {{ data.deptManagerPosition }} {% endif %}
-                        </td>
-                      {% endif %}
-                    {% endfor %}
-                    </tr>
+          <form id="vacationForm" onkeydown="javascript: if (event.keyCode == 13) {btn_save();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="empId" class="font-weight-bold text-primary">성함</label>
+                <select type="text" class="form-control" autocomplete="off" id="empId" name="empId">
+                  <option value="">------</option>
+                  {% for employee in employees %}
+                  <option value="{{ employee.empId }}">{{ employee.empName }}</option>
                   {% endfor %}
-                </table>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="vacationType" class="font-weight-bold text-primary">휴가 종류</label>
+                <select type="text" class="form-control" autocomplete="off" id="vacationType" name="vacationType">
+                  <option value="연차">연차</option>
+                  <option value="특별휴가">특별휴가</option>
+                </select>
               </div>
             </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="vacationDays" class="font-weight-bold text-primary">휴가 일수</label>
+                <input type="number" step="0.5" max="100" class="form-control" id="vacationDays" name="vacationDays" value=0 >
+              </div>
+              <div class="col-6">
+                <label for="comment" class="font-weight-bold">비고</label>
+                <input type="text" class="form-control"  id="comment" name="comment" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-primary" href="#" onclick="btn_save()">생성</a>
         </div>
       </div>
     </div>
@@ -114,6 +121,17 @@
 {% block script %}
 
   <script type="text/javascript">
+      function btn_save() {
+          if (document.getElementById("empId").value == '') {
+              alert("성함을 선택해주세요.");
+              return false;
+          }
+          if (document.getElementById("vacationDays").value == '') {
+              alert("휴가일수를 입력해주세요.");
+              return false;
+          }
+          document.getElementById("vacationForm").submit();
+      }
 
       $(document).ready(function () {
           $('#showdepartments').dataTable({

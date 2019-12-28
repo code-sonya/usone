@@ -53,6 +53,6 @@ class AdminEmailAdmin(admin.ModelAdmin):
 
 @admin.register(AdminVacation)
 class AdminVacationAdmin(admin.ModelAdmin):
-    list_display = ('vacationId', 'empId', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDateTime', 'comment')
+    list_display = ('vacationId', 'empId', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDate', 'comment')
     list_filter = ('empId', 'vacationType')
-    list_display_links = ['vacationId', 'empId', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDateTime', 'comment']
+    list_display_links = ['vacationId', 'empId', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDate', 'comment']

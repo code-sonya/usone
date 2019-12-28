@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from extrapay.models import Car
 from .forms import EmployeeForm, DepartmentForm, UserForm
 from .functions import save_punctuality, check_absence, year_absence, adminemail_test, siteMap
-from .models import AdminEmail
+from .models import AdminEmail, AdminVacation
 from .models import Attendance, Employee, Punctuality, Department
 
 
@@ -514,9 +514,24 @@ def redo_default_stamp(request, empId):
 @csrf_exempt
 def show_vacations(request):
     if request.POST:
-        print('post')
+        empId = request.POST['empId']
+        vacationType = request.POST['vacationType']
+        vacationDays = request.POST['vacationDays']
+        comment = request.POST['comment']
+        employee = Employee.objects.get(empId=empId)
+        AdminVacation.objects.create(
+            empId=employee,
+            vacationType=vacationType,
+            vacationDays=vacationDays,
+            creationDateTime=datetime.datetime.now(),
+            comment=comment,
+        )
+
     else:
         print('else')
 
-    context = {}
+    employees = Employee.objects.filter(Q(empStatus='Y'))
+    context = {
+        'employees': employees,
+    }
     return render(request, 'hr/showvacations.html', context)

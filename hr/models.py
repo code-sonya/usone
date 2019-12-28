@@ -98,7 +98,7 @@ class AdminVacation(models.Model):
     vacationType = models.CharField(max_length=20)
     vacationDays = models.FloatField()
     creationDateTime = models.DateTimeField()
-    expirationDateTime = models.DateTimeField(null=True, blank=True)
+    expirationDate = models.DateField(null=True, blank=True)
     comment = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
