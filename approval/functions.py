@@ -376,7 +376,7 @@ def mail_document(toEmail, fromEmail, document):
 
 
 def approvalhtml(document):
-    url = "http://127.0.0.1:8000/"
+    url = "http://lop.unioneinc.co.kr:8031/"
     html = """
     <html lang="ko">
     <head>
@@ -439,7 +439,7 @@ def approvalhtml(document):
 
 
 def documenthtml(document):
-    url = "http://127.0.0.1:8000/"
+    url = "http://lop.unioneinc.co.kr:8031/"
     preservationYear = str(document.preservationYear)
     draftDatetime = ''
     approveDatetime = ''
