@@ -18,6 +18,7 @@ from hr.models import AdminEmail
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval, Documentcomment
 from logs.models import ApprovalLog
 from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
+from hr.functions import siteMap
 from sales.functions import detailPurchase, summaryPurchase
 
 @login_required
@@ -181,8 +182,12 @@ def post_document(request):
                 'dept': emp.empDeptName,
             }
             empNames.append(temp)
+
+        deptLevelList = siteMap()
+
         context = {
-            'empNames': empNames
+            'empNames': empNames,
+            'deptLevelList': deptLevelList,
         }
         return render(request, 'approval/postdocument.html', context)
 
