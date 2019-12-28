@@ -426,7 +426,7 @@ def approvalhtml(document):
           </tr>
           <tr style="height: 60px">
             <td style="text-align: center;width: 550px">
-              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a target="_blank" href='"""+url+""""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
+              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a target="_blank" href='"""+url+"""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
             </td>
           </tr>
         </table>
