@@ -157,6 +157,7 @@ def post_document(request):
         whoApproval = who_approval(document.documentId)
         if len(whoApproval['do']) == 0:
             document.documentStatus = '완료'
+            document.approveDatetime = datetime.datetime.now()
             document.save()
             return redirect("approval:showdocumentdone")
         else:
@@ -814,6 +815,11 @@ def showdocument_asjson(request):
                 documentStatus='임시',
                 writeEmp=request.user.employee
             ).values_list('documentId', flat=True))
+
+        # option 적용
+        if 'option' in request.GET.keys():
+            if request.GET['option'] == '반려제외':
+                documentsDoneReject = []
 
         # 각 문서 분류별 displayStatus 설정
         returnIngDone = Document.objects.filter(

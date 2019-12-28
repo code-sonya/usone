@@ -3,7 +3,6 @@ from django.db import models
 from hr.models import Employee
 from client.models import Company, Customer
 from sales.models import Contract
-# from django_mysql.models import ListTextField, JSONField
 from extrapay.models import OverHour
 
 
@@ -104,6 +103,11 @@ class Serviceform(models.Model):
         return 'Serviceform : {} {}'.format(self.empId, self.companyName)
 
 
+class Vacationcategory(models.Model):
+    categoryId = models.AutoField(primary_key=True)
+    categoryName = models.CharField(max_length=10, unique=True)
+
+
 class Vacation(models.Model):
     vacationTypeChoices = (
         ('일차', '일차'),
@@ -112,11 +116,15 @@ class Vacation(models.Model):
     )
 
     vacationId = models.AutoField(primary_key=True)
+    documentId = models.ForeignKey('approval.Document', on_delete=models.SET_NULL, null=True, blank=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     empName = models.CharField(max_length=10)
     empDeptName = models.CharField(max_length=30)
     vacationDate = models.DateField()
     vacationType = models.CharField(max_length=10, choices=vacationTypeChoices, default='일차')
+    vacationCategory = models.ForeignKey(Vacationcategory, on_delete=models.SET_NULL, null=True, blank=True)
+    comment = models.CharField(max_length=100, null=True, blank=True)
+    vacationStatus = models.CharField(max_length=10, default='N')
 
     def __str__(self):
         return 'Vacation : {}'.format(self.empName)
