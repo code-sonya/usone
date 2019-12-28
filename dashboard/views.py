@@ -697,7 +697,7 @@ def dashboard_location(request):
         serviceEndDatetime=F('serviceId__serviceEndDatetime'),
         serviceStatus=F('serviceId__serviceStatus'),
         companyName=F('serviceId__companyName__companyName'),
-        serviceType=F('serviceId__serviceType'),
+        serviceType=F('serviceId__serviceType__typeName'),
         serviceTitle=F('serviceId__serviceTitle'),
     )
     tables = [
