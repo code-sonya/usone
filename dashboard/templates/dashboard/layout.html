@@ -470,6 +470,18 @@
 {% block script %}{% endblock %}
 
 <script type="text/javascript">
+
+    let buttonStatus = false;
+    const sideBarButton = $('#sidebarToggleTop');
+    sideBarButton.click(function() {
+        if (buttonStatus) {
+            buttonStatus = false;
+        } else {
+            buttonStatus = true;
+        }
+        console.log(buttonStatus);
+    });
+
     function btn_dayreport(path) {
         const dateToday = new Date();
         const yyyy = dateToday.getFullYear();
@@ -559,14 +571,17 @@
     }
 
     function changeToggled(width) {
+        const sideBar = $('#accordionSidebar');
         if (window.innerWidth < width) {
-            $('#accordionSidebar').addClass('toggled');
+            if (!buttonStatus) {
+                sideBar.addClass('toggled');
+            }
             $("#brandimg").attr("src", "/media/logo/usails_m.png");
             $("#brandimg").attr("width", "45px");
         } else {
-            $('#accordionSidebar').removeClass('toggled');
-             $("#brandimg").attr("src", "/media/logo/usails.png");
-             $("#brandimg").attr("width", "140px");
+            sideBar.removeClass('toggled');
+            $("#brandimg").attr("src", "/media/logo/usails.png");
+            $("#brandimg").attr("width", "140px");
         }
     }
 
@@ -595,7 +610,6 @@
         changeToggled(1200);
         counting();
     })
-
 
 </script>
 </body>
