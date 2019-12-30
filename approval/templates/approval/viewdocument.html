@@ -54,12 +54,10 @@
 
 <div class="card shadow mb-4">
   <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-    <h6 class="m-0 h3 text-gray-800">
+    <div class="m-0 h3 text-gray-800" id="title">
       {{ document.formId.formNumber }}.
       {{ document.formId.formTitle }}
-    </h6>
-    <input id="smtpEmail"  type="text" value="{{ email.smtpEmail }}" class="invisible">
-    <input id="smtpStatus" type="text" value="{{ email.smtpStatus }}" class="invisible">
+    </div>
     {% if document.documentStatus == "완료" %}
       <div class="dropdown no-arrow">
         <a class="dropdown-toggle" href="#" role="button" id="emailLink" data-toggle="modal" data-target="#emailModal">
@@ -68,9 +66,12 @@
       </div>
     {% endif %}
   </div>
+  <input id="smtpEmail"  type="text" value="{{ email.smtpEmail }}" class="d-none">
+  <input id="smtpStatus" type="text" value="{{ email.smtpStatus }}" class="d-none">
 
   <div class="card-body">
-    <table class="pc-table">
+    {# pc 화면 #}
+    <table class="pc-table d-none d-xl-block">
       <tbody>
       <tr>
         <td class="pc-table-title" colspan="1">문서 종류</td>
@@ -228,10 +229,184 @@
       {% endfor %}
       </tbody>
     </table>
+    {#  모바일 화면  #}
+    <table class="pc-table d-xl-none">
+      <tr><td colspan="3" class="bg-secondary text-center text-white"> 문 서</td></tr>
+      <tr>
+        <td class="text-center bg-gray-200 font-weight-bold" colspan="1">문서 종류</td>
+        <td colspan="2">
+          {{ document.formId.categoryId.firstCategory }} >
+          {{ document.formId.categoryId.secondCategory }} >
+          {{ document.formId.formTitle }}
+        </td>
+      </tr>
+      <tr>
+        <td class="text-center bg-gray-200 font-weight-bold" colspan="1">문서 번호</td>
+        <td colspan="2">{{ document.documentNumber }}</td>
+      </tr>
+      <tr>
+        <td class="text-center bg-gray-200 font-weight-bold" colspan="1">기안 부서</td>
+        <td colspan="2">{{ document.writeEmp.empDeptName }}</td>
+      </tr>
+      <tr>
+        <td class="text-center bg-gray-200 font-weight-bold" colspan="1">기&nbsp;&nbsp;안&nbsp;&nbsp;자</td>
+        <td colspan="2">{{ document.writeEmp.empName }}</td>
+      </tr>
+      <tr>
+        <td class="text-center bg-gray-200 font-weight-bold" colspan="1">보존 연한</td>
+        <td colspan="2">
+          {% if document.preservationYear == 9999 %} 영구
+          {% else %} {{ document.preservationYear }}년
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td class="text-center bg-gray-200 font-weight-bold" colspan="1">보안 등급</td>
+        <td colspan="2">{{ document.securityLevel }}등급</td>
+      </tr>
+      <tr>
+        <td class="text-center bg-gray-200 font-weight-bold" colspan="1">기안 일시</td>
+        <td colspan="2">{{ document.draftDatetime | date:"Y.m.d. H:i:s" }}</td>
+      </tr>
+      <tr>
+        <td class="text-center bg-gray-200 font-weight-bold" colspan="1">완료 일시</td>
+        <td colspan="2">{{ document.approveDatetime | date:"Y.m.d. H:i:s" }}</td>
+      </tr>
+      <tr><td colspan="3" class="bg-secondary text-center text-white"> 결 재</td></tr>
+    {% if document.formId.approvalFormat == '신청' %}
+        {% for approvals in approvalList %}
+          {% for approval in approvals %}
+            {% if approval.name == '신청' or approval.name == '승인'%}
+              {% if approval.count > 0 %}
+                {% for a in approval.data %}
+                  {% if a.approvalStatus == '완료' %}
+                    <tr>
+                       <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                       <td colspan="2">{{ a.approvalEmp__empName}}(<span class="text-primary">승인</span>)</td>
+                    </tr>
+                  {% elif a.approvalStatus == '반려' %}
+                    <tr>
+                      <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                      <td colspan="2">{{ a.approvalEmp__empName}}(<span class="text-danger">반려</span>)</td>
+                    </tr>
+                  {% elif a.approvalStatus == '대기' %}
+                    {% if user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}
+                      <tr>
+                      <span>
+                        <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                        <td colspan="2">{{ a.approvalEmp__empName}}
+                        <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
+                        <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button>
+                        </td>
+                      </span>
+                      </tr>
+                    {% else %}
+                      <tr>
+                        <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                        <td colspan="2">{{ a.approvalEmp__empName}}(<span>대기</span>)</td>
+                      </tr>
+                    {% endif %}
+                  {% elif a.approvalStatus == '정지' %}
+                    <tr>
+                      <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                      <td colspan="2">{{ a.approvalEmp__empName}}(<span>-</span>)</td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      {% elif document.formId.approvalFormat == '결재' %}
+        {% for approvals in approvalList %}
+          {% for approval in approvals %}
+            {% if approval.name == '결재' or approval.name == '합의' or approval.name == '재무합의' %}
+              {% if approval.count > 0 %}
+                {% for a in approval.data %}
+                  {% if a.approvalStatus == '완료' %}
+                    <tr>
+                       <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                       <td colspan="2">{{ a.approvalEmp__empName}}(<span class="text-primary">승인</span>)</td>
+                    </tr>
+                  {% elif a.approvalStatus == '반려' %}
+                    <tr>
+                      <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                      <td colspan="2">{{ a.approvalEmp__empName}}(<span class="text-danger">반려</span>)</td>
+                    </tr>
+                  {% elif a.approvalStatus == '대기' %}
+                    {% if user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}
+                      <tr>
+                      <span>
+                        <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                        <td colspan="2">{{ a.approvalEmp__empName}}
+                        <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
+                        <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button>
+                        </td>
+                      </span>
+                      </tr>
+                    {% else %}
+                      <tr>
+                        <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                        <td colspan="2">{{ a.approvalEmp__empName}}(<span>대기</span>)</td>
+                      </tr>
+                    {% endif %}
+                  {% elif a.approvalStatus == '정지' %}
+                    <tr>
+                      <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                      <td colspan="2">{{ a.approvalEmp__empName}}(<span>-</span>)</td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      {% endif %}
+      {% for approval in reference %}
+        {% if approval.count > 0 %}
+          {% for a in approval.data %}
+            {% if a.approvalStatus == '완료' %}
+              <tr>
+                 <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                 <td colspan="2">{{ a.approvalEmp__empName}}(<span class="text-primary"><i class="text-primary fas fa-check"></i></span>)</td>
+              </tr>
+            {% elif a.approvalStatus == '대기' %}
+              {% if user.employee.empId == a.approvalEmp and a.approvalEmp in check_approval%}
+              <tr>
+                <span>
+                  <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                  <td colspan="2">{{ a.approvalEmp__empName}}
+                  <button class="btn btn-info" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">확인</button>
+                  </td>
+                </span>
+              </tr>
+              {% else %}
+              <tr>
+                <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                <td colspan="2">{{ a.approvalEmp__empName}}(<span>대기</span>)</td>
+              </tr>
+              {% endif %}
+            {% elif a.approvalStatus == '정지' %}
+              <tr>
+                <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
+                <td colspan="2">{{ a.approvalEmp__empName}}(<span>-</span>)</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+    </table>
 
-    <div class="mt-3 ml-3 text-gray-900">
-      <h4 class="mb-4">{{ document.title }}</h4>
-      {{ document.contentHtml | safe }}
+
+    {# 제목 본문#}
+    <div class="mt-3 text-gray-900">
+      <label class="text-primary font-weight-bold">제목</label>
+      <div class="mb-4" id="documenttitle">{{ document.title }}</div>
+      <hr>
+      <label class="text-primary font-weight-bold">내용</label>
+      <div>
+         {{ document.contentHtml | safe }}
+      </div>
       <br>
       {% if files or related %}
         <hr>
@@ -263,6 +438,7 @@
 
     <hr>
     <div>
+      <label class="text-primary font-weight-bold mb-3">의견</label>
       <form id="documentComment" method="POST" enctype="multipart/form-data" class="input-group mb-3">
         {% csrf_token %}
         <input name="documentId" class="d-none" value="{{ document.documentId }}">
@@ -273,15 +449,13 @@
           </button>
         </div>
       </form>
-      <label class="text-primary font-weight-bold mb-3">의견</label>
       <table class="pc-table">
-
         {% for comment in comments %}
         <tbody>
         <tr>
           <td class="pc-table-title" style="width: 10%">{{ comment.author }}</td>
           <td class="pc-table-detail text-left" style="width: 70%">{{ comment.comment }}</td>
-          <td class="pc-table-detail text-center" style="width: 15%">{{ comment.updated | date:"Y.m.d H:i:s" | slice:"2:" }}</td>
+          <td class="pc-table-detail text-center d-none d-xl-block" style="width: 15%">{{ comment.updated | date:"Y.m.d H:i:s" | slice:"2:" }}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -341,6 +515,16 @@
 
 {% block script %}
 <script type="text/javascript">
+    function changeFont(width) {
+        if (window.innerWidth < width) {
+            $('#title').removeClass('h3');
+            $('#documenttitle').removeClass('h5');
+        } else {
+            $('#title').addClass('h3');
+            $('#documenttitle').addClass('h5');
+        }
+      }
+
     function change_email(val) {
       const address = $("#address");
 
@@ -373,6 +557,7 @@
     }
 
     $(document).ready(function () {
+        changeFont(1200);
         const reference = $('#reference');
         {% if reference %}
           reference.attr("data-id", "{{ reference }}");
