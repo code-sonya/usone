@@ -2443,20 +2443,20 @@ def contract_services(request):
 
 @login_required
 @csrf_exempt
-def view_incentive(request, empId):
-    year = str(datetime.today().year)
+def view_incentive(request, year, empId):
+    year = str(year)
     empName = Employee.objects.get(empId=empId).empName
     empDeptName = Employee.objects.get(empId=empId).empDeptName
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
+    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
     if not incentive:
         msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, })
-    goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=datetime.today().year))
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId,})
+    goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
     if not goal:
         msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, })
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId,})
     table1, table2, table3 = empIncentive(year, empId)
-    table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(year, empDeptName, table2, goal, empName, incentive, empId)
+    table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(year, empDeptName, table2, goal.first(), empName, incentive, empId)
 
     context = {
         'empId': empId,
@@ -2471,6 +2471,7 @@ def view_incentive(request, empId):
         'newCount': newCount,
         'overGp': overGp,
         'incentiveRevenues': incentiveRevenues,
+        'year': year,
     }
     return render(request, 'sales/viewincentive.html', context)
 
@@ -2583,12 +2584,12 @@ def save_cost(request):
 
 @login_required
 def view_incentiveall(request):
-    todayYear = datetime.today().year
-
     # 조회 분기 (기본값은 현재 분기)
     if request.method == "POST":
+        todayYear = int(request.POST["year"])
         todayQuarter = int(request.POST["quarter"])
     else:
+        todayYear = datetime.today().year
         todayMonth = datetime.today().month
         todayQuarter = ((todayMonth + 2) // 3)
 
@@ -2605,13 +2606,13 @@ def view_incentiveall(request):
         beforeQuarter = todayQuarter - 1
 
     emps = Incentive.objects.filter(
-        Q(year=datetime.today().year) &
+        Q(year=todayYear) &
         Q(quarter__lte=todayQuarter) &
         Q(empId__empStatus='Y')
     ).values('empId').distinct()
 
     basic = Incentive.objects.filter(
-        Q(year=datetime.today().year) &
+        Q(year=todayYear) &
         Q(quarter__lte=todayQuarter)
     ).values('empId', 'empId__empPosition__positionName', 'empId__empName').annotate(
         empPosition=F('empId__empPosition__positionName'),
@@ -2625,7 +2626,7 @@ def view_incentiveall(request):
 
     if beforeQuarter:
         before = Incentive.objects.filter(
-            Q(year=datetime.today().year) &
+            Q(year=todayYear) &
             Q(quarter__lte=beforeQuarter)
         ).values('empId').annotate(
             sum_achieveIncentive=Sum('achieveIncentive'),
@@ -2635,7 +2636,7 @@ def view_incentiveall(request):
         before = []
 
     current = Incentive.objects.filter(
-        Q(year=datetime.today().year) &
+        Q(year=todayYear) &
         Q(quarter=todayQuarter)
     ).values('empId', 'achieveIncentive', 'achieveAward')
 
