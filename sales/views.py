@@ -961,7 +961,7 @@ def contracts_asjson(request):
     else:
         contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
 
-    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.employee.departmentName.deptLevel == 0 or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
@@ -1036,7 +1036,7 @@ def revenues_asjson(request):
         else:
             revenues = Revenue.objects.all()
 
-    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.employee.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         revenues = revenues.filter(contractId__empDeptName=user.empDeptName)
@@ -1421,7 +1421,7 @@ def purchases_asjson(request):
         else:
             purchase = Purchase.objects.all()
 
-    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.employee.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         purchase = purchase.filter(contractId__empDeptName=user.empDeptName)
@@ -2204,7 +2204,7 @@ def inadvance_asjson(request):
 
     contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
 
-    if user.empDeptName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.employee.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
@@ -3896,7 +3896,7 @@ def showpurchaseorder_asjson(request):
     empName = request.POST['empName']
     purchaseCompany = request.POST['purchaseCompany']
 
-    if request.user.employee.empDeptName in ['임원','경영지원부'] or request.user.is_staff:
+    if request.user.employee.empPosition.positionName == '임원' or request.user.employee.empDeptName == '경영지원부' or request.user.is_staff:
         purchaseorders = Purchaseorder.objects.all()
     else:
         purchaseorders = Purchaseorder.objects.filter(Q(writeEmp=request.user.employee.empId))
