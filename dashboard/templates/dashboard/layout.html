@@ -152,7 +152,7 @@
               <a class="collapse-item" href="/sales/viewsalaryall/">급여증감현황</a>
             {% endif %}
             {% if '영업' in user.employee.empDeptName %}
-              <a class="collapse-item" href="/sales/viewincentive/{{ user.employee.empId }}">나의인센티브현황</a>
+              <a class="collapse-item" href="#" onclick="my_incentive()">나의인센티브현황</a>
             {% endif %}
             {% if user.employee.empDeptName == '경영지원본부' %}
             <a class="collapse-item" href="/sales/showincentives/">인센티브관리</a>
@@ -563,7 +563,6 @@
     }
 
     function changeToggled(width) {
-
         const sideBar = $('#accordionSidebar');
         if (window.innerWidth < width) {
             if (!buttonStatus) {
@@ -589,6 +588,12 @@
               }
           }
         });
+    }
+
+    function my_incentive() {
+        const dateToday = new Date();
+        const yyyy = dateToday.getFullYear();
+        location.href = '/sales/viewincentive/' + String(yyyy) + '/{{ user.employee.empId }}/';
     }
 
     $(window).resize(function() {
