@@ -345,8 +345,13 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
         'revenuePrice': revenuePrice,
         'profitPrice': profitPrice,
     }
-    row['revenueRatio'] = round(row['revenuePrice'] / row['revenueTarget'] * 100)
-    row['profitRatio'] = round(row['profitPrice'] / row['profitTarget'] * 100)
+    if row['revenueTarget']:
+        row['revenueRatio'] = round(row['revenuePrice'] / row['revenueTarget'] * 100)
+        row['profitRatio'] = round(row['profitPrice'] / row['profitTarget'] * 100)
+    else:
+        row['revenueRatio'] = '-'
+        row['profitRatio'] = '-'
+
     rows.append(row)
 
     return rows

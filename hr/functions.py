@@ -62,7 +62,7 @@ def save_punctuality(dateList):
                 # 업로드된 데이터 날짜의 employee 첫번째 지문 기록
                 attendance = Attendance.objects.filter(Q(attendanceDate=date) & Q(empId_id=user['employee__empId'])).order_by('attendanceTime').first()
                 service = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='Y') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
-                sangju = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='N') & Q(serviceType__icontains='상주') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
+                sangju = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='N') & Q(serviceType__typeName__icontains='상주') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
                 # print("service:", service, "sangju:", sangju)
                 # 휴가
                 if vacation:
@@ -75,14 +75,14 @@ def save_punctuality(dateList):
                         # service = Servicereport.objects.filter(Q(serviceDate=date) & Q(empId=user['employee__empId']) & Q(directgo='Y')).first()
                         # 오후반차이고 상주일때
                         if sangju:
-                            if sangju.first().serviceType == '상주':
+                            if sangju.first().serviceType.typeName == '상주':
                                 user['status'] = '상주'
                                 user['comment'] = str(sangju.first().companyName) + ' / 오후반차'
 
                         elif service:
                             # 오후반차이고 직출 교육일때
                             user['status'] = '직출'
-                            if service.first().serviceType == '교육':
+                            if service.first().serviceType.typeName == '교육':
                                 user['comment'] = '교육 / 오후반차'
                             # 오후반차이고 직출일때
                             else:
@@ -101,13 +101,13 @@ def save_punctuality(dateList):
 
                 else:
                     if sangju:
-                        if sangju.first().serviceType == '상주':
+                        if sangju.first().serviceType.typeName == '상주':
                             user['status'] = '상주'
                             user['comment'] = str(sangju.first().companyName)
                     elif service:
                         # 오후반차이고 직출 교육일때
                         user['status'] = '직출'
-                        if service.first().serviceType == '교육':
+                        if service.first().serviceType.typeName == '교육':
                             user['comment'] = '교육'
                         # 오후반차이고 직출일때
                         else:
