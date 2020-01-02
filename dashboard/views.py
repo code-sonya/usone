@@ -36,7 +36,7 @@ def dashboard_service(request):
         startdate = datetime(today.year, today.month, 1)
         enddate = startdate + relativedelta(months=1) - relativedelta(days=1)
 
-    all_support_data = Servicereport.objects.filter((Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')) & Q(serviceStatus='Y')).exclude(serviceType="교육")
+    all_support_data = Servicereport.objects.filter((Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')) & Q(serviceStatus='Y')).exclude(serviceType__typeName='교육')
 
     if startdate:
         all_support_data = all_support_data.filter(Q(serviceDate__gte=startdate))
@@ -302,6 +302,33 @@ def dashboard_quarter(request):
         endCompanyName = ''
         contractName = ''
 
+    # 목표 입력 전,
+    if salesTarget:
+        Sales_rate = round(cumulativeSalesAmount / salesTarget * 100, 2)
+        opp_firm_sales_rate = round(opptyFirmSales / salesTarget * 100, 2)
+    else:
+        Sales_rate = '-'
+        opp_firm_sales_rate = '-'
+    if profitTarget:
+        Profit_rate = round(cumulativeProfitAmount['cumulative_profit_amount'] / profitTarget * 100, 2)
+        opp_firm_profits_rate = round(opptyFirmProfits / profitTarget * 100, 2)
+    else:
+        Profit_rate = '-'
+        opp_firm_profits_rate = '-'
+    if salesQuarterTarget:
+        Salesquater_rate = round(quarterlyCumulativeSales['quarterly_cumulative_sales'] / salesQuarterTarget * 100, 2)
+        quarter_opp_firm_sales_rate  = round(quarterOpptyFirmSales / salesQuarterTarget * 100, 2),
+    else:
+        Salesquater_rate = '-'
+        quarter_opp_firm_sales_rate = '-'
+    if profitQuarterTarget:
+        Profitquater_rate = round(quarterlyCumulativeProfit['quarterly_cumulative_profit'] / profitQuarterTarget * 100, 2)
+        quarter_opp_firm_profits_rate  = round(quarterOpptyFirmProfits / profitQuarterTarget * 100, 2),
+    else:
+        Profitquater_rate = '_'
+        quarter_opp_firm_profits_rate = '-'
+
+
     context = {
         "todayYear": todayYear,
         "todayQuarter": todayQuarter,
@@ -309,10 +336,10 @@ def dashboard_quarter(request):
         "profitTarget": profitTarget,
         "salesQuarterTarget": salesQuarterTarget,
         "profitQuarterTarget": profitQuarterTarget,
-        "Sales_rate": round(cumulativeSalesAmount / salesTarget * 100, 2),
-        "Profit_rate": round(cumulativeProfitAmount['cumulative_profit_amount'] / profitTarget * 100, 2),
-        "Salesquater_rate": round(quarterlyCumulativeSales['quarterly_cumulative_sales'] / salesQuarterTarget * 100, 2),
-        "Profitquater_rate": round(quarterlyCumulativeProfit['quarterly_cumulative_profit'] / profitQuarterTarget * 100, 2),
+        "Sales_rate": Sales_rate,
+        "Profit_rate": Profit_rate,
+        "Salesquater_rate": Salesquater_rate,
+        "Profitquater_rate": Profitquater_rate,
         "cumulative_sales_amount": cumulativeSalesAmount,
         "cumulative_profit_amount": cumulativeProfitAmount['cumulative_profit_amount'],
         "quarterly_cumulative_sales": quarterlyCumulativeSales['quarterly_cumulative_sales'],
@@ -321,12 +348,12 @@ def dashboard_quarter(request):
         "quarterly_profit": quarterlyProfit['quarterly_profit'],
         "opp_firm_sales": opptyFirmSales,
         "opp_firm_profits": opptyFirmProfits,
-        "opp_firm_sales_rate": round(opptyFirmSales / salesTarget * 100, 2),
-        "opp_firm_profits_rate": round(opptyFirmProfits / profitTarget * 100, 2),
+        "opp_firm_sales_rate": opp_firm_sales_rate,
+        "opp_firm_profits_rate": opp_firm_profits_rate,
         "quarter_opp_firm_sales": quarterOpptyFirmSales,
         "quarter_opp_firm_profits": quarterOpptyFirmProfits,
-        "quarter_opp_firm_sales_rate": round(quarterOpptyFirmSales / salesQuarterTarget * 100, 2),
-        "quarter_opp_firm_profits_rate": round(quarterOpptyFirmProfits / profitQuarterTarget * 100, 2),
+        "quarter_opp_firm_sales_rate": quarter_opp_firm_sales_rate,
+        "quarter_opp_firm_profits_rate": quarter_opp_firm_profits_rate,
         "quarter_opp": quarterOppty,
         "quarter_firm": quarterFirm,
         "quarterFirmProfitSum":quarterFirmProfitSum,
@@ -512,6 +539,8 @@ def quarter_asjson(request):
     team = request.POST['team']
     if team == '합계':
         team = ''
+
+    print(request.POST)
     month = request.POST['month'].replace('월', '')
     cumulative = request.POST['cumulative']
     quarter = request.POST['quarter']
