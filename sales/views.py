@@ -2804,7 +2804,7 @@ def monthly_bill(request):
         todayQuarter = 4
 
     try:
-        expenseDate = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__month=todayMonth)).aggregate(expenseDate=Max('expenseDate'))
+        expenseDate = Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseDate__year=todayYear) & Q(expenseDate__month=todayMonth)).aggregate(expenseDate=Max('expenseDate'))
         expenseDate = expenseDate['expenseDate']
     except:
         expenseDate = '-'
