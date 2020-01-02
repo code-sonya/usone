@@ -966,7 +966,9 @@ def contracts_asjson(request):
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
     else:
-        if user.empName == '최규성' or user.empName == '전세현':
+        if user.empName == '최규성':
+            contracts = contracts.filter(Q(empId=user.empId) | Q(empName='이용주'))
+        elif user.empName == '전세현':
             contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표') | Q(empName='이용주'))
         elif user.empName == '전병선':
             contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표'))
