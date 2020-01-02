@@ -2419,16 +2419,17 @@ def contract_costs(request):
 @csrf_exempt
 def contract_services(request):
     contractId = request.POST['contractId']
-    services = Servicereport.objects.filter(Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
+    services = Servicereport.objects.filter(
+        Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
     services = services.annotate(
         salary=Case(
-            When(serviceType='상주' or '프로젝트상주', then=Value(0)),
+            When(serviceType__typeName='상주' or '프로젝트상주', then=Value(0)),
             default=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()),
             output_field=FloatField(),
         ),
     ).annotate(
         overSalary=Case(
-            When(serviceType='상주' or '프로젝트상주', then=Value(0)),
+            When(serviceType__typeName='상주' or '프로젝트상주', then=Value(0)),
             default=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()),
             output_field=FloatField(),
         )
