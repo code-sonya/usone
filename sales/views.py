@@ -2450,11 +2450,11 @@ def view_incentive(request, year, empId):
     incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
     if not incentive:
         msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId,})
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
     goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
     if not goal:
         msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId,})
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
     table1, table2, table3 = empIncentive(year, empId)
     table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(year, empDeptName, table2, goal.first(), empName, incentive, empId)
 
@@ -2607,8 +2607,14 @@ def view_incentiveall(request):
 
     emps = Incentive.objects.filter(
         Q(year=todayYear) &
-        Q(quarter__lte=todayQuarter) &
-        Q(empId__empStatus='Y')
+        Q(quarter__lte=todayQuarter)
+        # Q(empId__empStatus='Y')
+    ).values('empId').distinct()
+
+    excludeEmps = Incentive.objects.filter(
+        Q(year=todayYear) &
+        Q(quarter=todayQuarter) &
+        Q(salary=0)
     ).values('empId').distinct()
 
     basic = Incentive.objects.filter(
@@ -2641,61 +2647,65 @@ def view_incentiveall(request):
     ).values('empId', 'achieveIncentive', 'achieveAward')
 
     table = []
-    sum_table = {'sum_salary': 0, 'sum_basicSalary': 0, 'sum_bettingSalary': 0, 'sum_cumulateIncentive': 0, 'sum_achieveIncentive': 0, 'achieveIncentive': 0, 'achieveAward': 0,
-                 'sum_achieveAward': 0, 'compareIncentive': 0}
+    sum_table = {
+        'sum_salary': 0, 'sum_basicSalary': 0, 'sum_bettingSalary': 0,
+        'sum_cumulateIncentive': 0, 'sum_achieveIncentive': 0, 'achieveIncentive': 0,
+        'achieveAward': 0, 'sum_achieveAward': 0, 'compareIncentive': 0
+    }
 
     for emp in emps:
-        _, _, tmp_table3 = empIncentive(str(todayYear), int(emp['empId']))
-        tmp_basic = basic.get(empId=emp['empId'])
+        if emp not in excludeEmps:
+            _, _, tmp_table3 = empIncentive(str(todayYear), int(emp['empId']))
+            tmp_basic = basic.get(empId=emp['empId'])
 
-        if beforeQuarter:
-            tmp_before = before.get(empId=emp['empId'])
-        else:
-            tmp_before = {'sum_achieveIncentive': 0}
-        tmp_current = current.get(empId=emp['empId'])
+            if beforeQuarter:
+                tmp_before = before.get(empId=emp['empId'])
+            else:
+                tmp_before = {'sum_achieveIncentive': 0}
+            tmp_current = current.get(empId=emp['empId'])
 
-        achieveRatio = 0
-        creditRatio = 0
-        ACC = 0
-        cumulateIncentive = 0
+            achieveRatio = 0
+            creditRatio = 0
+            ACC = 0
+            cumulateIncentive = 0
 
-        for t in tmp_table3:
-            if t['name'] == '목표 달성률':
-                achieveRatio = t['q' + str(todayQuarter)]
-            if t['name'] == '인정률':
-                creditRatio = t['q' + str(todayQuarter)]
-            if t['name'] == 'ACC':
-                ACC = t['q' + str(todayQuarter)]
-            if t['name'] == '예상누적인센티브':
-                cumulateIncentive = t['q' + str(todayQuarter)]
+            for t in tmp_table3:
+                if t['name'] == '목표 달성률':
+                    achieveRatio = t['q' + str(todayQuarter)]
+                if t['name'] == '인정률':
+                    creditRatio = t['q' + str(todayQuarter)]
+                if t['name'] == 'ACC':
+                    ACC = t['q' + str(todayQuarter)]
+                if t['name'] == '예상누적인센티브':
+                    cumulateIncentive = t['q' + str(todayQuarter)]
 
-        sum_table['sum_salary'] += tmp_basic['sum_salary']
-        sum_table['sum_basicSalary'] += tmp_basic['sum_basicSalary']
-        sum_table['sum_bettingSalary'] += tmp_basic['sum_bettingSalary']
-        sum_table['sum_cumulateIncentive'] += cumulateIncentive
-        sum_table['sum_achieveIncentive'] += tmp_before['sum_achieveIncentive']
-        sum_table['achieveIncentive'] += tmp_current['achieveIncentive']
-        sum_table['sum_achieveAward'] += tmp_basic['sum_achieveAward']
-        sum_table['achieveAward'] += tmp_current['achieveAward']
-        sum_table['compareIncentive'] += (cumulateIncentive + tmp_basic['sum_achieveAward']) - tmp_basic['sum_bettingSalary']
+            sum_table['sum_salary'] += tmp_basic['sum_salary']
+            sum_table['sum_basicSalary'] += tmp_basic['sum_basicSalary']
+            sum_table['sum_bettingSalary'] += tmp_basic['sum_bettingSalary']
+            sum_table['sum_cumulateIncentive'] += cumulateIncentive
+            sum_table['sum_achieveIncentive'] += tmp_before['sum_achieveIncentive']
+            sum_table['achieveIncentive'] += tmp_current['achieveIncentive']
+            sum_table['sum_achieveAward'] += tmp_basic['sum_achieveAward']
+            sum_table['achieveAward'] += tmp_current['achieveAward']
+            sum_table['compareIncentive'] += (cumulateIncentive + tmp_basic['sum_achieveAward']) - tmp_basic['sum_bettingSalary']
 
-        table.append({
-            'empId': emp['empId'],
-            'empPosition': tmp_basic['empPosition'],
-            'empName': tmp_basic['empName'],
-            'achieveRatio': achieveRatio,
-            'sum_salary': tmp_basic['sum_salary'],
-            'sum_basicSalary': tmp_basic['sum_basicSalary'],
-            'sum_bettingSalary': tmp_basic['sum_bettingSalary'],
-            'creditRatio': creditRatio,
-            'ACC': ACC,
-            'cumulateIncentive': cumulateIncentive,
-            'before_achieve': tmp_before['sum_achieveIncentive'],
-            'achieveIncentive': tmp_current['achieveIncentive'],
-            'achieveAward': tmp_current['achieveAward'],
-            'sum_achieveAward': tmp_basic['sum_achieveAward'],
-            'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward']) - tmp_basic['sum_bettingSalary'],
-        })
+            table.append({
+                'empId': emp['empId'],
+                'empPosition': tmp_basic['empPosition'],
+                'empName': tmp_basic['empName'],
+                'achieveRatio': achieveRatio,
+                'sum_salary': tmp_basic['sum_salary'],
+                'sum_basicSalary': tmp_basic['sum_basicSalary'],
+                'sum_bettingSalary': tmp_basic['sum_bettingSalary'],
+                'creditRatio': creditRatio,
+                'ACC': ACC,
+                'cumulateIncentive': cumulateIncentive,
+                'before_achieve': tmp_before['sum_achieveIncentive'],
+                'achieveIncentive': tmp_current['achieveIncentive'],
+                'achieveAward': tmp_current['achieveAward'],
+                'sum_achieveAward': tmp_basic['sum_achieveAward'],
+                'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward']) - tmp_basic['sum_bettingSalary'],
+            })
 
     context = {
         'todayYear': todayYear,
@@ -2901,8 +2911,8 @@ def monthly_bill(request):
     return render(request, 'sales/monthlybill.html', context)
 
 @login_required
-def view_incentiveall_pdf(request, quarter):
-    todayYear = datetime.today().year
+def view_incentiveall_pdf(request, year, quarter):
+    todayYear = year
 
     # 조회 분기 (기본값은 현재 분기)
     todayQuarter = int(quarter)
@@ -2919,10 +2929,19 @@ def view_incentiveall_pdf(request, quarter):
     else:
         beforeQuarter = todayQuarter - 1
 
-    emps = Incentive.objects.filter(Q(year=datetime.today().year) & Q(quarter__lte=todayQuarter) & Q(empId__empStatus='Y')).values('empId').distinct()
+    emps = Incentive.objects.filter(
+        Q(year=todayYear) &
+        Q(quarter__lte=todayQuarter)
+    ).values('empId').distinct()
+
+    excludeEmps = Incentive.objects.filter(
+        Q(year=todayYear) &
+        Q(quarter=todayQuarter) &
+        Q(salary=0)
+    ).values('empId').distinct()
 
     basic = Incentive.objects.filter(
-        Q(year=datetime.today().year) &
+        Q(year=todayYear) &
         Q(quarter__lte=todayQuarter)
     ).values('empId', 'empId__empPosition__positionName', 'empId__empName').annotate(
         empPosition=F('empId__empPosition__positionName'),
@@ -2936,7 +2955,7 @@ def view_incentiveall_pdf(request, quarter):
 
     if beforeQuarter:
         before = Incentive.objects.filter(
-            Q(year=datetime.today().year) &
+            Q(year=todayYear) &
             Q(quarter__lte=beforeQuarter)
         ).values('empId').annotate(
             sum_achieveIncentive=Sum('achieveIncentive'),
@@ -2946,65 +2965,69 @@ def view_incentiveall_pdf(request, quarter):
         before = []
 
     current = Incentive.objects.filter(
-        Q(year=datetime.today().year) &
+        Q(year=todayYear) &
         Q(quarter=todayQuarter)
     ).values('empId', 'achieveIncentive', 'achieveAward')
 
     table = []
-    sum_table = {'sum_salary': 0, 'sum_basicSalary': 0, 'sum_bettingSalary': 0, 'sum_cumulateIncentive': 0, 'sum_achieveIncentive': 0, 'achieveIncentive': 0, 'achieveAward': 0,
-                 'sum_achieveAward': 0}
+    sum_table = {
+        'sum_salary': 0, 'sum_basicSalary': 0, 'sum_bettingSalary': 0,
+        'sum_cumulateIncentive': 0, 'sum_achieveIncentive': 0,
+        'achieveIncentive': 0, 'achieveAward': 0, 'sum_achieveAward': 0
+    }
 
     for emp in emps:
-        _, _, tmp_table3 = empIncentive(str(todayYear), int(emp['empId']))
-        tmp_basic = basic.get(empId=emp['empId'])
+        if emp not in excludeEmps:
+            _, _, tmp_table3 = empIncentive(str(todayYear), int(emp['empId']))
+            tmp_basic = basic.get(empId=emp['empId'])
 
-        if beforeQuarter:
-            tmp_before = before.get(empId=emp['empId'])
-        else:
-            tmp_before = {'sum_achieveIncentive': 0}
-        tmp_current = current.get(empId=emp['empId'])
+            if beforeQuarter:
+                tmp_before = before.get(empId=emp['empId'])
+            else:
+                tmp_before = {'sum_achieveIncentive': 0}
+            tmp_current = current.get(empId=emp['empId'])
 
-        achieveRatio = 0
-        creditRatio = 0
-        ACC = 0
-        cumulateIncentive = 0
+            achieveRatio = 0
+            creditRatio = 0
+            ACC = 0
+            cumulateIncentive = 0
 
-        for t in tmp_table3:
-            if t['name'] == '목표 달성률':
-                achieveRatio = t['q' + str(todayQuarter)]
-            if t['name'] == '인정률':
-                creditRatio = t['q' + str(todayQuarter)]
-            if t['name'] == 'ACC':
-                ACC = t['q' + str(todayQuarter)]
-            if t['name'] == '예상누적인센티브':
-                cumulateIncentive = t['q' + str(todayQuarter)]
+            for t in tmp_table3:
+                if t['name'] == '목표 달성률':
+                    achieveRatio = t['q' + str(todayQuarter)]
+                if t['name'] == '인정률':
+                    creditRatio = t['q' + str(todayQuarter)]
+                if t['name'] == 'ACC':
+                    ACC = t['q' + str(todayQuarter)]
+                if t['name'] == '예상누적인센티브':
+                    cumulateIncentive = t['q' + str(todayQuarter)]
 
-        sum_table['sum_salary'] += tmp_basic['sum_salary']
-        sum_table['sum_basicSalary'] += tmp_basic['sum_basicSalary']
-        sum_table['sum_bettingSalary'] += tmp_basic['sum_bettingSalary']
-        sum_table['sum_cumulateIncentive'] += cumulateIncentive
-        sum_table['sum_achieveIncentive'] += tmp_before['sum_achieveIncentive']
-        sum_table['achieveIncentive'] += tmp_current['achieveIncentive']
-        sum_table['sum_achieveAward'] += tmp_basic['sum_achieveAward']
-        sum_table['achieveAward'] += tmp_current['achieveAward']
+            sum_table['sum_salary'] += tmp_basic['sum_salary']
+            sum_table['sum_basicSalary'] += tmp_basic['sum_basicSalary']
+            sum_table['sum_bettingSalary'] += tmp_basic['sum_bettingSalary']
+            sum_table['sum_cumulateIncentive'] += cumulateIncentive
+            sum_table['sum_achieveIncentive'] += tmp_before['sum_achieveIncentive']
+            sum_table['achieveIncentive'] += tmp_current['achieveIncentive']
+            sum_table['sum_achieveAward'] += tmp_basic['sum_achieveAward']
+            sum_table['achieveAward'] += tmp_current['achieveAward']
 
-        table.append({
-            'empId': emp['empId'],
-            'empPosition': tmp_basic['empPosition'],
-            'empName': tmp_basic['empName'],
-            'achieveRatio': achieveRatio,
-            'sum_salary': tmp_basic['sum_salary'],
-            'sum_basicSalary': tmp_basic['sum_basicSalary'],
-            'sum_bettingSalary': tmp_basic['sum_bettingSalary'],
-            'creditRatio': creditRatio,
-            'ACC': ACC,
-            'cumulateIncentive': cumulateIncentive,
-            'before_achieve': tmp_before['sum_achieveIncentive'],
-            'achieveIncentive': tmp_current['achieveIncentive'],
-            'achieveAward': tmp_current['achieveAward'],
-            'sum_achieveAward': tmp_basic['sum_achieveAward'],
-            'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward']) - tmp_basic['sum_bettingSalary'],
-        })
+            table.append({
+                'empId': emp['empId'],
+                'empPosition': tmp_basic['empPosition'],
+                'empName': tmp_basic['empName'],
+                'achieveRatio': achieveRatio,
+                'sum_salary': tmp_basic['sum_salary'],
+                'sum_basicSalary': tmp_basic['sum_basicSalary'],
+                'sum_bettingSalary': tmp_basic['sum_bettingSalary'],
+                'creditRatio': creditRatio,
+                'ACC': ACC,
+                'cumulateIncentive': cumulateIncentive,
+                'before_achieve': tmp_before['sum_achieveIncentive'],
+                'achieveIncentive': tmp_current['achieveIncentive'],
+                'achieveAward': tmp_current['achieveAward'],
+                'sum_achieveAward': tmp_basic['sum_achieveAward'],
+                'compareIncentive': (cumulateIncentive + tmp_basic['sum_achieveAward']) - tmp_basic['sum_bettingSalary'],
+            })
 
     context = {
         'todayYear': todayYear,
@@ -3029,12 +3052,12 @@ def view_incentiveall_pdf(request, quarter):
 
 
 @login_required
-def view_salaryall(request):
-    todayYear = datetime.today().year
-    emps = Incentive.objects.filter(Q(year=datetime.today().year)).values('empId').distinct()
+def view_salaryall(request, year):
+    todayYear = str(year)
+    emps = Incentive.objects.filter(year=todayYear).values('empId').distinct()
     table = []
     basic = Incentive.objects.filter(
-        Q(year=datetime.today().year)
+        Q(year=todayYear)
     ).values('empId', 'empId__empPosition__positionName', 'empId__empName').annotate(
         empPosition=F('empId__empPosition__positionName'),
         empName=F('empId__empName'),
@@ -3044,9 +3067,13 @@ def view_salaryall(request):
         sum_achieveIncentive=Sum('achieveIncentive'),
         sum_achieveAward=Sum('achieveAward'),
     )
-    sum_table = {'sum_quarter1_bettingSalary': 0, 'sum_quarter2_bettingSalary': 0, 'sum_quarter3_bettingSalary': 0, 'sum_quarter4_bettingSalary': 0,
-                 'sum_quarter1_achieveIncentiveAward': 0, 'sum_quarter2_achieveIncentiveAward': 0, 'sum_quarter3_achieveIncentiveAward': 0, 'sum_quarter4_achieveIncentiveAward': 0,
-                 'sum_quarter1_salaryIncreaseDecrease': 0, 'sum_quarter2_salaryIncreaseDecrease': 0, 'sum_quarter3_salaryIncreaseDecrease': 0, 'sum_quarter4_salaryIncreaseDecrease': 0}
+    sum_table = {
+        'sum_quarter1_bettingSalary': 0, 'sum_quarter2_bettingSalary': 0, 'sum_quarter3_bettingSalary': 0, 'sum_quarter4_bettingSalary': 0,
+        'sum_quarter1_achieveIncentiveAward': 0, 'sum_quarter2_achieveIncentiveAward': 0,
+        'sum_quarter3_achieveIncentiveAward': 0, 'sum_quarter4_achieveIncentiveAward': 0,
+        'sum_quarter1_salaryIncreaseDecrease': 0, 'sum_quarter2_salaryIncreaseDecrease': 0,
+        'sum_quarter3_salaryIncreaseDecrease': 0, 'sum_quarter4_salaryIncreaseDecrease': 0
+    }
     for emp in emps:
         emp_quarter = {}
         for q in range(1, 5):
@@ -3056,7 +3083,8 @@ def view_salaryall(request):
             emp_quarter['empName'] = tmp_quarter['empName']
             emp_quarter['quarter{}_bettingSalary'.format(str(q))] = tmp_quarter['sum_bettingSalary']
             emp_quarter['quarter{}_achieveIncentiveAward'.format(str(q))] = tmp_quarter['sum_achieveIncentive'] + tmp_quarter['sum_achieveAward']
-            emp_quarter['quarter{}_salaryIncreaseDecrease'.format(str(q))] = (tmp_quarter['sum_achieveIncentive'] + tmp_quarter['sum_achieveAward']) - tmp_quarter['sum_bettingSalary']
+            emp_quarter['quarter{}_salaryIncreaseDecrease'.format(str(q))] = (tmp_quarter['sum_achieveIncentive'] + tmp_quarter['sum_achieveAward']) \
+                                                                             - tmp_quarter['sum_bettingSalary']
 
         sum_table['sum_quarter1_bettingSalary'] += emp_quarter['quarter1_bettingSalary']
         sum_table['sum_quarter2_bettingSalary'] += emp_quarter['quarter2_bettingSalary']
@@ -3073,18 +3101,21 @@ def view_salaryall(request):
 
         table.append(emp_quarter)
 
-    context = {'todayYear': todayYear,
-               'table': table,
-               'sum_table': sum_table}
+    context = {
+        'todayYear': todayYear,
+        'table': table,
+        'sum_table': sum_table
+    }
     return render(request, 'sales/viewsalaryall.html', context)
 
 
 @login_required
 def view_salaryall_pdf(request, year):
+    todayYear = str(year)
     emps = Incentive.objects.filter(Q(year=year)).values('empId').distinct()
     table = []
     basic = Incentive.objects.filter(
-        Q(year=datetime.today().year)
+        Q(year=todayYear)
     ).values('empId', 'empId__empPosition__positionName', 'empId__empName').annotate(
         empPosition=F('empId__empPosition__positionName'),
         empName=F('empId__empName'),
@@ -3094,12 +3125,14 @@ def view_salaryall_pdf(request, year):
         sum_achieveIncentive=Sum('achieveIncentive'),
         sum_achieveAward=Sum('achieveAward'),
     )
-    sum_table = {'sum_quarter1_bettingSalary': 0, 'sum_quarter2_bettingSalary': 0, 'sum_quarter3_bettingSalary': 0,
-                 'sum_quarter4_bettingSalary': 0,
-                 'sum_quarter1_achieveIncentiveAward': 0, 'sum_quarter2_achieveIncentiveAward': 0,
-                 'sum_quarter3_achieveIncentiveAward': 0, 'sum_quarter4_achieveIncentiveAward': 0,
-                 'sum_quarter1_salaryIncreaseDecrease': 0, 'sum_quarter2_salaryIncreaseDecrease': 0,
-                 'sum_quarter3_salaryIncreaseDecrease': 0, 'sum_quarter4_salaryIncreaseDecrease': 0}
+    sum_table = {
+        'sum_quarter1_bettingSalary': 0, 'sum_quarter2_bettingSalary': 0,
+        'sum_quarter3_bettingSalary': 0, 'sum_quarter4_bettingSalary': 0,
+        'sum_quarter1_achieveIncentiveAward': 0, 'sum_quarter2_achieveIncentiveAward': 0,
+        'sum_quarter3_achieveIncentiveAward': 0, 'sum_quarter4_achieveIncentiveAward': 0,
+        'sum_quarter1_salaryIncreaseDecrease': 0, 'sum_quarter2_salaryIncreaseDecrease': 0,
+        'sum_quarter3_salaryIncreaseDecrease': 0, 'sum_quarter4_salaryIncreaseDecrease': 0
+    }
     for emp in emps:
         emp_quarter = {}
         for q in range(1, 5):
@@ -3129,9 +3162,11 @@ def view_salaryall_pdf(request, year):
 
         table.append(emp_quarter)
 
-    context = {'todayYear': year,
-               'table': table,
-               'sum_table': sum_table}
+    context = {
+        'todayYear': todayYear,
+        'table': table,
+        'sum_table': sum_table
+    }
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="{}년도 급여증감현황.pdf"'.format(year)
 
@@ -3145,21 +3180,21 @@ def view_salaryall_pdf(request, year):
     return response
 
 
-def view_incentive_pdf(request, empId):
-    year = str(datetime.today().year)
+def view_incentive_pdf(request, year, empId):
+    year = str(year)
     empName = Employee.objects.get(empId=empId).empName
     empDeptName = Employee.objects.get(empId=empId).empDeptName
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
+    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
     if not incentive:
         msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, })
-    goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=datetime.today().year))
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+    goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
     if not goal:
         msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, })
+        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
     table1, table2, table3 = empIncentive(year, empId)
     table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues \
-        = award(year, empDeptName, table2, goal, empName, incentive, empId)
+        = award(year, empDeptName, table2, goal.first(), empName, incentive, empId)
     context = {
         'empId': empId,
         'empName': empName,
@@ -3173,6 +3208,7 @@ def view_incentive_pdf(request, empId):
         'newCount': newCount,
         'overGp': overGp,
         'incentiveRevenues': incentiveRevenues,
+        'year': year,
     }
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="{}님인센티브현황.pdf"'.format(empId)

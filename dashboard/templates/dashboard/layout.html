@@ -149,7 +149,7 @@
           <div class="bg-white py-2 collapse-inner rounded">
             {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' %}
               <a class="collapse-item" href="/sales/viewincentiveall/">인센티브현황</a>
-              <a class="collapse-item" href="/sales/viewsalaryall/">급여증감현황</a>
+              <a class="collapse-item" href="#" onclick="view_salary()">급여증감현황</a>
             {% endif %}
             {% if '영업' in user.employee.empDeptName %}
               <a class="collapse-item" href="#" onclick="my_incentive()">나의인센티브현황</a>
@@ -594,6 +594,12 @@
         const dateToday = new Date();
         const yyyy = dateToday.getFullYear();
         location.href = '/sales/viewincentive/' + String(yyyy) + '/{{ user.employee.empId }}/';
+    }
+
+    function view_salary() {
+        const dateToday = new Date();
+        const yyyy = dateToday.getFullYear();
+        location.href = '/sales/viewsalaryall/' + String(yyyy) + '/';
     }
 
     $(window).resize(function() {
