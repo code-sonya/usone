@@ -55,24 +55,29 @@
   <div class="card-body">
     <form id="document" method="POST" enctype="multipart/form-data" class="d-none">{% csrf_token %}</form>
     <div class="row mb-2">
-      <div class="col-8 font-weight-bold text-primary">문서종류</div>
-      <div class="col-2 font-weight-bold text-primary">보존연한</div>
-      <div class="col-2 font-weight-bold text-primary">보안등급</div>
+      <!--<div class="col-8 font-weight-bold text-primary">문서종류</div>-->
+      <!--<div class="col-2 font-weight-bold text-primary">보존연한</div>-->
+      <!--<div class="col-2 font-weight-bold text-primary">보안등급</div>-->
     </div>
     <div class="row mb-3">
-      <div class="col-2">
-        <select id="firstCategory" name="firstCategory" class="form-control"></select>
+      <div class="col-xl-2">
+        <label class="font-weight-bold text-primary mb-0">문서종류</label>
+        <select id="firstCategory" niv ="firstCategory" class="form-control"></select>
       </div>
-      <div class="col-2">
+      <div class="col-xl-2">
+        <label class="font-weight-bold text-primary mt-4 d-none d-xl-block"></label>
         <select id="secondCategory" name="secondCategory" class="form-control"></select>
       </div>
-      <div class="col-4">
+      <div class="col-xl-4">
+        <label class="font-weight-bold text-primary mt-4 d-none d-xl-block"></label>
         <select id="formTitle" name="formTitle" class="form-control"></select>
       </div>
-      <div class="col-2">
+      <div class="col-xl-2">
+        <label class="font-weight-bold text-primary mb-0">보존연한</label>
         <span id="preservationYear" name="preservationYear" class="form-control"></span>
       </div>
-      <div class="col-2">
+      <div class="col-xl-2">
+        <label class="font-weight-bold text-primary mb-0">보안등급</label>
         <span id="securityLevel" name="securityLevel" class="form-control"></span>
       </div>
     </div>
@@ -126,12 +131,12 @@
 
       <div class="d-flex flex-row align-items-center justify-content-between">
         <label for="contentHtml" class="font-weight-bold text-primary">본문</label>
-        <span>※ 문서편집기 하단을 드래그 하여 크기를 조정할 수 있습니다.</span>
+        <span class="d-none d-xl-block">※ 문서편집기 하단을 드래그 하여 크기를 조정할 수 있습니다.</span>
       </div>
       <div id="contentHtml"></div>
 
       <div class="row">
-        <div class="col-6">
+        <div class="col-xl-6">
           <label class="font-weight-bold text-primary mt-3">첨부파일</label>
           <table class="file-table">
             <thead>
@@ -150,7 +155,7 @@
             </tbody>
           </table>
         </div>
-        <div class="col-6">
+        <div class="col-xl-6">
           <label class="font-weight-bold text-primary mt-3">관련문서</label>
           <table class="file-table">
             <thead>
