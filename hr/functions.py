@@ -75,7 +75,7 @@ def save_punctuality(dateList):
                         # service = Servicereport.objects.filter(Q(serviceDate=date) & Q(empId=user['employee__empId']) & Q(directgo='Y')).first()
                         # 오후반차이고 상주일때
                         if sangju:
-                            if sangju.first().serviceType.typeName == '상주':
+                            if sangju.first().serviceType.typeName == '상주' or sangju.first().serviceType.typeName == '프로젝트상주':
                                 user['status'] = '상주'
                                 user['comment'] = str(sangju.first().companyName) + ' / 오후반차'
 
@@ -101,7 +101,7 @@ def save_punctuality(dateList):
 
                 else:
                     if sangju:
-                        if sangju.first().serviceType.typeName == '상주':
+                        if sangju.first().serviceType.typeName == '상주' or sangju.first().serviceType.typeName == '프로젝트상주':
                             user['status'] = '상주'
                             user['comment'] = str(sangju.first().companyName)
                     elif service:
