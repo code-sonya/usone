@@ -1200,10 +1200,10 @@ def summaryPurchase(contractId, salePrice):
     # 1. 상품_HW = 상품_HW (1)
     # 2. 상품_SW = 상품_SW, DB COSTS (2, 7)
     # 3. 용역_HW = 유지보수_HW, 인력지원_자사_HW, 인력지원_타사_HW(3, 5, 6) - 상품_HW, 유지보수_HW
-    # 4. 용역_SW = 유지보수_SW, 인력지원_자사_SW, 인력지원_타사_SW(4, 5, 6) - 상품_SW, 유지보수_SW, PM_상주는 어디로?
+    # 4. 용역_SW = 유지보수_SW, 인력지원_자사_SW, 인력지원_타사_SW(4, 5, 6) - 상품_SW, 유지보수_SW, PM_상주
     # 5. 기타 = 기타 (8)
-    HW_lst = ['상품_HW', '유지보수_HW']
-    SW_lst = ['상품_SW', '유지보수_SW']
+    HW_lst = ['상품HW', '유지보수HW']
+    SW_lst = ['상품SW', '유지보수SW', 'PM상주']
     sumType1 = 0
     sumType2 = 0
     sumType3 = 0
