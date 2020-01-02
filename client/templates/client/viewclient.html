@@ -92,7 +92,7 @@
                 {% if contracts %}
                   {% for contract in contracts %}
 
-                    {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' %}
+                    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' %}
                       <span>[<a class='text-info' href="/sales/viewcontract/{{ contract.contractId }}/">{{ contract.contractCode }}</a>]</span>
                     {% else %}
                       <span>[{{ contract.contractCode }}]</span>
@@ -226,7 +226,7 @@
         </div>
       </div>
 
-      {% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
+      {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
         <div class="card shadow mb-4">
           <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 h3 text-gray-700">계약 이력</h6>

@@ -539,8 +539,6 @@ def quarter_asjson(request):
     team = request.POST['team']
     if team == '합계':
         team = ''
-
-    print(request.POST)
     month = request.POST['month'].replace('월', '')
     cumulative = request.POST['cumulative']
     quarter = request.POST['quarter']
