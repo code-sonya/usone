@@ -2124,7 +2124,7 @@ def outstanding_asjson(request):
 @login_required
 @csrf_exempt
 def check_gp(request):
-    contracts = Contract.objects.all()
+    contracts = Contract.objects.all().exclude(contractStep='Drop')
     revenues = Revenue.objects.values('contractId').annotate(sum_price=Sum('revenuePrice'), sum_profit=Sum('revenueProfitPrice'))
     purchases = Purchase.objects.values('contractId').annotate(sum_price=Sum('purchasePrice'))
     costs = Cost.objects.values('contractId').annotate(sum_price=Sum('costPrice'))
@@ -2168,15 +2168,27 @@ def check_gp(request):
 @csrf_exempt
 def check_service(request):
     services = Servicereport.objects.filter(
-        Q(contractId__isnull=False) & Q(serviceStatus='Y') & ~Q(serviceType__icontains='상주') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
+        Q(contractId__isnull=False) &
+        Q(serviceStatus='Y') &
+        ~Q(serviceType__typeName__icontains='상주') &
+        (
+                Q(empDeptName='DB지원팀') |
+                Q(empDeptName='솔루션지원팀') |
+                Q(empDeptName='인프라서비스사업팀')
+        )
+    )
 
-    services = services.values('contractId').annotate(salary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()),
-                                                      overSalary=Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()),
-                                                      sumSalary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()) +
-                                                                Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()))
+    services = services.values('contractId').annotate(
+        salary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()),
+        overSalary=Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()),
+        sumSalary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()) +
+                  Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField())
+    )
 
-    services = services.values('contractId_id', 'contractId__contractCode', 'contractId__contractName', 'contractId__contractStartDate', 'contractId__contractEndDate', 'contractId__salePrice',
-                               'contractId__profitPrice', 'salary', 'overSalary', 'sumSalary')
+    services = services.values(
+        'contractId_id', 'contractId__contractCode', 'contractId__contractName', 'contractId__contractStartDate',
+        'contractId__contractEndDate', 'contractId__salePrice', 'contractId__profitPrice', 'salary', 'overSalary', 'sumSalary'
+    )
 
     for service in services:
         service['gpSalary'] = service['contractId__profitPrice'] - service['sumSalary']
