@@ -252,7 +252,8 @@
                   $.ajax({
                               type: "POST",
                               url: "/hr/deletevacation/",
-                              data: {'vacationId': vacationId},
+                              data: {'vacationId': vacationId,
+                                    'empId': vacationId},
                               dataType: "json",
                               success: function (response) {
                                   alert('휴가가 삭제되었습니다.')

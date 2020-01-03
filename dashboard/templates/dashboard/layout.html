@@ -307,7 +307,7 @@
     <!-- Divider -->
     <hr class="sidebar-divider d-none d-md-block">
 
-    {% if user.is_staff %}
+    {% if user.is_staff or user.employee.empDeptName == '경영지원본부' %}
       <li class="nav-item">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="true" aria-controls="collapseSettings">
             <i class="fas fa-fw fa-tools text-white"></i>
