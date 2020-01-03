@@ -559,5 +559,10 @@ def showvacations_asjson(request):
 def delete_vacation(request):
     if request.method == 'POST' and request.is_ajax():
         vacationId = request.POST.get('vacationId', None)
-        AdminVacation.objects.filter(vacationId=vacationId).delete()
+        adminVacation = AdminVacation.objects.get(vacationId=vacationId)
+        employee = Employee.objects.get(empId=adminVacation.empId.empId)
+        employee.empAnnualLeave = employee.empAnnualLeave - adminVacation.vacationDays
+        employee.save()
+        adminVacation.delete()
+
         return HttpResponse(json.dumps({'vacationId': vacationId}), content_type="application/json")
