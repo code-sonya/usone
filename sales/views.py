@@ -256,6 +256,9 @@ def copy_contract(request, contractId):
     contract.pk = None
     contract.save()
 
+    # 단계 Opportunity로 변경
+    contract.contractStep = 'Opportunity'
+
     # 관리번호 자동생성
     yy = str(datetime.now().year)[2:]
     mm = str(datetime.now().month).zfill(2)
@@ -934,7 +937,7 @@ def empdept_asjson(request):
 @csrf_exempt
 def category_asjson(request):
     mainCategory = request.POST['mainCategory']
-    subcategory = Category.objects.filter(mainCategory=mainCategory)
+    subcategory = Category.objects.filter(mainCategory=mainCategory).order_by('subCategory')
     json = serializers.serialize('json', subcategory)
     return HttpResponse(json, content_type='application/json')
 
@@ -3530,12 +3533,12 @@ def maincategory_asjson(request):
     contractId = request.POST['contractId']
     if contractId:
         items = Contractitem.objects.filter(contractId=contractId).values('mainCategory', 'subCategory')
-        maincategory = Category.objects.all().values('mainCategory').distinct()
+        maincategory = Category.objects.all().values('mainCategory').distinct().order_by('mainCategory')
         jsonList = []
         jsonList.append(list(maincategory))
         jsonList.append(list(items))
     else:
-        maincategory = Category.objects.all().values('mainCategory').distinct()
+        maincategory = Category.objects.all().values('mainCategory').distinct().order_by('mainCategory')
         jsonList = list(maincategory)
     structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -3673,7 +3676,7 @@ def post_purchase_order(request, contractId, purchaseOrderCompanyName):
         purchaseCompany=purchaseOrderCompany,
         formId=purchaseOrderForm,
         writeEmp=emp,
-        title=purchaseOrderCompanyName + ' 매입발주서 자동생성',
+        title='[유니원아이앤씨] ' + contract.contractName + '의 발주서를 송부드립니다.' ,
         contentHtml=contentHtml,
         writeDatetime=datetime.now(),
         modifyDatetime=datetime.now(),
