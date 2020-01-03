@@ -584,7 +584,12 @@
             focusShow: false,
         });
 
-        $('.note-input').replaceWith($('<span>' + $('.note-input').val() + '</span>'));
+        // input box : 수정 불가, 배경색 및 테두리제거
+        const noteInput = $('.note-input')
+        noteInput.attr('disabled', 'disabled');
+        noteInput.css('background', '#ffffff');
+        noteInput.css('border', 'none');
+
     })
 
 </script>
