@@ -66,15 +66,19 @@
           <table id="showvacations" class="hover row-border" style="width: 100%;">
             <thead>
             <tr>
-              <th class="d-none">vacationId</th>
+              <!--<th class="d-none">empId</th>-->
               <th>부서명</th>
               <th>성함</th>
-              <th>휴가종류</th>
-              <th>휴가일수</th>
-              <th>휴가생성일시</th>
-              <th>휴가만료일자</th>
-              <th>비고</th>
-              <th><i class="fas fa-trash"></i></th>
+              <th>입사일</th>
+              <th>연차[생성]</th>
+              <th>연차[잔여]</th>
+              <th>특별휴가[생성]</th>
+              <th>특별휴가[잔여]</th>
+              <th>훈련[사용]</th>
+              <th>경조사[사용]</th>
+              <th>병가[사용]</th>
+              <th>출산[사용]</th>
+              <th>보상휴가[사용]</th>
             </tr>
             </thead>
           </table>
@@ -83,59 +87,6 @@
     </div>
   </div>
 
-  <!-- vacation Modal -->
-  <div class="modal fade" id="vacationModal" tabindex="-1" role="dialog" aria-labelledby="vacationModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-primary text-gray-100">
-          <h5 class="modal-title" id="billingPurchaseModalLabel">휴가등록</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="vacationForm" action="/hr/savevacation/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_save();}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="empId" class="font-weight-bold text-primary">성함</label>
-                <select type="text" class="form-control" autocomplete="off" id="empId" name="empId">
-                  <option value="">------</option>
-                  {% for employee in employees %}
-                  <option value="{{ employee.empId }}">{{ employee.empName }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-6">
-                <label for="vacationType" class="font-weight-bold text-primary">휴가 종류</label>
-                <select type="text" class="form-control" autocomplete="off" id="vacationType" name="vacationType">
-                  <option value="연차">연차</option>
-                  <option value="특별휴가">특별휴가</option>
-                </select>
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="vacationDays" class="font-weight-bold text-primary">휴가 일수</label>
-                <input type="number" step="0.5" max="100" class="form-control" id="vacationDays" name="vacationDays" value=0 >
-              </div>
-              <div class="col-6">
-                <label for="comment" class="font-weight-bold">비고</label>
-                <input type="text" class="form-control"  id="comment" name="comment" required>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-primary" href="#" onclick="btn_save()">생성</a>
-        </div>
-      </div>
-    </div>
-  </div>
   <!-- filter Modal -->
   <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -151,8 +102,8 @@
         <div class="modal-body">
           <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
-            <label for="vacationType" class="font-weight-bold text-primary">조회 년도</label>
-              <input type="number" max="9999" step="1" class="form-control" name="year">
+            <label for="year" class="font-weight-bold text-primary">조회 년도</label>
+              <input type="number" max="9999" step="1" class="form-control" name="year" id="year">
           </form>
         </div>
 
@@ -171,24 +122,17 @@
 
   <script type="text/javascript">
       function btn_filter() {
-            document.getElementById("filterForm").submit();
-      }
+          if (document.getElementById("year").value == ''){
+              alert("조회 년도를 입력 해주세요.");
+              return false;
+          };
 
-      function btn_save() {
-          if (document.getElementById("empId").value == '') {
-              alert("성함을 선택해주세요.");
-              return false;
-          }
-          if (document.getElementById("vacationDays").value == '') {
-              alert("휴가일수를 입력해주세요.");
-              return false;
-          }
-          document.getElementById("vacationForm").submit();
+          document.getElementById("filterForm").submit();
       }
 
       function replaceAll(str, searchStr, replaceStr) {
           var new_str = str.split(searchStr).join(replaceStr);
-          return new_str.split("T").join(" ").slice(0,16);
+          return new_str.split("T").join(" ").slice(0,10);
       }
 
       $(document).ready(function () {
@@ -200,64 +144,83 @@
                   "data": {
                     "year":{{ year }},
                   },
-                  "url": "{% url 'hr:showvacationsasjson' %}",
+                  "url": "{% url 'hr:vacationsexcelasjson' %}",
                   "dataSrc": ""
               },
               "columnDefs": [
                   {
-                       "render": function (data, type, row) {
-                          return '<div name="vacationId">' + data + '</div>'
-                      },
-                      targets: 0, className: "d-none"
+                      targets: 0,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "empDeptName",
                   },
                   {
                       targets: 1,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "empId__empDeptName",
+                      data: "empName",
                   },
                   {
                       targets: 2,
                       width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "empId__empName"
+                      data: "empStartDate"
                   },
                   {
                       targets: 3,
                       width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "vacationType",
+                      data: "createAnnualLeave",
                   },
                   {
                       targets: 4,
                       width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "vacationDays",
+                      data: "remainingAnnualLeave",
                   },
                   {
                       targets: 5,
                       width: "15%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "creationDateTime",
+                      data: "createSpecialLeave",
                   },
                   {
                       targets: 6,
                       width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "expirationDate",
+                      data: "remainingSpecialLeave",
                   },
                   {
                       targets: 7,
                       width: "15%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "comment",
+                      data: "useTraining",
                   },
                   {
-                       "render": function (data, type, row) {
-                          return '<i class="fas fa-times-circle" name="remove">'
-                      },
-                      targets: 8, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
+                      targets: 8,
+                      width: "15%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "useInvestigation",
                   },
+                  {
+                      targets: 9,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "useSickleave",
+                  },
+                  {
+                      targets: 10,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "useMaternityleave",
+                  },
+                  {
+                      targets: 11,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "useCompensation",
+                  },
+
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -284,7 +247,7 @@
               "scrollY": "60vh",
               "scrollX": false,
               "scrollCollapse": true,
-              "order": [[5, 'desc']],
+              "order": [[0, 'asc']],
               "language": {
                   "lengthMenu": "_MENU_ 개씩 보기",
                   "search": "검색:",
@@ -296,9 +259,9 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  if (aData.creationDateTime != "") {
-                      $('td:eq(5)', nRow).text(replaceAll(aData.creationDateTime,"-","."));
-                  }
+                    $('td:eq(4)', nRow).css('color', '#4e73df');
+                    $('td:eq(6)', nRow).css('color', '#4e73df');
+
               },
               "footerCallback": function () {
               },
