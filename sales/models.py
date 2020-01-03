@@ -347,3 +347,25 @@ class Relatedpurchaseestimate(models.Model):
     relatedId = models.AutoField(primary_key=True)
     purchaseOrder = models.ForeignKey(Purchaseorder, on_delete=models.PROTECT)
     purchaseEstimate = models.ForeignKey(Purchasefile, on_delete=models.PROTECT)
+
+# 나중에 Category 테이블이랑 합쳐야 함.
+class Classification(models.Model):
+    classificationId = models.AutoField(primary_key=True)
+    mainCategory = models.CharField(max_length=50)
+    subCategory = models.CharField(max_length=50)
+
+    def __str__(self):
+        return '{} {}'.format(self.mainCategory, self.subCategory)
+
+# 나중에 Contractitem 테이블이랑 합쳐야 함.
+class Purchasecontractitem(models.Model):
+    contractItemId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
+    mainCategory = models.CharField(max_length=50)
+    subCategory = models.CharField(max_length=50)
+    itemName = models.CharField(max_length=50)
+    itemPrice = models.BigIntegerField()
+
+    def __str__(self):
+        return '{} : {}'.format(self.contractId.contractName, self.itemName)

@@ -39,6 +39,10 @@
       border-top: 0px dotted #858796a3;
     }
 
+    .dataTable td {
+      padding: 10px;
+    }
+
   </style>
 
 {% endblock %}
@@ -140,8 +144,8 @@
 
             <hr class="divider">
             <div>
-              <div class="col-xl-12">
-                <h5 class="text-dark mb-3"><b> ▼ 세부사항</b></h5>
+              <div class="col-xl-12 pl-0">
+                <h5 class="text-dark mb-3"><b>▼ 매출 세부사항</b></h5>
                 <table id="categoryItem" class="display" style="width:100%">
                   <thead style="width:100%">
                   <tr>
@@ -175,7 +179,7 @@
 
             <div id="revenuediv">
               <hr class="divider">
-              <h5 class="text-dark mb-3"><b>▼ 매출세부정보</b>
+              <h5 class="text-dark mb-3"><b>▼ 매출 빌링스케줄</b>
                 <a class="text-white" href="#" role="button" id="revenuesLink" data-toggle="modal" data-target="#billingRevenueModal">
                   <i class="fas fa-divide text-danger"></i>
                 </a>
@@ -212,9 +216,46 @@
               </table>
             </div>
 
+            <hr class="divider">
+            <div>
+              <div class="col-xl-12 pl-0">
+                <h5 class="text-dark mb-3"><b>▼ 매입 세부사항</b></h5>
+                <table id="purchaseCategoryItem" class="display" style="width:100%">
+                  <thead style="width:100%">
+                  <tr>
+                    <th>구분</th>
+                    <th class="font-weight-bold text-primary">매입처</th>
+                    <th class="font-weight-bold text-primary">대분류
+                      {% if user.is_staff %}
+                      <a class="text-white" href="#" role="button" id="classificationModalLink" data-toggle="modal" data-target="#classificationModal">
+                        <i class="fas fa-plus-circle fa-fw text-info"></i>
+                      </a>
+                      {% endif %}
+                    </th>
+                    <th class="font-weight-bold text-primary">소분류</th>
+                    <th>상세내용</th>
+                    <th class="font-weight-bold text-primary">금액</th>
+                    <th><i id="purchaseAddItem" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+                  </tr>
+                  </thead>
+                  <tfoot>
+                  <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th class="text-right">TOTAL : </th>
+                    <th><span class="totalpurchaseItemPrice"></span></th>
+                    <th></th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
             <div id="purchasediv">
               <hr class="divider">
-              <h5 class="text-dark mb-3"><b>▼ 매입세부정보</b></h5>
+              <h5 class="text-dark mb-3"><b>▼ 매입 빌링스케줄</b></h5>
               <h5 class="text-dark mb-3"><b>&nbsp;&nbsp;&nbsp;(세금계산서 접수항목)</b>
                 <a class="text-white" href="#" role="button" id="purchasesLink" data-toggle="modal" data-target="#billingPurchaseModal">
                   <i class="fas fa-divide text-danger"></i>
@@ -253,9 +294,6 @@
             <div id="costdiv">
               <hr class="divider">
               <h5 class="text-dark mb-3"><b>&nbsp;&nbsp;&nbsp;(세금계산서 미접수항목)</b>
-                <!--<a class="text-white" href="#" role="button" id="costsLink" data-toggle="modal" data-target="#billingCostModal">-->
-                  <!--<i class="fas fa-calendar-check fa-fw text-success"></i>-->
-                <!--</a>-->
               </h5>
               <table id="cost" class="display" style="width:100%">
                 <thead style="width:100%">
@@ -291,228 +329,6 @@
                 </tr>
                 </tfoot>
               </table>
-            </div>
-
-            <div id="purchasetypediv">
-              <hr class="divider">
-              <h5 class="text-dark mb-3"><b>▼ 하도급계약 상세내용</b></h5>
-              <div class="form-group row">
-                <div class="col-xl-6">
-                  <div class="text-dark mb-3"><b>1. 상품_HW</b></div>
-                  <table id="goodsHW" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>체크</th>
-                      <th class="font-weight-bold text-primary">거래처</th>
-                      <th class="font-weight-bold text-primary">내역</th>
-                      <th class="font-weight-bold text-primary">금액</th>
-                      <th><i id="addGoodsHW" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                      <th>TOTAL :</th>
-                      <th><span class="totalGoodsHWPrice"></span></th>
-                      <th></th>
-                    </tr>
-                    </tfoot>
-                  </table>
-                </div>
-                <div class="col-xl-6">
-                  <div class="text-dark mb-3"><b>2. 상품_SW</b></div>
-                  <table id="goodsSW" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>체크</th>
-                      <th class="font-weight-bold text-primary">거래처</th>
-                      <th class="font-weight-bold text-primary">내역</th>
-                      <th class="font-weight-bold text-primary">금액</th>
-                      <th><i id="addGoodsSW" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                      <th>TOTAL :</th>
-                      <th><span class="totalGoodsSWPrice"></span></th>
-                      <th></th>
-                    </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-              <div class="form-group row">
-                <div class="col-xl-6">
-                  <div class="text-dark mb-3"><b>3. 유지보수_HW</b></div>
-                  <table id="maintenanceHW" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>체크</th>
-                      <th class="font-weight-bold text-primary">거래처</th>
-                      <th class="font-weight-bold text-primary">내역</th>
-                      <th class="font-weight-bold text-primary">금액</th>
-                      <th><i id="addMaintenanceHW" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                      <th>TOTAL :</th>
-                      <th><span class="totalMaintenanceHWPrice"></span></th>
-                      <th></th>
-                    </tr>
-                    </tfoot>
-                  </table>
-                </div>
-                <div class="col-xl-6">
-                  <div class="text-dark mb-3"><b>4. 유지보수_SW</b></div>
-                  <table id="maintenanceSW" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>체크</th>
-                      <th class="font-weight-bold text-primary">거래처</th>
-                      <th class="font-weight-bold text-primary">내역</th>
-                      <th class="font-weight-bold text-primary">금액</th>
-                      <th><i id="addMaintenanceSW" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                      <th>TOTAL :</th>
-                      <th><span class="totalMaintenanceSWPrice"></span></th>
-                      <th></th>
-                    </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-              <div class="form-group row">
-                <div class="col-xl-6">
-                  <div class="text-dark mb-3"><b>5. 인력지원_자사서비스</b></div>
-                  <table id="supportInternal" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>체크</th>
-                      <th class="font-weight-bold text-primary">구분
-                        {% if user.is_staff %}
-                        <a class="text-white" href="#" role="button" id="classificationBLink" data-toggle="modal" data-target="#classificationBModal">
-                          <i class="fas fa-plus-circle fa-fw text-info"></i>
-                        </a>
-                        {% endif %}
-                      </th>
-                      <th>횟수</th>
-                      <th>사이트수</th>
-                      <th class="font-weight-bold text-primary">단가</th>
-                      <th class="font-weight-bold text-primary">금액</th>
-                      <th><i id="addSupportInternal" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th>TOTAL :</th>
-                      <th><span class="totalSupportInternalPrice"></span></th>
-                      <th></th>
-                    </tr>
-                    </tfoot>
-                  </table>
-                </div>
-                <div class="col-xl-6">
-                  <div class="text-dark mb-3"><b>6. 인력지원_타사서비스</b></div>
-                  <table id="supportExternal" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>체크</th>
-                      <th class="font-weight-bold text-primary">구분
-                        {% if user.is_staff %}
-                        <a class="text-white" href="#" role="button" id="classificationC1Link" data-toggle="modal" data-target="#classificationC1Modal">
-                          <i class="fas fa-plus-circle fa-fw text-info"></i>
-                        </a>
-                        {% endif %}
-                      </th>
-                      <th class="font-weight-bold text-primary">내역</th>
-                      <th class="font-weight-bold text-primary">금액</th>
-                      <th><i id="addSupportExternal" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                      <th>TOTAL :</th>
-                      <th><span class="totalSupportExternalPrice"></span></th>
-                      <th></th>
-                    </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-
-              <div class="form-group row">
-                <div class="col-xl-6">
-                  <div class="text-dark mb-3"><b>7. DB COSTS</b></div>
-                  <table id="dbCosts" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>체크</th>
-                      <th class="font-weight-bold text-primary">계약번호</th>
-                      <th>계약시작일</th>
-                      <th>계약종료일</th>
-                      <th class="font-weight-bold text-primary">금액</th>
-                      <th><i id="addDbCosts" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th>TOTAL :</th>
-                      <th><span class="totalDbCostsPrice"></span></th>
-                      <th></th>
-                    </tr>
-                    </tfoot>
-                  </table>
-                </div>
-                <div class="col-xl-6">
-                  <div class="text-dark mb-3"><b>8. 기타</b></div>
-                  <table id="others" class="display" style="width:100%">
-                    <thead style="width:100%">
-                    <tr>
-                      <th>체크</th>
-                      <th class="font-weight-bold text-primary">구분
-                        {% if user.is_staff %}
-                        <a class="text-white" href="#" role="button" id="classificationC2Link" data-toggle="modal" data-target="#classificationC2Modal">
-                            <i class="fas fa-plus-circle fa-fw text-info"></i>
-                        </a>
-                        {% endif %}
-                      </th>
-                      <th class="font-weight-bold text-primary">내역</th>
-                      <th class="font-weight-bold text-primary">금액</th>
-                      <th><i id="addOthers" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
-                    </tr>
-                    </thead>
-                    <tfoot>
-                    <tr>
-                      <th></th>
-                      <th></th>
-                      <th>TOTAL :</th>
-                      <th><span class="totalOthersPrice"></span></th>
-                      <th></th>
-                    </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
             </div>
 
             <div class="text-center">
@@ -655,7 +471,7 @@
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="categoryModalLabel">세부사항 등록</h5>
+          <h5 class="modal-title" id="categoryModalLabel">매출 세부사항 등록</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
@@ -685,6 +501,44 @@
     </div>
   </div>
 
+
+  <!-- classification Modal -->
+  <div class="modal fade" id="classificationModal" tabindex="-1" role="dialog" aria-labelledby="classificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="classificationModalLabel">매입 세부사항 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="classificationForm" onkeydown="javascript: if (event.keyCode == 13) {btn_purchasecategory();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="main" class="font-weight-bold text-primary">대분류 명</label>
+                <input type="text" class="form-control" name="main" id="purchasemain" required>
+              </div>
+               <div class="col-6">
+                <label for="sub" class="font-weight-bold text-primary">소분류 명</label>
+                <input type="text" class="form-control" name="sub" id="purchasesub" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_purchasecategory()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
   <!-- costContents Modal -->
   <div class="modal fade" id="costContentsModal" tabindex="-1" role="dialog" aria-labelledby="costContentsModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -712,102 +566,6 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-info" href="#" onclick="btn_costContents()">등록</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- classificationB Modal -->
-  <div class="modal fade" id="classificationBModal" tabindex="-1" role="dialog" aria-labelledby="classificationBModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="classificationBModalLabel">구분 항목 등록(인력지원_자사서비스)</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="classificationBForm" onkeydown="javascript: if (event.keyCode == 13) {btn_classification('classificationB');}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-12">
-                <label for="costContents" class="font-weight-bold text-primary">구분항목 명</label>
-                <input type="text" class="form-control" id="classificationB" name="costContents" required>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_classification('classificationB')">등록</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- classificationC1 Modal -->
-  <div class="modal fade" id="classificationC1Modal" tabindex="-1" role="dialog" aria-labelledby="classificationC1ModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="classificationC1ModalLabel">구분 항목 등록(인력지원_타사서비스)</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="classificationC1Form" onkeydown="javascript: if (event.keyCode == 13) {btn_classification('classificationC1');}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-12">
-                <label for="costContents" class="font-weight-bold text-primary">구분항목 명</label>
-                <input type="text" class="form-control" id="classificationC1" name="costContents" required>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_classification('classificationC1')">등록</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- classificationC2 Modal -->
-  <div class="modal fade" id="classificationC2Modal" tabindex="-1" role="dialog" aria-labelledby="classificationC2ModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="classificationC2ModalLabel">구분 항목 등록(기타)</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="classificationCForm" onkeydown="javascript: if (event.keyCode == 13) {btn_classification('classificationC2');}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-12">
-                <label for="costContents" class="font-weight-bold text-primary">구분항목 명</label>
-                <input type="text" class="form-control" id="classificationC2" name="costContents" required>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_classification('classificationC2')">등록</a>
         </div>
       </div>
     </div>
@@ -921,6 +679,7 @@
       var purchaseCounter = 0;
       var itemCounter = 0;
       var costCounter = 0;
+      var purchaseItemCounter = 0;
       var supportInternalCounter = 0;
       var supportExternalCounter = 0;
       var othersCounter = 0;
@@ -1114,6 +873,56 @@
                               if(exists==false){
                                   const option = $("<option value=" + mainCategory + ">" + mainCategory + "</option>");
                                   $('#item1'+count).append(option);
+                              }
+
+                      }
+                  }
+              }
+          });
+      }
+
+      function btn_purchasecategory(){
+          const mainCategory = document.getElementById("purchasemain").value;
+          const subCategory = document.getElementById("purchasesub").value;
+
+          if (mainCategory === '') {
+              alert("대분류 명을 입력해주세요.");
+              return false;
+          }
+
+          if (subCategory === '') {
+              alert("소분류 명을 입력해주세요.");
+              return false;
+          }
+
+          $.ajax({
+              url: "{% url 'sales:savepurchasecategory' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "mainCategory": mainCategory,
+                  "subCategory": subCategory,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData == 'N') {
+                      alert('이미 등록된 세부사항입니다.');
+                  } else if(returnData == 'Y') {
+                      $('.close').click();
+                      alert('등록이 완료되었습니다.');
+                      for (var count = 0; count < purchaseItemCounter; count++) {
+                              var exists = false;
+                              $('#purchaseItem2'+count+' option').each(function(){
+                                  if (this.value == mainCategory ) {
+                                      console.log(this.value);
+                                      exists = true;
+                                      return false;
+                                  }
+                              });
+                              console.log(exists);
+                              if(exists==false){
+                                  const option = $("<option value=" + mainCategory + ">" + mainCategory + "</option>");
+                                  $('#purchaseItem2'+count).append(option);
                               }
 
                       }
@@ -1495,20 +1304,20 @@
 
           const ContractForm = document.getElementById("ContractForm");
 
-          // 세부사항
+          // 매출 세부사항
           const lengthItem = $('[name="itemId"]').length;
           const listItem = new Array();
           for (var i = 0; i <= lengthItem - 1; i++) {
               if ($('select[name="mainCategory"]').eq(i).val() == '') {
-                  alert("세부사항의 대분류를 입력해주세요.");
+                  alert("매출 세부사항의 대분류를 입력해주세요.");
                   return false;
               }
               if ($('select[name="subCategory"]').eq(i).val() == '') {
-                  alert("세부사항의 소분류를 입력해주세요.");
+                  alert("매출 세부사항의 소분류를 입력해주세요.");
                   return false;
               }
               if ($('input[name="itemPrice"]').eq(i).val() == '') {
-                  alert("세부사항의 금액을 입력해주세요.");
+                  alert("매출 세부사항의 금액을 입력해주세요.");
                   return false;
               }
               var data = new Object();
@@ -1526,7 +1335,7 @@
           item.setAttribute("value", jsonItem);
           ContractForm.appendChild(item);
 
-          // 매출세부정보
+          // 매출 빌링스케줄
           const lengthRevenue = $('[name="revenueId"]').length;
           const listRevenue = new Array();
           for (var i = 0; i <= lengthRevenue - 1; i++) {
@@ -1565,7 +1374,43 @@
           revenue.setAttribute("value", jsonRevenue);
           ContractForm.appendChild(revenue);
 
-          // 매입세부정보
+          // 매입 세부사항
+          const lengthPurchaseItem = $('[name="purchaseItemId"]').length;
+          const listPurchaseItem = new Array();
+          for (var i = 0; i <= lengthPurchaseItem - 1; i++) {
+              if ($('select[name="purchaseCategoryCompany"]').eq(i).val() == '') {
+                  alert("매입 세부사항의 매입처를 입력해주세요.");
+                  return false;
+              }
+              if ($('select[name="purchaseMainCategory"]').eq(i).val() == '') {
+                  alert("매입 세부사항의 대분류를 입력해주세요.");
+                  return false;
+              }
+              if ($('select[name="purchaseSubCategory"]').eq(i).val() == '') {
+                  alert("매입 세부사항의 소분류를 입력해주세요.");
+                  return false;
+              }
+              if ($('input[name="purchaseItemPrice"]').eq(i).val() == '') {
+                  alert("매입 세부사항의 금액을 입력해주세요.");
+                  return false;
+              }
+              var data = new Object();
+              data.purchaseCategoryCompany = $('input[name="purchaseCategoryCompany"]').eq(i).val();
+              data.purchaseItemId = $('div[name="purchaseItemId"]').eq(i).text();
+              data.purchaseMainCategory = $('select[name="purchaseMainCategory"]').eq(i).val();
+              data.purchaseSubCategory = $('select[name="purchaseSubCategory"]').eq(i).val();
+              data.purchaseItemName = $('input[name="purchaseItemName"]').eq(i).val();
+              data.purchaseItemPrice = $('input[name="purchaseItemPrice"]').eq(i).val();
+              listPurchaseItem.push(data);
+          }
+          const jsonPurchaseItem = JSON.stringify(listPurchaseItem);
+          const purchaseItem = document.createElement("input");
+          purchaseItem.setAttribute("type", "hidden");
+          purchaseItem.setAttribute("name", "jsonPurchaseItem");
+          purchaseItem.setAttribute("value", jsonPurchaseItem);
+          ContractForm.appendChild(purchaseItem);
+
+          // 매입 빌링스케줄
           const lengthPurchase = $('[name="purchaseId"]').length;
           const listPurchase = new Array();
           for (var i = 0; i <= lengthPurchase - 1; i++) {
@@ -1630,278 +1475,6 @@
           cost.setAttribute("value", jsonCost);
           ContractForm.appendChild(cost);
 
-          // 하도급계약 상세내용
-          let sumPurchaseDetails = 0;
-          let statusPurchaseDetails = false;
-          // 1. 상품_HW
-          const lengthGoodsHW = $('[name="goodsHWTypeId"]').length;
-          const listGoodsHW = new Array();
-          if (lengthGoodsHW>0){
-              statusPurchaseDetails = true;
-          }
-          for (var i = 0; i <= lengthGoodsHW - 1; i++) {
-              if ($('input[name="goodsHWCompany"]').eq(i).val() == '') {
-                  alert("상품_HW의 거래처를 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="goodsHWContents"]').eq(i).val() == '') {
-                  alert("상품_HW의 내역을 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="goodsHWPrice"]').eq(i).val() == '') {
-                  alert("상품_HW의 금액을 입력해주세요.");
-                  return false;
-              }
-              var data = new Object();
-              data.typeId = $('div[name="goodsHWTypeId"]').eq(i).text();
-              data.company = $('input[name="goodsHWCompany"]').eq(i).val();
-              data.contents = $('input[name="goodsHWContents"]').eq(i).val();
-              data.price = Number($('input[name="goodsHWPrice"]').eq(i).val().replace(/,/g, ''));
-              sumPurchaseDetails += data.price;
-              listGoodsHW.push(data);
-          }
-          const jsonGoodsHW = JSON.stringify(listGoodsHW);
-          const goodsHW = document.createElement("input");
-          goodsHW.setAttribute("type", "hidden");
-          goodsHW.setAttribute("name", "jsonGoodsHW");
-          goodsHW.setAttribute("value", jsonGoodsHW);
-          ContractForm.appendChild(goodsHW);
-          // 2. 상품_SW
-          const lengthGoodsSW = $('[name="goodsSWTypeId"]').length;
-          const listGoodsSW = new Array();
-          if (lengthGoodsSW>0){
-              statusPurchaseDetails = true;
-          }
-          for (var i = 0; i <= lengthGoodsSW - 1; i++) {
-              if ($('input[name="goodsSWCompany"]').eq(i).val() == '') {
-                  alert("상품_SW의 거래처를 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="goodsSWContents"]').eq(i).val() == '') {
-                  alert("상품_SW의 내역을 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="goodsSWPrice"]').eq(i).val() == '') {
-                  alert("상품_SW의 금액을 입력해주세요.");
-                  return false;
-              }
-              var data = new Object();
-              data.typeId = $('div[name="goodsSWTypeId"]').eq(i).text();
-              data.company = $('input[name="goodsSWCompany"]').eq(i).val();
-              data.contents = $('input[name="goodsSWContents"]').eq(i).val();
-              console.log($('input[name="goodsSWPrice"]').eq(i).val());
-              data.price = Number($('input[name="goodsSWPrice"]').eq(i).val().replace(/,/g, ''));
-              sumPurchaseDetails += data.price;
-              listGoodsSW.push(data);
-          }
-          const jsonGoodsSW = JSON.stringify(listGoodsSW);
-          const goodsSW = document.createElement("input");
-          goodsSW.setAttribute("type", "hidden");
-          goodsSW.setAttribute("name", "jsonGoodsSW");
-          goodsSW.setAttribute("value", jsonGoodsSW);
-          ContractForm.appendChild(goodsSW);
-          // 3. 유지보수_HW
-          const lengthMaintenanceHW= $('[name="maintenanceHWTypeId"]').length;
-          const listMaintenanceHW = new Array();
-          if (lengthMaintenanceHW>0){
-              statusPurchaseDetails = true;
-          }
-          for (var i = 0; i <= lengthMaintenanceHW - 1; i++) {
-              if ($('input[name="maintenanceHWCompany"]').eq(i).val() == '') {
-                  alert("유지보수_HW의 거래처를 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="maintenanceHWContents"]').eq(i).val() == '') {
-                  alert("유지보수_HW의 내역을 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="maintenanceHWPrice"]').eq(i).val() == '') {
-                  alert("유지보수_HW의 금액을 입력해주세요.");
-                  return false;
-              }
-              var data = new Object();
-              data.typeId = $('div[name="maintenanceHWTypeId"]').eq(i).text();
-              data.company = $('input[name="maintenanceHWCompany"]').eq(i).val();
-              data.contents = $('input[name="maintenanceHWContents"]').eq(i).val();
-              console.log($('input[name="maintenanceHWPrice"]').eq(i).val());
-              data.price = Number($('input[name="maintenanceHWPrice"]').eq(i).val().replace(/,/g, ''));
-              sumPurchaseDetails += data.price;
-              listMaintenanceHW.push(data);
-          }
-          const jsonMaintenanceHW = JSON.stringify(listMaintenanceHW);
-          const maintenanceHW = document.createElement("input");
-          maintenanceHW.setAttribute("type", "hidden");
-          maintenanceHW.setAttribute("name", "jsonMaintenanceHW");
-          maintenanceHW.setAttribute("value", jsonMaintenanceHW);
-          ContractForm.appendChild(maintenanceHW);
-           // 4. 유지보수_SW
-          const lengthMaintenanceSW= $('[name="maintenanceSWTypeId"]').length;
-          const listMaintenanceSW = new Array();
-          if (lengthMaintenanceSW>0){
-              statusPurchaseDetails = true;
-          }
-          for (var i = 0; i <= lengthMaintenanceSW - 1; i++) {
-              if ($('input[name="maintenanceSWCompany"]').eq(i).val() == '') {
-                  alert("유지보수_SW의 거래처를 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="maintenanceSWContents"]').eq(i).val() == '') {
-                  alert("유지보수_SW의 내역을 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="maintenanceSWPrice"]').eq(i).val() == '') {
-                  alert("유지보수_SW의 금액을 입력해주세요.");
-                  return false;
-              }
-              var data = new Object();
-              data.typeId = $('div[name="maintenanceSWTypeId"]').eq(i).text();
-              data.company = $('input[name="maintenanceSWCompany"]').eq(i).val();
-              data.contents = $('input[name="maintenanceSWContents"]').eq(i).val();
-              console.log($('input[name="maintenanceSWPrice"]').eq(i).val());
-              data.price = Number($('input[name="maintenanceSWPrice"]').eq(i).val().replace(/,/g, ''));
-              sumPurchaseDetails += data.price;
-              listMaintenanceSW.push(data);
-          }
-          const jsonMaintenanceSW = JSON.stringify(listMaintenanceSW);
-          const maintenanceSW = document.createElement("input");
-          maintenanceSW.setAttribute("type", "hidden");
-          maintenanceSW.setAttribute("name", "jsonMaintenanceSW");
-          maintenanceSW.setAttribute("value", jsonMaintenanceSW);
-          ContractForm.appendChild(maintenanceSW);
-           // 5. 인력지원_자사서비스
-          const lengthSupportInternal= $('[name="supportInternalTypeId"]').length;
-          const listSupportInternal = new Array();
-          if (lengthSupportInternal>0){
-              statusPurchaseDetails = true;
-          }
-          for (var i = 0; i <= lengthSupportInternal - 1; i++) {
-              if ($('input[name="supportInternalType"]').eq(i).val() == '') {
-                  alert("인력지원_자사서비스의 구분을 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="supportInternalUnits"]').eq(i).val() == '') {
-                  alert("인력지원_자사서비스의 단가를 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="supportInternalPrice"]').eq(i).val() == '') {
-                  alert("인력지원_자사서비스의 금액을 입력해주세요.");
-                  return false;
-              }
-              var data = new Object();
-              data.typeId = $('div[name="supportInternalTypeId"]').eq(i).text();
-              data.type = $('select[name="supportInternalType"]').eq(i).val();
-              data.times = $('input[name="supportInternalTimes"]').eq(i).val();
-              data.sites = $('input[name="supportInternalSites"]').eq(i).val();
-              data.units = $('input[name="supportInternalUnits"]').eq(i).val();
-              console.log($('input[name="supportInternalPrice"]').eq(i).val());
-              data.price = Number($('input[name="supportInternalPrice"]').eq(i).val().replace(/,/g, ''));
-              sumPurchaseDetails += data.price;
-              listSupportInternal.push(data);
-          }
-          const jsonSupportInternal = JSON.stringify(listSupportInternal);
-          const supportInternal = document.createElement("input");
-          supportInternal.setAttribute("type", "hidden");
-          supportInternal.setAttribute("name", "jsonSupportInternal");
-          supportInternal.setAttribute("value", jsonSupportInternal);
-          ContractForm.appendChild(supportInternal);
-           // 6. 인력지원_타사서비스
-          const lengthSupportExternal= $('[name="supportExternalTypeId"]').length;
-          const listSupportExternal = new Array();
-          if (lengthSupportExternal>0){
-              statusPurchaseDetails = true;
-          }
-          for (var i = 0; i <= lengthSupportExternal - 1; i++) {
-              if ($('input[name="supportExternalType"]').eq(i).val() == '') {
-                  alert("인력지원_타사서비스의 구분을 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="supportExternalContents"]').eq(i).val() == '') {
-                  alert("인력지원_타사서비스의 내역을 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="supportExternalPrice"]').eq(i).val() == '') {
-                  alert("인력지원_타사서비스의 금액을 입력해주세요.");
-                  return false;
-              }
-              var data = new Object();
-              data.typeId = $('div[name="supportExternalTypeId"]').eq(i).text();
-              data.type = $('select[name="supportExternalType"]').eq(i).val();
-              data.contents = $('input[name="supportExternalContents"]').eq(i).val();
-              console.log($('input[name="supportExternalPrice"]').eq(i).val());
-              data.price = Number($('input[name="supportExternalPrice"]').eq(i).val().replace(/,/g, ''));
-              sumPurchaseDetails += data.price;
-              listSupportExternal.push(data);
-          }
-          const jsonSupportExternal = JSON.stringify(listSupportExternal);
-          const supportExternal = document.createElement("input");
-          supportExternal.setAttribute("type", "hidden");
-          supportExternal.setAttribute("name", "jsonSupportExternal");
-          supportExternal.setAttribute("value", jsonSupportExternal);
-          ContractForm.appendChild(supportExternal);
-           // 7. DB COSTS
-          const lengthDbCosts= $('[name="dbCostsTypeId"]').length;
-          const listDbCosts = new Array();
-          if (lengthDbCosts>0){
-              statusPurchaseDetails = true;
-          }
-          for (var i = 0; i <= lengthDbCosts - 1; i++) {
-              if ($('input[name="dbCostsNumber"]').eq(i).val() == '') {
-                  alert("DB COSTS의 계약번호를 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="dbCostsPrice"]').eq(i).val() == '') {
-                  alert("DB COSTS의 금액을 입력해주세요.");
-                  return false;
-              }
-              var data = new Object();
-              data.typeId = $('div[name="dbCostsTypeId"]').eq(i).text();
-              data.number = $('input[name="dbCostsNumber"]').eq(i).val();
-              data.start = $('input[name="dbCostsStart"]').eq(i).val();
-              data.end = $('input[name="dbCostsEnd"]').eq(i).val();
-              data.price = Number($('input[name="dbCostsPrice"]').eq(i).val().replace(/,/g, ''));
-              sumPurchaseDetails += data.price;
-              listDbCosts.push(data);
-          }
-          const jsonDbCosts = JSON.stringify(listDbCosts);
-          const dbCosts = document.createElement("input");
-          dbCosts.setAttribute("type", "hidden");
-          dbCosts.setAttribute("name", "jsonDbCosts");
-          dbCosts.setAttribute("value", jsonDbCosts);
-          ContractForm.appendChild(dbCosts);
-           // 8. 기타
-          const lengthOthers= $('[name="othersTypeId"]').length;
-          const listOthers = new Array();
-          if (lengthOthers>0){
-              statusPurchaseDetails = true;
-          }
-          for (var i = 0; i <= lengthOthers - 1; i++) {
-              if ($('input[name="othersType"]').eq(i).val() == '') {
-                  alert("기타의 구분을 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="othersContents"]').eq(i).val() == '') {
-                  alert("기타의 내역을 입력해주세요.");
-                  return false;
-              }
-              if ($('input[name="othersPrice"]').eq(i).val() == '') {
-                  alert("기타의 금액을 입력해주세요.");
-                  return false;
-              }
-              var data = new Object();
-              data.typeId = $('div[name="othersTypeId"]').eq(i).text();
-              data.type = $('select[name="othersType"]').eq(i).val();
-              data.contents = $('input[name="othersContents"]').eq(i).val();
-              console.log($('input[name="othersPrice"]').eq(i).val());
-              data.price = Number($('input[name="othersPrice"]').eq(i).val().replace(/,/g, ''));
-              sumPurchaseDetails += data.price;
-              listOthers.push(data);
-          }
-          const jsonOthers = JSON.stringify(listOthers);
-          const others = document.createElement("input");
-          others.setAttribute("type", "hidden");
-          others.setAttribute("name", "jsonOthers");
-          others.setAttribute("value", jsonOthers);
-          ContractForm.appendChild(others);
 
           // 금액 일치 계산
           let sumItemPrice = 0;
@@ -1910,8 +1483,8 @@
           }
           if (sumItemPrice != $('#salePrice').val().replace(/,/g, '')) {
               alert("계약금액 : " + ($('#salePrice').val() * 1).toLocaleString() + "\n" +
-                  "세부금액 : " + sumItemPrice.toLocaleString() + "\n" +
-                  "계약금액과 세부사항 금액의 합이 일치하지 않습니다.");
+                  "매출 세부사항 금액의 합 : " + sumItemPrice.toLocaleString() + "\n" +
+                  "계약금액과 매출 세부사항 금액의 합이 일치하지 않습니다.");
               return false;
           }
 
@@ -1948,14 +1521,6 @@
                   sumCostPrice += Number($('input[name="costPrice"]').eq(i).val().replace(/,/g, ''));
               }
 
-              if (statusPurchaseDetails == true){
-                let sumPurchase = sumPurchasePrice+sumCostPrice;
-                if (sumPurchaseDetails != sumPurchase){
-                    alert("매입금액 합계금액: " + sumPurchase.toLocaleString() + "\n" +
-                      "하도급계약 합계금액 : " + sumPurchaseDetails.toLocaleString() + "\n" +
-                      "매입금액 하도급계약 금액의 합이 일치하지 않습니다.")
-                }
-              }
 
               let revenueMinusPurchase = sumRevenuePrice - sumPurchasePrice;
               {#if (revenueMinusPurchase != sumRevenueProfitPrice) {#}
@@ -2023,11 +1588,41 @@
           });
       }
 
+      function purchaseItemChangeAdd(main, sub, subCategory, itemCounter) {
+          console.log(main, sub, subCategory, itemCounter);
+          if ($.type(main) === 'string') {
+              main = '#' + main
+          }
+          if ($.type(sub) === 'string') {
+              sub = '#' + sub
+          }
+          var selectItem = $(main).val();
+          console.log(selectItem);
+
+          $.ajax({
+              url: "{% url 'sales:clssificaionasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"mainCategory": selectItem},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var mainCategory = returnData;
+                  $(sub).empty();
+
+                  for (var count = 0; count < mainCategory.length; count++) {
+                      var option = $("<option value=" + mainCategory[count].fields.subCategory + ">" + mainCategory[count].fields.subCategory + "</option>");
+                      $(sub).append(option);
+                      $('#purchaseItem3' + itemCounter).val(subCategory).prop("selected", true);
+                  }
+              }
+          });
+      }
+
       function changeRevenueCompany() {
           $('input[name=revenueCompany]').trigger('set', {id: $('#saleCompanyNames').attr('data-id')});
       }
 
-      function changeStep(t2, t3, t4, c1, c2, c3, c4, c5, c6, c7, c8) {
+      function changeStep(t2, t3, t4) {
           const contractStep = '{{ contractStep }}';
           if (contractStep === 'Firm') {
               $('#contractStartDate').removeAttr('readonly');
@@ -2048,14 +1643,6 @@
               $('#purchasediv').addClass('d-none');
               t4.rows().remove().draw();
               $('#costdiv').addClass('d-none');
-              c1.rows().remove().draw();
-              c2.rows().remove().draw();
-              c3.rows().remove().draw();
-              c4.rows().remove().draw();
-              c5.rows().remove().draw();
-              c6.rows().remove().draw();
-              c7.rows().remove().draw();
-              c8.rows().remove().draw();
               $('#purchasetypediv').addClass('d-none');
           } else {
               $('#revenuediv').removeClass('d-none');
@@ -2067,7 +1654,6 @@
                   $('#addPurchase').click();
               }
               $('#costdiv').removeClass('d-none');
-              $('#purchasetypediv').removeClass('d-none');
           }
       }
 
@@ -2420,15 +2006,60 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 9, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 2, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 3, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                       createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 4, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 5, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 6, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 7, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 8, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 9, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
               ],
           });
 
@@ -2535,14 +2166,54 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "18%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "18%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 2, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 3, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 4, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 5, width: "18%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 6, width: "18%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 7, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 8, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
               ],
           });
 
@@ -2749,9 +2420,8 @@
                   .draw();
           });
 
-          // 하도급계약 상세항목
-          // 1. 상품 HW
-          var c1 = $('#goodsHW').DataTable({
+          // 매입 세부사항
+          var t5 = $('#purchaseCategoryItem').DataTable({
               "autoWidth": true,
               "searching": false,
               "paging": false,
@@ -2764,778 +2434,164 @@
               },
               "ordering": false,
               "columnDefs": [
-                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 5, width: "16%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 6, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
               ],
           });
-          var goodsHWCounter = 0;
 
-          $('#addGoodsHW').on('click', function () {
-            c1.row.add([
-                '<div class="d-none" value="0" name="goodsHWTypeId" id="goodsHW0' + goodsHWCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="goodsHWCompany" ' +
-                'id="goodsHW1' + goodsHWCounter + '" onkeydown="magicsearchtab(goodsHW1' + goodsHWCounter + ')">',
-                '<input class="input-form" type="text" style="width: 350px;" name="goodsHWContents" id="goodsHW2' + goodsHWCounter + '">',
-                '<input class="money input-form"  name="goodsHWPrice" style="width: 200px;" id="goodsHW3' + goodsHWCounter + '">',
-                '<i class="fas fa-times-circle" name="remove">'
-            ]).draw(false);
-            $('.money').simpleMoneyFormat();
-            $('#goodsHW1' + goodsHWCounter).magicsearch({
-                dataSource: companyList,
-                fields: 'value',
-                id: 'id',
-                format: '%value%',
-                multiStyle: {space: 5, width: 80},
-                noResult: '검색결과없음',
-                focusShow: true,
-                maxShow: 100,
-            });
 
-              $('input[name=goodsHWPrice]').on("change keyup paste input", function() {
-                  totalPrice('goodsHWPrice', 'totalGoodsHWPrice');
-              });
-
-              goodsHWCounter++;
-          });
-
-          {% if goodsHWs %}
-              {% for goodsHW in goodsHWs %}
-              console.log("{{ goodsHW.companyName }}");
-                  c1.row.add([
-                      '<div class="d-none" value="0" name="goodsHWTypeId" id="goodsHW0' + goodsHWCounter + '">{{ goodsHW.typeId }}</div>',
-                      '<input class="magicsearch input-form" autocomplete="off" data-id="{{ goodsHW.companyName }}" type="text" style="width: 200px;" name="goodsHWCompany" ' +
-                      'id="goodsHW1' + goodsHWCounter + '" onkeydown="magicsearchtab(goodsHW1' + goodsHWCounter + ')">',
-                      '<input class="input-form" type="text" style="width: 350px;" value="{{ goodsHW.contents }}" name="goodsHWContents" id="goodsHW2' + goodsHWCounter + '">',
-                      '<input class="money input-form"  name="goodsHWPrice" value="{{ goodsHW.price }}" style="width: 200px;" id="goodsHW3' + goodsHWCounter + '">',
-                      '<i class="fas fa-times-circle" name="remove">'
-                  ]);
-                  goodsHWCounter++;
-              {% endfor %}
-              c1.draw();
-              console.log(goodsHWCounter);
-              for (var c = 0; c < goodsHWCounter; c++) {
-                  $('#goodsHW1' + c).magicsearch({
-                      dataSource: companyList,
-                      fields: 'value',
-                      id: 'id',
-                      format: '%value%',
-                      multiStyle: {space: 5, width: 80},
-                      noResult: '검색결과없음',
-                      focusShow: true,
-                      maxShow: 100,
-                  });
-              }
+          $('#purchaseAddItem').on('click', function () {
+              t5.row.add([
+                  '<div class="text-center d-none m-5" value="0" name="purchaseItemId" id="purchaseItem0' + purchaseItemCounter + '">추가</div>',
+                  '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="purchaseCategoryCompany" id="purchaseItem1' + purchaseItemCounter + '" onkeydown="magicsearchtab(purchaseItem1' + purchaseItemCounter + ')">',
+                  '<select style="width:200px" class="input-form" size="1" id="purchaseItem2' + purchaseItemCounter + '" name="purchaseMainCategory" onchange="purchaseItemChangeAdd( purchaseItem2' + purchaseItemCounter + ",purchaseItem3" + purchaseItemCounter + ')">' +
+                  '</select>',
+                  '<select style="width:200px" class="input-form" size="1" id="purchaseItem3' + purchaseItemCounter + '" name="purchaseSubCategory"> <option value="init" selected="selected">--소분류--</option>',
+                  '<input style="width:200px" class="input-form" type="text" name="purchaseItemName" id="purchaseItem4' + purchaseItemCounter + '">',
+                  '<input style="width:200px" class="money input-form" name="purchaseItemPrice" id="purchaseItem5' + purchaseItemCounter + '">',
+                  '<i class="fas fa-times-circle" name="remove" >'
+              ]).draw(false);
               $('.money').simpleMoneyFormat();
-
-              $('input[name=goodsHWPrice]').on("change keyup paste input", function() {
-                  totalPrice('goodsHWPrice', 'totalGoodsHWPrice');
+               $('#purchaseItem1' + purchaseItemCounter).magicsearch({
+                  dataSource: companyList,
+                  fields: 'value',
+                  id: 'id',
+                  format: '%value%',
+                  multiStyle: {space: 5, width: 80},
+                  noResult: '검색결과없음',
+                  focusShow: true,
+                  maxShow: 100,
               });
-          // {% else %}
-          //     $('#addGoodsHW').click();
-          {% endif %}
-
-           $('#goodsHW').on('click', 'i', function () {
-              c1
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
-          });
-
-          // 2. 상품 SW
-          var c2 = $('#goodsSW').DataTable({
-              "autoWidth": true,
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              'fnCreatedRow': function (nRow, aData, iDataIndex) {
-                  $(nRow).attr('id', 'row' + iDataIndex);
-              },
-              "ordering": false,
-              "columnDefs": [
-                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-              ],
-          });
-
-          var goodsSWCounter = 0;
-
-          $('#addGoodsSW').on('click', function () {
-            c2.row.add([
-                '<div class="d-none" value="0" name="goodsSWTypeId" id="goodsSW0' + goodsSWCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="goodsSWCompany" ' +
-                'id="goodsSW1' + goodsSWCounter + '" onkeydown="magicsearchtab(goodsSW1' + goodsSWCounter + ')">',
-                '<input class="input-form" type="text" style="width: 350px;" name="goodsSWContents" id="goodsSW2' + goodsSWCounter + '">',
-                '<input class="money input-form"  name="goodsSWPrice" style="width: 200px;" id="goodsSW3' + goodsSWCounter + '">',
-                '<i class="fas fa-times-circle" name="remove">'
-            ]).draw(false);
-            $('.money').simpleMoneyFormat();
-            $('#goodsSW1' + goodsSWCounter).magicsearch({
-                dataSource: companyList,
-                fields: 'value',
-                id: 'id',
-                format: '%value%',
-                multiStyle: {space: 5, width: 80},
-                noResult: '검색결과없음',
-                focusShow: true,
-                maxShow: 100,
-            });
-
-              $('input[name=goodsSWPrice]').on("change keyup paste input", function() {
-                  totalPrice('goodsSWPrice', 'totalGoodsSWPrice');
-              });
-
-              goodsHWCounter++;
-          });
-
-          {% if goodsSWs %}
-              {% for goodsSW in goodsSWs %}
-              console.log("{{ goodsSW.companyName }}");
-                  c2.row.add([
-                      '<div class="d-none" value="0" name="goodsSWTypeId" id="goodsSW0' + goodsSWCounter + '">{{ goodsSW.typeId }}</div>',
-                      '<input class="magicsearch input-form" autocomplete="off" data-id="{{ goodsSW.companyName }}" type="text" style="width: 200px;" name="goodsSWCompany" ' +
-                      'id="goodsSW1' + goodsSWCounter + '" onkeydown="magicsearchtab(goodsSW1' + goodsSWCounter + ')">',
-                      '<input class="input-form" type="text" style="width: 350px;" value="{{ goodsSW.contents }}" name="goodsSWContents" id="goodsSW2' + goodsSWCounter + '">',
-                      '<input class="money input-form"  name="goodsSWPrice" value="{{ goodsSW.price }}" style="width: 200px;" id="goodsSW3' + goodsSWCounter + '">',
-                      '<i class="fas fa-times-circle" name="remove">'
-                  ]);
-                  goodsSWCounter++;
-              {% endfor %}
-              c2.draw();
-              console.log(goodsSWCounter);
-              for (var c = 0; c < goodsSWCounter; c++) {
-                  $('#goodsSW1' + c).magicsearch({
-                      dataSource: companyList,
-                      fields: 'value',
-                      id: 'id',
-                      format: '%value%',
-                      multiStyle: {space: 5, width: 80},
-                      noResult: '검색결과없음',
-                      focusShow: true,
-                      maxShow: 100,
-                  });
-              }
-              $('.money').simpleMoneyFormat();
-
-              $('input[name=goodsSWPrice]').on("change keyup paste input", function() {
-                  totalPrice('goodsSWPrice', 'totalGoodsSWPrice');
-              });
-          {% endif %}
-
-
-           $('#goodsSW').on('click', 'i', function () {
-              c2
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
-          });
-          // 3. 유지보수 HW
-          var c3 = $('#maintenanceHW').DataTable({
-              "autoWidth": true,
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              'fnCreatedRow': function (nRow, aData, iDataIndex) {
-                  $(nRow).attr('id', 'row' + iDataIndex);
-              },
-              "ordering": false,
-              "columnDefs": [
-                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-              ],
-          });
-
-          var maintenanceHWCounter = 0;
-
-          $('#addMaintenanceHW').on('click', function () {
-            c3.row.add([
-                '<div class="d-none" value="0" name="maintenanceHWTypeId" id="maintenanceHW0' + maintenanceHWCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="maintenanceHWCompany" ' +
-                'id="maintenanceHW1' + maintenanceHWCounter + '" onkeydown="magicsearchtab(maintenanceHW1' + maintenanceHWCounter + ')">',
-                '<input class="input-form" type="text" style="width: 350px;" name="maintenanceHWContents" id="maintenanceHW2' + maintenanceHWCounter + '">',
-                '<input class="money input-form"  name="maintenanceHWPrice" style="width: 200px;" id="maintenanceHW3' + maintenanceHWCounter + '">',
-                '<i class="fas fa-times-circle" name="remove">'
-            ]).draw(false);
-            $('.money').simpleMoneyFormat();
-            $('#maintenanceHW1' + maintenanceHWCounter).magicsearch({
-                dataSource: companyList,
-                fields: 'value',
-                id: 'id',
-                format: '%value%',
-                multiStyle: {space: 5, width: 80},
-                noResult: '검색결과없음',
-                focusShow: true,
-                maxShow: 100,
-            });
-
-              $('input[name=maintenanceHWPrice]').on("change keyup paste input", function() {
-                  totalPrice('maintenanceHWPrice', 'totalMaintenanceHWPrice');
-              });
-
-              maintenanceHWCounter++;
-          });
-
-          {% if maintenanceHWs %}
-              {% for maintenanceHW in maintenanceHWs %}
-              console.log("{{ maintenanceHW.companyName }}");
-                  c3.row.add([
-                      '<div class="d-none" value="0" name="maintenanceHWTypeId" id="maintenanceHW0' + maintenanceHWCounter + '">{{ maintenanceHW.typeId }}</div>',
-                      '<input class="magicsearch input-form" autocomplete="off" data-id="{{ maintenanceHW.companyName }}" type="text" style="width: 200px;" name="maintenanceHWCompany" ' +
-                      'id="maintenanceHW1' + maintenanceHWCounter + '" onkeydown="magicsearchtab(maintenanceHW1' + maintenanceHWCounter + ')">',
-                      '<input class="input-form" type="text" style="width: 350px;" value="{{ maintenanceHW.contents }}" name="maintenanceHWContents" id="maintenanceHW2' + maintenanceHWCounter + '">',
-                      '<input class="money input-form"  name="maintenanceHWPrice" value="{{ maintenanceHW.price }}" style="width: 200px;" id="maintenanceHW3' + maintenanceHWCounter + '">',
-                      '<i class="fas fa-times-circle" name="remove">'
-                  ]);
-                  maintenanceHWCounter++;
-              {% endfor %}
-              c3.draw();
-              console.log(maintenanceHWCounter);
-              for (var c = 0; c < maintenanceHWCounter; c++) {
-                  $('#maintenanceHW1' + c).magicsearch({
-                      dataSource: companyList,
-                      fields: 'value',
-                      id: 'id',
-                      format: '%value%',
-                      multiStyle: {space: 5, width: 80},
-                      noResult: '검색결과없음',
-                      focusShow: true,
-                      maxShow: 100,
-                  });
-              }
-              $('.money').simpleMoneyFormat();
-
-              $('input[name=maintenanceHWPrice]').on("change keyup paste input", function() {
-                  totalPrice('maintenanceHWPrice', 'totalMaintenanceHWPrice');
-              });
-          {% endif %}
-
-           $('#maintenanceHW').on('click', 'i', function () {
-              c3
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
-          });
-
-          // 4. 유지보수 SW
-          var c4 = $('#maintenanceSW').DataTable({
-              "autoWidth": true,
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              'fnCreatedRow': function (nRow, aData, iDataIndex) {
-                  $(nRow).attr('id', 'row' + iDataIndex);
-              },
-              "ordering": false,
-              "columnDefs": [
-                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-              ],
-          });
-
-          var maintenanceSWCounter = 0;
-
-          $('#addMaintenanceSW').on('click', function () {
-            c4.row.add([
-                '<div class="d-none" value="0" name="maintenanceSWTypeId" id="maintenanceSW0' + maintenanceSWCounter + '">추가</div>',
-                '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="maintenanceSWCompany" ' +
-                'id="maintenanceSW1' + maintenanceSWCounter + '" onkeydown="magicsearchtab(maintenanceSW1' + maintenanceSWCounter + ')">',
-                '<input class="input-form" type="text" style="width: 350px;" name="maintenanceSWContents" id="maintenanceSW2' + maintenanceSWCounter + '">',
-                '<input class="money input-form"  name="maintenanceSWPrice" style="width: 200px;" id="maintenanceSW3' + maintenanceSWCounter + '">',
-                '<i class="fas fa-times-circle" name="remove">'
-            ]).draw(false);
-            $('.money').simpleMoneyFormat();
-            $('#maintenanceSW1' + maintenanceSWCounter).magicsearch({
-                dataSource: companyList,
-                fields: 'value',
-                id: 'id',
-                format: '%value%',
-                multiStyle: {space: 5, width: 80},
-                noResult: '검색결과없음',
-                focusShow: true,
-                maxShow: 100,
-            });
-
-              $('input[name=maintenanceSWPrice]').on("change keyup paste input", function() {
-                  totalPrice('maintenanceSWPrice', 'totalMaintenanceSWPrice');
-              });
-
-              maintenanceSWCounter++;
-          });
-
-          {% if maintenanceSWs %}
-              {% for maintenanceSW in maintenanceSWs %}
-              console.log("{{ maintenanceSW.companyName }}");
-                  c4.row.add([
-                      '<div class="d-none" value="0" name="maintenanceSWTypeId" id="maintenanceSW0' + maintenanceSWCounter + '">{{ maintenanceSW.typeId }}</div>',
-                      '<input class="magicsearch input-form" autocomplete="off" data-id="{{ maintenanceSW.companyName }}" type="text" style="width: 200px;" name="maintenanceSWCompany" ' +
-                      'id="maintenanceSW1' + maintenanceHWCounter + '" onkeydown="magicsearchtab(maintenanceSW1' + maintenanceSWCounter + ')">',
-                      '<input class="input-form" type="text" style="width: 350px;" value="{{ maintenanceSW.contents }}" name="maintenanceSWContents" id="maintenanceSW2' + maintenanceSWCounter + '">',
-                      '<input class="money input-form"  name="maintenanceSWPrice" value="{{ maintenanceSW.price }}" style="width: 200px;" id="maintenanceSW3' + maintenanceSWCounter + '">',
-                      '<i class="fas fa-times-circle" name="remove">'
-                  ]);
-                  maintenanceSWCounter++;
-              {% endfor %}
-              c4.draw();
-              console.log(maintenanceSWCounter);
-              for (var c = 0; c < maintenanceSWCounter; c++) {
-                  $('#maintenanceSW1' + c).magicsearch({
-                      dataSource: companyList,
-                      fields: 'value',
-                      id: 'id',
-                      format: '%value%',
-                      multiStyle: {space: 5, width: 80},
-                      noResult: '검색결과없음',
-                      focusShow: true,
-                      maxShow: 100,
-                  });
-              }
-              $('.money').simpleMoneyFormat();
-
-              $('input[name=maintenanceSWPrice]').on("change keyup paste input", function() {
-                  totalPrice('maintenanceSWPrice', 'totalMaintenanceSWPrice');
-              });
-          {% endif %}
-
-           $('#maintenanceSW').on('click', 'i', function () {
-              c4
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
-          });
-
-
-           // 5. 인력지원 자사
-          var c5 = $('#supportInternal').DataTable({
-              "autoWidth": true,
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              'fnCreatedRow': function (nRow, aData, iDataIndex) {
-                  $(nRow).attr('id', 'row' + iDataIndex);
-              },
-              "ordering": false,
-              "columnDefs": [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "20%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-              ],
-          });
-
-
-          $('#addSupportInternal').on('click', function () {
-            c5.row.add([
-                '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">추가</div>',
-                '<select style="width:255px" class="input-form" id="supportInternal1' + supportInternalCounter + '" name="supportInternalType"></select>',
-                '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalTimes" id="supportInternal2' + supportInternalCounter + '">',
-                '<input class="input-form" type="digit" style="width: 50px;" name="supportInternalSites" id="supportInternal3' + supportInternalCounter + '">',
-                '<input class="input-form" type="digit" style="width: 200px;" name="supportInternalUnits" id="supportInternal4' + supportInternalCounter + '">',
-                '<input class="money input-form"  name="supportInternalPrice" style="width: 200px;" id="supportInternal5' + supportInternalCounter + '">',
-                '<i class="fas fa-times-circle" name="remove">'
-            ]).draw(false);
-            $('.money').simpleMoneyFormat();
-            $.ajax({
-                      url: "{% url 'sales:classification_ajax_url' %}",
-                      method: 'POST',
-                      data: {'classification': 'classificationB',
-                            'contractId':''},
-                      cache: false,
-                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                      success: function (returnData) {
-                          var classification = returnData;
-                          console.log(classification);
-                          $('#supportInternal1'+supportInternalCounter).empty();
-                          $('#supportInternal1'+supportInternalCounter).append('<option value="" selected="">------</option>');
-                          for (var count = 0; count < classification.length; count++) {
-                              var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
-                              $('#supportInternal1'+supportInternalCounter).append(option);
-                          }
-                          supportInternalCounter++;
-                      },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-                      }
-
-            });
-            $('input[name=supportInternalPrice]').on("change keyup paste input", function() {
-                totalPrice('supportInternalPrice', 'totalSupportInternalPrice');
-            });
-          });
-
-          {% if supportInternals %}
-              {% for supportInternal in supportInternals %}
-              console.log("{{ supportInternal.classification }}");
-                  c5.row.add([
-                      '<div class="d-none" value="0" name="supportInternalTypeId" id="supportInternal0' + supportInternalCounter + '">{{ supportInternal.typeId }}</div>',
-                      '<select style="width:255px" class="input-form" id="supportInternal1' + supportInternalCounter + '" name="supportInternalType"></select>',
-                      '<input class="input-form" type="digit" style="width: 50px;" value="{{ supportInternal.times }}" name="supportInternalTimes" id="supportInternal2' + supportInternalCounter + '">',
-                      '<input class="input-form" type="digit" style="width: 50px;" value="{{ supportInternal.sites }}" name="supportInternalSites" id="supportInternal3' + supportInternalCounter + '">',
-                      '<input class="input-form" type="digit" style="width: 200px;" value="{{ supportInternal.units }}" name="supportInternalUnits" id="supportInternal4' + supportInternalCounter + '">',
-                      '<input class="money input-form"  value="{{ supportInternal.price }}" name="supportInternalPrice" style="width: 200px;" id="supportInternal5' + supportInternalCounter + '">',
-                      '<i class="fas fa-times-circle" name="remove">'
-                  ]);
-                  supportInternalCounter++;
-              {% endfor %}
-              c5.draw();
               $.ajax({
-                      url: "{% url 'sales:classification_ajax_url' %}",
+                      url: "{% url 'sales:purchasemaincategory_asjson' %}",
                       method: 'POST',
                       cache: false,
-                      data: {'classification': 'classificationB',
-                            "contractId":"{{ contractId }}",
-                      },
+                      data:{"contractId": ''},
                       headers: {'X-CSRFToken': '{{ csrf_token }}'},
                       success: function (returnData) {
-                          var classification = returnData[0];
-                          var data = returnData[1];
-                          for(var i=0;i<data.length;i++){
-                              $('#supportInternal1'+i).empty();
-                              $('#supportInternal1'+i).append('<option value="" selected="">------</option>');
-                              for (var count = 0; count < classification.length; count++) {
-                                  var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
-                                  $('#supportInternal1'+i).append(option);
-                              }
-                              $('#supportInternal1' + i).val(data[i].classification).prop("selected", true);
+                          var maincategory = returnData;
+                          $('#purchaseItem2'+purchaseItemCounter).empty();
+                          $('#purchaseItem2'+purchaseItemCounter).append('<option value="" selected="">--대분류--</option>');
+                          for (var count = 0; count < maincategory.length; count++) {
+                              var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
+                              $('#purchaseItem2'+purchaseItemCounter).append(option);
                           }
+                          purchaseItemCounter++;
                       },error:function(request,status,error){
                               alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
                       }
 
-                  });
-              $('.money').simpleMoneyFormat();
-              $('input[name=supportInternalPrice]').on("change keyup paste input", function() {
-                  totalPrice('supportInternalPrice', 'totalSupportInternalPrice');
               });
-          {% endif %}
+              $('input[name=purchaseItemPrice]').on("change keyup paste input", function() {
+                  totalPrice('purchaseItemPrice', 'totalpurchaseItemPrice');
+              });
 
-           $('#supportInternal').on('click', 'i', function () {
-              c5
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
           });
 
-          // 6. 인력지원 타사
-          var c6 = $('#supportExternal').DataTable({
-              "autoWidth": true,
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              'fnCreatedRow': function (nRow, aData, iDataIndex) {
-                  $(nRow).attr('id', 'row' + iDataIndex);
-              },
-              "ordering": false,
-              "columnDefs": [
-                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-              ],
-          });
-
-
-          $('#addSupportExternal').on('click', function () {
-            c6.row.add([
-                '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">추가</div>',
-                '<select style="width:200px" class="input-form" id="supportExternal1' + supportExternalCounter + '" name="supportExternalType"></select>',
-                '<input class="input-form" type="text" style="width: 350px;" name="supportExternalContents" id="supportExternal2' + supportExternalCounter + '">',
-                '<input class="money input-form"  name="supportExternalPrice" style="width: 200px;" id="supportExternal3' + supportExternalCounter + '">',
-                '<i class="fas fa-times-circle" name="remove">'
-            ]).draw(false);
-            $.ajax({
-                      url: "{% url 'sales:classification_ajax_url' %}",
-                      method: 'POST',
-                      data: {'classification': 'classificationC1',
-                            'contractId':''},
-                      cache: false,
-                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                      success: function (returnData) {
-                          var classification = returnData;
-                          console.log(classification);
-                          $('#supportExternal1'+supportExternalCounter).empty();
-                          $('#supportExternal1'+supportExternalCounter).append('<option value="" selected="">------</option>');
-                          for (var count = 0; count < classification.length; count++) {
-                              var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
-                              $('#supportExternal1'+supportExternalCounter).append(option);
-                          }
-                          supportExternalCounter++;
-                      },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-                      }
-
-            });
-            $('.money').simpleMoneyFormat();
-            $('input[name=supportExternalPrice]').on("change keyup paste input", function() {
-                totalPrice('supportExternalPrice', 'totalSupportExternalPrice');
-            });
-          });
-
-          {% if supportExternals %}
-              {% for supportExternal in supportExternals %}
-              console.log("{{ supportExternal.classification }}");
-                  c6.row.add([
-                      '<div class="d-none" value="0" name="supportExternalTypeId" id="supportExternal0' + supportExternalCounter + '">{{ supportExternal.typeId }}</div>',
-                      '<select style="width:200px" class="input-form" id="supportExternal1' + supportExternalCounter + '" name="supportExternalType"></select>',
-                      '<input class="input-form" type="text" style="width: 350px;" value="{{ supportExternal.contents }}" name="supportExternalContents" id="supportExternal2' + supportExternalCounter + '">',
-                      '<input class="money input-form" value="{{ supportExternal.price }}" name="supportExternalPrice" style="width: 200px;" id="supportExternal3' + supportExternalCounter + '">',
-                      '<i class="fas fa-times-circle" name="remove">'
-                  ]);
-                  supportExternalCounter++;
+          {% if purchaseItems %}
+              {% for item in purchaseItems %}
+                  t5.row.add([
+                      '<div class="text-center d-none" value="0" name="purchaseItemId" id="purchaseItem0' + purchaseItemCounter + '">{{ item.contractItemId }}</div>',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="purchaseCategoryCompany" data-id="{{ item.companyName }}" id="purchaseItem1' + purchaseItemCounter + '" onkeydown="magicsearchtab(purchaseItem1' + purchaseItemCounter + ')">',
+                      '<select style="width:200px" class="input-form" size="1" id="purchaseItem2' + purchaseItemCounter + '" name="purchaseMainCategory" onchange="purchaseItemChangeAdd( purchaseItem2' + purchaseItemCounter + ",purchaseItem3" + purchaseItemCounter + ')">' +
+                      '</select>',
+                      '<select style="width:200px" class="input-form" size="1" id="purchaseItem3' + purchaseItemCounter + '" name="purchaseSubCategory"> <option value="init" selected="selected">--소분류--</option>',
+                      '<input style="width:200px" class="input-form" type="text" name="purchaseItemItemName" id="purchaseItem4' + purchaseItemCounter + '" value="{{ item.itemName }}">',
+                      '<input style="width:200px" class="money input-form" name="purchaseItemPrice" id="purchaseItem5' + purchaseItemCounter + '" value="{{ item.itemPrice }}">',
+                      '<i class="fas fa-times-circle" name="remove" >'
+                  ]).draw(false);
+                  purchaseItemCounter++;
               {% endfor %}
-              c6.draw();
+              t5.draw();
               $.ajax({
-                      url: "{% url 'sales:classification_ajax_url' %}",
-                      method: 'POST',
-                      cache: false,
-                      data: {'classification': 'classificationC1',
-                            "contractId":"{{ contractId }}",
-                      },
-                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                      success: function (returnData) {
-                          var classification = returnData[0];
-                          var data = returnData[1];
-                          for(var i=0;i<data.length;i++){
-                              $('#supportExternal1'+i).empty();
-                              $('#supportExternal1'+i).append('<option value="" selected="">------</option>');
-                              for (var count = 0; count < classification.length; count++) {
-                                  var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
-                                  $('#supportExternal1'+i).append(option);
-                              }
-                              $('#supportExternal1' + i).val(data[i].classification).prop("selected", true);
+                  url: "{% url 'sales:purchasemaincategory_asjson' %}",
+                  method: 'POST',
+                  cache: false,
+                  data: {"contractId":"{{ contractId }}"},
+                  headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                  success: function (returnData) {
+                      var category = returnData[0];
+                      var data = returnData[1];
+                      for(var i=0;i<data.length;i++){
+                          $('#purchaseItem1'+i).empty();
+                          $('#purchaseItem1'+i).append('<option value="" selected="">--대분류--</option>');
+                          for (var count = 0; count < category.length; count++) {
+                              var option = $("<option value=" + category[count].mainCategory + ">" + category[count].mainCategory + "</option>");
+                              $('#purchaseItem2'+i).append(option);
                           }
-                      },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                          $('#purchaseItem2' + i).val(data[i].mainCategory).prop("selected", true);
+                          purchaseItemChangeAdd("purchaseItem2" + i, "purchaseItem3" + i, data[i].subCategory, i);
                       }
+                  },error:function(request,status,error){
+                          alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  }
+              });
 
+               for (var p = 0; p < purchaseItemCounter; p++) {
+                  $('#purchaseItem1' + p).magicsearch({
+                      dataSource: companyList,
+                      fields: 'value',
+                      id: 'id',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                      maxShow: 100,
                   });
-              $('.money').simpleMoneyFormat();
-
-              $('input[name=supportExternalPrice]').on("change keyup paste input", function() {
-                  totalPrice('supportExternalPrice', 'totalSupportExternalPrice');
-              });
-          {% endif %}
-
-           $('#supportExternal').on('click', 'i', function () {
-              c6
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
-          });
-
-           // 7. DB COSTS
-          var c7 = $('#dbCosts').DataTable({
-              "autoWidth": true,
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              'fnCreatedRow': function (nRow, aData, iDataIndex) {
-                  $(nRow).attr('id', 'row' + iDataIndex);
-              },
-              "ordering": false,
-              "columnDefs": [
-                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "20%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-              ],
-          });
-
-          var dbCostsCounter = 0;
-
-          $('#addDbCosts').on('click', function () {
-            c7.row.add([
-                '<div class="d-none" value="0" name="dbCostsTypeId" id="dbCosts0' + dbCostsCounter + '">추가</div>',
-                '<input class="input-form" type="text" style="width: 130px;" name="dbCostsNumber" id="dbCosts1' + dbCostsCounter + '">',
-                '<input class="input-form" type="date" style="width: 200px;" name="dbCostsStart" id="dbCosts2' + dbCostsCounter + '">',
-                '<input class="input-form" type="date" style="width: 200px;" name="dbCostsEnd" id="dbCosts3' + dbCostsCounter + '">',
-                '<input class="money input-form"  name="dbCostsPrice" style="width: 200px;" id="dbCosts4' + dbCostsCounter + '">',
-                '<i class="fas fa-times-circle" name="remove">'
-            ]).draw(false);
-            $('.money').simpleMoneyFormat();
-            $('input[name=dbCostsPrice]').on("change keyup paste input", function() {
-                totalPrice('dbCostsPrice', 'totalDbCostsPrice');
-            });
-              dbCostsCounter++;
-          });
-
-          {% if dbCosts %}
-              {% for dbCost in dbCosts %}
-              console.log("{{ dbCosts.classification }}");
-                  c7.row.add([
-                      '<div class="d-none" value="0" name="dbCostsTypeId" id="dbCosts0' + dbCostsCounter + '">{{ dbCost.typeId }}</div>',
-                      '<input class="input-form" type="text" style="width: 130px;" value="{{ dbCost.contractNo }}" name="dbCostsNumber" id="dbCosts1' + dbCostsCounter + '">',
-                      '<input class="input-form" type="date" style="width: 200px;" value="{{ dbCost.contractStartDate }}" name="dbCostsStart" id="dbCosts2' + dbCostsCounter + '">',
-                      '<input class="input-form" type="date" style="width: 200px;" value="{{ dbCost.contractEndDate }}" name="dbCostsEnd" id="dbCosts3' + dbCostsCounter + '">',
-                      '<input class="money input-form" value="{{ dbCost.price }}" name="dbCostsPrice" style="width: 200px;" id="dbCosts4' + dbCostsCounter + '">',
-                      '<i class="fas fa-times-circle" name="remove">'
-                  ]);
-                  dbCostsCounter++;
-              {% endfor %}
-              c7.draw();
-              $('.money').simpleMoneyFormat();
-              $('input[name=dbCostsPrice]').on("change keyup paste input", function() {
-                  totalPrice('dbCostsPrice', 'totalDbCostsPrice');
-              });
-          {% endif %}
-
-           $('#dbCosts').on('click', 'i', function () {
-              c7
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
-          });
-
-          // 8. 기타
-          var c8 = $('#others').DataTable({
-              "autoWidth": true,
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "60vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              'fnCreatedRow': function (nRow, aData, iDataIndex) {
-                  $(nRow).attr('id', 'row' + iDataIndex);
-              },
-              "ordering": false,
-              "columnDefs": [
-                  {targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "50%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "26%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-              ],
-          });
-
-          $('#addOthers').on('click', function () {
-            c8.row.add([
-                '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">추가</div>',
-                '<select style="width:200px" class="input-form" id="others1' + othersCounter + '" name="othersType"></select>',
-                '<input class="input-form" type="text" style="width: 350px;" name="othersContents" id="others2' + othersCounter + '">',
-                '<input class="money input-form"  name="othersPrice" style="width: 200px;" id="others3' + othersCounter + '">',
-                '<i class="fas fa-times-circle" name="remove">'
-            ]).draw(false);
-            $.ajax({
-                      url: "{% url 'sales:classification_ajax_url' %}",
-                      method: 'POST',
-                      data: {'classification': 'classificationC2',
-                            'contractId':''},
-                      cache: false,
-                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                      success: function (returnData) {
-                          var classification = returnData;
-                          $('#others1'+othersCounter).empty();
-                          $('#others1'+othersCounter).append('<option value="" selected="">------</option>');
-                          for (var count = 0; count < classification.length; count++) {
-                              var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
-                              $('#others1'+othersCounter).append(option);
-                          }
-                          othersCounter++;
-                      },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-                      }
-            });
-            $('.money').simpleMoneyFormat();
-            $('input[name=othersPrice]').on("change keyup paste input", function() {
-                totalPrice('othersPrice', 'totalOthersPrice');
-            });
-          });
-
-          {% if others %}
-              {% for other in others %}
-              console.log("{{ other.classification }}");
-                  c8.row.add([
-                      '<div class="d-none" value="0" name="othersTypeId" id="others0' + othersCounter + '">{{ other.typeId }}</div>',
-                      '<select style="width:200px" class="input-form" id="others1' + othersCounter + '" name="othersType"></select>',
-                      '<input class="input-form" type="text" style="width: 350px;" value="{{ other.contents }}" name="othersContents" id="others2' + othersCounter + '">',
-                      '<input class="money input-form" value="{{ other.price }}" name="othersPrice" style="width: 200px;" id="others3' + othersCounter + '">',
-                      '<i class="fas fa-times-circle" name="remove">'
-                  ]);
-                  othersCounter++;
-              {% endfor %}
-              c8.draw();
-              $.ajax({
-                      url: "{% url 'sales:classification_ajax_url' %}",
-                      method: 'POST',
-                      cache: false,
-                      data: {'classification': 'classificationC2',
-                            "contractId":"{{ contractId }}",
-                      },
-                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                      success: function (returnData) {
-                          var classification = returnData[0];
-                          var data = returnData[1];
-                          for(var i=0;i<data.length;i++){
-                              $('#others1'+i).empty();
-                              $('#others1'+i).append('<option value="" selected="">------</option>');
-                              for (var count = 0; count < classification.length; count++) {
-                                  var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
-                                  $('#others1'+i).append(option);
-                              }
-                              $('#others1' + i).val(data[i].classification).prop("selected", true);
-                          }
-                      },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-                      }
-
-                  });
+              }
 
               $('.money').simpleMoneyFormat();
-              $('input[name=othersPrice]').on("change keyup paste input", function() {
-                  totalPrice('othersPrice', 'totalOthersPrice');
+              $('input[name=purchaseItemPrice]').on("change keyup paste input", function() {
+                  totalPrice('purchaseItemPrice', 'totalpurchaseItemPrice');
               });
+          {% else %}
+              $('#purchaseAddItem').click();
           {% endif %}
 
-           $('#supportExternal').on('click', 'i', function () {
-              c6
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
-          });
-
-           $('#others').on('click', 'i', function () {
-              c8
+          $('#purchaseCategoryItem').on('click', 'i', function () {
+              t5
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
           });
 
           // 단계에 따른 표기 방법
-          changeStep(t2, t3, t4, c1, c2, c3, c4, c5, c6, c7, c8);
+          changeStep(t2, t3, t4);
 
           // 합계 수동으로 구해서 넣어주는 것
           totalPrice('itemPrice', 'totalItemPrice');
@@ -3543,15 +2599,8 @@
           totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
           totalPrice('purchasePrice', 'totalPurchasePrice');
           totalPrice('costPrice', 'totalCostPrice');
+          totalPrice('purchaseItemPrice', 'totalpurchaseItemPrice');
 
-          totalPrice('goodsHWPrice', 'totalGoodsHWPrice');
-          totalPrice('dbCostsPrice', 'totalDbCostsPrice');
-          totalPrice('goodsSWPrice', 'totalGoodsSWPrice');
-          totalPrice('maintenanceHWPrice', 'totalMaintenanceHWPrice');
-          totalPrice('maintenanceSWPrice', 'totalMaintenanceSWPrice');
-          totalPrice('supportInternalPrice', 'totalSupportInternalPrice');
-          totalPrice('supportExternalPrice', 'totalSupportExternalPrice');
-          totalPrice('othersPrice', 'totalOthersPrice');
       })
   </script>
 

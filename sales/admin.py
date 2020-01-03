@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, Contractfile,\
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchasecategory,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Classification, Purchasecontractitem
 
 
 @admin.register(Contract)
@@ -39,11 +39,25 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display_links = ['categoryId', 'mainCategory', 'subCategory']
 
 
+@admin.register(Classification)
+class ClassificationAdmin(admin.ModelAdmin):
+    list_display = ('classificationId', 'mainCategory', 'subCategory')
+    list_filter = ('mainCategory', 'subCategory')
+    list_display_links = ['classificationId', 'mainCategory', 'subCategory']
+
+
 @admin.register(Contractitem)
 class ContractitemAdmin(admin.ModelAdmin):
     list_display = ('contractItemId', 'contractId', 'mainCategory', 'subCategory', 'itemName', 'itemPrice')
     list_filter = ('contractId', 'itemName')
     list_display_links = ['contractItemId', 'contractId', 'mainCategory', 'subCategory', 'itemName', 'itemPrice']
+
+
+@admin.register(Purchasecontractitem)
+class PurchasecontractitemAdmin(admin.ModelAdmin):
+    list_display = ('contractItemId', 'contractId', 'companyName',  'mainCategory', 'subCategory', 'itemName', 'itemPrice')
+    list_filter = ('contractId', 'itemName', 'companyName')
+    list_display_links = ['contractItemId', 'contractId', 'companyName', 'mainCategory', 'subCategory', 'itemName', 'itemPrice']
 
 
 @admin.register(Goal)
@@ -149,3 +163,5 @@ class RelatedpurchaseestimateAdmin(admin.ModelAdmin):
     list_display = ('relatedId', 'purchaseOrder', 'purchaseEstimate')
     list_filter = ('purchaseOrder',)
     list_display_links = ['relatedId', 'purchaseOrder', 'purchaseEstimate']
+
+
