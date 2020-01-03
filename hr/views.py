@@ -513,6 +513,49 @@ def redo_default_stamp(request, empId):
 @login_required
 @csrf_exempt
 def show_vacations(request):
+    if request.method == 'POST':
+        year = request.POST['year']
+    else:
+        year = str(datetime.datetime.today().year)
+    employees = Employee.objects.filter(Q(empStatus='Y'))
+    context = {
+        'employees': employees,
+        'year': year,
+    }
+    return render(request, 'hr/showvacations.html', context)
+
+
+@csrf_exempt
+@login_required
+def showvacations_asjson(request):
+    year = request.POST['year']
+    if year:
+        vacations = AdminVacation.objects.filter(Q(creationDateTime__year=year)).values(
+            'vacationId', 'empId__empDeptName', 'empId__empName', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDate', 'comment',
+        )
+    else:
+        vacations = AdminVacation.objects.all().values(
+            'vacationId', 'empId__empDeptName', 'empId__empName', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDate', 'comment',
+        )
+    structure = json.dumps(list(vacations), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def delete_vacation(request):
+    if request.method == 'POST' and request.is_ajax():
+        vacationId = request.POST.get('vacationId', None)
+        adminVacation = AdminVacation.objects.get(vacationId=vacationId)
+        employee = Employee.objects.get(empId=adminVacation.empId.empId)
+        employee.empAnnualLeave = employee.empAnnualLeave - adminVacation.vacationDays
+        employee.save()
+        adminVacation.delete()
+        return HttpResponse(json.dumps({'vacationId': vacationId}), content_type="application/json")
+
+@login_required
+@csrf_exempt
+def save_vacation(request):
     if request.POST:
         empId = request.POST['empId']
         vacationType = request.POST['vacationType']
@@ -535,34 +578,17 @@ def show_vacations(request):
         elif vacationType == '특별휴가':
             employee.empSpecialLeave += float(vacationDays)
             employee.save()
-        return  redirect('hr:showvacations')
-
-    employees = Employee.objects.filter(Q(empStatus='Y'))
-    context = {
-        'employees': employees,
-    }
-    return render(request, 'hr/showvacations.html', context)
-
-
-@login_required
-def showvacations_asjson(request):
-    vacations = AdminVacation.objects.all().values(
-        'vacationId', 'empId__empDeptName',  'empId__empName', 'vacationType', 'vacationDays', 'creationDateTime', 'expirationDate', 'comment',
-    )
-
-    structure = json.dumps(list(vacations), cls=DjangoJSONEncoder)
-    return HttpResponse(structure, content_type='application/json')
+    return redirect('hr:showvacations')
 
 
 @login_required
 @csrf_exempt
-def delete_vacation(request):
-    if request.method == 'POST' and request.is_ajax():
-        vacationId = request.POST.get('vacationId', None)
-        adminVacation = AdminVacation.objects.get(vacationId=vacationId)
-        employee = Employee.objects.get(empId=adminVacation.empId.empId)
-        employee.empAnnualLeave = employee.empAnnualLeave - adminVacation.vacationDays
-        employee.save()
-        adminVacation.delete()
-
-        return HttpResponse(json.dumps({'vacationId': vacationId}), content_type="application/json")
+def vacations_excel(request):
+    if request.method == 'POST':
+        year = request.POST['year']
+    else:
+        year = str(datetime.datetime.today().year)
+    context = {
+        'year': year,
+    }
+    return render(request, 'hr/vacationsexcel.html', context)

@@ -30,4 +30,6 @@ urlpatterns = [
     url(r'^showvacations/$', views.show_vacations, name='showvacations'),
     url(r'^showvacationsasjson/$', views.showvacations_asjson, name='showvacationsasjson'),
     url(r'^deletevacation/$', views.delete_vacation, name='deletevacation'),
+    url(r'^savevacation/$', views.save_vacation, name='savevacation'),
+    url(r'^vacationsexcel/$', views.vacations_excel, name='vacationsexcel'),
 ]

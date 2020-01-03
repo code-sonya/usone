@@ -120,7 +120,7 @@
         </div>
       </li>
     {% endif %}
-    {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
+    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
       <!-- Nav Item - 영업관리 -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFiles" aria-expanded="true" aria-controls="collapseFiles">
