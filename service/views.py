@@ -340,7 +340,7 @@ def post_vacation(request):
             elif request.POST[day] == 'am':
                 vacationDay += 0.5
                 vacationDate += ' (오전반차)<br>'
-            elif request.POST[day] == 'am':
+            elif request.POST[day] == 'pm':
                 vacationDay += 0.5
                 vacationDate += ' (오후반차)<br>'
             

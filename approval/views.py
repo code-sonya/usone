@@ -708,6 +708,9 @@ def showdocument_asjson(request):
         documentsDoneReject = []  # 완료, 반려
         documentsDoneView = []  # 완료, 조회
         documentsTemp = []  # 임시
+        documentsIng = []  # 진행, 관리자
+        documentsDone = []  # 완료, 관리자
+        documentsReject = []  # 반려, 관리자
 
         if category == '전체' or category == '진행':
             # 진행
@@ -828,6 +831,14 @@ def showdocument_asjson(request):
             if request.GET['option'] == '반려제외':
                 documentsDoneReject = []
 
+        # 관리자 조회
+        if category == '관리자진행':
+            documentsIng = list(Document.objects.filter(documentStatus='진행').values_list('documentId', flat=True))  # 진행 문서 전체
+        if category == '관리자완료':
+            documentsDone = list(Document.objects.filter(documentStatus='완료').values_list('documentId', flat=True))  # 완료 문서 전체
+        if category == '관리자반려':
+            documentsReject = list(Document.objects.filter(documentStatus='반려').values_list('documentId', flat=True))  # 반려 문서 전체
+
         # 각 문서 분류별 displayStatus 설정
         returnIngDone = Document.objects.filter(
             documentId__in=documentsIngDone
@@ -914,7 +925,7 @@ def showdocument_asjson(request):
             'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnDoneReject = Document.objects.filter(
-            documentId__in=documentsDoneReject
+            documentId__in=documentsDoneCheck
         ).annotate(
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
@@ -949,11 +960,47 @@ def showdocument_asjson(request):
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
             'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
-
+        returnIng = Document.objects.filter(
+            documentId__in=documentsIng
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus1=Value('진행', output_field=CharField()),
+            displayStatus2=Value('관리자', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
+        )
+        returnDone = Document.objects.filter(
+            documentId__in=documentsDone
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus1=Value('완료', output_field=CharField()),
+            displayStatus2=Value('관리자', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
+        )
+        returnReject = Document.objects.filter(
+            documentId__in=documentsReject
+        ).annotate(
+            empName=F('writeEmp__empName'),
+            formNumber=F('formId__formNumber'),
+            formTitle=F('formId__formTitle'),
+            displayStatus1=Value('반려', output_field=CharField()),
+            displayStatus2=Value('관리자', output_field=CharField())
+        ).values(
+            'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
+            'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
+        )
+        
         returnDocuments = returnIngDone.union(
             returnIngWait, returnIngWill, returnIngCheck,
             returnDoneWrite, returnDoneApproval, returnDoneCheck, returnDoneReject, returnDoneView,
-            returnTemp
+            returnTemp, returnIng, returnDone, returnReject
         )
 
         structure = json.dumps(list(returnDocuments), cls=DjangoJSONEncoder)
@@ -988,6 +1035,30 @@ def show_document_done(request):
 def show_document_temp(request):
     context = {
         'category': '임시',
+    }
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def show_document_admin_ing(request):
+    context = {
+        'category': '관리자진행',
+    }
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def show_document_admin_done(request):
+    context = {
+        'category': '관리자완료',
+    }
+    return render(request, 'approval/showdocument.html', context)
+
+
+@login_required
+def show_document_admin_reject(request):
+    context = {
+        'category': '관리자반려',
     }
     return render(request, 'approval/showdocument.html', context)
 

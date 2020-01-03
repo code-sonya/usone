@@ -20,6 +20,9 @@ urlpatterns = [
     url(r'^showdocument/ing/$', views.show_document_ing, name='showdocumenting'),
     url(r'^showdocument/done/$', views.show_document_done, name='showdocumentdone'),
     url(r'^showdocument/temp/$', views.show_document_temp, name='showdocumenttemp'),
+    url(r'^showdocument/admin/ing/$', views.show_document_admin_ing, name='showdocumentadmining'),
+    url(r'^showdocument/admin/done/$', views.show_document_admin_done, name='showdocumentadmindone'),
+    url(r'^showdocument/admin/reject/$', views.show_document_admin_reject, name='showdocumentadminreject'),
 
     url(r'^viewdocument/(?P<documentId>.+)/$', views.view_document, name='viewdocument'),
     url(r'^postdocumentcomment/$', views.post_document_comment, name='postdocumentcomment'),
