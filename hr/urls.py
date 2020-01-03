@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^showdepartments/$', views.show_departments, name='showdepartments'),
     url(r'^showdepartmentsasjson/$', views.showdepartments_asjson, name='showdepartmentsasjson'),
     url(r'^viewdepartment/(?P<deptId>.+)/$', views.view_department, name='viewdepartment'),
+    url(r'^deletedepartment/(?P<deptId>.+)/$', views.delete_department, name='deletedepartment'),
     url(r'^postdepartment/$', views.post_department, name='postdepartment'),
     url(r'^showpunctuality/(?P<day>.+)/$', views.show_punctuality, name='showpunctuality'),
     url(r'^showyearpunctuality/(?P<year>.+)/$', views.show_yearpunctuality, name='showyearpunctuality'),

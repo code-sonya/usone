@@ -82,10 +82,16 @@ def view_profile(request, empId):
         post.empDeptName = post.departmentName.deptName
         post.save()
 
+        if employee.empStatus == 'Y':
+            emp = User.objects.get(id=employee.empId)
+            emp.is_active = 1
+            emp.save()
+
         if employee.empStatus == 'N':
             emp = User.objects.get(id=employee.empId)
             emp.is_active = 0
             emp.save()
+
         return redirect('hr:showprofiles')
 
     else:
@@ -195,6 +201,12 @@ def post_department(request):
             'form': form,
         }
         return render(request, 'hr/postdepartment.html', context)
+
+
+@login_required
+def delete_department(request, deptId):
+    Department.objects.get(deptId=deptId).delete()
+    return redirect('hr:showdepartments')
 
 
 @login_required

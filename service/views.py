@@ -298,12 +298,24 @@ def post_vacation(request):
     now = datetime.datetime.now()
     yyyy = str(now)[:4]
     mm = str(now)[5:7]
+
     # 보상휴가일수
     rewardVacationDay = 0
     extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
 
+    # 전달 보상휴가일수
+    dayBefore = 15
+    if mm == '01':
+        yyyyBefore = str(int(yyyy) - 1)
+        mmBefore = '12'
+    else:
+        yyyyBefore = yyyy
+        mmBefore = str(int(mm) - 1).zfill(2)
+    rewardVacationDayBefore = 0
+    extraWorkBefore = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyyBefore, overHourDate__month=mmBefore)
+
     if request.method == "POST":
-        vacationDays = list(request.POST.keys())[1:-8]
+        vacationDays = list(request.POST.keys())[1:-9]
 
         # 문서 종류 선택
         formId = Documentform.objects.get(
@@ -456,6 +468,7 @@ def post_vacation(request):
                 vacationDate=vacationDate,
                 vacationType=vacationType,
                 vacationCategory=vacationCategory,
+                rewardVacationType=request.POST['rewardVacationType'],
                 comment=comment,
             )
 
@@ -469,10 +482,14 @@ def post_vacation(request):
             emp.empSpecialLeave -= vacationDay
             emp.save()
         elif vacationCategory.categoryName == '보상휴가':
-            extraWorkObj = extraWork.first()
-            extraWorkObj.compensatedHour += vacationDay * 8
-            extraWorkObj.save()
-
+            if request.POST['rewardVacationType'] == '전월보상휴가':
+                extraWorkBeforeObj = extraWorkBefore.first()
+                extraWorkBeforeObj.compensatedHour += vacationDay * 8
+                extraWorkBeforeObj.save()
+            elif request.POST['rewardVacationType'] == '당월보상휴가':
+                extraWorkObj = extraWork.first()
+                extraWorkObj.compensatedHour += vacationDay * 8
+                extraWorkObj.save()
         return redirect('service:showvacations')
 
     else:
@@ -491,10 +508,15 @@ def post_vacation(request):
         if extraWork:
             rewardVacationDay += (((extraWork.first().sumOverHour - extraWork.first().compensatedHour) // 4)/2)
 
+        if datetime.datetime.today().day < dayBefore:
+            if extraWorkBefore:
+                rewardVacationDayBefore += (((extraWorkBefore.first().sumOverHour - extraWorkBefore.first().compensatedHour) // 4) / 2)
+
         context = {
             'empNames': empNames,
             'vacationCategory': Vacationcategory.objects.all(),
             'rewardVacationDay': rewardVacationDay,
+            'rewardVacationDayBefore': rewardVacationDayBefore,
         }
         return render(request, 'service/postvacation.html', context)
 

@@ -48,16 +48,28 @@
 
     <div class="card-body">
       <div class="mb-3">
-        <label class="font-weight-bold text-primary">결재선</label>
+        <div class="d-flex flex-row align-items-center justify-content-between">
+          <label class="font-weight-bold text-primary">잔여휴가일수</label>
+          <span class="d-none d-xl-block">※ 전월보상휴가는 당월 15일까지 사용가능합니다.</span>
+        </div>
+
         <table class="pc-table">
           <tr>
-            <td class="bg-light">연차</td>
-            <td class="bg-light">특별휴가</td>
-            <td class="bg-light">보상휴가</td>
+            <td class="bg-light" style="width: 33%">연차</td>
+            <td class="bg-light" style="width: 33%">특별휴가</td>
+            <td class="bg-light" style="width: 17%">
+              전월보상휴가
+              <input type="radio" name="rewardVacationType" class="d-none" value="전월보상휴가">
+            </td>
+            <td class="bg-light" style="width: 17%">
+              당월보상휴가
+              <input type="radio" name="rewardVacationType" class="d-none" value="당월보상휴가">
+            </td>
           </tr>
           <tr>
             <td>{{ request.user.employee.empAnnualLeave }} 일</td>
             <td>{{ request.user.employee.empSpecialLeave }} 일</td>
+            <td>{{ rewardVacationDayBefore }} 일</td>
             <td>{{ rewardVacationDay }} 일</td>
           </tr>
         </table>
@@ -95,7 +107,7 @@
         </div>
         <div class="col-xl-4 mb-3">
           <label for="enddate" class="font-weight-bold text-primary"> 휴가 종류 </label>
-          <select id="vacationCategory" class="form-control" >
+          <select id="vacationCategory" class="form-control" onchange="change_vacationCategory(this)">
             <option value="">------</option>
             {% for category in vacationCategory %}
               <option value="{{ category.categoryId }}">{{ category.categoryName }}</option>
@@ -313,7 +325,25 @@
       function btn_save() {
           const form = $('#VacationForm');
           const vacationCategory = $('#vacationCategory').val();
+          const vacationCategoryText = $('#vacationCategory option:selected').text();
           const comment = $('#comment').val();
+          const empAnnualLeave = parseFloat('{{ request.user.employee.empAnnualLeave }}');
+          const empSpecialLeave = parseFloat('{{ request.user.employee.empSpecialLeave }}');
+          const rewardVacationDayBefore = parseFloat('{{ rewardVacationDayBefore }}');
+          const rewardVacationDay = parseFloat('{{ rewardVacationDay }}');
+          let rewardVacationType = $('input:radio[name="rewardVacationType"]:checked').val();
+
+          let vacationDays = 0.0;
+          let radio = $('input:radio:checked');
+          for (let i=0; i<radio.length; i++) {
+              if (radio[i].value === 'all') {
+                  vacationDays += 1;
+              } else if (radio[i].value === 'am') {
+                  vacationDays += 0.5;
+              } else if (radio[i].value === 'pm') {
+                  vacationDays += 0.5;
+              }
+          }
 
           if (!vacationCategory) {
               alert('휴가 종류를 선택해주세요.');
@@ -324,6 +354,36 @@
               return false;
           }
 
+          if (vacationCategoryText === '연차') {
+              if (empAnnualLeave < vacationDays) {
+                  alert('보유하신 연차보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
+                  return false;
+              }
+          }
+          if (vacationCategoryText === '특별휴가') {
+              if (empSpecialLeave < vacationDays) {
+                  alert('보유하신 특별휴가보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
+                  return false;
+              }
+          }
+          if (vacationCategoryText === '보상휴가') {
+              if (!rewardVacationType) {
+                  alert('전월보상휴가 또는 당월보상휴가를 선택해주세요.');
+                  return false;
+              } else if (rewardVacationType === '전월보상휴가') {
+                  if (rewardVacationDayBefore < vacationDays) {
+                      alert('보유하신 전월보상휴가보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
+                      return false;
+                  }
+              } else if (rewardVacationType === '당월보상휴가') {
+                  if (rewardVacationDay < vacationDays) {
+                      alert('보유하신 당월보상휴가보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
+                      return false;
+                  }
+              }
+          }
+
+
           $('<input />', {
               type: 'hidden',
               name: 'vacationCategory',
@@ -333,6 +393,11 @@
               type: 'hidden',
               name: 'comment',
               value: comment
+          }).appendTo(form);
+          $('<input />', {
+              type: 'hidden',
+              name: 'rewardVacationType',
+              value: rewardVacationType
           }).appendTo(form);
           $('<input />', {
               type: 'hidden',
@@ -349,6 +414,7 @@
               name: 'reference',
               value: $('#reference').attr('data-id')
           }).appendTo(form);
+
           // 첨부파일
           form.append($("#files"));
           let filesName = $('td[name="filesName"]');
@@ -378,7 +444,9 @@
               name: 'relatedDocumentId',
               value: JSON.stringify(listId)
           }).appendTo(form);
-          if (confirm("휴가등록을 하시겠습니까?") === true) {
+
+          let msg = '휴가등록을 하시겠습니까?';
+          if (confirm(msg) === true) {
               document.getElementById("VacationForm").submit();
           }
       }
@@ -555,6 +623,16 @@
           } else {
               $('#vacation').removeClass('small');
               $('#vacation').removeClass('small');
+          }
+      }
+
+      function change_vacationCategory() {
+          const vacationCategoryText = $('#vacationCategory option:selected').text();
+          const rewardVacationType = $('input:radio[name="rewardVacationType"]');
+          if (vacationCategoryText === '보상휴가') {
+              rewardVacationType.removeClass('d-none');
+          } else {
+              rewardVacationType.addClass('d-none');
           }
       }
 

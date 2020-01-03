@@ -176,6 +176,9 @@ def copy_contract(request, contractId):
     contract.pk = None
     contract.save()
 
+    # 단계 Opportunity로 변경
+    contract.contractStep = 'Opportunity'
+
     # 관리번호 자동생성
     yy = str(datetime.now().year)[2:]
     mm = str(datetime.now().month).zfill(2)
@@ -257,8 +260,8 @@ def show_contracts(request):
         modifyContractPaper = request.POST['modifyContractPaper']
 
     else:
-        startdate = ''
-        enddate = ''
+        startdate = str(datetime.now())[:4] + '-01-01'
+        enddate = str(datetime.now())[:4] + '-12-31'
         contractStep = ''
         empDeptName = '전체'
         empName = ''
@@ -580,8 +583,8 @@ def show_revenues(request):
         issued = request.POST['issued']
 
     else:
-        startdate = ''
-        enddate = ''
+        startdate = str(datetime.now())[:4] + '-01-01'
+        enddate = str(datetime.now())[:4] + '-12-31'
         empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
@@ -658,7 +661,7 @@ def empdept_asjson(request):
 @csrf_exempt
 def category_asjson(request):
     mainCategory = request.POST['mainCategory']
-    subcategory = Category.objects.filter(mainCategory=mainCategory)
+    subcategory = Category.objects.filter(mainCategory=mainCategory).order_by('subCategory')
     json = serializers.serialize('json', subcategory)
     return HttpResponse(json, content_type='application/json')
 
@@ -700,9 +703,19 @@ def contracts_asjson(request):
             contracts = contracts.filter(empId=user.empId)
 
     if startdate:
-        contracts = contracts.filter(contractDate__gte=startdate)
+        revenues = Revenue.objects.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
+        purchases = Purchase.objects.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
+        contracts = contracts.filter(
+            Q(contractId__in=revenues) |
+            Q(contractId__in=purchases)
+        )
     if enddate:
-        contracts = contracts.filter(contractDate__lte=enddate)
+        revenues = Revenue.objects.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+        purchases = Purchase.objects.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+        contracts = contracts.filter(
+            Q(contractId__in=revenues) |
+            Q(contractId__in=purchases)
+        )
     if contractStep != '전체' and contractStep != '':
         contracts = contracts.filter(contractStep=contractStep)
     if empDeptName != '전체' and empDeptName != '':
@@ -735,7 +748,6 @@ def contracts_asjson(request):
 @login_required
 @csrf_exempt
 def revenues_asjson(request):
-    # print(request.POST)
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     empDeptName = request.POST['empDeptName']
@@ -1027,8 +1039,8 @@ def show_purchases(request):
         maincategory = request.POST['maincategory']
         issued = request.POST['issued']
     else:
-        startdate = ''
-        enddate = ''
+        startdate = str(datetime.now())[:4] + '-01-01'
+        enddate = str(datetime.now())[:4] + '-12-31'
         empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
@@ -1120,7 +1132,6 @@ def save_purchasetable(request):
 @login_required
 @csrf_exempt
 def purchases_asjson(request):
-    # print(request.POST)
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     empDeptName = request.POST['empDeptName']
@@ -3254,12 +3265,12 @@ def maincategory_asjson(request):
     contractId = request.POST['contractId']
     if contractId:
         items = Contractitem.objects.filter(contractId=contractId).values('mainCategory', 'subCategory')
-        maincategory = Category.objects.all().values('mainCategory').distinct()
+        maincategory = Category.objects.all().values('mainCategory').distinct().order_by('mainCategory')
         jsonList = []
         jsonList.append(list(maincategory))
         jsonList.append(list(items))
     else:
-        maincategory = Category.objects.all().values('mainCategory').distinct()
+        maincategory = Category.objects.all().values('mainCategory').distinct().order_by('mainCategory')
         jsonList = list(maincategory)
     structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -3397,7 +3408,7 @@ def post_purchase_order(request, contractId, purchaseOrderCompanyName):
         purchaseCompany=purchaseOrderCompany,
         formId=purchaseOrderForm,
         writeEmp=emp,
-        title=purchaseOrderCompanyName + ' 매입발주서 자동생성',
+        title='[유니원아이앤씨] ' + contract.contractName + '의 발주서를 송부드립니다.' ,
         contentHtml=contentHtml,
         writeDatetime=datetime.now(),
         modifyDatetime=datetime.now(),

@@ -1175,22 +1175,36 @@ def return_document(request, approvalId):
                 vacationDay += 0.5
 
         emp = document.writeEmp
-        vacationCategory = vacations.first().vacationCategory
-        if vacationCategory.categoryName == '연차':
+        categoryName = vacations.first().vacationCategory.categoryName
+        if categoryName == '연차':
             emp.empAnnualLeave += vacationDay
             emp.save()
-        elif vacationCategory.categoryName == '특별휴가':
+        elif categoryName == '특별휴가':
             emp.empSpecialLeave += vacationDay
             emp.save()
-        elif vacationCategory.categoryName == '보상휴가':
+        elif categoryName == '보상휴가':
+            rewardVacationType = vacations.first().rewardVacationType
             now = document.draftDatetime
             yyyy = str(now)[:4]
             mm = str(now)[5:7]
-            # 보상휴가일수
-            extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
-            extraWorkObj = extraWork.first()
-            extraWorkObj.compensatedHour -= vacationDay * 8
-            extraWorkObj.save()
+            if mm == '01':
+                yyyyBefore = str(int(yyyy) - 1)
+                mmBefore = '12'
+            else:
+                yyyyBefore = yyyy
+                mmBefore = str(int(mm) - 1).zfill(2)
+            if rewardVacationType == '당월보상휴가':
+                # 보상휴가일수
+                extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
+                extraWorkObj = extraWork.first()
+                extraWorkObj.compensatedHour -= vacationDay * 8
+                extraWorkObj.save()
+            elif rewardVacationType == '전월보상휴가':
+                # 보상휴가일수
+                extraWorkBefore = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyyBefore, overHourDate__month=mmBefore)
+                extraWorkBeforeObj = extraWorkBefore.first()
+                extraWorkBeforeObj.compensatedHour -= vacationDay * 8
+                extraWorkBeforeObj.save()
 
     return redirect('approval:viewdocument', approval.documentId_id)
 
@@ -1293,6 +1307,18 @@ def post_contract_document(request, contractId, documentType):
 
     # 1. 수주통보서
     if formTitle == '수주통보서':
+        # N차 수정 수주통보서
+        N = len(Document.objects.filter(
+            formId__categoryId__firstCategory='영업',
+            formId__categoryId__secondCategory='일반',
+            formId__formTitle='수주통보서',
+            documentStatus='완료',
+            contractId=contractId,
+        ))
+        if N:
+            formTitle = str(N) + '차 수정 수주통보서'
+            contentHtml = contentHtml.replace('수주통보서', formTitle)
+
         # 계약 내용 요약
         contentHtml = contentHtml.replace('부서자동입력', contract.empDeptName)
         contentHtml = contentHtml.replace('영업대표자동입력', contract.empName)
