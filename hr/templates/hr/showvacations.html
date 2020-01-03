@@ -37,6 +37,12 @@
         <h6 class="m-0 h3 text-gray-800">휴가관리</h6>
         <div class="dropdown no-arrow">
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+            <a class="dropdown-toggle" href="/hr/vacationsexcel/" role="button">
+              <i class="fas fa-file-excel fa-fw text-success mr-2"></i>
+            </a>
+            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter fa-fw text-info mr-2"></i>
+            </a>
             <a class="dropdown-toggle" href="#" role="button" id="vacationLink" data-toggle="modal" data-target="#vacationModal">
               <i class="fas fa-plus fa-fw text-primary"></i>
             </a>
