@@ -2067,9 +2067,6 @@
                   $('#addPurchase').click();
               }
               $('#costdiv').removeClass('d-none');
-              if (t4.rows().data().length === 0) {
-                  $('#addCost').click();
-              }
               $('#purchasetypediv').removeClass('d-none');
           }
       }
@@ -2743,8 +2740,6 @@
               $('input[name=costPrice]').on("change keyup paste input", function() {
                   totalPrice('costPrice', 'totalCostPrice');
               });
-          {% else %}
-              $('#addCost').click();
           {% endif %}
 
           $('#cost').on('click', 'i', function () {
