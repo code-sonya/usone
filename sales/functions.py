@@ -20,7 +20,7 @@ from smtplib import SMTP_SSL
 from service.models import Servicereport
 from approval.models import Document
 from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile,\
-    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder, Purchasecontractitem
 from hr.models import AdminEmail
 from service.models import Employee
 from django.db.models import Q, Max
@@ -44,14 +44,11 @@ def viewContract(contractId):
     contract = Contract.objects.get(contractId=contractId)
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
+    purchaseItems = Purchasecontractitem.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
     purchaseCompany = list(purchases.values_list('purchaseCompany__companyNameKo', flat=True).distinct().order_by('purchaseCompany__companyNameKo'))
     purchasesNotBilling = purchases.filter(billingDate__isnull=True)
     costs = Cost.objects.filter(contractId=contractId)
-    purchaseTypeA = Purchasetypea.objects.filter(contractId=contractId)
-    purchaseTypeB = Purchasetypeb.objects.filter(contractId=contractId)
-    purchaseTypeC = Purchasetypec.objects.filter(contractId=contractId)
-    purchaseTypeD = Purchasetyped.objects.filter(contractId=contractId)
     services = Servicereport.objects.filter(
         Q(contractId=contractId) & 
         Q(serviceStatus='Y') & 
@@ -199,15 +196,12 @@ def viewContract(contractId):
         'sumRevenuePrice': sumRevenuePrice,
         'sumRevenueProfitPrice': sumRevenueProfitPrice,
         'sumRevenueProfitRatio': sumRevenueProfitRatio,
+        'purchaseItems': purchaseItems,
         'purchases': purchases.order_by('predictBillingDate', 'purchaseCompany__companyNameKo'),
         'purchaseCompany': purchaseCompany,
         'purchasesNotBilling': purchasesNotBilling,
         'sumPurchasePrice': sumPurchasePrice,
         'costs': costs.order_by('billingDate'),
-        'purchaseTypeA': purchaseTypeA,
-        'purchaseTypeB': purchaseTypeB,
-        'purchaseTypeC': purchaseTypeC,
-        'purchaseTypeD': purchaseTypeD,
         'contractPaper': contractPaper,
         'orderPaper': orderPaper,
         # 연도 별 매출·이익 기여도
