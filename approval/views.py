@@ -157,16 +157,17 @@ def post_document(request):
                     approvalCategory=a['approvalCategory'],
                 )
 
-        whoApproval = who_approval(document.documentId)
-        if len(whoApproval['do']) == 0:
-            document.documentStatus = '완료'
-            document.approveDatetime = datetime.datetime.now()
-            document.save()
-            return redirect("approval:showdocumentdone")
-        else:
-            for empId in whoApproval['do']:
-                employee = Employee.objects.get(empId=empId)
-                mail_approval(employee, document)
+        if request.POST['documentStatus'] == '진행':
+            whoApproval = who_approval(document.documentId)
+            if len(whoApproval['do']) == 0:
+                document.documentStatus = '완료'
+                document.approveDatetime = datetime.datetime.now()
+                document.save()
+                return redirect("approval:showdocumentdone")
+            else:
+                for empId in whoApproval['do']:
+                    employee = Employee.objects.get(empId=empId)
+                    mail_approval(employee, document)
 
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
@@ -214,11 +215,6 @@ def modify_document(request, documentId):
         else:
             document.preservationYear = request.POST['preservationYear'][:-1]
 
-        # 문서번호 자동생성 (yymmdd-000)
-        yymmdd = str(datetime.date.today()).replace('-', '')[2:]
-        todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
-        document.documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
-
         document.securityLevel = request.POST['securityLevel'][0]
         document.title = request.POST['title']
         # 문서 전처리 (\n 없애고, '를 "로 변경)
@@ -226,7 +222,7 @@ def modify_document(request, documentId):
         HTML = HTML.replace('\'', '"')
         HTML = HTML.replace('\r', '')
         HTML = HTML.replace('\n', '')
-        document.contentHtml = request.POST['contentHtml']
+        document.contentHtml = HTML
         document.modifyDatetime = datetime.datetime.now()
         document.documentStatus = request.POST['documentStatus']
 
@@ -324,16 +320,16 @@ def modify_document(request, documentId):
                     approvalStep=a['approvalStep'],
                     approvalCategory=a['approvalCategory'],
                 )
-
-        whoApproval = who_approval(document.documentId)
-        if len(whoApproval['do']) == 0:
-            document.documentStatus = '완료'
-            document.save()
-            return redirect("approval:showdocumentdone")
-        else:
-            for empId in whoApproval['do']:
-                employee = Employee.objects.get(empId=empId)
-                mail_approval(employee, document)
+        if request.POST['documentStatus'] == '진행':
+            whoApproval = who_approval(document.documentId)
+            if len(whoApproval['do']) == 0:
+                document.documentStatus = '완료'
+                document.save()
+                return redirect("approval:showdocumentdone")
+            else:
+                for empId in whoApproval['do']:
+                    employee = Employee.objects.get(empId=empId)
+                    mail_approval(employee, document)
 
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
@@ -360,6 +356,85 @@ def modify_document(request, documentId):
             'empNames': empNames,
         }
         return render(request, 'approval/postdocument.html', context)
+
+
+@login_required
+def delete_document(request, documentId):
+    document = Document.objects.get(documentId=documentId)
+    document.documentStatus = '삭제'
+    document.save()
+    return redirect("approval:showdocumenttemp")
+
+
+@login_required
+def draft_cancel(request, documentId):
+    now = datetime.datetime.now()
+    beforeDocument = Document.objects.get(documentId=documentId)
+
+    document = Document.objects.get(documentId=documentId)
+    document.pk = None
+    # 문서번호 자동생성 (yymmdd-000)
+    yymmdd = str(datetime.date.today()).replace('-', '')[2:]
+    todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
+    documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
+    document.documentNumber = documentNumber
+    # 작성, 수정시간은 현재시간
+    document.writeDatetime = now
+    document.modifyDatetime = now
+    # 기안, 완료일시는 Null
+    document.draftDatetime = None
+    document.ApproveDatetime = None
+    # 문서상태는 임시문서
+    document.documentStatus = '임시'
+    document.save()
+
+    # 결재선 복사
+    approvals = Approval.objects.filter(documentId=beforeDocument)
+    for approval in approvals:
+        approval.pk = None
+        approval.documentId = document
+        approval.approvalStatus = '대기'
+        approval.approvalDatetime = None
+        approval.save()
+
+    beforeDocument.documentStatus = '삭제'
+    beforeDocument.save()
+
+    return redirect("approval:showdocumenttemp")
+
+
+@login_required
+def copy_document(request, documentId):
+    now = datetime.datetime.now()
+    beforeDocument = Document.objects.get(documentId=documentId)
+
+    document = Document.objects.get(documentId=documentId)
+    document.pk = None
+    # 문서번호 자동생성 (yymmdd-000)
+    yymmdd = str(datetime.date.today()).replace('-', '')[2:]
+    todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
+    documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
+    document.documentNumber = documentNumber
+    # 작성, 수정시간은 현재시간
+    document.writeDatetime = now
+    document.modifyDatetime = now
+    # 기안, 완료일시는 Null
+    document.draftDatetime = None
+    document.ApproveDatetime = None
+    # 문서상태는 임시문서
+    document.documentStatus = '임시'
+    document.save()
+
+    # 결재선 복사
+    approvals = Approval.objects.filter(documentId=beforeDocument)
+    for approval in approvals:
+        approval.pk = None
+        approval.documentId = document
+        approval.approvalStatus = '대기'
+        approval.approvalDatetime = None
+        approval.save()
+
+    return redirect("approval:modifydocument", document.documentId)
 
 
 @login_required
@@ -406,6 +481,8 @@ def post_documentform(request):
             preservationYear=request.POST['preservationYear'],
             securityLevel=request.POST['securityLevel'],
             comment=request.POST['comment'],
+            copyAuth=request.POST['copyAuth'],
+            mailAuth=request.POST['mailAuth']
         )
         approval = []
         if request.POST['approvalFormat'] == '신청':
@@ -496,6 +573,8 @@ def modify_documentform(request, formId):
         form.preservationYear = request.POST['preservationYear']
         form.securityLevel = request.POST['securityLevel']
         form.comment = request.POST['comment']
+        form.copyAuth = request.POST['copyAuth']
+        form.mailAuth = request.POST['mailAuth']
         form.save()
 
         Approvalform.objects.filter(formId=formId).delete()
@@ -1069,8 +1148,17 @@ def view_document(request, documentId):
     files = Documentfile.objects.filter(documentId__documentId=documentId)
     related = Relateddocument.objects.filter(documentId__documentId=documentId)
     apply, process, reference, approval, agreement, financial = template_format(documentId)
-    do_approval = who_approval(documentId)['do']
-    check_approval = who_approval(documentId)['check']
+    whoApproval = who_approval(documentId)
+    # 문서가 진행 중이고, 기안자 이외에 나머지 사람들이 결재를 하지 않았다면, 기안 취소 가능
+    done_approval = whoApproval['done']
+    if document.documentStatus == '진행' and len(done_approval) == 1 and done_approval[0] == request.user.employee.empId:
+        draftCancelStatus = True
+    else:
+        draftCancelStatus = False
+    # 결재할 사람
+    do_approval = whoApproval['do']
+    # 참조할 사람
+    check_approval = whoApproval['check']
 
     # 참조자 자동완성
     empList = Employee.objects.filter(Q(empStatus='Y'))
@@ -1098,6 +1186,7 @@ def view_document(request, documentId):
         'empNames': empNames,
         'approvalList': [apply, process, approval, agreement, financial],
         'reference': reference,
+        'draftCancelStatus': draftCancelStatus,
         'do_approval': do_approval,
         'check_approval': check_approval,
         'email': email,
@@ -1370,9 +1459,10 @@ def post_contract_document(request, contractId, documentType):
         # 마진율분석
         contentHtml = contentHtml.replace('마진율자동입력', str(profitRatio) + '%')
         if (profitRatio - 15) > 0:
-            contentHtml = contentHtml.replace('>마진분석결과자동입력', ' style="color: red;">' + str(profitRatio-15) + '%')
+            contentHtml = contentHtml.replace('마진분석결과자동입력', '<span style="color: red;">' + str(profitRatio-15) + '%</span>')
         else:
-            contentHtml = contentHtml.replace('>마진분석결과자동입력', ' style="color: blue;">' + str(profitRatio - 15) + '%')
+            contentHtml = contentHtml.replace('마진분석결과자동입력', '<span style="color: blue;">' + str(profitRatio - 15) + '%</span>')
+            print('blue')
 
         # 고객정보
         if contract.saleCompanyName.ceo:
@@ -1631,15 +1721,15 @@ def post_contract_document(request, contractId, documentType):
             # 구분, 업체명, 날짜
             tempStr += '''
               <tr style="height: 25px; font-size: 11px;">
-                <td style="background-color: #ebfaff;" width="6%">구분</td>
-                <td style="background-color: #ebfaff;" width="16%">업체명</td>
+                <td style="text-align: center; background-color: #ebfaff;" width="6%">구분</td>
+                <td style="text-align: center; background-color: #ebfaff;" width="16%">업체명</td>
             '''
             for month in year:
                 tempStr += '''
-                <td style="background-color: #ebfaff;" width="6%">''' + str(month) + '''</td>
+                <td style="text-align: center; background-color: #ebfaff;" width="6%">''' + str(month) + '''</td>
                 '''
             tempStr += '''
-                <td style="background-color: #ebfaff;" width="6%">TOTAL</td>
+                <td style="text-align: center; background-color: #ebfaff;" width="6%">TOTAL</td>
               </tr>
             '''
             # 업체별 매출
@@ -1647,7 +1737,7 @@ def post_contract_document(request, contractId, documentType):
                 if billing['list'] == year:
                     tempStr += '''
               <tr style="height: 25px; font-size: 11px;">
-                <td>매출</td>
+                <td style="text-align: center;">매출</td>
                 <td>''' + billing['name'] + '''</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
@@ -1670,7 +1760,7 @@ def post_contract_document(request, contractId, documentType):
                 if sumBilling['list'] == year:
                     tempStr += '''
               <tr style="height: 25px; font-size: 11px;">
-                <td colspan="2" style="background-color: gainsboro">TOTAL</td>
+                <td colspan="2" style="text-align: center; background-color: gainsboro">TOTAL</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['1']) + '''</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
@@ -1704,7 +1794,7 @@ def post_contract_document(request, contractId, documentType):
                 if billing['list'] == year:
                     tempStr += '''
               <tr style="height: 25px; font-size: 11px;">
-                <td>매입</td>
+                <td style="text-align: center;">매입</td>
                 <td>''' + billing['name'] + '''</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
@@ -1727,7 +1817,7 @@ def post_contract_document(request, contractId, documentType):
                 if sumBilling['list'] == year:
                     tempStr += '''
               <tr style="height: 25px; font-size: 11px; margin-bottom: 5px">
-                <td colspan="2"style="background-color: gainsboro">TOTAL</td>
+                <td colspan="2"style="text-align: center; background-color: gainsboro">TOTAL</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['1']) + '''</td>
                 <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">

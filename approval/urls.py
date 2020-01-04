@@ -25,6 +25,9 @@ urlpatterns = [
     url(r'^showdocument/admin/reject/$', views.show_document_admin_reject, name='showdocumentadminreject'),
 
     url(r'^viewdocument/(?P<documentId>.+)/$', views.view_document, name='viewdocument'),
+    url(r'^deletedocument/(?P<documentId>.+)/$', views.delete_document, name='deletedocument'),
+    url(r'^draftcancel/(?P<documentId>.+)/$', views.draft_cancel, name='draftcancel'),
+    url(r'^copydocument/(?P<documentId>.+)/$', views.copy_document, name='copydocument'),
     url(r'^postdocumentcomment/$', views.post_document_comment, name='postdocumentcomment'),
     url(r'^approvedocument/(?P<approvalId>.+)/$', views.approve_document, name='approvedocument'),
     url(r'^returndocument/(?P<approvalId>.+)/$', views.return_document, name='returndocument'),

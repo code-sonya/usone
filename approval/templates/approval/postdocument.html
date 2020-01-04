@@ -37,6 +37,14 @@
       border: 1px solid lightgrey;
     }
 
+    .note-input-date {
+      width: 200px;
+    }
+
+    .note-input-money {
+      width: 200px;
+    }
+
   </style>
 {% endblock %}
 
@@ -62,7 +70,7 @@
     <div class="row mb-3">
       <div class="col-xl-2">
         <label class="font-weight-bold text-primary mb-0">문서종류</label>
-        <select id="firstCategory" niv ="firstCategory" class="form-control"></select>
+        <select id="firstCategory" name="firstCategory" class="form-control"></select>
       </div>
       <div class="col-xl-2">
         <label class="font-weight-bold text-primary mt-4 d-none d-xl-block"></label>
@@ -286,6 +294,10 @@
 
 {% block script %}
 <script type="text/javascript">
+    function btn_cancel() {
+        history.back();
+    }
+
     function btn_save(documentStatus) {
         if($('#title').val() != '') {
             const form = $('#document');
@@ -619,9 +631,22 @@
 
             title.val(val.title);
             contentHtml.summernote('code', val.html);
-            $('.note-input').on("propertychange change keyup paste input", function() {
+            $('.note-input-date').on("propertychange change keyup paste input", function() {
                 let currentVal = $(this).val();
                 $(this).attr('value', currentVal);
+            });
+            $('.note-input-money').simpleMoneyFormat();
+            $('.note-input-money').on("propertychange change keyup paste input", function() {
+                let currentVal = $(this).val();
+                $(this).attr('value', currentVal);
+            });
+            $('.note-input-checkbox').on("click", function() {
+                let currentChecked = $(this).is(":checked");
+                if (currentChecked) {
+                    $(this).attr("checked", currentChecked);
+                } else {
+                    $(this).removeAttr("checked", currentChecked);
+                }
             });
 
             approvalFormat.val(val.approvalFormat);

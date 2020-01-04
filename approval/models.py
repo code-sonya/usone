@@ -28,6 +28,8 @@ class Documentform(models.Model):
     formTitle = models.CharField(max_length=200)
     formHtml = models.TextField()
     comment = models.CharField(max_length=200, default='')
+    copyAuth = models.CharField(max_length=10, default='Y')
+    mailAuth = models.CharField(max_length=10, default='Y')
 
 
 class Document(models.Model):
