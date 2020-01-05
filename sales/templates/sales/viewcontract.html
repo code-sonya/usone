@@ -533,8 +533,8 @@
                 <tr class="thtd">
                   <td>{{ item.mainCategory }}</td>
                   <td>{{ item.subCategory }}</td>
-                  <td>{{ item.itemName }}</td>
-                  <td>{{ item.itemPrice | intcomma }}</td>
+                  <td class="text-left">{{ item.itemName }}</td>
+                  <td class="text-right">{{ item.itemPrice | intcomma }}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -591,21 +591,21 @@
             <table class="pc-table" id="purchaseCategoryItem">
               <thead>
               <tr class="bg-info">
-                <td class="text-gray-100">매입처</td>
-                <td class="text-gray-100">대분류</td>
-                <td class="text-gray-100">소분류</td>
-                <td class="text-gray-100">상세내용</td>
-                <td class="text-gray-100">가격</td>
+                <td colspan="1" class="text-gray-100">매입처</td>
+                <td colspan="1" class="text-gray-100">대분류</td>
+                <td colspan="1" class="text-gray-100">소분류</td>
+                <td colspan="2" class="text-gray-100">상세내용</td>
+                <td colspan="1" class="text-gray-100">가격</td>
               </tr>
               </thead>
               <tbody>
               {% for item in purchaseItems %}
                 <tr class="thtd">
-                  <td>{% if item.companyName %}{{ item.companyName }}{% endif %}</td>
-                  <td>{{ item.mainCategory }}</td>
-                  <td>{{ item.subCategory }}</td>
-                  <td>{{ item.itemName }}</td>
-                  <td>{{ item.itemPrice | intcomma }}</td>
+                  <td colspan="1" class="text-left">{% if item.companyName %}{{ item.companyName }}{% endif %}</td>
+                  <td colspan="1">{{ item.mainCategory }}</td>
+                  <td colspan="1">{{ item.subCategory }}</td>
+                  <td colspan="2" class="text-left">{{ item.itemName }}</td>
+                  <td colspan="1" class="text-right">{{ item.itemPrice | intcomma }}</td>
                 </tr>
               {% endfor %}
               </tbody>
