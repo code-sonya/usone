@@ -430,7 +430,7 @@ def modify_contract(request, contractId):
                         itemPrice=int(item["purchaseItemPrice"])
                     )
                 else:
-                    purchaseItemInstance = Classification.objects.get(contractItemId=int(item["purchaseItemId"]))
+                    purchaseItemInstance = Purchasecontractitem.objects.get(contractItemId=int(item["purchaseItemId"]))
                     purchaseItemInstance.contractId = post
                     purchaseItemInstance.companyName = Company.objects.filter(companyNameKo=item["purchaseCategoryCompany"]).first()
                     purchaseItemInstance.mainCategory = item["purchaseMainCategory"]

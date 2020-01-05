@@ -2523,11 +2523,15 @@
               {% for item in purchaseItems %}
                   t5.row.add([
                       '<div class="text-center d-none" value="0" name="purchaseItemId" id="purchaseItem0' + purchaseItemCounter + '">{{ item.contractItemId }}</div>',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="purchaseCategoryCompany" data-id="{{ item.companyName }}" id="purchaseItem1' + purchaseItemCounter + '" onkeydown="magicsearchtab(purchaseItem1' + purchaseItemCounter + ')">',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="purchaseCategoryCompany" ' +
+                      {% if item.companyName %}
+                      'data-id="{{ item.companyName }}"' +
+                      {% endif %}
+                      'id="purchaseItem1' + purchaseItemCounter + '" onkeydown="magicsearchtab(purchaseItem1' + purchaseItemCounter + ')">',
                       '<select style="width:200px" class="input-form" size="1" id="purchaseItem2' + purchaseItemCounter + '" name="purchaseMainCategory" onchange="purchaseItemChangeAdd( purchaseItem2' + purchaseItemCounter + ",purchaseItem3" + purchaseItemCounter + ')">' +
                       '</select>',
                       '<select style="width:200px" class="input-form" size="1" id="purchaseItem3' + purchaseItemCounter + '" name="purchaseSubCategory"> <option value="init" selected="selected">--소분류--</option>',
-                      '<input style="width:200px" class="input-form" type="text" name="purchaseItemItemName" id="purchaseItem4' + purchaseItemCounter + '" value="{{ item.itemName }}">',
+                      '<input style="width:200px" class="input-form" type="text" name="purchaseItemName" id="purchaseItem4' + purchaseItemCounter + '" value="{{ item.itemName }}">',
                       '<input style="width:200px" class="money input-form" name="purchaseItemPrice" id="purchaseItem5' + purchaseItemCounter + '" value="{{ item.itemPrice }}">',
                       '<i class="fas fa-times-circle" name="remove" >'
                   ]).draw(false);
