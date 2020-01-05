@@ -224,7 +224,7 @@
                   <thead style="width:100%">
                   <tr>
                     <th>구분</th>
-                    <th class="font-weight-bold text-primary">매입처</th>
+                    <th>매입처</th>
                     <th class="font-weight-bold text-primary">대분류
                       {% if user.is_staff %}
                       <a class="text-white" href="#" role="button" id="classificationModalLink" data-toggle="modal" data-target="#classificationModal">
@@ -1378,10 +1378,6 @@
           const lengthPurchaseItem = $('[name="purchaseItemId"]').length;
           const listPurchaseItem = new Array();
           for (var i = 0; i <= lengthPurchaseItem - 1; i++) {
-              if ($('select[name="purchaseCategoryCompany"]').eq(i).val() == '') {
-                  alert("매입 세부사항의 매입처를 입력해주세요.");
-                  return false;
-              }
               if ($('select[name="purchaseMainCategory"]').eq(i).val() == '') {
                   alert("매입 세부사항의 대분류를 입력해주세요.");
                   return false;
