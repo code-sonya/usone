@@ -601,7 +601,7 @@
               <tbody>
               {% for item in purchaseItems %}
                 <tr class="thtd">
-                  <td>{{ item.companyName }}</td>
+                  <td>{% if item.companyName %}{{ item.companyName }}{% endif %}</td>
                   <td>{{ item.mainCategory }}</td>
                   <td>{{ item.subCategory }}</td>
                   <td>{{ item.itemName }}</td>
