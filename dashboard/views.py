@@ -56,7 +56,7 @@ def dashboard_service(request):
                                                         .annotate(sum_supportCount=Count('empName'))\
                                                         .annotate(sum_overTime=Sum('serviceOverHour'))
     # 타입별 지원통계
-    type_support_time = all_support_data.values('serviceType').annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType')
+    type_support_time = all_support_data.values('serviceType__typeName').annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType__typeName')
 
 
     type_count = [i for i in range(len(type_support_time))]
@@ -694,12 +694,13 @@ def service_asjson(request):
         services = services.filter(Q(empName=empname))
 
     if servicetype:
-        services = services.filter(Q(serviceType=servicetype))
+        services = services.filter(Q(serviceType__typeName=servicetype))
 
     if overhour:
         services = services.exclude(serviceOverHour=0)
 
-    services = services.values()
+    services = services.values('serviceId', 'serviceDate', 'empId_id', 'empName', 'empDeptName', 'companyName_id', 'serviceHour', 'serviceOverHour',
+                               'serviceRegHour', 'serviceTitle', 'serviceDetails', 'serviceType__typeName')
 
     structureStep = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')

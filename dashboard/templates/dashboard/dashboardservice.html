@@ -176,35 +176,35 @@
             {% for i,j in multi_type %}
               {% if j == 0 %}
                 <span class="mr-2">
-                      <i class="fas fa-circle text-primary"></i> {{ i.serviceType }}
+                      <i class="fas fa-circle text-primary"></i> {{ i.serviceType__typeName }}
                     </span>
               {% elif j == 1 %}
                 <span class="mr-2">
-                      <i class="fas fa-circle text-success"></i> {{ i.serviceType }}
+                      <i class="fas fa-circle text-success"></i> {{ i.serviceType__typeName }}
                     </span>
               {% elif j == 2 %}
                 <span class="mr-2">
-                    <i class="fas fa-circle text-info"></i> {{ i.serviceType }}
+                    <i class="fas fa-circle text-info"></i> {{ i.serviceType__typeName }}
                   </span>
               {% elif j == 3 %}
                 <span class="mr-2">
-                    <i class="fas fa-circle text-warning"></i> {{ i.serviceType }}
+                    <i class="fas fa-circle text-warning"></i> {{ i.serviceType__typeName }}
                   </span>
               {% elif j == 4 %}
                 <span class="mr-2">
-                    <i class="fas fa-circle text-danger"></i> {{ i.serviceType }}
+                    <i class="fas fa-circle text-danger"></i> {{ i.serviceType__typeName }}
                   </span>
               {% elif j == 5 %}
                 <span class="mr-2">
-                    <i class="fas fa-circle text-secondary"></i> {{ i.serviceType }}
+                    <i class="fas fa-circle text-secondary"></i> {{ i.serviceType__typeName }}
                   </span>
               {% elif j == 6 %}
                 <span class="mr-2">
-                    <i class="fas fa-circle" style="color:#e83e8c"></i> {{ i.serviceType }}
+                    <i class="fas fa-circle" style="color:#e83e8c"></i> {{ i.serviceType__typeName }}
                   </span>
               {% else %}
                 <span class="mr-2">
-                    <i class="fas fa-circle"></i> {{ i.serviceType }}
+                    <i class="fas fa-circle"></i> {{ i.serviceType__typeName }}
                   </span>
               {% endif %}
             {% endfor %}
@@ -639,7 +639,7 @@
           data: {
               labels: [
                   {% for i in type_support_time %}
-                      "{{ i.serviceType }}".replace('&amp;', '&') ,
+                      "{{ i.serviceType__typeName }}".replace('&amp;', '&') ,
                   {% endfor %}
               ],
               datasets: [{
@@ -668,7 +668,7 @@
                           dataArr.map(data => {
                               sum += data;
                           });
-                          let dataSum = value + "시간";
+                          let dataSum = value;
                           return dataSum;
 
 
@@ -678,7 +678,7 @@
                   outlabels: {
                       text: '%l %p',
                       color: 'white',
-                      stretch: 20,
+                      stretch: 0,
                       font: {
                           resizable: true,
                           minSize: 12,
@@ -694,11 +694,11 @@
               const activeElement = typeSupportTime.getElementAtEvent(evt);
               const idx = activeElement[0]._index;
               const servicetypeLabel = typeSupportTime.data.labels[idx];
+              console.log(servicetypeLabel);
               filterArray['company'] = '';
               filterArray['empname'] = '';
               filterArray['servicetype'] = servicetypeLabel;
               filterArray['overhour'] = '';
-              console.log(filterArray);
               serviceTable2.clear().draw();
               $('#service1').attr('class', 'row d-none');
               $('#service2').attr('class', 'row d-block');
@@ -718,7 +718,7 @@
               columns: [
                   {data: "empName"},
                   {data: "companyName_id"},
-                  {data: "serviceType"},
+                  {data: "serviceType__typeName"},
                   {data: "serviceDate"},
                   {data: "serviceHour"},
                   {data: "serviceOverHour"},
@@ -747,7 +747,7 @@
               columns: [
                   {data: "empName"},
                   {data: "companyName_id"},
-                  {data: "serviceType"},
+                  {data: "serviceType__typeName"},
                   {data: "serviceDate"},
                   {data: "serviceHour"},
                   {data: "serviceOverHour"},
@@ -776,7 +776,7 @@
               columns: [
                   {data: "empName"},
                   {data: "companyName_id"},
-                  {data: "serviceType"},
+                  {data: "serviceType__typeName"},
                   {data: "serviceDate"},
                   {data: "serviceHour"},
                   {data: "serviceOverHour"},
