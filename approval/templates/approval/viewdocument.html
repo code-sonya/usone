@@ -68,6 +68,9 @@
     <div class="m-0 h3 text-gray-800" id="title">
       {{ document.formId.formNumber }}.
       {{ document.formId.formTitle }}
+      {% if document.documentStatus == "삭제" %}
+        <span class="text-danger">[결재 취소된 문서]</span>
+      {% endif %}
     </div>
     <div class="dropdown no-arrow">
       {% if document.formId.copyAuth == 'Y' %}
