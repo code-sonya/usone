@@ -737,8 +737,8 @@ def cal_monthlybill(todayYear):
                 Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2))) &
                 Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))
             ).aggregate(
-                revenuePrice=Sum('revenuePrice'),
-                revenueProfitPrice=Sum('revenueProfitPrice')
+                revenuePrice=Coalesce(Sum('revenuePrice'), 0),
+                revenueProfitPrice=Coalesce(Sum('revenueProfitPrice'), 0)
             )
             expenses = Expense.objects.filter(
                 Q(expenseStatus='Y') &
@@ -755,8 +755,8 @@ def cal_monthlybill(todayYear):
                 Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2)))&
                 Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))
             ).aggregate(
-                revenuePrice=Sum('revenuePrice'),
-                revenueProfitPrice=Sum('revenueProfitPrice')
+                revenuePrice=Coalesce(Sum('revenuePrice'), 0),
+                revenueProfitPrice=Coalesce(Sum('revenueProfitPrice'), 0)
             )
             expenses = Expense.objects.filter(
                 Q(expenseStatus='Y') &
