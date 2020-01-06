@@ -1671,27 +1671,6 @@
 
   <script type="text/javascript">
 
-      function downloadLog(downloadUrl, downloadType) {
-          const contractId = "{{ contract.contractId }}";
-          $.ajax({
-            url: "{% url 'logs:insertdownloadlog' %}",
-            method: 'POST',
-            cache: false,
-            data: {"downloadUrl": downloadUrl,
-                  "downloadType": downloadType,
-                  "contractId": contractId,
-                   },
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            success: function (returnData) {
-                console.log(returnData)
-            },
-              error:function(request,status,error){
-                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-            }
-        });
-
-      }
-
       function btn_firm() {
           let msg = "Firm으로 전환 하시겠습니까?\n" +
               "관리번호가 계약일을 기준으로 자동생성되며, Opportunity로 돌아올 수 없습니다.";
