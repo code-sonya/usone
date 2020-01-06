@@ -72,12 +72,12 @@
     <div class="dropdown no-arrow">
       {% if document.formId.copyAuth == 'Y' and document.documentStatus != "삭제"%}
         <a class="btn btn-warning" href="#" role="button" onclick="btn_copy()">
-          <i class="far fa-copy"></i>
+            <i class="fas fa-copy d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-copy"></i> 복사</span>
         </a>
       {% endif %}
       {% if document.documentStatus == "완료" and document.formId.mailAuth == 'Y' %}
         <a class="btn btn-info" href="#" role="button" id="emailLink" data-toggle="modal" data-target="#emailModal">
-          <i class="fas fa-at fa-fw"></i>
+           <i class="fas fa-at d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-at"></i> 공유</span>
         </a>
       {% endif %}
     </div>
@@ -438,7 +438,7 @@
         <div class="mb-4" id="documenttitle">{{ document.title }}</div>
         <hr>
         <label class="text-primary font-weight-bold">내용</label>
-        <div>
+        <div class="overflow-auto">
            {{ document.contentHtml | safe }}
         </div>
         <br>

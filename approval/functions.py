@@ -319,7 +319,7 @@ def mail_approval(employee, document):
         title = "'{}' 문서 결재 요청".format(document.title)
         html = approvalhtml(document)
         toEmail = employee.empEmail
-        fromEmail = 'usone@unioneinc.co.kr'
+        fromEmail = 'usails@unioneinc.co.kr'
 
         msg = MIMEMultipart("alternative")
         msg["From"] = fromEmail
@@ -396,7 +396,7 @@ def approvalhtml(document):
     <body>
       <div style="border: 2px solid white;width: 600px;height: 500px;text-align: center;">
         <div style="text-align: center;margin-top:50px">
-         <strong style="font-size: 30px;">USONE 전자결재 알림</strong>
+         <strong style="font-size: 30px;">Usails 전자결재 알림</strong>
         </div>
         <br>
         <br>
