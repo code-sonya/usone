@@ -294,7 +294,7 @@ def show_contracts(request):
 @login_required
 @csrf_exempt
 def view_contract(request, contractId):
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
     return render(request, 'sales/viewcontract.html', context)
 
 
@@ -622,7 +622,7 @@ def view_revenue(request, revenueId):
     revenue = Revenue.objects.get(revenueId=revenueId)
     contractId = revenue.contractId.contractId
 
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
     context['revenueId'] = int(revenueId)
     return render(request, 'sales/viewcontract.html', context)
 
@@ -1195,7 +1195,7 @@ def view_purchase(request, purchaseId):
     purchase = Purchase.objects.get(purchaseId=purchaseId)
     contractId = purchase.contractId.contractId
 
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
     context['purchaseId'] = int(purchaseId)
     return render(request, 'sales/viewcontract.html', context)
 
@@ -1317,7 +1317,7 @@ def show_outstandingcollections(request):
 @login_required
 @csrf_exempt
 def view_contract_pdf(request, contractId):
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="report.pdf"'
@@ -3065,7 +3065,7 @@ def contract_details(request):
 @login_required
 @csrf_exempt
 def view_ordernoti_pdf(request, contractId):
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
     today = datetime.today()
     context['today'] = today
     context['result'] = context['contract'].profitRatio - 15.0

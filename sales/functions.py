@@ -27,7 +27,7 @@ from django.db.models import Q, Max
 from django.template import loader
 
 
-def viewContract(contractId):
+def viewContract(request, contractId):
     # 첨부파일
     files_a = Purchasefile.objects.filter(contractId__contractId=contractId, fileCategory='매입견적서').order_by('uploadDatetime')
     files_b = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출견적서').order_by('uploadDatetime')
@@ -47,7 +47,10 @@ def viewContract(contractId):
     purchaseItems = Purchasecontractitem.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
     purchaseCompany = list(purchases.values_list('purchaseCompany__companyNameKo', flat=True).distinct().order_by('purchaseCompany__companyNameKo'))
-    purchasesNotBilling = purchases.filter(billingDate__isnull=True)
+    if request.user.employee.empName == '이현승':
+        purchasesNotBilling = purchases
+    else:
+        purchasesNotBilling = purchases.filter(billingDate__isnull=True)
     costs = Cost.objects.filter(contractId=contractId)
     services = Servicereport.objects.filter(
         Q(contractId=contractId) & 
@@ -1277,7 +1280,7 @@ def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpur
     email = AdminEmail.objects.get(Q(adminId=email['adminId__max']))
     # 매입발주서 메일 전송
     try:
-        title = "[{}] 매입발주서".format(orders.contractId.contractName)
+        title = orders.title
         html = purchaseorderhtml(orders)
         toEmail = toEmail
         fromEmail = fromEmail
@@ -1299,12 +1302,13 @@ def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpur
         dest = BytesIO()
 
         pdfStatus = pisa.pisaDocument(src, dest, encoding='utf-8', link_callback=link_callback)
+        pdfTitle = '[유니원아이앤씨] ' + orders.contractId.contractName + ' 매입발주서'
         if not pdfStatus.err:
             pdf = dest.getvalue()
             pdffile = MIMEBase("application/pdf", "application/x-pdf")
             pdffile.set_payload(pdf)
             encoders.encode_base64(pdffile)
-            pdffile.add_header("Content-Disposition", "attachment", filename=title + '.pdf')
+            pdffile.add_header("Content-Disposition", "attachment", filename=pdfTitle + '.pdf')
             msg.attach(pdffile)
 
         # 첨부파일 첨부
