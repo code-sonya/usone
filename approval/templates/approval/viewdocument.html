@@ -68,12 +68,9 @@
     <div class="m-0 h3 text-gray-800" id="title">
       {{ document.formId.formNumber }}.
       {{ document.formId.formTitle }}
-      {% if document.documentStatus == "삭제" %}
-        <span class="text-danger">[결재 취소된 문서]</span>
-      {% endif %}
     </div>
     <div class="dropdown no-arrow">
-      {% if document.formId.copyAuth == 'Y' %}
+      {% if document.formId.copyAuth == 'Y' and document.documentStatus != "삭제"%}
         <a class="btn btn-warning" href="#" role="button" onclick="btn_copy()">
           <i class="far fa-copy"></i>
         </a>
@@ -87,9 +84,14 @@
   </div>
   <input id="smtpEmail"  type="text" value="{{ email.smtpEmail }}" class="d-none">
   <input id="smtpStatus" type="text" value="{{ email.smtpStatus }}" class="d-none">
-
   <div class="card-body">
     {# pc 화면 #}
+    {% if document.documentStatus == "삭제" %}
+    <div class="text-center text-secondary h3" id="pcDelete">결재가 취소되거나 삭제된 문서입니다.</div>
+    <div class="d-none">
+    {% else %}
+    <div>
+    {% endif %}
     <table id="pc-table" class="pc-table">
       <tbody>
       <tr>
@@ -248,8 +250,15 @@
       {% endfor %}
       </tbody>
     </table>
+    </div>
 
     {#  모바일 화면  #}
+    {% if document.documentStatus == "삭제" %}
+    <div class="text-center text-secondary h6" id="mobileDelete">결재가 취소되거나 삭제된 문서입니다.</div>
+    <div class="d-none">
+    {% else %}
+    <div>
+    {% endif %}
     <table id="mobile-table" class="pc-table">
       <tr><td colspan="3" class="bg-secondary text-center text-white"> 문 서</td></tr>
       <tr>
@@ -416,89 +425,95 @@
         {% endif %}
       {% endfor %}
     </table>
+    </div>
 
-
+    {% if document.documentStatus == "삭제" %}
+    <div class="d-none">
+    {% else %}
+    <div>
+    {% endif %}
     {# 제목 본문#}
-    <div class="mt-3 mb-3 text-gray-900">
-      <label class="text-primary font-weight-bold">제목</label>
-      <div class="mb-4" id="documenttitle">{{ document.title }}</div>
-      <hr>
-      <label class="text-primary font-weight-bold">내용</label>
-      <div>
-         {{ document.contentHtml | safe }}
-      </div>
-      <br>
-      {% if files or related %}
+      <div class="mt-3 mb-3 text-gray-900">
+        <label class="text-primary font-weight-bold">제목</label>
+        <div class="mb-4" id="documenttitle">{{ document.title }}</div>
         <hr>
+        <label class="text-primary font-weight-bold">내용</label>
+        <div>
+           {{ document.contentHtml | safe }}
+        </div>
         <br>
-        <div class="row">
-          {% if files %}
-            <div class="col-6">
-              <b>첨부파일</b>
-              {% for f in files %}
-              <br><a href="/media/{{ f.file }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a>
-              {% endfor %}
-            </div>
-          {% endif %}
-          {% if related %}
-            <div class="col-6">
-              <b>관련문서</b>
-              {% for r in related %}
-              <br>
-              <a href="/approval/viewdocument/{{ r.relatedDocumentId.documentId }}" target="_blank">
-                [{{ r.relatedDocumentId.documentNumber }}]
-                {{ r.relatedDocumentId.title }}
-              </a>
-              {% endfor %}
-            </div>
-          {% endif %}
+        {% if files or related %}
+          <hr>
+          <br>
+          <div class="row">
+            {% if files %}
+              <div class="col-6">
+                <b>첨부파일</b>
+                {% for f in files %}
+                <br><a href="/media/{{ f.file }}" download>{{ f.fileName }} ({{ f.fileSize }}MB)</a>
+                {% endfor %}
+              </div>
+            {% endif %}
+            {% if related %}
+              <div class="col-6">
+                <b>관련문서</b>
+                {% for r in related %}
+                <br>
+                <a href="/approval/viewdocument/{{ r.relatedDocumentId.documentId }}" target="_blank">
+                  [{{ r.relatedDocumentId.documentNumber }}]
+                  {{ r.relatedDocumentId.title }}
+                </a>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+      {% if document.documentStatus == '임시' and document.writeEmp == user.employee %}
+        <div class="text-center mb-3">
+          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+            <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+            <span class="text">삭제</span>
+          </a>
+          <a href="#" class="btn btn-success btn-icon-split" onclick="btn_modify()">
+            <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+            <span class="text">수정</span>
+          </a>
+        </div>
+      {% elif document.documentStatus == '진행' and draftCancelStatus == True %}
+        <div class="text-center mb-3">
+          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_draftCancel()">
+            <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+            <span class="text">기안취소</span>
+          </a>
         </div>
       {% endif %}
-    </div>
-    {% if document.documentStatus == '임시' and document.writeEmp == user.employee %}
-      <div class="text-center mb-3">
-        <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-          <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
-          <span class="text">삭제</span>
-        </a>
-        <a href="#" class="btn btn-success btn-icon-split" onclick="btn_modify()">
-          <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-          <span class="text">수정</span>
-        </a>
-      </div>
-    {% elif document.documentStatus == '진행' and draftCancelStatus == True %}
-      <div class="text-center mb-3">
-        <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_draftCancel()">
-          <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
-          <span class="text">기안취소</span>
-        </a>
-      </div>
-    {% endif %}
 
-    <hr>
-    <div>
-      <label class="text-primary font-weight-bold mb-3">의견</label>
-      <form id="documentComment" method="POST" enctype="multipart/form-data" class="input-group mb-3">
-        {% csrf_token %}
-        <input name="documentId" class="d-none" value="{{ document.documentId }}">
-        <input name="comment" type="text" class="form-control" onkeydown="javascript: if (event.keyCode == 13) {btn_comment();}">
-        <div class="input-group-append">
-          <button class="btn btn-primary" type="button" onclick="btn_comment()">
-            <i class="fas fa-check fa-sm"></i> 등록
-          </button>
-        </div>
-      </form>
-      <table class="pc-table">
-        {% for comment in comments %}
-        <tbody>
-        <tr>
-          <td class="pc-table-title" style="width: 20%">{{ comment.author }}</td>
-          <td class="pc-table-detail text-left" style="width: 65%">{{ comment.comment }}</td>
-          <td class="pc-table-detail text-center d-none d-xl-table-cell" style="width: 15%">{{ comment.updated | date:"Y.m.d H:i:s" | slice:"2:" }}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+      <hr>
+      <div>
+        <label class="text-primary font-weight-bold mb-3">의견</label>
+        <form id="documentComment" method="POST" enctype="multipart/form-data" class="input-group mb-3">
+          {% csrf_token %}
+          <input name="documentId" class="d-none" value="{{ document.documentId }}">
+          <input name="comment" type="text" class="form-control" onkeydown="javascript: if (event.keyCode == 13) {btn_comment();}">
+          <div class="input-group-append">
+            <button class="btn btn-primary" type="button" onclick="btn_comment()">
+              <i class="fas fa-check fa-sm"></i> 등록
+            </button>
+          </div>
+        </form>
+        <table class="pc-table">
+          {% for comment in comments %}
+          <tbody>
+          <tr>
+            <td class="pc-table-title" style="width: 20%">{{ comment.author }}</td>
+            <td class="pc-table-detail text-left" style="width: 65%">{{ comment.comment }}</td>
+            <td class="pc-table-detail text-center d-none d-xl-table-cell" style="width: 15%">{{ comment.updated | date:"Y.m.d H:i:s" | slice:"2:" }}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
@@ -581,11 +596,15 @@
             $('#title').removeClass('h3');
             $('#documenttitle').removeClass('h5');
             $('#pc-table').hide();
+            $('#pcDelete').hide();
+            $('#mobileDelete').show();
             $('#mobile-table').show();
         } else {
             $('#title').addClass('h3');
             $('#documenttitle').addClass('h5');
             $('#pc-table').show();
+            $('#pcDelete').show();
+            $('#mobileDelete').hide();
             $('#mobile-table').hide();
 
         }
