@@ -260,7 +260,10 @@ def show_contracts(request):
         modifyContractPaper = request.POST['modifyContractPaper']
 
     else:
-        startdate = str(datetime.now())[:4] + '-01-01'
+        if request.user.employee.empName == '이현승':
+            startdate = '2018-01-01'
+        else:
+            startdate = str(datetime.now())[:4] + '-01-01'
         enddate = str(datetime.now())[:4] + '-12-31'
         contractStep = ''
         empDeptName = '전체'
