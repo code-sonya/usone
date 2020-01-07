@@ -1997,3 +1997,10 @@ def counting_asjson(request):
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
+@login_required
+def delete_comment(request, commentId):
+    comment = Documentcomment.objects.get(commentId=commentId)
+    documentId = comment.documentId.documentId
+    comment.delete()
+    return redirect("approval:viewdocument", documentId)

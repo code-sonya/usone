@@ -497,8 +497,8 @@
            <td colspan="1">매출</td>
            <td colspan="3">{{ item.mainCategory }}</td>
            <td colspan="3">{{ item.subCategory }}</td>
-           <td colspan="4">{{ item.itemName }}</td>
-           <td colspan="3" style="text-align: right;margin-right: 5px"">{{ item.itemPrice |intcomma}}</td></td>
+           <td colspan="4" style="text-align: left; margin-left: 5px">{{ item.itemName }}</td>
+           <td colspan="3" style="text-align: right;margin-right: 5px">{{ item.itemPrice |intcomma}}</td>
          </tr>
        {% endfor %}
      </table>
@@ -519,11 +519,17 @@
        {% for item in purchaseItem %}
          <tr class="thtd" style="height: 25px;font-size: 13px;">
            <td colspan="1">매입</td>
-           <td colspan="2">{{ item.companyName }}</td>
+           <td colspan="2" style="text-align: left; margin-left: 5px">
+             {% if item.companyName %}
+                {{ item.companyName }}
+             {% else %}
+                -
+             {% endif %}
+           </td>
            <td colspan="2">{{ item.mainCategory }}</td>
            <td colspan="2">{{ item.subCategory }}</td>
-           <td colspan="4">{{ item.itemName }}</td>
-           <td colspan="3" style="text-align: right">{{ item.itemPrice |intcomma}}</td></td>
+           <td colspan="4" style="text-align: left; margin-left: 5px">{{ item.itemName }}</td>
+           <td colspan="3" style="text-align: right;margin-right: 5px">{{ item.itemPrice |intcomma}}</td>
          </tr>
        {% endfor %}
      </table>
@@ -551,7 +557,7 @@
           {% if billing.list == year %}
           <tr class="thtd" style="height: 25px;font-size: 10px;">
             <td style="font-size: 13px;">매출</td>
-            <td style="font-size: 13px;" colspan="2">{{ billing.name }}</td>
+            <td style="font-size: 13px;text-align: left; margin-left: 5px" colspan="2">{{ billing.name }}</td>
             <td style="text-align: right;margin: 2px">{{ billing.1 | intcomma }}</td>
             <td style="text-align: right;margin: 2px">{{ billing.2 | intcomma }}</td>
             <td style="text-align: right;margin: 2px">{{ billing.3 | intcomma }}</td>
@@ -592,7 +598,7 @@
           {% if billing.list == year %}
             <tr class="thtd" style="height: 25px;font-size: 10px;">
               <td style="font-size: 13px;">매입</td>
-              <td style="font-size: 13px;" colspan="2">{{ billing.name }}</td>
+              <td style="font-size: 13px;text-align: left; margin-left: 5px" colspan="2">{{ billing.name }}</td>
               <td style="text-align: right;margin: 2px">{{ billing.1 | intcomma }}</td>
               <td style="text-align: right;margin: 2px">{{ billing.2 | intcomma }}</td>
               <td style="text-align: right;margin: 2px">{{ billing.3 | intcomma }}</td>

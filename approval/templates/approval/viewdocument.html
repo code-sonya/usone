@@ -55,6 +55,19 @@
     background: #ffffff;
     border: none;
   }
+  .comment-title {
+    background-color: #f8f9fc;
+    text-align: center;
+    font-weight: bold;
+  }
+  .comment-contentleft {
+    background-color: #ffffff;
+    text-align: left;
+  }
+  .comment-contentcenter {
+    background-color: #ffffff;
+    text-align: center;
+  }
 
 </style>
 {% endblock %}
@@ -506,9 +519,14 @@
           {% for comment in comments %}
           <tbody>
           <tr>
-            <td class="pc-table-title" style="width: 20%">{{ comment.author }}</td>
-            <td class="pc-table-detail text-left" style="width: 65%">{{ comment.comment }}</td>
-            <td class="pc-table-detail text-center d-none d-xl-table-cell" style="width: 15%">{{ comment.updated | date:"Y.m.d H:i:s" | slice:"2:" }}</td>
+            <td class="comment-title" style="width: 25%">
+              {% if comment.author == user.employee %}
+              <i class="fas fa-trash-alt text-secondary" id="{{ comment.commentId }}" onclick="btn_commentdelete(this.id)"></i>
+              {% endif %}
+              {{ comment.author }}
+            </td>
+            <td class="comment-contentleft" style="width: 60%">{{ comment.comment }}</td>
+            <td class="comment-contentcenter d-none d-xl-table-cell" style="width: 15%">{{ comment.updated | date:"Y.m.d H:i:s" | slice:"2:" }}</td>
           </tr>
           {% endfor %}
           </tbody>
@@ -588,6 +606,12 @@
     function btn_copy() {
         if (confirm('문서를 복사하시겠습니까?')) {
             location.href = '/approval/copydocument/{{ document.documentId }}/'
+        }
+    }
+
+    function btn_commentdelete(commentId) {
+        if (confirm('삭제하시겠습니까?')) {
+            location.href = '/approval/deletecomment/'+ commentId
         }
     }
 
