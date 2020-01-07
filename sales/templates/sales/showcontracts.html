@@ -41,13 +41,12 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800">영업기회 & 계약 관리 ({{ startdate }} ~ {{ enddate }})</h6>
           <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
             </a>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <a class="dropdown-toggle" href="/sales/postcontract/" role="button">
-                <i class="fas fa-plus fa-fw text-gray-400"></i>
-              </a>
+            <a class="btn btn-primary" href="/sales/postcontract/" role="button">
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
+            </a>
           </div>
         </div>
 
