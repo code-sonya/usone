@@ -149,8 +149,8 @@
                   {% elif a.approvalStatus == '대기' %}
                     {% if document.documentStatus == '진행' and user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}
                       <span>
-                        <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
-                        <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button></span>
+                        <button class="btn btn-primary" onclick="btn_approve('{{ a.approvalId }}')">승인</button>
+                        <button class="btn btn-danger" onclick="btn_reject('{{ a.approvalId }}')">반려</button></span>
                     {% else %}
                       <span>대기</span>
                     {% endif %}
@@ -192,8 +192,8 @@
                   {% elif a.approvalStatus == '대기' %}
                     {% if document.documentStatus == '진행' and user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}
                     <span>
-                      <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
-                      <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button>
+                      <button class="btn btn-primary" onclick="btn_approve('{{ a.approvalId }}')">승인</button>
+                      <button class="btn btn-danger" onclick="btn_reject('{{ a.approvalId }}')">반려</button>
                     </span>
                     {% else %}
                     <span>대기</span>
@@ -324,8 +324,8 @@
                       <span>
                         <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
                         <td colspan="2">{{ a.approvalEmp__empName}}
-                        <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
-                        <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button>
+                        <button class="btn btn-primary" onclick="btn_approve('{{ a.approvalId }}')">승인</button>
+                        <button class="btn btn-danger" onclick="btn_reject('{{ a.approvalId }}')">반려</button>
                         </td>
                       </span>
                       </tr>
@@ -368,8 +368,8 @@
                       <span>
                         <td class="text-center bg-gray-200">{% ifchanged a.approvalCategory %}<b>{{ a.approvalCategory }}</b><br>{% endifchanged %}</td>
                         <td colspan="2">{{ a.approvalEmp__empName}}
-                        <button class="btn btn-primary" onclick="document.location.href='/approval/approvedocument/{{a.approvalId}}/'">승인</button>
-                        <button class="btn btn-danger" onclick="document.location.href='/approval/returndocument/{{a.approvalId}}/'">반려</button>
+                        <button class="btn btn-primary" onclick="btn_approve('{{ a.approvalId }}')">승인</button>
+                        <button class="btn btn-danger" onclick="btn_reject('{{ a.approvalId }}')">반려</button>
                         </td>
                       </span>
                       </tr>
@@ -588,6 +588,22 @@
     function btn_copy() {
         if (confirm('문서를 복사하시겠습니까?')) {
             location.href = '/approval/copydocument/{{ document.documentId }}/'
+        }
+    }
+
+    function btn_approve(approvalId) {
+        if (confirm('결재승인 하시겠습니까?')) {
+            location.href='/approval/approvedocument/' + approvalId + '/';
+        } else {
+            return false;
+        }
+    }
+
+    function btn_reject(approvalId) {
+        if (confirm('결재반려 하시겠습니까?')) {
+            location.href='/approval/returndocument/' + approvalId + '/';
+        } else {
+            return false;
         }
     }
 

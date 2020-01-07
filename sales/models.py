@@ -320,7 +320,7 @@ class Purchaseorderform(models.Model):
 
 class Purchaseorder(models.Model):
     orderId = models.AutoField(primary_key=True)
-    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.CASCADE, null=True, blank=True)
     purchaseCompany = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     formId = models.ForeignKey(Purchaseorderform, on_delete=models.SET_NULL, null=True, blank=True)
     writeEmp = models.ForeignKey(Employee, on_delete=models.PROTECT)
