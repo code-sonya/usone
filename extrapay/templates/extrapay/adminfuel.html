@@ -20,12 +20,11 @@
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
       <h6 class="m-0 h3 text-gray-800"> {{ startdate | slice:'0:4' }}년 {{ startdate | slice:'5:7' }}월 유류비관리 </h6>
       <div class="dropdown no-arrow">
-        <a class="mr-3" onclick="location.href='/extrapay/viewfuelpdf/{{ yearmonth }}/'">
-            <i class="fas fa-download fa-fw text-gray-400"></i>
-          </a>
-        <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal"
-           data-target="#filterModal">
-          <i class="fas fa-filter fa-fw text-gray-400"></i>
+        <a class="btn btn-warning" href="#" role="button" onclick="location.href='/extrapay/viewfuelpdf/{{ yearmonth }}/'">
+            <i class="fas fa-download d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-download"></i> PDF</span>
+        </a>
+        <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+          <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
         </a>
       </div>
     </div>

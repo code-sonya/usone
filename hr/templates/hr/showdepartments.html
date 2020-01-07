@@ -37,12 +37,11 @@
         <h6 class="m-0 h3 text-gray-800">부서관리</h6>
         <div class="dropdown no-arrow">
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-            <a class="dropdown-toggle mr-2" href="#" role="button" id="siteMapLink" data-toggle="modal" data-target="#siteMapModal">
-              <i class="fas fa-sitemap fa-fw text-success"></i>
+            <a class="btn btn-info" href="#" role="button" id="siteMapLink" data-toggle="modal" data-target="#siteMapModal">
+              <i class="fas fa-sitemap d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-sitemap"></i> 조직도</span>
             </a>
-
-            <a class="dropdown-toggle" href="/hr/postdepartment/" role="button">
-              <i class="fas fa-plus fa-fw text-primary"></i>
+            <a class="btn btn-primary" href="/hr/postdepartment/" role="button">
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
             </a>
           {% endif %}
         </div>
