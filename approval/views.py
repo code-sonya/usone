@@ -167,7 +167,7 @@ def post_document(request):
             else:
                 for empId in whoApproval['do']:
                     employee = Employee.objects.get(empId=empId)
-                    mail_approval(employee, document)
+                    mail_approval(employee, document, "결재요청")
 
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
@@ -1225,13 +1225,18 @@ def approve_document(request, approvalId):
         document.approveDatetime = now
         document.save()
 
+        # 결재 완료 메일
+        employee = Employee.objects.get(empId=document.writeEmp_id)
+        mail_approval(employee, document, "결재완료")
+
         if document.formId.formTitle == '휴가신청서':
             Vacation.objects.filter(documentId=document).update(vacationStatus='Y')
     else:
         for empId in whoApproval['do']:
             employee = Employee.objects.get(empId=empId)
             document = Document.objects.get(documentId=approval.documentId_id)
-            mail_approval(employee, document)
+            # 결재 요청 메일
+            mail_approval(employee, document, "결재요청")
 
     return redirect('approval:viewdocument', approval.documentId_id)
 
@@ -1249,6 +1254,10 @@ def return_document(request, approvalId):
     document.documentStatus = '반려'
     document.approveDatetime = now
     document.save()
+
+    # 반려 메일
+    employee = Employee.objects.get(empId=document.writeEmp_id)
+    mail_approval(employee, document, "결재반려")
 
     approvals = Approval.objects.filter(Q(documentId=approval.documentId_id) & Q(approvalStatus='대기'))
     approvals.update(approvalStatus='정지')
