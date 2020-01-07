@@ -310,14 +310,22 @@ def intcomma(num):
     return result
 
 
-def mail_approval(employee, document):
+def mail_approval(employee, document, type):
     # smtp 정보
     email = AdminEmail.objects.filter(Q(smtpStatus='정상')).aggregate(Max('adminId'))
     email = AdminEmail.objects.get(Q(adminId=email['adminId__max']))
     # 결재요청 메일 전송
     try:
-        title = "'{}' 문서 결재 요청".format(document.title)
-        html = approvalhtml(document)
+        if type == "결재요청":
+            title = "'{}' 결재 요청".format(document.title)
+            html = approvalhtml(document)
+        elif type == "결재완료":
+            title = "'{}' 결재 완료".format(document.title)
+            html = approvaldonehtml(document)
+        elif type == "결재반려":
+            title = "'{}' 결재 반려".format(document.title)
+            html = rejectdonehtml(document)
+
         toEmail = employee.empEmail
         fromEmail = 'usails@unioneinc.co.kr'
 
@@ -396,11 +404,136 @@ def approvalhtml(document):
     <body>
       <div style="border: 2px solid white;width: 600px;height: 500px;text-align: center;">
         <div style="text-align: center;margin-top:50px">
-         <strong style="font-size: 30px;">Usails 전자결재 알림</strong>
+         <strong style="font-size: 30px;">Usails 전자결재 요청</strong>
         </div>
         <br>
+        <div style="text-align:center">
+        <table>
+          <tr>
+            <td colspan="4">
+              <table style="margin:30px;border: 1px solid #858796a3;border-collapse: collapse;">
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;종&nbsp; &nbsp;류</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.formId.formTitle +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;번&nbsp; &nbsp;호</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.documentNumber +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;제&nbsp; &nbsp;목</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.title +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">기&nbsp; &nbsp; &nbsp; 안 &nbsp; &nbsp; &nbsp; 자</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.writeEmp.empName +"""</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr style="height: 60px">
+            <td style="text-align: center;width: 550px">
+              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a href='"""+url+"""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
+            </td>
+          </tr>
+        </table>
+      </div>
+      </div>
+    </body>
+    </html>
+    """
+    return html
+
+
+def approvaldonehtml(document):
+    url = "https://lop.unioneinc.co.kr/"
+    html = """
+    <html lang="ko">
+    <head>
+    <meta charset="utf-8">
+      <style type="text/css">
+        @font-face {
+          font-family: JejuGothic;
+          src: url({% static '/mail/JejuGothic.ttf' %});
+        }
+
+        html {
+          font-family: JejuGothic, serif;
+        }
+
+      </style>
+    </head>
+    <body>
+      <div style="border: 2px solid white;width: 600px;height: 500px;text-align: center;">
+        <div style="text-align: center;margin-top:50px">
+         <strong style="font-size: 30px;">Usails 전자결재 완료</strong>
+        </div>
         <br>
         <div style="text-align:center">
+        <div style="font-size:15px;text-align: center;color:#4e73df">※ 기안 하신 문서가 완료 되었습니다. ※</div>
+        <table>
+          <tr>
+            <td colspan="4">
+              <table style="margin:30px;border: 1px solid #858796a3;border-collapse: collapse;">
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;종&nbsp; &nbsp;류</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.formId.formTitle +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;번&nbsp; &nbsp;호</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.documentNumber +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;제&nbsp; &nbsp;목</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.title +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">기&nbsp; &nbsp; &nbsp; 안 &nbsp; &nbsp; &nbsp; 자</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.writeEmp.empName +"""</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr style="height: 60px">
+            <td style="text-align: center;width: 550px">
+              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a href='"""+url+"""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
+            </td>
+          </tr>
+        </table>
+      </div>
+      </div>
+    </body>
+    </html>
+    """
+    return html
+
+
+def rejectdonehtml(document):
+    url = "https://lop.unioneinc.co.kr/"
+    html = """
+    <html lang="ko">
+    <head>
+    <meta charset="utf-8">
+      <style type="text/css">
+        @font-face {
+          font-family: JejuGothic;
+          src: url({% static '/mail/JejuGothic.ttf' %});
+        }
+
+        html {
+          font-family: JejuGothic, serif;
+        }
+
+      </style>
+    </head>
+    <body>
+      <div style="border: 2px solid white;width: 600px;height: 500px;text-align: center;">
+        <div style="text-align: center;margin-top:50px">
+         <strong style="font-size: 30px;">Usails 전자결재 반려</strong>
+        </div>
+        <br>
+        <div style="text-align:center">
+        <div style="font-size:15px;text-align: center;color:#e74a3b">※ 기안 하신 문서가 반려 되었습니다. ※</div>
         <table>
           <tr>
             <td colspan="4">

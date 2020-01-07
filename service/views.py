@@ -448,7 +448,8 @@ def post_vacation(request):
         else:
             for empId in whoApproval['do']:
                 employee = Employee.objects.get(empId=empId)
-                mail_approval(employee, document)
+                mail_approval(employee, document, "결재요청")
+                print('호잇', '결재요청')
 
         for vacationDate in vacationDays:
             if request.POST[vacationDate] == 'all':
