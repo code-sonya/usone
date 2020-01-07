@@ -323,19 +323,29 @@
                   events: [
                       {% for i in myVacations %}
                           {
-                              title: '[{{ i.vacationType }}] {{ i.empName }}',
                               start: '{{ i.vacationDate|date:"Y-m-d" }}',
                               end: '{{ i.vacationDate|date:"Y-m-d" }}',
                               service_id: '{{ i.vacationId }}',
                               name: '{{ i.empName }}',
                               vacationType: '{{ i.vacationType }}',
                               type: 'X',
-                              className: 'me'
+                              className: 'me',
+                              {% if i.vacationStatus == 'N' %}
+                                title: '[{{ i.vacationType }}] {{ i.empName }} [결재중]',
+                                backgroundColor: '#FFFF0000',
+                                borderColor: '#FFFF0000',
+                                textColor: '#2635ff',
+                              {% else %}
+                                title: '[{{ i.vacationType }}] {{ i.empName }}',
+                                backgroundColor: '#FFFF0000',
+                                borderColor: '#FFFF0000',
+                                textColor: '#1cc88a',
+                              {% endif %}
                           },
                       {% endfor %}
                       {% for i in teamVacations %}
                           {
-                              title: '[{{ i.vacationType }}] {{ i.empName }}',
+                              // title: '[{{ i.vacationType }}] {{ i.empName }}',
                               start: '{{ i.vacationDate|date:"Y-m-d" }}',
                               end: '{{ i.vacationDate|date:"Y-m-d" }}',
                               service_id: '{{ i.vacationId }}',
@@ -343,13 +353,23 @@
                               vacationType: '{{ i.vacationType }}',
                               type: 'X',
                               className: 'team',
+                              {% if i.vacationStatus == 'N' %}
+                                title: '[{{ i.vacationType }}] {{ i.empName }}(결재중)',
+                                backgroundColor: '#FFFF0000',
+                                borderColor: '#FFFF0000',
+                                textColor: '#2635ff',
+                              {% else %}
+                                title: '[{{ i.vacationType }}] {{ i.empName }}',
+                                backgroundColor: '#FFFF0000',
+                                borderColor: '#FFFF0000',
+                                textColor: '#1cc88a',
+                              {% endif %}
                           },
                       {% endfor %}
                   ],
-                  backgroundColor: '#FFFF0000',
-                  borderColor: '#FFFF0000',
-                  textColor: '#1cc88a'
-                  {#textColor: '#3dbd9a'#}
+                  // backgroundColor: '#FFFF0000',
+                  // borderColor: '#FFFF0000',
+                  // textColor: '#1cc88a'
               },
           );
 

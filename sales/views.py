@@ -24,7 +24,7 @@ from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, C
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
     Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
-    empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase, billing_schedule, mail_purchaseorder
+    empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, summary, detailPurchase, billing_schedule, mail_purchaseorder
 
 from django.db.models import Q, Value, F, CharField, IntegerField, Max, Min
 from datetime import datetime, timedelta, date
@@ -3069,7 +3069,9 @@ def view_ordernoti_pdf(request, contractId):
     today = datetime.today()
     context['today'] = today
     context['result'] = context['contract'].profitRatio - 15.0
-    context['summary'] = summaryPurchase(contractId, context['contract'].salePrice)
+    context['summary'] = summary(contractId)
+    context['revenueItem'] = Contractitem.objects.filter(Q(contractId=contractId))
+    context['purchaseItem'] = Purchasecontractitem.objects.filter(Q(contractId=contractId))
 
     for i in range(1, 9):
         context['class{}'.format(str(i))], context['sum_class{}'.format(str(i))] = detailPurchase(contractId, i)
