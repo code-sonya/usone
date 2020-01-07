@@ -56,7 +56,7 @@ def scheduler(request, day=None):
         Q(vacationDate__gte=startDate) &
         Q(vacationDate__lte=endDate) &
         Q(empDeptName__in=postDeptList) &
-        Q(vacationStatus='Y')
+        (Q(vacationStatus='Y') | Q(vacationStatus='N'))
     )
     holiday = Eventday.objects.filter(
         Q(eventType="휴일") &
