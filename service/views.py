@@ -75,7 +75,8 @@ def service_asjson(request):
 
     services = services.values(
         'serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType',
-        'serviceStartDatetime', 'serviceEndDatetime', 'serviceHour', 'serviceOverHour', 'serviceDetails',
+        'serviceBeginDatetime', 'serviceStartDatetime', 'serviceEndDatetime', 'serviceFinishDatetime',
+        'serviceHour', 'serviceOverHour', 'serviceDetails',
         'serviceStatus', 'contractId__contractName', 'serviceId'
     )
 
@@ -561,32 +562,7 @@ def show_services(request):
         else:
             contractCheck = 1
         serviceTitle = request.POST['serviceTitle']
-
-        services = Servicereport.objects.all()
-        if startdate:
-            services = services.filter(serviceDate__gte=startdate)
-        if enddate:
-            services = services.filter(serviceDate__lte=enddate)
-        if empDeptName:
-            services = services.filter(empDeptName__icontains=empDeptName)
-        if empName:
-            services = services.filter(empName__icontains=empName)
-        if companyName:
-            services = services.filter(companyName__companyName__icontains=companyName)
-        if serviceType:
-            services = services.filter(serviceType__icontains=serviceType)
-        if contractCheck == 0:
-            if contractName:
-                services = services.filter(contractId__contractName__icontains=contractName)
-        elif contractCheck == 1:
-            services = services.filter(contractId__isnull=True)
-        if serviceTitle:
-            services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
-
     else:
-        empId = Employee(empId=request.user.employee.empId)
-        services = Servicereport.objects.filter(empId=empId)
-
         # filter values
         startdate = ""
         enddate = ""
@@ -597,6 +573,40 @@ def show_services(request):
         contractName = ""
         contractCheck = 0
         serviceTitle = ""
+    startDay = ""
+    endDay = ""
+    services = Servicereport.objects.all()
+    if startdate:
+        services = services.filter(serviceDate__gte=startdate)
+        startDay = datetime.date(year=int(startdate[:4]), month=int(startdate[5:7]), day=int(startdate[8:10]))
+        print(startDay.weekday())
+    if enddate:
+        services = services.filter(serviceDate__lte=enddate)
+        endDay = datetime.date(year=int(enddate[:4]), month=int(enddate[5:7]), day=int(enddate[8:10]))
+    if empDeptName:
+        services = services.filter(empDeptName__icontains=empDeptName)
+    if empName:
+        services = services.filter(empName__icontains=empName)
+    if companyName:
+        services = services.filter(companyName__companyName__icontains=companyName)
+    if serviceType:
+        services = services.filter(serviceType__icontains=serviceType)
+    if contractCheck == 0:
+        if contractName:
+            services = services.filter(contractId__contractName__icontains=contractName)
+    elif contractCheck == 1:
+        services = services.filter(contractId__isnull=True)
+    if serviceTitle:
+        services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
+
+    if services:
+        countServices = services.count()
+        sumHour = round(services.aggregate(Sum('serviceHour'))['serviceHour__sum'], 1)
+        sumOverHour = round(services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'], 1)
+    else:
+        countServices = 0
+        sumHour = 0
+        sumOverHour = 0
 
     # 계약명 자동완성
     contractList = Contract.objects.filter(
@@ -615,13 +625,14 @@ def show_services(request):
         contracts.append(temp)
 
     context = {
-        'today': datetime.datetime.today(),
-        'countServices': services.count() or 0,
-        'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'] or 0,
-        'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0,
+        'countServices': countServices,
+        'sumHour': sumHour,
+        'sumOverHour': sumOverHour,
         # filter values
         'startdate': startdate,
         'enddate': enddate,
+        'startDay': startDay,
+        'endDay': endDay,
         'empDeptName': empDeptName,
         'empName': empName,
         'companyName': companyName,

@@ -1271,12 +1271,12 @@
       }
 
       function btn_save() {
-          if (document.getElementById("contractName").value === '') {
-              alert("계약명을 입력해주세요.");
-              return false;
-          }
           if (document.getElementById("empId").value === '') {
               alert("영업대표를 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("contractName").value === '') {
+              alert("계약명을 입력해주세요.");
               return false;
           }
           if (document.getElementById("saleCompanyNames").value === '') {
@@ -1473,59 +1473,80 @@
 
 
           // 금액 일치 계산
-          let sumItemPrice = 0;
-          for (i = 0; i < $('input[name="itemPrice"]').length; i++) {
-              sumItemPrice += Number($('input[name="itemPrice"]').eq(i).val().replace(/,/g, ''));
-          }
-          if (sumItemPrice != $('#salePrice').val().replace(/,/g, '')) {
-              alert("계약금액 : " + ($('#salePrice').val() * 1).toLocaleString() + "\n" +
-                  "매출 세부사항 금액의 합 : " + sumItemPrice.toLocaleString() + "\n" +
-                  "계약금액과 매출 세부사항 금액의 합이 일치하지 않습니다.");
-              return false;
-          }
-
           if ('{{ contractStep }}' !== 'Drop') {
-              let sumRevenuePrice = 0;
-              for (i = 0; i < $('input[name="revenuePrice"]').length; i++) {
-                  sumRevenuePrice += Number($('input[name="revenuePrice"]').eq(i).val().replace(/,/g, ''));
+              let salePrice = Number($('#salePrice').val().replace(/,/g, ''));
+              let profitPrice = Number($('#profitPrice').val().replace(/,/g, ''));
+              // sumRevenueItemPrice: 매출 세부사항의 금액의 합
+              let sumRevenueItemPrice = 0;
+              for (i=0; i<$('input[name="itemPrice"]').length; i++) {
+                  sumRevenueItemPrice += Number($('input[name="itemPrice"]').eq(i).val().replace(/,/g, ''));
               }
-              if (sumRevenuePrice != $('#salePrice').val().replace(/,/g, '')) {
-                  alert("계약금액 : " + ($('#salePrice').val() * 1).toLocaleString() + "\n" +
-                      "매출금액 : " + sumRevenuePrice.toLocaleString() + "\n" +
-                      "계약금액과 매출금액의 합이 일치하지 않습니다.");
+              // sumRevenueBillingPrice: 매출 빌링스케쥴의 매출금액의 합
+              let sumRevenueBillingPrice = 0;
+              for (i=0; i<$('input[name="revenuePrice"]').length; i++) {
+                  sumRevenueBillingPrice += Number($('input[name="revenuePrice"]').eq(i).val().replace(/,/g, ''));
+              }
+              // sumProfitBillingPrice: 매출 빌링스케쥴의 이익금액의 합
+              let sumProfitBillingPrice = 0;
+              for (i=0; i<$('input[name="revenueProfitPrice"]').length; i++) {
+                  sumProfitBillingPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val().replace(/,/g, ''));
+              }
+              // sumPurchaseItemPrice: 매입 세부사항의 금액의 합
+              let sumPurchaseItemPrice = 0;
+              for (i=0; i<$('input[name="purchaseItemPrice"]').length; i++) {
+                  sumPurchaseItemPrice += Number($('input[name="purchaseItemPrice"]').eq(i).val().replace(/,/g, ''));
+              }
+              // sumPurchaseBillingPrice: 매입 빌링스케쥴의 매입금액의 합
+              let sumPurchaseBillingPrice = 0;
+              for (i=0; i<$('input[name="purchasePrice"]').length; i++) {
+                  sumPurchaseBillingPrice += Number($('input[name="purchasePrice"]').eq(i).val().replace(/,/g, ''));
+              }
+              // sumCostBillingPrice: 매입 빌링스케쥴(세금계산서 미접수항목)의 매입금액의 합
+              let sumCostBillingPrice = 0;
+              for (i=0; i<$('input[name="costPrice"]').length; i++) {
+                  sumCostBillingPrice += Number($('input[name="costPrice"]').eq(i).val().replace(/,/g, ''));
+              }
+
+              if (salePrice !== sumRevenueItemPrice) {
+                  alert("계약금액 : " + salePrice.toLocaleString() + "\n" +
+                      "매출 세부사항 금액의 합 : " + sumRevenueItemPrice.toLocaleString() + "\n" +
+                      "차액 : " + (salePrice - sumRevenueItemPrice).toLocaleString() + "\n" +
+                      "계약금액과 매출 세부사항 금액의 합이 일치하지 않습니다."
+                  );
                   return false;
               }
-
-              let sumRevenueProfitPrice = 0;
-              for (i = 0; i < $('input[name="revenueProfitPrice"]').length; i++) {
-                  sumRevenueProfitPrice += Number($('input[name="revenueProfitPrice"]').eq(i).val().replace(/,/g, ''));
-              }
-              if (sumRevenueProfitPrice != $('#profitPrice').val().replace(/,/g, '')) {
-                  alert("이익금액 : " + ($('#profitPrice').val() * 1).toLocaleString() + "\n" +
-                      "GP : " + sumRevenueProfitPrice.toLocaleString() + "\n" +
-                      "이익금액과 GP의 합이 일치하지 않습니다.");
+              if (salePrice !== sumRevenueBillingPrice) {
+                  alert("계약금액 : " + salePrice.toLocaleString() + "\n" +
+                      "매출 빌링스케줄의 매출금액의 합 : " + sumRevenueBillingPrice.toLocaleString() + "\n" +
+                      "차액 : " + (salePrice - sumRevenueBillingPrice).toLocaleString() + "\n" +
+                      "계약금액과 매출 빌링스케줄의 매출금액의 합이 일치하지 않습니다."
+                  );
                   return false;
               }
-
-              let sumPurchasePrice = 0;
-              for (i = 0; i < $('input[name="purchasePrice"]').length; i++) {
-                  sumPurchasePrice += Number($('input[name="purchasePrice"]').eq(i).val().replace(/,/g, ''));
+              if (sumPurchaseItemPrice !== (sumPurchaseBillingPrice + sumCostBillingPrice)) {
+                  alert("매입 세부사항의 금액의 합 : " + sumPurchaseItemPrice.toLocaleString() + "\n" +
+                      "매입 빌링스케쥴의 매입금액의 합 : " + (sumPurchaseBillingPrice + sumCostBillingPrice).toLocaleString() + "\n" +
+                      "차액 : " + (sumPurchaseItemPrice - (sumPurchaseBillingPrice + sumCostBillingPrice)).toLocaleString() + "\n" +
+                      "매입 세부사항의 금액의 합과 매입 빌링스케쥴(계산서 접수항목 + 미접수항목)의 매입금액의 합이 일치하지 않습니다."
+                  );
+                  return false;
               }
-
-              let sumCostPrice = 0;
-              for (i = 0; i < $('input[name="costPrice"]').length; i++) {
-                  sumCostPrice += Number($('input[name="costPrice"]').eq(i).val().replace(/,/g, ''));
+              if (profitPrice !== (sumRevenueItemPrice - sumPurchaseItemPrice)) {
+                  alert("이익금액 : " + profitPrice.toLocaleString() + "\n" +
+                      "매출금액 - 매입금액 : " + (sumRevenueItemPrice - sumPurchaseItemPrice).toLocaleString() + "\n" +
+                      "차액 : " + (profitPrice - (sumRevenueItemPrice - sumPurchaseItemPrice)).toLocaleString() + "\n" +
+                      "이익금액이 매출금액-매입금액과 일치하지 않습니다."
+                  );
+                  return false;
               }
-
-
-              let revenueMinusPurchase = sumRevenuePrice - sumPurchasePrice;
-              {#if (revenueMinusPurchase != sumRevenueProfitPrice) {#}
-              {#    alert("매출금액 : " + sumRevenuePrice.toLocaleString() + "\n" +#}
-              {#        "매입금액 : " + sumRevenueProfitPrice.toLocaleString() + "\n" +#}
-              {#        "매출-매입 : " + revenueMinusPurchase.toLocaleString() + "\n" +#}
-              {#        "GP : " + sumRevenueProfitPrice.toLocaleString() + "\n" +#}
-              {#        "매출금액 - 매입금액이 GP와 일치하지 않습니다.");#}
-              {#    return false;}#}
+              if (profitPrice !== sumProfitBillingPrice) {
+                  alert("이익금액 : " + profitPrice.toLocaleString() + "\n" +
+                      "매출 세부정보의 이익금액의 합 : " + sumProfitBillingPrice.toLocaleString() + "\n" +
+                      "차액 : " + (profitPrice - sumProfitBillingPrice).toLocaleString() + "\n" +
+                      "이익금액이 매출금액-매입금액과 일치하지 않습니다."
+                  );
+                  return false;
+              }
           }
 
           if (confirm("저장 하시겠습니까?") === true) {
