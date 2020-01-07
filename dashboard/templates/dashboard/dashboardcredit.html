@@ -275,7 +275,8 @@
               url: "{% url 'sales:empdept_ajax_url' %}",
               method: 'POST',
               cache: false,
-              data: {"empDeptName": empDeptName},
+              data: {"empDeptName": empDeptName,
+                    "empStatus": "Y"},
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var empName = returnData;

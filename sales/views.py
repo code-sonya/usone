@@ -652,10 +652,17 @@ def salemanager_asjson(request):
 @csrf_exempt
 def empdept_asjson(request):
     empDeptName = request.POST['empDeptName']
+    empStatus = request.POST['empStatus']
     if empDeptName == '전체':
-        employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+        if empStatus == 'N':
+            employees = Employee.objects.filter(Q(empDeptName__icontains='영업')).order_by('empDeptName', 'empRank')
+        else:
+            employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
     else:
-        employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+        if empStatus == 'N':
+            employees = Employee.objects.filter(Q(empDeptName=empDeptName)).order_by('empDeptName', 'empRank')
+        else:
+            employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
     json = serializers.serialize('json', employees)
     return HttpResponse(json, content_type='application/json')
 
