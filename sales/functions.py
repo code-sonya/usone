@@ -1194,7 +1194,6 @@ def magicsearch():
 
 def summary(contractId):
     summaryRevenues = Contractitem.objects.filter(contractId=contractId).aggregate(sum=Coalesce(Sum('itemPrice'), 0))['sum']
-    print(Purchasecontractitem.objects.filter(Q(contractId=contractId)).values())
     summaryProduct = Purchasecontractitem.objects.filter(Q(contractId=contractId) & Q(mainCategory='상품')).aggregate(sum=Coalesce(Sum('itemPrice'), 0))['sum']
     summaryMaintenance = Purchasecontractitem.objects.filter(Q(contractId=contractId) & Q(mainCategory='유지보수')).aggregate(sum=Coalesce(Sum('itemPrice'), 0))['sum']
     summarySupport = Purchasecontractitem.objects.filter(Q(contractId=contractId) & Q(mainCategory='인력지원')).aggregate(sum=Coalesce(Sum('itemPrice'), 0))['sum']

@@ -12,7 +12,7 @@ from xhtml2pdf import pisa
 from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max, Value, CharField
 
 from service.models import Employee
-from sales.models import Contract, Revenue, Purchase, Contractfile, Purchasefile
+from sales.models import Contract, Revenue, Purchase, Contractfile, Purchasefile, Contractitem, Purchasecontractitem
 from client.models import Company
 from hr.models import AdminEmail
 from service.models import Vacation
@@ -21,7 +21,7 @@ from .models import Documentcategory, Documentform, Documentfile, Document, Appr
 from logs.models import ApprovalLog
 from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
 from hr.functions import siteMap
-from sales.functions import detailPurchase, summaryPurchase
+from sales.functions import detailPurchase, summary
 
 @login_required
 def post_document(request):
@@ -1419,16 +1419,17 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('최종고객사자동입력', contract.endCompanyName.companyNameKo)
         else:
             contentHtml = contentHtml.replace('최종고객사자동입력', '')
-        contentHtml = contentHtml.replace('대분류자동입력', contract.mainCategory)
-        contentHtml = contentHtml.replace('소분류자동입력', contract.subCategory)
-        contentHtml = contentHtml.replace('산업군,판매유형자동입력', contract.saleIndustry + '·' + contract.saleType)
+        # contentHtml = contentHtml.replace('대분류자동입력', contract.mainCategory)
+        # contentHtml = contentHtml.replace('소분류자동입력', contract.subCategory)
+        contentHtml = contentHtml.replace('산업군자동입력', contract.saleIndustry)
+        contentHtml = contentHtml.replace('판매유형자동입력',  contract.saleType)
         contentHtml = contentHtml.replace('계약일자동입력', str(contract.contractDate))
         if contract.contractStartDate or contract.contractEndDate:
             contentHtml = contentHtml.replace(
                 '계약기간자동입력', str(contract.contractStartDate) + '~' + str(contract.contractEndDate)
             )
         else:
-            contentHtml = contentHtml.replace('계약기간자동입력', '')
+            contentHtml = contentHtml.replace('계약기간자동입력', '-')
         contentHtml = contentHtml.replace('계약금액자동입력', format(contract.salePrice, ',') + '  ')
         if contract.depositCondition == '계산서 발행 후':
             contentHtml = contentHtml.replace(
@@ -1444,17 +1445,17 @@ def post_contract_document(request, contractId, documentType):
             )
 
         # CoG정보
-        contentHtml = contentHtml.replace('매출금액자동입력', format(revenuePrice, ','))
-        contentHtml = contentHtml.replace('매출합계자동입력', format(revenuePrice, ','))
-        contentHtml = contentHtml.replace('마진금액자동입력', format(profitPrice, ','))
-        contentHtml = contentHtml.replace('마진합계자동입력', format(profitPrice, ','))
-        summary = summaryPurchase(contractId, contract.salePrice)
-        contentHtml = contentHtml.replace('상품HW매입금액자동입력', intcomma(summary['sumType1']))
-        contentHtml = contentHtml.replace('상품SW매입금액자동입력', intcomma(summary['sumType2']))
-        contentHtml = contentHtml.replace('용역HW매입금액자동입력', intcomma(summary['sumType3']))
-        contentHtml = contentHtml.replace('용역SW매입금액자동입력', intcomma(summary['sumType4']))
-        contentHtml = contentHtml.replace('기타매입금액자동입력', intcomma(summary['sumType5']))
-        contentHtml = contentHtml.replace('매입합계자동입력', intcomma(summary['sumPurchase']))
+        cogSummary = summary(contractId)
+        contentHtml = contentHtml.replace('매출금액자동입력', intcomma(cogSummary['summaryRevenues']))
+        contentHtml = contentHtml.replace('매출합계자동입력', intcomma(cogSummary['summaryRevenues']))
+        contentHtml = contentHtml.replace('마진금액자동입력', intcomma(cogSummary['summaryProfit']))
+        contentHtml = contentHtml.replace('마진합계자동입력', intcomma(cogSummary['summaryProfit']))
+        contentHtml = contentHtml.replace('매입합계자동입력', intcomma(cogSummary['summaryPurchases']))
+
+        contentHtml = contentHtml.replace('상품매입금액자동입력', intcomma(cogSummary['summaryProduct']))
+        contentHtml = contentHtml.replace('유지보수매입금액자동입력', intcomma(cogSummary['summaryMaintenance']))
+        contentHtml = contentHtml.replace('인력지원매입금액자동입력', intcomma(cogSummary['summarySupport']))
+        contentHtml = contentHtml.replace('기타매입금액자동입력', intcomma(cogSummary['summaryEtc']))
 
         # 마진율분석
         contentHtml = contentHtml.replace('마진율자동입력', str(profitRatio) + '%')
@@ -1491,130 +1492,174 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('세금담당자연락처자동입력', '')
             contentHtml = contentHtml.replace('세금담당자이메일자동입력', '')
 
-        # 하도급계약
-        tempClass = {}
-        for i in range(1, 9):
-            tempClass[str(i)], tempClass['sum_'+str(i)] = detailPurchase(contractId, i)
+        # 매출 매입 세부사항
+        revenueItem = Contractitem.objects.filter(Q(contractId=contractId))
+        purchaseItem = Purchasecontractitem.objects.filter(Q(contractId=contractId))
 
-        tempStr = ''
-        if tempClass['1']:
-            for t in tempClass['1']:
-                tempStr += '''<tr style="height: 25px;">
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.companyName.companyNameKo + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
-                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
-                    </tr>'''
-        contentHtml = contentHtml.replace('<tr><td colspan="3">상품HW테이블자동입력</td></tr>', tempStr)
-        contentHtml = contentHtml.replace('상품HW합계자동입력', format(tempClass['sum_1'], ','))
+        if revenueItem:
+            tempStr = ''
+            for item in revenueItem:
+                tempStr += '''<tr style="height: 25px; font-size: 14px;">
+                    <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + '매출' + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + item.mainCategory + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + item.subCategory + '''</td>
+                    <td style="text-align: left; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + item.itemName + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + format(item.itemPrice, ',') + '''</td>
+                </tr>'''
+            contentHtml = contentHtml.replace('<tr><td colspan="5">매출세부사항자동입력</td></tr>', tempStr)
 
-        tempStr = ''
-        if tempClass['2']:
-            for t in tempClass['2']:
-                tempStr += '''<tr style="height: 25px;">
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.companyName.companyNameKo + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
-                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
-                    </tr>'''
-        contentHtml = contentHtml.replace('<tr><td colspan="3">상품SW테이블자동입력</td></tr>', tempStr)
-        contentHtml = contentHtml.replace('상품SW합계자동입력', format(tempClass['sum_2'], ','))
-
-        tempStr = ''
-        if tempClass['3']:
-            for t in tempClass['3']:
-                tempStr += '''<tr style="height: 25px;">
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.companyName.companyNameKo + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
-                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
-                    </tr>'''
-        contentHtml = contentHtml.replace('<tr><td colspan="3">유지보수HW테이블자동입력</td></tr>', tempStr)
-        contentHtml = contentHtml.replace('유지보수HW합계자동입력', format(tempClass['sum_3'], ','))
-
-        tempStr = ''
-        if tempClass['4']:
-            for t in tempClass['4']:
-                tempStr += '''<tr style="height: 25px;">
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.companyName.companyNameKo + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
-                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
-                    </tr>'''
-        contentHtml = contentHtml.replace('<tr><td colspan="3">유지보수SW테이블자동입력</td></tr>', tempStr)
-        contentHtml = contentHtml.replace('유지보수SW합계자동입력', format(tempClass['sum_4'], ','))
-
-        tempStr = ''
-        if tempClass['5']:
-            for t in tempClass['5']:
-                tempStr += '''<tr style="height: 25px;">
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.classification + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + str(t.times) + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + str(t.sites) + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + format(t.units, ',') + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
-                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
-                    </tr>'''
-        contentHtml = contentHtml.replace('<tr><td colspan="5">인력지원자사자동입력</td></tr>', tempStr)
-        contentHtml = contentHtml.replace('인력지원자사합계자동입력', format(tempClass['sum_5'], ','))
-
-        tempStr = ''
-        if tempClass['6']:
-            for t in tempClass['6']:
-                tempStr += '''<tr style="height: 25px;">
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.classification + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
-                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
-                    </tr>'''
-        contentHtml = contentHtml.replace('<tr><td colspan="3">인력지원타사자동입력</td></tr>', tempStr)
-        contentHtml = contentHtml.replace('인력지원타사합계자동입력', format(tempClass['sum_6'], ','))
-
-        tempStr = ''
-        if tempClass['7']:
-            for t in tempClass['7']:
-                if t.contractStartDate or t.contractEndDate:
-                    contractDate = str(t.contractStartDate) + ' ~ ' + str(t.contractEndDate)
+        if purchaseItem:
+            tempStr = ''
+            for item in purchaseItem:
+                if item.companyName:
+                    companyName = item.companyName.companyNameKo
                 else:
-                    contractDate = ''
-                tempStr += '''<tr style="height: 25px;">
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.contractNo + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + contractDate + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
-                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
-                    </tr>'''
-        contentHtml = contentHtml.replace('<tr><td colspan="3">DBCOSTS테이블자동입력</td></tr>', tempStr)
-        contentHtml = contentHtml.replace('DBCOSTS합계자동입력', format(tempClass['sum_7'], ','))
+                    companyName = '-'
+                tempStr += '''<tr style="height: 25px; font-size: 14px;">
+                    <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + '매입' + '''</td>
+                    <td style="text-align: left; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + companyName + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + item.mainCategory + '''</td>
+                    <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + item.subCategory + '''</td>
+                    <td style="text-align: left; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + item.itemName + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + format(item.itemPrice, ',') + '''</td>
+                </tr>'''
+            contentHtml = contentHtml.replace('<tr><td colspan="6">매입세부사항자동입력</td></tr>', tempStr)
 
-        tempStr = ''
-        if tempClass['8']:
-            for t in tempClass['8']:
-                tempStr += '''<tr style="height: 25px;">
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.classification + '''</td>
-                    <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
-                    ''' + t.contents + '''</td>
-                    <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
-                    font-size: 11px;">''' + format(t.price, ',') + '''</td>
-                    </tr>'''
-        contentHtml = contentHtml.replace('<tr><td colspan="3">기타테이블자동입력</td></tr>', tempStr)
-        contentHtml = contentHtml.replace('기타합계자동입력', format(tempClass['sum_8'], ','))
+        # # 하도급계약
+        # tempClass = {}
+        # for i in range(1, 9):
+        #     tempClass[str(i)], tempClass['sum_'+str(i)] = detailPurchase(contractId, i)
+        #
+        # tempStr = ''
+        # if tempClass['1']:
+        #     for t in tempClass['1']:
+        #         tempStr += '''<tr style="height: 25px;">
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.companyName.companyNameKo + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.contents + '''</td>
+        #             <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+        #             font-size: 11px;">''' + format(t.price, ',') + '''</td>
+        #             </tr>'''
+        # contentHtml = contentHtml.replace('<tr><td colspan="3">상품HW테이블자동입력</td></tr>', tempStr)
+        # contentHtml = contentHtml.replace('상품HW합계자동입력', format(tempClass['sum_1'], ','))
+        #
+        # tempStr = ''
+        # if tempClass['2']:
+        #     for t in tempClass['2']:
+        #         tempStr += '''<tr style="height: 25px;">
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.companyName.companyNameKo + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.contents + '''</td>
+        #             <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+        #             font-size: 11px;">''' + format(t.price, ',') + '''</td>
+        #             </tr>'''
+        # contentHtml = contentHtml.replace('<tr><td colspan="3">상품SW테이블자동입력</td></tr>', tempStr)
+        # contentHtml = contentHtml.replace('상품SW합계자동입력', format(tempClass['sum_2'], ','))
+        #
+        # tempStr = ''
+        # if tempClass['3']:
+        #     for t in tempClass['3']:
+        #         tempStr += '''<tr style="height: 25px;">
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.companyName.companyNameKo + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.contents + '''</td>
+        #             <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+        #             font-size: 11px;">''' + format(t.price, ',') + '''</td>
+        #             </tr>'''
+        # contentHtml = contentHtml.replace('<tr><td colspan="3">유지보수HW테이블자동입력</td></tr>', tempStr)
+        # contentHtml = contentHtml.replace('유지보수HW합계자동입력', format(tempClass['sum_3'], ','))
+        #
+        # tempStr = ''
+        # if tempClass['4']:
+        #     for t in tempClass['4']:
+        #         tempStr += '''<tr style="height: 25px;">
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.companyName.companyNameKo + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.contents + '''</td>
+        #             <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+        #             font-size: 11px;">''' + format(t.price, ',') + '''</td>
+        #             </tr>'''
+        # contentHtml = contentHtml.replace('<tr><td colspan="3">유지보수SW테이블자동입력</td></tr>', tempStr)
+        # contentHtml = contentHtml.replace('유지보수SW합계자동입력', format(tempClass['sum_4'], ','))
+        #
+        # tempStr = ''
+        # if tempClass['5']:
+        #     for t in tempClass['5']:
+        #         tempStr += '''<tr style="height: 25px;">
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.classification + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + str(t.times) + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + str(t.sites) + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + format(t.units, ',') + '''</td>
+        #             <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+        #             font-size: 11px;">''' + format(t.price, ',') + '''</td>
+        #             </tr>'''
+        # contentHtml = contentHtml.replace('<tr><td colspan="5">인력지원자사자동입력</td></tr>', tempStr)
+        # contentHtml = contentHtml.replace('인력지원자사합계자동입력', format(tempClass['sum_5'], ','))
+        #
+        # tempStr = ''
+        # if tempClass['6']:
+        #     for t in tempClass['6']:
+        #         tempStr += '''<tr style="height: 25px;">
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.classification + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.contents + '''</td>
+        #             <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+        #             font-size: 11px;">''' + format(t.price, ',') + '''</td>
+        #             </tr>'''
+        # contentHtml = contentHtml.replace('<tr><td colspan="3">인력지원타사자동입력</td></tr>', tempStr)
+        # contentHtml = contentHtml.replace('인력지원타사합계자동입력', format(tempClass['sum_6'], ','))
+        #
+        # tempStr = ''
+        # if tempClass['7']:
+        #     for t in tempClass['7']:
+        #         if t.contractStartDate or t.contractEndDate:
+        #             contractDate = str(t.contractStartDate) + ' ~ ' + str(t.contractEndDate)
+        #         else:
+        #             contractDate = ''
+        #         tempStr += '''<tr style="height: 25px;">
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.contractNo + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + contractDate + '''</td>
+        #             <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+        #             font-size: 11px;">''' + format(t.price, ',') + '''</td>
+        #             </tr>'''
+        # contentHtml = contentHtml.replace('<tr><td colspan="3">DBCOSTS테이블자동입력</td></tr>', tempStr)
+        # contentHtml = contentHtml.replace('DBCOSTS합계자동입력', format(tempClass['sum_7'], ','))
+        #
+        # tempStr = ''
+        # if tempClass['8']:
+        #     for t in tempClass['8']:
+        #         tempStr += '''<tr style="height: 25px;">
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.classification + '''</td>
+        #             <td style="text-align: center; border: 1px solid grey; border-collapse: collapse; font-size: 11px;">
+        #             ''' + t.contents + '''</td>
+        #             <td style="text-align: right; padding-left: 10px; padding-right: 10px; border: 1px solid grey; border-collapse: collapse;
+        #             font-size: 11px;">''' + format(t.price, ',') + '''</td>
+        #             </tr>'''
+        # contentHtml = contentHtml.replace('<tr><td colspan="3">기타테이블자동입력</td></tr>', tempStr)
+        # contentHtml = contentHtml.replace('기타합계자동입력', format(tempClass['sum_8'], ','))
 
         # Billing Schedule
         pMinYear = purchases.aggregate(Min('predictBillingDate__year'))
@@ -1717,19 +1762,19 @@ def post_contract_document(request, contractId, documentType):
 
         tempStr = ''
         for year in monthList:
-            tempStr += '<tr><td><table width="100%">'
+            tempStr += '<tr><td><table width="100%" style="border-collapse: collapse">'
             # 구분, 업체명, 날짜
             tempStr += '''
               <tr style="height: 25px; font-size: 11px;">
-                <td style="text-align: center; background-color: #ebfaff;" width="6%">구분</td>
-                <td style="text-align: center; background-color: #ebfaff;" width="16%">업체명</td>
+                <td style="text-align: center; background-color: #ebfaff; border: 1px solid grey; padding-left: 10px; padding-right: 10px;" width="6%">구분</td>
+                <td style="text-align: center; background-color: #ebfaff; border: 1px solid grey; padding-left: 10px; padding-right: 10px;" width="16%">업체명</td>
             '''
             for month in year:
                 tempStr += '''
-                <td style="text-align: center; background-color: #ebfaff;" width="6%">''' + str(month) + '''</td>
+                <td style="text-align: center; background-color: #ebfaff; border: 1px solid grey; padding-left: 10px; padding-right: 10px;" width="6%">''' + str(month) + '''</td>
                 '''
             tempStr += '''
-                <td style="text-align: center; background-color: #ebfaff;" width="6%">TOTAL</td>
+                <td style="text-align: center; background-color: #ebfaff; border: 1px solid grey; padding-left: 10px; padding-right: 10px;" width="6%">TOTAL</td>
               </tr>
             '''
             # 업체별 매출
@@ -1737,21 +1782,21 @@ def post_contract_document(request, contractId, documentType):
                 if billing['list'] == year:
                     tempStr += '''
               <tr style="height: 25px; font-size: 11px;">
-                <td style="text-align: center;">매출</td>
-                <td>''' + billing['name'] + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['3']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['4']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['5']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['6']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['7']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['8']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['9']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['10']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['11']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['12']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">매출</td>
+                <td style="text-align: left; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + billing['name'] + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['3']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['4']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['5']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['6']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['7']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['8']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['9']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['10']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['11']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['12']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(billing['sum']) + '''</td>
               </tr>
                     '''
@@ -1760,32 +1805,32 @@ def post_contract_document(request, contractId, documentType):
                 if sumBilling['list'] == year:
                     tempStr += '''
               <tr style="height: 25px; font-size: 11px;">
-                <td colspan="2" style="text-align: center; background-color: gainsboro">TOTAL</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td colspan="2" style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">TOTAL</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['1']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['2']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['3']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['4']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['5']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['6']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['7']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['8']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['9']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['10']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['11']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['12']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
                 ''' + intcomma(sumBilling['sum']) + '''</td>
               </tr>
                     '''
@@ -1794,21 +1839,21 @@ def post_contract_document(request, contractId, documentType):
                 if billing['list'] == year:
                     tempStr += '''
               <tr style="height: 25px; font-size: 11px;">
-                <td style="text-align: center;">매입</td>
-                <td>''' + billing['name'] + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['3']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['4']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['5']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['6']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['7']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['8']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['9']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['10']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['11']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['12']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">매입</td>
+                <td style="text-align: left; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + billing['name'] + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['3']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['4']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['5']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['6']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['7']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['8']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['9']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['10']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['11']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['12']) + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(billing['sum']) + '''</td>
               </tr>
                     '''
@@ -1817,32 +1862,32 @@ def post_contract_document(request, contractId, documentType):
                 if sumBilling['list'] == year:
                     tempStr += '''
               <tr style="height: 25px; font-size: 11px; margin-bottom: 5px">
-                <td colspan="2"style="text-align: center; background-color: gainsboro">TOTAL</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td colspan="2" style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">TOTAL</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['1']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['2']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['3']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['4']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['5']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['6']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['7']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['8']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['9']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['10']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['11']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['12']) + '''</td>
-                <td style="text-align: right; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
                 ''' + intcomma(sumBilling['sum']) + '''</td>
               </tr>
                     '''
