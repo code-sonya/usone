@@ -187,7 +187,7 @@
 
                           for (var r = 0; r < contract[count].revenue.length; r++) {
                               if(transferDate != '' && contract[count].revenue[r].predictBillingDate > transferDate) {
-                                  const table = "<tr name='" + contract[count].contractId + "' class='d-none'><td></td><td colspan=1><input type='checkbox' checked class='input" + contract[count].contractId
+                                  const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' checked class='input" + contract[count].contractId
                                       + "' value='" + contract[count].revenue[r].revenueId + "' onclick='btn_revenuecheck(this.value)'></td><td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
                                       "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
                                       "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
@@ -196,7 +196,7 @@
                                       $('#' + trId).after(table);
                                       $('.money').simpleMoneyFormat();
                               }else{
-                                  const table = "<tr name='" + contract[count].contractId + "' class='d-none'><td></td><td colspan=1><input type='checkbox' class='input"+contract[count].contractId
+                                  const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' class='input"+contract[count].contractId
                                   +"' value='" + contract[count].revenue[r].revenueId + "' onclick='btn_revenuecheck(this.value)'></td><td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
                                   "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
                                   "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
@@ -207,7 +207,7 @@
                               }
                           }
                           if (0 < contract[count].revenue.length) {
-                              const thead = "<tr name='" + contract[count].contractId + "'class='d-none' id='th"
+                              const thead = "<tr name='" + contract[count].contractId + "' id='th"
                                   + contract[count].contractId + "'><td></td><td style='background-color:lightsteelblue'>매출</td>" +
                                   "<td style='background-color:lightsteelblue' colspan=3>매출처</td>" +
                                   "<td style='background-color:lightsteelblue' colspan=2>매출예정일</td>" +
@@ -285,18 +285,14 @@
     }(jQuery));
 
       function btn_contractcheck(trId) {
-          console.log(trId);
           contracttr = $('#' + trId);
-          console.log(contracttr.css('background-color'));
           if (contracttr.css('background-color') == 'rgb(255, 255, 255)') {
               contracttr.css('background-color', 'lightyellow')
           } else {
               contracttr.css('background-color', 'white')
           }
-          console.log($('tr[name=' + trId + ']').attr('class'));
           if ($('tr[name=' + trId + ']').attr('class') == 'd-none') {
               $('tr[name=' + trId + ']').attr('class', 'd-table-row');
-              {#$('#th' + trId).css('background-color','lightsteelblue')#}
           } else {
               $('tr[name=' + trId + ']').attr('class', 'd-none');
               $('.input'+trId).prop("checked", false);

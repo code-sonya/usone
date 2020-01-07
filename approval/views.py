@@ -329,7 +329,7 @@ def modify_document(request, documentId):
             else:
                 for empId in whoApproval['do']:
                     employee = Employee.objects.get(empId=empId)
-                    mail_approval(employee, document)
+                    mail_approval(employee, document, "결재요청")
 
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
