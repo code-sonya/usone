@@ -39,7 +39,7 @@ class ContractForm(forms.ModelForm):
             'contractStartDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'contractStartDate', 'readonly': ''}),
             'contractEndDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'contractEndDate', 'readonly': ''}),
             'depositCondition': forms.Select(attrs={'class': 'form-control', 'id': 'depositCondition'}),
-            'depositConditionDay': forms.TextInput(attrs={'class': 'form-control', 'id': 'depositConditionDay'}),
+            'depositConditionDay': forms.TextInput(attrs={'class': 'form-control', 'id': 'depositConditionDay', 'type': "number"}),
             'contractPaper': forms.FileInput(attrs={
                 'class': 'd-none', 'id': 'contractPaper',
                 'onchange': "javascript:document.getElementById('contractPaper_route').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
@@ -53,7 +53,7 @@ class ContractForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ContractForm, self).__init__(*args, **kwargs)
-        self.fields["empId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
+        self.fields["empId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업'))
 
 
 class GoalForm(forms.ModelForm):

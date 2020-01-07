@@ -1516,8 +1516,12 @@ def empid_asjson(request):
     contracts = contracts.values()
 
     for contract in contracts:
-        revenues = Revenue.objects.filter(contractId=contract['contractId'])
+        revenues = Revenue.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
         contract['revenue'] = list(revenues.values())
+        # purchase = Purchase.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
+        # contract['purchase'] = list(purchase.values())
+        # cost = Cost.objects.filter(contractId=contract['contractId'])
+        # contract['cost'] = list(cost.values())
 
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
