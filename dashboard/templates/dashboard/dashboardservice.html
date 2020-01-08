@@ -735,11 +735,26 @@
                   {targets: 6, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, visible: false}
               ],
-              "searching": false,
+              "deferRender": true,
+              "searching": true,
               "paging": false,
               "info": false,
-              "scrollY": "60vh",
+              "scrollY": "50vh",
+              "scrollX": true,
               "scrollCollapse": true,
+              "order": [[1, 'desc']],
+              "language": {
+                    "lengthMenu": "_MENU_개씩 보기",
+                    "search": "검색:",
+                    "zeroRecords": "결과 없음",
+                    "processing": "로딩중",
+                    "paginate": {
+                        "first": "처음",
+                        "last": "끝",
+                        "next": "→",
+                        "previous": "←"
+                    },
+            } ,
           });
 
           serviceTable2 = $('#showservice2').DataTable({
@@ -764,12 +779,27 @@
                   {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, visible: false}
               ],
-              "searching": false,
+              "deferRender": true,
+              "searching": true,
               "paging": false,
               "info": false,
-              "scrollY": "60vh",
+              "scrollY": "50vh",
+              "scrollX": true,
               "scrollCollapse": true,
-          });
+              "order": [[1, 'desc']],
+              "language": {
+                    "lengthMenu": "_MENU_개씩 보기",
+                    "search": "검색:",
+                    "zeroRecords": "결과 없음",
+                    "processing": "로딩중",
+                    "paginate": {
+                        "first": "처음",
+                        "last": "끝",
+                        "next": "→",
+                        "previous": "←"
+                    },
+              },
+            });
 
           serviceTable3 = $('#showservice3').DataTable({
               data: [],
@@ -793,11 +823,26 @@
                   {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, visible: false}
               ],
-              "searching": false,
+              "deferRender": true,
+              "searching": true,
               "paging": false,
               "info": false,
-              "scrollY": "60vh",
+              "scrollY": "50vh",
+              "scrollX": true,
               "scrollCollapse": true,
+              "order": [[1, 'desc']],
+              "language": {
+                    "lengthMenu": "_MENU_개씩 보기",
+                    "search": "검색:",
+                    "zeroRecords": "결과 없음",
+                    "processing": "로딩중",
+                    "paginate": {
+                        "first": "처음",
+                        "last": "끝",
+                        "next": "→",
+                        "previous": "←"
+                    },
+              },
           });
 
           $("#showservice1").on("click", 'tr', function () {
