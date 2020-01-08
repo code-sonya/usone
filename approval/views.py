@@ -1004,7 +1004,7 @@ def showdocument_asjson(request):
             'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
         )
         returnDoneReject = Document.objects.filter(
-            documentId__in=documentsDoneCheck
+            documentId__in=documentsDoneReject
         ).annotate(
             empName=F('writeEmp__empName'),
             formNumber=F('formId__formNumber'),
@@ -1218,25 +1218,27 @@ def approve_document(request, approvalId):
     approval.approvalDatetime = now
     approval.save()
 
-    whoApproval = who_approval(approval.documentId_id)
-    if len(whoApproval['do']) == 0:
-        document = Document.objects.get(documentId=approval.documentId_id)
-        document.documentStatus = '완료'
-        document.approveDatetime = now
-        document.save()
-
-        # 결재 완료 메일
-        employee = Employee.objects.get(empId=document.writeEmp_id)
-        mail_approval(employee, document, "결재완료")
-
-        if document.formId.formTitle == '휴가신청서':
-            Vacation.objects.filter(documentId=document).update(vacationStatus='Y')
-    else:
-        for empId in whoApproval['do']:
-            employee = Employee.objects.get(empId=empId)
+    if approval.approvalCategory != "참조":
+        whoApproval = who_approval(approval.documentId_id)
+        if len(whoApproval['do']) == 0:
             document = Document.objects.get(documentId=approval.documentId_id)
-            # 결재 요청 메일
-            mail_approval(employee, document, "결재요청")
+            document.documentStatus = '완료'
+            document.approveDatetime = now
+            document.save()
+
+            # 결재 완료 메일
+            employee = Employee.objects.get(empId=document.writeEmp_id)
+            mail_approval(employee, document, "결재완료")
+
+            if document.formId.formTitle == '휴가신청서':
+                Vacation.objects.filter(documentId=document).update(vacationStatus='Y')
+        else:
+            for empId in whoApproval['do']:
+                employee = Employee.objects.get(empId=empId)
+                document = Document.objects.get(documentId=approval.documentId_id)
+
+                # 결재 요청 메일
+                mail_approval(employee, document, "결재요청")
 
     return redirect('approval:viewdocument', approval.documentId_id)
 

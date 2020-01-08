@@ -1270,6 +1270,12 @@
 
       }
 
+      function btn_false(msg) {
+          alert(msg);
+          $('.money').simpleMoneyFormat();
+          return false;
+      }
+
       function btn_save() {
           if (document.getElementById("empId").value === '') {
               alert("영업대표를 입력해주세요.");
@@ -1309,16 +1315,13 @@
           const listItem = new Array();
           for (var i = 0; i <= lengthItem - 1; i++) {
               if ($('select[name="mainCategory"]').eq(i).val() == '') {
-                  alert("매출 세부사항의 대분류를 입력해주세요.");
-                  return false;
+                  return btn_false("매출 세부사항의 대분류를 입력해주세요.");
               }
               if ($('select[name="subCategory"]').eq(i).val() == '') {
-                  alert("매출 세부사항의 소분류를 입력해주세요.");
-                  return false;
+                  return btn_false("매출 세부사항의 소분류를 입력해주세요.");
               }
               if ($('input[name="itemPrice"]').eq(i).val() == '') {
-                  alert("매출 세부사항의 금액을 입력해주세요.");
-                  return false;
+                  return btn_false("매출 세부사항의 금액을 입력해주세요.");
               }
               var data = new Object();
               data.itemId = $('div[name="itemId"]').eq(i).text();
@@ -1340,20 +1343,16 @@
           const listRevenue = new Array();
           for (var i = 0; i <= lengthRevenue - 1; i++) {
               if ($('input[name="predictBillingDate"]').eq(i).val() == '') {
-                  alert("매출세부정보의 매출예정일을 입력해주세요.");
-                  return false;
+                  return btn_false("매출세부정보의 매출예정일을 입력해주세요.");
               }
               if ($('input[name="revenueCompany"]').eq(i).val() == '') {
-                  alert("매출세부정보의 매출처를 입력해주세요.");
-                  return false;
+                  return btn_false("매출세부정보의 매출처를 입력해주세요.")
               }
               if ($('input[name="revenuePrice"]').eq(i).val() == '') {
-                  alert("매출세부정보의 매출금액을 입력해주세요.");
-                  return false;
+                  return btn_false("매출세부정보의 매출금액을 입력해주세요.");
               }
               if ($('input[name="revenueProfitPrice"]').eq(i).val() == '') {
-                  alert("매출세부정보의 이익금액을 입력해주세요.");
-                  return false;
+                  return btn_false("매출세부정보의 이익금액을 입력해주세요.");
               }
               var data = new Object();
               data.revenueId = $('div[name="revenueId"]').eq(i).text();
@@ -1379,16 +1378,13 @@
           const listPurchaseItem = new Array();
           for (var i = 0; i <= lengthPurchaseItem - 1; i++) {
               if ($('select[name="purchaseMainCategory"]').eq(i).val() == '') {
-                  alert("매입 세부사항의 대분류를 입력해주세요.");
-                  return false;
+                  return btn_false("매입 세부사항의 대분류를 입력해주세요.");
               }
               if ($('select[name="purchaseSubCategory"]').eq(i).val() == '') {
-                  alert("매입 세부사항의 소분류를 입력해주세요.");
-                  return false;
+                  return btn_false("매입 세부사항의 소분류를 입력해주세요.");
               }
               if ($('input[name="purchaseItemPrice"]').eq(i).val() == '') {
-                  alert("매입 세부사항의 금액을 입력해주세요.");
-                  return false;
+                  return btn_false("매입 세부사항의 금액을 입력해주세요.");
               }
               var data = new Object();
               data.purchaseCategoryCompany = $('input[name="purchaseCategoryCompany"]').eq(i).val();
@@ -1411,16 +1407,13 @@
           const listPurchase = new Array();
           for (var i = 0; i <= lengthPurchase - 1; i++) {
               if ($('input[name="predictPurchaseDate"]').eq(i).val() == '') {
-                  alert("매입세부정보의 매입예정일 입력해주세요.");
-                  return false;
+                  return btn_false("매입세부정보의 매입예정일 입력해주세요.");
               }
               if ($('input[name="purchaseCompany"]').eq(i).val() == '') {
-                  alert("매입세부정보의 매입처를 입력해주세요.");
-                  return false;
+                  return btn_false("매입세부정보의 매입처를 입력해주세요.");
               }
               if ($('input[name="purchasePrice"]').eq(i).val() == '') {
-                  alert("매입세부정보의 매입금액을 입력해주세요.");
-                  return false;
+                  return btn_false("매입세부정보의 매입금액을 입력해주세요.");
               }
               var data = new Object();
               data.purchaseId = $('div[name="purchaseId"]').eq(i).text();
@@ -1445,16 +1438,13 @@
           const listCost = new Array();
           for (var i = 0; i <= lengthCost - 1; i++) {
               if ($('input[name="costDate"]').eq(i).val() == '') {
-                  alert("원가세부정보의 매입연도를 입력해주세요.");
-                  return false;
+                  return btn_false("원가세부정보의 매입연도를 입력해주세요.");
               }
               if ($('input[name="costCompany"]').eq(i).val() == '') {
-                  alert("원가세부정보의 원가항목을 입력해주세요.");
-                  return false;
+                  return btn_false("원가세부정보의 원가항목을 입력해주세요.");
               }
               if ($('input[name="costPrice"]').eq(i).val() == '') {
-                  alert("원가세부정보의 원가금액을 입력해주세요.");
-                  return false;
+                  return btn_false("원가세부정보의 원가금액을 입력해주세요.");
               }
               var data = new Object();
               data.costId = $('div[name="costId"]').eq(i).text();
@@ -1508,44 +1498,39 @@
               }
 
               if (salePrice !== sumRevenueItemPrice) {
-                  alert("계약금액 : " + salePrice.toLocaleString() + "\n" +
+                  return btn_false("계약금액 : " + salePrice.toLocaleString() + "\n" +
                       "매출 세부사항 금액의 합 : " + sumRevenueItemPrice.toLocaleString() + "\n" +
                       "차액 : " + (salePrice - sumRevenueItemPrice).toLocaleString() + "\n" +
                       "계약금액과 매출 세부사항 금액의 합이 일치하지 않습니다."
                   );
-                  return false;
               }
               if (salePrice !== sumRevenueBillingPrice) {
-                  alert("계약금액 : " + salePrice.toLocaleString() + "\n" +
+                  return btn_false("계약금액 : " + salePrice.toLocaleString() + "\n" +
                       "매출 빌링스케줄의 매출금액의 합 : " + sumRevenueBillingPrice.toLocaleString() + "\n" +
                       "차액 : " + (salePrice - sumRevenueBillingPrice).toLocaleString() + "\n" +
                       "계약금액과 매출 빌링스케줄의 매출금액의 합이 일치하지 않습니다."
                   );
-                  return false;
               }
               if (sumPurchaseItemPrice !== (sumPurchaseBillingPrice + sumCostBillingPrice)) {
-                  alert("매입 세부사항의 금액의 합 : " + sumPurchaseItemPrice.toLocaleString() + "\n" +
+                  return btn_false("매입 세부사항의 금액의 합 : " + sumPurchaseItemPrice.toLocaleString() + "\n" +
                       "매입 빌링스케쥴의 매입금액의 합 : " + (sumPurchaseBillingPrice + sumCostBillingPrice).toLocaleString() + "\n" +
                       "차액 : " + (sumPurchaseItemPrice - (sumPurchaseBillingPrice + sumCostBillingPrice)).toLocaleString() + "\n" +
                       "매입 세부사항의 금액의 합과 매입 빌링스케쥴(계산서 접수항목 + 미접수항목)의 매입금액의 합이 일치하지 않습니다."
                   );
-                  return false;
               }
               if (profitPrice !== (sumRevenueItemPrice - sumPurchaseItemPrice)) {
-                  alert("이익금액 : " + profitPrice.toLocaleString() + "\n" +
+                  return btn_false("이익금액 : " + profitPrice.toLocaleString() + "\n" +
                       "매출금액 - 매입금액 : " + (sumRevenueItemPrice - sumPurchaseItemPrice).toLocaleString() + "\n" +
                       "차액 : " + (profitPrice - (sumRevenueItemPrice - sumPurchaseItemPrice)).toLocaleString() + "\n" +
                       "이익금액이 매출금액-매입금액과 일치하지 않습니다."
                   );
-                  return false;
               }
               if (profitPrice !== sumProfitBillingPrice) {
-                  alert("이익금액 : " + profitPrice.toLocaleString() + "\n" +
+                  return btn_false("이익금액 : " + profitPrice.toLocaleString() + "\n" +
                       "매출 세부정보의 이익금액의 합 : " + sumProfitBillingPrice.toLocaleString() + "\n" +
                       "차액 : " + (profitPrice - sumProfitBillingPrice).toLocaleString() + "\n" +
                       "이익금액이 매출금액-매입금액과 일치하지 않습니다."
                   );
-                  return false;
               }
           }
 
