@@ -3153,23 +3153,35 @@ def view_ordernoti_pdf(request, contractId):
         for group in groupPurchases:
             for schedule in pBillingSchedule:
                 if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['purchaseCompany']:
-                    schedule[str(group['predictBillingDate__month'])] = group['price']
+                    if schedule[str(group['predictBillingDate__month'])]:
+                        schedule[str(group['predictBillingDate__month'])] += group['price']
+                    else:
+                        schedule[str(group['predictBillingDate__month'])] = group['price']
                     schedule['sum'] += group['price']
         for groupMonth in groupMonthPurchases:
             for sumBilling in sumpBillingSchedule:
                 if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
-                    sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
+                    if sumBilling[str(groupMonth['predictBillingDate__month'])]:
+                        sumBilling[str(groupMonth['predictBillingDate__month'])] += groupMonth['price']
+                    else:
+                        sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
                     sumBilling['sum'] += groupMonth['price']
         # 매출
         for group in groupRevenues:
             for schedule in rBillingSchedule:
                 if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['revenueCompany']:
-                    schedule[str(group['predictBillingDate__month'])] = group['price']
+                    if schedule[str(group['predictBillingDate__month'])]:
+                        schedule[str(group['predictBillingDate__month'])] += group['price']
+                    else:
+                        schedule[str(group['predictBillingDate__month'])] = group['price']
                     schedule['sum'] += group['price']
         for groupMonth in groupMonthRevenues:
             for sumBilling in sumrBillingSchedule:
                 if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
-                    sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
+                    if sumBilling[str(groupMonth['predictBillingDate__month'])]:
+                        sumBilling[str(groupMonth['predictBillingDate__month'])] += groupMonth['price']
+                    else:
+                        sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
                     sumBilling['sum'] += groupMonth['price']
         context['pBillingSchedule'] = pBillingSchedule
         context['sumpBillingSchedule'] = sumpBillingSchedule

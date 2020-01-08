@@ -141,7 +141,7 @@
                 </select>
                 <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;
                 <button class="btn btn-warning" onclick="show_document()">결재함</button>&nbsp;
-                <!--<button class="btn btn-success" onclick="show_files()">파일함</button>-->
+                <button class="btn btn-success" onclick="show_files()">파일함</button>
               </div>
             {% endif %}
           </div>
@@ -758,7 +758,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
           <form id="uploadForm" method="POST" enctype="multipart/form-data"
                 action="/sales/savecontractfiles/{{ contract.contractId }}/">
             {% csrf_token %}
@@ -802,7 +802,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
           <form id="purchaseUploadForm" method="POST" enctype="multipart/form-data"
                 action="/sales/savepurchasefiles/{{ contract.contractId }}/">
             {% csrf_token %}
@@ -842,8 +842,8 @@
           </button>
         </div>
 
-        <div class="modal-body">
-          <div class="text-center m-5" id="noFile"><h5>업로드된 <span class="text-info">파일</span>이 없습니다.</h5></div>
+        <div class="modal-body" style="padding: 3rem">
+          <div class="text-center m-3" id="noFile"><h5>업로드된 <span class="text-info">파일</span>이 없습니다.</h5></div>
           <table class="file-table">
             <thead>
             <tr id="head" class="text-secondary">
@@ -905,7 +905,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
           {% for company in purchaseCompany %}
             <div class="text-dark ml-2"> ▼ {{ company }}</div>
             <table class="file-table">
@@ -948,7 +948,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
           <table class="file-table">
             <thead>
             <tr>
@@ -988,15 +988,14 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
           <table class="file-table">
             <thead>
             <tr>
-              <td width="15%"><b>기안일시</b></td>
-              <td width="10%"><b>작성자</b></td>
-              <td width="10%"><b>문서번호</b></td>
-              <td width="55%"><b>문서명</b></td>
-              <td width="10%"><b>상태</b></td>
+              <td width="20%"><b>일시</b></td>
+              <td width="20%"><b>작성자</b></td>
+              <td width="40%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
             </tr>
             </thead>
             <tbody>
@@ -1028,7 +1027,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
 
           <table class="file-table">
             <thead>
@@ -1067,7 +1066,7 @@
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
           {% for company in purchaseCompany %}
             <div class="text-dark ml-2"> ▼ {{ company }}</div>
             <table class="file-table">
@@ -1114,7 +1113,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
           <form id="purchaseInAdvanceForm" method="POST">{% csrf_token %}</form>
           <table class="file-table">
             <thead>
@@ -1162,7 +1161,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
           <form id="confirmForm" action="/sales/viewconfirmpdf/{{ contract.contractId }}/" method="POST">
             {% csrf_token %}
             <div class="row mb-1">
@@ -1210,7 +1209,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 3rem">
           <form id="purchaseOrderForm" method="POST">{% csrf_token %}</form>
           <table class="file-table">
             <thead>
