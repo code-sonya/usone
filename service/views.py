@@ -564,7 +564,17 @@ def show_services(request):
         serviceTitle = request.POST['serviceTitle']
     else:
         # filter values
-        startdate = ""
+        today = str(datetime.datetime.now())[:10]
+        yyyy = today[:4]
+        mm = today[5:7]
+        if mm == '01':
+            yyyyBefore = str(int(yyyy) - 1)
+            mmBefore = '12'
+        else:
+            yyyyBefore = yyyy
+            mmBefore = str(int(mm) - 1).zfill(2)
+
+        startdate = yyyyBefore + '-' + mmBefore + '-01'
         enddate = ""
         empDeptName = ""
         empName = request.user.employee.empName
@@ -579,7 +589,6 @@ def show_services(request):
     if startdate:
         services = services.filter(serviceDate__gte=startdate)
         startDay = datetime.date(year=int(startdate[:4]), month=int(startdate[5:7]), day=int(startdate[8:10]))
-        print(startDay.weekday())
     if enddate:
         services = services.filter(serviceDate__lte=enddate)
         endDay = datetime.date(year=int(enddate[:4]), month=int(enddate[5:7]), day=int(enddate[8:10]))

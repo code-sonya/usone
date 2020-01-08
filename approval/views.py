@@ -370,37 +370,86 @@ def delete_document(request, documentId):
 def draft_cancel(request, documentId):
     now = datetime.datetime.now()
     beforeDocument = Document.objects.get(documentId=documentId)
-
-    document = Document.objects.get(documentId=documentId)
-    document.pk = None
-    # 문서번호 자동생성 (yymmdd-000)
-    yymmdd = str(datetime.date.today()).replace('-', '')[2:]
-    todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
-    documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
-    document.documentNumber = documentNumber
-    # 작성, 수정시간은 현재시간
-    document.writeDatetime = now
-    document.modifyDatetime = now
-    # 기안, 완료일시는 Null
-    document.draftDatetime = None
-    document.ApproveDatetime = None
-    # 문서상태는 임시문서
-    document.documentStatus = '임시'
-    document.save()
-
-    # 결재선 복사
-    approvals = Approval.objects.filter(documentId=beforeDocument)
-    for approval in approvals:
-        approval.pk = None
-        approval.documentId = document
-        approval.approvalStatus = '대기'
-        approval.approvalDatetime = None
-        approval.save()
-
+    # 기존 문서 삭제 처리
     beforeDocument.documentStatus = '삭제'
     beforeDocument.save()
 
-    return redirect("approval:showdocumenttemp")
+    if beforeDocument.formId.copyAuth == 'Y':
+        # 기존 문서 복사
+        document = Document.objects.get(documentId=documentId)
+        document.pk = None
+
+        # 문서번호 자동생성 (yymmdd-000)
+        yymmdd = str(datetime.date.today()).replace('-', '')[2:]
+        todayDocumentCount = len(Document.objects.filter(documentNumber__contains=yymmdd))
+        documentNumber = yymmdd + '-' + str(todayDocumentCount + 1).rjust(3, '0')
+        document.documentNumber = documentNumber
+        # 작성, 수정시간은 현재시간
+        document.writeDatetime = now
+        document.modifyDatetime = now
+        # 기안, 완료일시는 Null
+        document.draftDatetime = None
+        document.ApproveDatetime = None
+        # 문서상태는 임시문서
+        document.documentStatus = '임시'
+        document.save()
+
+        # 결재선 복사
+        approvals = Approval.objects.filter(documentId=beforeDocument)
+        for approval in approvals:
+            approval.pk = None
+            approval.documentId = document
+            approval.approvalStatus = '대기'
+            approval.approvalDatetime = None
+            approval.save()
+
+        return redirect("approval:showdocumenttemp")
+
+    else:
+        if beforeDocument.formId.formTitle == '휴가신청서':
+            vacations = Vacation.objects.filter(documentId=beforeDocument)
+            vacations.update(vacationStatus='R')
+            vacationDay = 0
+            for vacation in vacations:
+                if vacation.vacationType == '일차':
+                    vacationDay += 1
+                else:
+                    vacationDay += 0.5
+
+            emp = beforeDocument.writeEmp
+            categoryName = vacations.first().vacationCategory.categoryName
+            if categoryName == '연차':
+                emp.empAnnualLeave += vacationDay
+                emp.save()
+            elif categoryName == '특별휴가':
+                emp.empSpecialLeave += vacationDay
+                emp.save()
+            elif categoryName == '보상휴가':
+                rewardVacationType = vacations.first().rewardVacationType
+                now = beforeDocument.draftDatetime
+                yyyy = str(now)[:4]
+                mm = str(now)[5:7]
+                if mm == '01':
+                    yyyyBefore = str(int(yyyy) - 1)
+                    mmBefore = '12'
+                else:
+                    yyyyBefore = yyyy
+                    mmBefore = str(int(mm) - 1).zfill(2)
+                if rewardVacationType == '당월보상휴가':
+                    # 보상휴가일수
+                    extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
+                    extraWorkObj = extraWork.first()
+                    extraWorkObj.compensatedHour -= vacationDay * 8
+                    extraWorkObj.save()
+                elif rewardVacationType == '전월보상휴가':
+                    # 보상휴가일수
+                    extraWorkBefore = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyyBefore, overHourDate__month=mmBefore)
+                    extraWorkBeforeObj = extraWorkBefore.first()
+                    extraWorkBeforeObj.compensatedHour -= vacationDay * 8
+                    extraWorkBeforeObj.save()
+            vacations.delete()
+            return redirect("service:showvacations")
+        return redirect("approval:showdocumenting")
 
 
 @login_required
