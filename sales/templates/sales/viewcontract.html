@@ -133,14 +133,15 @@
             </b>
             </h5>
             {% if contract.contractStep != 'Drop' %}
-              <div class="input-group" style="width: 300px;">
+              <div class="input-group" style="width: 350px;">
                 <select id="documentType" class="form-control">
                   <option>수주통보서</option>
                   <option>매출발행</option>
                   <option>선발주</option>
                 </select>
-                <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;&nbsp;
-                <button class="btn btn-warning" onclick="show_document()">문서함</button>
+                <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;
+                <button class="btn btn-warning" onclick="show_document()">결재함</button>&nbsp;
+                <!--<button class="btn btn-success" onclick="show_files()">파일함</button>-->
               </div>
             {% endif %}
           </div>
@@ -941,7 +942,47 @@
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="documentModalLabel">문서함</h5>
+          <h5 class="modal-title" id="documentModalLabel">결재함</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="15%"><b>기안일시</b></td>
+              <td width="10%"><b>작성자</b></td>
+              <td width="10%"><b>문서번호</b></td>
+              <td width="55%"><b>문서명</b></td>
+              <td width="10%"><b>상태</b></td>
+            </tr>
+            </thead>
+            <tbody>
+              {% for document in documents %}
+                <tr>
+                  <td>{{ document.draftDatetime | date:"Y.m.d H:i" }}</td>
+                  <td>{{ document.writeEmp }}</td>
+                  <td><a href="/approval/viewdocument/{{ document.documentId }}" target="_blank">{{ document.documentNumber }}</a></td>
+                  <td class="text-left">{{ document.title }}</td>
+                  <td>{{ document.documentStatus }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- files modal -->
+  <div class="modal fade" id="filesModal" tabindex="-1" role="dialog" aria-labelledby="filesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filesModalLabel">파일함</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
@@ -2024,6 +2065,10 @@
 
       function show_document() {
           $('#documentModal').modal('show');
+      }
+
+      function show_files() {
+          $('#filesModal').modal('show');
       }
 
       function change_purchase_file(obj) {

@@ -29,20 +29,25 @@ def dashboard_service(request):
 
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
+        empDeptName = request.POST['empDeptName']
 
     # default : 월 단위 (월~일)
     else:
         today = datetime.today()
-        startdate = datetime(today.year, today.month, 1)
+        startdate = datetime(today.year, today.month, 1).date()
         enddate = startdate + relativedelta(months=1) - relativedelta(days=1)
+        empDeptName = ''
 
-    all_support_data = Servicereport.objects.filter((Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')) & Q(serviceStatus='Y')).exclude(serviceType__typeName='교육')
+    all_support_data = Servicereport.objects.filter(Q(serviceStatus='Y')).exclude(serviceType__typeName='교육').exclude(empDeptName__icontains='영업')
 
     if startdate:
         all_support_data = all_support_data.filter(Q(serviceDate__gte=startdate))
 
     if enddate:
         all_support_data = all_support_data.filter(Q(serviceDate__lte=enddate))
+
+    if empDeptName:
+        all_support_data = all_support_data.filter(Q(empDeptName__icontains=empDeptName))
 
     all_support_time = all_support_data.aggregate(Sum('serviceHour'), Count('serviceHour'))
 
@@ -65,6 +70,7 @@ def dashboard_service(request):
     context = {
         'startdate': startdate,
         'enddate': enddate,
+        'empDeptName': empDeptName,
         'customer_support_time': customer_support_time,
         'emp_support_time': emp_support_time,
         'type_support_time': type_support_time,
@@ -673,16 +679,23 @@ def cashflow_asjson(request):
 def service_asjson(request):
     startdate = request.POST['startdate'].replace('.', '-')
     enddate = request.POST['enddate'].replace('.', '-')
+    empDeptName = request.POST['empDeptName']
+    print(empDeptName)
+    print(request.POST)
     company = request.POST['company']
     empname = request.POST['empname']
     servicetype = request.POST['servicetype']
     overhour = request.POST['overhour']
-    services = Servicereport.objects.all()
+    services = Servicereport.objects.filter(Q(serviceStatus='Y')).exclude(serviceType__typeName='교육').exclude(empDeptName__icontains='영업')
 
     if startdate:
-        services = Servicereport.objects.filter(Q(serviceDate__gte=startdate))
+        services = services.filter(Q(serviceDate__gte=startdate))
+
     if enddate:
-        services = Servicereport.objects.filter(Q(serviceDate__lte=enddate))
+        services = services.filter(Q(serviceDate__lte=enddate))
+
+    if empDeptName:
+        services = services.filter(Q(empDeptName__icontains=empDeptName))
 
     if company:
         services = services.filter(Q(companyName=company))

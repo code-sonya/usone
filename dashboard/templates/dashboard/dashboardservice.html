@@ -3,6 +3,32 @@
   엔지니어 지원 통계
 {% endblock %}
 
+{% block css %}
+
+  <style type="text/css">
+
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+  </style>
+
+{% endblock %}
+
 {% block content %}
 
 
@@ -10,7 +36,9 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <span>
     <h1 class="h3 mb-0 text-gray-800">엔지니어 지원 통계</h1>
-    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate|date:"Y.m.d" }}~{{ enddate|date:"Y.m.d" }} )</h6>
+    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate }}~{{ enddate }}{%if empDeptName %}, {{ empDeptName }}{% endif %})
+
+    </h6>
     </span>
     <span>
       <a href="#" class="d-sm-inline-block btn btn-sm btn-info shadow-sm" id="filterLink" data-toggle="modal" data-target="#filterModal"><i class="fas fa-filter fa-sm text-white-50"></i> 날짜 검색 </a>
@@ -123,6 +151,7 @@
             <table id="showservice1" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
+                <th>부서</th>
                 <th>엔지니어</th>
                 <th>고객사</th>
                 <th>구분</th>
@@ -133,6 +162,18 @@
                 <th class="d-none">serviceId</th>
               </tr>
               </thead>
+              <tfoot>
+              <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>TOTAL :</th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -228,6 +269,7 @@
             <table id="showservice2" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
+                <th>부서</th>
                 <th>엔지니어</th>
                 <th>고객사</th>
                 <th>구분</th>
@@ -238,6 +280,18 @@
                 <th class="d-none">serviceId</th>
               </tr>
               </thead>
+              <tfoot>
+              <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>TOTAL :</th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -295,6 +349,7 @@
             <table id="showservice3" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
+                <th>부서</th>
                 <th>엔지니어</th>
                 <th>고객사</th>
                 <th>구분</th>
@@ -305,6 +360,18 @@
                 <th class="d-none">serviceId</th>
               </tr>
               </thead>
+              <tfoot>
+              <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th>TOTAL :</th>
+                <th></th>
+                <th></th>
+                <th></th>
+              </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -335,6 +402,12 @@
               <div class="col-6">
                 <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
                 <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12 mb-3 mb-sm-0">
+                <label for="empDeptName" class="font-weight-light text-primary">부서</label>
+                <input type="text" class="form-control" id="empDeptName" name="empDeptName">
               </div>
             </div>
           </form>
@@ -716,6 +789,7 @@
           serviceTable1 = $('#showservice1').DataTable({
               data: [],
               columns: [
+                  {data: "empDeptName"},
                   {data: "empName"},
                   {data: "companyName_id"},
                   {data: "serviceType__typeName"},
@@ -727,24 +801,74 @@
               ],
               columnDefs: [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, visible: false}
               ],
-              "searching": false,
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "deferRender": true,
+              "searching": true,
               "paging": false,
               "info": false,
-              "scrollY": "60vh",
+              "scrollY": "50vh",
+              "scrollX": true,
               "scrollCollapse": true,
+              "order": [[4, 'desc']],
+              "language": {
+                    "lengthMenu": "_MENU_개씩 보기",
+                    "search": "검색:",
+                    "zeroRecords": "결과 없음",
+                    "processing": "로딩중",
+                    "paginate": {
+                        "first": "처음",
+                        "last": "끝",
+                        "next": "→",
+                        "previous": "←"
+                    },
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var serviceTime = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      serviceTime += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(serviceTime.toLocaleString());
+
+                  var overTime = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      overTime += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(overTime.toLocaleString());
+              },
           });
 
           serviceTable2 = $('#showservice2').DataTable({
               data: [],
               columns: [
+                  {data: "empDeptName"},
                   {data: "empName"},
                   {data: "companyName_id"},
                   {data: "serviceType__typeName"},
@@ -756,24 +880,74 @@
               ],
               columnDefs: [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, visible: false}
               ],
-              "searching": false,
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "deferRender": true,
+              "searching": true,
               "paging": false,
               "info": false,
-              "scrollY": "60vh",
+              "scrollY": "50vh",
+              "scrollX": true,
               "scrollCollapse": true,
-          });
+              "order": [[4, 'desc']],
+              "language": {
+                    "lengthMenu": "_MENU_개씩 보기",
+                    "search": "검색:",
+                    "zeroRecords": "결과 없음",
+                    "processing": "로딩중",
+                    "paginate": {
+                        "first": "처음",
+                        "last": "끝",
+                        "next": "→",
+                        "previous": "←"
+                    },
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var serviceTime = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      serviceTime += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(serviceTime.toLocaleString());
+
+                  var overTime = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      overTime += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(overTime.toLocaleString());
+              },
+            });
 
           serviceTable3 = $('#showservice3').DataTable({
               data: [],
               columns: [
+                  {data: "empDeptName"},
                   {data: "empName"},
                   {data: "companyName_id"},
                   {data: "serviceType__typeName"},
@@ -785,19 +959,68 @@
               ],
               columnDefs: [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, visible: false}
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, visible: false}
               ],
-              "searching": false,
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "deferRender": true,
+              "searching": true,
               "paging": false,
               "info": false,
-              "scrollY": "60vh",
+              "scrollY": "50vh",
+              "scrollX": true,
               "scrollCollapse": true,
+              "order": [[4, 'desc']],
+              "language": {
+                    "lengthMenu": "_MENU_개씩 보기",
+                    "search": "검색:",
+                    "zeroRecords": "결과 없음",
+                    "processing": "로딩중",
+                    "paginate": {
+                        "first": "처음",
+                        "last": "끝",
+                        "next": "→",
+                        "previous": "←"
+                    },
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var serviceTime = 0;
+                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                      serviceTime += parseFloat(data);
+                  });
+                  $(api.column(5).footer()).html(serviceTime.toLocaleString());
+
+                  var overTime = 0;
+                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                      overTime += parseFloat(data);
+                  });
+                  $(api.column(6).footer()).html(overTime.toLocaleString());
+              },
           });
 
           $("#showservice1").on("click", 'tr', function () {
@@ -830,7 +1053,8 @@
                   "servicetype": filterArray['servicetype'],
                   "overhour": filterArray['overhour'],
                   "startdate":'{{ startdate }}',
-                  "enddate":'{{ enddate }}'
+                  "enddate":'{{ enddate }}',
+                  "empDeptName":'{{ empDeptName }}'
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
