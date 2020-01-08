@@ -33,7 +33,7 @@ def dashboard_service(request):
     # default : 월 단위 (월~일)
     else:
         today = datetime.today()
-        startdate = datetime(today.year, today.month, 1)
+        startdate = datetime(today.year, today.month, 1).date()
         enddate = startdate + relativedelta(months=1) - relativedelta(days=1)
 
     all_support_data = Servicereport.objects.filter((Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')) & Q(serviceStatus='Y')).exclude(serviceType__typeName='교육')
