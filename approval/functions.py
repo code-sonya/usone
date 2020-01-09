@@ -146,14 +146,83 @@ def who_approval(documentId):
                 will.append(p.approvalEmp.empId)
 
     # 2. 기안(initApproval) -> 합의(agreement) -> 재무합의(financial) -> 결재(finalApproval)
+    # approval = approvals.filter(approvalCategory='결재')
+    #
+    # if approval:
+    #     approvalMinStep = approval.aggregate(Min('approvalStep'))['approvalStep__min']
+    #     initApproval = approval.filter(approvalStep=approvalMinStep)
+    #     agreement = approvals.filter(approvalCategory='합의')
+    #     financial = approvals.filter(approvalCategory='재무합의')
+    #     finalApproval = approval.exclude(approvalStep=approvalMinStep)
+    #
+    #     # 완료 (done)
+    #     for a in approval.filter(approvalStatus='완료'):
+    #         done.append(a.approvalEmp.empId)
+    #     for a in agreement.filter(approvalStatus='완료'):
+    #         done.append(a.approvalEmp.empId)
+    #     for f in financial.filter(approvalStatus='완료'):
+    #         done.append(f.approvalEmp.empId)
+    #
+    #     # 기안자가 기안시 결재가 안됐을 경우, 기안자가 결재 차례 (이 상태가 오면 버그임.)
+    #     if initApproval.filter(approvalStatus='대기'):
+    #         minStep = initApproval.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+    #         do.append(initApproval.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+    #
+    #         # minStep 뒷사람들은 예정 (will)
+    #         for i in initApproval.filter(approvalStatus='대기', approvalStep__gt=minStep):
+    #             will.append(i.approvalEmp.empId)
+    #         for a in agreement.filter(approvalStatus='대기'):
+    #             will.append(a.approvalEmp.empId)
+    #         for f in financial.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #         for f in finalApproval.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #
+    #     # 합의 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+    #     elif agreement.filter(approvalStatus='대기'):
+    #         minStep = agreement.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+    #         do.append(agreement.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+    #
+    #         # minStep 뒷사람들은 예정 (will)
+    #         for a in agreement.filter(approvalStatus='대기', approvalStep__gt=minStep):
+    #             will.append(a.approvalEmp.empId)
+    #         for f in financial.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #         for f in finalApproval.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #
+    #     # 재무합의 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+    #     elif financial.filter(approvalStatus='대기'):
+    #         minStep = financial.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+    #         do.append(financial.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+    #
+    #         # minStep 뒷사람들은 예정 (will)
+    #         for f in financial.filter(approvalStatus='대기', approvalStep__gt=minStep):
+    #             will.append(f.approvalEmp.empId)
+    #         for f in finalApproval.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #
+    #     # 결재 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+    #     elif finalApproval.filter(approvalStatus='대기'):
+    #         minStep = finalApproval.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+    #         do.append(finalApproval.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+    #
+    #         # minStep 뒷사람들은 예정 (will)
+    #         for f in finalApproval.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+
+    # 2. 기안(initApproval) -> 합의(agreement) -> 나머지결재(otherApproval) -> 재무합의(financial) -> 최종결재(finalApproval)
     approval = approvals.filter(approvalCategory='결재')
 
     if approval:
         approvalMinStep = approval.aggregate(Min('approvalStep'))['approvalStep__min']
+        approvalMaxStep = approval.aggregate(Max('approvalStep'))['approvalStep__max']
+
         initApproval = approval.filter(approvalStep=approvalMinStep)
         agreement = approvals.filter(approvalCategory='합의')
+        otherApproval = approval.exclude(approvalStep=approvalMinStep).exclude(approvalStep=approvalMaxStep)
         financial = approvals.filter(approvalCategory='재무합의')
-        finalApproval = approval.exclude(approvalStep=approvalMinStep)
+        finalApproval = approval.filter(approvalStep=approvalMaxStep)
 
         # 완료 (done)
         for a in approval.filter(approvalStatus='완료'):
@@ -173,6 +242,8 @@ def who_approval(documentId):
                 will.append(i.approvalEmp.empId)
             for a in agreement.filter(approvalStatus='대기'):
                 will.append(a.approvalEmp.empId)
+            for o in otherApproval.filter(approvalStatus='대기'):
+                will.append(o.approvalEmp.empId)
             for f in financial.filter(approvalStatus='대기'):
                 will.append(f.approvalEmp.empId)
             for f in finalApproval.filter(approvalStatus='대기'):
@@ -186,6 +257,21 @@ def who_approval(documentId):
             # minStep 뒷사람들은 예정 (will)
             for a in agreement.filter(approvalStatus='대기', approvalStep__gt=minStep):
                 will.append(a.approvalEmp.empId)
+            for o in otherApproval.filter(approvalStatus='대기'):
+                will.append(o.approvalEmp.empId)
+            for f in financial.filter(approvalStatus='대기'):
+                will.append(f.approvalEmp.empId)
+            for f in finalApproval.filter(approvalStatus='대기'):
+                will.append(f.approvalEmp.empId)
+
+        # 나머지결재 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+        elif otherApproval.filter(approvalStatus='대기'):
+            minStep = otherApproval.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+            do.append(otherApproval.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+
+            # minStep 뒷사람들은 예정 (will)
+            for o in otherApproval.filter(approvalStatus='대기', approvalStep__gt=minStep):
+                will.append(o.approvalEmp.empId)
             for f in financial.filter(approvalStatus='대기'):
                 will.append(f.approvalEmp.empId)
             for f in finalApproval.filter(approvalStatus='대기'):

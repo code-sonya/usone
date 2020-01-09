@@ -79,18 +79,17 @@
 <div class="card shadow mb-4">
   <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
     <div class="m-0 h3 text-gray-800" id="title">
-      {{ document.formId.formNumber }}.
-      {{ document.formId.formTitle }}
+      {{ document.formId.formNumber }}. {{ document.formId.formTitle }}
     </div>
     <div class="dropdown no-arrow">
-      {% if document.formId.copyAuth == 'Y' and document.documentStatus != "삭제"%}
+      {% if document.documentStatus != "삭제" and document.formId.copyAuth == 'Y' %}
         <a class="btn btn-warning" href="#" role="button" onclick="btn_copy()">
-            <i class="fas fa-copy d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-copy"></i> 복사</span>
+          <i class="fas fa-copy d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-copy"></i> 복사</span>
         </a>
       {% endif %}
       {% if document.documentStatus == "완료" and document.formId.mailAuth == 'Y' %}
         <a class="btn btn-info" href="#" role="button" id="emailLink" data-toggle="modal" data-target="#emailModal">
-           <i class="fas fa-at d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-at"></i> 공유</span>
+          <i class="fas fa-at d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-at"></i> 공유</span>
         </a>
       {% endif %}
     </div>
@@ -145,25 +144,28 @@
             {% if approval.name == '신청' or approval.name == '승인'%}
               {% if approval.count > 0 %}
                 <tr class="pc-table-title">
-                  <td rowspan="3">{{ approval.name }}</td>
+                  <td rowspan="2">{{ approval.name }}</td>
                 {% for a in approval.data %}
-                  <td rowspan="1" class="font-weight-normal">{{ a.approvalEmp__empPosition__positionName}}</td>
+                  <td rowspan="1" class="font-weight-normal">
+                    {{ a.approvalEmp__empName}} {{ a.approvalEmp__empPosition__positionName}}
+                  </td>
                 {% endfor %}
                 </tr>
-                <tr>
+                <tr class="pc-table-bottom">
                 {% for a in approval.data %}
-                  <td rowspan="1" height="70px" class="text-center">
+                  <td rowspan="1" height="60px" class="text-center">
                   {% if a.approvalStatus == '완료' %}
+                    <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                     <div><img src="/media/{{ a.approvalEmp__empStamp }}" width="100%"></div>
-                    <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                   {% elif a.approvalStatus == '반려' %}
-                    <div><img src="/media/stamp/rejected.png" width="100%"></div>
                     <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
+                    <div><img src="/media/stamp/rejected.png" width="100%"></div>
                   {% elif a.approvalStatus == '대기' %}
                     {% if document.documentStatus == '진행' and user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}
                       <span>
                         <button class="btn btn-primary" onclick="btn_approve('{{ a.approvalId }}')">승인</button>
-                        <button class="btn btn-danger" onclick="btn_reject('{{ a.approvalId }}')">반려</button></span>
+                        <button class="btn btn-danger" onclick="btn_reject('{{ a.approvalId }}')">반려</button>
+                      </span>
                     {% else %}
                       <span>대기</span>
                     {% endif %}
@@ -173,35 +175,33 @@
                   </td>
                 {% endfor %}
                 </tr>
-                <tr class="pc-table-bottom">
-                {% for a in approval.data %}
-                  <td rowspan="1">{{ a.approvalEmp__empName}}</td>
-                {% endfor %}
-                </tr>
               {% endif %}
             {% endif %}
           {% endfor %}
         {% endfor %}
+
       {% elif document.formId.approvalFormat == '결재' %}
         {% for approvals in approvalList %}
           {% for approval in approvals %}
             {% if approval.name == '결재' or approval.name == '합의' or approval.name == '재무합의' %}
               {% if approval.count > 0 %}
                 <tr class="pc-table-title">
-                  <td rowspan="3">{{ approval.name }}</td>
+                  <td rowspan="2">{{ approval.name }}</td>
                 {% for a in approval.data %}
-                  <td rowspan="1" class="font-weight-normal">{{ a.approvalEmp__empPosition__positionName }}</td>
+                  <td rowspan="1" class="font-weight-normal">
+                    {{ a.approvalEmp__empName }} {{ a.approvalEmp__empPosition__positionName }}
+                  </td>
                 {% endfor %}
                 </tr>
-                <tr>
+                <tr class="pc-table-bottom">
                 {% for a in approval.data %}
-                  <td rowspan="1" height="70px" class="text-center">
+                  <td rowspan="1" height="60px" class="text-center">
                   {% if a.approvalStatus == '완료' %}
+                    <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                     <div><img src="/media/{{ a.approvalEmp__empStamp }}" width="100%"></div>
-                    <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
                   {% elif a.approvalStatus == '반려' %}
-                    <div><img src="/media/icon/rejected.png" width="45%"></div>
                     <div>{{ a.approvalDatetime | date:"Y.m.d" }}</div>
+                    <div><img src="/media/stamp/rejected.png" width="100%"></div>
                   {% elif a.approvalStatus == '대기' %}
                     {% if document.documentStatus == '진행' and user.employee.empId == a.approvalEmp and a.approvalEmp in do_approval %}
                     <span>
@@ -217,25 +217,23 @@
                   </td>
                 {% endfor %}
                 </tr>
-                <tr class="pc-table-bottom">
-                {% for a in approval.data %}
-                  <td rowspan="1">{{ a.approvalEmp__empName }}</td>
-                {% endfor %}
-                </tr>
               {% endif %}
             {% endif %}
           {% endfor %}
         {% endfor %}
       {% endif %}
+
       {% for approval in reference %}
         {% if approval.count > 0 %}
           <tr class="pc-table-title">
-            <td rowspan="3">{{ approval.name }}</td>
+            <td rowspan="2">{{ approval.name }}</td>
           {% for a in approval.data %}
-            <td rowspan="1" class="font-weight-normal">{{ a.approvalEmp__empPosition__positionName }}</td>
+            <td rowspan="1" class="font-weight-normal">
+              {{ a.approvalEmp__empName }} {{ a.approvalEmp__empPosition__positionName }}
+            </td>
           {% endfor %}
           </tr>
-          <tr>
+          <tr class="pc-table-bottom">
           {% for a in approval.data %}
             <td rowspan="1" class="text-center">
             {% if a.approvalStatus == '완료' %}
@@ -254,16 +252,21 @@
             </td>
           {% endfor %}
           </tr>
-          <tr class="pc-table-bottom">
-          {% for a in approval.data %}
-            <td rowspan="1">{{ a.approvalEmp__empName }}</td>
-          {% endfor %}
-          </tr>
         {% endif %}
       {% endfor %}
       </tbody>
     </table>
     </div>
+
+
+
+
+
+
+
+
+
+
 
     {#  모바일 화면  #}
     {% if document.documentStatus == "삭제" %}

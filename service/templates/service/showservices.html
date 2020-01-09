@@ -300,48 +300,53 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdateFilter" class="font-weight-light text-primary">시작 일자</label>
+                <label for="startdateFilter" class="font-weight-bold text-primary">시작 일자</label>
                 <input type="date" max="9999-12-31" class="form-control" id="startdateFilter" name="startdate" value="{{ startdate }}">
               </div>
               <div class="col-6">
-                <label for="enddateFilter" class="font-weight-light text-primary">종료 일자</label>
+                <label for="enddateFilter" class="font-weight-bold text-primary">종료 일자</label>
                 <input type="date" max="9999-12-31" class="form-control" id="enddateFilter" name="enddate" value="{{ enddate }}">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="empDeptNameFilter" class="font-weight-light text-primary">부서</label>
+                <label for="empDeptNameFilter" class="font-weight-bold text-primary">부서</label>
                 <input class="form-control" id="empDeptNameFilter" name="empDeptName" value="{{ empDeptName }}">
               </div>
-              <div class="col-6">
-                <label for="empNameFilter" class="font-weight-light text-primary">성함</label>
+              <div class="col-4">
+                <label for="empNameFilter" class="font-weight-bold text-primary">성함</label>
                 <input class="form-control" id="empNameFilter" name="empName" value="{{ empName }}">
+              </div>
+              <div class="col-2 text-center">
+                <label for="empCheckFilter" class="font-weight-bold text-primary">내일정</label>
+                <input class="form-control" type="checkbox" id="empCheckFilter" name="empCheck"
+                       value="{{ empCheck }}" {% if empCheck %}checked{% endif %}>
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="companyNameFilter" class="font-weight-light text-primary">고객사</label>
+                <label for="companyNameFilter" class="font-weight-bold text-primary">고객사</label>
                 <input class="form-control" id="companyNameFilter" name="companyName" value="{{ companyName }}">
               </div>
               <div class="col-6">
-                <label for="serviceTypeFilter" class="font-weight-light text-primary">일정구분</label>
+                <label for="serviceTypeFilter" class="font-weight-bold text-primary">일정구분</label>
                 <input class="form-control" id="serviceTypeFilter" name="serviceType" value="{{ serviceType }}">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-10">
-                <label for="contractNameFilter" class="font-weight-light text-primary">계약명</label>
+                <label for="contractNameFilter" class="font-weight-bold text-primary">계약명</label>
                 <input class="form-control" id="contractNameFilter" name="contractName" value="{{ contractName }}">
               </div>
               <div class="col-2 text-center">
-                <label for="contractCheckFilter" class="font-weight-light text-primary">없음</label>
+                <label for="contractCheckFilter" class="font-weight-bold text-primary">없음</label>
                 <input class="form-control" type="checkbox" id="contractCheckFilter" name="contractCheck"
                        value="{{ contractCheck }}" {% if contractCheck %}checked{% endif %}>
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-12">
-                <label for="serviceTitleFilter" class="font-weight-light text-primary">제목 & 내용</label>
+                <label for="serviceTitleFilter" class="font-weight-bold text-primary">제목 & 내용</label>
                 <input class="form-control" id="serviceTitleFilter" name="serviceTitle" value="{{ serviceTitle }}">
               </div>
             </div>
@@ -463,6 +468,18 @@
           }
       });
 
+      $('#empCheckFilter').click(function () {
+          if ($(this).is(":checked")) {
+              $("#empDeptNameFilter").val('');
+              $("#empDeptNameFilter").attr('readonly', '');
+              $("#empNameFilter").val('');
+              $("#empNameFilter").attr('readonly', '');
+          } else {
+              $("#empDeptNameFilter").removeAttr('readonly');
+              $("#empNameFilter").removeAttr('readonly');
+          }
+      });
+
       $(document).ready(function () {
           $('#showservice').dataTable({
               "processing": true,
@@ -474,6 +491,7 @@
                       "enddate": "{{ enddate }}",
                       "empDeptName": "{{ empDeptName }}",
                       "empName": "{{ empName }}",
+                      "empCheck": "{{ empCheck }}",
                       "companyName": "{{ companyName }}",
                       "serviceType": "{{ serviceType }}",
                       "contractName": "{{ contractName }}",
@@ -558,21 +576,18 @@
               $("#contractNameFilter").attr('readonly', '');
           }
 
+          if ($('#empCheckFilter').is(":checked")) {
+              $("#empDeptNameFilter").attr('readonly', '');
+              $("#empNameFilter").attr('readonly', '');
+          }
+
           const changeContractTable = $('#changeContract').DataTable({
               "processing": true,
               "ajax": {
                   "processing": true,
                   "type": 'POST',
                   "data": {
-                      "startdate": "",
-                      "enddate": "",
-                      "empDeptName": "",
-                      "empName": "",
                       "companyName": function() { return $('#changeCompanyName').text() },
-                      "serviceType": "",
-                      "contractName": "",
-                      "contractCheck": "1",
-                      "serviceTitle": "",
                       "selectType": "change",
                   },
                   "url": "{% url 'service:service_ajax_url' %}",
