@@ -741,7 +741,7 @@
       {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empId == contract.empId.empId %}
         <div class="text-center" style="padding: 0px 20px 20px 20px">
           {% if contract.contractStep == 'Opportunity' %}
-            <a href="#" class="btn btn-danger btn-icon-split" {% if documents_ing %} style="display: none" {% endif %} onclick="btn_delete()">
+            <a href="#" class="btn btn-danger btn-icon-split" {% if documents %} style="display: none" {% endif %} onclick="btn_delete()">
               <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
               <span class="text"> 삭제 </span>
             </a>
@@ -1704,7 +1704,7 @@
 
       {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
         <div class="text-center" style="padding: 0px 20px 20px 20px">
-          <a href="#" class="btn btn-danger btn-icon-split" {% if documents_ing %} style="display: none" {% endif %} onclick="btn_delete()">
+          <a href="#" class="btn btn-danger btn-icon-split" {% if documents %} style="display: none" {% endif %} onclick="btn_delete()">
             <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
             <span class="text"> 삭제 </span>
           </a>

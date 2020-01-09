@@ -3079,10 +3079,12 @@ def view_ordernoti_pdf(request, contractId):
     context = viewContract(request, contractId)
     today = datetime.today()
     context['today'] = today
-    context['result'] = context['contract'].profitRatio - 15.0
+    context['result'] = round((context['contract'].profitRatio - 15.0), 3)
     context['summary'] = summary(contractId)
     context['revenueItem'] = Contractitem.objects.filter(Q(contractId=contractId))
+    context['sumRevenueItem'] = context['revenueItem'].aggregate(Sum('itemPrice'))
     context['purchaseItem'] = Purchasecontractitem.objects.filter(Q(contractId=contractId))
+    context['sumPurchaseItem'] = context['purchaseItem'].aggregate(Sum('itemPrice'))
 
     for i in range(1, 9):
         context['class{}'.format(str(i))], context['sum_class{}'.format(str(i))] = detailPurchase(contractId, i)
