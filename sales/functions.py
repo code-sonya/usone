@@ -1360,7 +1360,7 @@ def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpur
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
             smtp.close()
-        elif email.smtpServer == 'SSL':
+        elif email.smtpSecure == 'SSL':
             smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())

@@ -125,11 +125,14 @@ def sendmail(request, serviceId):
 
         if email.smtpSecure == 'TSL':
             smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
-        elif email.smtpServer == 'SSL':
+            smtp.login(email.smtpEmail, email.smtpPassword)
+            smtp.sendmail(empEmail, emailList, msg.as_string())
+            smtp.close()
+        elif email.smtpSecure == 'SSL':
             smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
-        smtp.login(email.smtpEmail, email.smtpPassword)
-        smtp.sendmail(empEmail, emailList, msg.as_string())
-        smtp.close()
+            smtp.login(email.smtpEmail, email.smtpPassword)
+            smtp.sendmail(empEmail, emailList, msg.as_string())
+            smtp.close()
 
         return redirect('service:showservices')
 

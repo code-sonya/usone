@@ -354,7 +354,7 @@ def mail_approval(employee, document, type):
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
             smtp.close()
-        elif email.smtpServer == 'SSL':
+        elif email.smtpSecure == 'SSL':
             smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
@@ -382,13 +382,15 @@ def mail_document(toEmail, fromEmail, document):
         msg["To"] = toEmail
         msg["Subject"] = Header(s=title, charset="utf-8")
         msg.attach(MIMEText(html, "html", _charset="utf-8"))
+        print(email.smtpServer, email.smtpPort, email, email.smtpServer)
         if email.smtpSecure == 'TLS':
             smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
             smtp.close()
-        elif email.smtpServer == 'SSL':
-            smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
+        elif email.smtpSecure == 'SSL':
+            print(email.smtpServer)
+            smtp = SMTP_SSL(email.smtpServer, email.smtpPort)
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
             smtp.close()
