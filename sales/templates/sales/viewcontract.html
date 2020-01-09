@@ -135,9 +135,9 @@
             {% if contract.contractStep != 'Drop' %}
               <div class="input-group" style="width: 350px;">
                 <select id="documentType" class="form-control">
-                  <option>수주통보서</option>
-                  <option>매출발행</option>
-                  <option>선발주</option>
+                  <option>수주통보서{% if ordernoti_ing %}[결재진행중]{% endif %}</option>
+                  <option>매출발행{% if ordermail_ing %}[결재진행중]{% endif %}</option>
+                  <option>선발주{% if orderpriority_ing %}[결재진행중]{% endif %}</option>
                 </select>
                 <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;
                 <button class="btn btn-warning" onclick="show_document()">결재함</button>&nbsp;
@@ -145,147 +145,160 @@
               </div>
             {% endif %}
           </div>
-
-          <table id="process" class="flow-table">
-            <tr>
-              <td>
-                <b>매입견적서</b>
-                <a href="#" onclick="open_purchase_upload('매입견적서')"><i class="fas fa-paperclip"></i></a>
-              </td>
-              <td>
-                <b>매출견적서</b>
-                <a href="#" onclick="open_upload('매출견적서')"><i class="fas fa-paperclip"></i></a>
-              </td>
-              <td>
-                <b>매출계약서</b>
-                <a href="#" onclick="open_upload('계약서')"><i class="fas fa-paperclip"></i></a>
-              </td>
-              <td>
-                <b>수주통보서</b>
-                <a href="/sales/viewordernotipdf/{{ contract.contractId }}/" target="_blank" onclick=""><i class="far fa-file-pdf"></i></a>
-              </td>
-              <td>
-                <b>매입발주서</b>
-                <a href="#" onclick="open_purchase_order('매입발주서')"><i class="fas fa-file-signature"></i></a>
-              </td>
-              <td>
-                <a data-toggle="modal" data-target="#confirmModal" class="text-success"><i class="fas fa-pen-alt"></i></a>
-                <b>납품,구축,검수확인서</b>
-                <a href="#" onclick="open_upload('납품,구축,검수확인서')"><i class="fas fa-paperclip"></i></a>
-              </td>
-              <td>
-                <b>매출발행</b>
-                <a href="#" onclick="open_upload('매출발행')"><i class="fas fa-paperclip"></i></a>
-              </td>
-            </tr>
-            <tr>
-              <td><a href="#" onclick="open_purchase_download('매입견적서')">
-                {% if files_a|length == 0 %}
-                  <img class="td-img" src="/media/icon/prepare_grey.png"><br>
-                {% elif files_a|length == 1 %}
-                  <img class="td-img" src="/media/icon/prepare1.png"><br>
-                {% elif files_a|length == 2 %}
-                  <img class="td-img" src="/media/icon/prepare2.png"><br>
-                {% elif files_a|length == 3 %}
-                  <img class="td-img" src="/media/icon/prepare3.png"><br>
-                {% elif files_a|length == 4 %}
-                  <img class="td-img" src="/media/icon/prepare4.png"><br>
-                {% elif files_a|length >= 5 %}
-                  <img class="td-img" src="/media/icon/prepare5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_download('매출견적서')">
-                {% if files_b|length == 0 %}
-                  <img class="td-img" src="/media/icon/prepare_grey.png"><br>
-                {% elif files_b|length == 1 %}
-                  <img class="td-img" src="/media/icon/prepare1.png"><br>
-                {% elif files_b|length == 2 %}
-                  <img class="td-img" src="/media/icon/prepare2.png"><br>
-                {% elif files_b|length == 3 %}
-                  <img class="td-img" src="/media/icon/prepare3.png"><br>
-                {% elif files_b|length == 4 %}
-                  <img class="td-img" src="/media/icon/prepare4.png"><br>
-                {% elif files_b|length >= 5 %}
-                  <img class="td-img" src="/media/icon/prepare5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_download('계약서')">
-                {% if files_c|length == 0 %}
-                  <img class="td-img" src="/media/icon/prepare_grey.png"><br>
-                {% elif files_c|length == 1 %}
-                  <img class="td-img" src="/media/icon/prepare1.png"><br>
-                {% elif files_c|length == 2 %}
-                  <img class="td-img" src="/media/icon/prepare2.png"><br>
-                {% elif files_c|length == 3 %}
-                  <img class="td-img" src="/media/icon/prepare3.png"><br>
-                {% elif files_c|length == 4 %}
-                  <img class="td-img" src="/media/icon/prepare4.png"><br>
-                {% elif files_c|length >= 5 %}
-                  <img class="td-img" src="/media/icon/prepare5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_ordernoti_download('수주통보서')">
-                {% if ordernotis|length == 0 %}
-                  <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
-                {% elif ordernotis|length == 1 %}
-                  <img class="td-img" src="/media/icon/ordernoti1.png"><br>
-                {% elif ordernotis|length == 2 %}
-                  <img class="td-img" src="/media/icon/ordernoti2.png"><br>
-                {% elif ordernotis|length == 3 %}
-                  <img class="td-img" src="/media/icon/ordernoti3.png"><br>
-                {% elif ordernotis|length == 4 %}
-                  <img class="td-img" src="/media/icon/ordernoti4.png"><br>
-                {% elif ordernotis|length >= 5 %}
-                  <img class="td-img" src="/media/icon/ordernoti5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_purchase_order_document('매입발주서')">
-                {% if purchaseOrderDocument|length == 0 %}
-                  <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
-                {% elif purchaseOrderDocument|length == 1 %}
-                  <img class="td-img" src="/media/icon/ordernoti1.png"><br>
-                {% elif purchaseOrderDocument|length == 2 %}
-                  <img class="td-img" src="/media/icon/ordernoti2.png"><br>
-                {% elif purchaseOrderDocument|length == 3 %}
-                  <img class="td-img" src="/media/icon/ordernoti3.png"><br>
-                {% elif purchaseOrderDocument|length == 4 %}
-                  <img class="td-img" src="/media/icon/ordernoti4.png"><br>
-                {% elif purchaseOrderDocument|length >= 5 %}
-                  <img class="td-img" src="/media/icon/ordernoti5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_download('납품,구축,검수확인서')">
-                {% if files_f|length == 0 %}
-                  <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
-                {% elif files_f|length == 1 %}
-                  <img class="td-img" src="/media/icon/ordermail1.png"><br>
-                {% elif files_f|length == 2 %}
-                  <img class="td-img" src="/media/icon/ordermail2.png"><br>
-                {% elif files_f|length == 3 %}
-                  <img class="td-img" src="/media/icon/ordermail3.png"><br>
-                {% elif files_f|length == 4 %}
-                  <img class="td-img" src="/media/icon/ordermail4.png"><br>
-                {% elif files_f|length >= 5 %}
-                  <img class="td-img" src="/media/icon/ordermail5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_download('매출발행')">
-                {% if files_g|length == 0 %}
-                  <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
-                {% elif files_g|length == 1 %}
-                  <img class="td-img" src="/media/icon/ordermail1.png"><br>
-                {% elif files_g|length == 2 %}
-                  <img class="td-img" src="/media/icon/ordermail2.png"><br>
-                {% elif files_g|length == 3 %}
-                  <img class="td-img" src="/media/icon/ordermail3.png"><br>
-                {% elif files_g|length == 4 %}
-                  <img class="td-img" src="/media/icon/ordermail4.png"><br>
-                {% elif files_g|length >= 5 %}
-                  <img class="td-img" src="/media/icon/ordermail5.png"><br>
-                {% endif %}
-              </a></td>
-            </tr>
-          </table>
+          <div>
+            <table id="process" class="flow-table">
+              <tr>
+                <td>
+                  <b>매입견적서</b>
+                  <a href="#" onclick="open_purchase_upload('매입견적서')"><i class="fas fa-paperclip"></i></a>
+                </td>
+                <td>
+                  <b>매출견적서</b>
+                  <a href="#" onclick="open_upload('매출견적서')"><i class="fas fa-paperclip"></i></a>
+                </td>
+                <td>
+                  <b>매출계약서</b>
+                  <a href="#" onclick="open_upload('계약서')"><i class="fas fa-paperclip"></i></a>
+                </td>
+                <td>
+                  <b>수주통보서</b>
+                  <a href="/sales/viewordernotipdf/{{ contract.contractId }}/" target="_blank" onclick=""><i class="far fa-file-pdf"></i></a>
+                </td>
+                <td>
+                  <b>매입발주서</b>
+                  <a href="#" onclick="open_purchase_order('매입발주서')"><i class="fas fa-file-signature"></i></a>
+                </td>
+                <td>
+                  <a data-toggle="modal" data-target="#confirmModal" class="text-success"><i class="fas fa-pen-alt"></i></a>
+                  <b>납품,구축,검수확인서</b>
+                  <a href="#" onclick="open_upload('납품,구축,검수확인서')"><i class="fas fa-paperclip"></i></a>
+                </td>
+                <td>
+                  <b>매출발행</b>
+                  <a href="#" onclick="open_upload('매출발행')"><i class="fas fa-paperclip"></i></a>
+                </td>
+              </tr>
+              <tr>
+                <td><a href="#" onclick="open_purchase_download('매입견적서')">
+                  {% if orderpriority_ing %}
+                    <img class="td-img" src="/media/icon/prepare_ing.png"><br>
+                  {% else %}
+                    {% if files_a|length == 0 %}
+                      <img class="td-img" src="/media/icon/prepare_grey.png"><br>
+                    {% elif files_a|length == 1 %}
+                      <img class="td-img" src="/media/icon/prepare1.png"><br>
+                    {% elif files_a|length == 2 %}
+                      <img class="td-img" src="/media/icon/prepare2.png"><br>
+                    {% elif files_a|length == 3 %}
+                      <img class="td-img" src="/media/icon/prepare3.png"><br>
+                    {% elif files_a|length == 4 %}
+                      <img class="td-img" src="/media/icon/prepare4.png"><br>
+                    {% elif files_a|length >= 5 %}
+                      <img class="td-img" src="/media/icon/prepare5.png"><br>
+                    {% endif %}
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_download('매출견적서')">
+                  {% if files_b|length == 0 %}
+                    <img class="td-img" src="/media/icon/prepare_grey.png"><br>
+                  {% elif files_b|length == 1 %}
+                    <img class="td-img" src="/media/icon/prepare1.png"><br>
+                  {% elif files_b|length == 2 %}
+                    <img class="td-img" src="/media/icon/prepare2.png"><br>
+                  {% elif files_b|length == 3 %}
+                    <img class="td-img" src="/media/icon/prepare3.png"><br>
+                  {% elif files_b|length == 4 %}
+                    <img class="td-img" src="/media/icon/prepare4.png"><br>
+                  {% elif files_b|length >= 5 %}
+                    <img class="td-img" src="/media/icon/prepare5.png"><br>
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_download('계약서')">
+                  {% if files_c|length == 0 %}
+                    <img class="td-img" src="/media/icon/prepare_grey.png"><br>
+                  {% elif files_c|length == 1 %}
+                    <img class="td-img" src="/media/icon/prepare1.png"><br>
+                  {% elif files_c|length == 2 %}
+                    <img class="td-img" src="/media/icon/prepare2.png"><br>
+                  {% elif files_c|length == 3 %}
+                    <img class="td-img" src="/media/icon/prepare3.png"><br>
+                  {% elif files_c|length == 4 %}
+                    <img class="td-img" src="/media/icon/prepare4.png"><br>
+                  {% elif files_c|length >= 5 %}
+                    <img class="td-img" src="/media/icon/prepare5.png"><br>
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_ordernoti_download('수주통보서')">
+                  {% if ordernoti_ing %}
+                    <img class="td-img" src="/media/icon/ordernoti_ing.png"><br>
+                  {% else %}
+                    {% if ordernotis|length == 0 %}
+                      <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
+                    {% elif ordernotis|length == 1 %}
+                      <img class="td-img" src="/media/icon/ordernoti1.png"><br>
+                    {% elif ordernotis|length == 2 %}
+                      <img class="td-img" src="/media/icon/ordernoti2.png"><br>
+                    {% elif ordernotis|length == 3 %}
+                      <img class="td-img" src="/media/icon/ordernoti3.png"><br>
+                    {% elif ordernotis|length == 4 %}
+                      <img class="td-img" src="/media/icon/ordernoti4.png"><br>
+                    {% elif ordernotis|length >= 5 %}
+                      <img class="td-img" src="/media/icon/ordernoti5.png"><br>
+                    {% endif %}
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_purchase_order_document('매입발주서')">
+                  {% if purchaseOrderDocument|length == 0 %}
+                    <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
+                  {% elif purchaseOrderDocument|length == 1 %}
+                    <img class="td-img" src="/media/icon/ordernoti1.png"><br>
+                  {% elif purchaseOrderDocument|length == 2 %}
+                    <img class="td-img" src="/media/icon/ordernoti2.png"><br>
+                  {% elif purchaseOrderDocument|length == 3 %}
+                    <img class="td-img" src="/media/icon/ordernoti3.png"><br>
+                  {% elif purchaseOrderDocument|length == 4 %}
+                    <img class="td-img" src="/media/icon/ordernoti4.png"><br>
+                  {% elif purchaseOrderDocument|length >= 5 %}
+                    <img class="td-img" src="/media/icon/ordernoti5.png"><br>
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_download('납품,구축,검수확인서')">
+                  {% if files_f|length == 0 %}
+                    <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
+                  {% elif files_f|length == 1 %}
+                    <img class="td-img" src="/media/icon/ordermail1.png"><br>
+                  {% elif files_f|length == 2 %}
+                    <img class="td-img" src="/media/icon/ordermail2.png"><br>
+                  {% elif files_f|length == 3 %}
+                    <img class="td-img" src="/media/icon/ordermail3.png"><br>
+                  {% elif files_f|length == 4 %}
+                    <img class="td-img" src="/media/icon/ordermail4.png"><br>
+                  {% elif files_f|length >= 5 %}
+                    <img class="td-img" src="/media/icon/ordermail5.png"><br>
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_download('매출발행')">
+                  {% if ordermail_ing %}
+                    <img class="td-img" src="/media/icon/ordermail_ing.png"><br>
+                  {% else %}
+                    {% if files_g|length == 0 %}
+                      <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
+                    {% elif files_g|length == 1 %}
+                      <img class="td-img" src="/media/icon/ordermail1.png"><br>
+                    {% elif files_g|length == 2 %}
+                      <img class="td-img" src="/media/icon/ordermail2.png"><br>
+                    {% elif files_g|length == 3 %}
+                      <img class="td-img" src="/media/icon/ordermail3.png"><br>
+                    {% elif files_g|length == 4 %}
+                      <img class="td-img" src="/media/icon/ordermail4.png"><br>
+                    {% elif files_g|length >= 5 %}
+                      <img class="td-img" src="/media/icon/ordermail5.png"><br>
+                    {% endif %}
+                  {% endif %}
+                </a></td>
+              </tr>
+            </table>
+          </div>
 
           <h5 class="text-dark mb-3"><b>
             <span id="contractDown" onclick="downClick('contract', 'contractUp', 'contractDown')">▼</span>
@@ -728,7 +741,7 @@
       {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empId == contract.empId.empId %}
         <div class="text-center" style="padding: 0px 20px 20px 20px">
           {% if contract.contractStep == 'Opportunity' %}
-            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+            <a href="#" class="btn btn-danger btn-icon-split" {% if documents_ing %} style="display: none" {% endif %} onclick="btn_delete()">
               <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
               <span class="text"> 삭제 </span>
             </a>
@@ -737,7 +750,7 @@
             <span class="icon text-white-50"> <i class="fas fa-arrow-right"> </i> </span>
             <span class="text"> 복사 </span>
           </a>
-          <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+          <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()" {% if ordernoti_ing %} style="display: none" {% endif %}>
             <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
             <span class="text"> 수정 </span>
           </a>
@@ -758,7 +771,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           <form id="uploadForm" method="POST" enctype="multipart/form-data"
                 action="/sales/savecontractfiles/{{ contract.contractId }}/">
             {% csrf_token %}
@@ -802,7 +815,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           <form id="purchaseUploadForm" method="POST" enctype="multipart/form-data"
                 action="/sales/savepurchasefiles/{{ contract.contractId }}/">
             {% csrf_token %}
@@ -842,7 +855,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           <div class="text-center m-3" id="noFile"><h5>업로드된 <span class="text-info">파일</span>이 없습니다.</h5></div>
           <table class="file-table">
             <thead>
@@ -905,7 +918,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           {% for company in purchaseCompany %}
             <div class="text-dark ml-2"> ▼ {{ company }}</div>
             <table class="file-table">
@@ -948,7 +961,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           <table class="file-table">
             <thead>
             <tr>
@@ -988,7 +1001,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           <table class="file-table">
             <thead>
             <tr>
@@ -1027,7 +1040,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
 
           <table class="file-table">
             <thead>
@@ -1066,7 +1079,7 @@
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           {% for company in purchaseCompany %}
             <div class="text-dark ml-2"> ▼ {{ company }}</div>
             <table class="file-table">
@@ -1113,7 +1126,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           <form id="purchaseInAdvanceForm" method="POST">{% csrf_token %}</form>
           <table class="file-table">
             <thead>
@@ -1161,7 +1174,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           <form id="confirmForm" action="/sales/viewconfirmpdf/{{ contract.contractId }}/" method="POST">
             {% csrf_token %}
             <div class="row mb-1">
@@ -1209,7 +1222,7 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 3rem">
+        <div class="modal-body" style="padding: 2rem">
           <form id="purchaseOrderForm" method="POST">{% csrf_token %}</form>
           <table class="file-table">
             <thead>
@@ -1691,11 +1704,11 @@
 
       {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
         <div class="text-center" style="padding: 0px 20px 20px 20px">
-          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+          <a href="#" class="btn btn-danger btn-icon-split" {% if documents_ing %} style="display: none" {% endif %} onclick="btn_delete()">
             <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
             <span class="text"> 삭제 </span>
           </a>
-          <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+          <a href="#" class="btn btn-info btn-icon-split" {% if ordernoti_ing %} style="display: none" {% endif %} onclick="btn_modify()">
             <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
             <span class="text"> 수정 </span>
           </a>
@@ -2012,6 +2025,8 @@
           let revenueEstimate = {{ files_b | length }};  // 매출견적서 개수
           let contractPaper = {{ files_c | length }};  // 계약서 개수
           let confirmPaper = {{ files_f | length }};  // 납품,구축,검수확인서 개수
+          let ordernotis = {{ ordernotis | length }};
+          console.log(ordernotis)
 
           if (documentType === '수주통보서') {
               if (contractPaper === 0) {
@@ -2023,7 +2038,11 @@
               if (confirmPaper === 0) {
                   alert('납품,구축,검수확인서를 업로드해주세요.')
               } else {
-                  window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType);
+                  if (ordernotis == 0){
+                      alert('수주통보서 결재완료 후 결재 가능합니다.')
+                  }else {
+                      window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType);
+                  }
               }
           } else if (documentType === '선발주') {
               if (purchaseEstimate === 0) {
