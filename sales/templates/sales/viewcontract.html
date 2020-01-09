@@ -1984,7 +1984,7 @@
       }
 
       function purchase_file_names(id) {
-          let idNum = id.slice(-1);
+          let idNum = id.substring(13);
           let purchaseCompany = $('#purchaseCompany option:selected').text();
           let files = $('#' + id).get(0).files;
           let purchaseFilesTbody = $('#purchaseFilesTbody');
