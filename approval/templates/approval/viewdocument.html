@@ -144,7 +144,7 @@
             {% if approval.name == '신청' or approval.name == '승인'%}
               {% if approval.count > 0 %}
                 <tr class="pc-table-title">
-                  <td rowspan="3">{{ approval.name }}</td>
+                  <td rowspan="2">{{ approval.name }}</td>
                 {% for a in approval.data %}
                   <td rowspan="1" class="font-weight-normal">
                     {{ a.approvalEmp__empName}} {{ a.approvalEmp__empPosition__positionName}}
@@ -186,12 +186,14 @@
             {% if approval.name == '결재' or approval.name == '합의' or approval.name == '재무합의' %}
               {% if approval.count > 0 %}
                 <tr class="pc-table-title">
-                  <td rowspan="3">{{ approval.name }}</td>
+                  <td rowspan="2">{{ approval.name }}</td>
                 {% for a in approval.data %}
-                  <td rowspan="1" class="font-weight-normal">{{ a.approvalEmp__empPosition__positionName }}</td>
+                  <td rowspan="1" class="font-weight-normal">
+                    {{ a.approvalEmp__empName }} {{ a.approvalEmp__empPosition__positionName }}
+                  </td>
                 {% endfor %}
                 </tr>
-                <tr>
+                <tr class="pc-table-bottom">
                 {% for a in approval.data %}
                   <td rowspan="1" height="60px" class="text-center">
                   {% if a.approvalStatus == '완료' %}
@@ -215,11 +217,6 @@
                   </td>
                 {% endfor %}
                 </tr>
-                <tr class="pc-table-bottom">
-                {% for a in approval.data %}
-                  <td rowspan="1">{{ a.approvalEmp__empName }}</td>
-                {% endfor %}
-                </tr>
               {% endif %}
             {% endif %}
           {% endfor %}
@@ -229,12 +226,14 @@
       {% for approval in reference %}
         {% if approval.count > 0 %}
           <tr class="pc-table-title">
-            <td rowspan="3">{{ approval.name }}</td>
+            <td rowspan="2">{{ approval.name }}</td>
           {% for a in approval.data %}
-            <td rowspan="1" class="font-weight-normal">{{ a.approvalEmp__empPosition__positionName }}</td>
+            <td rowspan="1" class="font-weight-normal">
+              {{ a.approvalEmp__empName }} {{ a.approvalEmp__empPosition__positionName }}
+            </td>
           {% endfor %}
           </tr>
-          <tr>
+          <tr class="pc-table-bottom">
           {% for a in approval.data %}
             <td rowspan="1" class="text-center">
             {% if a.approvalStatus == '완료' %}
@@ -251,11 +250,6 @@
               <span>-</span>
             {% endif %}
             </td>
-          {% endfor %}
-          </tr>
-          <tr class="pc-table-bottom">
-          {% for a in approval.data %}
-            <td rowspan="1">{{ a.approvalEmp__empName }}</td>
           {% endfor %}
           </tr>
         {% endif %}
