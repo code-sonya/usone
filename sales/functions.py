@@ -39,6 +39,16 @@ def viewContract(request, contractId):
     # 결재문서
     documents = Document.objects.filter(contractId=contractId).exclude(documentStatus='임시')
     ordernotis = documents.filter(formId__formTitle='수주통보서', documentStatus='완료')
+    # 진행중인 문서
+    documents_ing = documents.filter(documentStatus='진행')
+    # 수주통보서 진행중인 문서
+    ordernoti_ing = documents.filter(formId__formTitle='수주통보서', documentStatus='진행')
+    # 선발주 진행중인 문서
+    orderpriority_ing = documents.filter(formId__formTitle='선발주품의서', documentStatus='진행')
+    # 매출발행 진행중인 문서
+    ordermail_ing = documents.filter(formId__formTitle='매출발행', documentStatus='진행')
+
+
 
     # 계약, 세부정보, 매출, 매입, 계약서 명, 수주통보서 명
     contract = Contract.objects.get(contractId=contractId)
@@ -187,6 +197,10 @@ def viewContract(request, contractId):
         'files_f': files_f,
         'files_g': files_g,
         # 결재문서, 매입발주서
+        'documents_ing': documents_ing,
+        'ordernoti_ing': ordernoti_ing,
+        'orderpriority_ing': orderpriority_ing,
+        'ordermail_ing': ordermail_ing,
         'documents': documents,
         'ordernotis': ordernotis,
         'purchaseOrderForm': purchaseOrderForm,

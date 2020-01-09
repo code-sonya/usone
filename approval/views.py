@@ -1445,6 +1445,7 @@ def post_contract_document(request, contractId, documentType):
         lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
         orderPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
+
     # 확인서(confirmPaper)
     lastFile = files.filter(fileCategory='납품,구축,검수확인서')
     if lastFile:
