@@ -47,6 +47,8 @@ def viewContract(request, contractId):
     orderpriority_ing = documents.filter(formId__formTitle='선발주품의서', documentStatus='진행')
     # 매출발행 진행중인 문서
     ordermail_ing = documents.filter(formId__formTitle='매출발행', documentStatus='진행')
+    # 수정권한요청중인 문서
+    modify_ing = documents.filter(formId__formTitle='수정권한요청서', documentStatus='진행')
 
 
 
@@ -203,6 +205,7 @@ def viewContract(request, contractId):
         'ordermail_ing': ordermail_ing,
         'documents': documents,
         'ordernotis': ordernotis,
+        'modify_ing': modify_ing,
         'purchaseOrderForm': purchaseOrderForm,
         'purchaseOrderDocument': purchaseOrderDocument,
         # 계약, 세부사항, 매출, 매입, 원가, 계약서 명, 수주통보서 명

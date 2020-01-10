@@ -485,7 +485,7 @@
 
           $("#showcontracts").on("click", 'tr', function () {
               const data = contractsTable.row(this).data();
-              location.href = '/sales/viewcontract/' + data.contractId + '/'
+              window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId + '/'
           });
 
           {#실주 계약 관리 테이블#}
@@ -619,7 +619,7 @@
 
           $("#showdrops").on("click", 'tr', function () {
               const data = dropTable.row(this).data();
-              location.href = '/sales/viewcontract/' + data.contractId + '/'
+              window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId + '/'
           });
       });
 
