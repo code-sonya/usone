@@ -62,6 +62,7 @@ class Contract(models.Model):
 class Revenue(models.Model):
     revenueId = models.AutoField(primary_key=True)
     contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    empId = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     revenueCompany = models.ForeignKey(Company, on_delete=models.CASCADE)
     revenuePrice = models.BigIntegerField()
     revenueProfitPrice = models.BigIntegerField()
