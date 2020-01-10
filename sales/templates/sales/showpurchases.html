@@ -255,9 +255,9 @@
     </div>
   </div>
 
-  <!-- Filter Modal -->
+  <!-- changeDate Modal -->
   <div class="modal fade" id="changeDateModal" tabindex="-1" role="dialog" aria-labelledby="changeDateModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-lg modal-dialog" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
@@ -277,7 +277,7 @@
                   <thead>
                   <tr class="bg-secondary text-white thtd">
                     <th colspan=1>구분</th>
-                    <th colspan=2>계약명</th>
+                    <th colspan=3>계약명</th>
                     <th colspan=2>(기존)매입예정일</th>
                     <th class="text-warning" colspan=2>(변경)매입예정일</th>
                     <th class="d-none">purchaseId</th>
@@ -326,15 +326,26 @@
               success: function (returnData) {
                   const purchases = returnData;
                   for (var count = 0; count < purchases.length; count++) {
-                      var tr = $("<tr class='thtd'><td colspan=1>"
-                          + purchases[count].contractId__contractStep + "</td><td colspan=2>["
-                          + purchases[count].contractId__contractCode + "]" + purchases[count].contractId__contractName + "</td><td colspan=2>"
-                          + purchases[count].predictBillingDate + "</td><td colspan=2 name='nextBillingDate'>"
-                          + purchases[count].nextBillingDate + "</td>"
-                          + "<td class='d-none'><input name='purchaseId' value='" + purchases[count].purchaseId + "'><input name='nextBillingDate' value='"
-                          + purchases[count].nextBillingDate + "'></td><tr>"
-                      );
-                      $('#changepredictpurchase').append(tr);
+                      if(purchases[count].contractId__contractStep == 'Firm' ){
+                          var tr = $("<tr class='thtd'><td colspan=1 class='text-primary'>" + purchases[count].contractId__contractStep + "</td>" +
+                          "<td colspan=3>[" + purchases[count].contractId__contractCode + "]" + purchases[count].contractId__contractName + "</td>" +
+                          "<td colspan=2>" + purchases[count].predictBillingDate + "</td>" +
+                          "<td colspan=2 name='nextBillingDate'>" + purchases[count].nextBillingDate + "</td>"
+                          + "<td class='d-none'><input name='purchaseId' value='" + purchases[count].purchaseId + "'>" +
+                          "<input name='nextBillingDate' value='" + purchases[count].nextBillingDate + "'></td><tr>"
+                        );
+                        $('#changepredictpurchase').append(tr);
+                      }else{
+                          var tr = $("<tr class='thtd'><td colspan=1 class='text-success'>" + purchases[count].contractId__contractStep + "</td>" +
+                            "<td colspan=3>[" + purchases[count].contractId__contractCode + "]" + purchases[count].contractId__contractName + "</td>" +
+                            "<td colspan=2>" + purchases[count].predictBillingDate + "</td>" +
+                            "<td colspan=2 name='nextBillingDate'>" + purchases[count].nextBillingDate + "</td>"
+                            + "<td class='d-none'><input name='purchaseId' value='" + purchases[count].purchaseId + "'>" +
+                            "<input name='nextBillingDate' value='" + purchases[count].nextBillingDate + "'></td><tr>"
+                          );
+                          $('#changepredictpurchase').append(tr);
+                      }
+
                   }
               }
           })
