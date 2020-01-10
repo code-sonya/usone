@@ -410,13 +410,21 @@ def cal_revenue_incentive(revenueId):
     return incentiveRevenue, incentiveProfit, incentiveReason
 
 
-def cal_acc(ratio):
-    if ratio <= 94:
+def cal_acc(ratio, year, quarter):
+    year = int(year)
+    quarter = int(quarter)
+    if ratio < 95:
         return ratio, 0
     elif ratio < 120:
+        acc = Acceleration.objects.get(
+            accelerationYear=year,
+            accelerationQuarter=quarter,
+            accelerationMin__lte=ratio,
+            accelerationMax__gt=ratio
+        )
         return (
-            Acceleration.objects.get(Q(accelerationMin__lte=ratio) & Q(accelerationMax__gte=ratio)).accelerationRatio,
-            Acceleration.objects.get(Q(accelerationMin__lte=ratio) & Q(accelerationMax__gte=ratio)).accelerationAcc
+            acc.accelerationRatio,
+            acc.accelerationAcc
         )
     else:
         return 140, 4
@@ -449,8 +457,8 @@ def cal_emp_incentive(empId, table2, year, quarter):
         while tempQuarter <= quarter:
             tempSalary += int(incentive.get(quarter=tempQuarter).bettingSalary)
             tempQuarter += 1
-        achieve = cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter)])[0]
-        acc = cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter)])[1]
+        achieve = cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter)], year, quarter)[0]
+        acc = cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter)], year, quarter)[1]
 
         if achieve < 100:
             return round(tempSalary * (achieve / 100))
@@ -462,7 +470,10 @@ def empIncentive(year, empId):
     empDeptName = Employee.objects.get(empId=empId).empDeptName
     incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
     goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=year))
-    revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
+
+    # revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
+    revenues = Revenue.objects.filter(Q(empId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
+
     revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
     revenue2 = revenues.filter(Q(billingDate__gte=year + '-04-01') & Q(billingDate__lt=year + '-07-01'))
     revenue3 = revenues.filter(Q(billingDate__gte=year + '-07-01') & Q(billingDate__lt=year + '-10-01'))
@@ -566,11 +577,15 @@ def empIncentive(year, empId):
     table2['target']['cumulation'] = {
         'revenue': {
             'q1': table2['target']['revenue']['q1'],
-            'q2': table2['target']['revenue']['q1'] + table2['target']['revenue']['q2'],
-            'q3': table2['target']['revenue']['q1'] + table2['target']['revenue']['q2'] +
+            'q2': table2['target']['revenue']['q1'] +
+                  table2['target']['revenue']['q2'],
+            'q3': table2['target']['revenue']['q1'] +
+                  table2['target']['revenue']['q2'] +
                   table2['target']['revenue']['q3'],
-            'q4': table2['target']['revenue']['q1'] + table2['target']['revenue']['q2'] +
-                  table2['target']['revenue']['q3'] + table2['target']['revenue']['q4'],
+            'q4': table2['target']['revenue']['q1'] +
+                  table2['target']['revenue']['q2'] +
+                  table2['target']['revenue']['q3'] +
+                  table2['target']['revenue']['q4'],
         },
         'profit': {
             'q1': table2['target']['profit']['q1'],
@@ -625,7 +640,7 @@ def empIncentive(year, empId):
                         table2['target']['cumulation']['revenue']['q2'] * 100), 1),
             'q3': round((table2['incentive']['cumulation']['revenue']['q3'] /
                         table2['target']['cumulation']['revenue']['q3'] * 100), 1),
-            'q4': round((table2['incentive']['cumulation']['revenue']['q1'] /
+            'q4': round((table2['incentive']['cumulation']['revenue']['q4'] /
                         table2['target']['cumulation']['revenue']['q4'] * 100), 1),
         },
         'profit': {
@@ -683,17 +698,17 @@ def empIncentive(year, empId):
         },
         {
             'name': '인정률',
-            'q1': str(cal_acc(table2['achieve']['cumulation']['total']['q1'])[0]) + '%',
-            'q2': str(cal_acc(table2['achieve']['cumulation']['total']['q2'])[0]) + '%',
-            'q3': str(cal_acc(table2['achieve']['cumulation']['total']['q3'])[0]) + '%',
-            'q4': str(cal_acc(table2['achieve']['cumulation']['total']['q4'])[0]) + '%',
+            'q1': str(cal_acc(table2['achieve']['cumulation']['total']['q1'], year, 1)[0]) + '%',
+            'q2': str(cal_acc(table2['achieve']['cumulation']['total']['q2'], year, 2)[0]) + '%',
+            'q3': str(cal_acc(table2['achieve']['cumulation']['total']['q3'], year, 3)[0]) + '%',
+            'q4': str(cal_acc(table2['achieve']['cumulation']['total']['q4'], year, 4)[0]) + '%',
         },
         {
             'name': 'ACC',
-            'q1': cal_acc(table2['achieve']['cumulation']['total']['q1'])[1],
-            'q2': cal_acc(table2['achieve']['cumulation']['total']['q2'])[1],
-            'q3': cal_acc(table2['achieve']['cumulation']['total']['q3'])[1],
-            'q4': cal_acc(table2['achieve']['cumulation']['total']['q4'])[1],
+            'q1': cal_acc(table2['achieve']['cumulation']['total']['q1'], year, 1)[1],
+            'q2': cal_acc(table2['achieve']['cumulation']['total']['q2'], year, 2)[1],
+            'q3': cal_acc(table2['achieve']['cumulation']['total']['q3'], year, 3)[1],
+            'q4': cal_acc(table2['achieve']['cumulation']['total']['q4'], year, 4)[1],
         },
         {
             'name': '예상누적인센티브',
