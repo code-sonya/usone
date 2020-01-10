@@ -602,84 +602,139 @@ def quarter_asjson(request):
 
 def dashboard_credit(request):
     template = loader.get_template('dashboard/dashboardcredit.html')
-
-    # 미수금액
-    revenues = Revenue.objects.filter(
-        billingDate__isnull=False,
-
-    )
-
-
-    todayYear = datetime.today().year
     today = datetime.today()
+    threeMonth = datetime.today() - relativedelta(months=3)
 
-    # 해당 년도 매출 (이번년도에 매출발행이 됐고 수금예정일이 있는 것)
-    revenues = Revenue.objects.filter(
-        Q(predictBillingDate__year=todayYear) &
-        Q(billingDate__isnull=False) &
-        Q(predictDepositDate__isnull=False)
-    )
+    # totalNotDeposit: 총 미수금
+    totalNotDeposit = Revenue.objects.filter(billingDate__isnull=False, depositDate__isnull=True)
+    totalNotDepositMoney = totalNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
 
-    # 월별 미수금액 / 수금액
-    revenuesMonth = revenues.values('predictDepositDate__month').annotate(
-        outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=True)), 0),
-        collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)
-    ).order_by('predictDepositDate__month')
+    # normalNotDeposit: 정상 미수금 (수금예정일이 오늘보다 크거나 같거나 없는 경우)
+    normalNotDeposit = totalNotDeposit.filter(Q(predictDepositDate__gte=today) | Q(predictDepositDate__isnull=True))
+    normalNotDepositMoney = normalNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
 
-    # 총 미수금액 / 수금액
-    revenuesTotal = revenuesMonth.aggregate(
-        outstandingCollectionsTotal=Sum('outstandingCollectionsMonth'),
-        collectionofMoneyTotal=Sum('collectionofMoneyMonth')
-    )
+    # warningNotDeposit: 경고 미수금 (수금예정일이 3개월 미만으로 지난 경우)
+    warningNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=today, predictDepositDate__gte=threeMonth)
+    warningNotDepositMoney = warningNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
 
-    # 해당 년도 매입  (이번년도에 매입접수가 됐고 지급예정일이 있는 것)
-    purchases = Purchase.objects.filter(
-        Q(predictBillingDate__year=todayYear) &
-        Q(billingDate__isnull=False) &
-        Q(predictWithdrawDate__isnull=False)
-    )
+    # dangerNotDeposit: 위험 미수금 (수금예정일이 3개월 이상 지난 경우)
+    dangerNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=threeMonth)
+    dangerNotDepositMoney = dangerNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
 
-    # 월별 미지급액 / 지급액
-    purchasesMonth = purchases.values('predictWithdrawDate__month').annotate(
-        accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0),
-        amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)
-    ).order_by('predictWithdrawDate__month')
+    # totalNotWithdraw: 총 미지급
+    totalNotWithdraw = Purchase.objects.filter(billingDate__isnull=False, withdrawDate__isnull=True)
+    totalNotWithdrawMoney = totalNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
 
-    # 총 미지급액
-    purchasesTotal = Purchase.objects.filter(
-        Q(predictBillingDate__year=todayYear) &
-        Q(billingDate__isnull=False)
-    ).aggregate(
-        accountsPayablesTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0),
-        amountPaidTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)
-    )
+    # normalNotWithdraw: 정상 미지급 (지급예정일이 오늘보다 크거나 같거나 없는 경우)
+    normalNotWithdraw = totalNotWithdraw.filter(Q(predictWithdrawDate__gte=today) | Q(predictWithdrawDate__isnull=True))
+    normalNotWithdrawMoney = normalNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
 
-    revenueMonth = []
-    for m in range(1, 13):
-        rMonth = {'predictDepositDate__month': m, 'outstandingCollectionsMonth': 0, 'collectionofMoneyMonth': 0}
-        for r in revenuesMonth:
-            if r['predictDepositDate__month'] == m:
-                rMonth = r
-                break
-        revenueMonth.append(rMonth)
+    # warningNotWithdraw: 경고 미지급 (지급예정일이 3개월 미만으로 지난 경우)
+    warningNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=today, predictWithdrawDate__gte=threeMonth)
+    warningNotWithdrawMoney = warningNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
 
-    purchaseMonth = []
-    for m in range(1, 13):
-        pMonth = {'predictWithdrawDate__month': m, 'accountsPayablesMonth': 0, 'amountPaidMonth': 0}
-        for p in purchasesMonth:
-            if p['predictWithdrawDate__month'] == m:
-                pMonth = p
-                break
-        purchaseMonth.append(pMonth)
+    # dangerNotWithdraw: 위험 미지급 (수금예정일이 3개월 이상 지난 경우)
+    dangerNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=threeMonth)
+    dangerNotWithdrawMoney = dangerNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
+
+    # pieNotDeposit: 기간별 미수금액 차트 데이터
+    pieNotDeposit = [normalNotDepositMoney, warningNotDepositMoney, dangerNotDepositMoney]
 
     context = {
-        'revenuesTotal': revenuesTotal,
-        'revenuesMonth': revenueMonth,
-        'purchasesTotal': purchasesTotal,
-        'purchasesMonth': purchaseMonth,
+        # 미수금
+        'totalNotDeposit': totalNotDeposit,
+        'normalNotDeposit': normalNotDeposit,
+        'warningNotDeposit': warningNotDeposit,
+        'dangerNotDeposit': dangerNotDeposit,
+        'totalNotDepositMoney': totalNotDepositMoney,
+        'normalNotDepositMoney': normalNotDepositMoney,
+        'warningNotDepositMoney': warningNotDepositMoney,
+        'dangerNotDepositMoney': dangerNotDepositMoney,
+        # 미지급
+        'totalNotWithdraw': totalNotWithdraw,
+        'normalNotWithdraw': normalNotWithdraw,
+        'warningNotWithdraw': warningNotWithdraw,
+        'dangerNotWithdraw': dangerNotWithdraw,
+        'totalNotWithdrawMoney': totalNotWithdrawMoney,
+        'normalNotWithdrawMoney': normalNotWithdrawMoney,
+        'warningNotWithdrawMoney': warningNotWithdrawMoney,
+        'dangerNotWithdrawMoney': dangerNotWithdrawMoney,
+        # 차트 데이터
+        'pieNotDeposit': pieNotDeposit,
     }
-
     return HttpResponse(template.render(context, request))
+
+
+    # todayYear = datetime.today().year
+    # today = datetime.today()
+    #
+    # # 해당 년도 매출 (이번년도에 매출발행이 됐고 수금예정일이 있는 것)
+    # revenues = Revenue.objects.filter(
+    #     Q(predictBillingDate__year=todayYear) &
+    #     Q(billingDate__isnull=False) &
+    #     Q(predictDepositDate__isnull=False)
+    # )
+    #
+    # # 월별 미수금액 / 수금액
+    # revenuesMonth = revenues.values('predictDepositDate__month').annotate(
+    #     outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=True)), 0),
+    #     collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)
+    # ).order_by('predictDepositDate__month')
+    #
+    # # 총 미수금액 / 수금액
+    # revenuesTotal = revenuesMonth.aggregate(
+    #     outstandingCollectionsTotal=Sum('outstandingCollectionsMonth'),
+    #     collectionofMoneyTotal=Sum('collectionofMoneyMonth')
+    # )
+    #
+    # # 해당 년도 매입  (이번년도에 매입접수가 됐고 지급예정일이 있는 것)
+    # purchases = Purchase.objects.filter(
+    #     Q(predictBillingDate__year=todayYear) &
+    #     Q(billingDate__isnull=False) &
+    #     Q(predictWithdrawDate__isnull=False)
+    # )
+    #
+    # # 월별 미지급액 / 지급액
+    # purchasesMonth = purchases.values('predictWithdrawDate__month').annotate(
+    #     accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0),
+    #     amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)
+    # ).order_by('predictWithdrawDate__month')
+    #
+    # # 총 미지급액
+    # purchasesTotal = Purchase.objects.filter(
+    #     Q(predictBillingDate__year=todayYear) &
+    #     Q(billingDate__isnull=False)
+    # ).aggregate(
+    #     accountsPayablesTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0),
+    #     amountPaidTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)
+    # )
+    #
+    # revenueMonth = []
+    # for m in range(1, 13):
+    #     rMonth = {'predictDepositDate__month': m, 'outstandingCollectionsMonth': 0, 'collectionofMoneyMonth': 0}
+    #     for r in revenuesMonth:
+    #         if r['predictDepositDate__month'] == m:
+    #             rMonth = r
+    #             break
+    #     revenueMonth.append(rMonth)
+    #
+    # purchaseMonth = []
+    # for m in range(1, 13):
+    #     pMonth = {'predictWithdrawDate__month': m, 'accountsPayablesMonth': 0, 'amountPaidMonth': 0}
+    #     for p in purchasesMonth:
+    #         if p['predictWithdrawDate__month'] == m:
+    #             pMonth = p
+    #             break
+    #     purchaseMonth.append(pMonth)
+    #
+    # context = {
+    #     'revenuesTotal': revenuesTotal,
+    #     'revenuesMonth': revenueMonth,
+    #     'purchasesTotal': purchasesTotal,
+    #     'purchasesMonth': purchaseMonth,
+    # }
+
+    # return HttpResponse(template.render(context, request))
 
 
 @login_required
