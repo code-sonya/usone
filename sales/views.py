@@ -1521,7 +1521,7 @@ def empid_asjson(request):
 
     for contract in contracts:
         revenues = Revenue.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
-        contract['revenue'] = list(revenues.values())
+        contract['revenue'] = list(revenues.values('revenueId', 'contractId', 'revenueCompany_id', 'empId__empName', 'predictBillingDate', 'billingDate', 'revenuePrice'))
         # purchase = Purchase.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
         # contract['purchase'] = list(purchase.values())
         # cost = Cost.objects.filter(contractId=contract['contractId'])
@@ -1534,137 +1534,153 @@ def empid_asjson(request):
 @login_required
 @csrf_exempt
 def save_transfercontract(request):
+    print(request.GET)
     empId = Employee.objects.get(empId=request.GET['afterempName'])
     transferrevenues = request.GET.getlist('revenuecheck')
-    transfercontracts = request.GET.getlist('contractcheck')
-    contractdict = []
-
-    # 계약 이관
-    for contractId in transfercontracts:
-        # empId만 바꿔서 새로운 계약 생성 코드
-        contract = Contract.objects.get(contractId=contractId)
-
-        try:
-            saleCustomerId = Customer.objects.get(customerId=contract.saleCustomerId)
-        except:
-            saleCustomerId = None
-
-        try:
-            saleTaxCustomerId = Customer.objects.get(customerId=contract.saleTaxCustomerId)
-        except:
-            saleTaxCustomerId = None
-
-        try:
-            endCompanyName = Company.objects.get(companyName=contract.endCompanyName)
-        except:
-            endCompanyName = None
-
-        newcontract = Contract.objects.create(
-            contractCode=contract.contractCode,
-            contractName=contract.contractName,
-            empId=empId,
-            empName=empId.empName,
-            empDeptName=empId.empDeptName,
-            saleCompanyName=Company.objects.get(companyName=contract.saleCompanyName),
-            saleCustomerId=saleCustomerId,
-            saleCustomerName=contract.saleCustomerName or None,
-            saleTaxCustomerId=saleTaxCustomerId,
-            saleTaxCustomerName=contract.saleTaxCustomerName or None,
-            endCompanyName=endCompanyName,
-            saleType=contract.saleType,
-            saleIndustry=contract.saleIndustry,
-            mainCategory=contract.mainCategory,
-            subCategory=contract.subCategory,
-            salePrice=0,
-            profitPrice=0,
-            profitRatio=0,
-            contractDate=contract.contractDate,
-            contractStep=contract.contractStep,
-            contractStartDate=contract.contractStartDate or None,
-            contractEndDate=contract.contractEndDate or None,
-            depositCondition=contract.depositCondition or None,
-            depositConditionDay=contract.depositConditionDay or 0,
-            contractPaper=contract.contractPaper,
-            orderPaper=contract.orderPaper,
-            comment=contract.comment or None,
-        )
-        contract.transferContractId = newcontract
-        contract.save()
-        contractdict.append({'before': contractId, 'after': newcontract.contractId})
-
-    # 매출 이관
+    # transfercontracts = request.GET.getlist('contractcheck')
+    # contractdict = []
+    print(transferrevenues)
     for revenueId in transferrevenues:
+        # 매출 영업대표 변경
         revenue = Revenue.objects.get(revenueId=revenueId)
-        beforecontract = Contract.objects.filter(Q(contractName=str(revenue.contractId))).exclude(empId=empId).first()
-        aftercontract = Contract.objects.get(Q(contractName=str(revenue.contractId)) & Q(empId=empId))
-
-        # 기존 계약에서 매출금액, 이익 금액 마이너스 해주는 코드
-        # 기존 계약
-        beforecontract.salePrice = beforecontract.salePrice - (revenue.revenuePrice)
-        beforecontract.save()
-        beforecontract.profitPrice = beforecontract.profitPrice - (revenue.revenueProfitPrice)
-        beforecontract.save()
-        try:
-            beforecontract.profitRatio = round(beforecontract.profitPrice / beforecontract.salePrice * 100)
-        except:
-            beforecontract.profitRatio = 0
-        beforecontract.save()
-        # 이관 계약
-        aftercontract.salePrice = aftercontract.salePrice + (revenue.revenuePrice)
-        aftercontract.save()
-        aftercontract.profitPrice = aftercontract.profitPrice + (revenue.revenueProfitPrice)
-        aftercontract.save()
-        try:
-            aftercontract.profitRatio = round(aftercontract.profitPrice / aftercontract.salePrice * 100)
-        except:
-            aftercontract.profitRatio = 0
-        aftercontract.save()
-
-        # 새로운 계약에 revenue 수정하는 하는 코드
-        revenue.contractId = aftercontract
+        revenue.empId = empId
         revenue.save()
 
-    # 카테고리 & 매입 이관
-    for i in contractdict:
-        beforecontract = Contract.objects.get(contractId=i['before'])
-        aftercontract = Contract.objects.get(contractId=i['after'])
-        beforecategory = Contractitem.objects.filter(contractId=beforecontract)
-        beforepurchases = Purchase.objects.filter(contractId=beforecontract)
+        contract = Contract.objects.get(contractId=revenue.contractId.contractId)
+        # 계약의 영업대표 변경
+        if contract.empId_id != empId.empId:
+            print(contract.contractName)
+            contract.empId = empId
+            contract.empName = empId.empName
+            contract.empDeptName = empId.empDeptName
+            contract.save()
 
-        # 기존 카테고리 복사
-        for category in beforecategory:
-            Contractitem.objects.create(
-                contractId=aftercontract,
-                mainCategory=category.mainCategory,
-                subCategory=category.subCategory,
-                itemName=category.itemName or '',
-                itemPrice=category.itemPrice,
-            )
-        # 기존 계약의 아이템 가격 조정
-        beforeitempriceSum = Contractitem.objects.filter(contractId=beforecontract).aggregate(sum=Sum('itemPrice'))
-        if beforecontract.salePrice != (beforeitempriceSum['sum']):
-            Contractitem.objects.create(
-                contractId=beforecontract,
-                mainCategory='기타',
-                subCategory='기타',
-                itemName='계약 이관으로 인한 보정 금액',
-                itemPrice=beforecontract.salePrice - (beforeitempriceSum['sum']),
-            )
-        # 이관 계약의 아이템 가격 조정
-        if aftercontract.salePrice != (beforeitempriceSum['sum']):
-            Contractitem.objects.create(
-                contractId=aftercontract,
-                mainCategory='기타',
-                subCategory='기타',
-                itemName='계약 이관으로 인한 보정 금액',
-                itemPrice=aftercontract.salePrice - (beforeitempriceSum['sum']),
-            )
-        # 매입 이관
-        for purchase in beforepurchases:
-            purchase.contractId = aftercontract
-            purchase.save()
+    # # 계약 이관
+    # for contractId in transfercontracts:
+    #     # empId만 바꿔서 새로운 계약 생성 코드
+    #     contract = Contract.objects.get(contractId=contractId)
+    #
+    #     try:
+    #         saleCustomerId = Customer.objects.get(customerId=contract.saleCustomerId)
+    #     except:
+    #         saleCustomerId = None
+    #
+    #     try:
+    #         saleTaxCustomerId = Customer.objects.get(customerId=contract.saleTaxCustomerId)
+    #     except:
+    #         saleTaxCustomerId = None
+    #
+    #     try:
+    #         endCompanyName = Company.objects.get(companyName=contract.endCompanyName)
+    #     except:
+    #         endCompanyName = None
+    #
+    #     newcontract = Contract.objects.create(
+    #         contractCode=contract.contractCode,
+    #         contractName=contract.contractName,
+    #         empId=empId,
+    #         empName=empId.empName,
+    #         empDeptName=empId.empDeptName,
+    #         saleCompanyName=Company.objects.get(companyName=contract.saleCompanyName),
+    #         saleCustomerId=saleCustomerId,
+    #         saleCustomerName=contract.saleCustomerName or None,
+    #         saleTaxCustomerId=saleTaxCustomerId,
+    #         saleTaxCustomerName=contract.saleTaxCustomerName or None,
+    #         endCompanyName=endCompanyName,
+    #         saleType=contract.saleType,
+    #         saleIndustry=contract.saleIndustry,
+    #         mainCategory=contract.mainCategory,
+    #         subCategory=contract.subCategory,
+    #         salePrice=0,
+    #         profitPrice=0,
+    #         profitRatio=0,
+    #         contractDate=contract.contractDate,
+    #         contractStep=contract.contractStep,
+    #         contractStartDate=contract.contractStartDate or None,
+    #         contractEndDate=contract.contractEndDate or None,
+    #         depositCondition=contract.depositCondition or None,
+    #         depositConditionDay=contract.depositConditionDay or 0,
+    #         contractPaper=contract.contractPaper,
+    #         orderPaper=contract.orderPaper,
+    #         comment=contract.comment or None,
+    #     )
+    #     contract.transferContractId = newcontract
+    #     contract.save()
+    #     contractdict.append({'before': contractId, 'after': newcontract.contractId})
+    #
+    # # 매출 이관
+    # for revenueId in transferrevenues:
+    #     revenue = Revenue.objects.get(revenueId=revenueId)
+    #     beforecontract = Contract.objects.filter(Q(contractName=str(revenue.contractId))).exclude(empId=empId).first()
+    #     aftercontract = Contract.objects.get(Q(contractName=str(revenue.contractId)) & Q(empId=empId))
+    #
+    #     # 기존 계약에서 매출금액, 이익 금액 마이너스 해주는 코드
+    #     # 기존 계약
+    #     beforecontract.salePrice = beforecontract.salePrice - (revenue.revenuePrice)
+    #     beforecontract.save()
+    #     beforecontract.profitPrice = beforecontract.profitPrice - (revenue.revenueProfitPrice)
+    #     beforecontract.save()
+    #     try:
+    #         beforecontract.profitRatio = round(beforecontract.profitPrice / beforecontract.salePrice * 100)
+    #     except:
+    #         beforecontract.profitRatio = 0
+    #     beforecontract.save()
+    #     # 이관 계약
+    #     aftercontract.salePrice = aftercontract.salePrice + (revenue.revenuePrice)
+    #     aftercontract.save()
+    #     aftercontract.profitPrice = aftercontract.profitPrice + (revenue.revenueProfitPrice)
+    #     aftercontract.save()
+    #     try:
+    #         aftercontract.profitRatio = round(aftercontract.profitPrice / aftercontract.salePrice * 100)
+    #     except:
+    #         aftercontract.profitRatio = 0
+    #     aftercontract.save()
+    #
+    #     # 새로운 계약에 revenue 수정하는 하는 코드
+    #     revenue.contractId = aftercontract
+    #     revenue.save()
+    #
+    # # 카테고리 & 매입 이관
+    # for i in contractdict:
+    #     beforecontract = Contract.objects.get(contractId=i['before'])
+    #     aftercontract = Contract.objects.get(contractId=i['after'])
+    #     beforecategory = Contractitem.objects.filter(contractId=beforecontract)
+    #     beforepurchases = Purchase.objects.filter(contractId=beforecontract)
+    #
+    #     # 기존 카테고리 복사
+    #     for category in beforecategory:
+    #         Contractitem.objects.create(
+    #             contractId=aftercontract,
+    #             mainCategory=category.mainCategory,
+    #             subCategory=category.subCategory,
+    #             itemName=category.itemName or '',
+    #             itemPrice=category.itemPrice,
+    #         )
+    #     # 기존 계약의 아이템 가격 조정
+    #     beforeitempriceSum = Contractitem.objects.filter(contractId=beforecontract).aggregate(sum=Sum('itemPrice'))
+    #     if beforecontract.salePrice != (beforeitempriceSum['sum']):
+    #         Contractitem.objects.create(
+    #             contractId=beforecontract,
+    #             mainCategory='기타',
+    #             subCategory='기타',
+    #             itemName='계약 이관으로 인한 보정 금액',
+    #             itemPrice=beforecontract.salePrice - (beforeitempriceSum['sum']),
+    #         )
+    #     # 이관 계약의 아이템 가격 조정
+    #     if aftercontract.salePrice != (beforeitempriceSum['sum']):
+    #         Contractitem.objects.create(
+    #             contractId=aftercontract,
+    #             mainCategory='기타',
+    #             subCategory='기타',
+    #             itemName='계약 이관으로 인한 보정 금액',
+    #             itemPrice=aftercontract.salePrice - (beforeitempriceSum['sum']),
+    #         )
+    #     # 매입 이관
+    #     for purchase in beforepurchases:
+    #         purchase.contractId = aftercontract
+    #         purchase.save()
 
-    context = {}
+    context = {"result": 'result'}
     return render(request, 'sales/transfercontract.html', context)
 
 
