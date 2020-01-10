@@ -161,7 +161,7 @@
           $('#beforetransfer').empty();
           const th = "<thead>" + "<tr class='text-white' style='background-color: #36b9cc'>"
               + "<th colspan=1>Id</th>" + "<th colspan=2>구분</th>" + "<th colspan=6>계약명</th>"
-              + "<th colspan=3>계약일</th>" + "<th class=\"d-none\">contractId</th>" + "</tr>" + "</thead>";
+              + "<th colspan=4>계약일</th>" + "<th class=\"d-none\">contractId</th>" + "</tr>" + "</thead>";
 
           $('#beforetransfer').append(th);
 
@@ -180,7 +180,7 @@
                               "<td colspan=1><a href='#' name='contractcheck' value='\" + contract[count].contractId + \"' onclick='btn_contractcheck(this.text)'>" + contract[count].contractId + "</a></td>" +
                               "<td colspan=2>" + contract[count].contractStep + "</td>" +
                               "<td colspan=6 class='text-left'>[" + contract[count].contractCode + "]" + contract[count].contractName + "</td>" +
-                              "<td colspan=3>" + contract[count].contractDate + "</td>"
+                              "<td colspan=4>" + contract[count].contractDate + "</td>"
                               + "<td class='d-none'><input name='contractId' value='" + contract[count].contractId + "'></td></tr>"
                           );
                           $('#beforetransfer').append(tr);
@@ -188,7 +188,9 @@
                           for (var r = 0; r < contract[count].revenue.length; r++) {
                               if(transferDate != '' && contract[count].revenue[r].predictBillingDate > transferDate) {
                                   const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' checked class='input" + contract[count].contractId
-                                      + "' value='" + contract[count].revenue[r].revenueId + "' onclick='btn_revenuecheck(this.value)'></td><td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
+                                      + "' value='" + contract[count].revenue[r].revenueId+ "' name='revenuecheck' onclick='btn_revenuecheck(this.value)'></td>" +
+                                      "<td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
+                                      "<td colspan=1>" +contract[count].revenue[r].empId__empName + "</td>" +
                                       "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
                                       "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
                                       "<td colspan='3' class='text-right money'>" + contract[count].revenue[r].revenuePrice + "</td>" +
@@ -197,7 +199,9 @@
                                       $('.money').simpleMoneyFormat();
                               }else{
                                   const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' class='input"+contract[count].contractId
-                                  +"' value='" + contract[count].revenue[r].revenueId + "' onclick='btn_revenuecheck(this.value)'></td><td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
+                                  +"' value='" + contract[count].revenue[r].revenueId+ "' name='revenuecheck' onclick='btn_revenuecheck(this.value)'></td>" +
+                                  "<td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
+                                  "<td colspan=1>" +contract[count].revenue[r].empId__empName + "</td>" +
                                   "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
                                   "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
                                   "<td colspan='3' class='text-right money'>"+contract[count].revenue[r].revenuePrice+"</td>" +
@@ -210,6 +214,7 @@
                               const thead = "<tr name='" + contract[count].contractId + "' id='th"
                                   + contract[count].contractId + "'><td></td><td style='background-color:lightsteelblue'>매출</td>" +
                                   "<td style='background-color:lightsteelblue' colspan=3>매출처</td>" +
+                                  "<td style='background-color:lightsteelblue' colspan=1>매출담당자</td>" +
                                   "<td style='background-color:lightsteelblue' colspan=2>매출예정일</td>" +
                                   "<td style='background-color:lightsteelblue' colspan=2>매출일</td>" +
                                   "<td style='background-color:lightsteelblue' colspan=3>매출금액</td></tr>";
@@ -283,21 +288,9 @@
             }
         };
     }(jQuery));
-
-      function btn_contractcheck(trId) {
-          contracttr = $('#' + trId);
-          if (contracttr.css('background-color') == 'rgb(255, 255, 255)') {
-              contracttr.css('background-color', 'lightyellow')
-          } else {
-              contracttr.css('background-color', 'white')
-          }
-          if ($('tr[name=' + trId + ']').attr('class') == 'd-none') {
-              $('tr[name=' + trId + ']').attr('class', 'd-table-row');
-          } else {
-              $('tr[name=' + trId + ']').attr('class', 'd-none');
-              $('.input'+trId).prop("checked", false);
-
-          }
+      function btn_revenuecheck(trId) {
+          console.log(trId);
+          $('tr[name=' + trId + ']').css('background-color', 'lightgrey')
       }
 
       function btn_save() {
@@ -307,22 +300,23 @@
               return false;
           }
 
-          var DATA;
+          var data;
           $('input:checkbox[name=revenuecheck]').each(function () {
               if ($(this).is(':checked'))
-                  DATA += "|" + ($(this).val());
+                  data += "|" + ($(this).val());
+
           });
+          console.log(data);
 
-          console.log(DATA);
-
-          if (DATA == 0) {
+          if (data == 0) {
               alert("선택된 매출이 없습니다.");
               return false;
+          }else{
+              if (confirm("계약을 이관 하시겠습니까?") === true) {
+                document.getElementById("transfercontractForm").submit();
+              }
           }
 
-          if (confirm("계약을 이관 하시겠습니까?") === true) {
-              document.getElementById("transfercontractForm").submit();
-          }
 
       }
 
