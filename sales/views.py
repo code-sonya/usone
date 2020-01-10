@@ -1394,11 +1394,12 @@ def show_accountspayables(request):
 @login_required
 @csrf_exempt
 def change_predictpurchase(request):
-    lastMonth = datetime(datetime.today().year, datetime.today().month - 1, 1)
-    purchases = Purchase.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastMonth)).exclude(contractId__contractStep='Drop')
+    todayDate = datetime(datetime.today().year, datetime.today().month, 1).date()
+    lastDate = datetime.today() - relativedelta(months=1)
+    purchases = Purchase.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastDate)).exclude(contractId__contractStep='Drop')
     purchases = purchases.values('purchaseId', 'contractId__contractStep', 'contractId__contractCode', 'contractId__contractName', 'predictBillingDate')
     for purchase in purchases:
-        purchase['nextBillingDate'] = datetime(datetime.today().year, datetime.today().month, 1).date()
+        purchase['nextBillingDate'] = todayDate
     structure = json.dumps(list(purchases), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1448,12 +1449,15 @@ def save_predictpurchase(request):
 @login_required
 @csrf_exempt
 def change_predictrevenue(request):
-    lastMonth = datetime(datetime.today().year, datetime.today().month - 1, 1)
-    revenues = Revenue.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastMonth)).exclude(contractId__contractStep='Drop')
+    todayDate = datetime(datetime.today().year, datetime.today().month, 1).date()
+    lastDate = datetime.today() - relativedelta(months=1)
+
+    revenues = Revenue.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastDate)).exclude(contractId__contractStep='Drop')
+
     revenues = revenues.values('revenueId', 'contractId__contractStep', 'contractId__contractCode', 'contractId__contractName', 'predictBillingDate')
 
     for revenue in revenues:
-        revenue['nextBillingDate'] = datetime(datetime.today().year, datetime.today().month, 1).date()
+        revenue['nextBillingDate'] = todayDate
 
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

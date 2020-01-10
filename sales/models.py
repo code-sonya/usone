@@ -11,6 +11,7 @@ class Contract(models.Model):
     depositConditionChoices = (('계산서 발행 후', '계산서 발행 후'), ('당월', '당월'), ('익월', '익월'), ('당월 말', '당월 말'), ('익월 초', '익월 초'), ('익월 말', '익월 말'))
     modifyContractPaperChoices = (('N', 'N'), ('Y', 'Y'))
     newCompanyChoices = (('N', 'N'), ('Y', 'Y'))
+    modifyContractChoices = (('Y', 'Y'), ('N', 'N'))
 
     contractId = models.AutoField(primary_key=True)
     contractCode = models.CharField(max_length=30)
@@ -51,6 +52,8 @@ class Contract(models.Model):
     confirmDate = models.DateField(null=True, blank=True)
     confirmContents = models.TextField(null=True, blank=True)
     confirmComment = models.CharField(max_length=200, null=True, blank=True)
+    modifyContract = models.CharField(max_length=10, choices=modifyContractChoices, default='Y')
+
 
     def __str__(self):
         return self.contractName
