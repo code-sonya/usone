@@ -138,6 +138,7 @@
                   <option>수주통보서{% if ordernoti_ing %}[결재진행중]{% endif %}</option>
                   <option>매출발행{% if ordermail_ing %}[결재진행중]{% endif %}</option>
                   <option>선발주{% if orderpriority_ing %}[결재진행중]{% endif %}</option>
+                  <option>수정권한요청{% if modify_ing %}[결재진행중]{% endif %}</option>
                 </select>
                 <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;
                 <button class="btn btn-warning" onclick="show_document()">결재함</button>&nbsp;
@@ -2031,7 +2032,8 @@
           let revenueEstimate = {{ files_b | length }};  // 매출견적서 개수
           let contractPaper = {{ files_c | length }};  // 계약서 개수
           let confirmPaper = {{ files_f | length }};  // 납품,구축,검수확인서 개수
-          let ordernotis = {{ ordernotis | length }};
+          let ordernoti_ing = {{ ordernoti_ing | length }}; // 수주통보서 결재중인 개수
+          let modifyContract = "{{ contract.modifyContract }}";
 
           if (documentType === '수주통보서') {
               if (contractPaper === 0) {
@@ -2043,7 +2045,7 @@
               if (confirmPaper === 0) {
                   alert('납품,구축,검수확인서를 업로드해주세요.')
               } else {
-                  if (ordernotis == 0){
+                  if (ordernoti_ing != 0){
                       alert('수주통보서 결재완료 후 결재 가능합니다.')
                   }else {
                       window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType);
@@ -2057,6 +2059,17 @@
               } else {
                   $('#purchaseInAdvanceModal').modal('show');
               }
+          }else if (documentType === '수정권한요청') {
+            if (modifyContract == 'Y'){
+                    alert('이미 수정권한이 있습니다.')
+                }else {
+                    if (ordernoti_ing != 0) {
+                        alert('수주통보서 결재중에 수정권한요청서를 올릴 수 없습니다.');
+                    }
+                    else {
+                        window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType);
+                    }
+                }
           }
       }
 

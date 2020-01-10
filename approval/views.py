@@ -1294,6 +1294,12 @@ def approve_document(request, approvalId):
 
             if document.formId.formTitle == '휴가신청서':
                 Vacation.objects.filter(documentId=document).update(vacationStatus='Y')
+
+            # 계약 수정 권한
+            if document.formId.formTitle == '수정권한요청서':
+                contract = Contract.objects.get(contractId=document.contractId.contractId)
+                contract.modifyContract = 'Y'
+                contract.save()
         else:
             for empId in whoApproval['do']:
                 employee = Employee.objects.get(empId=empId)
@@ -1388,6 +1394,8 @@ def post_contract_document(request, contractId, documentType):
         formTitle = '매출발행'
     elif documentType == '선발주':
         formTitle = '선발주품의서'
+    elif documentType == '수정권한요청':
+        formTitle = '수정권한요청서'
 
     # 문서 종류 선택
     formId = Documentform.objects.get(
@@ -1906,6 +1914,11 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
             contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
             contentHtml = contentHtml.replace('매입견적서링크', purchaseEstimate)
+
+    # 4. 수정권한 요청서
+    if formTitle == '수정권한요청서':
+        contentHtml = contentHtml.replace('계약명자동입력', contractName)
+
 
     # 문서 등록
     document = Document.objects.create(
