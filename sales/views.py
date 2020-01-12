@@ -88,6 +88,7 @@ def post_contract(request):
                     revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
                 instance = Revenue.objects.create(
                     contractId=post,
+                    empId=post.empId,
                     billingTime=str(idx) + '/' + str(len(jsonRevenue)),
                     predictBillingDate=revenue["billingDate"] or revenue["predictBillingDate"] + '-01' or None,
                     billingDate=revenue["billingDate"] or None,
@@ -370,6 +371,7 @@ def modify_contract(request, contractId):
                         revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
                     instance = Revenue.objects.create(
                         contractId=post,
+                        empId=post.empId,
                         billingTime=str(idx) + '/' + str(len(jsonRevenue)),
                         predictBillingDate=revenue["billingDate"] or revenue["predictBillingDate"] + '-01' or None,
                         billingDate=revenue["billingDate"] or None,
