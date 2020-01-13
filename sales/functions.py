@@ -59,7 +59,7 @@ def viewContract(request, contractId):
     purchaseItems = Purchasecontractitem.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
     purchaseCompany = list(purchases.values_list('purchaseCompany__companyNameKo', flat=True).distinct().order_by('purchaseCompany__companyNameKo'))
-    if request.user.employee.empName == '이현승':
+    if request.user.employee.empName == '이현승' or request.user.employee.empName == '현기완':
         purchasesNotBilling = purchases
     else:
         purchasesNotBilling = purchases.filter(billingDate__isnull=True)
