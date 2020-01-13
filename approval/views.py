@@ -1589,10 +1589,18 @@ def post_contract_document(request, contractId, documentType):
 
         if revenueItem:
             tempStr = ''
+            sumRevenue = 0
             for item in revenueItem:
+                sumRevenue += item.itemPrice
+                if item.companyName:
+                    companyName = item.companyName.companyNameKo
+                else:
+                    companyName = '-'
                 tempStr += '''<tr style="height: 25px; font-size: 14px;">
                     <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
                     ''' + '매출' + '''</td>
+                    <td style="text-align: left; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + companyName + '''</td>
                     <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
                     ''' + item.mainCategory + '''</td>
                     <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
@@ -1602,11 +1610,19 @@ def post_contract_document(request, contractId, documentType):
                     <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
                     ''' + format(item.itemPrice, ',') + '''</td>
                 </tr>'''
-            contentHtml = contentHtml.replace('<tr><td colspan="5">매출세부사항자동입력</td></tr>', tempStr)
+            tempStr += '''<tr style="height: 25px; font-size: 14px;">
+                <td colspan="5" style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + 'TOTAL' + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                ''' + format(sumRevenue, ',') + '''</td>
+            </tr>'''
+            contentHtml = contentHtml.replace('<tr><td colspan="6">매출세부사항자동입력</td></tr>', tempStr)
 
         if purchaseItem:
             tempStr = ''
+            sumPurchase = 0
             for item in purchaseItem:
+                sumPurchase += item.itemPrice
                 if item.companyName:
                     companyName = item.companyName.companyNameKo
                 else:
@@ -1625,6 +1641,12 @@ def post_contract_document(request, contractId, documentType):
                     <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
                     ''' + format(item.itemPrice, ',') + '''</td>
                 </tr>'''
+            tempStr += '''<tr style="height: 25px; font-size: 14px;">
+                <td colspan="5" style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + 'TOTAL' + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                ''' + format(sumPurchase, ',') + '''</td>
+            </tr>'''
             contentHtml = contentHtml.replace('<tr><td colspan="6">매입세부사항자동입력</td></tr>', tempStr)
 
         # Billing Schedule
