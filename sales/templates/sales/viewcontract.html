@@ -349,7 +349,7 @@
             <tr>
               <td class="bg-light">거&nbsp; &nbsp; &nbsp;래&nbsp; &nbsp; &nbsp;처</td>
               <td class="text-left pl-4">
-                <a href="/client/viewclient/{{ contract.saleCompanyName.companyName }}" class="text-dark">
+                <a href="/client/viewclient/{{ contract.saleCompanyName.companyName }}" target="_blank" class="text-dark">
                   {{ contract.saleCompanyName.companyNameKo }}
                 </a>
                 <a href="/client/viewcustomer/{{ contract.saleCustomerId.customerId }}" class="text-dark">
@@ -361,7 +361,7 @@
               </td>
               <td class="bg-light">최 종 고 객 사</td>
               <td class="text-left pl-4">
-                <a href="/client/viewclient/{{ contract.endCompanyName.companyName }}" class="text-dark">
+                <a href="/client/viewclient/{{ contract.endCompanyName.companyName }}" target="_blank" class="text-dark">
                   {{ contract.endCompanyName.companyNameKo }}
                 </a>
               </td>
@@ -537,19 +537,21 @@
             <table class="pc-table" id="categoryItem">
               <thead>
               <tr class="bg-primary">
-                <td class="text-gray-100">대분류</td>
-                <td class="text-gray-100">소분류</td>
-                <td class="text-gray-100">상세내용</td>
-                <td class="text-gray-100">가격</td>
+                <td colspan="1" class="text-gray-100">매출처</td>
+                <td colspan="1" class="text-gray-100">대분류</td>
+                <td colspan="1" class="text-gray-100">소분류</td>
+                <td colspan="2" class="text-gray-100">상세내용</td>
+                <td colspan="1" class="text-gray-100">가격</td>
               </tr>
               </thead>
               <tbody>
               {% for item in items %}
                 <tr class="thtd">
-                  <td>{{ item.mainCategory }}</td>
-                  <td>{{ item.subCategory }}</td>
-                  <td class="text-left">{{ item.itemName }}</td>
-                  <td class="text-right">{{ item.itemPrice | intcomma }}</td>
+                  <td colspan="1" class="text-left">{{ item.companyName.companyNameKo }}</td>
+                  <td colspan="1">{{ item.mainCategory }}</td>
+                  <td colspan="1">{{ item.subCategory }}</td>
+                  <td colspan="2" class="text-left">{{ item.itemName }}</td>
+                  <td colspan="1" class="text-right">{{ item.itemPrice | intcomma }}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -616,7 +618,7 @@
               <tbody>
               {% for item in purchaseItems %}
                 <tr class="thtd">
-                  <td colspan="1" class="text-left">{% if item.companyName %}{{ item.companyName }}{% endif %}</td>
+                  <td colspan="1" class="text-left">{% if item.companyName %}{{ item.companyName.companyNameKo }}{% endif %}</td>
                   <td colspan="1">{{ item.mainCategory }}</td>
                   <td colspan="1">{{ item.subCategory }}</td>
                   <td colspan="2" class="text-left">{{ item.itemName }}</td>

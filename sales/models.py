@@ -117,6 +117,7 @@ class Category(models.Model):
 class Contractitem(models.Model):
     contractItemId = models.AutoField(primary_key=True)
     contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    companyName = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     mainCategory = models.CharField(max_length=50)
     subCategory = models.CharField(max_length=50)
     itemName = models.CharField(max_length=50)
