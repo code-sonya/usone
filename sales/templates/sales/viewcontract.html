@@ -133,158 +133,173 @@
             </b>
             </h5>
             {% if contract.contractStep != 'Drop' %}
-              <div class="input-group" style="width: 300px;">
+              <div class="input-group" style="width: 350px;">
                 <select id="documentType" class="form-control">
-                  <option>수주통보서</option>
-                  <option>매출발행</option>
-                  <option>선발주</option>
+                  <option>수주통보서{% if ordernoti_ing %}[결재진행중]{% endif %}</option>
+                  <option>매출발행{% if ordermail_ing %}[결재진행중]{% endif %}</option>
+                  <option>선발주{% if orderpriority_ing %}[결재진행중]{% endif %}</option>
+                  <option>수정권한요청{% if modify_ing %}[결재진행중]{% endif %}</option>
                 </select>
-                <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;&nbsp;
-                <button class="btn btn-warning" onclick="show_document()">문서함</button>
+                <button class="btn btn-secondary" onclick="post_document()">결재</button>&nbsp;
+                <button class="btn btn-warning" onclick="show_document()">결재함</button>&nbsp;
+                <!--<button class="btn btn-success" onclick="show_files()">파일함</button>-->
               </div>
             {% endif %}
           </div>
-
-          <table id="process" class="flow-table">
-            <tr>
-              <td>
-                <b>매입견적서</b>
-                <a href="#" onclick="open_purchase_upload('매입견적서')"><i class="fas fa-paperclip"></i></a>
-              </td>
-              <td>
-                <b>매출견적서</b>
-                <a href="#" onclick="open_upload('매출견적서')"><i class="fas fa-paperclip"></i></a>
-              </td>
-              <td>
-                <b>계약서</b>
-                <a href="#" onclick="open_upload('계약서')"><i class="fas fa-paperclip"></i></a>
-              </td>
-              <td>
-                <b>수주통보서</b>
-                <a href="/sales/viewordernotipdf/{{ contract.contractId }}/" onclick=""><i class="far fa-file-pdf"></i></a>
-              </td>
-              <td>
-                <b>매입발주서</b>
-                <a href="#" onclick="open_purchase_order('매입발주서')"><i class="fas fa-file-signature"></i></a>
-              </td>
-              <td>
-                <a data-toggle="modal" data-target="#confirmModal" class="text-success"><i class="fas fa-pen-alt"></i></a>
-                <b>납품,구축,검수확인서</b>
-                <a href="#" onclick="open_upload('납품,구축,검수확인서')"><i class="fas fa-paperclip"></i></a>
-              </td>
-              <td>
-                <b>매출발행</b>
-                <a href="#" onclick="open_upload('매출발행')"><i class="fas fa-paperclip"></i></a>
-              </td>
-            </tr>
-            <tr>
-              <td><a href="#" onclick="open_purchase_download('매입견적서')">
-                {% if files_a|length == 0 %}
-                  <img class="td-img" src="/media/icon/prepare_grey.png"><br>
-                {% elif files_a|length == 1 %}
-                  <img class="td-img" src="/media/icon/prepare1.png"><br>
-                {% elif files_a|length == 2 %}
-                  <img class="td-img" src="/media/icon/prepare2.png"><br>
-                {% elif files_a|length == 3 %}
-                  <img class="td-img" src="/media/icon/prepare3.png"><br>
-                {% elif files_a|length == 4 %}
-                  <img class="td-img" src="/media/icon/prepare4.png"><br>
-                {% elif files_a|length >= 5 %}
-                  <img class="td-img" src="/media/icon/prepare5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_download('매출견적서')">
-                {% if files_b|length == 0 %}
-                  <img class="td-img" src="/media/icon/prepare_grey.png"><br>
-                {% elif files_b|length == 1 %}
-                  <img class="td-img" src="/media/icon/prepare1.png"><br>
-                {% elif files_b|length == 2 %}
-                  <img class="td-img" src="/media/icon/prepare2.png"><br>
-                {% elif files_b|length == 3 %}
-                  <img class="td-img" src="/media/icon/prepare3.png"><br>
-                {% elif files_b|length == 4 %}
-                  <img class="td-img" src="/media/icon/prepare4.png"><br>
-                {% elif files_b|length >= 5 %}
-                  <img class="td-img" src="/media/icon/prepare5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_download('계약서')">
-                {% if files_c|length == 0 %}
-                  <img class="td-img" src="/media/icon/prepare_grey.png"><br>
-                {% elif files_c|length == 1 %}
-                  <img class="td-img" src="/media/icon/prepare1.png"><br>
-                {% elif files_c|length == 2 %}
-                  <img class="td-img" src="/media/icon/prepare2.png"><br>
-                {% elif files_c|length == 3 %}
-                  <img class="td-img" src="/media/icon/prepare3.png"><br>
-                {% elif files_c|length == 4 %}
-                  <img class="td-img" src="/media/icon/prepare4.png"><br>
-                {% elif files_c|length >= 5 %}
-                  <img class="td-img" src="/media/icon/prepare5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_ordernoti_download('수주통보서')">
-                {% if ordernotis|length == 0 %}
-                  <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
-                {% elif ordernotis|length == 1 %}
-                  <img class="td-img" src="/media/icon/ordernoti1.png"><br>
-                {% elif ordernotis|length == 2 %}
-                  <img class="td-img" src="/media/icon/ordernoti2.png"><br>
-                {% elif ordernotis|length == 3 %}
-                  <img class="td-img" src="/media/icon/ordernoti3.png"><br>
-                {% elif ordernotis|length == 4 %}
-                  <img class="td-img" src="/media/icon/ordernoti4.png"><br>
-                {% elif ordernotis|length >= 5 %}
-                  <img class="td-img" src="/media/icon/ordernoti5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_purchase_order_document('매입발주서')">
-                {% if purchaseOrderDocument|length == 0 %}
-                  <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
-                {% elif purchaseOrderDocument|length == 1 %}
-                  <img class="td-img" src="/media/icon/ordernoti1.png"><br>
-                {% elif purchaseOrderDocument|length == 2 %}
-                  <img class="td-img" src="/media/icon/ordernoti2.png"><br>
-                {% elif purchaseOrderDocument|length == 3 %}
-                  <img class="td-img" src="/media/icon/ordernoti3.png"><br>
-                {% elif purchaseOrderDocument|length == 4 %}
-                  <img class="td-img" src="/media/icon/ordernoti4.png"><br>
-                {% elif purchaseOrderDocument|length >= 5 %}
-                  <img class="td-img" src="/media/icon/ordernoti5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_download('납품,구축,검수확인서')">
-                {% if files_f|length == 0 %}
-                  <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
-                {% elif files_f|length == 1 %}
-                  <img class="td-img" src="/media/icon/ordermail1.png"><br>
-                {% elif files_f|length == 2 %}
-                  <img class="td-img" src="/media/icon/ordermail2.png"><br>
-                {% elif files_f|length == 3 %}
-                  <img class="td-img" src="/media/icon/ordermail3.png"><br>
-                {% elif files_f|length == 4 %}
-                  <img class="td-img" src="/media/icon/ordermail4.png"><br>
-                {% elif files_f|length >= 5 %}
-                  <img class="td-img" src="/media/icon/ordermail5.png"><br>
-                {% endif %}
-              </a></td>
-              <td><a href="#" onclick="open_download('매출발행')">
-                {% if files_g|length == 0 %}
-                  <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
-                {% elif files_g|length == 1 %}
-                  <img class="td-img" src="/media/icon/ordermail1.png"><br>
-                {% elif files_g|length == 2 %}
-                  <img class="td-img" src="/media/icon/ordermail2.png"><br>
-                {% elif files_g|length == 3 %}
-                  <img class="td-img" src="/media/icon/ordermail3.png"><br>
-                {% elif files_g|length == 4 %}
-                  <img class="td-img" src="/media/icon/ordermail4.png"><br>
-                {% elif files_g|length >= 5 %}
-                  <img class="td-img" src="/media/icon/ordermail5.png"><br>
-                {% endif %}
-              </a></td>
-            </tr>
-          </table>
+          <div>
+            <table id="process" class="flow-table">
+              <tr>
+                <td>
+                  <b>매입견적서</b>
+                  <a href="#" onclick="open_purchase_upload('매입견적서')"><i class="fas fa-paperclip"></i></a>
+                </td>
+                <td>
+                  <b>매출견적서</b>
+                  <a href="#" onclick="open_upload('매출견적서')"><i class="fas fa-paperclip"></i></a>
+                </td>
+                <td>
+                  <b>매출계약서</b>
+                  <a href="#" onclick="open_upload('계약서')"><i class="fas fa-paperclip"></i></a>
+                </td>
+                <td>
+                  <b>수주통보서</b>
+                  <a href="/sales/viewordernotipdf/{{ contract.contractId }}/" target="_blank" onclick=""><i class="far fa-file-pdf"></i></a>
+                </td>
+                <td>
+                  <b>매입발주서</b>
+                  <a href="#" onclick="open_purchase_order('매입발주서')"><i class="fas fa-file-signature"></i></a>
+                </td>
+                <td>
+                  <a data-toggle="modal" data-target="#confirmModal" class="text-success"><i class="fas fa-pen-alt"></i></a>
+                  <b>납품,구축,검수확인서</b>
+                  <a href="#" onclick="open_upload('납품,구축,검수확인서')"><i class="fas fa-paperclip"></i></a>
+                </td>
+                <td>
+                  <b>매출발행</b>
+                  <a href="#" onclick="open_upload('매출발행')"><i class="fas fa-paperclip"></i></a>
+                </td>
+              </tr>
+              <tr>
+                <td><a href="#" onclick="open_purchase_download('매입견적서')">
+                  {% if orderpriority_ing %}
+                    <img class="td-img" src="/media/icon/prepare_ing.png"><br>
+                  {% else %}
+                    {% if files_a|length == 0 %}
+                      <img class="td-img" src="/media/icon/prepare_grey.png"><br>
+                    {% elif files_a|length == 1 %}
+                      <img class="td-img" src="/media/icon/prepare1.png"><br>
+                    {% elif files_a|length == 2 %}
+                      <img class="td-img" src="/media/icon/prepare2.png"><br>
+                    {% elif files_a|length == 3 %}
+                      <img class="td-img" src="/media/icon/prepare3.png"><br>
+                    {% elif files_a|length == 4 %}
+                      <img class="td-img" src="/media/icon/prepare4.png"><br>
+                    {% elif files_a|length >= 5 %}
+                      <img class="td-img" src="/media/icon/prepare5.png"><br>
+                    {% endif %}
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_download('매출견적서')">
+                  {% if files_b|length == 0 %}
+                    <img class="td-img" src="/media/icon/prepare_grey.png"><br>
+                  {% elif files_b|length == 1 %}
+                    <img class="td-img" src="/media/icon/prepare1.png"><br>
+                  {% elif files_b|length == 2 %}
+                    <img class="td-img" src="/media/icon/prepare2.png"><br>
+                  {% elif files_b|length == 3 %}
+                    <img class="td-img" src="/media/icon/prepare3.png"><br>
+                  {% elif files_b|length == 4 %}
+                    <img class="td-img" src="/media/icon/prepare4.png"><br>
+                  {% elif files_b|length >= 5 %}
+                    <img class="td-img" src="/media/icon/prepare5.png"><br>
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_download('계약서')">
+                  {% if files_c|length == 0 %}
+                    <img class="td-img" src="/media/icon/prepare_grey.png"><br>
+                  {% elif files_c|length == 1 %}
+                    <img class="td-img" src="/media/icon/prepare1.png"><br>
+                  {% elif files_c|length == 2 %}
+                    <img class="td-img" src="/media/icon/prepare2.png"><br>
+                  {% elif files_c|length == 3 %}
+                    <img class="td-img" src="/media/icon/prepare3.png"><br>
+                  {% elif files_c|length == 4 %}
+                    <img class="td-img" src="/media/icon/prepare4.png"><br>
+                  {% elif files_c|length >= 5 %}
+                    <img class="td-img" src="/media/icon/prepare5.png"><br>
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_ordernoti_download('수주통보서')">
+                  {% if ordernoti_ing %}
+                    <img class="td-img" src="/media/icon/ordernoti_ing.png"><br>
+                  {% else %}
+                    {% if ordernotis|length == 0 %}
+                      <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
+                    {% elif ordernotis|length == 1 %}
+                      <img class="td-img" src="/media/icon/ordernoti1.png"><br>
+                    {% elif ordernotis|length == 2 %}
+                      <img class="td-img" src="/media/icon/ordernoti2.png"><br>
+                    {% elif ordernotis|length == 3 %}
+                      <img class="td-img" src="/media/icon/ordernoti3.png"><br>
+                    {% elif ordernotis|length == 4 %}
+                      <img class="td-img" src="/media/icon/ordernoti4.png"><br>
+                    {% elif ordernotis|length >= 5 %}
+                      <img class="td-img" src="/media/icon/ordernoti5.png"><br>
+                    {% endif %}
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_purchase_order_document('매입발주서')">
+                  {% if purchaseOrderDocument|length == 0 %}
+                    <img class="td-img" src="/media/icon/ordernoti_grey.png"><br>
+                  {% elif purchaseOrderDocument|length == 1 %}
+                    <img class="td-img" src="/media/icon/ordernoti1.png"><br>
+                  {% elif purchaseOrderDocument|length == 2 %}
+                    <img class="td-img" src="/media/icon/ordernoti2.png"><br>
+                  {% elif purchaseOrderDocument|length == 3 %}
+                    <img class="td-img" src="/media/icon/ordernoti3.png"><br>
+                  {% elif purchaseOrderDocument|length == 4 %}
+                    <img class="td-img" src="/media/icon/ordernoti4.png"><br>
+                  {% elif purchaseOrderDocument|length >= 5 %}
+                    <img class="td-img" src="/media/icon/ordernoti5.png"><br>
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_download('납품,구축,검수확인서')">
+                  {% if files_f|length == 0 %}
+                    <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
+                  {% elif files_f|length == 1 %}
+                    <img class="td-img" src="/media/icon/ordermail1.png"><br>
+                  {% elif files_f|length == 2 %}
+                    <img class="td-img" src="/media/icon/ordermail2.png"><br>
+                  {% elif files_f|length == 3 %}
+                    <img class="td-img" src="/media/icon/ordermail3.png"><br>
+                  {% elif files_f|length == 4 %}
+                    <img class="td-img" src="/media/icon/ordermail4.png"><br>
+                  {% elif files_f|length >= 5 %}
+                    <img class="td-img" src="/media/icon/ordermail5.png"><br>
+                  {% endif %}
+                </a></td>
+                <td><a href="#" onclick="open_download('매출발행')">
+                  {% if ordermail_ing %}
+                    <img class="td-img" src="/media/icon/ordermail_ing.png"><br>
+                  {% else %}
+                    {% if files_g|length == 0 %}
+                      <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
+                    {% elif files_g|length == 1 %}
+                      <img class="td-img" src="/media/icon/ordermail1.png"><br>
+                    {% elif files_g|length == 2 %}
+                      <img class="td-img" src="/media/icon/ordermail2.png"><br>
+                    {% elif files_g|length == 3 %}
+                      <img class="td-img" src="/media/icon/ordermail3.png"><br>
+                    {% elif files_g|length == 4 %}
+                      <img class="td-img" src="/media/icon/ordermail4.png"><br>
+                    {% elif files_g|length >= 5 %}
+                      <img class="td-img" src="/media/icon/ordermail5.png"><br>
+                    {% endif %}
+                  {% endif %}
+                </a></td>
+              </tr>
+            </table>
+          </div>
 
           <h5 class="text-dark mb-3"><b>
             <span id="contractDown" onclick="downClick('contract', 'contractUp', 'contractDown')">▼</span>
@@ -382,35 +397,6 @@
             </tr>
             </tbody>
           </table>
-
-          {% if items %}
-            <br>
-            <h5 class="text-dark mb-3"><b>
-              <span id="categoryItemDown" onclick="downClick('categoryItem', 'categoryItemUp', 'categoryItemDown')">▼</span>
-              <span id="categoryItemUp" class="d-none" onclick="upClick('categoryItem', 'categoryItemUp', 'categoryItemDown')">▶</span>
-              세부사항
-            </b></h5>
-            <table class="pc-table" id="categoryItem">
-              <thead>
-              <tr class="bg-secondary">
-                <td class="text-gray-100">대분류</td>
-                <td class="text-gray-100">소분류</td>
-                <td class="text-gray-100">상세내용</td>
-                <td class="text-gray-100">가격</td>
-              </tr>
-              </thead>
-              <tbody>
-              {% for item in items %}
-                <tr class="thtd">
-                  <td>{{ item.mainCategory }}</td>
-                  <td>{{ item.subCategory }}</td>
-                  <td>{{ item.itemName }}</td>
-                  <td>{{ item.itemPrice | intcomma }}</td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          {% endif %}
 
           {% if contract.contractStep != 'Drop' %}
             <br>
@@ -541,12 +527,41 @@
             </div>
           {% endif %}
 
+          {% if items %}
+            <br><hr>
+            <h5 class="text-dark mb-3"><b>
+              <span id="categoryItemDown" onclick="downClick('categoryItem', 'categoryItemUp', 'categoryItemDown')">▼</span>
+              <span id="categoryItemUp" class="d-none" onclick="upClick('categoryItem', 'categoryItemUp', 'categoryItemDown')">▶</span>
+              <span class="text-primary">매출</span> 세부사항
+            </b></h5>
+            <table class="pc-table" id="categoryItem">
+              <thead>
+              <tr class="bg-primary">
+                <td class="text-gray-100">대분류</td>
+                <td class="text-gray-100">소분류</td>
+                <td class="text-gray-100">상세내용</td>
+                <td class="text-gray-100">가격</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% for item in items %}
+                <tr class="thtd">
+                  <td>{{ item.mainCategory }}</td>
+                  <td>{{ item.subCategory }}</td>
+                  <td class="text-left">{{ item.itemName }}</td>
+                  <td class="text-right">{{ item.itemPrice | intcomma }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+
           {% if revenues %}
             <br>
             <h5 class="text-dark mb-3"><b>
               <span id="revenuesDown" onclick="downClick('revenuesdiv', 'revenuesUp', 'revenuesDown')">▼</span>
               <span id="revenuesUp" class="d-none" onclick="upClick('revenuesdiv', 'revenuesUp', 'revenuesDown')">▶</span>
-              매출세부정보
+              <span class="text-primary">매출</span> 빌링스케쥴
             </b></h5>
             <div class="table-responsive" id="revenuesdiv">
               <table id="revenues" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
@@ -581,19 +596,50 @@
             </div>
           {% endif %}
 
+          {% if purchaseItems %}
+            <br><hr>
+            <h5 class="text-dark mb-3"><b>
+              <span id="purchaseCategoryItemDown" onclick="downClick('purchaseCategoryItem', 'purchaseCategoryItemUp', 'purchaseCategoryItemDown')">▼</span>
+              <span id="purchaseCategoryItemUp" class="d-none" onclick="upClick('purchaseCategoryItem', 'purchaseCategoryItemUp', 'purchaseCategoryItemDown')">▶</span>
+              <span class="text-info">매입</span> 세부사항
+            </b></h5>
+            <table class="pc-table" id="purchaseCategoryItem">
+              <thead>
+              <tr class="bg-info">
+                <td colspan="1" class="text-gray-100">매입처</td>
+                <td colspan="1" class="text-gray-100">대분류</td>
+                <td colspan="1" class="text-gray-100">소분류</td>
+                <td colspan="2" class="text-gray-100">상세내용</td>
+                <td colspan="1" class="text-gray-100">가격</td>
+              </tr>
+              </thead>
+              <tbody>
+              {% for item in purchaseItems %}
+                <tr class="thtd">
+                  <td colspan="1" class="text-left">{% if item.companyName %}{{ item.companyName }}{% endif %}</td>
+                  <td colspan="1">{{ item.mainCategory }}</td>
+                  <td colspan="1">{{ item.subCategory }}</td>
+                  <td colspan="2" class="text-left">{{ item.itemName }}</td>
+                  <td colspan="1" class="text-right">{{ item.itemPrice | intcomma }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          {% endif %}
+
           {% if purchases or costs %}
             <br>
             <h5 class="text-dark mb-3"><b>
               <span id="purchasesDown" onclick="downClick('purchasesdiv', 'purchasesUp', 'purchasesDown')">▼</span>
               <span id="purchasesUp" class="d-none" onclick="upClick('purchasesdiv', 'purchasesUp', 'purchasesDown')">▶</span>
-              매입세부정보
+              <span class="text-info">매입</span> 빌링스케쥴
             </b></h5>
             <div class="table-responsive" id="purchasesdiv">
               {% if purchases %}
               <h5 class="text-dark mb-3"><b>(세금계산서 접수항목)</b></h5>
               <table id="purchases" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
                 <thead>
-                <tr class="bg-primary">
+                <tr class="bg-info">
                   <td class="text-gray-100" width="5%">회차</td>
                   <td class="text-gray-100" width="10%">매입예정일</td>
                   <td class="text-gray-100" width="10%">매입일</td>
@@ -624,7 +670,7 @@
               <h5 class="text-dark mb-3"><b>(세금계산서 미접수항목)</b></h5>
               <table id="costs" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
                 <thead>
-                <tr class="bg-primary">
+                <tr class="bg-info">
                   <td class="text-gray-100" width="5%"></td>
                   <td class="text-gray-100" width="10%"></td>
                   <td class="text-gray-100" width="10%"></td>
@@ -651,191 +697,6 @@
               </table>
               {% endif %}
             </div>
-          {% endif %}
-
-          {% if purchaseTypeA or purchaseTypeB or purchaseTypeC or purchaseTypeD %}
-            <br>
-              <h5 class="text-dark mb-3"><b>
-                <span id="detailsDown" onclick="downClick('detailsdiv', 'detailsUp', 'detailsDown')">▼</span>
-                <span id="detailsUp" class="d-none" onclick="upClick('detailsdiv', 'detailsUp', 'detailsDown')">▶</span>
-                하도급계약정보
-              </b></h5>
-              <div class="table-responsive" id="detailsdiv">
-                <div class="row">
-                  <div class="col-xl-6 mb-2">
-                    <div class="text-dark mb-0"><b>1. 상품_HW</b></div>
-                    <table id="goodsHW" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
-                      <thead>
-                        <tr class="bg-secondary">
-                          <th class="text-gray-100 font-weight-normal" width="30%">거래처</th>
-                          <th class="text-gray-100 font-weight-normal" width="40%">내역</th>
-                          <th class="text-gray-100 font-weight-normal" width="30%">금액</th>
-                          <th class="d-none">typeId</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-                          <th style="padding: 8px 10px; text-align: center"></th>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="col-xl-6 mb-2">
-                    <div class="text-dark mb-0"><b>2. 상품_SW</b></div>
-                    <table id="goodsSW" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
-                      <thead>
-                        <tr class="bg-secondary">
-                          <th class="text-gray-100 font-weight-normal" width="30%">거래처</th>
-                          <th class="text-gray-100 font-weight-normal" width="40%">내역</th>
-                          <th class="text-gray-100 font-weight-normal" width="30%">금액</th>
-                          <th class="d-none">typeId</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-                          <th style="padding: 8px 10px; text-align: center"></th>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-xl-6 mb-2">
-                    <div class="text-dark mb-0"><b>3. 유지보수_HW</b></div>
-                    <table id="maintenanceHW" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
-                      <thead>
-                        <tr class="bg-secondary">
-                          <th class="text-gray-100 font-weight-normal" width="30%">거래처</th>
-                          <th class="text-gray-100 font-weight-normal" width="40%">내역</th>
-                          <th class="text-gray-100 font-weight-normal" width="30%">금액</th>
-                          <th class="d-none">typeId</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-                          <th style="padding: 8px 10px; text-align: center"></th>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="col-xl-6 mb-2">
-                    <div class="text-dark mb-0"><b>4. 유지보수_SW</b></div>
-                    <table id="maintenanceSW" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
-                      <thead>
-                        <tr class="bg-secondary">
-                          <th class="text-gray-100 font-weight-normal" width="30%">거래처</th>
-                          <th class="text-gray-100 font-weight-normal" width="40%">내역</th>
-                          <th class="text-gray-100 font-weight-normal" width="30%">금액</th>
-                          <th class="d-none">typeId</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-                          <th style="padding: 8px 10px; text-align: center"></th>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-xl-6 mb-2">
-                    <div class="text-dark mb-0"><b>5. 인력지원_자사</b></div>
-                    <table id="supportInternal" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
-                      <thead>
-                        <tr class="bg-secondary">
-                          <th class="text-gray-100 font-weight-normal" width="30%">구분</th>
-                          <th class="text-gray-100 font-weight-normal" width="15%">횟수</th>
-                          <th class="text-gray-100 font-weight-normal" width="15%">사이트수</th>
-                          <th class="text-gray-100 font-weight-normal" width="20%">단가</th>
-                          <th class="text-gray-100 font-weight-normal" width="20%">금액</th>
-                          <th class="d-none">typeId</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-                          <th style="padding: 8px 10px; text-align: center"></th>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="col-xl-6 mb-2">
-                    <div class="text-dark mb-0"><b>6. 인력지원_타사</b></div>
-                    <table id="supportExternal" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
-                      <thead>
-                        <tr class="bg-secondary">
-                          <th class="text-gray-100 font-weight-normal" width="30%">구분</th>
-                          <th class="text-gray-100 font-weight-normal" width="40%">내역</th>
-                          <th class="text-gray-100 font-weight-normal" width="30%">금액</th>
-                          <th class="d-none">typeId</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-                          <th style="padding: 8px 10px; text-align: center"></th>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-xl-6 mb-2">
-                    <div class="text-dark mb-0"><b>7. DB COSTS</b></div>
-                    <table id="dbCosts" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
-                      <thead>
-                        <tr class="bg-secondary">
-                          <th class="text-gray-100 font-weight-normal" width="20%">계약번호</th>
-                          <th class="text-gray-100 font-weight-normal" width="30%">계약시작일</th>
-                          <th class="text-gray-100 font-weight-normal" width="30%">계약종료일</th>
-                          <th class="text-gray-100 font-weight-normal" width="20%">금액</th>
-                          <th class="d-none">typeId</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-                          <th style="padding: 8px 10px; text-align: center"></th>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div class="col-xl-6 mb-2">
-                    <div class="text-dark mb-0"><b>8. 기타</b></div>
-                    <table id="others" class="cell-border pc-table" width="100%" style="width: 100%; table-layout: auto;">
-                      <thead>
-                        <tr class="bg-secondary">
-                          <th class="text-gray-100 font-weight-normal" width="30%">구분</th>
-                          <th class="text-gray-100 font-weight-normal" width="40%">내역</th>
-                          <th class="text-gray-100 font-weight-normal" width="40%">금액</th>
-                          <th class="d-none">typeId</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th style="padding: 8px 10px; text-align: right"></th>
-                          <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-                          <th style="padding: 8px 10px; text-align: center"></th>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
           {% endif %}
 
           {% if services %}
@@ -890,10 +751,12 @@
             <span class="icon text-white-50"> <i class="fas fa-arrow-right"> </i> </span>
             <span class="text"> 복사 </span>
           </a>
+          {% if contract.modifyContract == "Y" %}
           <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
             <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
             <span class="text"> 수정 </span>
           </a>
+          {% endif %}
         </div>
       {% endif %}
     </div>
@@ -911,7 +774,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 2rem">
           <form id="uploadForm" method="POST" enctype="multipart/form-data"
                 action="/sales/savecontractfiles/{{ contract.contractId }}/">
             {% csrf_token %}
@@ -955,7 +818,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 2rem">
           <form id="purchaseUploadForm" method="POST" enctype="multipart/form-data"
                 action="/sales/savepurchasefiles/{{ contract.contractId }}/">
             {% csrf_token %}
@@ -995,8 +858,8 @@
           </button>
         </div>
 
-        <div class="modal-body">
-          <div class="text-center m-5" id="noFile"><h5>업로드된 <span class="text-info">파일</span>이 없습니다.</h5></div>
+        <div class="modal-body" style="padding: 2rem">
+          <div class="text-center m-3" id="noFile"><h5>업로드된 <span class="text-info">파일</span>이 없습니다.</h5></div>
           <table class="file-table">
             <thead>
             <tr id="head" class="text-secondary">
@@ -1058,7 +921,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 2rem">
           {% for company in purchaseCompany %}
             <div class="text-dark ml-2"> ▼ {{ company }}</div>
             <table class="file-table">
@@ -1095,13 +958,13 @@
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="documentModalLabel">문서함</h5>
+          <h5 class="modal-title" id="documentModalLabel">결재함</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 2rem">
           <table class="file-table">
             <thead>
             <tr>
@@ -1110,6 +973,45 @@
               <td width="10%"><b>문서번호</b></td>
               <td width="55%"><b>문서명</b></td>
               <td width="10%"><b>상태</b></td>
+            </tr>
+            </thead>
+            <tbody>
+              {% for document in documents %}
+                <tr>
+                  <td>{{ document.draftDatetime | date:"Y.m.d H:i" }}</td>
+                  <td>{{ document.writeEmp }}</td>
+                  <td><a href="/approval/viewdocument/{{ document.documentId }}" target="_blank">{{ document.documentNumber }}</a></td>
+                  <td class="text-left">{{ document.title }}</td>
+                  <td>{{ document.documentStatus }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- files modal -->
+  <div class="modal fade" id="filesModal" tabindex="-1" role="dialog" aria-labelledby="filesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filesModalLabel">파일함</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body" style="padding: 2rem">
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="20%"><b>일시</b></td>
+              <td width="20%"><b>작성자</b></td>
+              <td width="40%"><b>파일명</b></td>
+              <td width="20%"><b>파일크기</b></td>
             </tr>
             </thead>
             <tbody>
@@ -1141,7 +1043,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 2rem">
 
           <table class="file-table">
             <thead>
@@ -1180,7 +1082,7 @@
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 2rem">
           {% for company in purchaseCompany %}
             <div class="text-dark ml-2"> ▼ {{ company }}</div>
             <table class="file-table">
@@ -1227,7 +1129,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 2rem">
           <form id="purchaseInAdvanceForm" method="POST">{% csrf_token %}</form>
           <table class="file-table">
             <thead>
@@ -1275,7 +1177,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 2rem">
           <form id="confirmForm" action="/sales/viewconfirmpdf/{{ contract.contractId }}/" method="POST">
             {% csrf_token %}
             <div class="row mb-1">
@@ -1323,7 +1225,7 @@
           </button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body" style="padding: 2rem">
           <form id="purchaseOrderForm" method="POST">{% csrf_token %}</form>
           <table class="file-table">
             <thead>
@@ -1803,16 +1705,20 @@
         </div>
       </div>
 
-      {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+      {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empId == contract.empId.empId %}
         <div class="text-center" style="padding: 0px 20px 20px 20px">
+          {% if contract.contractStep == 'Opportunity' %}
           <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
             <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
             <span class="text"> 삭제 </span>
           </a>
+          {% endif %}
+          {% if contract.modifyContract == "Y" %}
           <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
             <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
             <span class="text"> 수정 </span>
           </a>
+          {% endif %}
         </div>
       {% endif %}
     </div>
@@ -1824,27 +1730,6 @@
 {% block script %}
 
   <script type="text/javascript">
-
-      function downloadLog(downloadUrl, downloadType) {
-          const contractId = "{{ contract.contractId }}";
-          $.ajax({
-            url: "{% url 'logs:insertdownloadlog' %}",
-            method: 'POST',
-            cache: false,
-            data: {"downloadUrl": downloadUrl,
-                  "downloadType": downloadType,
-                  "contractId": contractId,
-                   },
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            success: function (returnData) {
-                console.log(returnData)
-            },
-              error:function(request,status,error){
-                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-            }
-        });
-
-      }
 
       function btn_firm() {
           let msg = "Firm으로 전환 하시겠습니까?\n" +
@@ -2106,7 +1991,7 @@
       }
 
       function purchase_file_names(id) {
-          let idNum = id.slice(-1);
+          let idNum = id.substring(13);
           let purchaseCompany = $('#purchaseCompany option:selected').text();
           let files = $('#' + id).get(0).files;
           let purchaseFilesTbody = $('#purchaseFilesTbody');
@@ -2147,6 +2032,8 @@
           let revenueEstimate = {{ files_b | length }};  // 매출견적서 개수
           let contractPaper = {{ files_c | length }};  // 계약서 개수
           let confirmPaper = {{ files_f | length }};  // 납품,구축,검수확인서 개수
+          let ordernoti_ing = {{ ordernoti_ing | length }}; // 수주통보서 결재중인 개수
+          let modifyContract = "{{ contract.modifyContract }}";
 
           if (documentType === '수주통보서') {
               if (contractPaper === 0) {
@@ -2158,7 +2045,11 @@
               if (confirmPaper === 0) {
                   alert('납품,구축,검수확인서를 업로드해주세요.')
               } else {
-                  window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType);
+                  if (ordernoti_ing != 0){
+                      alert('수주통보서 결재완료 후 결재 가능합니다.')
+                  }else {
+                      window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType);
+                  }
               }
           } else if (documentType === '선발주') {
               if (purchaseEstimate === 0) {
@@ -2168,6 +2059,17 @@
               } else {
                   $('#purchaseInAdvanceModal').modal('show');
               }
+          }else if (documentType === '수정권한요청') {
+            if (modifyContract == 'Y'){
+                    alert('이미 수정권한이 있습니다.')
+                }else {
+                    if (ordernoti_ing != 0) {
+                        alert('수주통보서 결재중에 수정권한요청서를 올릴 수 없습니다.');
+                    }
+                    else {
+                        window.open('/approval/postcontractdocument/' + '{{ contract.contractId }}' + '/' + documentType);
+                    }
+                }
           }
       }
 
@@ -2199,6 +2101,10 @@
 
       function show_document() {
           $('#documentModal').modal('show');
+      }
+
+      function show_files() {
+          $('#filesModal').modal('show');
       }
 
       function change_purchase_file(obj) {
@@ -2514,496 +2420,6 @@
                   $(api.column(6).footer()).html(costResult.toLocaleString());
               },
           });
-
-          // 하도급계약
-          $('#goodsHW').dataTable({
-              "autoWidth": true,
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      'contractId': '{{ contract.contractId }}',
-                      'classNumber': 1,
-                      'table': 'a'
-                  },
-                  "url": "{% url 'sales:contractdetails' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: 'companyName'},
-                  {data: 'contents'},
-                  {data: 'price'},
-                  {data: 'typeId'},
-              ],
-              "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "d-none"},
-              ],
-              "deferRender": true,
-              "order": [[2, 'desc']],
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(2)', nRow).text(aData.price.toLocaleString());
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
-
-                  var priceResult = 0;
-                  api.column(2, {search: 'applied'}).data().each(function (data, index) {
-                      priceResult += parseFloat(data);
-                  });
-                  $(api.column(2).footer()).html(priceResult.toLocaleString());
-              },
-          });
-
-          $('#goodsSW').dataTable({
-              "autoWidth": true,
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      'contractId': '{{ contract.contractId }}',
-                      'classNumber': 2,
-                      'table': 'a'
-                  },
-                  "url": "{% url 'sales:contractdetails' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: 'companyName'},
-                  {data: 'contents'},
-                  {data: 'price'},
-                  {data: 'typeId'},
-              ],
-              "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "d-none"},
-              ],
-              "deferRender": true,
-              "order": [[2, 'desc']],
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(2)', nRow).text(aData.price.toLocaleString());
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
-
-                  var priceResult = 0;
-                  api.column(2, {search: 'applied'}).data().each(function (data, index) {
-                      priceResult += parseFloat(data);
-                  });
-                  $(api.column(2).footer()).html(priceResult.toLocaleString());
-              },
-          });
-
-          $('#maintenanceHW').dataTable({
-              "autoWidth": true,
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      'contractId': '{{ contract.contractId }}',
-                      'classNumber': 3,
-                      'table': 'a'
-                  },
-                  "url": "{% url 'sales:contractdetails' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: 'companyName'},
-                  {data: 'contents'},
-                  {data: 'price'},
-                  {data: 'typeId'},
-              ],
-              "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "d-none"},
-              ],
-              "deferRender": true,
-              "order": [[2, 'desc']],
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(2)', nRow).text(aData.price.toLocaleString());
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
-
-                  var priceResult = 0;
-                  api.column(2, {search: 'applied'}).data().each(function (data, index) {
-                      priceResult += parseFloat(data);
-                  });
-                  $(api.column(2).footer()).html(priceResult.toLocaleString());
-              },
-          });
-
-          $('#maintenanceSW').dataTable({
-              "autoWidth": true,
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      'contractId': '{{ contract.contractId }}',
-                      'classNumber': 4,
-                      'table': 'a'
-                  },
-                  "url": "{% url 'sales:contractdetails' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: 'companyName'},
-                  {data: 'contents'},
-                  {data: 'price'},
-                  {data: 'typeId'},
-              ],
-              "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "d-none"},
-              ],
-              "deferRender": true,
-              "order": [[2, 'desc']],
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(2)', nRow).text(aData.price.toLocaleString());
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
-
-                  var priceResult = 0;
-                  api.column(2, {search: 'applied'}).data().each(function (data, index) {
-                      priceResult += parseFloat(data);
-                  });
-                  $(api.column(2).footer()).html(priceResult.toLocaleString());
-              },
-          });
-
-          $('#supportInternal').dataTable({
-              "autoWidth": true,
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      'contractId': '{{ contract.contractId }}',
-                      'classNumber': 5,
-                      'table': 'b'
-                  },
-                  "url": "{% url 'sales:contractdetails' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: 'classification'},
-                  {data: 'times'},
-                  {data: 'sites'},
-                  {data: 'units'},
-                  {data: 'price'},
-                  {data: 'typeId'},
-              ],
-              "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, className: "d-none"},
-              ],
-              "deferRender": true,
-              "order": [[4, 'desc']],
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(4)', nRow).text(aData.price.toLocaleString());
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
-
-                  var priceResult = 0;
-                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
-                      priceResult += parseFloat(data);
-                  });
-                  $(api.column(4).footer()).html(priceResult.toLocaleString());
-              },
-          });
-
-          $('#supportExternal').dataTable({
-              "autoWidth": true,
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      'contractId': '{{ contract.contractId }}',
-                      'classNumber': 6,
-                      'table': 'c'
-                  },
-                  "url": "{% url 'sales:contractdetails' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: 'classification'},
-                  {data: 'contents'},
-                  {data: 'price'},
-                  {data: 'typeId'},
-              ],
-              "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "d-none"},
-              ],
-              "deferRender": true,
-              "order": [[2, 'desc']],
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(2)', nRow).text(aData.price.toLocaleString());
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
-
-                  var priceResult = 0;
-                  api.column(2, {search: 'applied'}).data().each(function (data, index) {
-                      priceResult += parseFloat(data);
-                  });
-                  $(api.column(2).footer()).html(priceResult.toLocaleString());
-              },
-          });
-
-          $('#dbCosts').dataTable({
-              "autoWidth": true,
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      'contractId': '{{ contract.contractId }}',
-                      'classNumber': 7,
-                      'table': 'd'
-                  },
-                  "url": "{% url 'sales:contractdetails' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: 'contractNo'},
-                  {data: 'contractStartDate'},
-                  {data: 'contractEndDate'},
-                  {data: 'price'},
-                  {data: 'typeId'},
-              ],
-              "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, className: "d-none"},
-              ],
-              "deferRender": true,
-              "order": [[1, 'asc']],
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(1)', nRow).text(replaceDate(aData.contractStartDate, null, "-", ".", "", 4));
-                  $('td:eq(2)', nRow).text(replaceDate(aData.contractStartDate, null, "-", ".", "", 4));
-                  $('td:eq(3)', nRow).text(aData.price.toLocaleString());
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
-
-                  var priceResult = 0;
-                  api.column(3, {search: 'applied'}).data().each(function (data, index) {
-                      priceResult += parseFloat(data);
-                  });
-                  $(api.column(3).footer()).html(priceResult.toLocaleString());
-              },
-          });
-
-          $('#others').dataTable({
-              "autoWidth": true,
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      'contractId': '{{ contract.contractId }}',
-                      'classNumber': 8,
-                      'table': 'c'
-                  },
-                  "url": "{% url 'sales:contractdetails' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: 'classification'},
-                  {data: 'contents'},
-                  {data: 'price'},
-                  {data: 'typeId'},
-              ],
-              "columnDefs": [
-                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, className: "d-none"},
-              ],
-              "deferRender": true,
-              "order": [[2, 'desc']],
-              "searching": false,
-              "paging": false,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_개씩 보기",
-                  "search": "검색:",
-                  "zeroRecords": "결과 없음",
-                  "processing": "로딩중",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "→",
-                      "previous": "←"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(2)', nRow).text(aData.price.toLocaleString());
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
-
-                  var priceResult = 0;
-                  api.column(2, {search: 'applied'}).data().each(function (data, index) {
-                      priceResult += parseFloat(data);
-                  });
-                  $(api.column(2).footer()).html(priceResult.toLocaleString());
-              },
-          });
-
 
           $('#services').dataTable({
               "autoWidth": true,

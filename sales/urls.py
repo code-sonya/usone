@@ -98,4 +98,7 @@ urlpatterns = [
     url(r'^sendpurchaseorder/(?P<orderId>.+)/$', views.send_purchaseorder, name='deleterelatedpsendpurchaseorderurchaseestimate'),
     url(r'^showpurchaseorder/$', views.show_purchaseorder, name='showpurchaseorder'),
     url(r'^showpurchaseorderasjson/$', views.showpurchaseorder_asjson, name='showpurchaseorderasjson'),
+    url(r'^purchasemaincategoryasjson/$', views.purchasemaincategory_asjson, name='purchasemaincategory_asjson'),
+    url(r'^clssificaionasjson/$', views.clssificaion_asjson, name="clssificaionasjson"),
+    url(r'^savepurchasecategory/$', views.save_purchasecategory, name='savepurchasecategory'),
 ]

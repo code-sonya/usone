@@ -66,10 +66,10 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">매출 관리</h6>
+          <h6 class="m-0 h3 text-gray-800">매출 관리 ({{ startdate }} ~ {{ enddate }})</h6>
           <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
             </a>
           </div>
         </div>
@@ -78,12 +78,12 @@
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
             {% if modifyMode == 'N' %}
               <div class="float-right">
-                <div class="btn btn-success" id="modifyMode" onclick="btn_modifyMode()">수정하기 <i class="fas fa-table fa-fw text-white"></i></div>
+                <div class="btn btn-warning" id="modifyMode" onclick="btn_modifyMode()"><i class="fas fa-table text-white"> 수정하기</i></div>
               </div>
             {% endif %}
             {% if modifyMode == 'Y' %}
               <div class="float-right">
-                <button class="btn btn-danger" id="saveRevenueTable">저장하기 <i class="fas fa-save fa-fw text-white"></i></button>
+                <button class="btn btn-danger" id="saveRevenueTable"><i class="fas fa-save text-white"> 저장하기</i></button>
               </div>
               <div class="float-right">
                 <input type="date" id="copyDate" max="9999-12-31" class="input-form mr-3" value="{{ copyDate }}">
@@ -92,7 +92,7 @@
             {% if outstandingcollection == 'N' and modifyMode == 'N' %}
               <div class="float-right" style="margin-right: 10px;">
                 <a class="btn btn-info" href="#" onclick="btn_changeDate()" role="button" id="changeDateLink" data-toggle="modal" data-target="#changeDateModal">
-                  매출예정일 변경 <i class="fas fa-clock fa-fw text-white"></i></a>
+                  <i class="fas fa-clock text-white"> 매출예정일 변경</i></a>
               </div>
             {% endif %}
           {% endif %}
@@ -258,7 +258,7 @@
 
   <!-- Filter Modal -->
   <div class="modal fade" id="changeDateModal" tabindex="-1" role="dialog" aria-labelledby="changeDateModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-lg modal-dialog" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
@@ -273,12 +273,12 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-12">
-                <h6> < 매출예정일이 지난 매출 목록 > </h6>
+                <h6 class="text-center"> < 매출예정일이 지난 매출 목록 > </h6>
                 <table id="changepredictrevenue" class="pc-table thtd" style="margin:2px">
                   <thead>
                   <tr class="bg-secondary text-white thtd">
                     <th colspan=1>구분</th>
-                    <th colspan=2>계약명</th>
+                    <th colspan=3>계약명</th>
                     <th colspan=2>(기존)매출예정일</th>
                     <th class="text-warning" colspan=2>(변경)매출예정일</th>
                     <th class="d-none">revenueId</th>
@@ -335,15 +335,25 @@
 
                   } else {
                       for (var count = 0; count < revenues.length; count++) {
-                          var tr = $("<tr class='thtd'><td colspan=1>"
-                              + revenues[count].contractId__contractStep + "</td><td colspan=2>["
-                              + revenues[count].contractId__contractCode + "]" + revenues[count].contractId__contractName + "</td><td colspan=2>"
-                              + revenues[count].predictBillingDate + "</td><td colspan=2 name='nextBillingDate'>"
-                              + revenues[count].nextBillingDate + "</td>"
-                              + "<td class='d-none'><input name='revenueId' value='" + revenues[count].revenueId + "'><input name='nextBillingDate' value='"
-                              + revenues[count].nextBillingDate + "'></td><tr>"
-                          );
-                          $('#changepredictrevenue').append(tr);
+                          if (revenues[count].contractId__contractStep == 'Firm'){
+                              var tr = $("<tr class='thtd'><td colspan=1 class='text-primary'>" + revenues[count].contractId__contractStep + "</td>" +
+                              "<td colspan=3>[" + revenues[count].contractId__contractCode + "]" + revenues[count].contractId__contractName + "</td>" +
+                              "<td colspan=2 class='text-center'>" + revenues[count].predictBillingDate + "</td>" +
+                              "<td colspan=2 class='text-center' name='nextBillingDate'>" + revenues[count].nextBillingDate + "</td>" +
+                              "<td class='d-none'><input name='revenueId' value='" + revenues[count].revenueId + "'>" +
+                              "<input name='nextBillingDate' value='" + revenues[count].nextBillingDate + "'></td><tr>"
+                            );
+                            $('#changepredictrevenue').append(tr);
+                          } else {
+                              var tr = $("<tr class='thtd'><td colspan=1 class='text-success'>" + revenues[count].contractId__contractStep + "</td>" +
+                              "<td colspan=3>[" + revenues[count].contractId__contractCode + "]" + revenues[count].contractId__contractName + "</td>" +
+                              "<td colspan=2 class='text-center'>" + revenues[count].predictBillingDate + "</td>" +
+                              "<td colspan=2 class='text-center' name='nextBillingDate'>" + revenues[count].nextBillingDate + "</td>" +
+                              "<td class='d-none'><input name='revenueId' value='" + revenues[count].revenueId + "'>" +
+                              "<input name='nextBillingDate' value='" + revenues[count].nextBillingDate + "'></td><tr>"
+                            );
+                            $('#changepredictrevenue').append(tr);
+                          }
                       }
                   }
               }
@@ -381,7 +391,8 @@
               url: "{% url 'sales:empdept_ajax_url' %}",
               method: 'POST',
               cache: false,
-              data: {"empDeptName": empDeptName},
+              data: {"empDeptName": empDeptName,
+                    "empStatus": "Y"},
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var empName = returnData;

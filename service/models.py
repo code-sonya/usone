@@ -126,6 +126,7 @@ class Vacation(models.Model):
     vacationDate = models.DateField()
     vacationType = models.CharField(max_length=10, choices=vacationTypeChoices, default='일차')
     vacationCategory = models.ForeignKey(Vacationcategory, on_delete=models.SET_NULL, null=True, blank=True)
+    rewardVacationType = models.CharField(max_length=50, null=True, blank=True)
     comment = models.CharField(max_length=100, null=True, blank=True)
     vacationStatus = models.CharField(max_length=10, default='N')
 

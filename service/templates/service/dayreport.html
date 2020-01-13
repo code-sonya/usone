@@ -234,7 +234,7 @@
               <br>
               <h5 class="text-gray-700"><i class="fas fa-plane-departure"></i>휴가</h5>
               {% for q in row.vacation %}
-                <li style="text-indent: 16px;"> ({{ q.vacationType }}) {{ q.empName }} </li>
+                <li style="text-indent: 16px;"> [{{ q.vacationType }}] {{ q.empName }} {{ q.vacationStatus }} </li>
               {% endfor %}
             {% endif %}
           </div>

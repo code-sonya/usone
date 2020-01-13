@@ -129,6 +129,7 @@ def who_approval(documentId):
         if apply.filter(approvalStatus='대기'):
             minStep = apply.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
             do.append(apply.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+
             # minStep 뒷사람들은 예정 (will)
             for a in apply.filter(approvalStatus='대기', approvalStep__gt=minStep):
                 will.append(a.approvalEmp.empId)
@@ -139,19 +140,89 @@ def who_approval(documentId):
         elif process.filter(approvalStatus='대기'):
             minStep = process.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
             do.append(process.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+
             # minStep 뒷사람들은 예정 (will)
             for p in process.filter(approvalStatus='대기', approvalStep__gt=minStep):
                 will.append(p.approvalEmp.empId)
 
-    # 2. 결재(initApproval) -> 합의(agreement) -> 재무합의(financial) -> 최종결재(finalApproval)
+    # 2. 기안(initApproval) -> 합의(agreement) -> 재무합의(financial) -> 결재(finalApproval)
+    # approval = approvals.filter(approvalCategory='결재')
+    #
+    # if approval:
+    #     approvalMinStep = approval.aggregate(Min('approvalStep'))['approvalStep__min']
+    #     initApproval = approval.filter(approvalStep=approvalMinStep)
+    #     agreement = approvals.filter(approvalCategory='합의')
+    #     financial = approvals.filter(approvalCategory='재무합의')
+    #     finalApproval = approval.exclude(approvalStep=approvalMinStep)
+    #
+    #     # 완료 (done)
+    #     for a in approval.filter(approvalStatus='완료'):
+    #         done.append(a.approvalEmp.empId)
+    #     for a in agreement.filter(approvalStatus='완료'):
+    #         done.append(a.approvalEmp.empId)
+    #     for f in financial.filter(approvalStatus='완료'):
+    #         done.append(f.approvalEmp.empId)
+    #
+    #     # 기안자가 기안시 결재가 안됐을 경우, 기안자가 결재 차례 (이 상태가 오면 버그임.)
+    #     if initApproval.filter(approvalStatus='대기'):
+    #         minStep = initApproval.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+    #         do.append(initApproval.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+    #
+    #         # minStep 뒷사람들은 예정 (will)
+    #         for i in initApproval.filter(approvalStatus='대기', approvalStep__gt=minStep):
+    #             will.append(i.approvalEmp.empId)
+    #         for a in agreement.filter(approvalStatus='대기'):
+    #             will.append(a.approvalEmp.empId)
+    #         for f in financial.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #         for f in finalApproval.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #
+    #     # 합의 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+    #     elif agreement.filter(approvalStatus='대기'):
+    #         minStep = agreement.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+    #         do.append(agreement.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+    #
+    #         # minStep 뒷사람들은 예정 (will)
+    #         for a in agreement.filter(approvalStatus='대기', approvalStep__gt=minStep):
+    #             will.append(a.approvalEmp.empId)
+    #         for f in financial.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #         for f in finalApproval.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #
+    #     # 재무합의 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+    #     elif financial.filter(approvalStatus='대기'):
+    #         minStep = financial.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+    #         do.append(financial.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+    #
+    #         # minStep 뒷사람들은 예정 (will)
+    #         for f in financial.filter(approvalStatus='대기', approvalStep__gt=minStep):
+    #             will.append(f.approvalEmp.empId)
+    #         for f in finalApproval.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+    #
+    #     # 결재 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+    #     elif finalApproval.filter(approvalStatus='대기'):
+    #         minStep = finalApproval.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+    #         do.append(finalApproval.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+    #
+    #         # minStep 뒷사람들은 예정 (will)
+    #         for f in finalApproval.filter(approvalStatus='대기'):
+    #             will.append(f.approvalEmp.empId)
+
+    # 2. 기안(initApproval) -> 합의(agreement) -> 나머지결재(otherApproval) -> 재무합의(financial) -> 최종결재(finalApproval)
     approval = approvals.filter(approvalCategory='결재')
 
     if approval:
+        approvalMinStep = approval.aggregate(Min('approvalStep'))['approvalStep__min']
         approvalMaxStep = approval.aggregate(Max('approvalStep'))['approvalStep__max']
-        initApproval = approval.exclude(approvalStep=approvalMaxStep)
+
+        initApproval = approval.filter(approvalStep=approvalMinStep)
         agreement = approvals.filter(approvalCategory='합의')
+        otherApproval = approval.exclude(approvalStep=approvalMinStep).exclude(approvalStep=approvalMaxStep)
         financial = approvals.filter(approvalCategory='재무합의')
-        finalApproval = approval.get(approvalStep=approvalMaxStep)
+        finalApproval = approval.filter(approvalStep=approvalMaxStep)
 
         # 완료 (done)
         for a in approval.filter(approvalStatus='완료'):
@@ -160,42 +231,71 @@ def who_approval(documentId):
             done.append(a.approvalEmp.empId)
         for f in financial.filter(approvalStatus='완료'):
             done.append(f.approvalEmp.empId)
-        if finalApproval.approvalStatus == '완료':
-            done.append(finalApproval.approvalEmp.empId)
 
-        # 결재 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+        # 기안자가 기안시 결재가 안됐을 경우, 기안자가 결재 차례 (이 상태가 오면 버그임.)
         if initApproval.filter(approvalStatus='대기'):
             minStep = initApproval.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
             do.append(initApproval.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+
             # minStep 뒷사람들은 예정 (will)
-            for a in initApproval.filter(approvalStatus='대기', approvalStep__gt=minStep):
-                will.append(a.approvalEmp.empId)
+            for i in initApproval.filter(approvalStatus='대기', approvalStep__gt=minStep):
+                will.append(i.approvalEmp.empId)
             for a in agreement.filter(approvalStatus='대기'):
                 will.append(a.approvalEmp.empId)
+            for o in otherApproval.filter(approvalStatus='대기'):
+                will.append(o.approvalEmp.empId)
             for f in financial.filter(approvalStatus='대기'):
                 will.append(f.approvalEmp.empId)
-            will.append(finalApproval.approvalEmp.empId)
+            for f in finalApproval.filter(approvalStatus='대기'):
+                will.append(f.approvalEmp.empId)
 
-        # 승인 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
-        elif agreement.filter(approvalStatus='대기') or financial.filter(approvalStatus='대기'):
-            if agreement.filter(approvalStatus='대기'):
-                minStep = agreement.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
-                do.append(agreement.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
-                # minStep 뒷사람들은 예정 (will)
-                for a in agreement.filter(approvalStatus='대기', approvalStep__gt=minStep):
-                    will.append(a.approvalEmp.empId)
+        # 합의 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+        elif agreement.filter(approvalStatus='대기'):
+            minStep = agreement.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+            do.append(agreement.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
 
-            if financial.filter(approvalStatus='대기'):
-                minStep = financial.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
-                do.append(financial.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
-                # minStep 뒷사람들은 예정 (will)
-                for f in financial.filter(approvalStatus='대기', approvalStep__gt=minStep):
-                    will.append(f.approvalEmp.empId)
+            # minStep 뒷사람들은 예정 (will)
+            for a in agreement.filter(approvalStatus='대기', approvalStep__gt=minStep):
+                will.append(a.approvalEmp.empId)
+            for o in otherApproval.filter(approvalStatus='대기'):
+                will.append(o.approvalEmp.empId)
+            for f in financial.filter(approvalStatus='대기'):
+                will.append(f.approvalEmp.empId)
+            for f in finalApproval.filter(approvalStatus='대기'):
+                will.append(f.approvalEmp.empId)
 
-            will.append(finalApproval.approvalEmp.empId)
+        # 나머지결재 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+        elif otherApproval.filter(approvalStatus='대기'):
+            minStep = otherApproval.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+            do.append(otherApproval.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
 
-        elif finalApproval.approvalStatus == '대기':
-            do.append(finalApproval.approvalEmp.empId)
+            # minStep 뒷사람들은 예정 (will)
+            for o in otherApproval.filter(approvalStatus='대기', approvalStep__gt=minStep):
+                will.append(o.approvalEmp.empId)
+            for f in financial.filter(approvalStatus='대기'):
+                will.append(f.approvalEmp.empId)
+            for f in finalApproval.filter(approvalStatus='대기'):
+                will.append(f.approvalEmp.empId)
+
+        # 재무합의 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+        elif financial.filter(approvalStatus='대기'):
+            minStep = financial.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+            do.append(financial.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+
+            # minStep 뒷사람들은 예정 (will)
+            for f in financial.filter(approvalStatus='대기', approvalStep__gt=minStep):
+                will.append(f.approvalEmp.empId)
+            for f in finalApproval.filter(approvalStatus='대기'):
+                will.append(f.approvalEmp.empId)
+
+        # 결재 중 대기가 있는 경우, 대기 인원 중 step 가장 작은 사람이 결재 차례 (do)
+        elif finalApproval.filter(approvalStatus='대기'):
+            minStep = finalApproval.filter(approvalStatus='대기').aggregate(Min('approvalStep'))['approvalStep__min']
+            do.append(finalApproval.get(approvalStatus='대기', approvalStep=minStep).approvalEmp.empId)
+
+            # minStep 뒷사람들은 예정 (will)
+            for f in finalApproval.filter(approvalStatus='대기'):
+                will.append(f.approvalEmp.empId)
 
     # 3. 참조
     reference = approvals.filter(approvalCategory='참조')
@@ -310,16 +410,24 @@ def intcomma(num):
     return result
 
 
-def mail_approval(employee, document):
+def mail_approval(employee, document, type):
     # smtp 정보
     email = AdminEmail.objects.filter(Q(smtpStatus='정상')).aggregate(Max('adminId'))
     email = AdminEmail.objects.get(Q(adminId=email['adminId__max']))
     # 결재요청 메일 전송
     try:
-        title = "'{}' 문서 결재 요청".format(document.title)
-        html = approvalhtml(document)
+        if type == "결재요청":
+            title = "'{}' 결재 요청".format(document.title)
+            html = approvalhtml(document)
+        elif type == "결재완료":
+            title = "'{}' 결재 완료".format(document.title)
+            html = approvaldonehtml(document)
+        elif type == "결재반려":
+            title = "'{}' 결재 반려".format(document.title)
+            html = rejectdonehtml(document)
+
         toEmail = employee.empEmail
-        fromEmail = 'usone@unioneinc.co.kr'
+        fromEmail = 'usails@unioneinc.co.kr'
 
         msg = MIMEMultipart("alternative")
         msg["From"] = fromEmail
@@ -332,7 +440,7 @@ def mail_approval(employee, document):
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
             smtp.close()
-        elif email.smtpServer == 'SSL':
+        elif email.smtpSecure == 'SSL':
             smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
@@ -360,13 +468,15 @@ def mail_document(toEmail, fromEmail, document):
         msg["To"] = toEmail
         msg["Subject"] = Header(s=title, charset="utf-8")
         msg.attach(MIMEText(html, "html", _charset="utf-8"))
+        print(email.smtpServer, email.smtpPort, email, email.smtpServer)
         if email.smtpSecure == 'TLS':
             smtp = smtplib.SMTP(email.smtpServer, email.smtpPort)
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
             smtp.close()
-        elif email.smtpServer == 'SSL':
-            smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
+        elif email.smtpSecure == 'SSL':
+            print(email.smtpServer)
+            smtp = SMTP_SSL(email.smtpServer, email.smtpPort)
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
             smtp.close()
@@ -396,11 +506,136 @@ def approvalhtml(document):
     <body>
       <div style="border: 2px solid white;width: 600px;height: 500px;text-align: center;">
         <div style="text-align: center;margin-top:50px">
-         <strong style="font-size: 30px;">USONE 전자결재 알림</strong>
+         <strong style="font-size: 30px;">Usails 전자결재 요청</strong>
         </div>
         <br>
+        <div style="text-align:center">
+        <table>
+          <tr>
+            <td colspan="4">
+              <table style="margin:30px;border: 1px solid #858796a3;border-collapse: collapse;">
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;종&nbsp; &nbsp;류</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.formId.formTitle +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;번&nbsp; &nbsp;호</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.documentNumber +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;제&nbsp; &nbsp;목</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.title +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">기&nbsp; &nbsp; &nbsp; 안 &nbsp; &nbsp; &nbsp; 자</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.writeEmp.empName +"""</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr style="height: 60px">
+            <td style="text-align: center;width: 550px">
+              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a href='"""+url+"""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
+            </td>
+          </tr>
+        </table>
+      </div>
+      </div>
+    </body>
+    </html>
+    """
+    return html
+
+
+def approvaldonehtml(document):
+    url = "https://lop.unioneinc.co.kr/"
+    html = """
+    <html lang="ko">
+    <head>
+    <meta charset="utf-8">
+      <style type="text/css">
+        @font-face {
+          font-family: JejuGothic;
+          src: url({% static '/mail/JejuGothic.ttf' %});
+        }
+
+        html {
+          font-family: JejuGothic, serif;
+        }
+
+      </style>
+    </head>
+    <body>
+      <div style="border: 2px solid white;width: 600px;height: 500px;text-align: center;">
+        <div style="text-align: center;margin-top:50px">
+         <strong style="font-size: 30px;">Usails 전자결재 완료</strong>
+        </div>
         <br>
         <div style="text-align:center">
+        <div style="font-size:15px;text-align: center;color:#4e73df">※ 기안 하신 문서가 완료 되었습니다. ※</div>
+        <table>
+          <tr>
+            <td colspan="4">
+              <table style="margin:30px;border: 1px solid #858796a3;border-collapse: collapse;">
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;종&nbsp; &nbsp;류</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.formId.formTitle +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;번&nbsp; &nbsp;호</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.documentNumber +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">문&nbsp; &nbsp;서 &nbsp; &nbsp;제&nbsp; &nbsp;목</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.title +"""</td>
+                </tr>
+                <tr style="height: 50px">
+                  <td colspan="1" style="border: 1px solid #858796a3;border-collapse: collapse;background-color:#ebfaff;width: 150px;text-align:center">기&nbsp; &nbsp; &nbsp; 안 &nbsp; &nbsp; &nbsp; 자</td>
+                  <td colspan="3" style="border: 1px solid #858796a3;border-collapse: collapse;width: 400px;text-align:left;padding-left:10px">"""+ document.writeEmp.empName +"""</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr style="height: 60px">
+            <td style="text-align: center;width: 550px">
+              <span style="background-color:#4e73df;width:100px;font-size:17px;padding:10px;"><a href='"""+url+"""approval/viewdocument/"""+ str(document.documentId) +"""/' style="color:#fff">확인</a></button>
+            </td>
+          </tr>
+        </table>
+      </div>
+      </div>
+    </body>
+    </html>
+    """
+    return html
+
+
+def rejectdonehtml(document):
+    url = "https://lop.unioneinc.co.kr/"
+    html = """
+    <html lang="ko">
+    <head>
+    <meta charset="utf-8">
+      <style type="text/css">
+        @font-face {
+          font-family: JejuGothic;
+          src: url({% static '/mail/JejuGothic.ttf' %});
+        }
+
+        html {
+          font-family: JejuGothic, serif;
+        }
+
+      </style>
+    </head>
+    <body>
+      <div style="border: 2px solid white;width: 600px;height: 500px;text-align: center;">
+        <div style="text-align: center;margin-top:50px">
+         <strong style="font-size: 30px;">Usails 전자결재 반려</strong>
+        </div>
+        <br>
+        <div style="text-align:center">
+        <div style="font-size:15px;text-align: center;color:#e74a3b">※ 기안 하신 문서가 반려 되었습니다. ※</div>
         <table>
           <tr>
             <td colspan="4">

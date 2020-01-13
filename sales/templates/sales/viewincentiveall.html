@@ -70,11 +70,11 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h3 class="m-0 text-gray-800"> {{ todayYear }}년 {{ todayQuarter }}분기 인센티브 현황 </h3>
         <div class="dropdown no-arrow">
-          <a class="mr-3" onclick="location.href='/sales/viewincentiveallpdf/{{ todayYear }}/{{ todayQuarter }}/'">
-            <i class="fas fa-download fa-fw text-gray-400"></i>
+          <a class="btn btn-warning" href="#" role="button" onclick="location.href='/sales/viewincentiveallpdf/{{ todayYear }}/{{ todayQuarter }}/'">
+            <i class="fas fa-download d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-download"></i> PDF</span>
           </a>
-          <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-            <i class="fas fa-filter fa-fw text-gray-400"></i>
+          <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+            <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
           </a>
         </div>
       </div>
@@ -188,7 +188,7 @@
             <div class="row mb-1">
               <div class="col-6">
                 <label for="year" class="text-primary">연도</label>
-                <input class="form-control" id="year" name="year" type="number" value="{{ todayYear }}">
+                <input class="form-control" max="9999" id="year" name="year" type="number" value="{{ todayYear }}">
               </div>
               <div class="col-6">
                 <label for="quarter" class="text-primary">분기</label>

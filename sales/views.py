@@ -22,9 +22,9 @@ from logs.models import OrderLog
 from .forms import ContractForm, GoalForm, PurchaseorderformForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
-    empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, magicsearch, summaryPurchase, detailPurchase, billing_schedule, mail_purchaseorder
+    empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, summary, detailPurchase, billing_schedule, mail_purchaseorder
 
 from django.db.models import Q, Value, F, CharField, IntegerField, Max, Min
 from datetime import datetime, timedelta, date
@@ -88,6 +88,7 @@ def post_contract(request):
                     revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
                 instance = Revenue.objects.create(
                     contractId=post,
+                    empId=post.empId,
                     billingTime=str(idx) + '/' + str(len(jsonRevenue)),
                     predictBillingDate=revenue["billingDate"] or revenue["predictBillingDate"] + '-01' or None,
                     billingDate=revenue["billingDate"] or None,
@@ -104,6 +105,17 @@ def post_contract(request):
                 revenueInstance.incentiveProfitPrice = cal_revenue_incentive(int(instance.revenueId))[1]
                 revenueInstance.incentiveReason = cal_revenue_incentive(int(instance.revenueId))[2]
                 revenueInstance.save()
+
+            jsonPurchaseItem = json.loads(request.POST['jsonPurchaseItem'])
+            for item in jsonPurchaseItem:
+                Purchasecontractitem.objects.create(
+                    contractId=post,
+                    companyName=Company.objects.filter(companyNameKo=item["purchaseCategoryCompany"]).first(),
+                    mainCategory=item["purchaseMainCategory"],
+                    subCategory=item["purchaseSubCategory"],
+                    itemName=item["purchaseItemName"],
+                    itemPrice=int(item["purchaseItemPrice"])
+                )
 
             jsonPurchase = json.loads(request.POST['jsonPurchase'])
             for purchase in jsonPurchase:
@@ -130,92 +142,6 @@ def post_contract(request):
                     comment=cost["costComment"],
                 )
 
-            jsonGoodsHW = json.loads(request.POST['jsonGoodsHW'])
-            for goodsHW in jsonGoodsHW:
-                company = Company.objects.get(companyNameKo=goodsHW["company"])
-                Purchasetypea.objects.create(
-                    classNumber=1,
-                    contractId=post,
-                    companyName=company,
-                    contents=goodsHW["contents"],
-                    price=int(goodsHW["price"]),
-                )
-
-            jsonGoodsSW = json.loads(request.POST['jsonGoodsSW'])
-            for goodsSW in jsonGoodsSW:
-                company = Company.objects.get(companyNameKo=goodsSW["company"])
-                Purchasetypea.objects.create(
-                    classNumber=2,
-                    contractId=post,
-                    companyName=company,
-                    contents=goodsSW["contents"],
-                    price=int(goodsSW["price"]),
-                )
-
-            jsonMaintenanceHW = json.loads(request.POST['jsonMaintenanceHW'])
-            for maintenanceHW in jsonMaintenanceHW:
-                company = Company.objects.get(companyNameKo=maintenanceHW["company"])
-                Purchasetypea.objects.create(
-                    classNumber=3,
-                    contractId=post,
-                    companyName=company,
-                    contents=maintenanceHW["contents"],
-                    price=int(maintenanceHW["price"]),
-                )
-
-            jsonMaintenanceSW = json.loads(request.POST['jsonMaintenanceSW'])
-            for maintenanceSW in jsonMaintenanceSW:
-                company = Company.objects.get(companyNameKo=maintenanceSW["company"])
-                Purchasetypea.objects.create(
-                    classNumber=4,
-                    contractId=post,
-                    companyName=company,
-                    contents=maintenanceSW["contents"],
-                    price=int(maintenanceSW["price"]),
-                )
-
-            jsonSupportInternal = json.loads(request.POST['jsonSupportInternal'])
-            for supportInternal in jsonSupportInternal:
-                Purchasetypeb.objects.create(
-                    classNumber=5,
-                    contractId=post,
-                    classification=supportInternal["type"],
-                    times=int(supportInternal["times"] or 0) or None,
-                    sites=int(supportInternal["sites"] or 0) or None,
-                    units=int(supportInternal["units"]),
-                    price=int(supportInternal["price"]),
-                )
-
-            jsonSupportExternal = json.loads(request.POST['jsonSupportExternal'])
-            for supportExternal in jsonSupportExternal:
-                Purchasetypec.objects.create(
-                    classNumber=6,
-                    contractId=post,
-                    classification=supportExternal["type"],
-                    contents=supportExternal["contents"],
-                    price=int(supportExternal["price"]),
-                )
-
-            jsonDbCosts = json.loads(request.POST['jsonDbCosts'])
-            for dbCosts in jsonDbCosts:
-                Purchasetyped.objects.create(
-                    classNumber=7,
-                    contractId=post,
-                    contractNo=dbCosts["number"],
-                    contractStartDate=dbCosts["start"] or None,
-                    contractEndDate=dbCosts["end"] or None,
-                    price=int(dbCosts["price"]),
-                )
-
-            jsonOthers = json.loads(request.POST['jsonOthers'])
-            for others in jsonOthers:
-                Purchasetypec.objects.create(
-                    classNumber=8,
-                    contractId=post,
-                    classification=others["type"],
-                    contents=others["contents"],
-                    price=int(others["price"]),
-                )
 
             return redirect('sales:showcontracts')
 
@@ -234,17 +160,12 @@ def post_contract(request):
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
 
-        costCompany, classificationB, classificationC = magicsearch()
-
         context = {
             'form': form,
             'contractStep': 'Opportunity',
             'companyNames': companyNames,
             'companyList': companyList,
             'empNames': empNames,
-            # 'costCompany': costCompany,
-            'classificationB': classificationB,
-            'classificationC': classificationC,
         }
         return render(request, 'sales/postcontract.html', context)
 
@@ -255,6 +176,9 @@ def copy_contract(request, contractId):
     contract = Contract.objects.get(contractId=contractId)
     contract.pk = None
     contract.save()
+
+    # 단계 Opportunity로 변경
+    contract.contractStep = 'Opportunity'
 
     # 관리번호 자동생성
     yy = str(datetime.now().year)[2:]
@@ -337,8 +261,11 @@ def show_contracts(request):
         modifyContractPaper = request.POST['modifyContractPaper']
 
     else:
-        startdate = ''
-        enddate = ''
+        if request.user.employee.empName == '이현승':
+            startdate = '2018-01-01'
+        else:
+            startdate = str(datetime.now())[:4] + '-01-01'
+        enddate = str(datetime.now())[:4] + '-12-31'
         contractStep = ''
         empDeptName = '전체'
         empName = ''
@@ -368,7 +295,7 @@ def show_contracts(request):
 @login_required
 @csrf_exempt
 def view_contract(request, contractId):
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
     return render(request, 'sales/viewcontract.html', context)
 
 
@@ -400,7 +327,7 @@ def modify_contract(request, contractId):
             post.subCategory = json.loads(request.POST['jsonItem'])[0]['subCategory']
             post.save()
 
-            # 세부사항 수정
+            # 매출 세부사항 수정
             jsonItem = json.loads(request.POST['jsonItem'])
             itemId = list(i[0] for i in Contractitem.objects.filter(contractId=contractId).values_list('contractItemId'))
             jsonItemId = []
@@ -429,7 +356,7 @@ def modify_contract(request, contractId):
                 for Id in delItemId:
                     Contractitem.objects.filter(contractItemId=Id).delete()
 
-            # 매출세부정보 수정
+            # 매출 빌링스케줄 수정
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
             jsonRevenue = sorted(jsonRevenue, key=lambda x: x['predictBillingDate'])
             idx = 0
@@ -444,6 +371,7 @@ def modify_contract(request, contractId):
                         revenueProfitRatio = round((int(revenue["revenueProfitPrice"]) / int(revenue["revenuePrice"]) * 100))
                     instance = Revenue.objects.create(
                         contractId=post,
+                        empId=post.empId,
                         billingTime=str(idx) + '/' + str(len(jsonRevenue)),
                         predictBillingDate=revenue["billingDate"] or revenue["predictBillingDate"] + '-01' or None,
                         billingDate=revenue["billingDate"] or None,
@@ -492,7 +420,38 @@ def modify_contract(request, contractId):
                 for Id in delRevenueId:
                     Revenue.objects.filter(revenueId=Id).delete()
 
-            # 매입세부정보 수정
+            # 매입 세부사항 수정
+            jsonPurchaseItem = json.loads(request.POST['jsonPurchaseItem'])
+            purchaseItemId = list(i[0] for i in Purchasecontractitem.objects.filter(contractId=contractId).values_list('contractItemId'))
+            jsonPurchaseItemId = []
+            for item in jsonPurchaseItem:
+                if item['purchaseItemId'] == '추가':
+                    Purchasecontractitem.objects.create(
+                        contractId=post,
+                        companyName=Company.objects.filter(companyNameKo=item["purchaseCategoryCompany"]).first(),
+                        mainCategory=item["purchaseMainCategory"],
+                        subCategory=item["purchaseSubCategory"],
+                        itemName=item["purchaseItemName"],
+                        itemPrice=int(item["purchaseItemPrice"])
+                    )
+                else:
+                    purchaseItemInstance = Purchasecontractitem.objects.get(contractItemId=int(item["purchaseItemId"]))
+                    purchaseItemInstance.contractId = post
+                    purchaseItemInstance.companyName = Company.objects.filter(companyNameKo=item["purchaseCategoryCompany"]).first()
+                    purchaseItemInstance.mainCategory = item["purchaseMainCategory"]
+                    purchaseItemInstance.subCategory = item["purchaseSubCategory"]
+                    purchaseItemInstance.itemName = item["purchaseItemName"]
+                    purchaseItemInstance.itemPrice = int(item["purchaseItemPrice"])
+                    purchaseItemInstance.save()
+                    jsonPurchaseItemId.append(int(item['purchaseItemId']))
+
+            delPurchaseItemId = list(set(purchaseItemId) - set(jsonPurchaseItemId))
+
+            if delPurchaseItemId:
+                for Id in delPurchaseItemId:
+                    Purchasecontractitem.objects.filter(contractItemId=Id).delete()
+
+            # 매입 빌링스케줄 수정
             jsonPurchase = json.loads(request.POST['jsonPurchase'])
             purchaseId = list(i[0] for i in Purchase.objects.filter(contractId=contractId).values_list('purchaseId'))
             jsonPurchaseId = []
@@ -563,219 +522,6 @@ def modify_contract(request, contractId):
                 for Id in delCostId:
                     Cost.objects.filter(costId=Id).delete()
 
-            # 하도급계약정보 수정
-            # 1. 상품_HW
-            jsonGoodsHW = json.loads(request.POST['jsonGoodsHW'])
-            typeId = list(i[0] for i in Purchasetypea.objects.filter(Q(contractId=contractId)&Q(classNumber=1)).values_list('typeId'))
-            jsonTypeId= []
-            for goodsHW in jsonGoodsHW:
-                company = Company.objects.get(companyNameKo=goodsHW["company"])
-                if goodsHW['typeId'] == '추가':
-                    Purchasetypea.objects.create(
-                        classNumber=1,
-                        contractId=post,
-                        companyName=company,
-                        contents=goodsHW["contents"],
-                        price=int(goodsHW["price"]),
-                    )
-                else:
-                    goodsHWInstance = Purchasetypea.objects.get(typeId=int(goodsHW["typeId"]))
-                    goodsHWInstance.companyName = company
-                    goodsHWInstance.contents = goodsHW["contents"]
-                    goodsHWInstance.price = int(goodsHW["price"])
-                    goodsHWInstance.save()
-                    jsonTypeId.append(int(goodsHW["typeId"]))
-
-            delGoodsHW = list(set(typeId) - set(jsonTypeId))
-            if delGoodsHW:
-                for Id in delGoodsHW:
-                    Purchasetypea.objects.filter(typeId=Id).delete()
-            # 2. 상품_SW
-            jsonGoodsSW = json.loads(request.POST['jsonGoodsSW'])
-            typeId = list(i[0] for i in Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=2)).values_list('typeId'))
-            jsonTypeId = []
-            for goodsSW in jsonGoodsSW:
-                company = Company.objects.get(companyNameKo=goodsSW["company"])
-                if goodsSW['typeId'] == '추가':
-                    Purchasetypea.objects.create(
-                        classNumber=2,
-                        contractId=post,
-                        companyName=company,
-                        contents=goodsSW["contents"],
-                        price=int(goodsSW["price"]),
-                    )
-                else:
-                    goodsSWInstance = Purchasetypea.objects.get(typeId=int(goodsSW["typeId"]))
-                    goodsSWInstance.companyName = company
-                    goodsSWInstance.contents = goodsSW["contents"]
-                    goodsSWInstance.price = int(goodsSW["price"])
-                    goodsSWInstance.save()
-                    jsonTypeId.append(int(goodsSW["typeId"]))
-
-            delGoodsSW = list(set(typeId) - set(jsonTypeId))
-
-            if delGoodsSW:
-                for Id in delGoodsSW:
-                    Purchasetypea.objects.filter(typeId=Id).delete()
-            # 3. 유지보수_HW
-            jsonMaintenanceHW = json.loads(request.POST['jsonMaintenanceHW'])
-            typeId = list(i[0] for i in Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=3)).values_list('typeId'))
-            jsonTypeId = []
-            for maintenanceHW in jsonMaintenanceHW:
-                company = Company.objects.get(companyNameKo=maintenanceHW["company"])
-                if maintenanceHW['typeId'] == '추가':
-                    Purchasetypea.objects.create(
-                        classNumber=3,
-                        contractId=post,
-                        companyName=company,
-                        contents=maintenanceHW["contents"],
-                        price=int(maintenanceHW["price"]),
-                    )
-                else:
-                    maintenanceHWInstance = Purchasetypea.objects.get(typeId=int(maintenanceHW["typeId"]))
-                    maintenanceHWInstance.companyName = company
-                    maintenanceHWInstance.contents = maintenanceHW["contents"]
-                    maintenanceHWInstance.price = int(maintenanceHW["price"])
-                    maintenanceHWInstance.save()
-                    jsonTypeId.append(int(maintenanceHW["typeId"]))
-
-            delMaintenanceHW = list(set(typeId) - set(jsonTypeId))
-            if delMaintenanceHW:
-                for Id in delMaintenanceHW:
-                    Purchasetypea.objects.filter(typeId=Id).delete()
-            # 4. 유지보수_SW
-            jsonMaintenanceSW = json.loads(request.POST['jsonMaintenanceSW'])
-            typeId = list(i[0] for i in Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=4)).values_list('typeId'))
-            jsonTypeId = []
-            for maintenanceSW in jsonMaintenanceSW:
-                company = Company.objects.get(companyNameKo=maintenanceSW["company"])
-                if maintenanceSW['typeId'] == '추가':
-                    Purchasetypea.objects.create(
-                        classNumber=4,
-                        contractId=post,
-                        companyName=company,
-                        contents=maintenanceSW["contents"],
-                        price=int(maintenanceSW["price"]),
-                    )
-                else:
-                    maintenanceSWInstance = Purchasetypea.objects.get(typeId=int(maintenanceSW["typeId"]))
-                    maintenanceSWInstance.companyName = company
-                    maintenanceSWInstance.contents = maintenanceSW["contents"]
-                    maintenanceSWInstance.price = int(maintenanceSW["price"])
-                    maintenanceSWInstance.save()
-                    jsonTypeId.append(int(maintenanceSW["typeId"]))
-
-            delMaintenanceSW = list(set(typeId) - set(jsonTypeId))
-            if delMaintenanceSW:
-                for Id in delMaintenanceSW:
-                    Purchasetypea.objects.filter(typeId=Id).delete()
-            # 5. 인력지원 자사
-            jsonSupportInternal = json.loads(request.POST['jsonSupportInternal'])
-            typeId = list(i[0] for i in Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=5)).values_list('typeId'))
-            jsonTypeId = []
-            for supportInternal in jsonSupportInternal:
-                if supportInternal['typeId'] == '추가':
-                    Purchasetypeb.objects.create(
-                        classNumber=5,
-                        contractId=post,
-                        classification=supportInternal["type"],
-                        times=int(supportInternal["times"] or 0) or None,
-                        sites=int(supportInternal["sites"] or 0) or None,
-                        units=int(supportInternal["units"]),
-                        price=int(supportInternal["price"]),
-                    )
-                else:
-                    supportInternalInstance = Purchasetypeb.objects.get(typeId=int(supportInternal["typeId"]))
-                    supportInternalInstance.classification = supportInternal["type"]
-                    supportInternalInstance.times = int(supportInternal["times"] or 0) or 0
-                    supportInternalInstance.sites = int(supportInternal["sites"] or 0) or 0
-                    supportInternalInstance.units = int(supportInternal["units"])
-                    supportInternalInstance.price = int(supportInternal["price"])
-                    supportInternalInstance.save()
-                    jsonTypeId.append(int(supportInternal["typeId"]))
-
-            delSupportInternal = list(set(typeId) - set(jsonTypeId))
-            if delSupportInternal:
-                for Id in delSupportInternal:
-                    Purchasetypeb.objects.filter(typeId=Id).delete()
-            # 6. 인력지원 타사
-            jsonSupportExternal = json.loads(request.POST['jsonSupportExternal'])
-            typeId = list(i[0] for i in Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=6)).values_list('typeId'))
-            jsonTypeId = []
-            for supportExternal in jsonSupportExternal:
-                if supportExternal['typeId'] == '추가':
-                    Purchasetypec.objects.create(
-                        classNumber=6,
-                        contractId=post,
-                        classification=supportExternal["type"],
-                        contents=supportExternal["contents"],
-                        price=int(supportExternal["price"]),
-                    )
-                else:
-                    supportExternalInstance = Purchasetypec.objects.get(typeId=int(supportExternal["typeId"]))
-                    supportExternalInstance.classification = supportExternal["type"]
-                    supportExternalInstance.contents = supportExternal["contents"]
-                    supportExternalInstance.price = int(supportExternal["price"])
-                    supportExternalInstance.save()
-                    jsonTypeId.append(int(supportExternal["typeId"]))
-
-            delSupportExternal = list(set(typeId) - set(jsonTypeId))
-            if delSupportExternal:
-                for Id in delSupportExternal:
-                    Purchasetypec.objects.filter(typeId=Id).delete()
-            # 7. DB COSTS
-            jsonDbCosts = json.loads(request.POST['jsonDbCosts'])
-            typeId = list(i[0] for i in Purchasetyped.objects.filter(Q(contractId=contractId) & Q(classNumber=7)).values_list('typeId'))
-            jsonTypeId = []
-            for dbCosts in jsonDbCosts:
-                if dbCosts['typeId'] == '추가':
-                    Purchasetyped.objects.create(
-                        classNumber=7,
-                        contractId=post,
-                        contractNo=dbCosts["number"],
-                        contractStartDate=dbCosts["start"] or None,
-                        contractEndDate=dbCosts["end"] or None,
-                        price=int(dbCosts["price"]),
-                    )
-                else:
-                    dbCostsInstance = Purchasetyped.objects.get(typeId=int(dbCosts["typeId"]))
-                    dbCostsInstance.contractNo = dbCosts["number"]
-                    dbCostsInstance.contractStartDate = dbCosts["start"] or None
-                    dbCostsInstance.contractEndDate = dbCosts["end"] or None
-                    dbCostsInstance.price = int(dbCosts["price"])
-                    dbCostsInstance.save()
-                    jsonTypeId.append(int(dbCosts["typeId"]))
-
-            delDbCosts = list(set(typeId) - set(jsonTypeId))
-            if delDbCosts:
-                for Id in delDbCosts:
-                    Purchasetyped.objects.filter(typeId=Id).delete()
-            # 8. 기타
-            jsonOthers = json.loads(request.POST['jsonOthers'])
-            typeId = list(i[0] for i in Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=8)).values_list('typeId'))
-            jsonTypeId = []
-            for others in jsonOthers:
-                if others['typeId'] == '추가':
-                    Purchasetypec.objects.create(
-                        classNumber=8,
-                        contractId=post,
-                        classification=others["type"],
-                        contents=others["contents"],
-                        price=int(others["price"]),
-                    )
-                else:
-                    othersInstance = Purchasetypec.objects.get(typeId=int(others["typeId"]))
-                    othersInstance.classification = others["type"]
-                    othersInstance.contents = others["contents"]
-                    othersInstance.price = int(others["price"])
-                    othersInstance.save()
-                    jsonTypeId.append(int(others["typeId"]))
-
-            delOthers = list(set(typeId) - set(jsonTypeId))
-            if delOthers:
-                for Id in delOthers:
-                    Purchasetypec.objects.filter(typeId=Id).delete()
-
             return redirect('sales:viewcontract', str(contractId))
 
     else:
@@ -788,14 +534,8 @@ def modify_contract(request, contractId):
         endCompanyNames = Contract.objects.get(contractId=contractId).endCompanyName
         # contractPaper = str(form.save(commit=False).contractPaper).split('/')[-1]
         orderPaper = str(form.save(commit=False).orderPaper).split('/')[-1]
-        goodsHWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=1))
-        goodsSWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=2))
-        maintenanceHWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=3))
-        maintenanceSWs = Purchasetypea.objects.filter(Q(contractId=contractId) & Q(classNumber=4))
-        supportInternals = Purchasetypeb.objects.filter(Q(contractId=contractId) & Q(classNumber=5))
-        supportExternals = Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=6))
-        dbCosts = Purchasetyped.objects.filter(Q(contractId=contractId) & Q(classNumber=7))
-        others = Purchasetypec.objects.filter(Q(contractId=contractId) & Q(classNumber=8))
+        purchaseItems = Purchasecontractitem.objects.filter(contractId=contractId)
+
 
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
@@ -809,11 +549,11 @@ def modify_contract(request, contractId):
             temp = {'id': emp.empId, 'value': emp.empName}
             empNames.append(temp)
 
-        costCompany, classificationB, classificationC = magicsearch()
         context = {
             'form': form,
             'contractStep': contractInstance.contractStep,
             'items': items,
+            'purchaseItems': purchaseItems,
             'revenues': revenues.order_by('predictBillingDate'),
             'purchases': purchases.order_by('predictBillingDate'),
             'costs': costs,
@@ -824,17 +564,9 @@ def modify_contract(request, contractId):
             'orderPaper': orderPaper,
             'companyNames': companyNames,
             'empNames': empNames,
-            'costCompany': costCompany,
-            'classificationB': classificationB,
-            'classificationC': classificationC,
-            'goodsHWs': goodsHWs,
-            'goodsSWs': goodsSWs,
-            'maintenanceHWs': maintenanceHWs,
-            'maintenanceSWs': maintenanceSWs,
-            'supportInternals': supportInternals,
-            'supportExternals': supportExternals,
-            'dbCosts': dbCosts,
-            'others': others,
+
+
+
         }
         return render(request, 'sales/postcontract.html', context)
 
@@ -856,8 +588,8 @@ def show_revenues(request):
         issued = request.POST['issued']
 
     else:
-        startdate = ''
-        enddate = ''
+        startdate = str(datetime.now())[:4] + '-01-01'
+        enddate = str(datetime.now())[:4] + '-12-31'
         empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
@@ -892,7 +624,7 @@ def view_revenue(request, revenueId):
     revenue = Revenue.objects.get(revenueId=revenueId)
     contractId = revenue.contractId.contractId
 
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
     context['revenueId'] = int(revenueId)
     return render(request, 'sales/viewcontract.html', context)
 
@@ -922,10 +654,17 @@ def salemanager_asjson(request):
 @csrf_exempt
 def empdept_asjson(request):
     empDeptName = request.POST['empDeptName']
+    empStatus = request.POST['empStatus']
     if empDeptName == '전체':
-        employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+        if empStatus == 'N':
+            employees = Employee.objects.filter(Q(empDeptName__icontains='영업')).order_by('empDeptName', 'empRank')
+        else:
+            employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
     else:
-        employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+        if empStatus == 'N':
+            employees = Employee.objects.filter(Q(empDeptName=empDeptName)).order_by('empDeptName', 'empRank')
+        else:
+            employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
     json = serializers.serialize('json', employees)
     return HttpResponse(json, content_type='application/json')
 
@@ -934,7 +673,7 @@ def empdept_asjson(request):
 @csrf_exempt
 def category_asjson(request):
     mainCategory = request.POST['mainCategory']
-    subcategory = Category.objects.filter(mainCategory=mainCategory)
+    subcategory = Category.objects.filter(mainCategory=mainCategory).order_by('subCategory')
     json = serializers.serialize('json', subcategory)
     return HttpResponse(json, content_type='application/json')
 
@@ -961,7 +700,7 @@ def contracts_asjson(request):
     else:
         contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
 
-    if user.employee.departmentName.deptLevel == 0 or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.departmentName.deptLevel == 0 or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
@@ -976,9 +715,19 @@ def contracts_asjson(request):
             contracts = contracts.filter(empId=user.empId)
 
     if startdate:
-        contracts = contracts.filter(contractDate__gte=startdate)
+        revenues = Revenue.objects.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
+        purchases = Purchase.objects.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
+        contracts = contracts.filter(
+            Q(contractId__in=revenues) |
+            Q(contractId__in=purchases)
+        )
     if enddate:
-        contracts = contracts.filter(contractDate__lte=enddate)
+        revenues = Revenue.objects.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+        purchases = Purchase.objects.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+        contracts = contracts.filter(
+            Q(contractId__in=revenues) |
+            Q(contractId__in=purchases)
+        )
     if contractStep != '전체' and contractStep != '':
         contracts = contracts.filter(contractStep=contractStep)
     if empDeptName != '전체' and empDeptName != '':
@@ -1011,7 +760,6 @@ def contracts_asjson(request):
 @login_required
 @csrf_exempt
 def revenues_asjson(request):
-    # print(request.POST)
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     empDeptName = request.POST['empDeptName']
@@ -1036,7 +784,7 @@ def revenues_asjson(request):
         else:
             revenues = Revenue.objects.all()
 
-    if user.employee.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         revenues = revenues.filter(contractId__empDeptName=user.empDeptName)
@@ -1303,8 +1051,8 @@ def show_purchases(request):
         maincategory = request.POST['maincategory']
         issued = request.POST['issued']
     else:
-        startdate = ''
-        enddate = ''
+        startdate = str(datetime.now())[:4] + '-01-01'
+        enddate = str(datetime.now())[:4] + '-12-31'
         empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
@@ -1396,7 +1144,6 @@ def save_purchasetable(request):
 @login_required
 @csrf_exempt
 def purchases_asjson(request):
-    # print(request.POST)
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     empDeptName = request.POST['empDeptName']
@@ -1421,7 +1168,7 @@ def purchases_asjson(request):
         else:
             purchase = Purchase.objects.all()
 
-    if user.employee.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         purchase = purchase.filter(contractId__empDeptName=user.empDeptName)
@@ -1457,7 +1204,7 @@ def view_purchase(request, purchaseId):
     purchase = Purchase.objects.get(purchaseId=purchaseId)
     contractId = purchase.contractId.contractId
 
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
     context['purchaseId'] = int(purchaseId)
     return render(request, 'sales/viewcontract.html', context)
 
@@ -1579,7 +1326,7 @@ def show_outstandingcollections(request):
 @login_required
 @csrf_exempt
 def view_contract_pdf(request, contractId):
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="report.pdf"'
@@ -1649,11 +1396,12 @@ def show_accountspayables(request):
 @login_required
 @csrf_exempt
 def change_predictpurchase(request):
-    lastMonth = datetime(datetime.today().year, datetime.today().month - 1, 1)
-    purchases = Purchase.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastMonth)).exclude(contractId__contractStep='Drop')
+    todayDate = datetime(datetime.today().year, datetime.today().month, 1).date()
+    lastDate = datetime.today() - relativedelta(months=1)
+    purchases = Purchase.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastDate)).exclude(contractId__contractStep='Drop')
     purchases = purchases.values('purchaseId', 'contractId__contractStep', 'contractId__contractCode', 'contractId__contractName', 'predictBillingDate')
     for purchase in purchases:
-        purchase['nextBillingDate'] = datetime(datetime.today().year, datetime.today().month, 1).date()
+        purchase['nextBillingDate'] = todayDate
     structure = json.dumps(list(purchases), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1703,12 +1451,15 @@ def save_predictpurchase(request):
 @login_required
 @csrf_exempt
 def change_predictrevenue(request):
-    lastMonth = datetime(datetime.today().year, datetime.today().month - 1, 1)
-    revenues = Revenue.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastMonth)).exclude(contractId__contractStep='Drop')
+    todayDate = datetime(datetime.today().year, datetime.today().month, 1).date()
+    lastDate = datetime.today() - relativedelta(months=1)
+
+    revenues = Revenue.objects.filter(Q(billingDate__isnull=True) & Q(predictBillingDate__lte=lastDate)).exclude(contractId__contractStep='Drop')
+
     revenues = revenues.values('revenueId', 'contractId__contractStep', 'contractId__contractCode', 'contractId__contractName', 'predictBillingDate')
 
     for revenue in revenues:
-        revenue['nextBillingDate'] = datetime(datetime.today().year, datetime.today().month, 1).date()
+        revenue['nextBillingDate'] = todayDate
 
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -1771,8 +1522,12 @@ def empid_asjson(request):
     contracts = contracts.values()
 
     for contract in contracts:
-        revenues = Revenue.objects.filter(contractId=contract['contractId'])
-        contract['revenue'] = list(revenues.values())
+        revenues = Revenue.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
+        contract['revenue'] = list(revenues.values('revenueId', 'contractId', 'revenueCompany_id', 'empId__empName', 'predictBillingDate', 'billingDate', 'revenuePrice'))
+        # purchase = Purchase.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
+        # contract['purchase'] = list(purchase.values())
+        # cost = Cost.objects.filter(contractId=contract['contractId'])
+        # contract['cost'] = list(cost.values())
 
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -1783,136 +1538,20 @@ def empid_asjson(request):
 def save_transfercontract(request):
     empId = Employee.objects.get(empId=request.GET['afterempName'])
     transferrevenues = request.GET.getlist('revenuecheck')
-    transfercontracts = request.GET.getlist('contractcheck')
-    contractdict = []
-
-    # 계약 이관
-    for contractId in transfercontracts:
-        # empId만 바꿔서 새로운 계약 생성 코드
-        contract = Contract.objects.get(contractId=contractId)
-
-        try:
-            saleCustomerId = Customer.objects.get(customerId=contract.saleCustomerId)
-        except:
-            saleCustomerId = None
-
-        try:
-            saleTaxCustomerId = Customer.objects.get(customerId=contract.saleTaxCustomerId)
-        except:
-            saleTaxCustomerId = None
-
-        try:
-            endCompanyName = Company.objects.get(companyName=contract.endCompanyName)
-        except:
-            endCompanyName = None
-
-        newcontract = Contract.objects.create(
-            contractCode=contract.contractCode,
-            contractName=contract.contractName,
-            empId=empId,
-            empName=empId.empName,
-            empDeptName=empId.empDeptName,
-            saleCompanyName=Company.objects.get(companyName=contract.saleCompanyName),
-            saleCustomerId=saleCustomerId,
-            saleCustomerName=contract.saleCustomerName or None,
-            saleTaxCustomerId=saleTaxCustomerId,
-            saleTaxCustomerName=contract.saleTaxCustomerName or None,
-            endCompanyName=endCompanyName,
-            saleType=contract.saleType,
-            saleIndustry=contract.saleIndustry,
-            mainCategory=contract.mainCategory,
-            subCategory=contract.subCategory,
-            salePrice=0,
-            profitPrice=0,
-            profitRatio=0,
-            contractDate=contract.contractDate,
-            contractStep=contract.contractStep,
-            contractStartDate=contract.contractStartDate or None,
-            contractEndDate=contract.contractEndDate or None,
-            depositCondition=contract.depositCondition or None,
-            depositConditionDay=contract.depositConditionDay or 0,
-            contractPaper=contract.contractPaper,
-            orderPaper=contract.orderPaper,
-            comment=contract.comment or None,
-        )
-        contract.transferContractId = newcontract
-        contract.save()
-        contractdict.append({'before': contractId, 'after': newcontract.contractId})
-
-    # 매출 이관
     for revenueId in transferrevenues:
+        # 매출 영업대표 변경
         revenue = Revenue.objects.get(revenueId=revenueId)
-        beforecontract = Contract.objects.filter(Q(contractName=str(revenue.contractId))).exclude(empId=empId).first()
-        aftercontract = Contract.objects.get(Q(contractName=str(revenue.contractId)) & Q(empId=empId))
-
-        # 기존 계약에서 매출금액, 이익 금액 마이너스 해주는 코드
-        # 기존 계약
-        beforecontract.salePrice = beforecontract.salePrice - (revenue.revenuePrice)
-        beforecontract.save()
-        beforecontract.profitPrice = beforecontract.profitPrice - (revenue.revenueProfitPrice)
-        beforecontract.save()
-        try:
-            beforecontract.profitRatio = round(beforecontract.profitPrice / beforecontract.salePrice * 100)
-        except:
-            beforecontract.profitRatio = 0
-        beforecontract.save()
-        # 이관 계약
-        aftercontract.salePrice = aftercontract.salePrice + (revenue.revenuePrice)
-        aftercontract.save()
-        aftercontract.profitPrice = aftercontract.profitPrice + (revenue.revenueProfitPrice)
-        aftercontract.save()
-        try:
-            aftercontract.profitRatio = round(aftercontract.profitPrice / aftercontract.salePrice * 100)
-        except:
-            aftercontract.profitRatio = 0
-        aftercontract.save()
-
-        # 새로운 계약에 revenue 수정하는 하는 코드
-        revenue.contractId = aftercontract
+        revenue.empId = empId
         revenue.save()
 
-    # 카테고리 & 매입 이관
-    for i in contractdict:
-        beforecontract = Contract.objects.get(contractId=i['before'])
-        aftercontract = Contract.objects.get(contractId=i['after'])
-        beforecategory = Contractitem.objects.filter(contractId=beforecontract)
-        beforepurchases = Purchase.objects.filter(contractId=beforecontract)
-
-        # 기존 카테고리 복사
-        for category in beforecategory:
-            Contractitem.objects.create(
-                contractId=aftercontract,
-                mainCategory=category.mainCategory,
-                subCategory=category.subCategory,
-                itemName=category.itemName or '',
-                itemPrice=category.itemPrice,
-            )
-        # 기존 계약의 아이템 가격 조정
-        beforeitempriceSum = Contractitem.objects.filter(contractId=beforecontract).aggregate(sum=Sum('itemPrice'))
-        if beforecontract.salePrice != (beforeitempriceSum['sum']):
-            Contractitem.objects.create(
-                contractId=beforecontract,
-                mainCategory='기타',
-                subCategory='기타',
-                itemName='계약 이관으로 인한 보정 금액',
-                itemPrice=beforecontract.salePrice - (beforeitempriceSum['sum']),
-            )
-        # 이관 계약의 아이템 가격 조정
-        if aftercontract.salePrice != (beforeitempriceSum['sum']):
-            Contractitem.objects.create(
-                contractId=aftercontract,
-                mainCategory='기타',
-                subCategory='기타',
-                itemName='계약 이관으로 인한 보정 금액',
-                itemPrice=aftercontract.salePrice - (beforeitempriceSum['sum']),
-            )
-        # 매입 이관
-        for purchase in beforepurchases:
-            purchase.contractId = aftercontract
-            purchase.save()
-
-    context = {}
-    return render(request, 'sales/transfercontract.html', context)
+        contract = Contract.objects.get(contractId=revenue.contractId.contractId)
+        # 계약의 영업대표 변경
+        if contract.empId_id != empId.empId:
+            contract.empId = empId
+            contract.empName = empId.empName
+            contract.empDeptName = empId.empDeptName
+            contract.save()
+    return redirect('sales:transfercontract')
 
 
 def show_purchaseinadvance(request):
@@ -2124,7 +1763,7 @@ def outstanding_asjson(request):
 @login_required
 @csrf_exempt
 def check_gp(request):
-    contracts = Contract.objects.all()
+    contracts = Contract.objects.all().exclude(contractStep='Drop')
     revenues = Revenue.objects.values('contractId').annotate(sum_price=Sum('revenuePrice'), sum_profit=Sum('revenueProfitPrice'))
     purchases = Purchase.objects.values('contractId').annotate(sum_price=Sum('purchasePrice'))
     costs = Cost.objects.values('contractId').annotate(sum_price=Sum('costPrice'))
@@ -2168,15 +1807,27 @@ def check_gp(request):
 @csrf_exempt
 def check_service(request):
     services = Servicereport.objects.filter(
-        Q(contractId__isnull=False) & Q(serviceStatus='Y') & ~Q(serviceType__icontains='상주') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
+        Q(contractId__isnull=False) &
+        Q(serviceStatus='Y') &
+        ~Q(serviceType__typeName__icontains='상주') &
+        (
+                Q(empDeptName='DB지원팀') |
+                Q(empDeptName='솔루션지원팀') |
+                Q(empDeptName='인프라서비스사업팀')
+        )
+    )
 
-    services = services.values('contractId').annotate(salary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()),
-                                                      overSalary=Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()),
-                                                      sumSalary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()) +
-                                                                Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()))
+    services = services.values('contractId').annotate(
+        salary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()),
+        overSalary=Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField()),
+        sumSalary=Sum(F('serviceRegHour') * F('empId__empPosition__positionSalary'), output_field=FloatField()) +
+                  Sum(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, output_field=FloatField())
+    )
 
-    services = services.values('contractId_id', 'contractId__contractCode', 'contractId__contractName', 'contractId__contractStartDate', 'contractId__contractEndDate', 'contractId__salePrice',
-                               'contractId__profitPrice', 'salary', 'overSalary', 'sumSalary')
+    services = services.values(
+        'contractId_id', 'contractId__contractCode', 'contractId__contractName', 'contractId__contractStartDate',
+        'contractId__contractEndDate', 'contractId__salePrice', 'contractId__profitPrice', 'salary', 'overSalary', 'sumSalary'
+    )
 
     for service in services:
         service['gpSalary'] = service['contractId__profitPrice'] - service['sumSalary']
@@ -2204,7 +1855,7 @@ def inadvance_asjson(request):
 
     contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
 
-    if user.employee.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
@@ -3315,11 +2966,15 @@ def contract_details(request):
 @login_required
 @csrf_exempt
 def view_ordernoti_pdf(request, contractId):
-    context = viewContract(contractId)
+    context = viewContract(request, contractId)
     today = datetime.today()
     context['today'] = today
-    context['result'] = context['contract'].profitRatio - 15.0
-    context['summary'] = summaryPurchase(contractId, context['contract'].salePrice)
+    context['result'] = round((context['contract'].profitRatio - 15.0), 3)
+    context['summary'] = summary(contractId)
+    context['revenueItem'] = Contractitem.objects.filter(Q(contractId=contractId))
+    context['sumRevenueItem'] = context['revenueItem'].aggregate(Sum('itemPrice'))
+    context['purchaseItem'] = Purchasecontractitem.objects.filter(Q(contractId=contractId))
+    context['sumPurchaseItem'] = context['purchaseItem'].aggregate(Sum('itemPrice'))
 
     for i in range(1, 9):
         context['class{}'.format(str(i))], context['sum_class{}'.format(str(i))] = detailPurchase(contractId, i)
@@ -3390,23 +3045,35 @@ def view_ordernoti_pdf(request, contractId):
         for group in groupPurchases:
             for schedule in pBillingSchedule:
                 if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['purchaseCompany']:
-                    schedule[str(group['predictBillingDate__month'])] = group['price']
+                    if schedule[str(group['predictBillingDate__month'])]:
+                        schedule[str(group['predictBillingDate__month'])] += group['price']
+                    else:
+                        schedule[str(group['predictBillingDate__month'])] = group['price']
                     schedule['sum'] += group['price']
         for groupMonth in groupMonthPurchases:
             for sumBilling in sumpBillingSchedule:
                 if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
-                    sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
+                    if sumBilling[str(groupMonth['predictBillingDate__month'])]:
+                        sumBilling[str(groupMonth['predictBillingDate__month'])] += groupMonth['price']
+                    else:
+                        sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
                     sumBilling['sum'] += groupMonth['price']
         # 매출
         for group in groupRevenues:
             for schedule in rBillingSchedule:
                 if schedule['year'] == str(group['predictBillingDate__year']) and schedule['name'] == group['revenueCompany']:
-                    schedule[str(group['predictBillingDate__month'])] = group['price']
+                    if schedule[str(group['predictBillingDate__month'])]:
+                        schedule[str(group['predictBillingDate__month'])] += group['price']
+                    else:
+                        schedule[str(group['predictBillingDate__month'])] = group['price']
                     schedule['sum'] += group['price']
         for groupMonth in groupMonthRevenues:
             for sumBilling in sumrBillingSchedule:
                 if sumBilling['year'] == str(groupMonth['predictBillingDate__year']):
-                    sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
+                    if sumBilling[str(groupMonth['predictBillingDate__month'])]:
+                        sumBilling[str(groupMonth['predictBillingDate__month'])] += groupMonth['price']
+                    else:
+                        sumBilling[str(groupMonth['predictBillingDate__month'])] = groupMonth['price']
                     sumBilling['sum'] += groupMonth['price']
         context['pBillingSchedule'] = pBillingSchedule
         context['sumpBillingSchedule'] = sumpBillingSchedule
@@ -3518,12 +3185,12 @@ def maincategory_asjson(request):
     contractId = request.POST['contractId']
     if contractId:
         items = Contractitem.objects.filter(contractId=contractId).values('mainCategory', 'subCategory')
-        maincategory = Category.objects.all().values('mainCategory').distinct()
+        maincategory = Category.objects.all().values('mainCategory').distinct().order_by('mainCategory')
         jsonList = []
         jsonList.append(list(maincategory))
         jsonList.append(list(items))
     else:
-        maincategory = Category.objects.all().values('mainCategory').distinct()
+        maincategory = Category.objects.all().values('mainCategory').distinct().order_by('mainCategory')
         jsonList = list(maincategory)
     structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -3661,7 +3328,7 @@ def post_purchase_order(request, contractId, purchaseOrderCompanyName):
         purchaseCompany=purchaseOrderCompany,
         formId=purchaseOrderForm,
         writeEmp=emp,
-        title=purchaseOrderCompanyName + ' 매입발주서 자동생성',
+        title='[유니원아이앤씨] ' + contract.contractName + '의 발주서를 송부드립니다.' ,
         contentHtml=contentHtml,
         writeDatetime=datetime.now(),
         modifyDatetime=datetime.now(),
@@ -3959,6 +3626,46 @@ def showpurchaseorder_asjson(request):
     purchaseorders = purchaseorders.\
         values('modifyDatetime', 'writeEmp__empName', 'contractId__contractName', 'contractId__contractId', 'purchaseCompany', 'title', 'sendDatetime', 'orderId').order_by('-modifyDatetime')
     structure = json.dumps(list(purchaseorders), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def purchasemaincategory_asjson(request):
+    contractId = request.POST['contractId']
+    if contractId:
+        items = Purchasecontractitem.objects.filter(contractId=contractId).values('mainCategory', 'subCategory')
+        maincategory = Classification.objects.all().values('mainCategory').distinct()
+        jsonList = []
+        jsonList.append(list(maincategory))
+        jsonList.append(list(items))
+    else:
+        maincategory = Classification.objects.all().values('mainCategory').distinct()
+        jsonList = list(maincategory)
+    structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def clssificaion_asjson(request):
+    mainCategory = request.POST['mainCategory']
+    subcategory = Classification.objects.filter(mainCategory=mainCategory)
+    json = serializers.serialize('json', subcategory)
+    return HttpResponse(json, content_type='application/json')
+
+
+@login_required
+def save_purchasecategory(request):
+    mainCategory = request.POST['mainCategory']
+    subCategory = request.POST['subCategory']
+
+    if Classification.objects.filter(mainCategory=mainCategory, subCategory=subCategory).first():
+        result = 'N'
+    else:
+        Classification.objects.create(mainCategory=mainCategory, subCategory=subCategory)
+        result = 'Y'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
 

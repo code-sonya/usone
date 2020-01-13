@@ -10,10 +10,10 @@
 
   <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-      <h6 class="m-0 h3 text-gray-800"> 휴가 </h6>
+      <h6 class="m-0 h3 text-gray-800"> 휴가 관리 </h6>
       <div class="dropdown no-arrow">
-        <a class="dropdown-toggle" href="/service/postvacation/">
-          <i class="fas fa-plus fa-sm fa-fw text-gray-400"></i>
+        <a class="btn btn-primary" href="/service/postvacation/">
+            <i class="fa fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fa fa-pen"></i> 등록</span>
         </a>
       </div>
     </div>
@@ -115,10 +115,12 @@
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   if (aData.vacationStatus === 'N') {
                       $('td:eq(4)', nRow).text('결재진행');
+                      $('td:eq(4)', nRow).css('color', '#4e73df');
                   } else if (aData.vacationStatus === 'Y') {
                       $('td:eq(4)', nRow).text('결재완료');
                   } else if (aData.vacationStatus === 'R') {
                       $('td:eq(4)', nRow).text('반려');
+                      $('td:eq(4)', nRow).css('color', '#e74a3b');
                   }
               }
           });

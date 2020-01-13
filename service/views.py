@@ -25,57 +25,59 @@ from approval.models import Document, Documentform, Documentfile, Relateddocumen
 @login_required
 @csrf_exempt
 def service_asjson(request):
-    startdate = request.POST['startdate']
-    enddate = request.POST['enddate']
-    empDeptName = request.POST['empDeptName']
-    empName = request.POST['empName']
-    companyName = request.POST['companyName']
-    serviceType = request.POST['serviceType']
-    contractName = request.POST['contractName']
-    if 'contractCheck' not in request.POST.keys():
-        contractCheck = 0
-    else:
-        contractCheck = int(request.POST['contractCheck'])
     selectType = request.POST['selectType']
-    serviceTitle = request.POST['serviceTitle']
-
     if selectType == 'show':
-        if startdate or enddate or empDeptName or empName or companyName or serviceType or serviceTitle:
-            services = Servicereport.objects.all()
-            if startdate:
-                services = services.filter(serviceDate__gte=startdate)
-            if enddate:
-                services = services.filter(serviceDate__lte=enddate)
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        empCheck = int(request.POST['empCheck'])
+        companyName = request.POST['companyName']
+        serviceType = request.POST['serviceType']
+        contractName = request.POST['contractName']
+        contractCheck = int(request.POST['contractCheck'])
+        serviceTitle = request.POST['serviceTitle']
+
+        services = Servicereport.objects.all()
+        if empCheck == 0:
             if empDeptName:
                 services = services.filter(empDeptName__icontains=empDeptName)
             if empName:
                 services = services.filter(empName__icontains=empName)
-            if companyName:
-                services = services.filter(companyName__companyName__icontains=companyName)
-            if serviceType:
-                services = services.filter(serviceType__icontains=serviceType)
-            if contractCheck == 0:
-                if contractName:
-                    services = services.filter(contractId__contractName__icontains=contractName)
-            elif contractCheck == 1:
-                services = services.filter(contractId__isnull=True)
-            if serviceTitle:
-                services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
-        else:
-            services = Servicereport.objects.filter(empId=request.user.employee.empId)
-            if contractCheck == 1:
-                services = services.filter(contractId__isnull=True)
+        elif empCheck == 1:
+            services = services.filter(empId=request.user.employee)
 
-    elif selectType == 'change':
-        services = Servicereport.objects.filter(empId=request.user.employee.empId)
+        if startdate:
+            services = services.filter(serviceDate__gte=startdate)
+        if enddate:
+            services = services.filter(serviceDate__lte=enddate)
         if companyName:
             services = services.filter(companyName__companyName__icontains=companyName)
-        if contractCheck == 1:
+        if serviceType:
+            services = services.filter(serviceType__typeName__icontains=serviceType)
+
+        if contractCheck == 0:
+            if contractName:
+                services = services.filter(contractId__contractName__icontains=contractName)
+        elif contractCheck == 1:
             services = services.filter(contractId__isnull=True)
+
+        if serviceTitle:
+            services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
+
+    elif selectType == 'change':
+        companyName = request.POST['companyName']
+        services = Servicereport.objects.filter(
+            empId=request.user.employee.empId,
+            contractId__isnull=True,
+        )
+        if companyName:
+            services = services.filter(companyName__companyName__icontains=companyName)
 
     services = services.values(
         'serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType',
-        'serviceStartDatetime', 'serviceEndDatetime', 'serviceHour', 'serviceOverHour', 'serviceDetails',
+        'serviceBeginDatetime', 'serviceStartDatetime', 'serviceEndDatetime', 'serviceFinishDatetime',
+        'serviceHour', 'serviceOverHour', 'serviceDetails',
         'serviceStatus', 'contractId__contractName', 'serviceId'
     )
 
@@ -298,12 +300,24 @@ def post_vacation(request):
     now = datetime.datetime.now()
     yyyy = str(now)[:4]
     mm = str(now)[5:7]
+
     # 보상휴가일수
     rewardVacationDay = 0
     extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
 
+    # 전달 보상휴가일수
+    dayBefore = 15
+    if mm == '01':
+        yyyyBefore = str(int(yyyy) - 1)
+        mmBefore = '12'
+    else:
+        yyyyBefore = yyyy
+        mmBefore = str(int(mm) - 1).zfill(2)
+    rewardVacationDayBefore = 0
+    extraWorkBefore = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyyBefore, overHourDate__month=mmBefore)
+
     if request.method == "POST":
-        vacationDays = list(request.POST.keys())[1:-8]
+        vacationDays = list(request.POST.keys())[1:-9]
 
         # 문서 종류 선택
         formId = Documentform.objects.get(
@@ -340,7 +354,7 @@ def post_vacation(request):
             elif request.POST[day] == 'am':
                 vacationDay += 0.5
                 vacationDate += ' (오전반차)<br>'
-            elif request.POST[day] == 'am':
+            elif request.POST[day] == 'pm':
                 vacationDay += 0.5
                 vacationDate += ' (오후반차)<br>'
             
@@ -436,7 +450,8 @@ def post_vacation(request):
         else:
             for empId in whoApproval['do']:
                 employee = Employee.objects.get(empId=empId)
-                mail_approval(employee, document)
+                mail_approval(employee, document, "결재요청")
+                print('호잇', '결재요청')
 
         for vacationDate in vacationDays:
             if request.POST[vacationDate] == 'all':
@@ -456,6 +471,7 @@ def post_vacation(request):
                 vacationDate=vacationDate,
                 vacationType=vacationType,
                 vacationCategory=vacationCategory,
+                rewardVacationType=request.POST['rewardVacationType'],
                 comment=comment,
             )
 
@@ -469,10 +485,14 @@ def post_vacation(request):
             emp.empSpecialLeave -= vacationDay
             emp.save()
         elif vacationCategory.categoryName == '보상휴가':
-            extraWorkObj = extraWork.first()
-            extraWorkObj.compensatedHour += vacationDay * 8
-            extraWorkObj.save()
-
+            if request.POST['rewardVacationType'] == '전월보상휴가':
+                extraWorkBeforeObj = extraWorkBefore.first()
+                extraWorkBeforeObj.compensatedHour += vacationDay * 8
+                extraWorkBeforeObj.save()
+            elif request.POST['rewardVacationType'] == '당월보상휴가':
+                extraWorkObj = extraWork.first()
+                extraWorkObj.compensatedHour += vacationDay * 8
+                extraWorkObj.save()
         return redirect('service:showvacations')
 
     else:
@@ -491,10 +511,15 @@ def post_vacation(request):
         if extraWork:
             rewardVacationDay += (((extraWork.first().sumOverHour - extraWork.first().compensatedHour) // 4)/2)
 
+        if datetime.datetime.today().day < dayBefore:
+            if extraWorkBefore:
+                rewardVacationDayBefore += (((extraWorkBefore.first().sumOverHour - extraWorkBefore.first().compensatedHour) // 4) / 2)
+
         context = {
             'empNames': empNames,
             'vacationCategory': Vacationcategory.objects.all(),
             'rewardVacationDay': rewardVacationDay,
+            'rewardVacationDayBefore': rewardVacationDayBefore,
         }
         return render(request, 'service/postvacation.html', context)
 
@@ -524,12 +549,16 @@ def post_serviceform(request):
 
 @login_required
 def show_services(request):
+    # filter values
     if request.method == "POST":
-        # filter values
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
         empDeptName = request.POST['empDeptName']
-        empName = request.POST['empName'] or request.user.employee.empName
+        empName = request.POST['empName']
+        if 'empCheck' not in request.POST.keys():
+            empCheck = 0
+        else:
+            empCheck = 1
         companyName = request.POST['companyName']
         serviceType = request.POST['serviceType']
         contractName = request.POST['contractName']
@@ -538,42 +567,67 @@ def show_services(request):
         else:
             contractCheck = 1
         serviceTitle = request.POST['serviceTitle']
-
-        services = Servicereport.objects.all()
-        if startdate:
-            services = services.filter(serviceDate__gte=startdate)
-        if enddate:
-            services = services.filter(serviceDate__lte=enddate)
-        if empDeptName:
-            services = services.filter(empDeptName__icontains=empDeptName)
-        if empName:
-            services = services.filter(empName__icontains=empName)
-        if companyName:
-            services = services.filter(companyName__companyName__icontains=companyName)
-        if serviceType:
-            services = services.filter(serviceType__icontains=serviceType)
-        if contractCheck == 0:
-            if contractName:
-                services = services.filter(contractId__contractName__icontains=contractName)
-        elif contractCheck == 1:
-            services = services.filter(contractId__isnull=True)
-        if serviceTitle:
-            services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
-
     else:
-        empId = Employee(empId=request.user.employee.empId)
-        services = Servicereport.objects.filter(empId=empId)
+        today = str(datetime.datetime.now())[:10]
+        yyyy = today[:4]
+        mm = today[5:7]
+        if mm == '01':
+            yyyyBefore = str(int(yyyy) - 1)
+            mmBefore = '12'
+        else:
+            yyyyBefore = yyyy
+            mmBefore = str(int(mm) - 1).zfill(2)
 
-        # filter values
-        startdate = ""
+        startdate = yyyyBefore + '-' + mmBefore + '-01'
         enddate = ""
         empDeptName = ""
-        empName = request.user.employee.empName
+        empName = ""
+        empCheck = 1
         companyName = ""
         serviceType = ""
         contractName = ""
         contractCheck = 0
         serviceTitle = ""
+
+    startDay = ""
+    endDay = ""
+    services = Servicereport.objects.all()
+    if empCheck == 0:
+        if empDeptName:
+            services = services.filter(empDeptName__icontains=empDeptName)
+        if empName:
+            services = services.filter(empName__icontains=empName)
+    elif empCheck == 1:
+        services = services.filter(empId=request.user.employee)
+
+    if startdate:
+        services = services.filter(serviceDate__gte=startdate)
+        startDay = datetime.date(year=int(startdate[:4]), month=int(startdate[5:7]), day=int(startdate[8:10]))
+    if enddate:
+        services = services.filter(serviceDate__lte=enddate)
+        endDay = datetime.date(year=int(enddate[:4]), month=int(enddate[5:7]), day=int(enddate[8:10]))
+    if companyName:
+        services = services.filter(companyName__companyName__icontains=companyName)
+    if serviceType:
+        services = services.filter(serviceType__typeName__icontains=serviceType)
+
+    if contractCheck == 0:
+        if contractName:
+            services = services.filter(contractId__contractName__icontains=contractName)
+    elif contractCheck == 1:
+        services = services.filter(contractId__isnull=True)
+
+    if serviceTitle:
+        services = services.filter(Q(serviceTitle__icontains=serviceTitle) | Q(serviceDetails__icontains=serviceTitle))
+
+    if services:
+        countServices = services.count()
+        sumHour = round(services.aggregate(Sum('serviceHour'))['serviceHour__sum'], 1)
+        sumOverHour = round(services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'], 1)
+    else:
+        countServices = 0
+        sumHour = 0
+        sumOverHour = 0
 
     # 계약명 자동완성
     contractList = Contract.objects.filter(
@@ -592,20 +646,24 @@ def show_services(request):
         contracts.append(temp)
 
     context = {
-        'today': datetime.datetime.today(),
-        'countServices': services.count() or 0,
-        'sumHour': services.aggregate(Sum('serviceHour'))['serviceHour__sum'] or 0,
-        'sumOverHour': services.aggregate(Sum('serviceOverHour'))['serviceOverHour__sum'] or 0,
+        'countServices': countServices,
+        'sumHour': sumHour,
+        'sumOverHour': sumOverHour,
+
         # filter values
         'startdate': startdate,
         'enddate': enddate,
+        'startDay': startDay,
+        'endDay': endDay,
         'empDeptName': empDeptName,
         'empName': empName,
+        'empCheck': empCheck,
         'companyName': companyName,
         'serviceType': serviceType,
         'contractName': contractName,
         'contractCheck': contractCheck,
         'serviceTitle': serviceTitle,
+
         # contracts
         'contracts': contracts,
     }

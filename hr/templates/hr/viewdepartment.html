@@ -59,6 +59,10 @@
             </tbody>
           </table>
           <div class="text-center">
+            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+              <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+              <span class="text"> 삭제 </span>
+            </a>
             <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
               <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
               <span class="text"> 저장 </span>
@@ -80,6 +84,12 @@
           if (confirm('수정 하시겠습니까?')) {
               const deptForm = $('#deptForm');
               deptForm.submit();
+          }
+      }
+
+      function btn_delete() {
+          if (confirm('삭제 하시겠습니까?')) {
+               location.href = '/hr/deletedepartment/{{ dept.deptId }}'
           }
       }
   </script>

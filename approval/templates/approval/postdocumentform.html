@@ -45,6 +45,14 @@
       border-top: 1px dotted #858796a3;
     }
 
+    .note-input-date {
+      width: 200px;
+    }
+
+    .note-input-money {
+      width: 200px;
+    }
+
   </style>
 {% endblock %}
 
@@ -63,7 +71,7 @@
           <label for="formNumber" class="font-weight-bold text-primary">NO.</label>
           <input id="formNumber" name="formNumber" class="form-control" value="{{ form.formNumber }}">
         </div>
-        <div class="col-5">
+        <div class="col-3">
           <label for="formTitle" class="font-weight-bold text-primary">문서명</label>
           <input id="formTitle" name="formTitle" class="form-control" value="{{ form.formTitle }}">
         </div>
@@ -97,6 +105,20 @@
             <option value="A" {% if form.securityLevel == 'A' %}selected="selected"{% endif %}>A등급</option>
             <option value="B" {% if form.securityLevel == 'B' %}selected="selected"{% endif %}>B등급</option>
             <option value="C" {% if form.securityLevel == 'C' %}selected="selected"{% endif %}>C등급</option>
+          </select>
+        </div>
+        <div class="col-1">
+          <label for="copyAuth" class="font-weight-bold text-primary">문서복사</label>
+          <select id="copyAuth" name="copyAuth" class="form-control">
+            <option value="Y" {% if form.copyAuth == 'Y' %}selected="selected"{% endif %}>가능</option>
+            <option value="N" {% if form.copyAuth == 'N' %}selected="selected"{% endif %}>불가능</option>
+          </select>
+        </div>
+        <div class="col-1">
+          <label for="mailAuth" class="font-weight-bold text-primary">메일발송</label>
+          <select id="mailAuth" name="copyAuth" class="form-control">
+            <option value="Y" {% if form.mailAuth == 'Y' %}selected="selected"{% endif %}>가능</option>
+            <option value="N" {% if form.mailAuth == 'N' %}selected="selected"{% endif %}>불가능</option>
           </select>
         </div>
       </div>
@@ -305,6 +327,16 @@
             type: 'hidden',
             name: 'securityLevel',
             value: $('#securityLevel').val()
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'copyAuth',
+            value: $('#copyAuth').val()
+        }).appendTo(documentForm);
+        $('<input />', {
+            type: 'hidden',
+            name: 'mailAuth',
+            value: $('#mailAuth').val()
         }).appendTo(documentForm);
         $('<input />', {
             type: 'hidden',

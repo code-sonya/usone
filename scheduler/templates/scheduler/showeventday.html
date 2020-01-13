@@ -22,13 +22,12 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 h3 text-gray-800">휴일 & 사내일정 관리</h6>
         <div class="dropdown no-arrow">
-          <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-            <i class="fas fa-filter fa-fw text-gray-400"></i>
+          <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+            <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
           </a>
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <a class="dropdown-toggle" href="/scheduler/posteventday/" role="button">
-              <i class="fas fa-plus fa-fw text-gray-400"></i>
+            <a class="btn btn-primary" href="/scheduler/posteventday/">
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
             </a>
           {% endif %}
         </div>

@@ -30,7 +30,9 @@
   <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
       <div class="m-0 h3 text-gray-800" id="title">
-        [{{ purchaseOrder.contractId.contractName }}]
+        <a href="/sales/viewcontract/{{ purchaseOrder.contractId.contractId }}">
+          [{{ purchaseOrder.contractId.contractName }}]
+        </a>
         {{ purchaseOrder.purchaseCompany.companyNameKo }}
         매입발주서
       </div>
@@ -67,7 +69,9 @@
             <tbody>
             {% for file in purchaseOrderFiles %}
               <tr>
-                <td class="text-left">{{ file.fileName }}</td>
+                <td class="text-left">
+                  <a onclick="downloadLog('/media/{{ file.file }}','매입발주서')" href="/media/{{ file.file }}" download>{{ file.fileName }}</a>
+                </td>
                 <td class="text-right">{{ file.fileSize }} MB</td>
                 <td><i class="fas fa-times-circle" onclick="file_delete({{ file.fileId }})"></i></td>
               </tr>
@@ -89,7 +93,12 @@
             {% for estimate in relatedPurchaseEstimate %}
               <tr>
                 <td>{{ estimate.purchaseEstimate.purchaseCompany.companyNameKo }}</td>
-                <td class="text-left">{{ estimate.purchaseEstimate.fileName }}</td>
+                <td class="text-left">
+                  <a onclick="downloadLog('/media/{{ estimate.purchaseEstimate.file }}','매입견적서')"
+                     href="/media/{{ estimate.purchaseEstimate.file }}" download>
+                    {{ estimate.purchaseEstimate.fileName }}
+                  </a>
+                </td>
                 <td class="text-right">{{ estimate.purchaseEstimate.fileSize }} MB</td>
                 <td><i class="fas fa-times-circle" onclick="estimate_delete({{ estimate.relatedId }})"></i></td>
               </tr>

@@ -24,6 +24,24 @@
       font-size: 16px;
       border: 1px solid darkgray;
     }
+
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
   </style>
 
 {% endblock %}
@@ -34,11 +52,17 @@
   <div>
     <div class="card shadow mb-4">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="m-0 h3 text-gray-800">휴가관리</h6>
+        <h6 class="m-0 h3 text-gray-800">{{year}}년도 휴가관리</h6>
         <div class="dropdown no-arrow">
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-            <a class="dropdown-toggle" href="#" role="button" id="vacationLink" data-toggle="modal" data-target="#vacationModal">
-              <i class="fas fa-plus fa-fw text-primary"></i>
+            <a class="btn btn-info" href="/hr/vacationsexcel/" role="button">
+              <i class="fas fa-file-excel d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-file-excel"></i> 엑셀</span>
+            </a>
+            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
+            </a>
+            <a class="btn btn-primary" href="#" role="button" id="vacationLink" data-toggle="modal" data-target="#vacationModal">
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
             </a>
           {% endif %}
         </div>
@@ -78,7 +102,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="vacationForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_save();}">
+          <form id="vacationForm" action="/hr/savevacation/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_save();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6">
@@ -118,6 +142,33 @@
       </div>
     </div>
   </div>
+  <!-- filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-primary text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">기간 조회</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <label for="vacationType" class="font-weight-bold text-primary">조회 년도</label>
+              <input type="number" max="9999" step="1" class="form-control" name="year">
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-primary" href="#" onclick="btn_filter()">조회</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
 
@@ -125,6 +176,10 @@
 {% block script %}
 
   <script type="text/javascript">
+      function btn_filter() {
+            document.getElementById("filterForm").submit();
+      }
+
       function btn_save() {
           if (document.getElementById("empId").value == '') {
               alert("성함을 선택해주세요.");
@@ -147,8 +202,9 @@
               "processing": true,
               "ajax": {
                   "processing": true,
-                  "type": 'GET',
+                  "type": 'POST',
                   "data": {
+                    "year":{{ year }},
                   },
                   "url": "{% url 'hr:showvacationsasjson' %}",
                   "dataSrc": ""
@@ -209,6 +265,24 @@
                       targets: 8, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
               ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
               "deferRender": true,
               "searching": true,
               "paging": true,
@@ -217,6 +291,7 @@
               "scrollX": false,
               "scrollCollapse": true,
               "order": [[5, 'desc']],
+
               "language": {
                   "lengthMenu": "_MENU_ 개씩 보기",
                   "search": "검색:",
@@ -252,7 +327,8 @@
                   $.ajax({
                               type: "POST",
                               url: "/hr/deletevacation/",
-                              data: {'vacationId': vacationId},
+                              data: {'vacationId': vacationId,
+                                    'empId': vacationId},
                               dataType: "json",
                               success: function (response) {
                                   alert('휴가가 삭제되었습니다.')

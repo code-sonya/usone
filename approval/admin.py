@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Documentcategory, Documentform, Document, Approval, Documentfile, Approvalform, Relateddocument
+from .models import Documentcategory, Documentform, Document, Approval, Documentfile, Approvalform, Relateddocument, Documentcomment
 
 
 @admin.register(Documentcategory)
@@ -49,3 +49,10 @@ class RelateddocumentAdmin(admin.ModelAdmin):
     list_display = ('relatedId', 'documentId', 'relatedDocumentId')
     list_filter = ('relatedId', 'documentId', 'relatedDocumentId')
     list_display_links = ['relatedId', 'documentId', 'relatedDocumentId']
+
+
+@admin.register(Documentcomment)
+class DocumentcommentAdmin(admin.ModelAdmin):
+    list_display = ('commentId', 'documentId', 'author', 'comment', 'updated')
+    list_filter = ('documentId', 'author')
+    list_display_links = ['commentId', 'documentId', 'author', 'comment', 'updated']

@@ -16,13 +16,14 @@
     }
 
     @page {
-      size: A4 landscape;
+      size: A4;
       margin-left: 40pt;
       margin-right: 40pt;
       margin-top: 50pt;
+      margin-bottom: 50pt;
     }
 
-    .table{
+    .pdf-table{
       color: #000000;
       table-layout: fixed;
       border: 2px solid black;
@@ -31,27 +32,20 @@
       background-color: #ffffff;
     }
 
-    .table td, .table th{
-      padding-top: 4px;
+    .pdf-table td{
+      {#padding-top: 4px;#}
       vertical-align: middle;
-      border: 2px solid black;
-      white-space: nowrap;
-      font-size: 16px;
+      {#border: 2px solid black;#}
+      {#white-space: nowrap;#}
+      {#font-size: 16px;#}
     }
 
   </style>
 </head>
 <body>
-  <h3>{{ orders.title }}</h3>
+  <h1>{{ orders.title }}</h1>
   <div>
     {{ orders.contentHtml |safe}}
   </div>
-  <p style="text-align: center; font-size:12px">
-    [ 유니원아이앤씨(주) (Unione I&C) ]
-    대표전화 : 02-780-0039
-    Call Center : 02-780-2502
-    Fax : 02-780-2503
-    HomePage : http://www.unioneinc.co.kr/
-  </p>
 </body>
 </html>

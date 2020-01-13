@@ -29,20 +29,25 @@ def dashboard_service(request):
 
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
+        empDeptName = request.POST['empDeptName']
 
     # default : 월 단위 (월~일)
     else:
         today = datetime.today()
-        startdate = datetime(today.year, today.month, 1)
+        startdate = datetime(today.year, today.month, 1).date()
         enddate = startdate + relativedelta(months=1) - relativedelta(days=1)
+        empDeptName = ''
 
-    all_support_data = Servicereport.objects.filter((Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀')) & Q(serviceStatus='Y')).exclude(serviceType__typeName='교육')
+    all_support_data = Servicereport.objects.filter(Q(serviceStatus='Y')).exclude(serviceType__typeName='교육').exclude(empDeptName__icontains='영업')
 
     if startdate:
         all_support_data = all_support_data.filter(Q(serviceDate__gte=startdate))
 
     if enddate:
         all_support_data = all_support_data.filter(Q(serviceDate__lte=enddate))
+
+    if empDeptName:
+        all_support_data = all_support_data.filter(Q(empDeptName__icontains=empDeptName))
 
     all_support_time = all_support_data.aggregate(Sum('serviceHour'), Count('serviceHour'))
 
@@ -56,7 +61,7 @@ def dashboard_service(request):
                                                         .annotate(sum_supportCount=Count('empName'))\
                                                         .annotate(sum_overTime=Sum('serviceOverHour'))
     # 타입별 지원통계
-    type_support_time = all_support_data.values('serviceType').annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType')
+    type_support_time = all_support_data.values('serviceType__typeName').annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType__typeName')
 
 
     type_count = [i for i in range(len(type_support_time))]
@@ -65,6 +70,7 @@ def dashboard_service(request):
     context = {
         'startdate': startdate,
         'enddate': enddate,
+        'empDeptName': empDeptName,
         'customer_support_time': customer_support_time,
         'emp_support_time': emp_support_time,
         'type_support_time': type_support_time,
@@ -596,53 +602,139 @@ def quarter_asjson(request):
 
 def dashboard_credit(request):
     template = loader.get_template('dashboard/dashboardcredit.html')
-    todayYear = datetime.today().year
     today = datetime.today()
-    # 해당 년도 매출 (이번년도에 매출발행이 됐고 수금예정일이 있는 것)
-    revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False) & Q(predictDepositDate__isnull=False))
-    # 월별 미수금액 / 수금액
-    revenuesMonth = revenues.values('predictDepositDate__month') \
-        .annotate(outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=True)), 0)
-                  , collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)).order_by('predictDepositDate__month')
-    # 총 미수금액 / 수금액
-    revenuesTotal = revenuesMonth.aggregate(outstandingCollectionsTotal=Sum('outstandingCollectionsMonth')
-                                            , collectionofMoneyTotal=Sum('collectionofMoneyMonth'))
-    # 해당 년도 매입  (이번년도에 매입접수가 됐고 지급예정일이 있는 것)
-    purchases = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False) & Q(predictWithdrawDate__isnull=False))
-    # 월별 미지급액 / 지급액
-    purchasesMonth = purchases.values('predictWithdrawDate__month').annotate(
-        accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0)
-        , amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)).order_by('predictWithdrawDate__month')
-    # 총 미지급액
-    purchasesTotal = Purchase.objects.filter(Q(predictBillingDate__year=todayYear) & Q(billingDate__isnull=False))\
-                                     .aggregate(accountsPayablesTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True )),0)
-                                              , amountPaidTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)),0))
+    threeMonth = datetime.today() - relativedelta(months=3)
 
-    revenueMonth=[]
-    for m in range(1,13):
-        rMonth = {'predictDepositDate__month': m, 'outstandingCollectionsMonth': 0, 'collectionofMoneyMonth': 0}
-        for r in revenuesMonth:
-            if r['predictDepositDate__month'] == m:
-                rMonth = r
-                break
-        revenueMonth.append(rMonth)
+    # totalNotDeposit: 총 미수금
+    totalNotDeposit = Revenue.objects.filter(billingDate__isnull=False, depositDate__isnull=True)
+    totalNotDepositMoney = totalNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
 
-    purchaseMonth = []
-    for m in range(1, 13):
-        pMonth = {'predictWithdrawDate__month': m, 'accountsPayablesMonth': 0, 'amountPaidMonth': 0}
-        for p in purchasesMonth:
-            if p['predictWithdrawDate__month'] == m:
-                pMonth = p
-                break
-        purchaseMonth.append(pMonth)
+    # normalNotDeposit: 정상 미수금 (수금예정일이 오늘보다 크거나 같거나 없는 경우)
+    normalNotDeposit = totalNotDeposit.filter(Q(predictDepositDate__gte=today) | Q(predictDepositDate__isnull=True))
+    normalNotDepositMoney = normalNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
+
+    # warningNotDeposit: 경고 미수금 (수금예정일이 3개월 미만으로 지난 경우)
+    warningNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=today, predictDepositDate__gte=threeMonth)
+    warningNotDepositMoney = warningNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
+
+    # dangerNotDeposit: 위험 미수금 (수금예정일이 3개월 이상 지난 경우)
+    dangerNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=threeMonth)
+    dangerNotDepositMoney = dangerNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
+
+    # totalNotWithdraw: 총 미지급
+    totalNotWithdraw = Purchase.objects.filter(billingDate__isnull=False, withdrawDate__isnull=True)
+    totalNotWithdrawMoney = totalNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
+
+    # normalNotWithdraw: 정상 미지급 (지급예정일이 오늘보다 크거나 같거나 없는 경우)
+    normalNotWithdraw = totalNotWithdraw.filter(Q(predictWithdrawDate__gte=today) | Q(predictWithdrawDate__isnull=True))
+    normalNotWithdrawMoney = normalNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
+
+    # warningNotWithdraw: 경고 미지급 (지급예정일이 3개월 미만으로 지난 경우)
+    warningNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=today, predictWithdrawDate__gte=threeMonth)
+    warningNotWithdrawMoney = warningNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
+
+    # dangerNotWithdraw: 위험 미지급 (수금예정일이 3개월 이상 지난 경우)
+    dangerNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=threeMonth)
+    dangerNotWithdrawMoney = dangerNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
+
+    # pieNotDeposit: 기간별 미수금액 차트 데이터
+    pieNotDeposit = [normalNotDepositMoney, warningNotDepositMoney, dangerNotDepositMoney]
 
     context = {
-        'revenuesTotal': revenuesTotal,
-        'revenuesMonth': revenueMonth,
-        'purchasesTotal': purchasesTotal,
-        'purchasesMonth': purchaseMonth,
+        # 미수금
+        'totalNotDeposit': totalNotDeposit,
+        'normalNotDeposit': normalNotDeposit,
+        'warningNotDeposit': warningNotDeposit,
+        'dangerNotDeposit': dangerNotDeposit,
+        'totalNotDepositMoney': totalNotDepositMoney,
+        'normalNotDepositMoney': normalNotDepositMoney,
+        'warningNotDepositMoney': warningNotDepositMoney,
+        'dangerNotDepositMoney': dangerNotDepositMoney,
+        # 미지급
+        'totalNotWithdraw': totalNotWithdraw,
+        'normalNotWithdraw': normalNotWithdraw,
+        'warningNotWithdraw': warningNotWithdraw,
+        'dangerNotWithdraw': dangerNotWithdraw,
+        'totalNotWithdrawMoney': totalNotWithdrawMoney,
+        'normalNotWithdrawMoney': normalNotWithdrawMoney,
+        'warningNotWithdrawMoney': warningNotWithdrawMoney,
+        'dangerNotWithdrawMoney': dangerNotWithdrawMoney,
+        # 차트 데이터
+        'pieNotDeposit': pieNotDeposit,
     }
     return HttpResponse(template.render(context, request))
+
+
+    # todayYear = datetime.today().year
+    # today = datetime.today()
+    #
+    # # 해당 년도 매출 (이번년도에 매출발행이 됐고 수금예정일이 있는 것)
+    # revenues = Revenue.objects.filter(
+    #     Q(predictBillingDate__year=todayYear) &
+    #     Q(billingDate__isnull=False) &
+    #     Q(predictDepositDate__isnull=False)
+    # )
+    #
+    # # 월별 미수금액 / 수금액
+    # revenuesMonth = revenues.values('predictDepositDate__month').annotate(
+    #     outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=True)), 0),
+    #     collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)
+    # ).order_by('predictDepositDate__month')
+    #
+    # # 총 미수금액 / 수금액
+    # revenuesTotal = revenuesMonth.aggregate(
+    #     outstandingCollectionsTotal=Sum('outstandingCollectionsMonth'),
+    #     collectionofMoneyTotal=Sum('collectionofMoneyMonth')
+    # )
+    #
+    # # 해당 년도 매입  (이번년도에 매입접수가 됐고 지급예정일이 있는 것)
+    # purchases = Purchase.objects.filter(
+    #     Q(predictBillingDate__year=todayYear) &
+    #     Q(billingDate__isnull=False) &
+    #     Q(predictWithdrawDate__isnull=False)
+    # )
+    #
+    # # 월별 미지급액 / 지급액
+    # purchasesMonth = purchases.values('predictWithdrawDate__month').annotate(
+    #     accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0),
+    #     amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)
+    # ).order_by('predictWithdrawDate__month')
+    #
+    # # 총 미지급액
+    # purchasesTotal = Purchase.objects.filter(
+    #     Q(predictBillingDate__year=todayYear) &
+    #     Q(billingDate__isnull=False)
+    # ).aggregate(
+    #     accountsPayablesTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0),
+    #     amountPaidTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)
+    # )
+    #
+    # revenueMonth = []
+    # for m in range(1, 13):
+    #     rMonth = {'predictDepositDate__month': m, 'outstandingCollectionsMonth': 0, 'collectionofMoneyMonth': 0}
+    #     for r in revenuesMonth:
+    #         if r['predictDepositDate__month'] == m:
+    #             rMonth = r
+    #             break
+    #     revenueMonth.append(rMonth)
+    #
+    # purchaseMonth = []
+    # for m in range(1, 13):
+    #     pMonth = {'predictWithdrawDate__month': m, 'accountsPayablesMonth': 0, 'amountPaidMonth': 0}
+    #     for p in purchasesMonth:
+    #         if p['predictWithdrawDate__month'] == m:
+    #             pMonth = p
+    #             break
+    #     purchaseMonth.append(pMonth)
+    #
+    # context = {
+    #     'revenuesTotal': revenuesTotal,
+    #     'revenuesMonth': revenueMonth,
+    #     'purchasesTotal': purchasesTotal,
+    #     'purchasesMonth': purchaseMonth,
+    # }
+
+    # return HttpResponse(template.render(context, request))
 
 
 @login_required
@@ -673,16 +765,23 @@ def cashflow_asjson(request):
 def service_asjson(request):
     startdate = request.POST['startdate'].replace('.', '-')
     enddate = request.POST['enddate'].replace('.', '-')
+    empDeptName = request.POST['empDeptName']
+    print(empDeptName)
+    print(request.POST)
     company = request.POST['company']
     empname = request.POST['empname']
     servicetype = request.POST['servicetype']
     overhour = request.POST['overhour']
-    services = Servicereport.objects.all()
+    services = Servicereport.objects.filter(Q(serviceStatus='Y')).exclude(serviceType__typeName='교육').exclude(empDeptName__icontains='영업')
 
     if startdate:
-        services = Servicereport.objects.filter(Q(serviceDate__gte=startdate))
+        services = services.filter(Q(serviceDate__gte=startdate))
+
     if enddate:
-        services = Servicereport.objects.filter(Q(serviceDate__lte=enddate))
+        services = services.filter(Q(serviceDate__lte=enddate))
+
+    if empDeptName:
+        services = services.filter(Q(empDeptName__icontains=empDeptName))
 
     if company:
         services = services.filter(Q(companyName=company))
@@ -694,12 +793,13 @@ def service_asjson(request):
         services = services.filter(Q(empName=empname))
 
     if servicetype:
-        services = services.filter(Q(serviceType=servicetype))
+        services = services.filter(Q(serviceType__typeName=servicetype))
 
     if overhour:
         services = services.exclude(serviceOverHour=0)
 
-    services = services.values()
+    services = services.values('serviceId', 'serviceDate', 'empId_id', 'empName', 'empDeptName', 'companyName_id', 'serviceHour', 'serviceOverHour',
+                               'serviceRegHour', 'serviceTitle', 'serviceDetails', 'serviceType__typeName')
 
     structureStep = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structureStep, content_type='application/json')

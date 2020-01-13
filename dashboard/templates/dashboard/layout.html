@@ -58,6 +58,7 @@
       <!--&lt;!&ndash; Divider &ndash;&gt;-->
     <!--{% endif %}-->
       <!-- Nav Item - Dashboard -->
+
       <!--<li class="nav-item">-->
         <!--<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDashboard" aria-expanded="true" aria-controls="collapseUtilities">-->
           <!--<i class="fas fa-fw fa-tachometer-alt text-white"></i>-->
@@ -139,7 +140,6 @@
       <!--</li>-->
     <!--{% endif %}-->
     <!--{% if user.employee.empDeptName == '임원' or user.employee.empDeptName == '경영지원본부' or '영업' in user.employee.empDeptName %}-->
-
       <!--<li class="nav-item">-->
         <!--<a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInsentive" aria-expanded="true" aria-controls="collapseUtilities">-->
           <!--<i class="fas fa-fw fa-won-sign text-white"></i>-->
@@ -275,7 +275,7 @@
       <div id="collapseApproval" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
           <a class="collapse-item" href="/approval/postdocument/">문서작성</a>
-          <a class="collapse-item" href="/service/showvacations/">휴가작성</a>
+          <a class="collapse-item" href="/service/showvacations/">휴가관리</a>
           <h6 class="collapse-header">━━━ 문서함 ━━━</h6>
           <a class="collapse-item" href="/approval/showdocument/all/">전체</a>
           <a class="collapse-item" href="/approval/showdocument/ing/">진행
@@ -285,6 +285,10 @@
           <a class="collapse-item" href="/approval/showdocument/done/">완료</a>
           <a class="collapse-item" href="/approval/showdocument/temp/">임시</a>
           {% if user.is_staff %}
+          <h6 class="collapse-header">━━ 관리자문서함 ━━</h6>
+          <a class="collapse-item" href="/approval/showdocument/admin/ing/">전체진행문서</a>
+          <a class="collapse-item" href="/approval/showdocument/admin/done/">전체완료문서</a>
+          <a class="collapse-item" href="/approval/showdocument/admin/reject/">전체반려문서</a>
           <h6 class="collapse-header">━━━ 관&nbsp;&nbsp;&nbsp;&nbsp;리 ━━━</h6>
           <a class="collapse-item" href="/approval/showdocumentform/">문서 양식 관리</a>
           {% endif %}
@@ -307,7 +311,6 @@
     </li>
 
     <!-- Divider -->
-
     {% if user.is_staff %}
     <hr class="sidebar-divider d-none d-md-block">
       <li class="nav-item">
@@ -324,6 +327,9 @@
               <a class="collapse-item" href="/scheduler/showeventday/">휴일&사내일정관리</a>
               <a class="collapse-item" href="/service/showservicetype/">일정구분관리</a>
               <a class="collapse-item" href="/hr/emailregistration">관리자이메일등록</a>
+              <h6 class="collapse-header">━━━ 영업 관리 ━━━</h6>
+              <a class="collapse-item" href="/sales/showgoals/">영업목표관리</a>
+              <a class="collapse-item" href="/sales/transfercontract/">계약이관</a>
               <h6 class="collapse-header">━━━ 이력 관리 ━━━</h6>
               <a class="collapse-item" href="/logs/showdownloads/">문서다운로드이력</a>
               <!--<a class="collapse-item" href="/logs/showorders/">매입발주서전송이력</a>-->
@@ -610,6 +616,27 @@
         const dateToday = new Date();
         const yyyy = dateToday.getFullYear();
         location.href = '/sales/viewsalaryall/' + String(yyyy) + '/';
+    }
+
+    function downloadLog(downloadUrl, downloadType) {
+        const contractId = "{{ contract.contractId }}";
+        $.ajax({
+            url: "{% url 'logs:insertdownloadlog' %}",
+            method: 'POST',
+            cache: false,
+            data: {
+                "downloadUrl": downloadUrl,
+                "downloadType": downloadType,
+                "contractId": contractId,
+            },
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                console.log(returnData)
+            },
+            error: function (request, status, error) {
+                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            }
+        });
     }
 
     $(window).resize(function() {

@@ -369,7 +369,9 @@ def dayreport_query2(empDeptName, day):
     ).order_by('serviceBeginDatetime')
 
     vacationDept = Vacation.objects.filter(
-        Q(empDeptName=empDeptName) & Q(vacationDate=Date)
+        Q(empDeptName=empDeptName) & Q(vacationDate=Date) & (
+            Q(vacationStatus='Y') | Q(vacationStatus='N')
+        )
     )
 
     inDept = User.objects.filter(
@@ -431,10 +433,15 @@ def dayreport_query2(empDeptName, day):
             })
 
         for vacation in vacationDept:
+            if vacation.vacationStatus == 'Y':
+                vacationStatus = ''
+            elif vacation.vacationStatus == 'N':
+                vacationStatus = '(결재중)'
             listVacation.append({
                 'empName': vacation.empName,
                 'serviceBeginDatetime': Date,
                 'vacationType': vacation.vacationType[:2],
+                'vacationStatus': vacationStatus,
                 'sortKey': vacation.empId.empRank,
             })
 

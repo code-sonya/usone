@@ -39,15 +39,14 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">영업기회 & 계약 관리</h6>
+          <h6 class="m-0 h3 text-gray-800">영업기회 & 계약 관리 ({{ startdate }} ~ {{ enddate }})</h6>
           <div class="dropdown no-arrow">
-            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-              <i class="fas fa-filter fa-fw text-gray-400"></i>
+            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
             </a>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-              <a class="dropdown-toggle" href="/sales/postcontract/" role="button">
-                <i class="fas fa-plus fa-fw text-gray-400"></i>
-              </a>
+            <a class="btn btn-primary" href="/sales/postcontract/" role="button">
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
+            </a>
           </div>
         </div>
 
@@ -302,7 +301,8 @@
               url: "{% url 'sales:empdept_ajax_url' %}",
               method: 'POST',
               cache: false,
-              data: {"empDeptName": empDeptName},
+              data: {"empDeptName": empDeptName,
+                    "empStatus": "Y"},
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var empName = returnData;
@@ -485,7 +485,7 @@
 
           $("#showcontracts").on("click", 'tr', function () {
               const data = contractsTable.row(this).data();
-              location.href = '/sales/viewcontract/' + data.contractId + '/'
+              window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId + '/'
           });
 
           {#실주 계약 관리 테이블#}
@@ -619,7 +619,7 @@
 
           $("#showdrops").on("click", 'tr', function () {
               const data = dropTable.row(this).data();
-              location.href = '/sales/viewcontract/' + data.contractId + '/'
+              window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId + '/'
           });
       });
 

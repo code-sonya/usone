@@ -20,14 +20,14 @@ from smtplib import SMTP_SSL
 from service.models import Servicereport
 from approval.models import Document
 from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile,\
-    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder, Purchasecontractitem
 from hr.models import AdminEmail
 from service.models import Employee
 from django.db.models import Q, Max
 from django.template import loader
 
 
-def viewContract(contractId):
+def viewContract(request, contractId):
     # 첨부파일
     files_a = Purchasefile.objects.filter(contractId__contractId=contractId, fileCategory='매입견적서').order_by('uploadDatetime')
     files_b = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출견적서').order_by('uploadDatetime')
@@ -39,19 +39,31 @@ def viewContract(contractId):
     # 결재문서
     documents = Document.objects.filter(contractId=contractId).exclude(documentStatus='임시')
     ordernotis = documents.filter(formId__formTitle='수주통보서', documentStatus='완료')
+    # 진행중인 문서
+    documents_ing = documents.filter(documentStatus='진행')
+    # 수주통보서 진행중인 문서
+    ordernoti_ing = documents.filter(formId__formTitle='수주통보서', documentStatus='진행')
+    # 선발주 진행중인 문서
+    orderpriority_ing = documents.filter(formId__formTitle='선발주품의서', documentStatus='진행')
+    # 매출발행 진행중인 문서
+    ordermail_ing = documents.filter(formId__formTitle='매출발행', documentStatus='진행')
+    # 수정권한요청중인 문서
+    modify_ing = documents.filter(formId__formTitle='수정권한요청서', documentStatus='진행')
+
+
 
     # 계약, 세부정보, 매출, 매입, 계약서 명, 수주통보서 명
     contract = Contract.objects.get(contractId=contractId)
     items = Contractitem.objects.filter(contractId=contractId)
     revenues = Revenue.objects.filter(contractId=contractId)
+    purchaseItems = Purchasecontractitem.objects.filter(contractId=contractId)
     purchases = Purchase.objects.filter(contractId=contractId)
     purchaseCompany = list(purchases.values_list('purchaseCompany__companyNameKo', flat=True).distinct().order_by('purchaseCompany__companyNameKo'))
-    purchasesNotBilling = purchases.filter(billingDate__isnull=True)
+    if request.user.employee.empName == '이현승':
+        purchasesNotBilling = purchases
+    else:
+        purchasesNotBilling = purchases.filter(billingDate__isnull=True)
     costs = Cost.objects.filter(contractId=contractId)
-    purchaseTypeA = Purchasetypea.objects.filter(contractId=contractId)
-    purchaseTypeB = Purchasetypeb.objects.filter(contractId=contractId)
-    purchaseTypeC = Purchasetypec.objects.filter(contractId=contractId)
-    purchaseTypeD = Purchasetyped.objects.filter(contractId=contractId)
     services = Servicereport.objects.filter(
         Q(contractId=contractId) & 
         Q(serviceStatus='Y') & 
@@ -187,8 +199,13 @@ def viewContract(contractId):
         'files_f': files_f,
         'files_g': files_g,
         # 결재문서, 매입발주서
+        'documents_ing': documents_ing,
+        'ordernoti_ing': ordernoti_ing,
+        'orderpriority_ing': orderpriority_ing,
+        'ordermail_ing': ordermail_ing,
         'documents': documents,
         'ordernotis': ordernotis,
+        'modify_ing': modify_ing,
         'purchaseOrderForm': purchaseOrderForm,
         'purchaseOrderDocument': purchaseOrderDocument,
         # 계약, 세부사항, 매출, 매입, 원가, 계약서 명, 수주통보서 명
@@ -199,15 +216,12 @@ def viewContract(contractId):
         'sumRevenuePrice': sumRevenuePrice,
         'sumRevenueProfitPrice': sumRevenueProfitPrice,
         'sumRevenueProfitRatio': sumRevenueProfitRatio,
+        'purchaseItems': purchaseItems.order_by('mainCategory', 'subCategory'),
         'purchases': purchases.order_by('predictBillingDate', 'purchaseCompany__companyNameKo'),
         'purchaseCompany': purchaseCompany,
         'purchasesNotBilling': purchasesNotBilling,
         'sumPurchasePrice': sumPurchasePrice,
         'costs': costs.order_by('billingDate'),
-        'purchaseTypeA': purchaseTypeA,
-        'purchaseTypeB': purchaseTypeB,
-        'purchaseTypeC': purchaseTypeC,
-        'purchaseTypeD': purchaseTypeD,
         'contractPaper': contractPaper,
         'orderPaper': orderPaper,
         # 연도 별 매출·이익 기여도
@@ -396,13 +410,21 @@ def cal_revenue_incentive(revenueId):
     return incentiveRevenue, incentiveProfit, incentiveReason
 
 
-def cal_acc(ratio):
-    if ratio <= 94:
+def cal_acc(ratio, year, quarter):
+    year = int(year)
+    quarter = int(quarter)
+    if ratio < 95:
         return ratio, 0
     elif ratio < 120:
+        acc = Acceleration.objects.get(
+            accelerationYear=year,
+            accelerationQuarter=quarter,
+            accelerationMin__lte=ratio,
+            accelerationMax__gt=ratio
+        )
         return (
-            Acceleration.objects.get(Q(accelerationMin__lte=ratio) & Q(accelerationMax__gte=ratio)).accelerationRatio,
-            Acceleration.objects.get(Q(accelerationMin__lte=ratio) & Q(accelerationMax__gte=ratio)).accelerationAcc
+            acc.accelerationRatio,
+            acc.accelerationAcc
         )
     else:
         return 140, 4
@@ -435,8 +457,8 @@ def cal_emp_incentive(empId, table2, year, quarter):
         while tempQuarter <= quarter:
             tempSalary += int(incentive.get(quarter=tempQuarter).bettingSalary)
             tempQuarter += 1
-        achieve = cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter)])[0]
-        acc = cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter)])[1]
+        achieve = cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter)], year, quarter)[0]
+        acc = cal_acc(table2['achieve']['cumulation']['total']['q' + str(quarter)], year, quarter)[1]
 
         if achieve < 100:
             return round(tempSalary * (achieve / 100))
@@ -448,7 +470,10 @@ def empIncentive(year, empId):
     empDeptName = Employee.objects.get(empId=empId).empDeptName
     incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
     goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=year))
-    revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
+
+    # revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
+    revenues = Revenue.objects.filter(Q(empId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
+
     revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
     revenue2 = revenues.filter(Q(billingDate__gte=year + '-04-01') & Q(billingDate__lt=year + '-07-01'))
     revenue3 = revenues.filter(Q(billingDate__gte=year + '-07-01') & Q(billingDate__lt=year + '-10-01'))
@@ -552,11 +577,15 @@ def empIncentive(year, empId):
     table2['target']['cumulation'] = {
         'revenue': {
             'q1': table2['target']['revenue']['q1'],
-            'q2': table2['target']['revenue']['q1'] + table2['target']['revenue']['q2'],
-            'q3': table2['target']['revenue']['q1'] + table2['target']['revenue']['q2'] +
+            'q2': table2['target']['revenue']['q1'] +
+                  table2['target']['revenue']['q2'],
+            'q3': table2['target']['revenue']['q1'] +
+                  table2['target']['revenue']['q2'] +
                   table2['target']['revenue']['q3'],
-            'q4': table2['target']['revenue']['q1'] + table2['target']['revenue']['q2'] +
-                  table2['target']['revenue']['q3'] + table2['target']['revenue']['q4'],
+            'q4': table2['target']['revenue']['q1'] +
+                  table2['target']['revenue']['q2'] +
+                  table2['target']['revenue']['q3'] +
+                  table2['target']['revenue']['q4'],
         },
         'profit': {
             'q1': table2['target']['profit']['q1'],
@@ -611,7 +640,7 @@ def empIncentive(year, empId):
                         table2['target']['cumulation']['revenue']['q2'] * 100), 1),
             'q3': round((table2['incentive']['cumulation']['revenue']['q3'] /
                         table2['target']['cumulation']['revenue']['q3'] * 100), 1),
-            'q4': round((table2['incentive']['cumulation']['revenue']['q1'] /
+            'q4': round((table2['incentive']['cumulation']['revenue']['q4'] /
                         table2['target']['cumulation']['revenue']['q4'] * 100), 1),
         },
         'profit': {
@@ -669,17 +698,17 @@ def empIncentive(year, empId):
         },
         {
             'name': '인정률',
-            'q1': str(cal_acc(table2['achieve']['cumulation']['total']['q1'])[0]) + '%',
-            'q2': str(cal_acc(table2['achieve']['cumulation']['total']['q2'])[0]) + '%',
-            'q3': str(cal_acc(table2['achieve']['cumulation']['total']['q3'])[0]) + '%',
-            'q4': str(cal_acc(table2['achieve']['cumulation']['total']['q4'])[0]) + '%',
+            'q1': str(cal_acc(table2['achieve']['cumulation']['total']['q1'], year, 1)[0]) + '%',
+            'q2': str(cal_acc(table2['achieve']['cumulation']['total']['q2'], year, 2)[0]) + '%',
+            'q3': str(cal_acc(table2['achieve']['cumulation']['total']['q3'], year, 3)[0]) + '%',
+            'q4': str(cal_acc(table2['achieve']['cumulation']['total']['q4'], year, 4)[0]) + '%',
         },
         {
             'name': 'ACC',
-            'q1': cal_acc(table2['achieve']['cumulation']['total']['q1'])[1],
-            'q2': cal_acc(table2['achieve']['cumulation']['total']['q2'])[1],
-            'q3': cal_acc(table2['achieve']['cumulation']['total']['q3'])[1],
-            'q4': cal_acc(table2['achieve']['cumulation']['total']['q4'])[1],
+            'q1': cal_acc(table2['achieve']['cumulation']['total']['q1'], year, 1)[1],
+            'q2': cal_acc(table2['achieve']['cumulation']['total']['q2'], year, 2)[1],
+            'q3': cal_acc(table2['achieve']['cumulation']['total']['q3'], year, 3)[1],
+            'q4': cal_acc(table2['achieve']['cumulation']['total']['q4'], year, 4)[1],
         },
         {
             'name': '예상누적인센티브',
@@ -740,8 +769,8 @@ def cal_monthlybill(todayYear):
                 Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2))) &
                 Q(predictBillingDate__lt='{}-{}-01'.format(todayYear, str(todayMonth + 1).zfill(2)))
             ).aggregate(
-                revenuePrice=Sum('revenuePrice'),
-                revenueProfitPrice=Sum('revenueProfitPrice')
+                revenuePrice=Coalesce(Sum('revenuePrice'), 0),
+                revenueProfitPrice=Coalesce(Sum('revenueProfitPrice'), 0)
             )
             expenses = Expense.objects.filter(
                 Q(expenseStatus='Y') &
@@ -758,8 +787,8 @@ def cal_monthlybill(todayYear):
                 Q(predictBillingDate__gte='{}-{}-01'.format(todayYear, str(todayMonth).zfill(2)))&
                 Q(predictBillingDate__lt='{}-{}-01'.format(todayYear + 1, '01'))
             ).aggregate(
-                revenuePrice=Sum('revenuePrice'),
-                revenueProfitPrice=Sum('revenueProfitPrice')
+                revenuePrice=Coalesce(Sum('revenuePrice'), 0),
+                revenueProfitPrice=Coalesce(Sum('revenueProfitPrice'), 0)
             )
             expenses = Expense.objects.filter(
                 Q(expenseStatus='Y') &
@@ -1195,6 +1224,18 @@ def magicsearch():
 
     return costCompany, classificationB, classificationC
 
+def summary(contractId):
+    summaryRevenues = Contractitem.objects.filter(contractId=contractId).aggregate(sum=Coalesce(Sum('itemPrice'), 0))['sum']
+    summaryProduct = Purchasecontractitem.objects.filter(Q(contractId=contractId) & Q(mainCategory='상품')).aggregate(sum=Coalesce(Sum('itemPrice'), 0))['sum']
+    summaryMaintenance = Purchasecontractitem.objects.filter(Q(contractId=contractId) & Q(mainCategory='유지보수')).aggregate(sum=Coalesce(Sum('itemPrice'), 0))['sum']
+    summarySupport = Purchasecontractitem.objects.filter(Q(contractId=contractId) & Q(mainCategory='인력지원')).aggregate(sum=Coalesce(Sum('itemPrice'), 0))['sum']
+    summaryEtc = Purchasecontractitem.objects.filter(Q(contractId=contractId) & Q(mainCategory='기타')).aggregate(sum=Coalesce(Sum('itemPrice'), 0))['sum']
+    summaryPurchases = summaryProduct + summaryMaintenance + summarySupport + summaryEtc
+
+    return {'summaryRevenues': summaryRevenues, 'summaryProduct': summaryProduct, 'summaryMaintenance': summaryMaintenance, 'summarySupport': summarySupport,
+            'summaryEtc': summaryEtc, 'summaryPurchases': summaryPurchases, 'summaryProfit': summaryRevenues-summaryPurchases}
+
+
 
 def summaryPurchase(contractId, salePrice):
     # 1. 상품_HW = 상품_HW (1)
@@ -1283,7 +1324,7 @@ def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpur
     email = AdminEmail.objects.get(Q(adminId=email['adminId__max']))
     # 매입발주서 메일 전송
     try:
-        title = "[{}] 매입발주서".format(orders.contractId.contractName)
+        title = orders.title
         html = purchaseorderhtml(orders)
         toEmail = toEmail
         fromEmail = fromEmail
@@ -1305,12 +1346,13 @@ def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpur
         dest = BytesIO()
 
         pdfStatus = pisa.pisaDocument(src, dest, encoding='utf-8', link_callback=link_callback)
+        pdfTitle = '[유니원아이앤씨] ' + orders.contractId.contractName + ' 매입발주서'
         if not pdfStatus.err:
             pdf = dest.getvalue()
             pdffile = MIMEBase("application/pdf", "application/x-pdf")
             pdffile.set_payload(pdf)
             encoders.encode_base64(pdffile)
-            pdffile.add_header("Content-Disposition", "attachment", filename=title + '.pdf')
+            pdffile.add_header("Content-Disposition", "attachment", filename=pdfTitle + '.pdf')
             msg.attach(pdffile)
 
         # 첨부파일 첨부
@@ -1336,7 +1378,7 @@ def mail_purchaseorder(toEmail, fromEmail, orders, purchaseorderfile, relatedpur
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
             smtp.close()
-        elif email.smtpServer == 'SSL':
+        elif email.smtpSecure == 'SSL':
             smtp = SMTP_SSL("{}:{}".format(email.smtpServer, email.smtpPort))
             smtp.login(email.smtpEmail, email.smtpPassword)
             smtp.sendmail(fromEmail, toEmail, msg.as_string())
