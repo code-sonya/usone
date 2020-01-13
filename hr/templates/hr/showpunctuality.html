@@ -67,7 +67,7 @@
                   <td>성명</td>
                   <td>직급</td>
                   <td>현황</td>
-                  {% if user.employee.empDeptName != '임원' %}
+                  {% if user.employee.empPosition.positionName != '임원' %}
                     <td>비고</td>
                     <td>분기지각체크</td>
                   {% endif %}
@@ -122,7 +122,7 @@
                       <td class="text-secondary">{{ p.punctualityType }}</td>
                     {% endif %}
                   {% endif %}
-                  {% if user.employee.empDeptName != '임원' %}
+                  {% if user.employee.empPosition.positionName != '임원' %}
                     {% if p.comment %}
                       <td>{{ p.comment }}</td>
                     {% else %}
@@ -149,7 +149,7 @@
                 {% endfor %}
                 <tr class="bg-gray-200">
                   <td>합계</td>
-                  {% if user.employee.empDeptName != '임원' %}
+                  {% if user.employee.empPosition.positionName != '임원' %}
                     <td colspan="5">{{ sumpunctuality }}명</td>
                   {% else %}
                     <td colspan="3">{{ sumpunctuality }}명</td>

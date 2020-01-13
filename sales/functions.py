@@ -345,8 +345,13 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
         'revenuePrice': revenuePrice,
         'profitPrice': profitPrice,
     }
-    row['revenueRatio'] = round(row['revenuePrice'] / row['revenueTarget'] * 100)
-    row['profitRatio'] = round(row['profitPrice'] / row['profitTarget'] * 100)
+    if row['revenueTarget']:
+        row['revenueRatio'] = round(row['revenuePrice'] / row['revenueTarget'] * 100)
+        row['profitRatio'] = round(row['profitPrice'] / row['profitTarget'] * 100)
+    else:
+        row['revenueRatio'] = '-'
+        row['profitRatio'] = '-'
+
     rows.append(row)
 
     return rows
@@ -403,8 +408,8 @@ def cal_acc(ratio):
         return 140, 4
 
 
-def cal_emp_incentive(empId, table2, quarter):
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
+def cal_emp_incentive(empId, table2, year, quarter):
+    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
 
     if quarter > 1:
         incentiveZero = incentive.get(quarter=quarter - 1).bettingSalary != incentive.get(quarter=quarter).bettingSalary
@@ -422,7 +427,7 @@ def cal_emp_incentive(empId, table2, quarter):
                 tempQuarter += 1
 
             return cal_emp_incentive(
-                empId, table2, quarter - 1,
+                empId, table2, year, quarter - 1,
             )
     else:
         tempQuarter = 1
@@ -441,8 +446,8 @@ def cal_emp_incentive(empId, table2, quarter):
 
 def empIncentive(year, empId):
     empDeptName = Employee.objects.get(empId=empId).empDeptName
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
-    goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=datetime.today().year))
+    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+    goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=year))
     revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
     revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
     revenue2 = revenues.filter(Q(billingDate__gte=year + '-04-01') & Q(billingDate__lt=year + '-07-01'))
@@ -678,18 +683,18 @@ def empIncentive(year, empId):
         },
         {
             'name': '예상누적인센티브',
-            'q1': cal_emp_incentive(empId, table2, 1),
-            'q2': cal_emp_incentive(empId, table2, 2),
-            'q3': cal_emp_incentive(empId, table2, 3),
-            'q4': cal_emp_incentive(empId, table2, 4),
+            'q1': cal_emp_incentive(empId, table2, year, 1),
+            'q2': cal_emp_incentive(empId, table2, year, 2),
+            'q3': cal_emp_incentive(empId, table2, year, 3),
+            'q4': cal_emp_incentive(empId, table2, year, 4),
         },
         {
             'name': '예상분기인센티브',
-            'q1': cal_emp_incentive(empId, table2, 1),
-            'q2': cal_emp_incentive(empId, table2, 2) - int(incentive.get(quarter=1).achieveIncentive),
-            'q3': cal_emp_incentive(empId, table2, 3) -
+            'q1': cal_emp_incentive(empId, table2, year, 1),
+            'q2': cal_emp_incentive(empId, table2, year, 2) - int(incentive.get(quarter=1).achieveIncentive),
+            'q3': cal_emp_incentive(empId, table2, year, 3) -
                   (int(incentive.get(quarter=1).achieveIncentive) + int(incentive.get(quarter=2).achieveIncentive)),
-            'q4': cal_emp_incentive(empId, table2, 4) -
+            'q4': cal_emp_incentive(empId, table2, year, 4) -
                   (int(incentive.get(quarter=1).achieveIncentive) + int(incentive.get(quarter=2).achieveIncentive) +
                    int(incentive.get(quarter=3).achieveIncentive)),
         },
@@ -1001,9 +1006,9 @@ def award(year, empDeptName, table2, goal, empName, incentive, empId):
     ]
 
     # 누적 인센티브&어워드 확정 금액
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=datetime.today().year))
-    sumachieveIncentive = incentive.filter(year=year).aggregate(Sum('achieveIncentive'))
-    sumachieveAward = incentive.filter(year=year).aggregate(Sum('achieveAward'))
+    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+    sumachieveIncentive = incentive.aggregate(Sum('achieveIncentive'))
+    sumachieveAward = incentive.aggregate(Sum('achieveAward'))
 
     # 인센티브 실적 상세 내역
     incentiveRevenues = revenues.filter(
@@ -1195,10 +1200,10 @@ def summaryPurchase(contractId, salePrice):
     # 1. 상품_HW = 상품_HW (1)
     # 2. 상품_SW = 상품_SW, DB COSTS (2, 7)
     # 3. 용역_HW = 유지보수_HW, 인력지원_자사_HW, 인력지원_타사_HW(3, 5, 6) - 상품_HW, 유지보수_HW
-    # 4. 용역_SW = 유지보수_SW, 인력지원_자사_SW, 인력지원_타사_SW(4, 5, 6) - 상품_SW, 유지보수_SW, PM_상주는 어디로?
+    # 4. 용역_SW = 유지보수_SW, 인력지원_자사_SW, 인력지원_타사_SW(4, 5, 6) - 상품_SW, 유지보수_SW, PM_상주
     # 5. 기타 = 기타 (8)
-    HW_lst = ['상품_HW', '유지보수_HW']
-    SW_lst = ['상품_SW', '유지보수_SW']
+    HW_lst = ['상품HW', '유지보수HW']
+    SW_lst = ['상품SW', '유지보수SW', 'PM상주']
     sumType1 = 0
     sumType2 = 0
     sumType3 = 0

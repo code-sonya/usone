@@ -70,7 +70,7 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h3 class="m-0 text-gray-800"> {{ todayYear }}년 {{ todayQuarter }}분기 인센티브 현황 </h3>
         <div class="dropdown no-arrow">
-          <a class="mr-3" onclick="location.href='/sales/viewincentiveallpdf/{{ todayQuarter }}/'">
+          <a class="mr-3" onclick="location.href='/sales/viewincentiveallpdf/{{ todayYear }}/{{ todayQuarter }}/'">
             <i class="fas fa-download fa-fw text-gray-400"></i>
           </a>
           <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
@@ -127,7 +127,7 @@
           {% for row in table %}
             <tr class="thtd">
               <td class="thtd" colspan="1">{{ row.empPosition }}</td>
-              <td class="thtd" colspan="1"><a href="/sales/viewincentive/{{ row.empId }}/">{{ row.empName }}</a></td>
+              <td class="thtd" colspan="1"><a href="/sales/viewincentive/{{ todayYear }}/{{ row.empId }}/">{{ row.empName }}</a></td>
               <td class="thtd" colspan="1">{{ row.achieveRatio }}</td>
               <td class="thtd" colspan="2">{{ row.sum_salary | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.sum_basicSalary | intcomma }}</td>
@@ -186,14 +186,18 @@
           <form id="filterForm" action="/sales/viewincentiveall/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
             <div class="row mb-1">
-              <div class="col-12">
+              <div class="col-6">
+                <label for="year" class="text-primary">연도</label>
+                <input class="form-control" id="year" name="year" type="number" value="{{ todayYear }}">
+              </div>
+              <div class="col-6">
                 <label for="quarter" class="text-primary">분기</label>
                 <select class="form-control" id="quarter" name="quarter">
                   <option value="">------</option>
-                  <option value="1">1분기</option>
-                  <option value="2">2분기</option>
-                  <option value="3">3분기</option>
-                  <option value="4">4분기</option>
+                  <option value="1" {% if todayQuarter == 1 %}selected{% endif %}>1분기</option>
+                  <option value="2" {% if todayQuarter == 2 %}selected{% endif %}>2분기</option>
+                  <option value="3" {% if todayQuarter == 3 %}selected{% endif %}>3분기</option>
+                  <option value="4" {% if todayQuarter == 4 %}selected{% endif %}>4분기</option>
                 </select>
               </div>
             </div>

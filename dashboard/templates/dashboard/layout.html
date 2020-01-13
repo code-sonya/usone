@@ -225,7 +225,6 @@
         <!--</div>-->
       <!--</div>-->
     <!--</li>-->
-
     <!-- Divider -->
     <!--<hr class="sidebar-divider">-->
 
@@ -244,12 +243,12 @@
         <span class="text-white">일정관리</span></a>
     </li>
 
-     <!-- Nav Item - 휴가관리 -->
-    <li class="nav-item">
-      <a class="nav-link" href="/service/showvacations/">
-        <i class="fas fa-fw fa-plane-departure text-white"></i>
-        <span class="text-white">휴가관리</span></a>
-    </li>
+     <!--&lt;!&ndash; Nav Item - 휴가관리 &ndash;&gt;-->
+    <!--<li class="nav-item">-->
+      <!--<a class="nav-link" href="/service/showvacations/">-->
+        <!--<i class="fas fa-fw fa-plane-departure text-white"></i>-->
+        <!--<span class="text-white">휴가관리</span></a>-->
+    <!--</li>-->
 
     <!--&lt;!&ndash; Nav Item - Daily Report &ndash;&gt;-->
     <!--<li class="nav-item">-->
@@ -275,7 +274,8 @@
       </a>
       <div id="collapseApproval" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="/approval/postdocument/">문서 작성</a>
+          <a class="collapse-item" href="/approval/postdocument/">문서작성</a>
+          <a class="collapse-item" href="/service/showvacations/">휴가작성</a>
           <h6 class="collapse-header">━━━ 문서함 ━━━</h6>
           <a class="collapse-item" href="/approval/showdocument/all/">전체</a>
           <a class="collapse-item" href="/approval/showdocument/ing/">진행
@@ -470,6 +470,18 @@
 {% block script %}{% endblock %}
 
 <script type="text/javascript">
+
+    let buttonStatus = false;
+    const sideBarButton = $('#sidebarToggleTop');
+    sideBarButton.click(function() {
+        if (buttonStatus) {
+            buttonStatus = false;
+        } else {
+            buttonStatus = true;
+        }
+        console.log(buttonStatus);
+    });
+
     function btn_dayreport(path) {
         const dateToday = new Date();
         const yyyy = dateToday.getFullYear();
@@ -559,6 +571,7 @@
     }
 
     function changeToggled(width) {
+        const sideBar = $('#accordionSidebar');
         if (window.innerWidth < width) {
             $('#accordionSidebar').addClass('toggled');
             $("#brandimg").attr("src", "/media/logo/usails_m.png");
@@ -587,6 +600,18 @@
         });
     }
 
+    function my_incentive() {
+        const dateToday = new Date();
+        const yyyy = dateToday.getFullYear();
+        location.href = '/sales/viewincentive/' + String(yyyy) + '/{{ user.employee.empId }}/';
+    }
+
+    function view_salary() {
+        const dateToday = new Date();
+        const yyyy = dateToday.getFullYear();
+        location.href = '/sales/viewsalaryall/' + String(yyyy) + '/';
+    }
+
     $(window).resize(function() {
         changeToggled(1200);
     });
@@ -595,7 +620,6 @@
         changeToggled(1200);
         counting();
     })
-
 
 </script>
 </body>

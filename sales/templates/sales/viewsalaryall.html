@@ -72,6 +72,9 @@
           <a class="mr-3" onclick="location.href='/sales/viewsalaryallpdf/{{ todayYear }}/'">
             <i class="fas fa-download fa-fw text-gray-400"></i>
           </a>
+          <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+            <i class="fas fa-filter fa-fw text-gray-400"></i>
+          </a>
         </div>
       </div>
 
@@ -105,7 +108,7 @@
           {% for row in table %}
             <tr class="thtd">
               <td class="thtd" colspan="1">{{ row.empPosition }}</td>
-              <td class="thtd" colspan="2"><a href="/sales/viewincentive/{{ row.empId }}/">{{ row.empName }}</a></td>
+              <td class="thtd" colspan="2"><a href="/sales/viewincentive/{{ todayYear }}/{{ row.empId }}/">{{ row.empName }}</a></td>
               <td class="thtd" colspan="2">{{ row.quarter1_bettingSalary | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.quarter2_bettingSalary | intcomma }}</td>
               <td class="thtd" colspan="2">{{ row.quarter3_bettingSalary | intcomma }}</td>
@@ -173,6 +176,34 @@
     </div>
   </div>
 
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row mb-1">
+            <div class="col-6">
+              <label for="year" class="text-primary">연도</label>
+              <input class="form-control" id="year" name="year" type="number" value="{{ todayYear }}">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info text-white" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -181,8 +212,8 @@
   <script type="text/javascript">
 
       function btn_filter() {
-          const filterForm = document.getElementById("filterForm");
-          filterForm.submit();
+          const yyyy = $('#year').val();
+          location.href = '/sales/viewsalaryall/' + String(yyyy) + '/';
       }
 
   </script>

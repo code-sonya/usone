@@ -383,14 +383,14 @@ def dayreport_query2(empDeptName, day):
     listVacation = []
 
     for service in serviceDept:
-        if service.serviceType == '상주' or service.serviceType == '프로젝트상주':
+        if service.serviceType.typeName == '상주' or service.serviceType.typeName == '프로젝트상주':
             flag = '상주'
         elif service.directgo == 'Y':
             flag = '직출'
         else:
             flag = ''
 
-        if service.serviceType == '교육':
+        if service.serviceType.typeName == '교육':
             listEducation.append({
                 'serviceId': service.serviceId,
                 'flag': flag,
@@ -410,7 +410,7 @@ def dayreport_query2(empDeptName, day):
                 'serviceFinishDatetime': service.serviceFinishDatetime,
                 'serviceStatus': service.serviceStatus,
                 'companyName': service.companyName,
-                'serviceType': service.serviceType,
+                'serviceType': service.serviceType.typeName,
                 'serviceTitle': service.serviceTitle,
                 'sortKey': service.empId.empRank,
             })

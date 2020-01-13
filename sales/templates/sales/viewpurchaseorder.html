@@ -43,13 +43,13 @@
 
     <div class="card-body">
       <label class="font-weight-bold text-primary">제목</label>
-      <div class="mb-3 p-2">
+      <div class="mb-3">
         <div class="h5 text-gray-900" id="purchasetitle">{{ purchaseOrder.title }}</div>
       </div>
 
       <label for="contentHtml" class="font-weight-bold text-primary">본문</label>
       <div class="row" style="white-space:nowrap;overflow-x:scroll;">
-         <div class="mb-3 p-2 text-gray-900 col-12">
+         <div class="mb-3 text-gray-900 col-12">
           {{ purchaseOrder.contentHtml | safe }}
          </div>
       </div>
