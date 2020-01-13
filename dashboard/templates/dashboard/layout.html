@@ -81,7 +81,7 @@
         </div>
       </li>
      <hr class="sidebar-divider my-0">
-    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
+    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName or user.employee.empPosition.positionName == '임원' %}
       <!-- Nav Item - 영업관리 -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
@@ -99,22 +99,10 @@
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/showpurchaseinadvance/">선매입관리</a>
             <a class="collapse-item" href="/sales/showrevenueinadvance/">미접수관리</a>
-            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
-            <a class="collapse-item" href="/sales/showgoals/">목표관리</a>
-            {% if user.is_staff %}
+            {% if user.employee.empDeptName == '경영지원본부' or user.is_staff  or  user.employee.empPosition.positionName == '임원' %}
               <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
-              <a class="collapse-item" href="/sales/transfercontract/">계약이관</a>
+              <a class="collapse-item" href="/sales/checkservice/">계약별투입원가</a>
               <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
-              <a class="collapse-item" href="/sales/checkservice/">계약별투입원가</a>
-            {% endif %}
-            {% if user.employee.empDeptName == '경영지원본부' %}
-              <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
-              <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
-              <a class="collapse-item" href="/sales/checkservice/">계약별투입원가</a>
-            {% endif %}
-            {% if user.employee.empId == 2 %}
-              <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
-              <a class="collapse-item" href="/sales/checkservice/">계약별투입원가</a>
             {% endif %}
           </div>
         </div>
@@ -322,6 +310,9 @@
               <a class="collapse-item" href="/scheduler/showeventday/">휴일&사내일정관리</a>
               <a class="collapse-item" href="/service/showservicetype/">일정구분관리</a>
               <a class="collapse-item" href="/hr/emailregistration">관리자이메일등록</a>
+              <h6 class="collapse-header">━━━ 영업 관리 ━━━</h6>
+              <a class="collapse-item" href="/sales/showgoals/">영업목표관리</a>
+              <a class="collapse-item" href="/sales/transfercontract/">계약이관</a>
               <h6 class="collapse-header">━━━ 이력 관리 ━━━</h6>
               <a class="collapse-item" href="/logs/showdownloads/">문서다운로드이력</a>
               <a class="collapse-item" href="/logs/showorders/">매입발주서전송이력</a>

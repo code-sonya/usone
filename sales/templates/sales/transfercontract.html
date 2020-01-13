@@ -160,7 +160,7 @@
           console.log(empId);
           $('#beforetransfer').empty();
           const th = "<thead>" + "<tr class='text-white' style='background-color: #36b9cc'>"
-              + "<th colspan=1>Id</th>" + "<th colspan=2>구분</th>" + "<th colspan=6>계약명</th>"
+              + "<th colspan=1></th>" + "<th colspan=2>구분</th>" + "<th colspan=6>계약명</th>"
               + "<th colspan=4>계약일</th>" + "<th class=\"d-none\">contractId</th>" + "</tr>" + "</thead>";
 
           $('#beforetransfer').append(th);
@@ -177,9 +177,9 @@
                       for (var count = 0; count < contract.length; count++) {
                           const trId = contract[count].contractId;
                           const tr = $("<tr class='thtd' style='background-color:white' id='" + contract[count].contractId + "'>" +
-                              "<td colspan=1><a href='#' name='contractcheck' value='\" + contract[count].contractId + \"' onclick='btn_contractcheck(this.text)'>" + contract[count].contractId + "</a></td>" +
+                              "<td colspan=1><div name='contractcheck' value='" + contract[count].contractId + "'>▽</div></td>" +
                               "<td colspan=2>" + contract[count].contractStep + "</td>" +
-                              "<td colspan=6 class='text-left'>[" + contract[count].contractCode + "]" + contract[count].contractName + "</td>" +
+                              "<td colspan=6 class='text-left'><a href='/sales/viewcontract/"+contract[count].contractId +"/' target='_blank'>[" + contract[count].contractCode + "]" + contract[count].contractName + "</a></td>" +
                               "<td colspan=4>" + contract[count].contractDate + "</td>"
                               + "<td class='d-none'><input name='contractId' value='" + contract[count].contractId + "'></td></tr>"
                           );
@@ -194,7 +194,7 @@
                                       "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
                                       "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
                                       "<td colspan='3' class='text-right money'>" + contract[count].revenue[r].revenuePrice + "</td>" +
-                                      "<td class='d-none'><input name='revenueId' value='\" + contract[count].revenue[r].revenueId + \"'></td><tr>";
+                                      "<td class='d-none'><input name='revenueId' value='"+ contract[count].revenue[r].revenueId + "'></td><tr>";
                                       $('#' + trId).after(table);
                                       $('.money').simpleMoneyFormat();
                               }else{
@@ -205,7 +205,7 @@
                                   "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
                                   "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
                                   "<td colspan='3' class='text-right money'>"+contract[count].revenue[r].revenuePrice+"</td>" +
-                                  "<td class='d-none'><input name='revenueId' value='\" + contract[count].revenue[r].revenueId + \"'></td><tr>";
+                                  "<td class='d-none'><input name='revenueId' value='"+ contract[count].revenue[r].revenueId + "'></td><tr>";
                                   $('#' + trId).after(table);
                                   $('.money').simpleMoneyFormat();
                               }
