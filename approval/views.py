@@ -746,6 +746,8 @@ def documentform_asjson(request):
                 Q(categoryId__secondCategory=request.GET['secondCategory'])
             ).values(
                 'formNumber', 'formTitle', 'approvalFormat'
+            ).order_by(
+                'formNumber'
             )
             structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
