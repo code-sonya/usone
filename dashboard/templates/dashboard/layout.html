@@ -579,13 +579,15 @@
     function changeToggled(width) {
         const sideBar = $('#accordionSidebar');
         if (window.innerWidth < width) {
-            $('#accordionSidebar').addClass('toggled');
+            if (!buttonStatus) {
+                sideBar.addClass('toggled');
+            }
             $("#brandimg").attr("src", "/media/logo/usails_m.png");
             $("#brandimg").attr("width", "45px");
         } else {
-            $('#accordionSidebar').removeClass('toggled');
-             $("#brandimg").attr("src", "/media/logo/usails.png");
-             $("#brandimg").attr("width", "140px");
+            sideBar.removeClass('toggled');
+            $("#brandimg").attr("src", "/media/logo/usails.png");
+            $("#brandimg").attr("width", "140px");
         }
     }
 
