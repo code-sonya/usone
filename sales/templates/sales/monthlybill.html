@@ -55,11 +55,15 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">손익계산서</h6>
-          <span class="text-right">[부가세 별도]</span>
+          <h6 class="m-0 h3 text-gray-800">{{ todayYear }}년 손익계산서</h6>
+          <div class="dropdown">
+            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
+            </a>
+          </div>
         </div>
         <div class="row ml-3 mt-3">
-          ※ 본 자료의 매출액과 GP집계는 <span class="text-primary ml-1 mr-1"> Firm </span> 기준으로 <span class="text-success ml-1 mr-1"> Oppt'y</span> 수치가 제외 되어 있음
+          ※ 본 자료의 매출액과 GP집계는 <span class="text-primary ml-1 mr-1"> Firm </span> 기준으로 <span class="text-success ml-1 mr-1"> Oppt'y</span> 수치가 제외 되어 있음. [부가세 별도]
         </div>
 
         <div class="card-body">
@@ -332,11 +336,37 @@
       </div>
     </div>
   </div>
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12 mb-3 mb-sm-0">
+                <label for="searchYear" class="text-primary">조회년도</label>
+                <input type="number" max="9999" class="form-control" id="searchYear" name="searchYear" value="{{ todayYear }}">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
 
 
-|intcomma {% block script %}
+{% block script %}
 
   <script>
       const etc = '<tr><td>기타</td><td style="text-align:right" class="text-primary"><i class="fas fa-plus-circle" id="btn"> 더보기</td></tr>';

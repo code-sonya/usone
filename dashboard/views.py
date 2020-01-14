@@ -6,6 +6,7 @@ import json
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, F, Case, When, Value, CharField
+from django.db.models.functions import Coalesce
 from django.db.models import Sum, Count
 from django.http import HttpResponse
 from django.template import loader
@@ -142,10 +143,17 @@ def dashboard_opportunity(request):
 @login_required
 def dashboard_quarter(request):
     template = loader.get_template('dashboard/dashboardquarter.html')
+    if request.method == 'POST':
+        todayYear = int(request.POST['searchYear'])
+        todayMonth = 12
+        if todayYear == datetime.today().year:
+            todayYear = datetime.today().year
+            todayMonth = datetime.today().month
+    else:
+        todayYear = datetime.today().year
+        todayMonth = datetime.today().month
 
     # 연도, 월, 분기
-    todayYear = datetime.today().year
-    todayMonth = datetime.today().month
     if todayMonth in [1, 2, 3]:
         todayQuarter = 1
     elif todayMonth in [4, 5, 6]:
@@ -166,20 +174,21 @@ def dashboard_quarter(request):
     salesTarget = goal.aggregate(sum=Sum('yearSalesSum'))['sum']
     profitTarget = goal.aggregate(sum=Sum('yearProfitSum'))['sum']
 
-    salesQuarterTarget = goal.aggregate(sum=Sum('salesq1'))['sum']
-    profitQuarterTarget = goal.aggregate(sum=Sum('profitq1'))['sum']
+    salesQuarterTarget = goal.aggregate(sum=Coalesce(Sum('salesq1'), 0))['sum']
+    profitQuarterTarget = goal.aggregate(sum=Coalesce(Sum('profitq1'), 0))['sum']
+
     if todayQuarter >= 2:
-        salesQuarterTarget += goal.aggregate(sum=Sum('salesq2'))['sum']
-        profitQuarterTarget += goal.aggregate(sum=Sum('profitq2'))['sum']
+        salesQuarterTarget += goal.aggregate(sum=Coalesce(Sum('salesq2'), 0))['sum']
+        profitQuarterTarget += goal.aggregate(sum=Coalesce(Sum('profitq2'), 0))['sum']
     if todayQuarter >= 3:
-        salesQuarterTarget += goal.aggregate(sum=Sum('salesq3'))['sum']
-        profitQuarterTarget += goal.aggregate(sum=Sum('profitq3'))['sum']
+        salesQuarterTarget += goal.aggregate(sum=Coalesce(Sum('salesq3'), 0))['sum']
+        profitQuarterTarget += goal.aggregate(sum=Coalesce(Sum('profitq3'), 0))['sum']
     if todayQuarter >= 4:
-        salesQuarterTarget += goal.aggregate(sum=Sum('salesq4'))['sum']
-        profitQuarterTarget += goal.aggregate(sum=Sum('profitq4'))['sum']
+        salesQuarterTarget += goal.aggregate(sum=Coalesce(Sum('salesq4'), 0))['sum']
+        profitQuarterTarget += goal.aggregate(sum=Coalesce(Sum('profitq4'), 0))['sum']
 
     # 분기별/월별 목표 매출&이익 금액
-    goalsSum = goal.aggregate(sum_yearSales=Sum('yearSalesSum'), sum_yearProfit=Sum('yearProfitSum'), sum_salesq1=Sum('salesq1'), sum_salesq2=Sum('salesq2'),sum_salesq3=Sum('salesq3'),
+    goalsSum = goal.aggregate(sum_yearSales=Sum('yearSalesSum'), sum_yearProfit=Sum('yearProfitSum'), sum_salesq1=Sum('salesq1'), sum_salesq2=Sum('salesq2'), sum_salesq3=Sum('salesq3'),
                               sum_salesq4=Sum('salesq3'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'), sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'),
                               sum_sales1=Sum('sales1'), sum_sales2=Sum('sales2'), sum_sales3=Sum('sales3'), sum_sales4=Sum('sales4'), sum_sales5=Sum('sales5'), sum_sales6=Sum('sales6'),
                               sum_sales7=Sum('sales7'), sum_sales8=Sum('sales8'), sum_sales9=Sum('sales9'), sum_sales10=Sum('sales10'), sum_sales11=Sum('sales11'), sum_sales12=Sum('sales12'),
@@ -187,9 +196,9 @@ def dashboard_quarter(request):
                               sum_profit7=Sum('profit7'), sum_profit8=Sum('profit8'), sum_profit9=Sum('profit9'), sum_profit10=Sum('profit10'), sum_profit11=Sum('profit11'),
                               sum_profit12=Sum('profit12'),)
 
+
     # 매출
     revenues = Revenue.objects.all()
-
     firmRevenuePrice = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']) & Q(contractId__contractStep='Firm'))
     oppRevenuePrice = revenues.filter(Q(predictBillingDate__gte=dict_quarter['q1_start']) & Q(predictBillingDate__lt=dict_quarter['q4_end']) & Q(contractId__contractStep='Opportunity'))
 
@@ -288,26 +297,6 @@ def dashboard_quarter(request):
     quarterOpptyFirmSales = quarterlyCumulativeSales['quarterly_cumulative_sales'] + sum(quarterOppty[0:todayQuarter])
     quarterOpptyFirmProfits = quarterlyCumulativeProfit['quarterly_cumulative_profit'] + sum(quarterOpptyProfit[0:todayQuarter])
 
-    if request.method == "POST":
-        startdate = request.POST["startdate"]
-        enddate = request.POST["enddate"]
-        contractStep = request.POST["contractStep"]
-        empDeptName = request.POST['empDeptName']
-        empName = request.POST['empName']
-        saleCompanyName = request.POST['saleCompanyName']
-        endCompanyName = request.POST['endCompanyName']
-        contractName = request.POST['contractName']
-
-    else:
-        startdate = dict_quarter['q1_start']
-        enddate = dict_quarter['q4_end']
-        contractStep = ''
-        empDeptName = ''
-        empName = ''
-        saleCompanyName = ''
-        endCompanyName = ''
-        contractName = ''
-
     # 목표 입력 전,
     if salesTarget:
         Sales_rate = round(cumulativeSalesAmount / salesTarget * 100, 2)
@@ -365,14 +354,6 @@ def dashboard_quarter(request):
         "quarterFirmProfitSum":quarterFirmProfitSum,
         "team_revenues": teamRevenues,
         "quarter_opp_Firm": quarterOpptyFirm,
-        'startdate': startdate,
-        'enddate': enddate,
-        'contractStep': contractStep,
-        'empDeptName': empDeptName,
-        'empName': empName,
-        'saleCompanyName': saleCompanyName,
-        'endCompanyName': endCompanyName,
-        'contractName': contractName,
         'maincategoryRevenuePrice': maincategoryRevenuePrice,
         'salesindustryRevenuePrice': salesindustryRevenuePrice,
         'salestypeRevenuePrice': salestypeRevenuePrice,
