@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  휴가조회
+  휴가 사용 현황
 {% endblock %}
 
 
@@ -52,11 +52,11 @@
   <div>
     <div class="card shadow mb-4">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="m-0 h3 text-gray-800">{{year}}년도 휴가조회</h6>
+        <h6 class="m-0 h3 text-gray-800">{{year}}년도 휴가 사용 현황</h6>
         <div class="dropdown no-arrow">
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-            <a class="dropdown-toggle" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-              <i class="fas fa-filter fa-fw text-info mr-2"></i>
+            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
             </a>
           {% endif %}
         </div>

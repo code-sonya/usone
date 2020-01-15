@@ -121,6 +121,9 @@
                   } else if (aData.vacationStatus === 'R') {
                       $('td:eq(4)', nRow).text('반려');
                       $('td:eq(4)', nRow).css('color', '#e74a3b');
+                  } else if (aData.vacationStatus === 'X') {
+                      $('td:eq(4)', nRow).text('결재완료');
+                      $('td:eq(4)', nRow).css('text-decoration', 'line-through');
                   }
               }
           });

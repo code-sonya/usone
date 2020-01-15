@@ -18,9 +18,10 @@ from django.views.decorators.csrf import csrf_exempt
 from extrapay.models import Car
 from .forms import EmployeeForm, DepartmentForm, UserForm
 from .functions import save_punctuality, check_absence, year_absence, adminemail_test, siteMap
-from .models import AdminEmail, AdminVacation
-from .models import Attendance, Employee, Punctuality, Department
+from .models import Attendance, Employee, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation
 from service.models import Vacation
+from approval.models import Document
+from extrapay.models import ExtraPay
 
 
 @login_required
@@ -668,4 +669,109 @@ def vacationsexcel_asjson(request):
         vacationList.append(vacationDict)
     structure = json.dumps(vacationList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def return_vacation(request):
+    if request.method == 'POST':
+        year = request.POST['year']
+    else:
+        year = str(datetime.datetime.today().year)
+
+    employees = Employee.objects.filter(Q(empStatus='Y'))
+    context = {
+        'year': year,
+        'employees': employees,
+    }
+    return render(request, 'hr/returnvacation.html', context)
+
+
+@login_required
+@csrf_exempt
+def returnvacation_asjson(request):
+    year = request.POST['year']
+
+    # 휴가 취소 내역
+    if year:
+        returnVacations = ReturnVacation.objects.filter(Q(returnDateTime__year=year))\
+            .values('returnDateTime', 'empId__empDeptName', 'empId__empName', 'vacationId__documentId__documentId', 'vacationId__documentId__title', 'vacationId__vacationDate',  'vacationId__vacationType', 'vacationId__vacationCategory__categoryName', 'comment')
+
+    else:
+        returnVacations = ReturnVacation.objects.all()\
+            .values('returnDateTime', 'empId__empDeptName', 'empId__empName', 'vacationId__documentId__documentId', 'vacationId__documentId__title', 'vacationId__vacationType', 'vacationId__vacationCategory__categoryName', 'comment')
+
+    print(returnVacations)
+    structure = json.dumps(list(returnVacations), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def vacationdocument_asjson(request):
+    empId = request.POST['empId']
+    vacationdocument = Document.objects.filter(Q(writeEmp=empId) & Q(documentStatus='완료') & Q(formId__formTitle='휴가신청서')).values('documentId','writeEmp', 'draftDatetime', 'title')
+
+    structure = json.dumps(list(vacationdocument), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def cancel_vacation(request):
+    empId = request.POST['empId']
+    documentId = request.POST['document']
+    document = Document.objects.get(documentId=documentId)
+    document.documentStatus = '결재완료후취소'
+    document.save()
+    empId = Employee.objects.get(empId=empId)
+    returnvacations = Vacation.objects.filter(Q(documentId=documentId))
+    for returnvacation in returnvacations:
+        # vacation = Vacation.objects.get(vacationId=returnvacation.vacationId)
+        ReturnVacation.objects.create(
+            empId=empId,
+            returnDateTime=datetime.datetime.now(),
+            vacationId=returnvacation,
+        )
+        returnvacation.vacationStatus='X'
+        returnvacation.comment='결재완료후취소'
+        returnvacation.save()
+        vacationDay = 0
+        if returnvacation.vacationType == '일차':
+            vacationDay += 1
+        else:
+            vacationDay += 0.5
+        categoryName = returnvacation.vacationCategory.categoryName
+        if categoryName == '연차':
+            empId.empAnnualLeave += vacationDay
+            empId.save()
+        elif categoryName == '특별휴가':
+            empId.empSpecialLeave += vacationDay
+            empId.save()
+        elif categoryName == '보상휴가':
+            rewardVacationType = returnvacation.rewardVacationType
+            now = document.draftDatetime
+            yyyy = str(now)[:4]
+            mm = str(now)[5:7]
+            if mm == '01':
+                yyyyBefore = str(int(yyyy) - 1)
+                mmBefore = '12'
+            else:
+                yyyyBefore = yyyy
+                mmBefore = str(int(mm) - 1).zfill(2)
+            if rewardVacationType == '당월보상휴가':
+                # 보상휴가일수
+                extraWork = ExtraPay.objects.filter(empId=empId, overHourDate__year=yyyy, overHourDate__month=mm)
+                extraWorkObj = extraWork.first()
+                extraWorkObj.compensatedHour -= vacationDay * 8
+                extraWorkObj.save()
+            elif rewardVacationType == '전월보상휴가':
+                # 보상휴가일수
+                extraWorkBefore = ExtraPay.objects.filter(empId=empId, overHourDate__year=yyyyBefore, overHourDate__month=mmBefore)
+                extraWorkBeforeObj = extraWorkBefore.first()
+                extraWorkBeforeObj.compensatedHour -= vacationDay * 8
+                extraWorkBeforeObj.save()
+
+    return redirect('hr:returnvacation')
+
 

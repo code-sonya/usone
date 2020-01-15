@@ -34,5 +34,9 @@ urlpatterns = [
     url(r'^savevacation/$', views.save_vacation, name='savevacation'),
     url(r'^vacationsexcel/$', views.vacations_excel, name='vacationsexcel'),
     url(r'^vacationsexcelasjson/$', views.vacationsexcel_asjson, name='vacationsexcelasjson'),
+    url(r'^returnvacation/$', views.return_vacation, name='returnvacation'),
+    url(r'^returnvacationasjson/$', views.returnvacation_asjson, name='returnvacationasjson'),
+    url(r'^vacationdocumentasjson/$', views.vacationdocument_asjson, name='vacationdocumentasjson'),
+    url(r'^cancelvacation/$', views.cancel_vacation, name='cancelvacation'),
 ]
 
