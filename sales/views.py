@@ -2462,8 +2462,16 @@ def change_incentive_all(request):
 @login_required
 @csrf_exempt
 def monthly_bill(request):
-    todayYear = datetime.today().year
-    todayMonth = datetime.today().month
+    if request.method == 'POST':
+        todayYear = int(request.POST['searchYear'])
+        todayMonth = 12
+        if todayYear == datetime.today().year:
+            todayYear = datetime.today().year
+            todayMonth = datetime.today().month
+    else:
+        todayYear = datetime.today().year
+        todayMonth = datetime.today().month
+
     if todayMonth in [1, 2, 3]:
         todayQuarter = 1
     elif todayMonth in [4, 5, 6]:

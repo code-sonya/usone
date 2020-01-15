@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  휴가 관리
+  휴가 취소 내역
 {% endblock %}
 
 
@@ -25,7 +25,7 @@
       border: 1px solid darkgray;
     }
 
-    .buttons-copy {
+     .buttons-copy {
       background-color: #4e73df;
       color: white;
       margin-bottom: 1rem;
@@ -42,8 +42,8 @@
       color: white;
       margin-bottom: 1rem;
     }
-  </style>
 
+  </style>
 {% endblock %}
 
 
@@ -52,17 +52,11 @@
   <div>
     <div class="card shadow mb-4">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="m-0 h3 text-gray-800">{{year}}년도 휴가 관리</h6>
-        <div class="dropdown">
+        <h6 class="m-0 h3 text-gray-800">{{year}}년도 휴가 취소 내역</h6>
+        <div class="dropdown no-arrow">
           {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-            <a class="btn btn-info" href="/hr/vacationsexcel/" role="button">
-              <i class="fas fa-file-excel d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-file-excel"></i> 엑셀</span>
-            </a>
-            <a class="btn btn-danger" href="/hr/returnvacation/" role="button">
-              <i class="fas fa-times d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-times"></i> 취소</span>
-            </a>
             <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i>조회</span>
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
             </a>
             <a class="btn btn-primary" href="#" role="button" id="vacationLink" data-toggle="modal" data-target="#vacationModal">
               <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i>등록</span>
@@ -75,15 +69,15 @@
           <table id="showvacations" class="hover row-border" style="width: 100%;">
             <thead>
             <tr>
-              <th class="d-none">vacationId</th>
+              <!--<th class="d-none">empId</th>-->
+              <th>취소일</th>
               <th>부서명</th>
               <th>성함</th>
+              <th>결재문서</th>
+              <th>휴가일</th>
+              <th>휴가유형(일차/반차)</th>
               <th>휴가종류</th>
-              <th>휴가일수</th>
-              <th>휴가생성일시</th>
-              <th>휴가만료일자</th>
               <th>비고</th>
-              <th><i class="fas fa-trash"></i></th>
             </tr>
             </thead>
           </table>
@@ -92,59 +86,6 @@
     </div>
   </div>
 
-  <!-- vacation Modal -->
-  <div class="modal fade" id="vacationModal" tabindex="-1" role="dialog" aria-labelledby="vacationModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-primary text-gray-100">
-          <h5 class="modal-title" id="billingPurchaseModalLabel">휴가등록</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="vacationForm" action="/hr/savevacation/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_save();}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="empId" class="font-weight-bold text-primary">성함</label>
-                <select type="text" class="form-control" autocomplete="off" id="empId" name="empId">
-                  <option value="">------</option>
-                  {% for employee in employees %}
-                  <option value="{{ employee.empId }}">{{ employee.empName }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-6">
-                <label for="vacationType" class="font-weight-bold text-primary">휴가 종류</label>
-                <select type="text" class="form-control" autocomplete="off" id="vacationType" name="vacationType">
-                  <option value="연차">연차</option>
-                  <option value="특별휴가">특별휴가</option>
-                </select>
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="vacationDays" class="font-weight-bold text-primary">휴가 일수</label>
-                <input type="number" step="0.5" max="100" class="form-control" id="vacationDays" name="vacationDays" value=0 >
-              </div>
-              <div class="col-6">
-                <label for="comment" class="font-weight-bold">비고</label>
-                <input type="text" class="form-control"  id="comment" name="comment" required>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-primary" href="#" onclick="btn_save()">생성</a>
-        </div>
-      </div>
-    </div>
-  </div>
   <!-- filter Modal -->
   <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -160,14 +101,58 @@
         <div class="modal-body">
           <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
-            <label for="vacationType" class="font-weight-bold text-primary">조회 년도</label>
-              <input type="number" max="9999" step="1" class="form-control" name="year">
+            <label for="year" class="font-weight-bold text-primary">조회 년도</label>
+              <input type="number" max="9999" step="1" class="form-control" name="year" id="year">
           </form>
         </div>
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-primary" href="#" onclick="btn_filter()">조회</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- vacation Modal -->
+  <div class="modal fade" id="vacationModal" tabindex="-1" role="dialog" aria-labelledby="vacationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-primary text-gray-100">
+          <h5 class="modal-title" id="billingPurchaseModalLabel">휴가 취소 등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="vacationForm" action="/hr/cancelvacation/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_save();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="empId" class="font-weight-bold text-primary">성함</label>
+                <select type="text" class="form-control" id="empId" name="empId" onchange="change_empName(this.value,'document')">
+                 <option value="">------</option>
+                 {% for emp in employees %}
+                  <option value="{{ emp.empId }}">{{ emp.empName }}</option>
+                 {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="document" class="font-weight-bold text-primary">결재문서</label>
+                <select type="text" class="form-control" id="document" name="document">
+                  <option value="">------</option>
+                </select>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-primary" href="#" onclick="btn_save()">등록</a>
         </div>
       </div>
     </div>
@@ -179,25 +164,45 @@
 {% block script %}
 
   <script type="text/javascript">
-      function btn_filter() {
-            document.getElementById("filterForm").submit();
-      }
-
       function btn_save() {
-          if (document.getElementById("empId").value == '') {
-              alert("성함을 선택해주세요.");
-              return false;
+          if (confirm('결재완료된 휴가를 취소하시겠습니까?')) {
+              document.getElementById("vacationForm").submit();
           }
-          if (document.getElementById("vacationDays").value == '') {
-              alert("휴가일수를 입력해주세요.");
+      }
+      function btn_filter() {
+          if (document.getElementById("year").value == ''){
+              alert("조회 년도를 입력 해주세요.");
               return false;
-          }
-          document.getElementById("vacationForm").submit();
+          };
+
+          document.getElementById("filterForm").submit();
       }
 
       function replaceAll(str, searchStr, replaceStr) {
           var new_str = str.split(searchStr).join(replaceStr);
-          return new_str.split("T").join(" ").slice(0,16);
+          return new_str.split("T").join(" ").slice(0,10);
+      }
+
+      function change_empName(empId, selectId){
+          $.ajax({
+              url: "{% url 'hr:vacationdocumentasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empId": empId},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var documents = returnData;
+                  console.log(documents);
+                  $('#' + selectId).empty();
+
+                  $('#' + selectId).append("<option value=''>----------------</option>");
+                  for (var count = 0; count < documents.length; count++) {
+                      var draftDatetime = replaceAll(documents[count].draftDatetime);
+                      var option = $("<option value=" + documents[count].documentId + ">" + "기안일: " + draftDatetime + " 문서명: " + documents[count].title + "</option>");
+                      $('#' + selectId).append(option);
+                  }
+              }
+          })
       }
 
       $(document).ready(function () {
@@ -209,15 +214,15 @@
                   "data": {
                     "year":{{ year }},
                   },
-                  "url": "{% url 'hr:showvacationsasjson' %}",
+                  "url": "{% url 'hr:returnvacationasjson' %}",
                   "dataSrc": ""
               },
               "columnDefs": [
                   {
-                       "render": function (data, type, row) {
-                          return '<div name="vacationId">' + data + '</div>'
-                      },
-                      targets: 0, className: "d-none"
+                      targets: 0,
+                      width: "15%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "returnDateTime",
                   },
                   {
                       targets: 1,
@@ -232,40 +237,37 @@
                       data: "empId__empName"
                   },
                   {
+                      "render": function (data, type, row) {
+                          return '<a name="documentId" target="_blank" href="/approval/viewdocument/'+row["vacationId__documentId__documentId"]+'/">' + data + '</a>'
+                      },
                       targets: 3,
-                      width: "10%",
+                      width: "15%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "vacationType",
+                      data: "vacationId__documentId__title"
                   },
                   {
                       targets: 4,
-                      width: "10%",
+                      width: "15%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "vacationDays",
+                      data: "vacationId__vacationDate"
                   },
                   {
                       targets: 5,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "creationDateTime",
+                      data: "vacationId__vacationType",
                   },
                   {
                       targets: 6,
                       width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "expirationDate",
+                      data: "vacationId__vacationCategory__categoryName",
                   },
                   {
                       targets: 7,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "comment",
-                  },
-                  {
-                       "render": function (data, type, row) {
-                          return '<i class="fas fa-times-circle" name="remove">'
-                      },
-                      targets: 8, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
               ],
               dom: 'Blfrtip',
@@ -293,11 +295,11 @@
               "scrollY": "60vh",
               "scrollX": false,
               "scrollCollapse": true,
-              "order": [[5, 'desc']],
-
+              "order": [[0, 'asc']],
               "language": {
                   "lengthMenu": "_MENU_ 개씩 보기",
                   "search": "검색:",
+                  "zeroRecords": "결과 없음",
                   "paginate": {
                       "first": "처음",
                       "last": "끝",
@@ -306,42 +308,40 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  if (aData.creationDateTime != "") {
-                      $('td:eq(5)', nRow).text(replaceAll(aData.creationDateTime,"-","."));
-                  }
+
               },
               "footerCallback": function () {
               },
           });
 
-          var table = $('#showvacations').DataTable();
-
-          $('#showvacations').on('click', 'i', function () {
-              const tr = $(this).closest('tr');
-              const row = table.row( tr );
-              const vacationId = row.data().vacationId;
-              const empName = row.data().empId__empName;
-
-              if (confirm(empName+"님의 휴가 정보를 삭제하시겠습니까?") == true) {
-                  table
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
-                  $.ajax({
-                              type: "POST",
-                              url: "/hr/deletevacation/",
-                              data: {'vacationId': vacationId,
-                                    'empId': vacationId},
-                              dataType: "json",
-                              success: function (response) {
-                                  alert('휴가가 삭제되었습니다.')
-                              },
-                              error: function (request, status, error) {
-                                  alert('휴가가 삭제되었습니다.')
-                              },
-                          });
-              }
-          });
+          // var table = $('#showvacations').DataTable();
+          //
+          // $('#showvacations').on('click', 'i', function () {
+          //     const tr = $(this).closest('tr');
+          //     const row = table.row( tr );
+          //     const vacationId = row.data().vacationId;
+          //     const empName = row.data().empId__empName;
+          //
+          //     if (confirm(empName+"님의 휴가 정보를 삭제하시겠습니까?") == true) {
+          //         table
+          //         .row($(this).parents('tr'))
+          //         .remove()
+          //         .draw();
+          //         $.ajax({
+          //                     type: "POST",
+          //                     url: "/hr/deletevacation/",
+          //                     data: {'vacationId': vacationId,
+          //                           'empId': vacationId},
+          //                     dataType: "json",
+          //                     success: function (response) {
+          //                         alert('휴가가 삭제되었습니다.')
+          //                     },
+          //                     error: function (request, status, error) {
+          //                         alert('휴가가 삭제되었습니다.')
+          //                     },
+          //                 });
+          //     }
+          // });
 
       });
 

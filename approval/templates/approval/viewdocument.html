@@ -98,6 +98,10 @@
   <input id="smtpStatus" type="text" value="{{ email.smtpStatus }}" class="d-none">
   <div class="card-body">
     {# pc 화면 #}
+    {% if document.documentStatus == "결재완료후취소" %}
+    <div class="text-center text-secondary h3" >결재 완료 후 <span class="text-danger">취소</span>된 문서입니다.</div>
+    <br>
+    {% endif %}
     {% if document.documentStatus == "삭제" %}
     <div class="text-center text-secondary h3" id="pcDelete">결재가 취소되거나 삭제된 문서입니다.</div>
     <div class="d-none">
