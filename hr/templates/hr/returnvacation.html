@@ -70,7 +70,7 @@
             <thead>
             <tr>
               <!--<th class="d-none">empId</th>-->
-              <th>취소일</th>
+              <th>취소일시</th>
               <th>부서명</th>
               <th>성함</th>
               <th>결재문서</th>
@@ -147,6 +147,12 @@
                 </select>
               </div>
             </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="comment" class="font-weight-bold text-primary">비고</label>
+                <input type="text" class="form-control" id="comment" name="comment">
+              </div>
+            </div>
           </form>
         </div>
 
@@ -165,6 +171,11 @@
 
   <script type="text/javascript">
       function btn_save() {
+          if (document.getElementById("document").value == ''){
+               alert("결재문서를 선택하세요.");
+              return false;
+          };
+
           if (confirm('결재완료된 휴가를 취소하시겠습니까?')) {
               document.getElementById("vacationForm").submit();
           }
@@ -180,7 +191,7 @@
 
       function replaceAll(str, searchStr, replaceStr) {
           var new_str = str.split(searchStr).join(replaceStr);
-          return new_str.split("T").join(" ").slice(0,10);
+          return new_str.split("T").join(" ").slice(0,16);
       }
 
       function change_empName(empId, selectId){
@@ -220,13 +231,13 @@
               "columnDefs": [
                   {
                       targets: 0,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "returnDateTime",
                   },
                   {
                       targets: 1,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "empId__empDeptName",
                   },
@@ -241,13 +252,13 @@
                           return '<a name="documentId" target="_blank" href="/approval/viewdocument/'+row["vacationId__documentId__documentId"]+'/">' + data + '</a>'
                       },
                       targets: 3,
-                      width: "15%",
+                      width: "20%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "vacationId__documentId__title"
                   },
                   {
                       targets: 4,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "vacationId__vacationDate"
                   },
@@ -265,7 +276,7 @@
                   },
                   {
                       targets: 7,
-                      width: "10%",
+                      width: "20%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "comment",
                   },
@@ -308,7 +319,7 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-
+                   $('td:eq(0)', nRow).text(replaceAll(aData.returnDateTime,"-","."));
               },
               "footerCallback": function () {
               },

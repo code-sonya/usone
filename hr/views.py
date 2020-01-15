@@ -640,6 +640,7 @@ def vacationsexcel_asjson(request):
         vacationDict = {'createAnnualLeave': 0, 'createSpecialLeave': 0, 'remainingAnnualLeave': 0, 'remainingSpecialLeave': 0,
                         'useAnnualLeave': 0, 'useSpecialLeave': 0, 'useTraining': 0, 'useInvestigation': 0, 'useSickleave': 0, 'useMaternityleave': 0, 'useCompensation': 0}
         employee = Employee.objects.get(empId=emp['empId'])
+        vacationDict['empId'] = employee.empId
         vacationDict['empName'] = employee.empName
         vacationDict['empStartDate'] = employee.empStartDate
         vacationDict['empDeptName'] = employee.empDeptName
@@ -701,7 +702,7 @@ def returnvacation_asjson(request):
         returnVacations = ReturnVacation.objects.all()\
             .values('returnDateTime', 'empId__empDeptName', 'empId__empName', 'vacationId__documentId__documentId', 'vacationId__documentId__title', 'vacationId__vacationType', 'vacationId__vacationCategory__categoryName', 'comment')
 
-    print(returnVacations)
+
     structure = json.dumps(list(returnVacations), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -721,6 +722,7 @@ def vacationdocument_asjson(request):
 def cancel_vacation(request):
     empId = request.POST['empId']
     documentId = request.POST['document']
+    comment = request.POST['comment']
     document = Document.objects.get(documentId=documentId)
     document.documentStatus = '결재완료후취소'
     document.save()
@@ -732,6 +734,7 @@ def cancel_vacation(request):
             empId=empId,
             returnDateTime=datetime.datetime.now(),
             vacationId=returnvacation,
+            comment=comment,
         )
         returnvacation.vacationStatus='X'
         returnvacation.comment='결재완료후취소'
@@ -773,5 +776,17 @@ def cancel_vacation(request):
                 extraWorkBeforeObj.save()
 
     return redirect('hr:returnvacation')
+
+
+@login_required
+@csrf_exempt
+def detailvacation_asjson(request):
+    empId = request.POST['empId']
+    year = request.POST['year']
+
+    vacations = Vacation.objects.filter(Q(empId=empId) & Q(vacationDate__year=year) & Q(vacationStatus='Y')).values('vacationDate', 'vacationType', 'vacationCategory__categoryName')
+
+    structure = json.dumps(list(vacations), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
 
 

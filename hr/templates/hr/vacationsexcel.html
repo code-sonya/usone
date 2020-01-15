@@ -115,6 +115,32 @@
     </div>
   </div>
 
+  <!-- detail Modal -->
+  <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-primary text-gray-100">
+          <h5 class="modal-title" id="detailModalLabel">휴가 사용 현황</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+            <label for="details" class="font-weight-bold text-primary" id="detailEmpName"></label>
+              <table class="pc-table" id="details">
+                <tr class="bg-light">
+                   <th>휴가일</th>
+                   <th>휴가유형(일차/반차)</th>
+                   <th>휴가종류</th>
+                </tr>
+              </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -263,37 +289,55 @@
                     $('td:eq(6)', nRow).css('color', '#4e73df');
 
               },
-              "footerCallback": function () {
+              "footerCallback": function() {
               },
           });
 
           var table = $('#showvacations').DataTable();
 
-          $('#showvacations').on('click', 'i', function () {
+          $('#showvacations').on('click', 'tr', function () {
               const tr = $(this).closest('tr');
               const row = table.row( tr );
-              const vacationId = row.data().vacationId;
-              const empName = row.data().empId__empName;
+              const year = '{{ year }}';
+              const empId = row.data().empId;
+              const empName = row.data().empName;
 
-              if (confirm(empName+"님의 휴가 정보를 삭제하시겠습니까?") == true) {
-                  table
-                  .row($(this).parents('tr'))
-                  .remove()
-                  .draw();
-                  $.ajax({
-                              type: "POST",
-                              url: "/hr/deletevacation/",
-                              data: {'vacationId': vacationId,
-                                    'empId': vacationId},
-                              dataType: "json",
-                              success: function (response) {
-                                  alert('휴가가 삭제되었습니다.')
-                              },
-                              error: function (request, status, error) {
-                                  alert('휴가가 삭제되었습니다.')
-                              },
-                          });
+              // alert(year+empId+empName+'님 휴가상세내역');
+              $.ajax({
+              url: "{% url 'hr:detailvacationasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empId": empId,
+                    "year": year},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var vacations = returnData;
+                  console.log(empName);
+                  $('#detailEmpName').text(empName+"님");
+                  $('#details').empty();
+                  $('#details').append("<tr style='background-color: #d2e1f8'><td>휴가일자</td><td>휴가종류</td><td>일차/반차</td><td>휴가일수</td></tr>");
+                  if (vacations.length == 0) {
+                      $('#details').append("<tr><td colspan=4>휴가내역없음</td></tr>");
+                  } else {
+                      for (var count = 0; count < vacations.length; count++) {
+
+
+                          if (vacations[count].vacationType == '일차') {
+                              vacationDays = 1;
+                          } else {
+                              vacationDays = 0.5;
+                          }
+                          var tr = $("<tr><td>" + vacations[count].vacationDate + "</td>" +
+                              "<td>" + vacations[count].vacationCategory__categoryName + "</td>" +
+                              "<td>" + vacations[count].vacationType + "</td>" +
+                              "<td>" + vacationDays + "</td>" +
+                              "</tr>");
+                          $('#details').append(tr);
+                      }
+                  }
               }
+              });
+              $('#detailModal').modal('show');
           });
 
       });
