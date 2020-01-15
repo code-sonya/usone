@@ -695,11 +695,24 @@ def view_service(request, serviceId):
     except:
         board = None
 
+    beforeServiceDate = service.serviceDate - datetime.timedelta(days=1)
+    afterServiceDate = service.serviceDate + datetime.timedelta(days=1)
+
+    coWorkerSign = Servicereport.objects.filter(
+        serviceDate__lte=afterServiceDate,
+        serviceDate__gte=beforeServiceDate,
+        companyName=service.companyName,
+        coWorker__contains=service.empId.empId,
+    ).exclude(
+        serviceSignPath='/media/images/signature/nosign.jpg'
+    )
+
     context = {
         'service': service,
         'contractName': contractName,
         'board': board,
         'coWorker': coWorker,
+        'coWorkerSign': coWorkerSign,
     }
 
     if service.serviceStatus == "Y":
@@ -1478,3 +1491,13 @@ def post_service_type(request):
 def delete_service_type(request, typeId):
     Servicetype.objects.get(typeId=typeId).delete()
     return redirect('service:showservicetype')
+
+
+@login_required
+def coworker_sign(request, serviceId):
+    if request.method == 'POST':
+        signId = Servicereport.objects.get(serviceId=request.POST['signId'])
+        service = Servicereport.objects.get(serviceId=serviceId)
+        service.serviceSignPath = signId.serviceSignPath
+        service.save()
+        return redirect('service:viewservice', serviceId)

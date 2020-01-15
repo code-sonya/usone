@@ -793,9 +793,9 @@ def revenues_asjson(request):
         revenues = revenues.filter(contractId__empId=user.empId)
 
     if startdate:
-        revenues = revenues.filter(Q(predictBillingDate__gte=startdate) | Q(predictDepositDate__gte=startdate))
+        revenues = revenues.filter(predictBillingDate__gte=startdate)
     if enddate:
-        revenues = revenues.filter(Q(predictBillingDate__lte=enddate) | Q(predictDepositDate__lte=enddate))
+        revenues = revenues.filter(predictBillingDate__lte=enddate)
     if empDeptName != '전체' and empDeptName != '':
         revenues = revenues.filter(contractId__empDeptName=empDeptName)
     if empName != '전체' and empName != '':
@@ -1177,9 +1177,9 @@ def purchases_asjson(request):
         purchase = purchase.filter(contractId__empId=user.empId)
 
     if startdate:
-        purchase = purchase.filter(Q(predictBillingDate__gte=startdate) | Q(predictWithdrawDate__gte=startdate))
+        purchase = purchase.filter(predictBillingDate__gte=startdate)
     if enddate:
-        purchase = purchase.filter(Q(predictBillingDate__lte=enddate) | Q(predictWithdrawDate__lte=enddate))
+        purchase = purchase.filter(predictBillingDate__lte=enddate)
     if empDeptName != '전체' and empDeptName != '':
         purchase = purchase.filter(contractId__empDeptName=empDeptName)
     if empName != '전체' and empName != '':

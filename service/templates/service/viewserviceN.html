@@ -42,14 +42,14 @@
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
             {% if service.empId.empId == user.employee.empId %}
-              {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-                {% if service.serviceStatus != 'N'  %}
-                <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-                  <i class="fas fa-file-signature text-gray-100"></i>
-                </a>
+              {% if service.serviceStatus != 'N' %}
+                {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
+                  <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
+                    <i class="fas fa-file-signature text-gray-100"></i>
+                  </a>
+                {% else %}
+                  (서명완료)
                 {% endif %}
-              {% else %}
-                (서명완료)
               {% endif %}
             {% endif %}
           </div>
