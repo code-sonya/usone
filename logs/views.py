@@ -164,7 +164,7 @@ def order_asjson(request):
     if empName:
         orders = orders.filter(empId__empName__icontains=empName)
 
-    orders = orders.values('orderDatetime', 'empId__empDeptName', 'empId__empName', 'toEmail', 'orderId__title', 'orderId__orderId', 'orderStatus', 'orderLogId')
+    orders = orders.values('orderDatetime', 'empId__empDeptName', 'empId__empName', 'toEmail', 'orderId__title', 'orderId__orderId', 'orderStatus', 'orderLogId', 'orderError')
     print(orders)
     structure = json.dumps(list(orders), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
