@@ -1047,7 +1047,7 @@ def dashboard_client(request):
         enddate = contracts.aggregate(enddate=Max('contractDate'))['enddate']
         services = services.filter(Q(contractId__contractDate__gte=startdate) & Q(contractId__contractDate__lte=enddate))
         priceSummary = contracts.aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
-        serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), erviceOverHour=Sum('serviceOverHour'))
+        serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), serviceOverHour=Sum('serviceOverHour'))
         companySummary = contracts.values('endCompanyName__companyNameKo').annotate(price=Sum('salePrice'), profit=Sum('profitPrice')).order_by('-price')
         overhourSummary = services.aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
 
