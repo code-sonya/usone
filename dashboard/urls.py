@@ -19,4 +19,5 @@ urlpatterns = [
     url(r'^location/$', views.dashboard_location, name='dashboardlocation'),
     url(r'^notdepositasjson/$', views.not_deposit_asjson, name='not_deposit_asjson'),
     url(r'^notwithdrawasjson/$', views.not_withdraw_asjson, name='not_withdraw_asjson'),
+    url(r'^client/$', views.dashboard_client, name='dashboardclient'),
 ]

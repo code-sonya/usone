@@ -36,9 +36,7 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-1"></div>
-
-    <div class="col-xl-10">
+    <div class="col-xl-12">
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -64,6 +62,7 @@
                 <th>수신자</th>
                 <th>매입발주서명</th>
                 <th>전송상태</th>
+                <th>error</th>
                 <th class="d-none">orderLogId</th>
               </tr>
               </thead>
@@ -74,8 +73,6 @@
 
       </div>
     </div>
-
-    <div class="col-xl-1"></div>
   </div>
 
   <!-- Filter Modal -->
@@ -162,13 +159,14 @@
                   {data: "toEmail"},
                   {data: "orderId__title"},
                   {data: "orderStatus"},
+                  {data: "orderError"},
                   {data: "orderLogId"},
 
               ],
               "columnDefs": [
-                  {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {
                     "render": function (data, type, row) {
@@ -177,7 +175,8 @@
                     targets: 4, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"
                   },
                   {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, className: "d-none"}
+                  {targets: 6, width: "15%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "d-none"}
               ],
               dom: 'Blfrtip',
               buttons: [

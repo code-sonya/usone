@@ -71,6 +71,7 @@
             <a class="collapse-item" href="/sales/monthlybill/">손익계산서</a>
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/dashboard/quarter/">연간 예상 영업 실적 </a>
+            <!--<a class="collapse-item" href="/dashboard/client/">고객사 분석</a>-->
             <a class="collapse-item" href="/dashboard/goal/">영업 목표 분석</a>
             <a class="collapse-item" href="/dashboard/credit/">미수금/미지급 현황</a>
             {% endif %}
@@ -118,6 +119,7 @@
         <div id="collapseFiles" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <a class="collapse-item" href="/sales/showpurchaseorder/">매입발주서</a>
+            <a class="collapse-item" href="/logs/showorders/">매입발주서전송이력</a>
             {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/showpurchaseorderform/">매입발주서양식</a>

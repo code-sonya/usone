@@ -1,0 +1,388 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}
+고객사 분석
+{% endblock %}
+{% load humanize %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+  <!--<h3>아직 개발 진행중입니다.</h3>-->
+
+  <!-- 미수금/미접수 현황 개요 -->
+  <div class="py-3 d-flex flex-row align-items-center justify-content-between">
+    <h3 class="mb-2 text-gray-800">고객사 분석 <span class="h6"> [{{ startdate }} ~ {{ enddate }}] </span></h3>
+    <div class="dropdown">
+      <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+        <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 미수금 현황 개요 -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">총 매출액</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ totalNotDepositMoney| intcomma }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">총 마진액</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ normalNotDepositMoney| intcomma }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-info text-uppercase mb-1">총 지원시간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ warningNotDepositMoney| intcomma }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">총 초과근무시간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ dangerNotDepositMoney| intcomma }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 미수금 현황 그래프 -->
+  <div class="row">
+    <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-secondary">기간별 미수금액</h6>
+          <h6 class="m-0 font-weight-bold text-secondary">[단위: 백만원]</h6>
+        </div>
+        <div class="card-body">
+          <div class="chart-area">
+            <canvas id="pieNotDeposit"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 미수금 현황 테이블 -->
+  <div class="row">
+    <div class="col-12">
+      <table id="tableNotDeposit" class="hover row-border" style="width: 100%;">
+        <thead>
+        <tr>
+          <th>구분</th>
+          <th>관리번호</th>
+          <th>소속</th>
+          <th>영업대표</th>
+          <th>계약명</th>
+          <th>매출처</th>
+          <th>수금예정일</th>
+          <th>매출금액</th>
+          <th>이익금액</th>
+          <th>비고</th>
+          <th class="d-none">revenueId</th>
+        </tr>
+        </thead>
+        <tfoot>
+        <tr>
+          <th style="padding: 8px 10px; text-align: right"></th>
+          <th style="padding: 8px 10px; text-align: right"></th>
+          <th style="padding: 8px 10px; text-align: right"></th>
+          <th style="padding: 8px 10px; text-align: right"></th>
+          <th style="padding: 8px 10px; text-align: right"></th>
+          <th style="padding: 8px 10px; text-align: right"></th>
+          <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+          <th style="padding: 8px 10px; text-align: right"></th>
+          <th style="padding: 8px 10px; text-align: right"></th>
+          <th style="padding: 8px 10px; text-align: right"></th>
+          <th style="padding: 8px 10px; text-align: right"></th>
+        </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+  <script src="/static/hr/js/demo/chart-bar-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-area-demo.js"></script>
+  <script src="/static/hr/js/demo/chart-pie-demo.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
+
+  <script>
+      $(document).ready(function () {
+          // 파이 차트 옵션
+          const pieChartOption = {
+              legend: {
+                  display: false,
+              },
+              layout: {
+                  padding: {
+                      left: 10,
+                      right: 10,
+                      top: 20,
+                      bottom: 20
+                  }
+              },
+              maintainAspectRatio: false,
+              tooltips: {
+                  titleMarginBottom: 5,
+                  titleFontColor: '#6e707e',
+                  titleFontSize: 14,
+                  backgroundColor: "rgb(255,255,255)",
+                  bodyFontColor: "#4e73df",
+                  borderColor: '#dddfeb',
+                  borderWidth: 3,
+                  xPadding: 15,
+                  yPadding: 15,
+                  displayColors: true,
+                  caretPadding: 10,
+                  callbacks: {
+                      label: function (tooltipItem, data) {
+                          let Arr = data.datasets[0].data;
+                          return number_format(Arr[tooltipItem.index]);
+                      }
+                  },
+              },
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data;
+                          });
+                          let dataSum = number_format(value).slice(0, -8);
+                          return dataSum;
+                      },
+                      color: '#fff',
+                  },
+                  outlabels: {
+                      text: '%l %p',
+                      color: 'white',
+                      stretch: 5,
+                      font: {
+                          resizable: true,
+                          minSize: 12,
+                          maxSize: 18
+                      }
+                  }
+              }
+          };
+
+          // 기간별 미수금액 테이블
+          let tableNotDeposit = $('#tableNotDeposit').DataTable({
+              "scrollX": true,
+              "autoWidth": false,
+              "processing": true,
+              "columnDefs": [
+                  {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 10, className: "d-none"},
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "deferRender": true,
+              "order": [[7, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  // $('td:eq(1)', nRow).text($('td:eq(1)', nRow)[0].innerText + '명');
+              },
+              "footerCallback": function () {
+              }
+          });
+          $("#tableNotDeposit").on("click", 'tr', function () {
+              const data = tableNotDeposit.row(this).data();
+              window.open('about:blank').location.href = '/sales/viewrevenue/' + data[10] + '/'
+          });
+
+          // 기간별 미수금액 파이 차트
+          const pieNotDepositCanvas = document.getElementById("pieNotDeposit");
+          const pieNotDepositChart = new Chart(pieNotDepositCanvas, {
+              type: 'pie',
+              data: {
+                  labels: ["정상", "3개월미만", "3개월이상"],
+                  datasets: [{
+                      data: {{ pieNotDeposit }},
+                      backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
+                      hoverBackgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b'],
+                      hoverBorderColor: "rgba(234, 236, 244, 1)",
+                  }],
+              },
+              options: pieChartOption,
+          });
+          $("#pieNotDeposit").click(function (evt) {
+              const activeElement = pieNotDepositChart.getElementAtEvent(evt);
+              if (activeElement.length > 0 ){
+                  const idx = activeElement[0]._index;
+                  const stepLabel = pieNotDepositChart.data.labels[idx];
+                  tableNotDeposit.rows().remove().draw();
+                  if (stepLabel === '정상') {
+                      {% for revenue in normalNotDeposit %}
+                          tableNotDeposit.row.add([
+                              '{{ revenue.contractId.contractStep }}',
+                              '{{ revenue.contractId.contractCode }}',
+                              '{{ revenue.contractId.empDeptName }}',
+                              '{{ revenue.contractId.empName }}',
+                              '{{ revenue.contractId.contractName }}',
+                              '{{ revenue.revenueCompany.companyNameKo }}',
+                              '{{ revenue.predictDepositDate }}',
+                              '{{ revenue.revenuePrice| intcomma }}',
+                              '{{ revenue.revenueProfitPrice| intcomma }}',
+                              '{{ revenue.comment }}',
+                              '{{ revenue.revenueId }}',
+                          ]);
+                      {% endfor %}
+                  } else if (stepLabel === '3개월미만') {
+                      {% for revenue in warningNotDeposit %}
+                          tableNotDeposit.row.add([
+                              '{{ revenue.contractId.contractStep }}',
+                              '{{ revenue.contractId.contractCode }}',
+                              '{{ revenue.contractId.empDeptName }}',
+                              '{{ revenue.contractId.empName }}',
+                              '{{ revenue.contractId.contractName }}',
+                              '{{ revenue.revenueCompany.companyNameKo }}',
+                              '{{ revenue.predictDepositDate }}',
+                              '{{ revenue.revenuePrice| intcomma }}',
+                              '{{ revenue.revenueProfitPrice| intcomma }}',
+                              '{{ revenue.comment }}',
+                              '{{ revenue.revenueId }}',
+                          ]);
+                      {% endfor %}
+                  } else if (stepLabel === '3개월이상') {
+                      {% for revenue in dangerNotDeposit %}
+                          tableNotDeposit.row.add([
+                              '{{ revenue.contractId.contractStep }}',
+                              '{{ revenue.contractId.contractCode }}',
+                              '{{ revenue.contractId.empDeptName }}',
+                              '{{ revenue.contractId.empName }}',
+                              '{{ revenue.contractId.contractName }}',
+                              '{{ revenue.revenueCompany.companyNameKo }}',
+                              '{{ revenue.predictDepositDate }}',
+                              '{{ revenue.revenuePrice| intcomma }}',
+                              '{{ revenue.revenueProfitPrice| intcomma }}',
+                              '{{ revenue.comment }}',
+                              '{{ revenue.revenueId }}',
+                          ]);
+                      {% endfor %}
+                  }
+                  tableNotDeposit.draw();
+              }
+          });
+      });
+
+  </script>
+{% endblock %}

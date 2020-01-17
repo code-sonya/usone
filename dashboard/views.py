@@ -3,7 +3,7 @@ from dateutil.relativedelta import relativedelta
 import json
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q, F, Case, When, Value, CharField
+from django.db.models import Q, F, Case, When, Value, CharField, Min, Max
 from django.db.models.functions import Coalesce
 from django.db.models import Sum, Count
 from django.http import HttpResponse
@@ -1023,4 +1023,25 @@ def dashboard_location(request):
         'testMAP_KEY': testMAP_KEY,
     }
 
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def dashboard_client(request):
+    template = loader.get_template('dashboard/dashboardclient.html')
+    revenues = Revenue.objects.all()
+    if request.method == 'POST':
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+
+    else:
+        startdate = revenues.objects.aggregate(startdate=Min('predictBillingDate'))['startdate']
+        enddate = revenues.objects.aggregate(enddate=Max('predictBillingDate'))['enddate']
+
+
+    context = {
+        'startdate': startdate,
+        'enddate': enddate,
+    }
     return HttpResponse(template.render(context, request))
