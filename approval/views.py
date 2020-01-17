@@ -168,6 +168,9 @@ def post_document(request):
                 for empId in whoApproval['do']:
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "결재요청")
+                for empId in whoApproval['check']:
+                    employee = Employee.objects.get(empId=empId)
+                    mail_approval(employee, document, "참조문서")
 
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
@@ -336,6 +339,9 @@ def modify_document(request, documentId):
                 for empId in whoApproval['do']:
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "결재요청")
+                for empId in whoApproval['check']:
+                    employee = Employee.objects.get(empId=empId)
+                    mail_approval(employee, document, "참조문서")
 
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
@@ -1154,6 +1160,7 @@ def showdocument_asjson(request):
 def show_document_all(request):
     context = {
         'category': '전체',
+        'title': '전체 문서함',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1162,6 +1169,7 @@ def show_document_all(request):
 def show_document_ing(request):
     context = {
         'category': '진행',
+        'title': '진행 문서함',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1170,6 +1178,7 @@ def show_document_ing(request):
 def show_document_done(request):
     context = {
         'category': '완료',
+        'title': '완료 문서함',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1178,6 +1187,7 @@ def show_document_done(request):
 def show_document_temp(request):
     context = {
         'category': '임시',
+        'title': '임시 문서함',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1186,6 +1196,7 @@ def show_document_temp(request):
 def show_document_admin_ing(request):
     context = {
         'category': '관리자진행',
+        'title': '전체진행문서함 (관리자)',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1194,6 +1205,7 @@ def show_document_admin_ing(request):
 def show_document_admin_done(request):
     context = {
         'category': '관리자완료',
+        'title': '전체완료문서함 (관리자)',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1202,6 +1214,7 @@ def show_document_admin_done(request):
 def show_document_admin_reject(request):
     context = {
         'category': '관리자반려',
+        'title': '전체반려문서함 (관리자)',
     }
     return render(request, 'approval/showdocument.html', context)
 
