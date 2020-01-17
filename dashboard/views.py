@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import json
@@ -584,7 +582,7 @@ def quarter_asjson(request):
 def dashboard_credit(request):
     template = loader.get_template('dashboard/dashboardcredit.html')
     today = datetime.today()
-    threeMonth = datetime.today() - relativedelta(months=3)
+    warningDate = datetime.today() - relativedelta(months=3)
 
     # totalNotDeposit: 총 미수금
     totalNotDeposit = Revenue.objects.filter(billingDate__isnull=False, depositDate__isnull=True)
@@ -595,11 +593,11 @@ def dashboard_credit(request):
     normalNotDepositMoney = normalNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
 
     # warningNotDeposit: 경고 미수금 (수금예정일이 3개월 미만으로 지난 경우)
-    warningNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=today, predictDepositDate__gte=threeMonth)
+    warningNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=today, predictDepositDate__gte=warningDate)
     warningNotDepositMoney = warningNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
 
     # dangerNotDeposit: 위험 미수금 (수금예정일이 3개월 이상 지난 경우)
-    dangerNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=threeMonth)
+    dangerNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=warningDate)
     dangerNotDepositMoney = dangerNotDeposit.aggregate(Sum('revenuePrice'))['revenuePrice__sum']
 
     # totalNotWithdraw: 총 미지급
@@ -611,111 +609,216 @@ def dashboard_credit(request):
     normalNotWithdrawMoney = normalNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
 
     # warningNotWithdraw: 경고 미지급 (지급예정일이 3개월 미만으로 지난 경우)
-    warningNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=today, predictWithdrawDate__gte=threeMonth)
+    warningNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=today, predictWithdrawDate__gte=warningDate)
     warningNotWithdrawMoney = warningNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
 
     # dangerNotWithdraw: 위험 미지급 (수금예정일이 3개월 이상 지난 경우)
-    dangerNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=threeMonth)
+    dangerNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=warningDate)
     dangerNotWithdrawMoney = dangerNotWithdraw.aggregate(Sum('purchasePrice'))['purchasePrice__sum']
 
     # pieNotDeposit: 기간별 미수금액 차트 데이터
-    pieNotDeposit = [normalNotDepositMoney, warningNotDepositMoney, dangerNotDepositMoney]
+    pieNotDepositLabel = ['정상', '3개월미만', '3개월이상']
+    pieNotDepositData = [normalNotDepositMoney, warningNotDepositMoney, dangerNotDepositMoney]
+
+    # barNotDeposit: 고객사별 미수금액 차트 데이터
+    barNotDepositLabel = []
+    barNotDepositData = []
+    companyNotDeposit = totalNotDeposit.values('revenueCompany').annotate(
+        companyRevenuePrice=Sum('revenuePrice')
+    ).order_by('-companyRevenuePrice')
+
+    maxBarSize = 5
+    loopCount = 0
+    for revenue in companyNotDeposit:
+        if loopCount < maxBarSize:
+            barNotDepositLabel.append(revenue['revenueCompany'])
+            barNotDepositData.append(revenue['companyRevenuePrice'])
+            loopCount += 1
+        else:
+            break
+
+    # pieNotWithdraw: 기간별 미지급액 차트 데이터
+    pieNotWithdrawLabel = ['정상', '3개월미만', '3개월이상']
+    pieNotWithdrawData = [normalNotWithdrawMoney, warningNotWithdrawMoney, dangerNotWithdrawMoney]
+
+    # barNotDeposit: 고객사별 미수금액 차트 데이터
+    barNotWithdrawLabel = []
+    barNotWithdrawData = []
+    companyNotWithdraw = totalNotWithdraw.values('purchaseCompany').annotate(
+        companyPurchasePrice=Sum('purchasePrice')
+    ).order_by('-companyPurchasePrice')
+
+    maxBarSize = 5
+    loopCount = 0
+    for purchase in companyNotWithdraw:
+        if loopCount < maxBarSize:
+            barNotWithdrawLabel.append(purchase['purchaseCompany'])
+            barNotWithdrawData.append(purchase['companyPurchasePrice'])
+            loopCount += 1
+        else:
+            break
 
     context = {
         # 미수금
-        'totalNotDeposit': totalNotDeposit,
-        'normalNotDeposit': normalNotDeposit,
-        'warningNotDeposit': warningNotDeposit,
-        'dangerNotDeposit': dangerNotDeposit,
         'totalNotDepositMoney': totalNotDepositMoney,
         'normalNotDepositMoney': normalNotDepositMoney,
         'warningNotDepositMoney': warningNotDepositMoney,
         'dangerNotDepositMoney': dangerNotDepositMoney,
         # 미지급
-        'totalNotWithdraw': totalNotWithdraw,
-        'normalNotWithdraw': normalNotWithdraw,
-        'warningNotWithdraw': warningNotWithdraw,
-        'dangerNotWithdraw': dangerNotWithdraw,
         'totalNotWithdrawMoney': totalNotWithdrawMoney,
         'normalNotWithdrawMoney': normalNotWithdrawMoney,
         'warningNotWithdrawMoney': warningNotWithdrawMoney,
         'dangerNotWithdrawMoney': dangerNotWithdrawMoney,
         # 차트 데이터
-        'pieNotDeposit': pieNotDeposit,
+        'pieNotDepositLabel': pieNotDepositLabel,
+        'pieNotDepositData': pieNotDepositData,
+        'barNotDepositLabel': barNotDepositLabel,
+        'barNotDepositData': barNotDepositData,
+        'pieNotWithdrawLabel': pieNotWithdrawLabel,
+        'pieNotWithdrawData': pieNotWithdrawData,
+        'barNotWithdrawLabel': barNotWithdrawLabel,
+        'barNotWithdrawData': barNotWithdrawData,
+        # 날짜
+        'today': today,
+        'warningDate': warningDate,
     }
     return HttpResponse(template.render(context, request))
 
 
-    # todayYear = datetime.today().year
-    # today = datetime.today()
-    #
-    # # 해당 년도 매출 (이번년도에 매출발행이 됐고 수금예정일이 있는 것)
-    # revenues = Revenue.objects.filter(
-    #     Q(predictBillingDate__year=todayYear) &
-    #     Q(billingDate__isnull=False) &
-    #     Q(predictDepositDate__isnull=False)
-    # )
-    #
-    # # 월별 미수금액 / 수금액
-    # revenuesMonth = revenues.values('predictDepositDate__month').annotate(
-    #     outstandingCollectionsMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=True)), 0),
-    #     collectionofMoneyMonth=Coalesce(Sum('revenuePrice', filter=Q(depositDate__isnull=False)), 0)
-    # ).order_by('predictDepositDate__month')
-    #
-    # # 총 미수금액 / 수금액
-    # revenuesTotal = revenuesMonth.aggregate(
-    #     outstandingCollectionsTotal=Sum('outstandingCollectionsMonth'),
-    #     collectionofMoneyTotal=Sum('collectionofMoneyMonth')
-    # )
-    #
-    # # 해당 년도 매입  (이번년도에 매입접수가 됐고 지급예정일이 있는 것)
-    # purchases = Purchase.objects.filter(
-    #     Q(predictBillingDate__year=todayYear) &
-    #     Q(billingDate__isnull=False) &
-    #     Q(predictWithdrawDate__isnull=False)
-    # )
-    #
-    # # 월별 미지급액 / 지급액
-    # purchasesMonth = purchases.values('predictWithdrawDate__month').annotate(
-    #     accountsPayablesMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0),
-    #     amountPaidMonth=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)
-    # ).order_by('predictWithdrawDate__month')
-    #
-    # # 총 미지급액
-    # purchasesTotal = Purchase.objects.filter(
-    #     Q(predictBillingDate__year=todayYear) &
-    #     Q(billingDate__isnull=False)
-    # ).aggregate(
-    #     accountsPayablesTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=True)), 0),
-    #     amountPaidTotal=Coalesce(Sum('purchasePrice', filter=Q(withdrawDate__isnull=False)), 0)
-    # )
-    #
-    # revenueMonth = []
-    # for m in range(1, 13):
-    #     rMonth = {'predictDepositDate__month': m, 'outstandingCollectionsMonth': 0, 'collectionofMoneyMonth': 0}
-    #     for r in revenuesMonth:
-    #         if r['predictDepositDate__month'] == m:
-    #             rMonth = r
-    #             break
-    #     revenueMonth.append(rMonth)
-    #
-    # purchaseMonth = []
-    # for m in range(1, 13):
-    #     pMonth = {'predictWithdrawDate__month': m, 'accountsPayablesMonth': 0, 'amountPaidMonth': 0}
-    #     for p in purchasesMonth:
-    #         if p['predictWithdrawDate__month'] == m:
-    #             pMonth = p
-    #             break
-    #     purchaseMonth.append(pMonth)
-    #
-    # context = {
-    #     'revenuesTotal': revenuesTotal,
-    #     'revenuesMonth': revenueMonth,
-    #     'purchasesTotal': purchasesTotal,
-    #     'purchasesMonth': purchaseMonth,
-    # }
+def not_deposit_asjson(request):
+    today = datetime.today()
+    warningDate = datetime.today() - relativedelta(months=3)
+    label = request.GET['label']
 
-    # return HttpResponse(template.render(context, request))
+    totalNotDeposit = Revenue.objects.filter(billingDate__isnull=False, depositDate__isnull=True)
+    if label == '정상':
+        normalNotDeposit = totalNotDeposit.filter(Q(predictDepositDate__gte=today) | Q(predictDepositDate__isnull=True))
+        queryset = normalNotDeposit.annotate(
+            contractStep=F('contractId__contractStep'),
+            contractCode=F('contractId__contractCode'),
+            empDeptName=F('contractId__empDeptName'),
+            empName=F('contractId__empName'),
+            contractName=F('contractId__contractName'),
+            companyNameKo=F('revenueCompany__companyNameKo'),
+        ).values(
+            'contractStep', 'contractCode', 'empDeptName', 'empName', 'contractName', 'companyNameKo',
+            'predictDepositDate', 'revenuePrice', 'revenueProfitPrice', 'comment', 'revenueId',
+        )
+        structure = json.dumps(list(queryset), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+    elif label == '3개월미만':
+        warningNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=today, predictDepositDate__gte=warningDate)
+        queryset = warningNotDeposit.annotate(
+            contractStep=F('contractId__contractStep'),
+            contractCode=F('contractId__contractCode'),
+            empDeptName=F('contractId__empDeptName'),
+            empName=F('contractId__empName'),
+            contractName=F('contractId__contractName'),
+            companyNameKo=F('revenueCompany__companyNameKo'),
+        ).values(
+            'contractStep', 'contractCode', 'empDeptName', 'empName', 'contractName', 'companyNameKo',
+            'predictDepositDate', 'revenuePrice', 'revenueProfitPrice', 'comment', 'revenueId',
+        )
+        structure = json.dumps(list(queryset), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+    elif label == '3개월이상':
+        dangerNotDeposit = totalNotDeposit.filter(predictDepositDate__lt=warningDate)
+        queryset = dangerNotDeposit.annotate(
+            contractStep=F('contractId__contractStep'),
+            contractCode=F('contractId__contractCode'),
+            empDeptName=F('contractId__empDeptName'),
+            empName=F('contractId__empName'),
+            contractName=F('contractId__contractName'),
+            companyNameKo=F('revenueCompany__companyNameKo'),
+        ).values(
+            'contractStep', 'contractCode', 'empDeptName', 'empName', 'contractName', 'companyNameKo',
+            'predictDepositDate', 'revenuePrice', 'revenueProfitPrice', 'comment', 'revenueId',
+        )
+        structure = json.dumps(list(queryset), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+    else:
+        companyNotDeposit = totalNotDeposit.filter(revenueCompany=request.GET['label'])
+        queryset = companyNotDeposit.annotate(
+            contractStep=F('contractId__contractStep'),
+            contractCode=F('contractId__contractCode'),
+            empDeptName=F('contractId__empDeptName'),
+            empName=F('contractId__empName'),
+            contractName=F('contractId__contractName'),
+            companyNameKo=F('revenueCompany__companyNameKo'),
+        ).values(
+            'contractStep', 'contractCode', 'empDeptName', 'empName', 'contractName', 'companyNameKo',
+            'predictDepositDate', 'revenuePrice', 'revenueProfitPrice', 'comment', 'revenueId',
+        )
+        structure = json.dumps(list(queryset), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+
+
+def not_withdraw_asjson(request):
+    today = datetime.today()
+    warningDate = datetime.today() - relativedelta(months=3)
+    label = request.GET['label']
+
+    totalNotWithdraw = Purchase.objects.filter(billingDate__isnull=False, withdrawDate__isnull=True)
+    if label == '정상':
+        normalNotWithdraw = totalNotWithdraw.filter(Q(predictWithdrawDate__gte=today) | Q(predictWithdrawDate__isnull=True))
+        queryset = normalNotWithdraw.annotate(
+            contractStep=F('contractId__contractStep'),
+            contractCode=F('contractId__contractCode'),
+            empDeptName=F('contractId__empDeptName'),
+            empName=F('contractId__empName'),
+            contractName=F('contractId__contractName'),
+            companyNameKo=F('purchaseCompany__companyNameKo'),
+        ).values(
+            'contractStep', 'contractCode', 'empDeptName', 'empName', 'contractName', 'companyNameKo',
+            'predictWithdrawDate', 'purchasePrice', 'comment', 'purchaseId',
+        )
+        structure = json.dumps(list(queryset), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+    elif label == '3개월미만':
+        warningNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=today, predictWithdrawDate__gte=warningDate)
+        queryset = warningNotWithdraw.annotate(
+            contractStep=F('contractId__contractStep'),
+            contractCode=F('contractId__contractCode'),
+            empDeptName=F('contractId__empDeptName'),
+            empName=F('contractId__empName'),
+            contractName=F('contractId__contractName'),
+            companyNameKo=F('purchaseCompany__companyNameKo'),
+        ).values(
+            'contractStep', 'contractCode', 'empDeptName', 'empName', 'contractName', 'companyNameKo',
+            'predictWithdrawDate', 'purchasePrice', 'comment', 'purchaseId',
+        )
+        structure = json.dumps(list(queryset), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+    elif label == '3개월이상':
+        dangerNotWithdraw = totalNotWithdraw.filter(predictWithdrawDate__lt=warningDate)
+        queryset = dangerNotWithdraw.annotate(
+            contractStep=F('contractId__contractStep'),
+            contractCode=F('contractId__contractCode'),
+            empDeptName=F('contractId__empDeptName'),
+            empName=F('contractId__empName'),
+            contractName=F('contractId__contractName'),
+            companyNameKo=F('purchaseCompany__companyNameKo'),
+        ).values(
+            'contractStep', 'contractCode', 'empDeptName', 'empName', 'contractName', 'companyNameKo',
+            'predictWithdrawDate', 'purchasePrice', 'comment', 'purchaseId',
+        )
+        structure = json.dumps(list(queryset), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+    else:
+        companyNotWithdraw = totalNotWithdraw.filter(purchaseCompany=request.GET['label'])
+        queryset = companyNotWithdraw.annotate(
+            contractStep=F('contractId__contractStep'),
+            contractCode=F('contractId__contractCode'),
+            empDeptName=F('contractId__empDeptName'),
+            empName=F('contractId__empName'),
+            contractName=F('contractId__contractName'),
+            companyNameKo=F('purchaseCompany__companyNameKo'),
+        ).values(
+            'contractStep', 'contractCode', 'empDeptName', 'empName', 'contractName', 'companyNameKo',
+            'predictWithdrawDate', 'purchasePrice', 'comment', 'purchaseId',
+        )
+        structure = json.dumps(list(queryset), cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
