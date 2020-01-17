@@ -72,9 +72,11 @@
           <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
             {% if service.empId.empId == user.employee.empId %}
+              <!-- 첨부 파일 업로드 및 다운로드 기능 완료 후 오픈
               <a href="#" role="button" id="uploadLink" data-toggle="modal" data-target="#uploadModal" class="btn btn-success">
                 <i class="fas fa-user-cog text-gray-100"></i>
               </a>
+              -->
               {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
               <a href="#" role="button" id="signLink" data-toggle="modal" data-target="#signModal" class="btn btn-warning">
                 <i class="fas fa-pen text-gray-100"></i>
