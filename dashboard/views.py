@@ -927,18 +927,106 @@ def dashboard_location(request):
 @csrf_exempt
 def dashboard_client(request):
     template = loader.get_template('dashboard/dashboardclient.html')
-    revenues = Revenue.objects.all()
+    contracts = Contract.objects.filter(Q(contractStep='Firm'))
+    services = Servicereport.objects.filter(serviceStatus='Y')
     if request.method == 'POST':
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
+        contracts = contracts.filter(Q(contractDate__gte=startdate) & Q(contractDate__lte=enddate))
+        services = services.filter(Q(contractId__contractDate__gte=startdate) & Q(contractId__contractDate__lte=enddate))
+        priceSummary = contracts.aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
+        serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), serviceOverHour=Sum('serviceOverHour'))
+        companySummary = contracts.values('endCompanyName__companyNameKo').annotate(price=Sum('salePrice'), profit=Sum('profitPrice'))
+        overhourSummary = services.aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
 
     else:
-        startdate = revenues.objects.aggregate(startdate=Min('predictBillingDate'))['startdate']
-        enddate = revenues.objects.aggregate(enddate=Max('predictBillingDate'))['enddate']
-
+        startdate = contracts.aggregate(startdate=Min('contractDate'))['startdate']
+        enddate = contracts.aggregate(enddate=Max('contractDate'))['enddate']
+        services = services.filter(Q(contractId__contractDate__gte=startdate) & Q(contractId__contractDate__lte=enddate))
+        priceSummary = contracts.aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
+        serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), erviceOverHour=Sum('serviceOverHour'))
+        companySummary = contracts.values('endCompanyName__companyNameKo').annotate(price=Sum('salePrice'), profit=Sum('profitPrice')).order_by('-price')
+        overhourSummary = services.aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
 
     context = {
         'startdate': startdate,
         'enddate': enddate,
+        'priceSummary': priceSummary,
+        'serviceSummary': serviceSummary,
+        'companySummary': companySummary,
+        'overhourSummary': overhourSummary,
     }
     return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def client_graph(request):
+    todayYear = datetime.today().year
+    companyName = request.POST['companyName']
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+
+    contracts = Contract.objects.filter(Q(contractStep='Firm'))
+    services = Servicereport.objects.filter(serviceStatus='Y')
+    if startdate:
+        contracts = contracts.filter(Q(contractDate__gte=startdate))
+        services = services.filter(Q(contractId__contractDate__gte=startdate))
+    if enddate:
+        contracts = contracts.filter(Q(contractDate__lte=enddate))
+        services = services.filter(Q(contractId__contractDate__lte=enddate))
+
+    companySummary = contracts.filter(endCompanyName__companyNameKo=companyName).aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
+    overhourSummary = services.filter(contractId__endCompanyName__companyNameKo=companyName).aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
+
+    structure = json.dumps([companySummary, overhourSummary], cls=DjangoJSONEncoder)
+
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def services_asjson(request):
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    companyName = request.POST['companyName']
+
+    services = Servicereport.objects.filter(Q(serviceStatus='Y'))
+    if startdate:
+        services = services.filter(Q(contractId__contractDate__gte=startdate))
+    if enddate:
+        services = services.filter(Q(contractId__contractDate__lte=enddate))
+    if companyName:
+        services = services.filter(contractId__endCompanyName__companyNameKo=companyName)
+
+    services = services.values(
+        'serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType',
+        'serviceBeginDatetime', 'serviceStartDatetime', 'serviceEndDatetime', 'serviceFinishDatetime',
+        'serviceHour', 'serviceOverHour', 'serviceDetails',
+        'serviceStatus', 'contractId__contractName', 'serviceId'
+    )
+
+    structure = json.dumps(list(services), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def contracts_asjson(request):
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    companyName = request.POST['companyName']
+
+    contracts = Contract.objects.filter(Q(contractStep='Firm'))
+    if startdate:
+        contracts = contracts.filter(Q(contractDate__gte=startdate))
+    if enddate:
+        contracts = contracts.filter(Q(contractDate__lte=enddate))
+    if companyName:
+        contracts = contracts.filter(endCompanyName__companyNameKo=companyName)
+
+    contracts = contracts.values('contractStep', 'empDeptName', 'empName', 'contractCode', 'contractName', 'saleCompanyName__companyNameKo', 'endCompanyName__companyNameKo',
+                                 'contractDate', 'contractId', 'salePrice', 'profitPrice', 'mainCategory', 'subCategory', 'saleIndustry', 'saleType', 'comment',
+                                 'contractStartDate', 'contractEndDate', 'depositCondition', 'depositConditionDay')
+    structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

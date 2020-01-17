@@ -18,4 +18,7 @@ urlpatterns = [
     url(r'^serviceasjson/$', views.service_asjson, name='service_ajax_url'),
     url(r'^location/$', views.dashboard_location, name='dashboardlocation'),
     url(r'^client/$', views.dashboard_client, name='dashboardclient'),
+    url(r'^clientgraph/$', views.client_graph, name='client_ajax_graph'),
+    url(r'^servicesasjson/$', views.services_asjson, name='services_ajax_url'),
+    url(r'^contractsasjson/$', views.contracts_asjson, name='contracts_ajax_url'),
 ]
