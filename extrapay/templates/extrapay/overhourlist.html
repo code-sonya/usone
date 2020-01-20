@@ -268,7 +268,12 @@
                   {data: "overHourDate"},
                   {data: "empId__empDeptName"},
                   {data: "empName"},
-                  {data: "sumOverHour"},
+                  {
+                    "render": function (data, type, row) {
+                              return row['sumOverHour'].toFixed(2)
+                    },
+                    data: "sumOverHour",
+                  },
                   {data: "compensatedHour"},
                   {data: "compensatedComment"},
                   {data: "extraPayId"},
