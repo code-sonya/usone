@@ -1035,16 +1035,25 @@ def dashboard_client(request):
     if request.method == 'POST':
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
-        contracts = contracts.filter(Q(contractDate__gte=startdate) & Q(contractDate__lte=enddate))
-        services = services.filter(Q(contractId__contractDate__gte=startdate) & Q(contractId__contractDate__lte=enddate))
+        endCompanyName = request.POST['endCompanyName']
+        if startdate:
+            contracts = contracts.filter(Q(contractDate__gte=startdate))
+            services = services.filter(Q(contractId__contractDate__gte=startdate))
+        if enddate:
+            contracts = contracts.filter(Q(contractDate__lte=enddate))
+            services = services.filter(Q(contractId__contractDate__lte=enddate))
+        if endCompanyName:
+            contracts = contracts.filter(Q(endCompanyName__companyName__icontains=endCompanyName) | Q(endCompanyName__companyNameKo__icontains=endCompanyName))
+            services = services.filter(Q(contractId__endCompanyName__companyName__icontains=endCompanyName) | Q(contractId__endCompanyName__companyNameKo__icontains=endCompanyName))
         priceSummary = contracts.aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
         serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), serviceOverHour=Sum('serviceOverHour'))
-        companySummary = contracts.values('endCompanyName__companyNameKo').annotate(price=Sum('salePrice'), profit=Sum('profitPrice'))
+        companySummary = contracts.values('endCompanyName__companyNameKo').annotate(price=Sum('salePrice'), profit=Sum('profitPrice'), count=Count('salePrice'))
         overhourSummary = services.aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
 
     else:
         startdate = contracts.aggregate(startdate=Min('contractDate'))['startdate']
         enddate = contracts.aggregate(enddate=Max('contractDate'))['enddate']
+        endCompanyName = ''
         services = services.filter(Q(contractId__contractDate__gte=startdate) & Q(contractId__contractDate__lte=enddate))
         priceSummary = contracts.aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
         serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), serviceOverHour=Sum('serviceOverHour'))
@@ -1054,6 +1063,7 @@ def dashboard_client(request):
     context = {
         'startdate': startdate,
         'enddate': enddate,
+        'endCompanyName': endCompanyName,
         'priceSummary': priceSummary,
         'serviceSummary': serviceSummary,
         'companySummary': companySummary,
@@ -1105,7 +1115,7 @@ def services_asjson(request):
     services = services.values(
         'serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType',
         'serviceBeginDatetime', 'serviceStartDatetime', 'serviceEndDatetime', 'serviceFinishDatetime',
-        'serviceHour', 'serviceOverHour', 'serviceDetails',
+        'serviceHour', 'serviceOverHour', 'serviceDetails', 'contractId__contractCode',
         'serviceStatus', 'contractId__contractName', 'serviceId'
     )
 

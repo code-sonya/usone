@@ -35,12 +35,18 @@
 
 <!-- 미수금/미접수 현황 개요 -->
 <div class="py-3 d-flex flex-row align-items-center justify-content-between">
-  <h3 class="mb-2 text-gray-800">고객사 분석 <span class="h6"> [계약일 기준:{{ startdate }} ~ {{ enddate }}] </span></h3>
-  <!--<div class="dropdown">-->
-    <!--<a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">-->
-      <!--<i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>-->
-    <!--</a>-->
-  <!--</div>-->
+  <h3 class="mb-2 text-gray-800">고객사 분석 <span class="h6">
+    {% if startdate == '' and enddate == '' %}
+    [계약일 기준: 전체]
+    {% else %}
+    [계약일 기준:{{ startdate }} ~ {{ enddate }}]
+    {% endif %}
+  </span></h3>
+  <div class="dropdown">
+    <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+      <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
+    </a>
+  </div>
 </div>
 
 <!-- 미수금 현황 개요 -->
@@ -126,9 +132,9 @@
     <div class="card shadow mb-2">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 font-weight-bold text-secondary">고객사별 계약금액&이익금액</h6>
-        <span class="h6 d-xl-block d-none"><i class="text-info fas fa-palette"><span class="text-secondary small">계약금액 5천만이하 </span></i>
-          <i class="text-primary fas fa-palette"><span class="text-secondary small">계약금액 5천만초과 1억이하 </span></i>
-          <i class="text-danger fas fa-palette"><span class="text-secondary small">계약금액 1억초과</span></i></span>
+        <span class="h6 d-xl-block d-none"><i class="text-info fas fa-palette"><span class="text-secondary small">계약금액 5억이하 </span></i>
+          <i class="text-primary fas fa-palette"><span class="text-secondary small">계약금액 5억초과 10억이하 </span></i>
+          <i class="text-danger fas fa-palette"><span class="text-secondary small">계약금액 10억초과</span></i></span>
         <h6 class="m-0 font-weight-bold text-secondary">[단위: 백만원]</h6>
       </div>
       <div class="card-body">
@@ -143,7 +149,7 @@
   <div class="col-12">
     <div class="card shadow mb-2">
       <div class="card-header">
-        <h4 class="m-0 font-weight-bold text-secondary text-center" id="companyName">전체</h4>
+        <h4 class="m-0 font-weight-bold text-secondary text-center" id="companyName"></h4>
       </div>
     </div>
   </div>
@@ -249,6 +255,7 @@
             <th>소요시간</th>
             <th>초과근무</th>
             <th>제목</th>
+            <th>계약명</th>
           </tr>
           </thead>
           <tfoot>
@@ -260,6 +267,7 @@
             <th style="text-align: right"></th>
             <th style="text-align: right"></th>
             <th style="text-align: right"></th>
+            <th style="text-align: right"></th>
           </tr>
           </tfoot>
        </table>
@@ -267,6 +275,47 @@
     </div>
   </div>
 </div>
+
+<!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="text-primary">시작일자(계약일기준)</label>
+                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" value="{{ startdate }}">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="enddate" class="text-primary">종료일자(계약일기준)</label>
+                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" value="{{ enddate }}">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="endCompanyName" class="text-primary">최종고객사</label>
+                <input class="form-control" id="endCompanyName" name="endCompanyName" value="{{ endCompanyName }}">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
 
@@ -281,6 +330,10 @@
 <script>
     let showcontracts;
     let showservices;
+
+    function btn_filter() {
+        document.getElementById("filterForm").submit();
+    }
 
     function replaceAll(str, searchStr, replaceStr) {
           var new_str = str.split(searchStr).join(replaceStr);
@@ -526,7 +579,7 @@
             caretPadding: 10,
             callbacks: {
                 label: function (tooltipItem, chart) {
-                    return '총 계약금액: ' + number_format(tooltipItem.yLabel) + ' 총 이익금액: ' + number_format(tooltipItem.xLabel) ;
+                    return '총 계약금액: ' + number_format(tooltipItem.yLabel) + '\n 총 이익금액: ' + number_format(tooltipItem.xLabel);
                 }
             }
         }
@@ -831,6 +884,17 @@
                 {data: "serviceHour"},
                 {data: "serviceOverHour"},
                 {data: "serviceTitle"},
+                {
+                   data: 'contractId__contractName',
+                    render: function (data, type, row) {
+                        if(row["contractId__contractCode"]!=null){
+                            return '[' + row["contractId__contractCode"] + '] ' + row["contractId__contractName"];
+                        }
+                        else{
+                            return '[미지정] 계약명미지정';
+                        }
+                    }
+                },
             ],
             "columnDefs": [
                 {targets: 0, className: "d-none"},
@@ -838,7 +902,8 @@
                 {targets: 2, width: "20%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                 {targets: 3, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {targets: 4, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 5, width: "60%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                {targets: 5, width: "25%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                {targets: 5, width: "35%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
             ],
             "deferRender": true,
             "searching": true,
