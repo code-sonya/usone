@@ -20,4 +20,7 @@ urlpatterns = [
     url(r'^notdepositasjson/$', views.not_deposit_asjson, name='not_deposit_asjson'),
     url(r'^notwithdrawasjson/$', views.not_withdraw_asjson, name='not_withdraw_asjson'),
     url(r'^client/$', views.dashboard_client, name='dashboardclient'),
+    url(r'^clientgraph/$', views.client_graph, name='client_ajax_graph'),
+    url(r'^servicesasjson/$', views.services_asjson, name='services_ajax_url'),
+    url(r'^contractsasjson/$', views.contracts_asjson, name='contracts_ajax_url'),
 ]
