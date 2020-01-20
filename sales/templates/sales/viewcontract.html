@@ -113,13 +113,18 @@
       <div>
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h3 class="m-0 text-gray-800"> [{{ contract.contractCode }}] {{ contract.contractName }} </h3>
-          <div style="font-size: 14px">
-            {% if contract.writeEmpId and contract.writeDatetime %}
-            작성 : {{ contract.writeEmpId }} ({{ contract.writeDatetime | date:"Y.m.d H:i" }})<br>
-            {% endif %}
-            {% if contract.editEmpId and contract.editDatetime %}
-            수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
-            {% endif %}
+          <div class="d-flex flex-row align-items-center justify-content-between">
+            <div style="font-size: 14px">
+              {% if contract.writeEmpId and contract.writeDatetime %}
+              작성 : {{ contract.writeEmpId }} ({{ contract.writeDatetime | date:"Y.m.d H:i" }})<br>
+              {% endif %}
+              {% if contract.editEmpId and contract.editDatetime %}
+              수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
+              {% endif %}
+            </div>&nbsp;&nbsp;
+            <a class="btn btn-success" href="#" role="button" id="historyLink" data-toggle="modal" data-target="#historyModal">
+              <i class="fas fa-history d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-history"></i> 히스토리</span>
+            </a>
           </div>
         </div>
 
@@ -1279,6 +1284,83 @@
               <option value="{{ f }}">{{ f }}</option>
             {% endfor %}
           </select>
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="post_purchase_order()">발주</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- history modal -->
+  <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="historyModalLabel">계약금액 & 이익금액 변경내역</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body" style="padding: 2rem">
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="20%"><b>변경일자</b></td>
+              <td width="10%"><b>작성자</b></td>
+              <td width="20%"><b>계약금액</b></td>
+              <td width="20%"><b>이익금액</b></td>
+              <td width="15%"><b>이익률</b></td>
+              <td width="15%"><b>변경회차</b></td>
+            </tr>
+            </thead>
+            <tbody>
+              {% for log in history %}
+                <tr>
+                  <td>{{ log.datetime }}</td>
+                  <td>{{ log.empId.empName }}</td>
+                  <td class="text-right">
+                    {{ log.beforeSalePrice | intcomma }}<br>
+                    → {{ log.afterSalePrice | intcomma }}<br>
+                    {% if log.diffSalePrice > 0 %}
+                      <span class="text-danger">({{ log.diffSalePrice | intcomma }})</span>
+                    {% elif log.diffSalePrice < 0 %}
+                      <span class="text-primary">({{ log.diffSalePrice | intcomma }})</span>
+                    {% else %}
+                      ({{ log.diffSalePrice | intcomma }})
+                    {% endif %}
+                  </td>
+                  <td class="text-right">
+                    {{ log.beforeProfitPrice | intcomma }}<br>
+                    → {{ log.afterProfitPrice | intcomma }}<br>
+                    {% if log.diffProfitPrice > 0 %}
+                      <span class="text-danger">({{ log.diffProfitPrice | intcomma }})</span>
+                    {% elif log.diffProfitPrice < 0 %}
+                      <span class="text-primary">({{ log.diffProfitPrice | intcomma }})</span>
+                    {% else %}
+                      ({{ log.diffProfitPrice | intcomma }})
+                    {% endif %}
+                  </td>
+                  <td class="text-right">
+                    {{ log.beforeProfitRatio | floatformat }}%<br>
+                    → {{ log.afterProfitRatio | floatformat }}%<br>
+                    {% if log.diffProfitRatio > 0 %}
+                      <span class="text-danger">({{ log.diffProfitRatio | floatformat }}%)</span>
+                    {% elif log.diffProfitRatio < 0 %}
+                      <span class="text-primary">({{ log.diffProfitRatio | floatformat }}%)</span>
+                    {% else %}
+                      ({{ log.diffProfitRatio | floatformat }}%)
+                    {% endif %}
+                  </td>
+                  <td>{{ log.changeCount }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-info" href="#" onclick="post_purchase_order()">발주</a>
         </div>

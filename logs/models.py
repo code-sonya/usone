@@ -16,6 +16,7 @@ class DownloadLog(models.Model):
     def __str__(self):
         return str(self.downloadLogId)
 
+
 class OrderLog(models.Model):
     orderLogId = models.AutoField(primary_key=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
@@ -40,3 +41,23 @@ class ApprovalLog(models.Model):
 
     def __str__(self):
         return str(self.approvalLogId)
+
+
+class ContractLog(models.Model):
+    logId = models.AutoField(primary_key=True)
+    datetime = models.DateTimeField(auto_now=True)
+    empId = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    changeCount = models.IntegerField(default=1)
+    beforeSalePrice = models.BigIntegerField()
+    beforeProfitPrice = models.BigIntegerField()
+    beforeProfitRatio = models.FloatField()
+    afterSalePrice = models.BigIntegerField()
+    afterProfitPrice = models.BigIntegerField()
+    afterProfitRatio = models.FloatField()
+    diffSalePrice = models.BigIntegerField()
+    diffProfitPrice = models.BigIntegerField()
+    diffProfitRatio = models.FloatField()
+
+    def __str__(self):
+        return self.contractId.contractName

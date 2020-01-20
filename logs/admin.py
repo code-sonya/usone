@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import DownloadLog, OrderLog, ApprovalLog
+from .models import DownloadLog, OrderLog, ApprovalLog, ContractLog
 
 
 @admin.register(DownloadLog)
@@ -7,6 +7,7 @@ class DownloadLogAdmin(admin.ModelAdmin):
     list_display = ('downloadLogId', 'empId', 'contractId', 'downloadDatetime', 'downloadType', 'downloadName')
     list_filter = ('empId', 'contractId', 'downloadType')
     list_display_links = ['downloadLogId', 'empId', 'contractId', 'downloadDatetime', 'downloadType', 'downloadName']
+
 
 @admin.register(OrderLog)
 class OrderLogAdmin(admin.ModelAdmin):
@@ -20,3 +21,10 @@ class ApprovalLogAdmin(admin.ModelAdmin):
     list_display = ('approvalLogId', 'empId', 'toEmail', 'documentId', 'approvalDatetime', 'approvalStatus')
     list_filter = ('empId', 'toEmail', 'documentId', 'approvalStatus')
     list_display_links = ['approvalLogId', 'empId', 'toEmail', 'documentId', 'approvalDatetime', 'approvalStatus']
+
+
+@admin.register(ContractLog)
+class ContractLogAdmin(admin.ModelAdmin):
+    list_display = ('logId', 'datetime', 'empId', 'contractId', 'changeCount')
+    list_filter = ('contractId',)
+    list_display_links = ['logId', 'datetime', 'empId', 'contractId', 'changeCount']

@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST
 from hr.models import Employee, AdminEmail
 from service.models import Servicereport
 from client.models import Company, Customer
-from logs.models import OrderLog
+from logs.models import OrderLog, ContractLog
 from .forms import ContractForm, GoalForm, PurchaseorderformForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
@@ -303,11 +303,39 @@ def view_contract(request, contractId):
 @login_required
 def modify_contract(request, contractId):
     contractInstance = Contract.objects.get(contractId=contractId)
+    beforeSalePrice = contractInstance.salePrice
+    beforeProfitPrice = contractInstance.profitPrice
+    beforeProfitRatio = contractInstance.profitRatio
 
     if request.method == "POST":
         form = ContractForm(request.POST, request.FILES, instance=contractInstance)
 
         if form.is_valid():
+            # 계약금액, 이익금액이 변경 되었을 경우 메일 알림
+            afterSalePrice = form.clean()['salePrice']
+            afterProfitPrice = form.clean()['profitPrice']
+            afterProfitRatio = form.clean()['profitRatio']
+            if beforeSalePrice != afterSalePrice or beforeProfitPrice != afterProfitPrice:
+                logs = ContractLog.objects.filter(contractId=contractInstance)
+                if logs:
+                    changeCount = len(logs) + 1
+                else:
+                    changeCount = 1
+                ContractLog.objects.create(
+                    empId=request.user.employee,
+                    contractId=contractInstance,
+                    changeCount=changeCount,
+                    beforeSalePrice=beforeSalePrice,
+                    beforeProfitPrice=beforeProfitPrice,
+                    beforeProfitRatio=beforeProfitRatio,
+                    afterSalePrice=afterSalePrice,
+                    afterProfitPrice=afterProfitPrice,
+                    afterProfitRatio=afterProfitRatio,
+                    diffSalePrice=afterSalePrice-beforeSalePrice,
+                    diffProfitPrice=afterProfitPrice-beforeProfitPrice,
+                    diffProfitRatio=afterProfitRatio-beforeProfitRatio,
+                )
+
             # 계약내용 수정
             post = form.save(commit=False)
             post.editEmpId = Employee.objects.get(empId=request.user.employee.empId)
@@ -497,7 +525,6 @@ def modify_contract(request, contractId):
             jsonCostId = []
 
             for cost in jsonCost:
-                print(cost)
                 if cost['costId'] == '추가':
                     Cost.objects.create(
                         contractId=post,
@@ -514,7 +541,6 @@ def modify_contract(request, contractId):
                     costInstance.costPrice = int(cost["costPrice"])
                     costInstance.billingTime = None
                     costInstance.billingDate = datetime(year=int(cost["costDate"]), month=12, day=31)
-                    print(costInstance.billingDate)
                     costInstance.comment = cost["costComment"]
                     costInstance.save()
                     jsonCostId.append(int(cost["costId"]))
@@ -3676,5 +3702,3 @@ def save_purchasecategory(request):
         result = 'Y'
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
-
-

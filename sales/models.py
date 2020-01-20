@@ -54,7 +54,6 @@ class Contract(models.Model):
     confirmComment = models.CharField(max_length=200, null=True, blank=True)
     modifyContract = models.CharField(max_length=10, choices=modifyContractChoices, default='Y')
 
-
     def __str__(self):
         return self.contractName
 

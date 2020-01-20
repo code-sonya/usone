@@ -23,6 +23,7 @@ from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Accel
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder, Purchasecontractitem
 from hr.models import AdminEmail
 from service.models import Employee
+from logs.models import ContractLog
 from django.db.models import Q, Max
 from django.template import loader
 
@@ -35,6 +36,9 @@ def viewContract(request, contractId):
     files_e = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매입발주서').order_by('uploadDatetime')
     files_f = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='납품,구축,검수확인서').order_by('uploadDatetime')
     files_g = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출발행').order_by('uploadDatetime')
+
+    # 히스토리
+    history = ContractLog.objects.filter(contractId__contractId=contractId).order_by('-changeCount')
 
     # 결재문서
     documents = Document.objects.filter(contractId=contractId).exclude(documentStatus='임시')
@@ -49,8 +53,6 @@ def viewContract(request, contractId):
     ordermail_ing = documents.filter(formId__formTitle='매출발행', documentStatus='진행')
     # 수정권한요청중인 문서
     modify_ing = documents.filter(formId__formTitle='수정권한요청서', documentStatus='진행')
-
-
 
     # 계약, 세부정보, 매출, 매입, 계약서 명, 수주통보서 명
     contract = Contract.objects.get(contractId=contractId)
@@ -198,6 +200,8 @@ def viewContract(request, contractId):
         'files_e': files_e,
         'files_f': files_f,
         'files_g': files_g,
+        # 히스토리
+        'history': history,
         # 결재문서, 매입발주서
         'documents_ing': documents_ing,
         'ordernoti_ing': ordernoti_ing,

@@ -164,4 +164,3 @@ class RelatedpurchaseestimateAdmin(admin.ModelAdmin):
     list_filter = ('purchaseOrder',)
     list_display_links = ['relatedId', 'purchaseOrder', 'purchaseEstimate']
 
-
