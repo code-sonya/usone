@@ -103,6 +103,7 @@
             {% if user.employee.empDeptName == '경영지원본부' or user.is_staff  or  user.employee.empPosition.positionName == '임원' %}
               <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
               <a class="collapse-item" href="/sales/checkservice/">계약별투입원가</a>
+              <a class="collapse-item" href="logs/contractlog/">계약금액변경이력</a>
               <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
             {% endif %}
           </div>
