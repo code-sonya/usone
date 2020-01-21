@@ -316,7 +316,7 @@ def dashboard_quarter(request):
         quarter_opp_firm_sales_rate = '-'
     if profitQuarterTarget:
         Profitquater_rate = round(quarterlyCumulativeProfit['quarterly_cumulative_profit'] / profitQuarterTarget * 100, 2)
-        quarter_opp_firm_profits_rate  = round(quarterOpptyFirmProfits / profitQuarterTarget * 100, 2),
+        quarter_opp_firm_profits_rate = round(quarterOpptyFirmProfits / profitQuarterTarget * 100, 2)
     else:
         Profitquater_rate = '_'
         quarter_opp_firm_profits_rate = '-'

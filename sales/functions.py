@@ -338,8 +338,15 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
             'profitPrice': profitPrice[0],
             'background': '#ffffec',
         }
-        row['revenueRatio'] = str(round(row['revenuePrice'] / row['revenueTarget'] * 100)) + '%'
-        row['profitRatio'] = str(round(row['profitPrice'] / row['profitTarget'] * 100)) + '%'
+        if row['revenueTarget'] == 0:
+            row['revenueRatio'] = '- %'
+        else:
+            row['revenueRatio'] = str(round(row['revenuePrice'] / row['revenueTarget'] * 100)) + '%'
+
+        if row['profitTarget'] == 0:
+            row['profitRatio'] = '- %'
+        else:
+            row['profitRatio'] = str(round(row['profitPrice'] / row['profitTarget'] * 100)) + '%'
         rows.append(row)
 
         for person in list(personRevenue.filter(contractId__empDeptName=team)):
