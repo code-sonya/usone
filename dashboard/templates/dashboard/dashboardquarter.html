@@ -193,7 +193,9 @@
               <div class="h5 b-0 font-weight-bold text-gray-800">
                 {% if profitQuarterTarget %}{{ profitQuarterTarget|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
                 {% if quarter_opp_firm_profits %}{{ quarter_opp_firm_profits|slugify|slice:"0:-6"|intcomma }}{% else %}0{% endif %} /
-                {% if quarter_opp_firm_profits_rate %}{{ quarter_opp_firm_profits_rate }}{% else %}-{% endif %}%
+                {% if quarter_opp_firm_profits_rate %}
+                  {{ quarter_opp_firm_profits_rate }}
+                {% else %}-{% endif %}%
               </div>
             </div>
             <div class="col-auto">
