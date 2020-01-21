@@ -959,61 +959,65 @@ def award(year, empDeptName, table2, goal, empName, incentive, empId):
     gp_profitratio = 15
     gp_maincategory = '상품'
 
-    q1OverGp = revenue1.filter(
-        Q(contractId__empName=empName) &
-        Q(contractId__salePrice__gte=gp_standard) &
-        Q(contractId__profitRatio__gt=gp_profitratio) &
-        Q(contractId__mainCategory__icontains=gp_maincategory)
-    ).annotate(
+    q1OverGp = revenue1.annotate(
         quarter=Case(
             When(billingDate__month__in=[1, 2, 3], then=Value('1')),
             When(billingDate__month__in=[4, 5, 6], then=Value('2')),
             When(billingDate__month__in=[7, 8, 9], then=Value('3')),
             When(billingDate__month__in=[10, 11, 12], then=Value('4')),
             output_field=CharField(),
-        )
+        ),
+        ratio=(F('contractId__profitPrice')*100/F('contractId__salePrice'))
+    ).filter(
+        Q(contractId__empName=empName) &
+        Q(contractId__salePrice__gte=gp_standard) &
+        Q(ratio__gte=gp_profitratio) &
+        Q(contractId__mainCategory__icontains=gp_maincategory)
     )
-    q2OverGp = revenue2.filter(
-        Q(contractId__empName=empName) &
-        Q(contractId__salePrice__gte=gp_standard) &
-        Q(contractId__profitRatio__gt=gp_profitratio) &
-        Q(contractId__mainCategory__icontains=gp_maincategory)
-    ).annotate(
+    q2OverGp = revenue2.annotate(
         quarter=Case(
             When(billingDate__month__in=[1, 2, 3], then=Value('1')),
             When(billingDate__month__in=[4, 5, 6], then=Value('2')),
             When(billingDate__month__in=[7, 8, 9], then=Value('3')),
             When(billingDate__month__in=[10, 11, 12], then=Value('4')),
             output_field=CharField(),
-        )
+        ),
+        ratio=(F('contractId__profitPrice')*100/F('contractId__salePrice'))
+    ).filter(
+        Q(contractId__empName=empName) &
+        Q(contractId__salePrice__gte=gp_standard) &
+        Q(ratio__gte=gp_profitratio) &
+        Q(contractId__mainCategory__icontains=gp_maincategory)
     )
-    q3OverGp = revenue3.filter(
-        Q(contractId__empName=empName) &
-        Q(contractId__salePrice__gte=gp_standard) &
-        Q(contractId__profitRatio__gt=gp_profitratio) &
-        Q(contractId__mainCategory__icontains=gp_maincategory)
-    ).annotate(
+    q3OverGp = revenue3.annotate(
         quarter=Case(
             When(billingDate__month__in=[1, 2, 3], then=Value('1')),
             When(billingDate__month__in=[4, 5, 6], then=Value('2')),
             When(billingDate__month__in=[7, 8, 9], then=Value('3')),
             When(billingDate__month__in=[10, 11, 12], then=Value('4')),
             output_field=CharField(),
-        )
+        ),
+        ratio=(F('contractId__profitPrice')*100/F('contractId__salePrice'))
+    ).filter(
+        Q(contractId__empName=empName) &
+        Q(contractId__salePrice__gte=gp_standard) &
+        Q(ratio__gte=gp_profitratio) &
+        Q(contractId__mainCategory__icontains=gp_maincategory)
     )
-    q4OverGp = revenue4.filter(
-        Q(contractId__empName=empName) &
-        Q(contractId__salePrice__gte=gp_standard) &
-        Q(contractId__profitRatio__gt=gp_profitratio) &
-        Q(contractId__mainCategory__icontains=gp_maincategory)
-    ).annotate(
+    q4OverGp = revenue4.annotate(
         quarter=Case(
             When(billingDate__month__in=[1, 2, 3], then=Value('1')),
             When(billingDate__month__in=[4, 5, 6], then=Value('2')),
             When(billingDate__month__in=[7, 8, 9], then=Value('3')),
             When(billingDate__month__in=[10, 11, 12], then=Value('4')),
             output_field=CharField(),
-        )
+        ),
+        ratio=(F('contractId__profitPrice')*100/F('contractId__salePrice'))
+    ).filter(
+        Q(contractId__empName=empName) &
+        Q(contractId__salePrice__gte=gp_standard) &
+        Q(ratio__gte=gp_profitratio) &
+        Q(contractId__mainCategory__icontains=gp_maincategory)
     )
 
     overGp = [q1OverGp or None, q2OverGp or None, q3OverGp or None, q4OverGp or None]
