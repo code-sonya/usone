@@ -376,15 +376,25 @@ def dashboard_goal(request):
 
     ## 팀별 목표 & 전체 매출 금액
     # teamGoals = Goal.objects.filter(Q(empDeptName__icontains='영업') & Q(year=todayYear))
-    teamGoals = Goal.objects.filter(Q(year=todayYear))
+    teamGoals = Goal.objects.filter(Q(year=todayYear))\
+                            .values('empDeptName')\
+                            .annotate(
+                            yearSalesSum=Sum('yearSalesSum'), yearProfitSum=Sum('yearProfitSum'), salesq1=Sum('salesq1'), salesq2=Sum('salesq2'),
+                            salesq3=Sum('salesq3'), salesq4=Sum('salesq4'), profitq1=Sum('profitq1'), profitq2=Sum('profitq2'),
+                            profitq3=Sum('profitq3'), profitq4=Sum('profitq4')
+                            )
     teamGoalsSum = teamGoals.aggregate(sum_yearSales=Sum('yearSalesSum'), sum_yearProfit=Sum('yearProfitSum'), sum_salesq1=Sum('salesq1'), sum_salesq2=Sum('salesq2'),
-                                       sum_salesq3=Sum('salesq3'), sum_salesq4=Sum('salesq3'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'),
-                                       sum_profitq3=Sum('profitq4'), sum_profitq4=Sum('profitq4'))
+                                       sum_salesq3=Sum('salesq3'), sum_salesq4=Sum('salesq4'), sum_profitq1=Sum('profitq1'), sum_profitq2=Sum('profitq2'),
+                                       sum_profitq3=Sum('profitq3'), sum_profitq4=Sum('profitq4'))
+    print(teamGoals)
+    print(teamGoalsSum)
     teamSales = []
     for i in salesteamList:
         sales = revenues.filter(Q(contractId__empDeptName=i) & Q(predictBillingDate__year=todayYear)).values('contractId__empDeptName').aggregate(sum_sales=Sum('revenuePrice'),
                                                                                                                                                   sum_profits=Sum('revenueProfitPrice'))
         teamSales.append({i: sales})
+
+    print(teamSales)
 
     for i in salesteamList:
         # 분기 Firm
