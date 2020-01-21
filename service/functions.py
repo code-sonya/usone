@@ -392,7 +392,7 @@ def dayreport_query2(empDeptName, day):
         else:
             flag = ''
 
-        if service.serviceType.typeName == '교육':
+        if service.serviceType.typeName == '':
             listEducation.append({
                 'serviceId': service.serviceId,
                 'flag': flag,
