@@ -3558,6 +3558,7 @@ def delete_related_purchase_estimate(request, relatedId):
 
 
 @login_required
+@csrf_exempt
 def send_purchaseorder(request, orderId):
     if request.method == 'POST':
         orders = Purchaseorder.objects.get(orderId=orderId)
@@ -3569,7 +3570,6 @@ def send_purchaseorder(request, orderId):
         empEmail ='{}@{}'.format(empEmail, address)
         if empEmail:
             result = mail_purchaseorder(empEmail, request.user.employee.empEmail, orders, purchaseorderfile, relatedpurchaseestimate)
-
         if result == 'Y':
             OrderLog.objects.create(
                 empId=Employee(empId=request.user.employee.empId),
@@ -3579,6 +3579,8 @@ def send_purchaseorder(request, orderId):
             )
             orders.sendDatetime=datetime.now()
             orders.save()
+            structure = json.dumps(result, cls=DjangoJSONEncoder)
+            return HttpResponse(structure, content_type='application/json')
         else:
             OrderLog.objects.create(
                 empId=Employee(empId=request.user.employee.empId),
@@ -3588,8 +3590,8 @@ def send_purchaseorder(request, orderId):
                 orderStatus='전송실패',
                 orderError=result,
             )
-
-        return redirect('sales:viewpurchaseorder', orderId)
+            structure = json.dumps('N', cls=DjangoJSONEncoder)
+            return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
