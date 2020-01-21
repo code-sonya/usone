@@ -15,6 +15,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from django.views.decorators.http import require_POST
 
+from approval.models import Document
 from hr.models import Employee, AdminEmail
 from service.models import Servicereport
 from client.models import Company, Customer
@@ -3424,12 +3425,32 @@ def view_purchase_order(request, orderId):
         contractId=purchaseOrder.contractId,
         purchaseCompany=purchaseOrder.purchaseCompany
     )
+
+    # 수주통보서 결재 완료 여부 확인 (최종 수주통보서의 상태가 완료된 건에 대해서만 발송 가능)
+    ordernotis = Document.objects.filter(
+        contractId=purchaseOrder.contractId,
+        formId__formTitle='수주통보서',
+    ).exclude(
+        documentStatus='임시'
+    ).order_by(
+        '-draftDatetime'
+    )
+    if ordernotis:
+        ordernoti = ordernotis.first()
+        if ordernoti.documentStatus == '완료':
+            isApproval = True
+        else:
+            isApproval = False
+    else:
+        isApproval = False
+
     context = {
         'purchaseOrder': purchaseOrder,
         'purchaseOrderFiles': purchaseOrderFiles,
         'relatedPurchaseEstimate': relatedPurchaseEstimate,
         'purchaseFiles': purchaseFiles,
         'email': email,
+        'isApproval': isApproval,
     }
     return render(request, 'sales/viewpurchaseorder.html', context)
 

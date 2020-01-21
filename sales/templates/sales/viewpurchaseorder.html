@@ -36,11 +36,15 @@
         {{ purchaseOrder.purchaseCompany.companyNameKo }}
         매입발주서
       </div>
-      <div class="dropdown no-arrow">
-        <a class="dropdown-toggle" href="#" role="button" id="emailLink" data-toggle="modal" data-target="#emailModal">
-          <i class="fas fa-at fa-fw text-info"></i>
-        </a>
-      </div>
+      {% if isApproval %}
+        <div class="dropdown no-arrow">
+          <a class="btn btn-info" href="#" role="button" id="emailLink" data-toggle="modal" data-target="#emailModal">
+            <i class="fas fa-at d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-at"></i> 메일</span>
+          </a>
+        </div>
+      {% else %}
+        <span>수주통보서 결재 후<br>매입처 메일 발송 가능</span>
+      {% endif %}
     </div>
 
     <div class="card-body">
