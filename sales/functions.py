@@ -880,6 +880,7 @@ def cal_profitloss(dept, todayYear):
 
     return expenses1, expenses2
 
+
 def award(year, empDeptName, table2, goal, empName, incentive, empId):
     revenues = Revenue.objects.filter(Q(contractId__empDeptName=empDeptName) & Q(contractId__contractStep='Firm'))
     revenue1 = revenues.filter(Q(billingDate__gte=year + '-01-01') & Q(billingDate__lt=year + '-04-01'))
@@ -949,16 +950,16 @@ def award(year, empDeptName, table2, goal, empName, incentive, empId):
 
     q1OverGp = revenue1.filter(
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+            contractId__profitRatio__gt=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
     q2OverGp = revenue2.filter(
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+            contractId__profitRatio__gt=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
     q3OverGp = revenue3.filter(
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+            contractId__profitRatio__gt=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
     q4OverGp = revenue4.filter(
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+            contractId__profitRatio__gt=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
 
     overGp = [q1OverGp or None, q2OverGp or None, q3OverGp or None, q4OverGp or None]
     if newCount == [None, None, None, None]:
