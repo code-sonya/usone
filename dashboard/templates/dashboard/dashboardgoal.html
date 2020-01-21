@@ -581,7 +581,11 @@
                       const team1_q3 = '{{ i.salesq3 }}';
                       const team1_q4 = '{{ i.salesq4 }}';
                       const team1_revenue = '{{ j.영업1팀.sum_sales }}';
-                      const team1_deficit = Number(team1_goal) - Number(team1_revenue);
+                      if(Number(team1_goal)-Number(team1_revenue)<0){
+                          team1_deficit = 0
+                      }else{
+                          team1_deficit = Number(team1_goal) - Number(team1_revenue);
+                      }
                   {% endif %}
               {% elif i.empDeptName == '영업2팀' %}
                   {% if j.영업2팀 %}
@@ -591,7 +595,11 @@
                       const team2_q3 = '{{ i.salesq3 }}';
                       const team2_q4 = '{{ i.salesq4 }}';
                       const team2_revenue = '{{ j.영업2팀.sum_sales }}';
-                      const team2_deficit = Number(team2_goal) - Number(team2_revenue);
+                      if(Number(team1_goal)-Number(team1_revenue)<0){
+                          team2_deficit = 0
+                      }else{
+                          team2_deficit = Number(team2_goal) - Number(team2_revenue);
+                      }
                   {% endif %}
               {% endif %}
           {% endfor %}
