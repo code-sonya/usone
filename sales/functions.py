@@ -1472,13 +1472,6 @@ def purchaseorderhtml(orders):
       <div>
         """+ orders.contentHtml + """
       </div>
-      <p style="text-align: center; font-size:12px">
-        [ 유니원아이앤씨(주) (Unione I&C) ]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        대표전화 : 02-780-0039&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        Call Center : 02-780-2502&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        Fax : 02-780-2503&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        HomePage : http://www.unioneinc.co.kr/
-      </p>
     </body>
     </html>
     """
