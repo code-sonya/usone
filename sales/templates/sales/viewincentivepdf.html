@@ -326,8 +326,8 @@
       <td class="thtd" colspan="2">거래처</td>
       <td class="thtd" colspan="3">계약명</td>
       <td class="thtd" colspan="1">이익률</td>
-      <td class="thtd" colspan="2">매출일</td>
       <td class="thtd" colspan="1">분기</td>
+      <td class="thtd" colspan="2">매출일</td>
     </tr>
     </thead>
     <tbody>
@@ -337,8 +337,8 @@
                 <td class="thtd" colspan="2" style="background-color: white">{{ over.revenueCompany }}</td>
                 <td class="thtd" colspan="3" style="background-color: white;text-align: left;padding-left: 2px">{{ over.contractId }}</td>
                 <td class="thtd" colspan="1" style="background-color: white">{{ over.contractId.profitRatio }}%</td>
-                <td class="thtd" colspan="2" style="background-color: white">{{ over.billingDate }}</td>
                 <td class="thtd" colspan="1" style="background-color: white">{{ over.quarter }}</td>
+                <td class="thtd" colspan="2" style="background-color: white">{{ over.billingDate }}</td>
             </tr>
             {% endfor %}
      {% endfor %}
