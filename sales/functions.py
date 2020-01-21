@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
-from django.db.models import Sum, F, Count
+from django.db.models import Sum, F, Count, Case, When, CharField, Value
 from django.db.models.functions import Coalesce
 import os
 import smtplib
@@ -949,16 +949,52 @@ def award(year, empDeptName, table2, goal, empName, incentive, empId):
 
     q1OverGp = revenue1.filter(
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))\
+        .annotate(
+            quarter=Case(
+                When(billingDate__month__in=[1, 2, 3], then=Value('1')),
+                When(billingDate__month__in=[4, 5, 6], then=Value('2')),
+                When(billingDate__month__in=[7, 8, 9], then=Value('3')),
+                When(billingDate__month__in=[10, 11, 12], then=Value('4')),
+                output_field=CharField(),
+            )
+        )
     q2OverGp = revenue2.filter(
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))\
+        .annotate(
+            quarter=Case(
+                When(billingDate__month__in=[1, 2, 3], then=Value('1')),
+                When(billingDate__month__in=[4, 5, 6], then=Value('2')),
+                When(billingDate__month__in=[7, 8, 9], then=Value('3')),
+                When(billingDate__month__in=[10, 11, 12], then=Value('4')),
+                output_field=CharField(),
+            )
+        )
     q3OverGp = revenue3.filter(
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))\
+        .annotate(
+            quarter=Case(
+                When(billingDate__month__in=[1, 2, 3], then=Value('1')),
+                When(billingDate__month__in=[4, 5, 6], then=Value('2')),
+                When(billingDate__month__in=[7, 8, 9], then=Value('3')),
+                When(billingDate__month__in=[10, 11, 12], then=Value('4')),
+                output_field=CharField(),
+            )
+        )
     q4OverGp = revenue4.filter(
         Q(contractId__empName=empName) & Q(contractId__salePrice__gte=gp_standard) & Q(
-            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))
+            contractId__profitRatio__gte=gp_profitratio) & Q(contractId__mainCategory__icontains=gp_maincategory))\
+        .annotate(
+            quarter=Case(
+                When(billingDate__month__in=[1, 2, 3], then=Value('1')),
+                When(billingDate__month__in=[4, 5, 6], then=Value('2')),
+                When(billingDate__month__in=[7, 8, 9], then=Value('3')),
+                When(billingDate__month__in=[10, 11, 12], then=Value('4')),
+                output_field=CharField(),
+            )
+        )
 
     overGp = [q1OverGp or None, q2OverGp or None, q3OverGp or None, q4OverGp or None]
     if newCount == [None, None, None, None]:
