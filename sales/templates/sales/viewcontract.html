@@ -1318,7 +1318,7 @@
             <tbody>
               {% for log in history %}
                 <tr>
-                  <td>{{ log.datetime }}</td>
+                  <td>{{ log.datetime | date:"Y.m.d H:i" }}</td>
                   <td>{{ log.empId.empName }}</td>
                   <td class="text-right">
                     {{ log.beforeSalePrice | intcomma }}<br>

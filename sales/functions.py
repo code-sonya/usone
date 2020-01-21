@@ -749,7 +749,7 @@ def cal_over_gp(revenue):
     for r in revenue:
         if (r.contractId.profitPrice - r.contractId.salePrice/100*15)/100*10 > max:
             sum += max
-        else:
+        elif (r.contractId.profitPrice - r.contractId.salePrice/100*15)/100*10 > 0:
             sum += (r.contractId.profitPrice - r.contractId.salePrice/100*15)/100*10
     return sum
 
