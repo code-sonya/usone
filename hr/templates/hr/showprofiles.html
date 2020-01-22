@@ -31,6 +31,20 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
+          <div class="mb-3">
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_empStatus('')">
+              <span class="d-xl-none">전체</span>
+              <span class="d-none d-xl-block">전체</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_empStatus('Y')">
+              <span class="d-xl-none">재직</span>
+              <span class="d-none d-xl-block">재직</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_empStatus('N')">
+              <span class="d-xl-none">퇴사</span>
+              <span class="d-none d-xl-block">퇴사</span>
+            </a>
+          </div>
           <table id="showprofiles" class="hover row-border" style="width: 100%;">
             <thead>
             <tr>
@@ -58,13 +72,19 @@
 
   <script type="text/javascript">
 
-      $(document).ready(function () {
-          $('#showprofiles').dataTable({
+      function btn_empStatus(empStatus) {
+          load_datatable(empStatus);
+      }
+
+      function load_datatable(empStatus) {
+          $('#showprofiles').DataTable().destroy();
+          const showprofiles = $('#showprofiles').DataTable({
               "processing": true,
               "ajax": {
                   "processing": true,
                   "type": 'GET',
                   "data": {
+                      'empStatus': empStatus
                   },
                   "url": "{% url 'hr:showprofilesasjson' %}",
                   "dataSrc": ""
@@ -160,12 +180,14 @@
               },
           });
 
-          const showprofiles = $('#showprofiles').DataTable();
-
           $("#showprofiles").on("click", 'tr', function () {
               const data = showprofiles.row(this).data();
               location.href = '/hr/viewprofile/' + data.empId + '/'
           });
+      }
+
+      $(document).ready(function () {
+          load_datatable('Y')
       });
 
   </script>

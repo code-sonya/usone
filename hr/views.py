@@ -60,7 +60,16 @@ def show_profiles(request):
 
 @login_required
 def showprofiles_asjson(request):
-    employees = Employee.objects.all().annotate(
+    empStatus = ''
+    if 'empStatus' in request.GET.keys():
+        if request.GET['empStatus']:
+            empStatus = request.GET['empStatus']
+
+    employees = Employee.objects.all()
+    if empStatus:
+        employees = employees.filter(empStatus=empStatus)
+
+    employees = employees.annotate(
         userName=F('user__username'),
         positionName=F('empPosition__positionName'),
         lastLogin=F('user__last_login'),
