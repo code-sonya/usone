@@ -183,7 +183,13 @@
           $('#serviceTitle').css("pointer-events", "none");
           $('#serviceDetails').attr('readonly', '');
           $('#serviceDetails').css("pointer-events", "none");
-      {% endif%}
+      {% endif %}
+
+      function btn_serviceType() {
+          if ($('#serviceType option:selected').text() === '내근') {
+              $('#companyName').trigger('set', {id: '유니원아이앤씨'});
+          }
+      }
 
       function showVal(newVal) {
           $('#enddate').val(newVal);

@@ -6,9 +6,9 @@ from .models import Position, Employee, Attendance, Punctuality, Department, Adm
 
 @admin.register(Position)
 class PositionAdmin(admin.ModelAdmin):
-    list_display = ('positionId', 'positionName', 'positionSalary')
-    list_filter = ('positionId', 'positionName', 'positionSalary')
-    list_display_links = ['positionId', 'positionName', 'positionSalary']
+    list_display = ('positionId', 'positionRank', 'positionName', 'positionSalary')
+    list_filter = ('positionId', 'positionRank', 'positionName', 'positionSalary')
+    list_display_links = ['positionId', 'positionRank', 'positionName', 'positionSalary']
 
 
 class EmployeeInline(admin.StackedInline):

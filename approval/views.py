@@ -978,7 +978,6 @@ def showdocument_asjson(request):
         # option 적용
         if 'option' in request.GET.keys():
             option = request.GET['option']
-            print(category, option)
             if category == '진행':
                 if option == '결재완료':
                     documentsIngWait = []  # 진행, 결재대기
