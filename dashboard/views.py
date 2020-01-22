@@ -37,7 +37,7 @@ def dashboard_service(request):
         enddate = startdate + relativedelta(months=1) - relativedelta(days=1)
         empDeptName = ''
 
-    all_support_data = Servicereport.objects.filter(Q(serviceStatus='Y')).exclude(serviceType__typeName='교육').exclude(serviceType__typeName='내근').exclude(empDeptName__icontains='영업')
+    all_support_data = Servicereport.objects.filter(Q(serviceStatus='Y')).exclude(serviceType__dashboardStatus='N').exclude(empDeptName__icontains='영업')
 
     if startdate:
         all_support_data = all_support_data.filter(Q(serviceDate__gte=startdate))
@@ -856,13 +856,11 @@ def service_asjson(request):
     startdate = request.POST['startdate'].replace('.', '-')
     enddate = request.POST['enddate'].replace('.', '-')
     empDeptName = request.POST['empDeptName']
-    print(empDeptName)
-    print(request.POST)
     company = request.POST['company']
     empname = request.POST['empname']
     servicetype = request.POST['servicetype']
     overhour = request.POST['overhour']
-    services = Servicereport.objects.filter(Q(serviceStatus='Y')).exclude(serviceType__typeName='교육').exclude(serviceType__typeName='내근').exclude(empDeptName__icontains='영업')
+    services = Servicereport.objects.filter(Q(serviceStatus='Y')).exclude(serviceType__typeName='').exclude(serviceType__typeName='내근').exclude(empDeptName__icontains='영업')
 
     if startdate:
         services = services.filter(Q(serviceDate__gte=startdate))

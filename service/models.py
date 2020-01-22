@@ -7,9 +7,12 @@ from extrapay.models import OverHour
 
 
 class Servicetype(models.Model):
+    statusChoices = (('Y', 'Y'), ('N', 'N'))
     typeId = models.AutoField(primary_key=True)
     typeName = models.CharField(max_length=30)
     orderNumber = models.IntegerField(default=0)
+    dashboardStatus = models.CharField(max_length=10, choices=statusChoices, default='Y')
+    punctualityStatus = models.CharField(max_length=10, choices=statusChoices, default='Y')
 
     def __str__(self):
         return self.typeName
@@ -32,6 +35,7 @@ class Servicereport(models.Model):
         ('튜닝', '튜닝'),
         ('프로젝트', '프로젝트'),
         ('프리세일즈', '프리세일즈'),
+        ('내근', '내근'),
     )
     serviceLocationChoices = (('서울', '서울'), ('경기', '경기'), ('기타', '기타'))
     statusChoices = (('Y', 'Y'), ('N', 'N'))
