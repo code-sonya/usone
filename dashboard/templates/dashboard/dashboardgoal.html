@@ -40,8 +40,14 @@
 
 {% endblock %}
 {% block content %}
-
+  <div class="py-3 d-flex flex-row align-items-center justify-content-between p-0">
   <h3 class="mb-2 text-gray-800">영업 목표 분석</h3>
+  <div class="dropdown">
+    <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+      <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
+    </a>
+  </div>
+  </div>
   <h6 class="mb-3 text-gray-800">[단위 : 백만원]</h6>
 
   <div class="row d-none d-sm-block">
@@ -49,10 +55,11 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-secondary">{{ year }}년 목표</h6>
+          <h6 class="m-0 font-weight-bold text-secondary">{{ todayYear }}년 목표</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
+          {% if sumGoals.yearSalesSum or sumGoals.yearProfitSum %}
           <table class="goalTalble" style="width:100%;" class="hover row-border" width="100%">
             <tr class="goalTalble" style="background-color: #4bacc6;color:#fff;">
               <th class="goalthtd">구분</th>
@@ -106,6 +113,10 @@
               <td class="goalthtd font-weight-bold">{{ sumGoals.profitq4|slugify|slice:"0:-6"|intcomma }}</td>
             </tr>
           </table>
+          {% else %}
+          <div class="text-center"><span class="text-danger">목표 미설정</span> 상태입니다.</div>
+          {% endif %}
+
           <br>
         </div>
       </div>
@@ -315,7 +326,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
 
-        <div class="modal-header bg-info text-gray-100">
+        <div class="modal-header bg-success text-gray-100">
           <h5 class="modal-title" id="filterModalLabel">날짜 검색</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
@@ -326,13 +337,9 @@
           <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
             {% csrf_token %}
             <div class="row mb-1">
-              <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
-                <input type="date" class="form-control" id="startdate" name="startdate">
-              </div>
-              <div class="col-6">
-                <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
-                <input type="date" class="form-control" id="enddate" name="enddate">
+              <div class="col-12 mb-3 mb-sm-0">
+                <label for="searchYear" class="text-primary">조회년도</label>
+                <input type="number" max="9999" class="form-control" id="searchYear" name="searchYear" value="{{ todayYear }}">
               </div>
             </div>
           </form>
@@ -340,7 +347,7 @@
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+          <a class="btn btn-success" href="#" onclick="btn_filter()">검색</a>
         </div>
       </div>
     </div>
@@ -358,10 +365,6 @@
   <script>
       function btn_filter() {
           document.getElementById("filterForm").submit();
-      }
-
-      function btn_filter2() {
-          document.getElementById("filterDatatableForm").submit();
       }
 
       function replaceAll(str, searchStr, replaceStr) {
