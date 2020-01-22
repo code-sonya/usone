@@ -47,7 +47,7 @@ def save_punctuality(dateList):
         if datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10])).weekday() not in [5, 6] and is_holiday(date) == False:
             Date_min = datetime.datetime.combine(datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10])), datetime.datetime.min.time())
             Date_max = datetime.datetime.combine(datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10])), datetime.datetime.max.time())
-            print(Date_min, Date_max)
+
             for user in users:
                 # 기본
                 user['status'] = '-'
@@ -61,9 +61,9 @@ def save_punctuality(dateList):
 
                 # 업로드된 데이터 날짜의 employee 첫번째 지문 기록
                 attendance = Attendance.objects.filter(Q(attendanceDate=date) & Q(empId_id=user['employee__empId'])).order_by('attendanceTime').first()
-                service = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='Y') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
+                service = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='Y') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))).exclude(serviceType__punctualityStatus='N')
                 sangju = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='N') & Q(serviceType__typeName__icontains='상주') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
-                # print("service:", service, "sangju:", sangju)
+
                 # 휴가
                 if vacation:
                     # 일차 or 오전반차
@@ -82,7 +82,7 @@ def save_punctuality(dateList):
                         elif service:
                             # 오후반차이고 직출 교육일때
                             user['status'] = '직출'
-                            if service.first().serviceType.typeName == '교육':
+                            if service.first().serviceType.typeName == '':
                                 user['comment'] = '교육 / 오후반차'
                             # 오후반차이고 직출일때
                             else:

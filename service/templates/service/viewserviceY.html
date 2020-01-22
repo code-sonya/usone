@@ -69,7 +69,7 @@
     <div id="serviceSummary" class="col-xl-8">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
+          <h6 class="m-0 text-gray-800"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
             {% if service.empId.empId == user.employee.empId %}
               <!-- 첨부 파일 업로드 및 다운로드 기능 완료 후 오픈
@@ -78,16 +78,20 @@
               </a>
               -->
               {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-              <a href="#" role="button" id="signLink" data-toggle="modal" data-target="#signModal" class="btn btn-warning">
-                <i class="fas fa-pen text-gray-100"></i>
+              <a class="btn btn-success" href="#" role="button" id="signLink" data-toggle="modal" data-target="#signModal">
+                <i class="fas fa-signature d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-signature"></i> 서명</span>
               </a>
+
               {% endif %}
-              <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
-                <i class="fas fa-envelope text-gray-100"></i>
+              <a class="btn btn-info" href="/mail/{{ service.serviceId }}" role="button">
+                <i class="fas fa-envelope d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-envelope"></i> 메일</span>
               </a>
             {% endif %}
-            <a href="#" class="btn btn-danger" onclick="location.href='/service/viewservicepdf/{{ service.serviceId }}'">
-              <i class="fas fa-download text-gray-100"></i>
+            <a class="btn btn-danger" href="/service/viewservicepdf/{{ service.serviceId }}" role="button">
+              <i class="fas fa-download d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-download"></i> PDF</span>
+            </a>
+            <a class="btn btn-warning" href="#" role="button" onclick="btn_copy()">
+              <i class="fas fa-copy d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-copy"></i> 복사</span>
             </a>
           </div>
         </div>
@@ -166,10 +170,6 @@
                 <span class="text p-2">게시글 보기</span>
               </a>
             {% endif %}
-            <a href="#" class="btn btn-warning btn-icon-split" onclick="btn_copy()">
-              <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
-              <span class="text p-2"> 복사 </span>
-            </a>
           </div>
 
         </div>
@@ -227,7 +227,7 @@
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
 
-        <div class="modal-header bg-warning text-gray-100">
+        <div class="modal-header bg-success text-gray-100">
           <h5 class="modal-title" id="signModalLabel">동행자 서명 가져오기</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>

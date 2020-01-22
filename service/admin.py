@@ -32,7 +32,7 @@ class GeolocationAdmin(admin.ModelAdmin):
 
 @admin.register(Servicetype)
 class ServicetypeAdmin(admin.ModelAdmin):
-    list_display = ('typeId', 'typeName', 'orderNumber')
+    list_display = ('typeId', 'typeName', 'orderNumber', 'dashboardStatus', 'punctualityStatus')
     list_filter = ('typeName',)
     list_display_links = ['typeId', 'typeName', 'orderNumber']
 

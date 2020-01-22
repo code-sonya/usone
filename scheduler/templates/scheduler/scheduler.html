@@ -409,21 +409,19 @@
                               {% else %}
                                   type: 'N',
                                   {%  if i.serviceType == "정기점검" %}
-                                      {#backgroundColor: '#3DBD9A',#}
-                                      {#borderColor: '#3DBD9A'#}
                                       backgroundColor: '#496fdb',
                                       borderColor: '#496fdb',
                                   {% elif i.serviceType == "일반작업지원" %}
                                       backgroundColor: '#36b9cc',
                                       borderColor: '#36b9cc',
-                                      {#backgroundColor: '#365D66',#}
-                                      {#borderColor: '#45a18d',#}
                                   {% elif i.serviceType == "프로젝트" %}
                                       backgroundColor: '#835dab',
                                       borderColor: '#835dab',
+                                  {% elif i.serviceType.punctualityStatus == "N" %}
+                                      backgroundColor: '#f67a15',
+                                      borderColor: '#f67a15',
                                   {% else %}
                                       backgroundColor: '#1cc88a',
-                                      {#borderColor: '#487ea1',#}
                                       borderColor: '#1cc88a',
                                   {% endif %}
                                   textColor: 'white'
@@ -477,6 +475,9 @@
                                   {% elif i.serviceType == "프로젝트" %}
                                       backgroundColor: '#835dab',
                                       borderColor: '#835dab',
+                                  {% elif i.serviceType.punctualityStatus == "N" %}
+                                      backgroundColor: '#f67a15',
+                                      borderColor: '#f67a15',
                                   {% else %}
                                       backgroundColor: '#1cc88a',
                                       borderColor: '#1cc88a',
