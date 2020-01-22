@@ -105,23 +105,32 @@
   <script type="text/javascript">
 
     function btn_option(option) {
-        load_datatable('{{ category }}', option);
+        load_datatable($('#showdocument').DataTable(), '{{ category }}', option);
     }
 
-    function load_datatable(category, option) {
-        $('#showdocument').DataTable().destroy();
+    function load_datatable(table, category, option) {
+        table.rows().remove();
+        $.ajax({
+            url: "{% url 'approval:showdocumentasjson' %}",
+            method: 'GET',
+            cache: false,
+            data: {
+                'category': category,
+                'option': option,
+            },
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                for (let i = 0; i < returnData.length; i++) {
+                    table.row.add(returnData[i])
+                }
+                table.draw()
+            }
+        });
+    }
+
+    $(document).ready(function() {
         let table = $('#showdocument').DataTable({
             "processing": true,
-            "ajax": {
-                "processing": true,
-                "type": 'GET',
-                "data": {
-                    'category': category,
-                    'option': option,
-                },
-                "url": "{% url 'approval:showdocumentasjson' %}",
-                "dataSrc": ""
-            },
             "columnDefs": [
                 {
                     targets: 0,
@@ -214,10 +223,8 @@
                 location.href = '/approval/viewdocument/' + data.documentId + '/';
             {% endif %}
         });
-    }
 
-    $(document).ready(function() {
-        load_datatable('{{ category }}', '');
+        load_datatable(table, '{{ category }}', '');
     })
 
   </script>

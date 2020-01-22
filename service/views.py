@@ -937,6 +937,7 @@ def delete_vacation(request, vacationId):
 
 @login_required
 def day_report(request, day=None):
+    # 20년 2월 1일 이전
     if day is None:
         day = str(datetime.datetime.today())[:10]
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
@@ -1028,6 +1029,66 @@ def day_report(request, day=None):
 
     return render(request, 'service/dayreport.html', context)
 
+    # # 20년 2월 1일 부터
+    # if day is None:
+    #     day = str(datetime.datetime.today())[:10]
+    # Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    # beforeDate = Date - datetime.timedelta(days=1)
+    # afterDate = Date + datetime.timedelta(days=1)
+    #
+    # sales = dayreport_query(empDeptName=["영업팀"], day=day)
+    # rnd = dayreport_query(empDeptName=["Technical Architecture팀", "AI Platform Labs"], day=day)
+    # db = dayreport_query(empDeptName=["DB Expert팀"], day=day)
+    # solution = dayreport_query(empDeptName=["솔루션팀"], day=day)
+    #
+    # dept = request.user.employee.empDeptName
+    # rows = []
+    # if dept == "Technical Architecture팀" or dept == "AI Platform Labs":
+    #     rows.append([
+    #         {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+    #         {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+    #     ])
+    #     rows.append([
+    #         {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+    #         {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+    #     ])
+    # elif dept == '솔루션팀':
+    #     rows.append([
+    #         {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+    #         {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+    #     ])
+    #     rows.append([
+    #         {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+    #         {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+    #     ])
+    # elif dept == 'DB Expert팀':
+    #     rows.append([
+    #         {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+    #         {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+    #     ])
+    #     rows.append([
+    #         {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+    #         {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+    #     ])
+    # else:
+    #     rows.append([
+    #         {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+    #         {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+    #     ])
+    #     rows.append([
+    #         {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+    #         {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+    #     ])
+    #
+    # context = {
+    #     'day': day,
+    #     'Date': Date,
+    #     'beforeDate': beforeDate,
+    #     'afterDate': afterDate,
+    #     'rows': rows,
+    # }
+    #
+    # return render(request, 'service/dayreport.html', context)
 
 @login_required
 def view_service_pdf(request, serviceId):

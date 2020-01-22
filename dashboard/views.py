@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from service.models import Servicereport, Geolocation
-from service.functions import dayreport_query2
+from service.functions import dayreport_query2, dayreport_query
 from sales.models import Contract, Contractitem, Revenue, Goal, Purchase
 from hr.models import Employee
 from django.db.models.functions import Coalesce
@@ -837,8 +837,9 @@ def dashboard_location(request):
     location = Geolocation.objects.filter(Q(startLatitude__isnull=False) & Q(endLatitude__isnull=True)).select_related('serviceId')
     services = location.annotate(
         flag=Case(
-            When(serviceId__serviceType=Value('상주'), then=Value('상주')),
-            When(serviceId__serviceType=Value('직출'), then=Value('직출')),
+            When(serviceId__serviceType__typeName=Value('상주'), then=Value('상주')),
+            When(serviceId__serviceType__typeName=Value('프로젝트상주'), then=Value('상주')),
+            When(serviceId__directgo=Value('Y'), then=Value('직출')),
             default=Value(''),
             output_field=CharField()
         ),
@@ -874,7 +875,7 @@ def dashboard_location(request):
         },
     ]
 
-    # 일일업무보고
+    # 20년 2월 1일 이전
     Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
 
     solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
@@ -952,6 +953,24 @@ def dashboard_location(request):
             {'title': '', 'service': '', 'education': '', 'vacation': ''},
         ])
 
+    # # 20년 2월 1일 부터
+    # Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    #
+    # sales = dayreport_query(empDeptName=["영업팀"], day=day)
+    # rnd = dayreport_query(empDeptName=["Technical Architecture팀", "AI Platform Labs"], day=day)
+    # db = dayreport_query(empDeptName=["DB Expert팀"], day=day)
+    # solution = dayreport_query(empDeptName=["솔루션팀"], day=day)
+    # rows = [
+    #     [
+    #         {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+    #         {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+    #     ],
+    #     [
+    #         {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+    #         {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+    #     ]
+    # ]
+
     context = {
         'today': today,
         'day': day,
@@ -962,7 +981,6 @@ def dashboard_location(request):
         'MAP_KEY': MAP_KEY,
         'testMAP_KEY': testMAP_KEY,
     }
-
     return HttpResponse(template.render(context, request))
 
 

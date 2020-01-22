@@ -10,6 +10,9 @@ class Position(models.Model):
     positionSalary = models.IntegerField(default=0)
     positionRank = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ['positionRank']
+
     def __str__(self):
         return self.positionName
 
