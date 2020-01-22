@@ -5,24 +5,19 @@ from django import forms
 
 
 class Position(models.Model):
-    positionId = models.IntegerField(primary_key=True)
+    positionId = models.AutoField(primary_key=True)
     positionName = models.CharField(max_length=10)
     positionSalary = models.IntegerField(default=0)
+    positionRank = models.IntegerField(default=0)
 
     def __str__(self):
         return self.positionName
 
 
 class Employee(models.Model):
-    statusChoices = (
-        ('Y', '재직'), ('N', '퇴사')
-    )
-    managerChoices = (
-        ('Y', '부서장'), ('N', '팀원')
-    )
-    RewardAvailableChoices = (
-        ('가능', '가능'), ('불가능', '불가능')
-    )
+    statusChoices = (('Y', '재직'), ('N', '퇴사'))
+    managerChoices = (('Y', '부서장'), ('N', '팀원'))
+    RewardAvailableChoices = (('가능', '가능'), ('불가능', '불가능'))
 
     empId = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -83,6 +78,7 @@ class Department(models.Model):
 
     def __str__(self):
         return str(self.deptName)
+
 
 class AdminEmail(models.Model):
     adminId = models.AutoField(primary_key=True)
