@@ -654,7 +654,6 @@
       const filterArray = new Array();
       filterArray['quarter'] = '';
       filterArray['step'] = '';
-      filterArray['team'] = '';
       filterArray['cumulative'] = '';
       filterArray['month'] = '';
       filterArray['maincategory'] = '';
@@ -832,7 +831,6 @@
               filterArray['quarter'] = '{{ todayQuarter }}분기';
               filterArray['step'] = stepLabel;
               filterArray['cumulative'] = 'Y';
-              filterArray['team'] = "";
               filterArray['month'] = "";
               filterArray['maincategory'] = '';
               filterArray['subcategory'] = '';
@@ -978,7 +976,6 @@
               filterArray['quarter'] = '{{ todayQuarter }}분기';
               filterArray['cumulative'] = 'Y';
               filterArray['step'] = "Firm";
-              filterArray['team'] = "";
               filterArray['month'] = "";
               filterArray['maincategory'] = '';
               filterArray['subcategory'] = '';
@@ -1125,7 +1122,6 @@
               const quarterLabel = quarterBarchart.data.labels[idx];
               const stepLabel = quarterBarchart.data.datasets[datasetIndex].label;
               filterArray['step'] = stepLabel;
-              filterArray['team'] = "";
               filterArray['quarter'] = quarterLabel;
               filterArray['cumulative'] = 'N';
               filterArray['month'] = "";
@@ -1196,7 +1192,6 @@
               const datasetIndex = activeElement[0]._datasetIndex;
               const quarterLabel = quarterBarchart.data.labels[idx];
               filterArray['step'] = 'Firm';
-              filterArray['team'] = "";
               filterArray['quarter'] = quarterLabel;
               filterArray['cumulative'] = 'N';
               filterArray['month'] = "";
@@ -1283,7 +1278,6 @@
               const datasetIndex = activeElement[0]._datasetIndex;
               {#const teamLabel = contractMonthlychart.data.datasets[datasetIndex].label;#}
               filterArray['month'] = monthLabel;
-              filterArray['team'] = '';
               filterArray['quarter'] = "";
               filterArray['cumulative'] = "";
               filterArray['step'] = "Firm";
@@ -1420,7 +1414,6 @@
               filterArray['quarter'] = '';
               filterArray['step'] = 'Firm';
               filterArray['cumulative'] = '';
-              filterArray['team'] = "";
               filterArray['month'] = "";
               filterArray['maincategory'] = maincategoryLabel;
               filterArray['subcategory'] = "";
@@ -1516,7 +1509,6 @@
               filterArray['quarter'] = '';
               filterArray['step'] = 'Firm';
               filterArray['cumulative'] = '';
-              filterArray['team'] = "";
               filterArray['month'] = "";
               filterArray['subcategory'] = subcategoryLabel;
               filterArray['industry'] = '';
@@ -1621,7 +1613,6 @@
               filterArray['quarter'] = '';
               filterArray['step'] = 'Firm';
               filterArray['cumulative'] = '';
-              filterArray['team'] = "";
               filterArray['month'] = "";
               filterArray['subcategory'] = '';
               filterArray['industry'] = industryLabel;
@@ -1726,7 +1717,6 @@
               filterArray['quarter'] = '';
               filterArray['step'] = 'Firm';
               filterArray['cumulative'] = '';
-              filterArray['team'] = "";
               filterArray['month'] = "";
               filterArray['subcategory'] = '';
               filterArray['maincategory'] = '';
@@ -2250,7 +2240,6 @@
               cache: false,
               data: {
                   "step": filterArray['step'],
-                  "team": filterArray['team'],
                   "cumulative": filterArray['cumulative'],
                   "quarter": filterArray['quarter'],
                   "month": filterArray['month'],
