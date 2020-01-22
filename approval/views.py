@@ -977,8 +977,53 @@ def showdocument_asjson(request):
 
         # option 적용
         if 'option' in request.GET.keys():
-            if request.GET['option'] == '반려제외':
-                documentsDoneReject = []
+            option = request.GET['option']
+            print(category, option)
+            if category == '진행':
+                if option == '결재완료':
+                    documentsIngWait = []  # 진행, 결재대기
+                    documentsIngWill = []  # 진행, 결재예정
+                    documentsIngCheck = []  # 진행, 참조문서
+                if option == '결재대기':
+                    documentsIngDone = []  # 진행, 진행중
+                    documentsIngWill = []  # 진행, 결재예정
+                    documentsIngCheck = []  # 진행, 참조문서
+                if option == '결재예정':
+                    documentsIngDone = []  # 진행, 진행중
+                    documentsIngWait = []  # 진행, 결재대기
+                    documentsIngCheck = []  # 진행, 참조문서
+                if option == '참조문서':
+                    documentsIngDone = []  # 진행, 진행중
+                    documentsIngWait = []  # 진행, 결재대기
+                    documentsIngWill = []  # 진행, 결재예정
+            if category == '완료':
+                if option == '반려제외':
+                    documentsDoneReject = []
+                if option == '기안문서':
+                    documentsDoneApproval = []  # 완료, 결재문서
+                    documentsDoneCheck = []  # 완료, 참조문서
+                    documentsDoneReject = []  # 완료, 반려문서
+                    documentsDoneView = []  # 완료, 조회가능
+                if option == '결재문서':
+                    documentsDoneWrite = []  # 완료, 기안문서
+                    documentsDoneCheck = []  # 완료, 참조문서
+                    documentsDoneReject = []  # 완료, 반려문서
+                    documentsDoneView = []  # 완료, 조회가능
+                if option == '참조문서':
+                    documentsDoneWrite = []  # 완료, 기안문서
+                    documentsDoneApproval = []  # 완료, 결재문서
+                    documentsDoneReject = []  # 완료, 반려문서
+                    documentsDoneView = []  # 완료, 조회가능
+                if option == '반려문서':
+                    documentsDoneWrite = []  # 완료, 기안문서
+                    documentsDoneApproval = []  # 완료, 결재문서
+                    documentsDoneCheck = []  # 완료, 참조문서
+                    documentsDoneView = []  # 완료, 조회가능
+                if option == '조회문서':
+                    documentsDoneWrite = []  # 완료, 기안문서
+                    documentsDoneApproval = []  # 완료, 결재문서
+                    documentsDoneCheck = []  # 완료, 참조문서
+                    documentsDoneReject = []  # 완료, 반려문서
 
         # 관리자 조회
         if category == '관리자진행':
@@ -996,7 +1041,7 @@ def showdocument_asjson(request):
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
             displayStatus1=Value('진행', output_field=CharField()),
-            displayStatus2=Value('진행중', output_field=CharField())
+            displayStatus2=Value('결재완료', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
             'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
@@ -1092,7 +1137,7 @@ def showdocument_asjson(request):
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
             displayStatus1=Value('완료', output_field=CharField()),
-            displayStatus2=Value('조회가능', output_field=CharField())
+            displayStatus2=Value('조회문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
             'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
