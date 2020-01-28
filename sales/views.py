@@ -181,6 +181,9 @@ def copy_contract(request, contractId):
 
     # 단계 Opportunity로 변경
     contract.contractStep = 'Opportunity'
+    contract.empId = request.user.employee
+    contract.empName = request.user.employee.empName
+    contract.empDeptName = request.user.employee.empDeptName
 
     # 관리번호 자동생성
     yy = str(datetime.now().year)[2:]
@@ -188,9 +191,9 @@ def copy_contract(request, contractId):
     contract.contractCode = 'O-' + yy + mm + '-' + str(contract.contractId)
 
     # 생성로그, 수정로그
-    contract.writeEmpId = Employee.objects.get(empId=request.user.employee.empId)
+    contract.writeEmpId = request.user.employee
     contract.writeDatetime = datetime.now()
-    contract.editEmpId = Employee.objects.get(empId=request.user.employee.empId)
+    contract.editEmpId = request.user.employee
     contract.editDatetime = datetime.now()
 
     # 확인서 내용은 삭제
@@ -200,15 +203,12 @@ def copy_contract(request, contractId):
     contract.confirmComment = ''
     contract.save()
 
-    # 세부사항, 매출, 매입, 원가, 하도급 생성
+    # 매출 세부사항, 매출 빌링스케쥴, 매입 세부사항, 매입 빌링스케쥴, 원가 생성
     items = Contractitem.objects.filter(contractId=beforeContract)
     revenues = Revenue.objects.filter(contractId=beforeContract)
+    purchaseItems = Purchasecontractitem.objects.filter(contractId=beforeContract)
     purchases = Purchase.objects.filter(contractId=beforeContract)
     costs = Cost.objects.filter(contractId=beforeContract)
-    purchaseTypeAs = Purchasetypea.objects.filter(contractId=beforeContract)
-    purchaseTypeBs = Purchasetypeb.objects.filter(contractId=beforeContract)
-    purchaseTypeCs = Purchasetypec.objects.filter(contractId=beforeContract)
-    purchaseTypeDs = Purchasetyped.objects.filter(contractId=beforeContract)
 
     for item in items:
         item.pk = None
@@ -217,31 +217,27 @@ def copy_contract(request, contractId):
     for revenue in revenues:
         revenue.pk = None
         revenue.contractId = contract
+        revenue.empId = request.user.employee
+        revenue.billingDate = None
+        revenue.predictDepositDate = None
+        revenue.depositDate = None
+        revenue.revenueStatus = 'N'
         revenue.save()
+    for item in purchaseItems:
+        item.pk = None
+        item.contractId = contract
+        item.save()
     for purchase in purchases:
         purchase.pk = None
         purchase.contractId = contract
+        purchase.billingDate = None
+        purchase.predictWithdrawDate = None
+        purchase.withdrawDate = None
         purchase.save()
     for cost in costs:
         cost.pk = None
         cost.contractId = contract
         cost.save()
-    for purchaseTypeA in purchaseTypeAs:
-        purchaseTypeA.pk = None
-        purchaseTypeA.contractId = contract
-        purchaseTypeA.save()
-    for purchaseTypeB in purchaseTypeBs:
-        purchaseTypeB.pk = None
-        purchaseTypeB.contractId = contract
-        purchaseTypeB.save()
-    for purchaseTypeC in purchaseTypeCs:
-        purchaseTypeC.pk = None
-        purchaseTypeC.contractId = contract
-        purchaseTypeC.save()
-    for purchaseTypeD in purchaseTypeDs:
-        purchaseTypeD.pk = None
-        purchaseTypeD.contractId = contract
-        purchaseTypeD.save()
 
     return redirect('sales:modifycontract', contract.contractId)
 
@@ -312,7 +308,7 @@ def modify_contract(request, contractId):
         form = ContractForm(request.POST, request.FILES, instance=contractInstance)
 
         if form.is_valid():
-            # 계약금액, 이익금액이 변경 되었을 경우 메일 알림
+            # 계약금액, 이익금액이 변경 되었을 경우 로그기록
             afterSalePrice = form.clean()['salePrice']
             afterProfitPrice = form.clean()['profitPrice']
             afterProfitRatio = form.clean()['profitRatio']
@@ -581,6 +577,7 @@ def modify_contract(request, contractId):
 
         context = {
             'form': form,
+            'contractEmpId': contractInstance.empId.empId,
             'contractStep': contractInstance.contractStep,
             'items': items,
             'purchaseItems': purchaseItems,
@@ -594,9 +591,6 @@ def modify_contract(request, contractId):
             'orderPaper': orderPaper,
             'companyNames': companyNames,
             'empNames': empNames,
-
-
-
         }
         return render(request, 'sales/postcontract.html', context)
 
@@ -1546,16 +1540,16 @@ def transfer_contract(request):
 @csrf_exempt
 def empid_asjson(request):
     empId = request.POST['empId']
-    contracts = Contract.objects.filter(Q(empId=empId) & Q(transferContractId__isnull=True))
-    contracts = contracts.values()
+
+    revenues = Revenue.objects.filter(empId=empId, revenueStatus='N')
+    contractIds = revenues.values_list('contractId__contractId', flat=True).distinct()
+    contracts = Contract.objects.filter(contractId__in=contractIds).values()
 
     for contract in contracts:
-        revenues = Revenue.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
-        contract['revenue'] = list(revenues.values('revenueId', 'contractId', 'revenueCompany_id', 'empId__empName', 'predictBillingDate', 'billingDate', 'revenuePrice'))
-        # purchase = Purchase.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
-        # contract['purchase'] = list(purchase.values())
-        # cost = Cost.objects.filter(contractId=contract['contractId'])
-        # contract['cost'] = list(cost.values())
+        revenue = revenues.filter(contractId=contract['contractId']).order_by('predictBillingDate')
+        contract['revenue'] = list(revenue.values(
+            'revenueId', 'contractId', 'revenueCompany_id', 'empId__empName', 'predictBillingDate', 'billingDate', 'revenuePrice')
+        )
 
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -2066,7 +2060,7 @@ def contract_revenues(request):
     contractId = request.POST['contractId']
     revenues = Revenue.objects.filter(Q(contractId__contractId=contractId))
     revenues = revenues.values(
-        'billingTime', 'predictBillingDate', 'billingDate', 'predictDepositDate', 'depositDate',
+        'billingTime', 'empId__empName', 'predictBillingDate', 'billingDate', 'predictDepositDate', 'depositDate',
         'revenueCompany__companyNameKo', 'revenuePrice', 'revenueProfitPrice', 'comment', 'revenueId'
     )
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)

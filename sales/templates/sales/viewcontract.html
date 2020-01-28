@@ -575,19 +575,21 @@
                 <thead>
                 <tr class="bg-primary">
                   <td class="text-gray-100" width="5%">회차</td>
+                  <td class="text-gray-100" width="7%">담당자</td>
                   <td class="text-gray-100" width="10%">매출예정일</td>
                   <td class="text-gray-100" width="10%">매출일</td>
                   <td class="text-gray-100" width="10%">수금예정일</td>
                   <td class="text-gray-100" width="10%">수금일</td>
                   <td class="text-gray-100" width="15%">매출처</td>
-                  <td class="text-gray-100" width="12%">매출금액</td>
-                  <td class="text-gray-100" width="13%">이익금액</td>
+                  <td class="text-gray-100" width="10%">매출금액</td>
+                  <td class="text-gray-100" width="8%">이익금액</td>
                   <td class="text-gray-100" width="15%">비고</td>
                   <th class="d-none">revenueId</th>
                 </tr>
                 </thead>
                 <tfoot>
                 <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
                   <th style="padding: 8px 10px; text-align: right"></th>
                   <th style="padding: 8px 10px; text-align: right"></th>
                   <th style="padding: 8px 10px; text-align: right"></th>
@@ -1659,13 +1661,14 @@
                 <thead>
                 <tr class="bg-primary">
                   <td class="text-gray-100" width="5%">회차</td>
+                  <td class="text-gray-100" width="7%">담당자</td>
                   <td class="text-gray-100" width="10%">매출예정일</td>
                   <td class="text-gray-100" width="10%">매출일</td>
                   <td class="text-gray-100" width="10%">수금예정일</td>
                   <td class="text-gray-100" width="10%">수금일</td>
                   <td class="text-gray-100" width="15%">매출처</td>
-                  <td class="text-gray-100" width="12%">매출금액</td>
-                  <td class="text-gray-100" width="13%">이익금액</td>
+                  <td class="text-gray-100" width="9%">매출금액</td>
+                  <td class="text-gray-100" width="9%">이익금액</td>
                   <td class="text-gray-100" width="15%">비고</td>
                   <th class="d-none">revenueId</th>
                 </tr>
@@ -2264,6 +2267,7 @@
               },
               "columns": [
                   {data: 'billingTime'},
+                  {data: 'empId__empName'},
                   {data: 'predictBillingDate'},
                   {data: 'billingDate'},
                   {data: 'predictDepositDate'},
@@ -2281,13 +2285,14 @@
                   {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 9, className: "d-none"},
+                  {targets: 8, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 10, className: "d-none"},
               ],
               "deferRender": true,
-              "order": [[1, 'asc']],
+              "order": [[2, 'asc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -2307,20 +2312,20 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
-                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
-                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+                  $('td:eq(7)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(8)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(9)', nRow).text(aData.comment).css('color', '#e74a3b');
 
-                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                  $('td:eq(2)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
                   if (aData.billingDate != null) {
-                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                      $('td:eq(2)', nRow).css('color', '#b7b9cc');
                   }
-                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
-                  $('td:eq(3)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(4)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
                   if (aData.depositDate != null) {
-                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                      $('td:eq(4)', nRow).css('color', '#b7b9cc');
                   }
-                  $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
+                  $('td:eq(5)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
 
                   {% if revenueId %}
                       if (aData.revenueId === {{ revenueId }}) {
@@ -2332,16 +2337,16 @@
                   var api = this.api(), data;
 
                   var revenueResult = 0;
-                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+                  $(api.column(7).footer()).html(revenueResult.toLocaleString());
 
                   var profitResult = 0;
-                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(8, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(7).footer()).html(profitResult.toLocaleString());
+                  $(api.column(8).footer()).html(profitResult.toLocaleString());
               },
           });
 

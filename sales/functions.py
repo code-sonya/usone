@@ -479,7 +479,6 @@ def cal_emp_incentive(empId, table2, year, quarter):
 
 def empIncentive(year, empId):
     empDeptName = Employee.objects.get(empId=empId).empDeptName
-    print(empDeptName)
     incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
     goal = Goal.objects.get(Q(empDeptName=empDeptName) & Q(year=year))
 

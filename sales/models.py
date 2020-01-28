@@ -75,6 +75,7 @@ class Revenue(models.Model):
     depositDate = models.DateField(null=True, blank=True)
     billingTime = models.CharField(max_length=10, null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
+    revenueStatus = models.CharField(max_length=10, default='N')
 
     def __str__(self):
         return '{} {}'.format(self.billingTime, self.contractId.contractName)
