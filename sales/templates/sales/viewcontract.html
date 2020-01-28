@@ -122,9 +122,13 @@
               수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
               {% endif %}
             </div>&nbsp;&nbsp;
-            <a class="btn btn-success" href="#" role="button" id="historyLink" data-toggle="modal" data-target="#historyModal">
+            <!--<a class="btn btn-info" href="#" role="button" id="commentLink" data-toggle="modal" data-target="#commentModal">-->
+              <!--<i class="fas fa-comment-dots d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-comment-dots"></i> 의견</span>-->
+            <!--</a>-->
+            <a class="btn btn-success ml-1" href="#" role="button" id="historyLink" data-toggle="modal" data-target="#historyModal">
               <i class="fas fa-history d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-history"></i> 히스토리</span>
             </a>
+
           </div>
         </div>
 
@@ -1293,12 +1297,34 @@
     </div>
   </div>
 
+   <!-- comment modal -->
+  <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="commentModalLabel">의견</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body" style="padding: 2rem">
+        </div>
+        <div class="modal-footer">
+            <input class="form-control" name="comment" type="text">
+            <a class="btn btn-info small" href="#" onclick="comment_send()"><i class="fa fa-paper-plane"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- history modal -->
   <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
 
-        <div class="modal-header bg-info text-gray-100">
+        <div class="modal-header bg-success text-gray-100">
           <h5 class="modal-title" id="historyModalLabel">계약금액 & 이익금액 변경내역</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
@@ -1360,11 +1386,6 @@
               {% endfor %}
             </tbody>
           </table>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="post_purchase_order()">발주</a>
         </div>
       </div>
     </div>
