@@ -410,6 +410,9 @@
       $('.strategyTA').hide().last().after(etc_strategyAI);
       $('.strategyAI').hide().last().after(etc_serviceDB);
 
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
 
       $('#btn').click(function () {
           let a = this;
