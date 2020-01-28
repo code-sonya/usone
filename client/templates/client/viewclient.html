@@ -268,7 +268,7 @@
           <h6 class="m-0 h3 text-gray-700">지원 이력</h6>
         </div>
         <div class="card-body">
-          <table id="showclients" class="mb-0 text-gray-600" width="100%">
+          <table id="showservices" class="mb-0 text-gray-600" width="100%">
             <thead>
             <tr class="bg-light">
               <th>날짜</th>
@@ -430,10 +430,10 @@
 
           $("#showcontracts").on("click", 'tr', function () {
               const data = contractstable.row(this).data();
-              location.href = '/sales/viewcontract/' + data.contractId + '/'
+              window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId + '/'
           });
 
-          $('#showclients').dataTable({
+          $('#showservices').dataTable({
               "processing": true,
               "ajax": {
                   "processing": true,
@@ -441,14 +441,14 @@
                   "data": {
                       "companyName": "{{ company.companyName }}"
                   },
-                  "url": "{% url 'client:client_ajax_url' %}",
+                  "url": "{% url 'client:service_ajax_url' %}",
                   "dataSrc": ""
               },
               "columns": [
                   {data: "serviceDate"},
                   {data: "empName"},
                   {data: "empDeptName"},
-                  {data: "serviceType"},
+                  {data: "serviceType__typeName"},
                   {data: "serviceHour"},
                   {data: "serviceOverHour"},
                   {data: "serviceTitle"},
@@ -499,11 +499,11 @@
               },
           });
 
-          var table = $('#showclients').DataTable();
+          var table = $('#showservices').DataTable();
 
-          $("#showclients").on("click", 'tr', function () {
+          $("#showservices").on("click", 'tr', function () {
               const data = table.row(this).data();
-              location.href = '/service/viewservice/' + data.serviceId + '/'
+              window.open('about:blank').location.href = '/service/viewservice/' + data.serviceId + '/'
           });
       });
 

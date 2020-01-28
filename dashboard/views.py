@@ -876,100 +876,102 @@ def dashboard_location(request):
     ]
 
     # 20년 2월 1일 이전
-    Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    if day <= '2020-01-31':
+        Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
 
-    solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
-    db = dayreport_query2(empDeptName="DB지원팀", day=day)
-    sales1 = dayreport_query2(empDeptName="영업1팀", day=day)
-    sales2 = dayreport_query2(empDeptName="영업2팀", day=day)
-    infra = dayreport_query2(empDeptName="인프라서비스사업팀", day=day)
+        solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
+        db = dayreport_query2(empDeptName="DB지원팀", day=day)
+        sales1 = dayreport_query2(empDeptName="영업1팀", day=day)
+        sales2 = dayreport_query2(empDeptName="영업2팀", day=day)
+        infra = dayreport_query2(empDeptName="인프라서비스사업팀", day=day)
 
-    dept = request.user.employee.empDeptName
+        dept = request.user.employee.empDeptName
 
-    rows = []
-    if dept == '영업2팀':
-        rows.append([
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-        ])
-        rows.append([
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-        ])
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
-    elif dept == '솔루션지원팀':
-        rows.append([
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-        ])
-        rows.append([
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-        ])
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
-    elif dept == 'DB지원팀':
-        rows.append([
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-        ])
-        rows.append([
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-        ])
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
-    elif dept == '인프라서비스사업팀':
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
-        rows.append([
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-        ])
-        rows.append([
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-        ])
+        rows = []
+        if dept == '영업2팀':
+            rows.append([
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+            ])
+            rows.append([
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+        elif dept == '솔루션지원팀':
+            rows.append([
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+            rows.append([
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            ])
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+        elif dept == 'DB지원팀':
+            rows.append([
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+            ])
+            rows.append([
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            ])
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+        elif dept == '인프라서비스사업팀':
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+            rows.append([
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            ])
+            rows.append([
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+        else:
+            rows.append([
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            ])
+            rows.append([
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+
+    # 20년 2월 1일 부터
     else:
-        rows.append([
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-        ])
-        rows.append([
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-        ])
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
+        Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
 
-    # # 20년 2월 1일 부터
-    # Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    #
-    # sales = dayreport_query(empDeptName=["영업팀"], day=day)
-    # rnd = dayreport_query(empDeptName=["Technical Architecture팀", "AI Platform Labs"], day=day)
-    # db = dayreport_query(empDeptName=["DB Expert팀"], day=day)
-    # solution = dayreport_query(empDeptName=["솔루션팀"], day=day)
-    # rows = [
-    #     [
-    #         {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
-    #         {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
-    #     ],
-    #     [
-    #         {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-    #         {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-    #     ]
-    # ]
+        sales = dayreport_query(empDeptName=["영업팀"], day=day)
+        rnd = dayreport_query(empDeptName=["Technical Architecture팀", "AI Platform Labs"], day=day)
+        db = dayreport_query(empDeptName=["DB Expert팀"], day=day)
+        solution = dayreport_query(empDeptName=["솔루션팀"], day=day)
+        rows = [
+            [
+                {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+                {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+            ],
+            [
+                {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ]
+        ]
 
     context = {
         'today': today,

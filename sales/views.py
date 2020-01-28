@@ -730,7 +730,7 @@ def contracts_asjson(request):
     else:
         contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
 
-    if user.departmentName.deptLevel == 0 or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empDeptName == '경영지원본부' or user.user.is_staff or user.empPosition.positionRank < 1:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
@@ -812,7 +812,7 @@ def revenues_asjson(request):
         else:
             revenues = Revenue.objects.all()
 
-    if user.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empDeptName == '경영지원본부' or user.user.is_staff or user.empPosition.positionRank < 1:
         None
     elif user.empManager == 'Y':
         revenues = revenues.filter(contractId__empDeptName=user.empDeptName)
@@ -1196,7 +1196,7 @@ def purchases_asjson(request):
         else:
             purchase = Purchase.objects.all()
 
-    if user.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empDeptName == '경영지원본부' or user.user.is_staff or user.empPosition.positionRank < 1:
         None
     elif user.empManager == 'Y':
         purchase = purchase.filter(contractId__empDeptName=user.empDeptName)
@@ -1883,7 +1883,7 @@ def inadvance_asjson(request):
 
     contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
 
-    if user.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empDeptName == '경영지원본부' or user.user.is_staff or user.empPosition.positionRank < 1:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
