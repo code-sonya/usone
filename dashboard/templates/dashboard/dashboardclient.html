@@ -35,20 +35,20 @@
 
 <!-- 미수금/미접수 현황 개요 -->
 <div class="py-3 d-flex flex-row align-items-center justify-content-between">
-  <h3 class="mb-2 text-gray-800">고객사 분석 <span class="h6">
-    {% if startdate == '' and enddate == '' %}
-    [계약일 기준: 전체]
-    {% else %}
-    [계약일 기준:{{ startdate }} ~ {{ enddate }}]
-    {% endif %}
-  </span></h3>
+  <h3 class="text-gray-800">고객사 분석 </h3>
   <div class="dropdown">
     <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
       <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
     </a>
   </div>
 </div>
-
+<h6 class="mb-3 text-gray-800">
+  {% if startdate == '' and enddate == '' %}
+    [계약일 기준: 전체]
+    {% else %}
+    [계약일 기준:{{ startdate }} ~ {{ enddate }}]
+    {% endif %}
+</h6>
 <!-- 미수금 현황 개요 -->
 <div class="row">
   <div class="col-xl-3 col-md-6 mb-4">
@@ -156,7 +156,7 @@
 </div>
 <!-- 계약금액 마진금액 -->
 <div class="row">
-  <div class="col-6">
+  <div class="col-xl-6">
     <div class="card shadow mb-2">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 font-weight-bold text-secondary">계약금액/이익금액</h6>
@@ -169,7 +169,7 @@
       </div>
     </div>
   </div>
-  <div class="col-6">
+  <div class="col-xl-6">
     <div class="card shadow mb-2">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 font-weight-bold text-secondary">지원시간/초과근무시간</h6>
