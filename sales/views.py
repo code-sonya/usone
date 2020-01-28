@@ -2164,24 +2164,24 @@ def upload_profitloss(request):
 
 @login_required
 def save_profitloss(request):
-    todayYear = datetime.today().year
-    todayMonth = datetime.today().month
-
-    if request.POST["month"] == str(todayMonth):
+    date = request.POST["month"]
+    todayYear = int(date[:4])
+    todayMonth = int(date[6:])
+    if datetime.today().year == todayYear and datetime.today().month == todayMonth:
         today = datetime.today()
-
     else:
-        today = datetime(todayYear, int(request.POST["month"]), 1)
-        todayMonth = request.POST["month"]
-
+        today = datetime(todayYear, todayMonth, 1) + relativedelta(months=1) - relativedelta(days=1)
 
     profitloss_file = request.FILES["profitloss_file"]
     xl_file = pd.ExcelFile(profitloss_file)
     data = pd.read_excel(xl_file, index_col=0)
     data = data.fillna(0)
+    # select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
+    #               '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
+    #               '솔루션지원팀(5100)', 'DB지원팀(5300)']
     select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
-                  '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
-                  '솔루션지원팀(5100)', 'DB지원팀(5300)']
+                  '인프라_부사장(3000)', '영업팀(3100)', 'R&D전략_이사(4000)', 'TA팀(4100)', 'AI Platform Labs팀(4200)', 'Platform Biz_이사(5000)',
+                  '솔루션팀(5100)', 'DB Expert팀(5200)']
     index_lst = ["".join(i.split()) for i in data.index]
     if 'Ⅳ.판매비와관리비' not in index_lst or 'Ⅴ.영업이익' not in index_lst:
         return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅳ.판매비와관리비 , Ⅴ.영업이익이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
@@ -2203,8 +2203,12 @@ def save_profitloss(request):
             else:
                 group = sub
 
-            for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
-                                   '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀']):
+            # for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
+            #                        '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀']):
+            #     Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
+            #                            expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+            for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라_부사장', '영업팀',
+                                   'R&D전략_이사', 'TA팀', 'AI Platform Labs팀', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
                 Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
                                        expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
@@ -2216,15 +2220,14 @@ def save_profitloss(request):
 
 @login_required
 def save_cost(request):
-    todayYear = datetime.today().year
-    todayMonth = datetime.today().month
-
-    if request.POST["month"] == str(todayMonth):
+    date = request.POST["month"]
+    todayYear = int(date[:4])
+    todayMonth = int(date[6:])
+    if datetime.today().year == todayYear and datetime.today().month == todayMonth:
         today = datetime.today()
-
     else:
-        today = datetime(todayYear, int(request.POST["month"]), 1)
-        todayMonth = request.POST["month"]
+        today = datetime(todayYear, todayMonth, 1) + relativedelta(months=1) - relativedelta(days=1)
+
     cost_file = request.FILES["cost_file"]
     xl_file = pd.ExcelFile(cost_file)
     data = pd.read_excel(xl_file, index_col=0)
@@ -2233,7 +2236,8 @@ def save_cost(request):
     if 'Ⅲ.당기총공사비용' not in index_lst or 'Ⅰ.노무비' not in index_lst or 'Ⅱ.경비' not in index_lst:
         return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅰ.노무비, Ⅱ.경비, Ⅲ.당기총공사비용이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
 
-    select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
+    # select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
+    select_col = ['솔루션팀(5100)', 'DB Expert팀(5200)']
     Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
 
     main_cate = ''
@@ -2254,7 +2258,8 @@ def save_cost(request):
             break
         else:
             if main_cate != '':
-                for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
+                # for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
+                for i, v in enumerate(['솔루션팀', 'DB Expert팀']):
                     Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
                                            expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
@@ -2549,27 +2554,71 @@ def monthly_bill(request):
         sum_expenseDetail = expenseDetail.aggregate(sum_expenseDetail=Sum('expenseMoney__sum'), sum_expensePercent=Sum('expensePercent'))
 
 
-    # 3.월별 예상 손익 계산서 현황
-    # 인프라솔루션사업부문
-    businessAll, sum_businessAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스'], todayYear)
-    businessExecutives, sum_businessExecutives = cal_profitloss(['인프라솔루션_임원'], todayYear)
-    businessSales1, sum_businessSales1 = cal_profitloss(['영업1팀'], todayYear)
-    businessSales2, sum_businessSales2 = cal_profitloss(['영업2팀'], todayYear)
-    businessInfra, sum_businessInfra = cal_profitloss(['인프라서비스'], todayYear)
-    # 고객서비스부문
-    serviceAll, sum_serviceAll = cal_profitloss(['고객서비스_임원', '솔루션지원팀', 'DB지원팀'], todayYear)
-    serviceExecutives, sum_serviceExecutives = cal_profitloss(['고객서비스_임원'], todayYear)
-    serviceSolution, sum_serviceSolution = cal_profitloss(['솔루션지원팀'], todayYear)
-    serviceDB, sum_serviceDB = cal_profitloss(['DB지원팀'], todayYear)
-    # 경영지원
-    supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
-    # supportCEO = cal_profitloss(['대표이사'], todayYear)
-    # supportPresident = cal_profitloss(['사장'], todayYear)
-    # supportAuditingDirector = cal_profitloss(['감사'], todayYear)
-    # supportAdvisingDirector = cal_profitloss(['고문'], todayYear)
-    # supportManagement = cal_profitloss(['경영지원본부'], todayYear)
-    # 전체
-    unioneAll, sum_unioneAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+
+    if todayYear < 2020:
+        # 3.월별 예상 손익 계산서 현황
+        businessAll, sum_businessAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스'], todayYear)
+        businessExecutives, sum_businessExecutives = cal_profitloss(['인프라솔루션_임원'], todayYear)
+        businessSales1, sum_businessSales1 = cal_profitloss(['영업1팀'], todayYear)
+        businessSales2, sum_businessSales2 = cal_profitloss(['영업2팀'], todayYear)
+        businessInfra, sum_businessInfra = cal_profitloss(['인프라서비스'], todayYear)
+        # 고객서비스부문
+        serviceAll, sum_serviceAll = cal_profitloss(['고객서비스_임원', '솔루션지원팀', 'DB지원팀'], todayYear)
+        serviceExecutives, sum_serviceExecutives = cal_profitloss(['고객서비스_임원'], todayYear)
+        serviceSolution, sum_serviceSolution = cal_profitloss(['솔루션지원팀'], todayYear)
+        serviceDB, sum_serviceDB = cal_profitloss(['DB지원팀'], todayYear)
+        # 경영지원
+        supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+        # 전체
+        unioneAll, sum_unioneAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+
+        business = [{'name': '1) 인프라솔루션사업부문', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll, 'btn': 'Y'},
+                     {'name': '① 임원', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives, 'btn': 'N'},
+                     {'name': '② 영업1팀', 'class': 'businessSales1', 'expense': businessSales1, 'sum': sum_businessSales1, 'btn': 'N'},
+                     {'name': '③ 영업2팀', 'class': 'businessSales2',  'expense': businessSales2, 'sum': sum_businessSales2, 'btn': 'N'},
+                     {'name': '④ 인프라서비스사업팀', 'class': 'businessInfra',  'expense': businessInfra, 'sum': sum_businessInfra, 'btn': 'N'},
+                     {'name': '2) 고객서비스부문',  'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll, 'btn': 'Y'},
+                     {'name': '① 임원', 'class': 'serviceExecutives',  'expense': serviceExecutives, 'sum': sum_serviceExecutives, 'btn': 'N'},
+                     {'name': '② 솔루션지원팀', 'class': 'serviceSolution',  'expense': serviceSolution, 'sum': sum_serviceSolution, 'btn': 'N'},
+                     {'name': '③ DB지원팀', 'class': 'serviceDB',  'expense': serviceDB, 'sum': sum_serviceDB, 'btn': 'N'},
+                     {'name': '3) 경영지원', 'class': 'supportAll',  'expense': supportAll, 'sum': sum_supportAll, 'btn': 'N'},
+                     {'name': '', 'class': 'unioneAll', 'sum': sum_unioneAll, 'btn': 'N'}
+                     ]
+    else:
+        # 3.월별 예상 손익 계산서 현황
+        # 인프라솔루션사업부
+        businessAll, sum_businessAll = cal_profitloss(['인프라_부사장', '영업팀'], todayYear)
+        businessExecutives, sum_businessExecutives = cal_profitloss(['인프라_부사장'], todayYear)
+        businessSales1, sum_businessSales1 = cal_profitloss(['영업팀'], todayYear)
+        # R&D 전략사업부
+        strategyAll, sum_strategyAll = cal_profitloss(['R&D전략_이사', 'TA팀', 'AI Platform Labs팀'], todayYear)
+        strategyExecutives, sum_strategyExecutives = cal_profitloss(['R&D전략_이사'], todayYear)
+        strategyTA, sum_strategyTA = cal_profitloss(['TA팀'], todayYear)
+        strategyAI, sum_strategyAI = cal_profitloss(['AI Platform Labs팀'], todayYear)
+        # Platform Biz
+        serviceAll, sum_serviceAll = cal_profitloss(['Platform Biz_이사', '솔루션팀', 'DB Expert팀'], todayYear)
+        serviceExecutives, sum_serviceExecutives = cal_profitloss(['Platform Biz_이사'], todayYear)
+        serviceSolution, sum_serviceSolution = cal_profitloss(['솔루션팀'], todayYear)
+        serviceDB, sum_serviceDB = cal_profitloss(['DB Expert팀'], todayYear)
+        # 경영지원
+        supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+        # 전체
+        unioneAll, sum_unioneAll = cal_profitloss(['인프라_부사장', '영업팀', 'R&D전략_이사', 'TA팀', 'AI Platform Labs팀', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+
+        business = [{'name': '1) 인프라솔루션사업부', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll, 'btn': 'Y'},
+                     {'name': '① 인프라_부사장', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives, 'btn': 'N'},
+                     {'name': '② 영업팀', 'class': 'businessSales1', 'expense': businessSales1, 'sum': sum_businessSales1, 'btn': 'N'},
+                     {'name': '2) R&D 전략사업부', 'class': 'strategyAll', 'expense': strategyAll, 'sum': sum_strategyAll, 'btn': 'Y'},
+                     {'name': '① R&D전략_이사', 'class': 'strategyExecutives', 'sum': sum_strategyExecutives, 'btn': 'N'},
+                     {'name': '② TA팀', 'class': 'strategyTA', 'expense': strategyTA, 'sum': sum_strategyTA, 'btn': 'N'},
+                     {'name': '③ AI Platform Labs팀', 'class': 'strategyAI', 'expense': strategyAI, 'sum': sum_strategyAI, 'btn': 'N'},
+                     {'name': '3) Platform Biz', 'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll, 'btn': 'Y'},
+                     {'name': '① Platform Biz_이사', 'class': 'serviceExecutives', 'expense': serviceExecutives, 'sum': sum_serviceExecutives, 'btn': 'N'},
+                     {'name': '② 솔루션팀', 'class': 'serviceSolution', 'expense': serviceSolution, 'sum': sum_serviceSolution, 'btn': 'N'},
+                     {'name': '③ DB Expert팀', 'class': 'serviceDB', 'expense': serviceDB, 'sum': sum_serviceDB, 'btn': 'N'},
+                     {'name': '4) 경영지원', 'class': 'supportAll', 'expense': supportAll, 'sum': sum_supportAll, 'btn': 'N'},
+                     {'name': '', 'class': 'unioneAll', 'sum': sum_unioneAll, 'btn': 'N'}
+                    ]
 
     context = {
         'todayYear': todayYear,
@@ -2582,18 +2631,7 @@ def monthly_bill(request):
         'expenseDate': expenseDate,
         'todayMonth_table': todayMonth_table,
         'month_table': month_table,
-        'business': [{'name': '1) 인프라솔루션사업부문', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll, 'btn': 'Y'},
-                     {'name': '① 임원', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives, 'btn':'N'},
-                     {'name': '② 영업1팀', 'class': 'businessSales1', 'expense': businessSales1, 'sum': sum_businessSales1, 'btn':'N'},
-                     {'name': '③ 영업2팀', 'class': 'businessSales2',  'expense': businessSales2, 'sum': sum_businessSales2, 'btn':'N'},
-                     {'name': '④ 인프라서비스사업팀', 'class': 'businessInfra',  'expense': businessInfra, 'sum': sum_businessInfra, 'btn':'N'},
-                     {'name': '2) 고객서비스부문',  'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll, 'btn': 'Y'},
-                     {'name': '① 임원', 'class': 'serviceExecutives',  'expense': serviceExecutives, 'sum': sum_serviceExecutives, 'btn':'N'},
-                     {'name': '② 솔루션지원팀', 'class': 'serviceSolution',  'expense': serviceSolution, 'sum': sum_serviceSolution, 'btn':'N'},
-                     {'name': '③ DB지원팀', 'class': 'serviceDB',  'expense': serviceDB, 'sum': sum_serviceDB, 'btn':'N'},
-                     {'name': '3) 경영지원', 'class': 'supportAll',  'expense': supportAll, 'sum': sum_supportAll, 'btn': 'N'},
-                     {'name': '', 'class': 'unioneAll', 'sum': sum_unioneAll, 'btn': 'N'}
-                     ],
+        'business': business,
     }
     return render(request, 'sales/monthlybill.html', context)
 

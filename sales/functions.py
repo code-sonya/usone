@@ -763,15 +763,15 @@ def cal_over_gp(revenue):
 
 def cal_monthlybill(todayYear):
     # 월별 매출액
-    revenue_month = {'name': '매출액','sum': 0}
+    revenue_month = {'name': '매출액', 'sum': 0}
     # 월별 매출원가
-    cost_month = {'name': '매출원가','sum': 0}
+    cost_month = {'name': '매출원가', 'sum': 0}
     # 월별 GP
-    gp_month = {'name': 'GP','sum': 0}
+    gp_month = {'name': 'GP', 'sum': 0}
     # 월별 판관비
-    expense_month = {'name': '판관비','sum': 0}
+    expense_month = {'name': '판관비', 'sum': 0}
     # 월별 영업 이익
-    profit_month = {'name': '영업이익','sum': 0}
+    profit_month = {'name': '영업이익', 'sum': 0}
     table = []
     for todayMonth in range(1, 13):
         if todayMonth != 12:
