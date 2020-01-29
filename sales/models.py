@@ -374,3 +374,11 @@ class Purchasecontractitem(models.Model):
 
     def __str__(self):
         return '{} : {}'.format(self.contractId.contractName, self.itemName)
+
+
+class Contractcomment(models.Model):
+    commentId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    author = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    comment = models.CharField(max_length=255)
+    created = models.DateTimeField()

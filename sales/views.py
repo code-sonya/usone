@@ -23,7 +23,7 @@ from logs.models import OrderLog, ContractLog
 from .forms import ContractForm, GoalForm, PurchaseorderformForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification, Contractcomment
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, summary, detailPurchase, billing_schedule, mail_purchaseorder
 
@@ -3762,4 +3762,22 @@ def save_purchasecategory(request):
         Classification.objects.create(mainCategory=mainCategory, subCategory=subCategory)
         result = 'Y'
     structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def comment_asjson(request):
+    contractId = request.POST['contractId']
+    # 의견
+    comments = Contractcomment.objects.filter(Q(contractId=contractId)).order_by('created')
+    comments = comments.values().annotate(
+        viewer=Case(
+            When(author=request.user.employee.empId, then=Value("Y")),
+            default=Value("N"),
+            output_field=CharField()
+        )
+    )
+    print(comments)
+    structure = json.dumps(list(comments), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
