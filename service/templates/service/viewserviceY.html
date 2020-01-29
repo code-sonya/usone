@@ -69,7 +69,8 @@
     <div id="serviceSummary" class="col-xl-8">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 text-gray-800"> No. {{ service.serviceId }} </h6>
+          <h3 class="m-0 text-gray-800 d-none d-xl-block"> No. {{ service.serviceId }} </h3>
+          <h6 class="m-0 text-gray-800 d-xl-none"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
             {% if service.empId.empId == user.employee.empId %}
               <!-- 첨부 파일 업로드 및 다운로드 기능 완료 후 오픈
@@ -167,6 +168,12 @@
               <a href="#" class="btn btn-primary btn-icon-split" onclick="location.href='/noticeboard/viewboard/{{ board.boardId }}/'">
                 <span class="icon text-white-50"><i class="fas fa-link"></i></span>
                 <span class="text p-2">게시글 보기</span>
+              </a>
+            {% endif %}
+            {% if service.empId.empId == user.employee.empId %}
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+                <span class="icon text-white"> <i class="fas fa-edit"></i> </span>
+                <span class="text p-2"> 수정 </span>
               </a>
             {% endif %}
           </div>
@@ -303,6 +310,12 @@
           }
       }
 
+      function btn_modify(){
+          if (confirm("일정을 수정 하시겠습니까?") === true) {
+              location.href = '/service/modifyservice/' + {{ service.serviceId }} + '/';
+          }
+      }
+
       function file_names(id) {
           let files = $('#' + id).get(0).files;
           let filesTbody = $('#filesTbody');
@@ -356,7 +369,7 @@
                   uploadForm.submit();
               }
 
-          }else{
+          } else{
               alert("계약명이 있어야 검수확인서 업로드가 가능합니다.");
           }
 
