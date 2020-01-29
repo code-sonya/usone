@@ -42,7 +42,10 @@ def board_asjson(request):
     if boardTitle:
         boards = boards.filter(Q(boardTitle__icontains=boardTitle) | Q(boardDetails__icontains=boardTitle))
 
-    boards = boards.values('boardWriteDatetime', 'serviceId__serviceType', 'boardWriter__empName', 'serviceId__companyName', 'boardTitle', 'boardDetails', 'boardId')
+    boards = boards.values(
+        'boardWriteDatetime', 'serviceId__serviceType__typeName', 'boardWriter__empName',
+        'serviceId__companyName', 'boardTitle', 'boardDetails', 'boardId'
+    )
     structure = json.dumps(list(boards), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 

@@ -40,23 +40,10 @@
   <!-- Sidebar -->
   <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
-
     <!-- Sidebar - Brand -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center m-2" href="#" onclick="btn_dayreport('/service/dayreport/')">
       <div class="sidebar-brand-text mx-4"><img src="/media/logo/usails.png" width="120px"></div>
     </a>
-
-    <!--{% if user.employee.empId == 2 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}-->
-      <!--<li class="nav-item">-->
-        <!--<a class="nav-link" href="/sales/dailyreport/">-->
-          <!--<i class="fas fa-fw fa-newspaper text-white"></i>-->
-          <!--<span class="text-white">데일리리포트</span></a>-->
-        <!--<a class="nav-link" href="/sales/monthlybill/">-->
-            <!--<i class="fas fa-fw fa-money-bill text-white"></i>-->
-            <!--<span class="text-white">손익계산서</span></a>-->
-      <!--</li>-->
-      <!--&lt;!&ndash; Divider &ndash;&gt;-->
-    <!--{% endif %}-->
       <!-- Nav Item - Dashboard -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDashboard" aria-expanded="true" aria-controls="collapseUtilities">
@@ -65,11 +52,13 @@
         </a>
         <div id="collapseDashboard" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
-            {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+            {% if user.employee.empPosition.positionName == '임원' or user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
             <h6 class="collapse-header">데이터분석</h6>
+              {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
             <a class="collapse-item" href="/sales/dailyreport/">데일리리포트</a>
             <a class="collapse-item" href="/sales/monthlybill/">손익계산서</a>
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
+              {% endif %}
             <a class="collapse-item" href="/dashboard/quarter/">연간 예상 영업 실적 </a>
             <a class="collapse-item" href="/dashboard/goal/">영업 목표 분석</a>
             <a class="collapse-item" href="/dashboard/client/">고객사 분석</a>
@@ -100,7 +89,7 @@
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/showpurchaseinadvance/">선매입관리</a>
             <a class="collapse-item" href="/sales/showrevenueinadvance/">미접수관리</a>
-            {% if user.employee.empDeptName == '경영지원본부' or user.is_staff  or  user.employee.empPosition.positionName == '임원' %}
+            {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empPosition.positionName == '임원' %}
               <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
               <a class="collapse-item" href="/sales/checkservice/">계약별투입원가</a>
               <a class="collapse-item" href="/logs/contractlog/">계약금액변경이력</a>
@@ -110,12 +99,12 @@
         </div>
       </li>
     {% endif %}
-    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
-      <!-- Nav Item - 영업관리 -->
+    {% if user.employee.empPosition.positionName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
+      <!-- Nav Item - 발주서관리 -->
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFiles" aria-expanded="true" aria-controls="collapseFiles">
           <i class="fas fa-fw fa-folder text-white"></i>
-          <span class="text-white">문서관리</span>
+          <span class="text-white">발주서관리</span>
         </a>
         <div id="collapseFiles" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
@@ -129,8 +118,8 @@
         </div>
       </li>
     {% endif %}
-    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or '영업' in user.employee.empDeptName %}
 
+    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or '영업' in user.employee.empDeptName %}
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInsentive" aria-expanded="true" aria-controls="collapseUtilities">
           <i class="fas fa-fw fa-won-sign text-white"></i>
@@ -219,7 +208,7 @@
           <a class="collapse-item" href="/extrapay/showfuel/">유류비신청</a>
           <h6 class="collapse-header">유류대관리</h6>
           <a class="collapse-item" href="/extrapay/showoils/">유류대현황</a>
-          {% if user.employee.empDeptName == '경영지원본부' %}
+          {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
           <a class="collapse-item" href="/extrapay/postcar/">차종관리</a>
           {% endif %}
         </div>
@@ -228,13 +217,6 @@
 
     <!-- Divider -->
     <hr class="sidebar-divider">
-
-    <!--&lt;!&ndash; Nav Item - Daily Report &ndash;&gt;-->
-    <!--<li class="nav-item">-->
-      <!--<a class="nav-link" href="#" onclick="btn_dayreport('/service/dayreport/')">-->
-        <!--<i class="fas fa-fw fa-pencil-ruler text-white"></i>-->
-        <!--<span class="text-white">일일업무</span></a>-->
-    <!--</li>-->
 
     <!-- Nav Item - Daily Report -->
     <li class="nav-item">
@@ -283,25 +265,20 @@
       </div>
     </li>
 
-    <!--&lt;!&ndash; Nav Item - Calendar &ndash;&gt;-->
-    <!--<li class="nav-item">-->
-      <!--<a class="nav-link" href="#" onclick="btn_dayreport('/scheduler/scheduler/')">-->
-        <!--<i class="fas fa-fw fa-calendar-alt text-white"></i>-->
-        <!--<span class="text-white">캘린더</span></a>-->
-    <!--</li>-->
-
     <!-- Nav Item - Board -->
     <li class="nav-item">
       <a class="nav-link" href="/noticeboard/showboards">
         <i class="fas fa-fw fa-clipboard text-white"></i>
-        <span class="text-white">게시판</span></a>
+        <span class="text-white">게시판</span>
+      </a>
     </li>
 
     <!-- Nav Item - Client -->
     <li class="nav-item">
       <a class="nav-link" href="/client/">
         <i class="fas fa-fw fa-building text-white"></i>
-        <span class="text-white">고객사</span></a>
+        <span class="text-white">고객사</span>
+      </a>
     </li>
 
     <!-- Divider -->

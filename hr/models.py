@@ -26,7 +26,7 @@ class Employee(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     empCode = models.CharField(max_length=20, null=True, blank=True)
     empName = models.CharField(max_length=10)
-    empPosition = models.ForeignKey(Position, on_delete=models.PROTECT)
+    empPosition = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True)
     empManager = models.CharField(max_length=1, choices=managerChoices, default='N')
     empPhone = models.CharField(max_length=20)
     empEmail = models.EmailField(max_length=254)

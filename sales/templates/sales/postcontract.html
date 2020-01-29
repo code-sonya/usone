@@ -2169,17 +2169,21 @@
               {% for revenue in revenues %}
                   t2.row.add([
                       '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
-                      '<input class="input-form" type="month" max="9999-12" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m" }}">',
-                      '<input class="input-form" type="date" max="9999-12-31" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}" ' +
-                      'onchange="changeBillingDates(\'revenue2' + revenueCounter + '\',\'revenue1' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
+                      '<input class="input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" type="month" max="9999-12" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m" }}">',
+                      '<input class="input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" type="date" max="9999-12-31" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}" ' +
+                          'onchange="changeBillingDates(\'revenue2' + revenueCounter + '\',\'revenue1' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
                       '<input class="input-form" type="date" max="9999-12-31" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
                       '<input class="input-form" type="date" max="9999-12-31" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}" ' +
-                      'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}" onkeydown="magicsearchtab(revenue5' + revenueCounter + ')">',
-                      '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
-                      '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
+                          'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
+                      '<input class="magicsearch input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}" onkeydown="magicsearchtab(revenue5' + revenueCounter + ')">',
+                      '<input class="money input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
+                      '<input class="money input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
                       '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.comment }}">',
-                      '<i class="fas fa-times-circle" name="remove">'
+                      {% if revenue.revenueStatus == 'Y' %}
+                          '<span class="small">{{ revenue.empId.empName }}</span>'
+                      {% else %}
+                          '<i class="fas fa-times-circle" name="remove">'
+                      {% endif %}
                   ]);
                   revenueCounter++;
               {% endfor %}
@@ -2203,6 +2207,9 @@
               $('input[name=revenueProfitPrice]').on("change keyup paste input", function() {
                   totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
               });
+              $('.notChange').attr('readonly', '');
+              $('.notChange').css("pointer-events", "none");
+              $('.notChange').css("background-color", '#eaecf4');
           {% else %}
               $('#addRevenue').click();
           {% endif %}
