@@ -1298,8 +1298,8 @@
               alert("이익금액을 입력해주세요.");
               return false;
           }
-          if (document.getElementById("contractDate").value === '') {
-              alert("계약일을 입력해주세요.");
+          if (!isDay(document.getElementById("contractDate").value)) {
+              alert("유효한 계약일을 입력해주세요.\n(정확한 입력을 위해 달력에서 선택해 주세요.)");
               return false;
           }
            if (document.getElementById("modifyContractPaper").value === '') {
@@ -1737,7 +1737,6 @@
               endCompanyNames.trigger('clear');
           }
       }
-
 
       $(document).ready(function () {
           // 빌링스케줄 생성(매출) 고객사명 자동완성

@@ -212,7 +212,6 @@
         </div>
 
         <div class="card-body">
-
           <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="text-dark mb-3"><b>
               <span id="processDown" onclick="downClick('process', 'processUp', 'processDown')">▼</span>
@@ -2421,6 +2420,53 @@
       }
 
       $(document).ready(function () {
+
+          // 체크박스 전체선택
+          $('.ckbxall').click(function () {
+              $('.ckbx').prop('checked', this.checked);
+          });
+          $('.ckbx').click(function () {
+              $('.ckbxall').prop('checked', false);
+          });
+          $('.ckbxall2').click(function () {
+              $('.ckbx2.ckbx-checked').prop('checked', this.checked);
+          });
+          $('.ckbx2').click(function () {
+              $('.ckbxall2').prop('checked', false);
+          });
+
+          // 매입견적서 업로드 화면
+          const purchaseCompany = $('#purchaseCompany');
+          const purchaseFiles = $('#purchaseFiles');
+          let option;
+          let input_file;
+          let companyCount;
+          let strCount;
+
+          companyCount = 0;
+          {% for c in purchaseCompany %}
+              strCount = companyCount.toString();
+              option = '<option value="' + strCount + '">' + '{{ c }}' + '</option>';
+              purchaseCompany.append(option);
+              companyCount += 1;
+          {% endfor %}
+
+          companyCount = 0;
+          {% for c in purchaseCompany %}
+              strCount = companyCount.toString();
+              {% if forloop.first %}
+                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split">';
+              {% else %}
+                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split d-none">';
+              {% endif %}
+              input_file += '<span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>';
+              input_file += '<input id="purchaseFiles' + strCount + '" name="purchaseFiles' + strCount + '" ' +
+                  'type="file" multiple="multiple" class="d-none" onchange="purchase_file_names(this.id)">';
+              input_file += '</label>';
+              purchaseFiles.append(input_file);
+              companyCount += 1;
+          {% endfor %}
+
           $('#revenues').dataTable({
               "autoWidth": true,
               "processing": true,
@@ -2822,7 +2868,6 @@
                       "next": "→",
                       "previous": "←"
                   },
-
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
@@ -3102,53 +3147,6 @@
                   $(api.column(7).footer()).html(overSalaryresult.toLocaleString());
               },
           });
-
-          // 체크박스 전체선택
-          $('.ckbxall').click(function () {
-              $('.ckbx').prop('checked', this.checked);
-          });
-          $('.ckbx').click(function () {
-              $('.ckbxall').prop('checked', false);
-          });
-          $('.ckbxall2').click(function () {
-              $('.ckbx2.ckbx-checked').prop('checked', this.checked);
-          });
-          $('.ckbx2').click(function () {
-              $('.ckbxall2').prop('checked', false);
-          });
-
-          // 매입견적서 업로드 화면
-          const purchaseCompany = $('#purchaseCompany');
-          const purchaseFiles = $('#purchaseFiles');
-          let option;
-          let input_file;
-          let companyCount;
-          let strCount;
-
-          companyCount = 0;
-          {% for c in purchaseCompany %}
-              strCount = companyCount.toString();
-              option = '<option value="' + strCount + '">' + '{{ c }}' + '</option>';
-              purchaseCompany.append(option);
-              companyCount += 1;
-          {% endfor %}
-
-          companyCount = 0;
-          {% for c in purchaseCompany %}
-              strCount = companyCount.toString();
-              {% if forloop.first %}
-                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split">';
-              {% else %}
-                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split d-none">';
-              {% endif %}
-              input_file += '<span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>';
-              input_file += '<input id="purchaseFiles' + strCount + '" name="purchaseFiles' + strCount + '" ' +
-                  'type="file" multiple="multiple" class="d-none" onchange="purchase_file_names(this.id)">';
-              input_file += '</label>';
-              purchaseFiles.append(input_file);
-              companyCount += 1;
-          {% endfor %}
-
       });
 
 
