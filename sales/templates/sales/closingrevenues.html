@@ -52,7 +52,7 @@
         </div>
         <div class="card-body">
           {% csrf_token %}
-          <form id="transfercontractForm" action="/sales/saveclosingrevenues/">
+          <form id="closingRevenuesForm" action="/sales/saveclosingrevenues/">
             <div class="row mb-1">
               <div class="col-xl-3">
                 <span style="font-size: 20px" class="text-secondary">결산일자(매출예정일기준): </span>
@@ -70,14 +70,14 @@
             <br>
             <div id="contract" class="d-none">
               <h5 class="text-dark mb-3">
-                <b><span>▼</span>미이관 계약</b>
+                <b><span>▼</span>미결산 매출</b>
               </h5>
               <table id="beforetransfer" class="pc-table">
               </table>
               <div class="text-center">
                 <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
                   <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-                  <span class="text"> 계약 이관 확인 </span>
+                  <span class="text"> 매출 결산 확인 </span>
                 </a>
               </div>
             </div>
@@ -265,12 +265,6 @@
       }
 
       function btn_save() {
-          console.log(document.getElementById("afterempName").value);
-          if (document.getElementById("afterempName").value === '' || document.getElementById("afterempName").value == '전체') {
-              alert("변경할 영업 담당자를 선택해 주세요.");
-              return false;
-          }
-
           var data;
           $('input:checkbox[name=revenuecheck]').each(function () {
               if ($(this).is(':checked'))
@@ -283,8 +277,8 @@
               alert("선택된 매출이 없습니다.");
               return false;
           }else{
-              if (confirm("계약을 이관 하시겠습니까?") === true) {
-                document.getElementById("transfercontractForm").submit();
+              if (confirm("선택하신 매출을 마감하시겠습니까?\n 마감된 매출은 매출처, 매출금액, 담당자, 매출예정일, 매출일 수정이 불가능 합니다.") === true) {
+                document.getElementById("closingRevenuesForm").submit();
               }
           }
 

@@ -3812,3 +3812,16 @@ def save_comment(request):
 def closing_revenues(request):
     context = {}
     return render(request, 'sales/closingrevenues.html', context)
+
+
+@login_required
+@csrf_exempt
+def save_closingrevenues(request):
+    closingrevenues = request.GET.getlist('revenuecheck')
+    for revenueId in closingrevenues:
+        # 매출 상태 변경 : Y-마감
+        revenue = Revenue.objects.get(revenueId=revenueId)
+        revenue.revenueStatus = 'Y'
+        revenue.save()
+
+    return redirect('sales:closingrevenues')
