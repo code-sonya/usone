@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, Contractfile,\
+from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, IncentiveDept, Contractfile,\
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchasecategory,\
     Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Classification, Purchasecontractitem, Contractcomment
 
@@ -86,6 +86,13 @@ class IncentiveAdmin(admin.ModelAdmin):
     list_display = ('empId', 'year', 'quarter')
     list_filter = ('empId', 'year', 'quarter')
     list_display_links = ('empId', 'year', 'quarter')
+
+
+@admin.register(IncentiveDept)
+class IncentiveDeptAdmin(admin.ModelAdmin):
+    list_display = ('incentiveDeptId', 'year', 'empId', 'deptName')
+    list_filter = ('year',)
+    list_display_links = ('incentiveDeptId', 'year', 'empId', 'deptName')
 
 
 @admin.register(Contractfile)

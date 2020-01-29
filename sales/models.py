@@ -219,6 +219,16 @@ class Incentive(models.Model):
         return str(self.empId.empName) + str(self.year) + '년 ' + str(self.quarter) + '분기 인센티브'
 
 
+class IncentiveDept(models.Model):
+    incentiveDeptId = models.AutoField(primary_key=True)
+    year = models.IntegerField()
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    deptName = models.CharField(max_length=100, default='')
+
+    def __str__(self):
+        return str(self.year) + '년 ' + str(self.empId.empName) + '님의 부서는 ' + self.deptName
+
+
 class Contractfile(models.Model):
     fileId = models.AutoField(primary_key=True)
     contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)

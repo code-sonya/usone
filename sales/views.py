@@ -23,7 +23,8 @@ from logs.models import OrderLog, ContractLog
 from .forms import ContractForm, GoalForm, PurchaseorderformForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification, Contractcomment
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification, Contractcomment,\
+    IncentiveDept
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, summary, detailPurchase, billing_schedule, mail_purchaseorder
 
@@ -2120,35 +2121,73 @@ def contract_services(request):
 @csrf_exempt
 def view_incentive(request, year, empId):
     year = str(year)
-    empName = Employee.objects.get(empId=empId).empName
-    empDeptName = Employee.objects.get(empId=empId).empDeptName
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
-    if not incentive:
-        msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
-    goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
-    if not goal:
-        msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
-    table1, table2, table3 = empIncentive(year, empId)
-    table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(year, empDeptName, table2, goal.first(), empName, incentive, empId)
+    if int(year) <= 2019:
+        # 2019년 정책 (팀별 목표, 팀별 매출)
+        empName = Employee.objects.get(empId=empId).empName
+        empDeptName = IncentiveDept.objects.get(empId=empId, year=year).deptName
+        incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+        if not incentive:
+            msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
+        if not goal:
+            msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        table1, table2, table3 = empIncentive(year, empId)
+        table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(
+            year, empDeptName, table2, goal.first(), empName, incentive, empId
+        )
 
-    context = {
-        'empId': empId,
-        'empName': empName,
-        'table1': table1,
-        'table2': table2,
-        'table3': table3,
-        'table4': table4,
-        'sumachieveIncentive': sumachieveIncentive,
-        'sumachieveAward': sumachieveAward,
-        'GPachieve': GPachieve,
-        'newCount': newCount,
-        'overGp': overGp,
-        'incentiveRevenues': incentiveRevenues,
-        'year': year,
-    }
-    return render(request, 'sales/viewincentive.html', context)
+        context = {
+            'empId': empId,
+            'empName': empName,
+            'table1': table1,
+            'table2': table2,
+            'table3': table3,
+            'table4': table4,
+            'sumachieveIncentive': sumachieveIncentive,
+            'sumachieveAward': sumachieveAward,
+            'GPachieve': GPachieve,
+            'newCount': newCount,
+            'overGp': overGp,
+            'incentiveRevenues': incentiveRevenues,
+            'year': year,
+        }
+        return render(request, 'sales/viewincentive.html', context)
+
+    else:
+        # 2020년 정책
+        empName = Employee.objects.get(empId=empId).empName
+        empDeptName = Employee.objects.get(empId=empId).empDeptName
+        incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+        if not incentive:
+            msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
+        if not goal:
+            msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        table1, table2, table3 = empIncentive(year, empId)
+        table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(
+            year, empDeptName, table2, goal.first(), empName, incentive, empId
+        )
+
+        context = {
+            'empId': empId,
+            'empName': empName,
+            'table1': table1,
+            'table2': table2,
+            'table3': table3,
+            'table4': table4,
+            'sumachieveIncentive': sumachieveIncentive,
+            'sumachieveAward': sumachieveAward,
+            'GPachieve': GPachieve,
+            'newCount': newCount,
+            'overGp': overGp,
+            'incentiveRevenues': incentiveRevenues,
+            'year': year,
+        }
+        return render(request, 'sales/viewincentive.html', context)
 
 
 @login_required
@@ -2903,45 +2942,93 @@ def view_salaryall_pdf(request, year):
 
 def view_incentive_pdf(request, year, empId):
     year = str(year)
-    empName = Employee.objects.get(empId=empId).empName
-    empDeptName = Employee.objects.get(empId=empId).empDeptName
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
-    if not incentive:
-        msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
-    goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
-    if not goal:
-        msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
-    table1, table2, table3 = empIncentive(year, empId)
-    table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues \
-        = award(year, empDeptName, table2, goal.first(), empName, incentive, empId)
-    context = {
-        'empId': empId,
-        'empName': empName,
-        'table1': table1,
-        'table2': table2,
-        'table3': table3,
-        'table4': table4,
-        'sumachieveIncentive': sumachieveIncentive,
-        'sumachieveAward': sumachieveAward,
-        'GPachieve': GPachieve,
-        'newCount': newCount,
-        'overGp': overGp,
-        'incentiveRevenues': incentiveRevenues,
-        'year': year,
-    }
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="{}님인센티브현황.pdf"'.format(empId)
+    if int(year) <= 2019:
+        # 2019년 정책 (팀별 목표, 팀별 매출)
+        empName = Employee.objects.get(empId=empId).empName
+        empDeptName = IncentiveDept.objects.get(empId=empId, year=year).deptName
+        incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+        if not incentive:
+            msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
+        if not goal:
+            msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        table1, table2, table3 = empIncentive(year, empId)
+        table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(
+            year, empDeptName, table2, goal.first(), empName, incentive, empId
+        )
 
-    template = get_template('sales/viewincentivepdf.html')
-    html = template.render(context, request)
-    # create a pdf
-    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
-    # if error then show some funy view
-    if pisaStatus.err:
-        return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    return response
+        context = {
+            'empId': empId,
+            'empName': empName,
+            'table1': table1,
+            'table2': table2,
+            'table3': table3,
+            'table4': table4,
+            'sumachieveIncentive': sumachieveIncentive,
+            'sumachieveAward': sumachieveAward,
+            'GPachieve': GPachieve,
+            'newCount': newCount,
+            'overGp': overGp,
+            'incentiveRevenues': incentiveRevenues,
+            'year': year,
+        }
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="{}님인센티브현황.pdf"'.format(empId)
+
+        template = get_template('sales/viewincentivepdf.html')
+        html = template.render(context, request)
+        # create a pdf
+        pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+        # if error then show some funy view
+        if pisaStatus.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+    else:
+        # 2020년 정책
+        empName = Employee.objects.get(empId=empId).empName
+        empDeptName = IncentiveDept.objects.get(empId=empId, year=year).deptName
+        incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+        if not incentive:
+            msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
+        if not goal:
+            msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        table1, table2, table3 = empIncentive(year, empId)
+        table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(
+            year, empDeptName, table2, goal.first(), empName, incentive, empId
+        )
+
+        context = {
+            'empId': empId,
+            'empName': empName,
+            'table1': table1,
+            'table2': table2,
+            'table3': table3,
+            'table4': table4,
+            'sumachieveIncentive': sumachieveIncentive,
+            'sumachieveAward': sumachieveAward,
+            'GPachieve': GPachieve,
+            'newCount': newCount,
+            'overGp': overGp,
+            'incentiveRevenues': incentiveRevenues,
+            'year': year,
+        }
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="{}님인센티브현황.pdf"'.format(empId)
+
+        template = get_template('sales/viewincentivepdf.html')
+        html = template.render(context, request)
+        # create a pdf
+        pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+        # if error then show some funy view
+        if pisaStatus.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+
 
 
 def save_contract_files(request, contractId):
