@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, Contractfile,\
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchasecategory,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Classification, Purchasecontractitem
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Classification, Purchasecontractitem, Contractcomment
 
 
 @admin.register(Contract)
@@ -163,4 +163,11 @@ class RelatedpurchaseestimateAdmin(admin.ModelAdmin):
     list_display = ('relatedId', 'purchaseOrder', 'purchaseEstimate')
     list_filter = ('purchaseOrder',)
     list_display_links = ['relatedId', 'purchaseOrder', 'purchaseEstimate']
+
+
+@admin.register(Contractcomment)
+class ContractcommentAdmin(admin.ModelAdmin):
+    list_display = ('commentId', 'contractId', 'author', 'comment', 'created')
+    list_filter = ('author',)
+    list_display_links = ['commentId', 'contractId', 'author', 'comment', 'created']
 

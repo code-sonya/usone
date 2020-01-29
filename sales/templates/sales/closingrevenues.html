@@ -1,0 +1,310 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  매출 결산
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid lightgray;
+      border-collapse: collapse;
+    }
+
+
+  </style>
+
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> 매출 결산 </h6>
+        </div>
+        <div class="row ml-3 mt-3 mr-3">
+            <span class="text-dark">
+              ※ <span class="text-primary">마감된 매출</span>은 수금예정일, 수금일, 비고 외의 정보는 수정이 <span class="text-danger">불가능</span>합니다.
+            </span>
+        </div>
+        <div class="card-body">
+          {% csrf_token %}
+          <form id="transfercontractForm" action="/sales/saveclosingrevenues/">
+            <div class="row mb-1">
+              <div class="col-xl-3">
+                <span style="font-size: 20px" class="text-secondary">결산일자(매출예정일기준): </span>
+              </div>
+              <div class="col-xl-5">
+                <input type="date" id="transferDate" name="transferDate" class="form-control" max="9999-12-31">
+              </div>
+              <div class="col-2">
+                <a class="btn btn-primary" href="#" onclick="loadContract()">
+                  <i class="fas fa-check d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-check"></i> 확인</span>
+                </a>
+              </div>
+            </div>
+
+            <br>
+            <div id="contract" class="d-none">
+              <h5 class="text-dark mb-3">
+                <b><span>▼</span>미이관 계약</b>
+              </h5>
+              <table id="beforetransfer" class="pc-table">
+              </table>
+              <div class="text-center">
+                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                  <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                  <span class="text"> 계약 이관 확인 </span>
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function replaceAll(str, searchStr, replaceStr) {
+          if (str != null) {
+              var new_str = str.split(searchStr).join(replaceStr);
+              return new_str.split("T").join(" ").slice(0, 10);
+          } else {
+              return '-'
+          }
+      }
+
+      function changeDeptName(empDeptName, selectId) {
+          $.ajax({
+              url: "{% url 'sales:empdept_ajax_url' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empDeptName": empDeptName,
+                      "empStatus": "N"},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var empName = returnData;
+                  console.log(empName);
+                  $('#' + selectId).empty();
+
+                  $('#' + selectId).append("<option value='전체'>----------------</option>");
+                  for (var count = 0; count < empName.length; count++) {
+                      var option = $("<option value=" + empName[count].pk + ">" + empName[count].fields.empName + "</option>");
+                      $('#' + selectId).append(option);
+                  }
+              }
+          })
+      }
+
+      function loadContract() {
+          const transferDate = $('#transferDate').val();
+          $('#beforetransfer').empty();
+          const th = "<thead>" + "<tr class='text-white' style='background-color: #36b9cc'>"
+              + "<th colspan=1></th>" + "<th colspan=2>구분</th>" + "<th colspan=6>계약명</th>"
+              + "<th colspan=4>계약일</th>" + "<th class=\"d-none\">contractId</th>" + "</tr>" + "</thead>";
+
+          $('#beforetransfer').append(th);
+
+          if (transferDate != '') {
+              $.ajax({
+                  url: "{% url 'sales:empid_ajax_url' %}",
+                  method: 'POST',
+                  cache: false,
+                  data: {"empId": ''},
+                  headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                  success: function (returnData) {
+                      var contract = returnData;
+                      for (var count = 0; count < contract.length; count++) {
+                          const trId = contract[count].contractId;
+                          const tr = $("<tr class='thtd' style='background-color:white' id='" + contract[count].contractId + "'>" +
+                              "<td colspan=1><div name='contractcheck' value='" + contract[count].contractId + "'>▽</div></td>" +
+                              "<td colspan=2>" + contract[count].contractStep + "</td>" +
+                              "<td colspan=6 class='text-left'><a href='/sales/viewcontract/"+contract[count].contractId +"/' target='_blank'>[" + contract[count].contractCode + "]" + contract[count].contractName + "</a></td>" +
+                              "<td colspan=4>" + contract[count].contractDate + "</td>"
+                              + "<td class='d-none'><input name='contractId' value='" + contract[count].contractId + "'></td></tr>"
+                          );
+                          $('#beforetransfer').append(tr);
+
+                          for (var r = 0; r < contract[count].revenue.length; r++) {
+                              if(transferDate != '' && contract[count].revenue[r].predictBillingDate <= transferDate) {
+                                  const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' checked class='input" + contract[count].contractId
+                                      + "' value='" + contract[count].revenue[r].revenueId+ "' name='revenuecheck' onclick='btn_revenuecheck(this.value)'></td>" +
+                                      "<td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
+                                      "<td colspan=1>" +contract[count].revenue[r].empId__empName + "</td>" +
+                                      "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
+                                      "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
+                                      "<td colspan='3' class='text-right money'>" + contract[count].revenue[r].revenuePrice + "</td>" +
+                                      "<td class='d-none'><input name='revenueId' value='"+ contract[count].revenue[r].revenueId + "'></td><tr>";
+                                      $('#' + trId).after(table);
+                                      $('.money').simpleMoneyFormat();
+                              }else{
+                                  const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' class='input"+contract[count].contractId
+                                  +"' value='" + contract[count].revenue[r].revenueId+ "' name='revenuecheck' onclick='btn_revenuecheck(this.value)'></td>" +
+                                  "<td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
+                                  "<td colspan=1>" +contract[count].revenue[r].empId__empName + "</td>" +
+                                  "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
+                                  "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
+                                  "<td colspan='3' class='text-right money'>"+contract[count].revenue[r].revenuePrice+"</td>" +
+                                  "<td class='d-none'><input name='revenueId' value='"+ contract[count].revenue[r].revenueId + "'></td><tr>";
+                                  $('#' + trId).after(table);
+                                  $('.money').simpleMoneyFormat();
+                              }
+                          }
+                          if (0 < contract[count].revenue.length) {
+                              const thead = "<tr name='" + contract[count].contractId + "' id='th"
+                                  + contract[count].contractId + "'><td></td><td style='background-color:lightsteelblue'>매출</td>" +
+                                  "<td style='background-color:lightsteelblue' colspan=3>매출처</td>" +
+                                  "<td style='background-color:lightsteelblue' colspan=1>매출담당자</td>" +
+                                  "<td style='background-color:lightsteelblue' colspan=2>매출예정일</td>" +
+                                  "<td style='background-color:lightsteelblue' colspan=2>매출일</td>" +
+                                  "<td style='background-color:lightsteelblue' colspan=3>매출금액</td></tr>";
+                              $('#' + trId).after(thead);
+                          }
+                      }
+                  }
+              });
+              $('#contract').attr('class', 'd-block');
+          }else{
+              alert('매출 결산 일자를 입력해 주세요')
+          }
+
+
+      }
+
+      (function ($) {
+        $.fn.simpleMoneyFormat = function () {
+            this.each(function (index, el) {
+                var elType = null; // input or other
+                var value = null;
+                // get value
+                if ($(el).is('input') || $(el).is('textarea')) {
+                    value = $(el).val().replace(/,/g, '');
+                    elType = 'input';
+                } else {
+                    value = $(el).text().replace(/,/g, '');
+                    elType = 'other';
+                }
+                // if value changes
+                $(el).on('paste keyup', function () {
+                    value = $(el).val().replace(/,/g, '');
+                    formatElement(el, elType, value); // format element
+                });
+                formatElement(el, elType, value); // format element
+            });
+
+            function formatElement(el, elType, value) {
+                var result = '';
+                var valueArray = value.split('');
+                var resultArray = [];
+                var counter = 0;
+                var temp = '';
+                for (var i = valueArray.length - 1; i >= 0; i--) {
+                    temp += valueArray[i];
+                    counter++
+                    if (counter == 3) {
+                        resultArray.push(temp);
+                        counter = 0;
+                        temp = '';
+                    }
+                }
+                ;
+                if (counter > 0) {
+                    resultArray.push(temp);
+                }
+                for (var i = resultArray.length - 1; i >= 0; i--) {
+                    var resTemp = resultArray[i].split('');
+                    for (var j = resTemp.length - 1; j >= 0; j--) {
+                        result += resTemp[j];
+                    }
+                    ;
+                    if (i > 0) {
+                        result += ','
+                    }
+                }
+                ;
+                if (elType == 'input') {
+                    $(el).val(result);
+                } else {
+                    $(el).empty().text(result);
+                }
+            }
+        };
+    }(jQuery));
+      function btn_revenuecheck(trId) {
+          console.log(trId);
+          $('tr[name=' + trId + ']').css('background-color', 'lightgrey')
+      }
+
+      function btn_save() {
+          console.log(document.getElementById("afterempName").value);
+          if (document.getElementById("afterempName").value === '' || document.getElementById("afterempName").value == '전체') {
+              alert("변경할 영업 담당자를 선택해 주세요.");
+              return false;
+          }
+
+          var data;
+          $('input:checkbox[name=revenuecheck]').each(function () {
+              if ($(this).is(':checked'))
+                  data += "|" + ($(this).val());
+
+          });
+          console.log(data);
+
+          if (data == 0) {
+              alert("선택된 매출이 없습니다.");
+              return false;
+          }else{
+              if (confirm("계약을 이관 하시겠습니까?") === true) {
+                document.getElementById("transfercontractForm").submit();
+              }
+          }
+
+
+      }
+
+
+      function btn_transfer() {
+          var DATA;
+          $('input:checkbox[name=revenuecheck]').each(function () {
+              if ($(this).is(':checked'))
+                  DATA += "|" + ($(this).val());
+          });
+
+      }
+
+      $(document).ready(function () {
+
+      });
+
+  </script>
+
+{% endblock %}

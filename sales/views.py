@@ -23,7 +23,7 @@ from logs.models import OrderLog, ContractLog
 from .forms import ContractForm, GoalForm, PurchaseorderformForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification, Contractcomment
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, summary, detailPurchase, billing_schedule, mail_purchaseorder
 
@@ -1540,8 +1540,10 @@ def transfer_contract(request):
 @csrf_exempt
 def empid_asjson(request):
     empId = request.POST['empId']
-
-    revenues = Revenue.objects.filter(empId=empId, revenueStatus='N')
+    if empId:
+        revenues = Revenue.objects.filter(empId=empId, revenueStatus='N')
+    else:
+        revenues = Revenue.objects.filter(revenueStatus='N')
     contractIds = revenues.values_list('contractId__contractId', flat=True).distinct()
     contracts = Contract.objects.filter(contractId__in=contractIds).values()
 
@@ -3757,3 +3759,56 @@ def save_purchasecategory(request):
         result = 'Y'
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def comment_asjson(request):
+    contractId = request.POST['contractId']
+    # 의견
+    comments = Contractcomment.objects.filter(Q(contractId=contractId)).order_by('created')
+    comments = comments.values('commentId', 'author__empName', 'comment', 'created').annotate(
+        viewer=Case(
+            When(author=request.user.employee.empId, then=Value("Y")),
+            default=Value("N"),
+            output_field=CharField()
+        )
+    )
+    structure = json.dumps(list(comments), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def save_comment(request):
+    comment = request.POST['comment']
+    contractId = request.POST['contractId']
+    contract = Contract.objects.get(contractId=contractId)
+    employee = Employee.objects.get(empId=request.user.employee.empId)
+    # 댓글 추가
+    comments = Contractcomment.objects.create(
+        contractId=contract,
+        author=employee,
+        comment=comment,
+        created=datetime.now()
+    )
+    # 알림 추가 부분(나중에)
+
+
+    comments = Contractcomment.objects.filter(commentId=comments.commentId)\
+        .values('commentId', 'author__empName', 'comment', 'created').annotate(
+        viewer=Case(
+            When(author=request.user.employee.empId, then=Value("Y")),
+            default=Value("N"),
+            output_field=CharField()
+        )
+    )
+    structure = json.dumps(list(comments), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def closing_revenues(request):
+    context = {}
+    return render(request, 'sales/closingrevenues.html', context)

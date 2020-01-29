@@ -20,7 +20,7 @@ from smtplib import SMTP_SSL
 from service.models import Servicereport
 from approval.models import Document
 from .models import Contract, Revenue, Contractitem, Goal, Purchase, Cost, Acceleration, Incentive, Expense, Contractfile,\
-    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder, Purchasecontractitem
+    Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchaseorderform, Purchaseorder, Purchasecontractitem, Contractcomment
 from hr.models import AdminEmail
 from service.models import Employee
 from logs.models import ContractLog

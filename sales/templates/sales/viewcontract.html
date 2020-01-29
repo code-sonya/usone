@@ -9,6 +9,85 @@
 {% block css %}
 
   <style type="text/css">
+    .bubble {
+      z-index:100;
+      position: relative;
+      height: auto;
+      padding: 10px 10px 10px 10px;
+      background: #FFFFFF;
+      border-radius: 5px;
+      border: #7F7F7F solid 1px;
+      position: absolute;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    .bubble:after {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-width: 0 16px 20px 17.5px;
+      border-color: #FFFFFF transparent;
+      display: block;
+      width: 0;
+      z-index: 1;
+      top: -18.5px;
+      /*left: 49px;*/
+    }
+
+    .bubble:before {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-width: 0 16px 20px 17.5px;
+      border-color: #7F7F7F transparent;
+      display: block;
+      width: 0;
+      z-index: 0;
+      top: -20px;
+      /*left: 49px;*/
+    }
+
+    .bubble-right {
+      z-index:100;
+      position: relative;
+      height: auto;
+      padding: 10px 10px 10px 10px;
+      background: #FFFFFF;
+      border-radius: 5px;
+      border: #7F7F7F solid 1px;
+      position: absolute;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    .bubble-right:after {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-width: 0 16px 20px 17.5px;
+      border-color: #FFFFFF transparent;
+      display: block;
+      width: 0;
+      z-index: 1;
+      top: -18.5px;
+      /*left: 49px;*/
+    }
+
+    .bubble-right:before {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-width: 0 16px 20px 17.5px;
+      border-color: #7F7F7F transparent;
+      display: block;
+      width: 0;
+      z-index: 0;
+      top: -20px;
+      /*left: 49px;*/
+    }
+
+
     .flow-table {
       color: #333333;
       table-layout: fixed;
@@ -122,9 +201,9 @@
               수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
               {% endif %}
             </div>&nbsp;&nbsp;
-            <!--<a class="btn btn-info" href="#" role="button" id="commentLink" data-toggle="modal" data-target="#commentModal">-->
-              <!--<i class="fas fa-comment-dots d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-comment-dots"></i> 의견</span>-->
-            <!--</a>-->
+            <a class="btn btn-info" href="#" onclick="open_comment()">
+              <i class="fas fa-comment-dots d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-comment-dots"></i> 의견</span>
+            </a>
             <a class="btn btn-success ml-1" href="#" role="button" id="historyLink" data-toggle="modal" data-target="#historyModal">
               <i class="fas fa-history d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-history"></i> 히스토리</span>
             </a>
@@ -1308,10 +1387,10 @@
           </button>
         </div>
 
-        <div class="modal-body" style="padding: 2rem">
+        <div class="modal-body m-2" id="comment-modal-body">
         </div>
         <div class="modal-footer">
-            <input class="form-control" name="comment" type="text">
+            <input class="form-control" name="comment" type="text" id="comment">
             <a class="btn btn-info small" href="#" onclick="comment_send()"><i class="fa fa-paper-plane"></i></a>
         </div>
       </div>
@@ -1869,6 +1948,74 @@
               location.href = '/sales/copycontract/' + {{ contract.contractId }} +'/';
           }
       }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 16);
+      }
+
+      function open_comment() {
+          $.ajax({
+              url: "{% url 'sales:commentasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "contractId": '{{ contract.contractId }}',
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  $('#comment-modal-body').empty();
+                  for(var i=0; i<returnData.length ; i++){
+                      if(returnData[i].viewer=='Y'){
+                          $('#comment-modal-body').append('<div class="right text-right p-2">' +
+                              '<span class="small" style="vertical-align: sub">'+ replaceAll(returnData[i].created, "-", ".") +' </span>' +
+                              '<span class="bg-secondary text-white p-2"  style="border-radius: 15px 15px 15px 15px">'+
+                              returnData[i].comment +
+                              '</span></div>');
+                      }else if(returnData[i].viewer=='N'){
+                          $('#comment-modal-body').append(
+                              '<div class="text-secondary small p-2">' + returnData[i].author__empName + '</div>' +
+                              '<div class="left text-left">' +
+                              '<span class="bg-primary text-white p-2" style="border-radius: 15px 15px 15px 15px">'+  returnData[i].comment + '</span>' +
+                              '<span class="small" style="vertical-align: sub"> '+ replaceAll(returnData[i].created, "-", ".") +'</span>' +
+                              '</div>');
+                      }
+                  }
+                  $('#commentModal').modal('show');
+              }
+          });
+      }
+
+      function comment_send() {
+          const comment = $('#comment');
+          if(comment.val() == ''){
+              alert('의견을 입력해 주세요 :)');
+              return false;
+          }
+          $.ajax({
+              url: "{% url 'sales:savecomment' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "comment": comment.val(),
+                  "contractId": '{{ contract.contractId }}',
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  for(var i=0; i<returnData.length ; i++){
+                      $('#comment-modal-body').append('<div class="right text-right p-2">' +
+                        '<span class="small" style="vertical-align: sub">'+ replaceAll(returnData[i].created, "-", ".") +' </span>' +
+                        '<span class="bg-secondary text-white p-2"  style="border-radius: 15px 15px 15px 15px">'+
+                        returnData[i].comment +
+                        '</span></div>');
+                  }
+                  comment.val('');
+              },error:function(request,status,error){
+                              alert("관리자에 문의하세요 :) \n"+"code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+              }
+          });
+      }
+
 
       function open_upload(fileType) {
           $('#fileType').text(fileType);
