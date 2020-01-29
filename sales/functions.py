@@ -36,6 +36,7 @@ def viewContract(request, contractId):
     files_e = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매입발주서').order_by('uploadDatetime')
     files_f = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='납품,구축,검수확인서').order_by('uploadDatetime')
     files_g = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출발행').order_by('uploadDatetime')
+    files_h = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='기타문서').order_by('uploadDatetime')
 
     # 히스토리
     history = ContractLog.objects.filter(contractId__contractId=contractId).order_by('-changeCount')
@@ -200,6 +201,7 @@ def viewContract(request, contractId):
         'files_e': files_e,
         'files_f': files_f,
         'files_g': files_g,
+        'files_h': files_h,
         # 히스토리
         'history': history,
         # 결재문서, 매입발주서
