@@ -1388,10 +1388,10 @@
           </button>
         </div>
 
-        <div class="modal-body" id="comment-modal-body">
+        <div class="modal-body m-2" id="comment-modal-body">
         </div>
         <div class="modal-footer">
-            <input class="form-control" name="comment" type="text">
+            <input class="form-control" name="comment" type="text" id="comment">
             <a class="btn btn-info small" href="#" onclick="comment_send()"><i class="fa fa-paper-plane"></i></a>
         </div>
       </div>
@@ -1950,9 +1950,12 @@
           }
       }
 
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 16);
+      }
+
       function open_comment() {
-
-
           $.ajax({
               url: "{% url 'sales:commentasjson' %}",
               method: 'POST',
@@ -1962,37 +1965,58 @@
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
-                  $('#comment-modal-body').empty()
+                  $('#comment-modal-body').empty();
                   for(var i=0; i<returnData.length ; i++){
                       if(returnData[i].viewer=='Y'){
-                          $('#comment-modal-body').append('<div class="right text-right arrow_box_right">'+ returnData[i].comment +'</div>');
+                          $('#comment-modal-body').append('<div class="right text-right p-2">' +
+                              '<span class="small" style="vertical-align: sub">'+ replaceAll(returnData[i].created, "-", ".") +' </span>' +
+                              '<span class="bg-secondary text-white p-2"  style="border-radius: 15px 15px 15px 15px">'+
+                              returnData[i].comment +
+                              '</span></div>');
                       }else if(returnData[i].viewer=='N'){
-                          $('#comment-modal-body').append('<div class="left text-left bubble">'+ returnData[i].comment +'</div>');
+                          $('#comment-modal-body').append(
+                              '<div class="text-secondary small p-2">' + returnData[i].author__empName + '</div>' +
+                              '<div class="left text-left">' +
+                              '<span class="bg-primary text-white p-2" style="border-radius: 15px 15px 15px 15px">'+  returnData[i].comment + '</span>' +
+                              '<span class="small" style="vertical-align: sub"> '+ replaceAll(returnData[i].created, "-", ".") +'</span>' +
+                              '</div>');
                       }
                   }
                   $('#commentModal').modal('show');
               }
-
           });
-
       }
 
-      //     {% if comments %}
-      //       {% for comment in comments %}
-      //         $('#comment-modal-body').append('<div>얌마</div>');
-      //       {% endfor %}
-      //
-      //     {% else %}
-      //       $('#comment-modal-body').css('text-align', 'center').text('등록된 의견이 없습니다.');
-      //     {% endif %}
-      // }
-
-      function getHtml(){
-        var result = '';
-        result += "<div>~샬라샬라";
-        return result;
-
+      function comment_send() {
+          const comment = $('#comment');
+          if(comment.val() == ''){
+              alert('의견을 입력해 주세요 :)');
+              return false;
+          }
+          $.ajax({
+              url: "{% url 'sales:savecomment' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "comment": comment.val(),
+                  "contractId": '{{ contract.contractId }}',
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  for(var i=0; i<returnData.length ; i++){
+                      $('#comment-modal-body').append('<div class="right text-right p-2">' +
+                        '<span class="small" style="vertical-align: sub">'+ replaceAll(returnData[i].created, "-", ".") +' </span>' +
+                        '<span class="bg-secondary text-white p-2"  style="border-radius: 15px 15px 15px 15px">'+
+                        returnData[i].comment +
+                        '</span></div>');
+                  }
+                  comment.val('');
+              },error:function(request,status,error){
+                              alert("관리자에 문의하세요 :) \n"+"code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+              }
+          });
       }
+
 
       function open_upload(fileType) {
           $('#fileType').text(fileType);

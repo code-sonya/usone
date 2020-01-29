@@ -102,4 +102,6 @@ urlpatterns = [
     url(r'^clssificaionasjson/$', views.clssificaion_asjson, name="clssificaionasjson"),
     url(r'^savepurchasecategory/$', views.save_purchasecategory, name='savepurchasecategory'),
     url(r'^commentasjson/$', views.comment_asjson, name='commentasjson'),
+    url(r'^savecomment/$', views.save_comment, name='savecomment'),
+    url(r'^closingrevenues/', views.closing_revenues, name='closingrevenues'),
 ]
