@@ -938,12 +938,16 @@ def dashboard_location(request):
 @csrf_exempt
 def dashboard_client(request):
     template = loader.get_template('dashboard/dashboardclient.html')
-    contracts = Contract.objects.filter(Q(contractStep='Firm'))
+    contracts = Contract.objects.all().exclude(Q(contractStep='Drop'))
     services = Servicereport.objects.filter(serviceStatus='Y')
     if request.method == 'POST':
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
         endCompanyName = request.POST['endCompanyName']
+        contractStep = request.POST['contractStep']
+
+        if contractStep:
+            contracts = contracts.filter(Q(contractStep=contractStep))
         if startdate:
             contracts = contracts.filter(Q(contractDate__gte=startdate))
             services = services.filter(Q(contractId__contractDate__gte=startdate))
@@ -953,29 +957,35 @@ def dashboard_client(request):
         if endCompanyName:
             contracts = contracts.filter(Q(endCompanyName__companyName__icontains=endCompanyName) | Q(endCompanyName__companyNameKo__icontains=endCompanyName))
             services = services.filter(Q(contractId__endCompanyName__companyName__icontains=endCompanyName) | Q(contractId__endCompanyName__companyNameKo__icontains=endCompanyName))
+
         priceSummary = contracts.aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
         serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), serviceOverHour=Sum('serviceOverHour'))
         companySummary = contracts.values('endCompanyName__companyNameKo').annotate(price=Sum('salePrice'), profit=Sum('profitPrice'), count=Count('salePrice'))
         overhourSummary = services.aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
+        axesMax = companySummary.aggregate(maxprice=Max('price'))['maxprice'] + 10
 
     else:
         startdate = contracts.aggregate(startdate=Min('contractDate'))['startdate']
         enddate = contracts.aggregate(enddate=Max('contractDate'))['enddate']
         endCompanyName = ''
+        contractStep = ''
         services = services.filter(Q(contractId__contractDate__gte=startdate) & Q(contractId__contractDate__lte=enddate))
         priceSummary = contracts.aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
         serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), serviceOverHour=Sum('serviceOverHour'))
         companySummary = contracts.values('endCompanyName__companyNameKo').annotate(price=Sum('salePrice'), profit=Sum('profitPrice')).order_by('-price')
         overhourSummary = services.aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
+        axesMax = companySummary.aggregate(maxprice=Max('price'))['maxprice'] + 10
 
     context = {
         'startdate': startdate,
         'enddate': enddate,
         'endCompanyName': endCompanyName,
+        'contractStep': contractStep,
         'priceSummary': priceSummary,
         'serviceSummary': serviceSummary,
         'companySummary': companySummary,
         'overhourSummary': overhourSummary,
+        'axesMax': axesMax,
     }
     return HttpResponse(template.render(context, request))
 
@@ -987,9 +997,13 @@ def client_graph(request):
     companyName = request.POST['companyName']
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
+    contractStep = request.POST['contractStep']
+    print(request.POST)
 
-    contracts = Contract.objects.filter(Q(contractStep='Firm'))
+    contracts = Contract.objects.all().exclude(contractStep='Drop')
     services = Servicereport.objects.filter(serviceStatus='Y')
+    if contractStep:
+        contracts = contracts.filter(Q(contractStep=contractStep))
     if startdate:
         contracts = contracts.filter(Q(contractDate__gte=startdate))
         services = services.filter(Q(contractId__contractDate__gte=startdate))
@@ -1034,11 +1048,15 @@ def services_asjson(request):
 @login_required
 @csrf_exempt
 def contracts_asjson(request):
+    print(request.POST)
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
     companyName = request.POST['companyName']
+    contractStep = request.POST['contractStep']
 
-    contracts = Contract.objects.filter(Q(contractStep='Firm'))
+    contracts = Contract.objects.all().exclude(contractStep='Drop')
+    if contractStep:
+        contracts = Contract.objects.filter(Q(contractStep=contractStep))
     if startdate:
         contracts = contracts.filter(Q(contractDate__gte=startdate))
     if enddate:

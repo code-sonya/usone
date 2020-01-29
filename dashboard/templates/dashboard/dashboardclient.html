@@ -35,7 +35,13 @@
 
 <!-- 미수금/미접수 현황 개요 -->
 <div class="py-3 d-flex flex-row align-items-center justify-content-between">
-  <h3 class="text-gray-800">고객사 분석 </h3>
+  <h3 class="text-gray-800">고객사 분석
+    {% if contractStep%}
+    [{{contractStep}}]
+    {% else %}
+    [Oppty &  Firm]
+    {% endif %}
+  </h3>
   <div class="dropdown">
     <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
       <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
@@ -131,11 +137,12 @@
   <div class="col-12">
     <div class="card shadow mb-2">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="m-0 font-weight-bold text-secondary">고객사별 계약금액&이익금액</h6>
+        <h6 class="m-0 font-weight-bold text-secondary">고객사별 계약금액&이익금액
+        </h6>
         <span class="h6 d-xl-block d-none"><i class="text-info fas fa-palette"><span class="text-secondary small">계약금액 5억이하 </span></i>
           <i class="text-primary fas fa-palette"><span class="text-secondary small">계약금액 5억초과 10억이하 </span></i>
           <i class="text-danger fas fa-palette"><span class="text-secondary small">계약금액 10억초과</span></i></span>
-        <h6 class="m-0 font-weight-bold text-secondary">[단위: 백만원]</h6>
+        <h6 class="m-0 font-weight-bold text-secondary">[백만원]</h6>
       </div>
       <div class="card-body">
         <div class="chart-area">
@@ -302,7 +309,15 @@
               </div>
             </div>
             <div class="row mb-1">
-              <div class="col-12">
+              <div class="col-6">
+                <label for="endCompanyName" class="text-primary">계약단계</label>
+                <select class="form-control" id="contractStep" name="contractStep">
+                  <option value="" {%if contractStep == '' %} selected {% endif %} >Opportunity&Firm</option>
+                  <option value="Firm" {%if contractStep == 'Firm' %} selected {% endif %} >Firm</option>
+                  <option value="Opportunity" {%if contractStep == 'Opportunity' %} selected {% endif %} >Opportunity</option>
+                </select>
+              </div>
+              <div class="col-6">
                 <label for="endCompanyName" class="text-primary">최종고객사</label>
                 <input class="form-control" id="endCompanyName" name="endCompanyName" value="{{ endCompanyName }}">
               </div>
@@ -400,6 +415,7 @@
                 'startdate': '{{ startdate| date:'Y-m-d' }}',
                 'enddate': '{{ enddate| date:'Y-m-d' }}',
                 'companyName': filterArray['companyName'],
+                'contractStep': '{{ contractStep }}',
             },
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
             success: function (returnData) {
@@ -421,6 +437,7 @@
                   'startdate': '{{ startdate| date:'Y-m-d' }}',
                   'enddate': '{{ enddate| date:'Y-m-d' }}',
                   'companyName': filterArray['companyName'],
+                  'contractStep': '{{ contractStep }}',
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
@@ -490,7 +507,7 @@
                         return ''
                     } else {
                         // return context.dataset.label;
-                        if(context.dataset.data[0].x>50000000){
+                        if(context.dataset.data[0].x>30000000){
                             return context.dataset.label;
                         }else{
                             return ''
@@ -599,7 +616,7 @@
                 }],
                 {% if company.price > 1000000000 %}
                 borderColor: '#e1e3ee',
-                backgroundColor: '#F67A15',
+                backgroundColor: '#E74A3B',
                 {% elif company.price <= 1000000000 and company.price > 500000000 %}
                 borderColor: '#e1e3ee',
                 backgroundColor: '#4e73df'
@@ -956,6 +973,7 @@
                     'startdate': '{{ startdate| date:'Y-m-d' }}',
                     'enddate': '{{ enddate| date:'Y-m-d' }}',
                     'companyName': filterArray['companyName'],
+                    'contractStep': '{{ contractStep }}',
                 },
                 "url": "{% url 'dashboard:contracts_ajax_url' %}",
                 "dataSrc": ""
