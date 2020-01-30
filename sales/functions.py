@@ -44,7 +44,7 @@ def viewContract(request, contractId):
 
     # 결재문서
     documents = Document.objects.filter(contractId=contractId).exclude(documentStatus='임시')
-    ordernotis = documents.filter(formId__formTitle='수주통보서', documentStatus='완료')
+    ordernotis = documents.filter(formId__formTitle='수주통보서')
     # 진행중인 문서
     documents_ing = documents.filter(documentStatus='진행')
     # 수주통보서 진행중인 문서
