@@ -998,7 +998,6 @@ def client_graph(request):
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
     contractStep = request.POST['contractStep']
-    print(request.POST)
 
     contracts = Contract.objects.all().exclude(contractStep='Drop')
     services = Servicereport.objects.filter(serviceStatus='Y')
@@ -1048,7 +1047,6 @@ def services_asjson(request):
 @login_required
 @csrf_exempt
 def contracts_asjson(request):
-    print(request.POST)
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
     companyName = request.POST['companyName']

@@ -263,36 +263,89 @@ def show_punctuality(request, day=None):
 
     punctuality = Punctuality.objects.filter(punctualityDate=day).order_by('empId__empPosition')
     punctualityList = []
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='경영지원본부').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+
+    if day <= '2020-01-31':
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='경영지원본부').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+            )
         )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='영업1팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='영업1팀').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+            )
         )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='영업2팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='영업2팀').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+            )
         )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='인프라서비스사업팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='인프라서비스사업팀').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+            )
         )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='솔루션지원팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='솔루션지원팀').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+            )
         )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='DB지원팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='DB지원팀').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+            )
         )
-    )
+    else:
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='경영지원본부').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='경영지원실').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='인프라솔루션사업부').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='영업팀').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='R&D 전략사업부').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='AI Platform Labs').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='Technical Architecture팀').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='Platform Biz').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='DB Expert팀').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
+        punctualityList.append(
+            punctuality.filter(empId__empDeptName='솔루션팀').values(
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+            )
+        )
 
     for pun in punctualityList:
         for user in pun:

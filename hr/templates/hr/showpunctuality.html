@@ -84,19 +84,7 @@
                       <td></td>
                     {% endifchanged %}
                   <td>{{ p.empId__empName }}</td>
-                  {% if p.empId__empPosition == 1 %}
-                    <td>이사</td>
-                  {% elif p.empId__empPosition == 2 %}
-                    <td>부장</td>
-                  {% elif p.empId__empPosition == 3 %}
-                    <td>차장</td>
-                  {% elif p.empId__empPosition == 4 %}
-                    <td>과장</td>
-                  {% elif p.empId__empPosition == 5 %}
-                    <td>대리</td>
-                  {% elif p.empId__empPosition == 6 %}
-                    <td>사원</td>
-                  {% endif %}
+                  <td>{{ p.empId__empPosition__positionName }}</td>
                   {% if user.employee.empDeptName == '경영지원본부' %}
                     {% if p.punctualityType == '일차' or p.punctualityType == '오전반차' %}
                       <td><a href="/hr/viewabsence/{{ p.punctualityId }}/" class="text-success">{{ p.punctualityType }}</a></td>
