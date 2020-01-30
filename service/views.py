@@ -116,7 +116,7 @@ def post_service(request, postdate):
                 post.serviceDate = str(post.serviceBeginDatetime)[:10]
                 post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                 post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                 post.save()
                 return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
 
@@ -134,7 +134,7 @@ def post_service(request, postdate):
                     if timeCalculateFlag:
                         post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                         post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                        post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                        post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                         timeCalculateFlag = False
                     Servicereport.objects.create(
                         contractId=post.contractId,
@@ -176,7 +176,7 @@ def post_service(request, postdate):
                         if timeCalculateFlag:
                             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                             post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                            post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                            post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                             timeCalculateFlag = False
                         Servicereport.objects.create(
                             contractId=post.contractId,
@@ -216,7 +216,7 @@ def post_service(request, postdate):
                     if timeCalculateFlag:
                         post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                         post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                        post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                        post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                         timeCalculateFlag = False
                     Servicereport.objects.create(
                         contractId=post.contractId,
@@ -776,7 +776,7 @@ def modify_service(request, serviceId):
                 form.clean()['startdate'] + ' ' + form.clean()['starttime'],
                 form.clean()['enddate'] + ' ' + form.clean()['endtime']
             )
-            post.serviceRegHour = post.serviceHour - post.serviceOverHour
+            post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
             post.coWorker = request.POST['coWorkerId']
             post.save()
             return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
@@ -1138,7 +1138,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         service.serviceDate = str(service.serviceBeginDatetime)[:10]
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
         service.serviceOverHour = overtime(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.serviceRegHour = round(service.serviceHour - service.serviceOverHour, 1)
         service.serviceStatus = 'B'
         service.save()
 
@@ -1150,7 +1150,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         service.serviceStartDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
         service.serviceOverHour = overtime(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.serviceRegHour = round(service.serviceHour - service.serviceOverHour, 1)
         service.serviceStatus = 'S'
         service.save()
 
@@ -1162,7 +1162,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         service.serviceEndDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
         service.serviceOverHour = overtime(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.serviceRegHour = round(service.serviceHour - service.serviceOverHour, 1)
         service.serviceStatus = 'E'
         service.save()
 
@@ -1207,7 +1207,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
             service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay_etc(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
         else:
             service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.serviceRegHour = round(service.serviceHour - service.serviceOverHour, 1)
         service.serviceStatus = 'Y'
 
         # overhour create
@@ -1295,7 +1295,7 @@ def admin_service(request, serviceId):
                 post.serviceDate = str(post.serviceBeginDatetime)[:10]
                 post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                 post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                 post.coWorker = request.POST['coWorkerId']
 
                 # 초과근무 등록
@@ -1307,7 +1307,7 @@ def admin_service(request, serviceId):
                     post.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(
                         str(post.serviceBeginDatetime), str(post.serviceFinishDatetime)
                     )
-                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                 post.serviceStatus = 'Y'
                 post.save()
 
