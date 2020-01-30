@@ -102,7 +102,7 @@
       <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
       <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
       <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
-      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance }}<br>({{ row.distanceRatio }})</td>
+      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance |floatformat:1 }}<br>({{ row.distanceRatio }})</td>
       <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumTollMoney |floatformat:0|intcomma }}</td>
       <td class="thtd" colspan="1" style="background-color: white; text-align: right">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
       <td class="thtd" colspan="1" style="background-color: white; text-align: right">{{ row.sumTotalMoney |floatformat:0|intcomma }}</td>
@@ -112,7 +112,7 @@
 
   <tr class="thtd" style="background-color: lightsalmon">
     <td class="thtd" colspan="4">총 합계</td>
-    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumDistance }}</td>
+    <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumDistance |floatformat:1 }}</td>
     <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumTollMoney |floatformat:0|intcomma }}</td>
     <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumFuelMoney |floatformat:0|intcomma }}</td>
     <td class="thtd" colspan="1" style="text-align: right">{{ summary.sumTotalMoney |floatformat:0|intcomma }}</td>
