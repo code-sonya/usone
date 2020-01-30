@@ -2818,7 +2818,7 @@
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   $('td:eq(6)', nRow).text(aData.salary.toLocaleString());
                   $('td:eq(7)', nRow).text(aData.overSalary.toLocaleString());
-
+                  $('td:eq(3)', nRow).html('<a target="_blank" href="/service/viewservice/' + aData.serviceId + '/">' + aData.serviceTitle + '</a>');
                   $('td:eq(2)', nRow).text(replaceDate(aData.serviceDate, null, "-", ".", null, 10));
               },
               "footerCallback": function () {
