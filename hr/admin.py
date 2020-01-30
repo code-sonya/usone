@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Position, Employee, Attendance, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation
+from .models import Position, Employee, Attendance, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation, Alert
 
 
 @admin.register(Position)
@@ -63,3 +63,10 @@ class ReturnVacationAdmin(admin.ModelAdmin):
     list_display = ('returnId', 'returnDateTime', 'empId', 'vacationId', 'comment')
     list_filter = ('returnDateTime', 'empId', 'vacationId')
     list_display_links = ['returnId', 'returnDateTime', 'empId', 'vacationId', 'comment']
+
+
+@admin.register(Alert)
+class AlertAdmin(admin.ModelAdmin):
+    list_display = ('alertId', 'empId', 'text', 'url', 'createdDatetime', 'clickedDatetime')
+    list_filter = ('empId', )
+    list_display_links = ['alertId', 'empId', 'text', 'url', 'createdDatetime', 'clickedDatetime']
