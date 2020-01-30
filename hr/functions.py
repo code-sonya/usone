@@ -215,7 +215,7 @@ def year_absence(year):
     team8 = []
     team9 = []
     team10 = []
-    if str(datetime.datetime.today())[:10] <= '2010-01-31':
+    if str(datetime.datetime.today())[:10] <= '2020-01-31':
         for user in users:
             if user['employee__empDeptName'] == '경영지원본부':
                 team1.append(user)
