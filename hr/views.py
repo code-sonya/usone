@@ -267,32 +267,32 @@ def show_punctuality(request, day=None):
     if day <= '2020-01-31':
         punctualityList.append(
             punctuality.filter(empId__empDeptName='경영지원본부').values(
-                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
             )
         )
         punctualityList.append(
             punctuality.filter(empId__empDeptName='영업1팀').values(
-                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
             )
         )
         punctualityList.append(
             punctuality.filter(empId__empDeptName='영업2팀').values(
-                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
             )
         )
         punctualityList.append(
             punctuality.filter(empId__empDeptName='인프라서비스사업팀').values(
-                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
             )
         )
         punctualityList.append(
             punctuality.filter(empId__empDeptName='솔루션지원팀').values(
-                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
             )
         )
         punctualityList.append(
             punctuality.filter(empId__empDeptName='DB지원팀').values(
-                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+                'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
             )
         )
     else:
