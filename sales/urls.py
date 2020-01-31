@@ -103,6 +103,7 @@ urlpatterns = [
     url(r'^savepurchasecategory/$', views.save_purchasecategory, name='savepurchasecategory'),
     url(r'^commentasjson/$', views.comment_asjson, name='commentasjson'),
     url(r'^savecomment/$', views.save_comment, name='savecomment'),
+    url(r'^closingrevenuemoney/', views.closing_revenue_money, name='closingrevenuemoney'),
     url(r'^closingrevenues/', views.closing_revenues, name='closingrevenues'),
     url(r'^saveclosingrevenues/', views.save_closingrevenues, name='saveclosingrevenues'),
 ]

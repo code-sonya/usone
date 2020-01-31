@@ -52,7 +52,7 @@
         </div>
         <div class="card-body">
           {% csrf_token %}
-          <form id="closingRevenuesForm" action="/sales/saveclosingrevenues/">
+          <form id="closingRevenuesForm" action="/sales/saveclosingrevenues/" method="POST">
             <div class="row mb-1">
               <div class="col-xl-3">
                 <span style="font-size: 20px" class="text-secondary">결산시작일자(매출일기준): </span>
@@ -80,6 +80,20 @@
               <h5 class="text-dark mb-3">
                 <b><span>▼</span>미결산 매출</b>
               </h5>
+              <div class="row mb-1">
+                <div class="col-xl-3">
+                  <span style="font-size: 20px" class="text-secondary">매출금액: </span>
+                </div>
+                <div id="revenuePrice" class="col-xl-3 text-right">
+                </div>
+              </div>
+              <div class="row mb-1">
+                <div class="col-xl-3">
+                  <span style="font-size: 20px" class="text-secondary">G P 금액: </span>
+                </div>
+                <div id="profitPrice" class="col-xl-3 text-right">
+                </div>
+              </div>
               <table id="beforetransfer" class="pc-table">
               </table>
               <div class="text-center">
@@ -109,28 +123,6 @@
           } else {
               return '-'
           }
-      }
-
-      function changeDeptName(empDeptName, selectId) {
-          $.ajax({
-              url: "{% url 'sales:empdept_ajax_url' %}",
-              method: 'POST',
-              cache: false,
-              data: {"empDeptName": empDeptName,
-                      "empStatus": "N"},
-              headers: {'X-CSRFToken': '{{ csrf_token }}'},
-              success: function (returnData) {
-                  var empName = returnData;
-                  console.log(empName);
-                  $('#' + selectId).empty();
-
-                  $('#' + selectId).append("<option value='전체'>----------------</option>");
-                  for (var count = 0; count < empName.length; count++) {
-                      var option = $("<option value=" + empName[count].pk + ">" + empName[count].fields.empName + "</option>");
-                      $('#' + selectId).append(option);
-                  }
-              }
-          })
       }
 
       function loadContract() {
@@ -173,7 +165,7 @@
                                       "<td colspan=1>" +contract[count].revenue[r].empId__empName + "</td>" +
                                       "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
                                       "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
-                                      "<td colspan='3' class='text-right money'>" + contract[count].revenue[r].revenuePrice + "</td>" +
+                                      "<td colspan='3' name='revenuePrice' class='text-right money'>" + contract[count].revenue[r].revenuePrice + "</td>" +
                                       "<td class='d-none'><input name='revenueId' value='"+ contract[count].revenue[r].revenueId + "'></td><tr>";
                                       $('#' + trId).after(table);
                                       $('.money').simpleMoneyFormat();
@@ -189,14 +181,26 @@
                               $('#' + trId).after(thead);
                           }
                       }
+                      $.ajax({
+                          url: "{% url 'sales:closingrevenuemoney' %}",
+                          method: 'POST',
+                          cache: false,
+                          data: {
+                              "transferStartDate": transferStartDate,
+                              "transferEndDate": transferEndDate,
+                          },
+                          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                          success: function (returnData) {
+                              $('#revenuePrice').text(returnData[0].revenuePrice.toLocaleString());
+                              $('#profitPrice').text(returnData[0].profitPrice.toLocaleString());
+                          }
+                      })
                   }
               });
               $('#contract').attr('class', 'd-block');
-          }else{
+          } else{
               alert('매출 결산 일자를 입력해 주세요')
           }
-
-
       }
 
       (function ($) {
@@ -270,7 +274,6 @@
                   data += "|" + ($(this).val());
 
           });
-          console.log(data);
 
           if (data == 0) {
               alert("선택된 매출이 없습니다.");
@@ -280,10 +283,7 @@
                 document.getElementById("closingRevenuesForm").submit();
               }
           }
-
-
       }
-
 
       function btn_transfer() {
           var DATA;
@@ -291,7 +291,6 @@
               if ($(this).is(':checked'))
                   DATA += "|" + ($(this).val());
           });
-
       }
 
       $(document).ready(function () {
