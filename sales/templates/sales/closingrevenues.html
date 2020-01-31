@@ -55,10 +55,18 @@
           <form id="closingRevenuesForm" action="/sales/saveclosingrevenues/">
             <div class="row mb-1">
               <div class="col-xl-3">
-                <span style="font-size: 20px" class="text-secondary">결산일자(매출예정일기준): </span>
+                <span style="font-size: 20px" class="text-secondary">결산시작일자(매출일기준): </span>
               </div>
               <div class="col-xl-5">
-                <input type="date" id="transferDate" name="transferDate" class="form-control" max="9999-12-31">
+                <input type="date" id="transferStartDate" name="transferStartDate" class="form-control" max="9999-12-31">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-xl-3">
+                <span style="font-size: 20px" class="text-secondary">결산종료일자(매출일기준): </span>
+              </div>
+              <div class="col-xl-5">
+                <input type="date" id="transferEndDate" name="transferEndDate" class="form-control" max="9999-12-31">
               </div>
               <div class="col-2">
                 <a class="btn btn-primary" href="#" onclick="loadContract()">
@@ -126,7 +134,8 @@
       }
 
       function loadContract() {
-          const transferDate = $('#transferDate').val();
+          const transferStartDate = $('#transferStartDate').val();
+          const transferEndDate = $('#transferEndDate').val();
           $('#beforetransfer').empty();
           const th = "<thead>" + "<tr class='text-white' style='background-color: #36b9cc'>"
               + "<th colspan=1></th>" + "<th colspan=2>구분</th>" + "<th colspan=6>계약명</th>"
@@ -134,12 +143,15 @@
 
           $('#beforetransfer').append(th);
 
-          if (transferDate != '') {
+          if (transferStartDate != '' || transferEndDate != '') {
               $.ajax({
                   url: "{% url 'sales:empid_ajax_url' %}",
                   method: 'POST',
                   cache: false,
-                  data: {"empId": ''},
+                  data: {"empId": '',
+                        "transferStartDate": transferStartDate,
+                        "transferEndDate": transferEndDate,
+                  },
                   headers: {'X-CSRFToken': '{{ csrf_token }}'},
                   success: function (returnData) {
                       var contract = returnData;
@@ -155,8 +167,7 @@
                           $('#beforetransfer').append(tr);
 
                           for (var r = 0; r < contract[count].revenue.length; r++) {
-                              if(transferDate != '' && contract[count].revenue[r].predictBillingDate <= transferDate) {
-                                  const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' checked class='input" + contract[count].contractId
+                              const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' checked class='input" + contract[count].contractId
                                       + "' value='" + contract[count].revenue[r].revenueId+ "' name='revenuecheck' onclick='btn_revenuecheck(this.value)'></td>" +
                                       "<td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
                                       "<td colspan=1>" +contract[count].revenue[r].empId__empName + "</td>" +
@@ -166,18 +177,6 @@
                                       "<td class='d-none'><input name='revenueId' value='"+ contract[count].revenue[r].revenueId + "'></td><tr>";
                                       $('#' + trId).after(table);
                                       $('.money').simpleMoneyFormat();
-                              }else{
-                                  const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' class='input"+contract[count].contractId
-                                  +"' value='" + contract[count].revenue[r].revenueId+ "' name='revenuecheck' onclick='btn_revenuecheck(this.value)'></td>" +
-                                  "<td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +
-                                  "<td colspan=1>" +contract[count].revenue[r].empId__empName + "</td>" +
-                                  "<td colspan=2>" + replaceAll(contract[count].revenue[r].predictBillingDate) + "</td>" +
-                                  "<td colspan=2>" + replaceAll(contract[count].revenue[r].billingDate) + "</td>" +
-                                  "<td colspan='3' class='text-right money'>"+contract[count].revenue[r].revenuePrice+"</td>" +
-                                  "<td class='d-none'><input name='revenueId' value='"+ contract[count].revenue[r].revenueId + "'></td><tr>";
-                                  $('#' + trId).after(table);
-                                  $('.money').simpleMoneyFormat();
-                              }
                           }
                           if (0 < contract[count].revenue.length) {
                               const thead = "<tr name='" + contract[count].contractId + "' id='th"

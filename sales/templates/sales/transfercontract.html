@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  계약이관
+  계약&매출 이관
 {% endblock %}
 
 
@@ -43,7 +43,7 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 계약 이관 </h6>
+          <h6 class="m-0 h3 text-gray-800"> 계약&매출이관 </h6>
         </div>
         <div class="card-body">
           {% csrf_token %}
@@ -84,7 +84,7 @@
             </div>
             <div class="row mb-1">
               <div class="col-xl-3">
-                <span style="font-size: 20px" class="text-secondary">이관일자(매출예정일기준): </span>
+                <span style="font-size: 20px" class="text-secondary">이관일자(매출일기준): </span>
               </div>
               <div class="col-xl-5">
                 <input type="date" id="transferDate" name="transferDate" class="form-control" max="9999-12-31">
@@ -170,7 +170,10 @@
                   url: "{% url 'sales:empid_ajax_url' %}",
                   method: 'POST',
                   cache: false,
-                  data: {"empId": empId},
+                  data: {"empId": empId,
+                        "transferStartDate": '',
+                        "transferEndDate": '',
+                  },
                   headers: {'X-CSRFToken': '{{ csrf_token }}'},
                   success: function (returnData) {
                       var contract = returnData;
@@ -186,7 +189,7 @@
                           $('#beforetransfer').append(tr);
 
                           for (var r = 0; r < contract[count].revenue.length; r++) {
-                              if(transferDate != '' && contract[count].revenue[r].predictBillingDate > transferDate) {
+                              if(transferDate != '' && (contract[count].revenue[r].billingDate > transferDate || contract[count].revenue[r].billingDate == null)) {
                                   const table = "<tr name='" + contract[count].contractId + "'><td></td><td colspan=1><input type='checkbox' checked class='input" + contract[count].contractId
                                       + "' value='" + contract[count].revenue[r].revenueId+ "' name='revenuecheck' onclick='btn_revenuecheck(this.value)'></td>" +
                                       "<td colspan=3>" + contract[count].revenue[r].revenueCompany_id + "</td>" +

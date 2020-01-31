@@ -1541,10 +1541,19 @@ def transfer_contract(request):
 @csrf_exempt
 def empid_asjson(request):
     empId = request.POST['empId']
+    startdate = request.POST['transferStartDate']
+    enddate = request.POST['transferEndDate']
     if empId:
         revenues = Revenue.objects.filter(empId=empId, revenueStatus='N')
     else:
         revenues = Revenue.objects.filter(revenueStatus='N')
+
+    if startdate:
+        revenues = revenues.filter(billingDate__gte=startdate)
+
+    if enddate:
+        revenues = revenues.filter(billingDate__lte=enddate)
+
     contractIds = revenues.values_list('contractId__contractId', flat=True).distinct()
     contracts = Contract.objects.filter(contractId__in=contractIds).values()
 
@@ -1554,6 +1563,7 @@ def empid_asjson(request):
             'revenueId', 'contractId', 'revenueCompany_id', 'empId__empName', 'predictBillingDate', 'billingDate', 'revenuePrice')
         )
 
+    print(contracts)
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
