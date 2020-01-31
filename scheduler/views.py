@@ -5,7 +5,7 @@ import json
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q, Max
+from django.db.models import Q, Max, When, Case, CharField, Value
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -30,15 +30,19 @@ def scheduler(request, day=None):
     afterMonth = Date + relativedelta(months=1)
     startDate = Date - datetime.timedelta(days=7)
     endDate = afterMonth + datetime.timedelta(days=7)
+    todayYear = Date.year
+    todayMonth = Date.month
 
     # 로그인 유저, 부서 정보
     empId = request.user.employee.empId
     empName = request.user.employee.empName
     empDeptName = request.user.employee.empDeptName
-    DeptList = Department.objects.filter(
-        deptName__in=Employee.objects.filter(empStatus='Y').values_list('departmentName__deptName', flat=True).distinct(),
-        deptLevel=Department.objects.all().aggregate(maxLevel=Max('deptLevel'))['maxLevel'],
-    ).values_list('deptName', flat=True)
+    # DeptList = Department.objects.filter(
+    #         Q(startDate__year__lte=todayYear) &
+    #         Q(startDate__month__lte=todayMonth) &
+    #         ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(endDate__isnull=True)))\
+    #     .exclude(deptLevel=0).exclude(deptName='-')\
+    #     .values('deptName', 'deptLevel', 'parentDept')
 
     # 선택한 부서의 일정, 휴가 (기본값은 로그인 사용자의 부서)
     if request.method == "POST":
@@ -69,6 +73,17 @@ def scheduler(request, day=None):
         Q(eventDate__lte=endDate)
     )
 
+    DeptList = Department.objects.filter(
+        Q(startDate__year__lte=todayYear) &
+        Q(startDate__month__lte=todayMonth) &
+        ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(endDate__isnull=True))) \
+        .exclude(deptLevel=0).exclude(deptName='-') \
+        .annotate(checked=Case(
+            When(deptName__in=postDeptList, then=Value('Y')),
+            default=Value("N"),
+            output_field=CharField())).values('deptName', 'deptLevel', 'parentDept', 'checked')
+    # print(DeptList)
+    # print(postDeptList)
     # 내 일정, 팀 일정
     myServices = services.filter(empId=empId)
     teamServices = services.exclude(empId=empId)
