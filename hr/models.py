@@ -74,11 +74,15 @@ class Punctuality(models.Model):
 
 
 class Department(models.Model):
+    statusChoices = (('Y', '사용'), ('N', '미사용'))
     deptId = models.AutoField(primary_key=True)
     deptName = models.CharField(max_length=100, unique=True)
     deptManager = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     deptLevel = models.IntegerField(default=0)
     parentDept = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    startDate = models.DateField(null=True, blank=True)
+    endDate = models.DateField(null=True, blank=True)
+    departmentStatus = models.CharField(max_length=10, choices=statusChoices, default='Y')
 
     def __str__(self):
         return str(self.deptName)

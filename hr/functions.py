@@ -289,7 +289,7 @@ def adminemail_test(smtpEmail, smtpPassword, smtpServer, smtpPort, smtpSecure):
 
 
 def siteMap():
-    departments = Department.objects.all().order_by('deptName')
+    departments = Department.objects.filter(departmentStatus='Y').order_by('deptName')
     deptLevel_min = departments.aggregate(Min('deptLevel'))['deptLevel__min']
     deptLevel_max = departments.aggregate(Max('deptLevel'))['deptLevel__max']
     deptLevelList = []

@@ -102,9 +102,9 @@
                     {% for i in DeptList %}
                       <div class="row">
                         {% if i in postDeptList %}
-                          <label><input type="checkbox" name="ckdept" value="{{ i }}" checked> {{ i }} </label>
+                          <label><input type="checkbox" name="ckdept" value="{{ i.deptName }}" checked> {{ i.deptName }}</label>
                         {% else %}
-                          <label><input type="checkbox" name="ckdept" value="{{ i }}"> {{ i }} </label>
+                          <label><input type="checkbox" name="ckdept" value="{{ i.deptName }}"> {{ i.deptName }} </label>
                         {% endif %}
                       </div>
                     {% endfor %}
@@ -112,9 +112,9 @@
                     {% for i in DeptList %}
                       <div class="row">
                         {% if i == empDeptName %}
-                          <label><input type="checkbox" name="ckdept" value="{{ i }}" checked> {{ i }} </label>
+                          <label><input type="checkbox" name="ckdept" value="{{ i.deptName }}" checked> {{ i.deptName }} </label>
                         {% else %}
-                          <label><input type="checkbox" name="ckdept" value="{{ i }}"> {{ i }} </label>
+                          <label><input type="checkbox" name="ckdept" value="{{ i.deptName }}"> {{ i.deptName }} </label>
                         {% endif %}
                       </div>
                     {% endfor %}

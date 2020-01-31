@@ -41,9 +41,9 @@ class PunctualityAdmin(admin.ModelAdmin):
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ('deptId', 'deptName', 'deptManager', 'deptLevel', 'parentDept')
-    list_filter = ('deptName',)
-    list_display_links = ['deptId', 'deptName', 'deptManager', 'deptLevel', 'parentDept']
+    list_display = ('deptId', 'deptName', 'deptManager', 'deptLevel', 'parentDept', 'startDate', 'endDate', 'departmentStatus')
+    list_filter = ('deptName', 'departmentStatus')
+    list_display_links = ['deptId', 'deptName', 'deptManager', 'deptLevel', 'parentDept', 'startDate', 'endDate', 'departmentStatus']
 
 @admin.register(AdminEmail)
 class AdminEmailAdmin(admin.ModelAdmin):
