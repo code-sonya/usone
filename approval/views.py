@@ -1632,9 +1632,18 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('영업담당자이메일자동입력', '')
 
         if contract.saleTaxCustomerId:
-            contentHtml = contentHtml.replace('세금담당자이름자동입력', contract.saleTaxCustomerId.customerName)
-            contentHtml = contentHtml.replace('세금담당자연락처자동입력', contract.saleTaxCustomerId.customerPhone)
-            contentHtml = contentHtml.replace('세금담당자이메일자동입력', contract.saleTaxCustomerId.customerEmail)
+            if contract.saleTaxCustomerId.customerName:
+                contentHtml = contentHtml.replace('세금담당자이름자동입력', contract.saleTaxCustomerId.customerName)
+            else:
+                contentHtml = contentHtml.replace('세금담당자이름자동입력', '-')
+            if contract.saleTaxCustomerId.customerPhone:
+                contentHtml = contentHtml.replace('세금담당자연락처자동입력', contract.saleTaxCustomerId.customerPhone)
+            else:
+                contentHtml = contentHtml.replace('세금담당자연락처자동입력', '-')
+            if contract.saleTaxCustomerId.customerEmail:
+                contentHtml = contentHtml.replace('세금담당자이메일자동입력', contract.saleTaxCustomerId.customerEmail)
+            else:
+                contentHtml = contentHtml.replace('세금담당자이메일자동입력', '-')
         else:
             contentHtml = contentHtml.replace('세금담당자이름자동입력', '')
             contentHtml = contentHtml.replace('세금담당자연락처자동입력', '')
@@ -2007,7 +2016,7 @@ def post_contract_document(request, contractId, documentType):
         formId=formId,
         preservationYear=formId.preservationYear,
         securityLevel=formId.securityLevel,
-        title='[' + contract.contractName + '] ' + formTitle + ' 결재 자동생성',
+        title='[' + contract.contractName + '] ' + formTitle + ' 결재',
         contentHtml=contentHtml,
         writeDatetime=datetime.datetime.now(),
         modifyDatetime=datetime.datetime.now(),
