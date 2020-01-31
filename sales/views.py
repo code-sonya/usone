@@ -730,14 +730,15 @@ def contracts_asjson(request):
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
     else:
-        if user.empName == '최규성':
-            contracts = contracts.filter(Q(empId=user.empId) | Q(empName='이용주'))
-        elif user.empName == '전세현':
-            contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표') | Q(empName='이용주'))
-        elif user.empName == '전병선':
-            contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표'))
-        else:
-            contracts = contracts.filter(empId=user.empId)
+        # if user.empName == '최규성':
+        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='이용주'))
+        # elif user.empName == '전세현':
+        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표') | Q(empName='이용주'))
+        # elif user.empName == '전병선':
+        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표'))
+        # else:
+        #     contracts = contracts.filter(empId=user.empId)
+        contracts = contracts.filter(Q(empId=user.empId) | Q(empId__empStatus='N'))
 
     revenues = Revenue.objects.all()
     purchases = Purchase.objects.all()
@@ -812,7 +813,7 @@ def revenues_asjson(request):
     elif user.empManager == 'Y':
         revenues = revenues.filter(contractId__empDeptName=user.empDeptName)
     else:
-        revenues = revenues.filter(contractId__empId=user.empId)
+        revenues = revenues.filter(Q(contractId__empId=user.empId) | Q(contractId__empId__empStatus='N'))
 
     if startdate:
         revenues = revenues.filter(predictBillingDate__gte=startdate)
@@ -1196,7 +1197,7 @@ def purchases_asjson(request):
     elif user.empManager == 'Y':
         purchase = purchase.filter(contractId__empDeptName=user.empDeptName)
     else:
-        purchase = purchase.filter(contractId__empId=user.empId)
+        purchase = purchase.filter(Q(contractId__empId=user.empId) | Q(contractId__empId__empStatus='N'))
 
     if startdate:
         purchase = purchase.filter(predictBillingDate__gte=startdate)
@@ -3912,7 +3913,7 @@ def closing_revenues(request):
 @login_required
 @csrf_exempt
 def save_closingrevenues(request):
-    closingrevenues = request.GET.getlist('revenuecheck')
+    closingrevenues = request.POST.getlist('revenuecheck')
     for revenueId in closingrevenues:
         # 매출 상태 변경 : Y-마감
         revenue = Revenue.objects.get(revenueId=revenueId)
@@ -3920,3 +3921,25 @@ def save_closingrevenues(request):
         revenue.save()
 
     return redirect('sales:closingrevenues')
+
+
+@login_required
+@csrf_exempt
+def closing_revenue_money(request):
+    startdate = request.POST['transferStartDate']
+    enddate = request.POST['transferEndDate']
+    revenues = Revenue.objects.filter(revenueStatus='N')
+    if startdate:
+        revenues = revenues.filter(billingDate__gte=startdate)
+    if enddate:
+        revenues = revenues.filter(billingDate__lte=enddate)
+
+    result = [
+        {
+            'revenuePrice': revenues.aggregate(Sum('revenuePrice'))['revenuePrice__sum'],
+            'profitPrice': revenues.aggregate(Sum('revenueProfitPrice'))['revenueProfitPrice__sum'],
+        }
+    ]
+
+    structure = json.dumps(list(result), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
