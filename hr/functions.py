@@ -166,11 +166,10 @@ def check_absence(id, startdate, enddate, contain):
 
 def year_absence(year):
     users = User.objects.filter(Q(employee__empStatus='Y')).exclude(Q(employee__empDeptName='미정')).exclude(Q(employee__empName='관리자'))\
-        .values('employee__empId', 'employee__empName', 'employee__empDeptName', 'employee__empPosition', 'employee__empRank', 'employee__dispatchCompany') \
+        .values('employee__empId', 'employee__empName', 'employee__empDeptName', 'employee__empPosition__positionName', 'employee__empRank', 'employee__dispatchCompany') \
         .order_by('employee__empDeptName', 'employee__empPosition', 'employee__empRank')
 
     for user in users:
-        user['employeePositionName'] = employee_empPosition(user['employee__empPosition'])
         q1absence = check_absence(user['employee__empId'], '{}-01-01'.format(year), '{}-04-01'.format(year), True)
         q2absence = check_absence(user['employee__empId'], '{}-04-01'.format(year), '{}-07-01'.format(year), True)
         q3absence = check_absence(user['employee__empId'], '{}-07-01'.format(year), '{}-10-01'.format(year), True)
