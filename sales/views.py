@@ -3162,7 +3162,7 @@ def view_ordernoti_pdf(request, contractId):
             maxYear = pMaxYear
         else:
             maxYear = rMaxYear
-    
+
         yearList = []
         y = minYear['predictBillingDate__year__min']
         for y in range(minYear['predictBillingDate__year__min'].year, maxYear['predictBillingDate__year__max'].year+1):
@@ -3188,7 +3188,7 @@ def view_ordernoti_pdf(request, contractId):
         sumpBillingSchedule = []
         rBillingSchedule = []
         sumrBillingSchedule = []
-        print(monthList)
+
         for month in monthList:
             sumrBillingSchedule.append(
                 {'list': month, 'year': month[0][:4], 'name': 'sum', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
@@ -3236,7 +3236,6 @@ def view_ordernoti_pdf(request, contractId):
         context['sumpBillingSchedule'] = sumpBillingSchedule
         context['rBillingSchedule'] = rBillingSchedule
         context['sumrBillingSchedule'] = sumrBillingSchedule
-        print(rBillingSchedule)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="{}_수주통보서.pdf"'.format(contractId)
