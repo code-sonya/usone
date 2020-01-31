@@ -142,7 +142,6 @@
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var empName = returnData;
-                  console.log(empName);
                   $('#' + selectId).empty();
 
                   $('#' + selectId).append("<option value='전체'>----------------</option>");
@@ -157,7 +156,6 @@
       function loadContract() {
           const empId = $('#beforeempName').val();
           const transferDate = $('#transferDate').val();
-          console.log(empId);
           $('#beforetransfer').empty();
           const th = "<thead>" + "<tr class='text-white' style='background-color: #36b9cc'>"
               + "<th colspan=1></th>" + "<th colspan=2>구분</th>" + "<th colspan=6>계약명</th>"
@@ -292,12 +290,10 @@
         };
     }(jQuery));
       function btn_revenuecheck(trId) {
-          console.log(trId);
           $('tr[name=' + trId + ']').css('background-color', 'lightgrey')
       }
 
       function btn_save() {
-          console.log(document.getElementById("afterempName").value);
           if (document.getElementById("afterempName").value === '' || document.getElementById("afterempName").value == '전체') {
               alert("변경할 영업 담당자를 선택해 주세요.");
               return false;
@@ -309,7 +305,6 @@
                   data += "|" + ($(this).val());
 
           });
-          console.log(data);
 
           if (data == 0) {
               alert("선택된 매출이 없습니다.");

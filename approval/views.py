@@ -1387,7 +1387,7 @@ def return_document(request, approvalId):
     # 계약 수정 권한
     if document.formId.formTitle == '수주통보서':
         contract = Contract.objects.get(contractId=document.contractId.contractId)
-        contract.modifyContract = 'N'
+        contract.modifyContract = 'Y'
         contract.save()
 
     # 반려 메일
@@ -1546,8 +1546,6 @@ def post_contract_document(request, contractId, documentType):
 
     # 1. 수주통보서
     if formTitle == '수주통보서':
-        contract.modifyContract = 'N'
-        contract.save()
         # N차 수정 수주통보서
         N = len(Document.objects.filter(
             formId__categoryId__firstCategory='영업',

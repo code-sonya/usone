@@ -410,7 +410,11 @@ def opportunity_asjson(request):
 @login_required
 @csrf_exempt
 def quarter_asjson(request):
-    todayYear = datetime.today().year
+    todayYear = int(request.POST['todayYear'])
+
+    if todayYear == '':
+        todayYear = datetime.today().year
+
     dict_quarter = {"q1_start": "{}-01-01".format(todayYear),
                     "q1_end": "{}-04-01".format(todayYear),
                     "q2_end": "{}-07-01".format(todayYear),

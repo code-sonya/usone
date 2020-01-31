@@ -248,8 +248,10 @@
               <th></th>
               <th></th>
               <th></th>
-              <th>TOTAL :</th>
               <th></th>
+              <th>TOTAL :</th>
+              <th class="p-1 text-right"></th>
+              <th class="p-1 text-right"></th>
               <th></th>
               <th></th>
               </tfoot>
@@ -310,8 +312,10 @@
               <th></th>
               <th></th>
               <th></th>
-              <th>TOTAL :</th>
               <th></th>
+              <th>TOTAL :</th>
+              <th class="p-1 text-right"></th>
+              <th class="p-1 text-right"></th>
               <th></th>
               <th></th>
               </tfoot>
@@ -403,6 +407,7 @@
       filterArray['step'] = '';
       filterArray['cumulative'] = '';
       filterArray['month'] = '';
+      filterArray['year'] = '{{ todayYear }}';
 
       const colors = ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
           "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
@@ -1084,6 +1089,7 @@
               method: 'POST',
               cache: false,
               data: {
+                  "todayYear": '{{ todayYear }}',
                   "step": filterArray['step'],
                   "cumulative": filterArray['cumulative'],
                   "quarter": filterArray['quarter'],

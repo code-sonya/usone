@@ -355,6 +355,7 @@
               <th></th>
               <th></th>
               <th></th>
+              <th></th>
               </tfoot>
             </table>
           </div>
@@ -493,6 +494,7 @@
               <th></th>
               <th></th>
               <th></th>
+              <th></th>
               </tfoot>
             </table>
           </div>
@@ -566,6 +568,7 @@
               <th></th>
               <th></th>
               <th>TOTAL :</th>
+              <th></th>
               <th></th>
               <th></th>
               <th></th>
@@ -2243,6 +2246,7 @@
               method: 'POST',
               cache: false,
               data: {
+                  "todayYear": '{{ todayYear }}',
                   "step": filterArray['step'],
                   "cumulative": filterArray['cumulative'],
                   "quarter": filterArray['quarter'],
