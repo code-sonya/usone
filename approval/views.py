@@ -1568,10 +1568,8 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('최종고객사자동입력', contract.endCompanyName.companyNameKo)
         else:
             contentHtml = contentHtml.replace('최종고객사자동입력', '')
-        # contentHtml = contentHtml.replace('대분류자동입력', contract.mainCategory)
-        # contentHtml = contentHtml.replace('소분류자동입력', contract.subCategory)
-        contentHtml = contentHtml.replace('산업군자동입력', contract.saleIndustry)
-        contentHtml = contentHtml.replace('판매유형자동입력',  contract.saleType)
+        contentHtml = contentHtml.replace('산업군판매유형자동입력', contract.saleIndustry + ' · ' + contract.saleType)
+        contentHtml = contentHtml.replace('대분류소분류자동입력',  contract.mainCategory + ' · ' + contract.subCategory)
         contentHtml = contentHtml.replace('계약일자동입력', str(contract.contractDate))
         if contract.contractStartDate or contract.contractEndDate:
             contentHtml = contentHtml.replace(
