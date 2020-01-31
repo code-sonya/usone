@@ -1734,19 +1734,15 @@ def post_contract_document(request, contractId, documentType):
             else:
                 maxYear = rMaxYear
 
-            delta = relativedelta(years=+1)
-
             yearList = []
-            y = minYear['predictBillingDate__year__min']
-            while y <= maxYear['predictBillingDate__year__max']:
+            for y in range(minYear['predictBillingDate__year__min'].year, maxYear['predictBillingDate__year__max'].year + 1):
                 yearList.append(y)
-                y += delta
 
             monthList = []
             for y in yearList:
                 dateList = []
                 for d in range(1, 13):
-                    dateList.append('{}-{}'.format(y.year, str(d).zfill(2)))
+                    dateList.append('{}-{}'.format(y, str(d).zfill(2)))
                 monthList.append(dateList)
 
             groupPurchases = purchases.values(
