@@ -37,12 +37,6 @@ def scheduler(request, day=None):
     empId = request.user.employee.empId
     empName = request.user.employee.empName
     empDeptName = request.user.employee.empDeptName
-    # DeptList = Department.objects.filter(
-    #         Q(startDate__year__lte=todayYear) &
-    #         Q(startDate__month__lte=todayMonth) &
-    #         ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(endDate__isnull=True)))\
-    #     .exclude(deptLevel=0).exclude(deptName='-')\
-    #     .values('deptName', 'deptLevel', 'parentDept')
 
     # 선택한 부서의 일정, 휴가 (기본값은 로그인 사용자의 부서)
     if request.method == "POST":
@@ -73,16 +67,27 @@ def scheduler(request, day=None):
         Q(eventDate__lte=endDate)
     )
 
-    DeptList = Department.objects.filter(
+    GroupDeptList = Department.objects.filter(
+        Q(deptLevel=1) &
         Q(startDate__year__lte=todayYear) &
         Q(startDate__month__lte=todayMonth) &
         ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(endDate__isnull=True))) \
-        .exclude(deptLevel=0).exclude(deptName='-') \
+        .annotate(checked=Case(
+        When(deptName__in=postDeptList, then=Value('Y')),
+        default=Value("N"),
+        output_field=CharField())).values('deptId', 'deptName', 'deptLevel', 'parentDept__deptName', 'checked')
+
+    DeptList = Department.objects.filter(
+        Q(deptLevel=2) &
+        Q(startDate__year__lte=todayYear) &
+        Q(startDate__month__lte=todayMonth) &
+        ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(endDate__isnull=True))) \
         .annotate(checked=Case(
             When(deptName__in=postDeptList, then=Value('Y')),
             default=Value("N"),
-            output_field=CharField())).values('deptName', 'deptLevel', 'parentDept', 'checked')
-    # print(DeptList)
+            output_field=CharField())).values('deptName', 'deptLevel', 'parentDept', 'parentDept__deptName', 'checked')
+
+    print(DeptList)
     # print(postDeptList)
     # 내 일정, 팀 일정
     myServices = services.filter(empId=empId)
@@ -100,6 +105,7 @@ def scheduler(request, day=None):
         'teamServices': teamServices,
         'myVacations': myVacations,
         'teamVacations': teamVacations,
+        'GroupDeptList': GroupDeptList,
         'DeptList': DeptList,
         'holiday': holiday,
         'event': event,
