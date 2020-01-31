@@ -3162,18 +3162,17 @@ def view_ordernoti_pdf(request, contractId):
             maxYear = pMaxYear
         else:
             maxYear = rMaxYear
-
-        delta = relativedelta(years=+1)
+    
         yearList = []
         y = minYear['predictBillingDate__year__min']
-        while y <= maxYear['predictBillingDate__year__max']:
+        for y in range(minYear['predictBillingDate__year__min'].year, maxYear['predictBillingDate__year__max'].year+1):
             yearList.append(y)
-            y += delta
+
         monthList = []
         for y in yearList:
             dateList = []
             for d in range(1, 13):
-                dateList.append('{}-{}'.format(y.year, str(d).zfill(2)))
+                dateList.append('{}-{}'.format(y, str(d).zfill(2)))
             monthList.append(dateList)
         context['yearList'] = monthList
 
@@ -3189,15 +3188,16 @@ def view_ordernoti_pdf(request, contractId):
         sumpBillingSchedule = []
         rBillingSchedule = []
         sumrBillingSchedule = []
+        print(monthList)
         for month in monthList:
             sumrBillingSchedule.append(
                 {'list': month, 'year': month[0][:4], 'name': 'sum', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
             sumpBillingSchedule.append(
                 {'list': month, 'year': month[0][:4], 'name': 'sum', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
             for c in list(set(companyPurchases)):
-                pBillingSchedule.append({'list':month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
+                pBillingSchedule.append({'list': month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
             for c in list(set(companyRevenues)):
-                rBillingSchedule.append({'list':month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
+                rBillingSchedule.append({'list': month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
         # 매입
         for group in groupPurchases:
             for schedule in pBillingSchedule:
@@ -3236,6 +3236,7 @@ def view_ordernoti_pdf(request, contractId):
         context['sumpBillingSchedule'] = sumpBillingSchedule
         context['rBillingSchedule'] = rBillingSchedule
         context['sumrBillingSchedule'] = sumrBillingSchedule
+        print(rBillingSchedule)
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="{}_수주통보서.pdf"'.format(contractId)
