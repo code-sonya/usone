@@ -1563,7 +1563,6 @@ def empid_asjson(request):
             'revenueId', 'contractId', 'revenueCompany_id', 'empId__empName', 'predictBillingDate', 'billingDate', 'revenuePrice')
         )
 
-    print(contracts)
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1571,8 +1570,8 @@ def empid_asjson(request):
 @login_required
 @csrf_exempt
 def save_transfercontract(request):
-    empId = Employee.objects.get(empId=request.GET['afterempName'])
-    transferrevenues = request.GET.getlist('revenuecheck')
+    empId = Employee.objects.get(empId=request.POST['afterempName'])
+    transferrevenues = request.POST.getlist('revenuecheck')
     for revenueId in transferrevenues:
         # 매출 영업대표 변경
         revenue = Revenue.objects.get(revenueId=revenueId)

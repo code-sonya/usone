@@ -47,7 +47,7 @@
         </div>
         <div class="card-body">
           {% csrf_token %}
-          <form id="transfercontractForm" action="/sales/savetransfercontract/">
+          <form id="transfercontractForm" action="/sales/savetransfercontract/" method="POST">
             <div class="row mb-1">
               <div class="col-xl-3">
                 <span style="font-size: 20px" class="text-danger">기존영업대표 :  </span>
