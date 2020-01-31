@@ -3164,7 +3164,6 @@ def view_ordernoti_pdf(request, contractId):
             maxYear = rMaxYear
 
         yearList = []
-        y = minYear['predictBillingDate__year__min']
         for y in range(minYear['predictBillingDate__year__min'].year, maxYear['predictBillingDate__year__max'].year+1):
             yearList.append(y)
 
