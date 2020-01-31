@@ -202,7 +202,11 @@ def view_department(request, deptId):
 def post_department(request):
     if request.method == 'POST':
         form = DepartmentForm(request.POST)
+        # if form.is_valid():
+        #     form.save()
         form.save()
+        # else:
+        #     print('!!')
         return redirect('hr:showdepartments')
 
     else:

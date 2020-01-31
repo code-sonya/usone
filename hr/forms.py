@@ -50,7 +50,7 @@ class DepartmentForm(forms.ModelForm):
 
     class Meta:
         model = Department
-        fields = ('deptName', 'deptManager', 'deptLevel', 'parentDept', 'startDate', 'endDate', 'departmentStatus')
+        fields = ('deptName', 'deptManager', 'deptLevel', 'parentDept', 'startDate', 'endDate',)
 
         widgets = {
             'deptName': forms.TextInput(attrs={'class': 'form-control', 'id': 'deptName'}),
@@ -59,7 +59,6 @@ class DepartmentForm(forms.ModelForm):
             'parentDept': forms.Select(attrs={'class': 'form-control', 'id': 'parentDept'}),
             'startDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'startDate'}),
             'endDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'endDate'}),
-            'departmentStatus': forms.Select(attrs={'class': 'form-control', 'id': 'departmentStatus'}),
         }
 
     def __init__(self, *args, **kwargs):
