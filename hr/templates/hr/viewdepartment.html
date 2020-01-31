@@ -63,16 +63,17 @@
               </tr>
               <tr>
                 <td class="text-center align-middle bg-light"><b>사용여부</b></td>
-                <td>{{ form.departmentStatus }}</td>
+                <td>
+                  <select id="departmentStatus" class="form-control">
+                    <option value="Y" {% if dept.departmentStatus == 'Y' %}selected{% endif %}>사용</option>
+                    <option value="N" {% if dept.departmentStatus == 'N' %}selected{% endif %}>미사용</option>
+                  </select>
+                </td>
               </tr>
             </form>
             </tbody>
           </table>
           <div class="text-center">
-            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-              <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
-              <span class="text"> 삭제 </span>
-            </a>
             <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
               <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
               <span class="text"> 저장 </span>
@@ -93,6 +94,11 @@
       function btn_save() {
           if (confirm('수정 하시겠습니까?')) {
               const deptForm = $('#deptForm');
+              $('<input />', {
+                  type: 'hidden',
+                  name: 'departmentStatus',
+                  value: $('#departmentStatus').val()
+              }).appendTo(deptForm);
               deptForm.submit();
           }
       }

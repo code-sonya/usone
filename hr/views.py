@@ -185,6 +185,7 @@ def view_department(request, deptId):
     if request.method == 'POST':
         form = DepartmentForm(request.POST, instance=dept)
         post = form.save(commit=False)
+        post.departmentStatus = request.POST['departmentStatus']
         post.save()
         Employee.objects.filter(departmentName=dept).update(empDeptName=post.deptName)
         return redirect('hr:showdepartments')
