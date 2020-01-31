@@ -87,7 +87,6 @@ def scheduler(request, day=None):
             default=Value("N"),
             output_field=CharField())).values('deptName', 'deptLevel', 'parentDept', 'parentDept__deptName', 'checked')
 
-    print(DeptList)
     # print(postDeptList)
     # 내 일정, 팀 일정
     myServices = services.filter(empId=empId)
