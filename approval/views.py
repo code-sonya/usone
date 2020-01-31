@@ -1524,13 +1524,14 @@ def post_contract_document(request, contractId, documentType):
         lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
         contractPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
-    # 수주통보서(orderPaper)
-    lastFile = files.filter(fileCategory='수주통보서')
-    if lastFile:
-        maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
-        lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
-        orderPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
-
+    # 수주통보서
+    lastOrderNoti = Document.objects.filter(contractId=contract, formId__formTitle='수주통보서', documentStatus='완료')
+    if lastOrderNoti:
+        maxDraftDatetime = lastOrderNoti.aggregate(Max('draftDatetime'))['draftDatetime__max']
+        lastOrderNoti = lastOrderNoti.get(draftDatetime=maxDraftDatetime)
+        orderPaper = '<a href="/approval/viewdocument/' + str(lastOrderNoti.documentId) + '">' + lastOrderNoti.title + '</a>'
+    else:
+        orderPaper = '수주통보서 없음.'
 
     # 확인서(confirmPaper)
     lastFile = files.filter(fileCategory='납품,구축,검수확인서')
@@ -1538,6 +1539,8 @@ def post_contract_document(request, contractId, documentType):
         maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
         lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
         confirmPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+    else:
+        confirmPaper = '확인서 없음.'
 
     contentHtml = formId.formHtml
 
@@ -1965,8 +1968,14 @@ def post_contract_document(request, contractId, documentType):
         contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
         contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
         contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
-        contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
-        contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
+        if purchaseCompany:
+            contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
+        else:
+            contentHtml = contentHtml.replace('매입처자동입력', '')
+        if purchasePrice:
+            contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
+        else:
+            contentHtml = contentHtml.replace('매입액자동입력', '')
         contentHtml = contentHtml.replace('수주통보서링크', orderPaper)
         contentHtml = contentHtml.replace('납품,구축,검수확인서링크', confirmPaper)
 
