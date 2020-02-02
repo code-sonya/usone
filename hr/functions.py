@@ -214,45 +214,45 @@ def year_absence(year):
     team8 = []
     team9 = []
     team10 = []
-    if str(datetime.datetime.today())[:10] <= '2020-01-31':
-        for user in users:
-            if user['employee__empDeptName'] == '경영지원본부':
-                team1.append(user)
-            elif user['employee__empDeptName'] == '영업1팀':
-                team2.append(user)
-            elif user['employee__empDeptName'] == '영업2팀':
-                team3.append(user)
-            elif user['employee__empDeptName'] == '인프라서비스사업팀':
-                team4.append(user)
-            elif user['employee__empDeptName'] == '솔루션지원팀':
-                team5.append(user)
-            elif user['employee__empDeptName'] == 'DB지원팀':
-                team6.append(user)
-        userList = (team1, team2, team3, team4, team5, team6)
-    else:
-        for user in users:
-            if user['employee__empDeptName'] == '인프라솔루션사업부':
-                team1.append(user)
-            elif user['employee__empDeptName'] == '영업팀':
-                team2.append(user)
-            elif user['employee__empDeptName'] == 'R&D 전략사업부':
-                team3.append(user)
-            elif user['employee__empDeptName'] == 'AI Platform Labs':
-                team4.append(user)
-            elif user['employee__empDeptName'] == 'Technical Architecture팀':
-                team5.append(user)
-            elif user['employee__empDeptName'] == 'Platform Biz':
-                team6.append(user)
-            elif user['employee__empDeptName'] == 'DB Expert팀':
-                team7.append(user)
-            elif user['employee__empDeptName'] == '솔루션팀':
-                team8.append(user)
-            elif user['employee__empDeptName'] == '경영지원본부':
-                team9.append(user)
-            elif user['employee__empDeptName'] == '경영지원실':
-                team10.append(user)
+    # if str(datetime.datetime.today())[:10] <= '2020-01-31':
+    #     for user in users:
+    #         if user['employee__empDeptName'] == '경영지원본부':
+    #             team1.append(user)
+    #         elif user['employee__empDeptName'] == '영업1팀':
+    #             team2.append(user)
+    #         elif user['employee__empDeptName'] == '영업2팀':
+    #             team3.append(user)
+    #         elif user['employee__empDeptName'] == '인프라서비스사업팀':
+    #             team4.append(user)
+    #         elif user['employee__empDeptName'] == '솔루션지원팀':
+    #             team5.append(user)
+    #         elif user['employee__empDeptName'] == 'DB지원팀':
+    #             team6.append(user)
+    #     userList = (team1, team2, team3, team4, team5, team6)
+    # else:
+    for user in users:
+        if user['employee__empDeptName'] == '인프라솔루션사업부':
+            team1.append(user)
+        elif user['employee__empDeptName'] == '영업팀':
+            team2.append(user)
+        elif user['employee__empDeptName'] == 'R&D 전략사업부':
+            team3.append(user)
+        elif user['employee__empDeptName'] == 'AI Platform Labs':
+            team4.append(user)
+        elif user['employee__empDeptName'] == 'Technical Architecture팀':
+            team5.append(user)
+        elif user['employee__empDeptName'] == 'Platform Biz':
+            team6.append(user)
+        elif user['employee__empDeptName'] == 'DB Expert팀':
+            team7.append(user)
+        elif user['employee__empDeptName'] == '솔루션팀':
+            team8.append(user)
+        elif user['employee__empDeptName'] == '경영지원본부':
+            team9.append(user)
+        elif user['employee__empDeptName'] == '경영지원실':
+            team10.append(user)
 
-        userList = (team1, team2, team3, team4, team5, team6, team7, team8, team9, team10)
+    userList = (team1, team2, team3, team4, team5, team6, team7, team8, team9, team10)
     return userList
 
 
