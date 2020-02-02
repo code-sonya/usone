@@ -1040,10 +1040,10 @@ def day_report(request, day=None):
         beforeDate = Date - datetime.timedelta(days=1)
         afterDate = Date + datetime.timedelta(days=1)
 
-        sales = dayreport_query(empDeptName=["영업팀"], day=day)
-        rnd = dayreport_query(empDeptName=["Technical Architecture팀", "AI Platform Labs"], day=day)
-        db = dayreport_query(empDeptName=["DB Expert팀"], day=day)
-        solution = dayreport_query(empDeptName=["솔루션팀"], day=day)
+        sales = dayreport_query(empDeptName=["인프라솔루션사업부", "영업팀"], day=day)
+        rnd = dayreport_query(empDeptName=["R&D 전략사업부", "Technical Architecture팀", "AI Platform Labs"], day=day)
+        db = dayreport_query(empDeptName=["Platform Biz", "DB Expert팀"], day=day)
+        solution = dayreport_query(empDeptName=["Platform Biz", "솔루션팀"], day=day)
 
         dept = request.user.employee.empDeptName
         rows = []
