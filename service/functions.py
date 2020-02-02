@@ -553,17 +553,86 @@ def dayreport_query(empDeptName, day):
                 'sortKey': service.empId.empRank,
             })
 
-    for vacation in vacationDept:
-        vacationStatus = ''
-        if vacation.vacationStatus == 'N':
-            vacationStatus = '(결재중)'
-        listVacation.append({
-            'empName': vacation.empName,
-            'serviceBeginDatetime': Date,
-            'vacationType': vacation.vacationType[:2],
-            'vacationStatus': vacationStatus,
-            'sortKey': vacation.empId.empRank,
-        })
+    # # 내근 추가 전
+    # for vacation in vacationDept:
+    #     vacationStatus = ''
+    #     if vacation.vacationStatus == 'N':
+    #         vacationStatus = '(결재중)'
+    #     listVacation.append({
+    #         'empName': vacation.empName,
+    #         'serviceBeginDatetime': Date,
+    #         'vacationType': vacation.vacationType[:2],
+    #         'vacationStatus': vacationStatus,
+    #         'sortKey': vacation.empId.empRank,
+    #     })
+
+    # 내근 추가
+    if datetime.datetime.weekday(Date) >= 5 or Eventday.objects.filter(Q(eventDate=Date) & Q(eventType='휴일')):
+        holiday = True
+    else:
+        holiday = False
+
+    inDept = User.objects.filter(
+        Q(employee__empDeptName__in=empDeptName) &
+        Q(employee__empStatus='Y')
+    ).exclude(
+        Q(employee__empId__in=serviceDept.values('empId')) |
+        Q(employee__empId__in=vacationDept.values('empId'))
+    )
+
+    if not holiday:
+        for emp in inDept:
+            listService.append({
+                'serviceId': '',
+                'flag': '',
+                'empName': emp.employee.empName,
+                'serviceBeginDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
+                'serviceFinishDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
+                'serviceStatus': '',
+                'companyName': emp.employee.dispatchCompany,
+                'serviceType': '',
+                'serviceTitle': emp.employee.message,
+                'sortKey': emp.employee.empRank,
+            })
+
+        for vacation in vacationDept:
+            if vacation.vacationStatus == 'Y':
+                vacationStatus = ''
+            elif vacation.vacationStatus == 'N':
+                vacationStatus = '(결재중)'
+            listVacation.append({
+                'empName': vacation.empName,
+                'serviceBeginDatetime': Date,
+                'vacationType': vacation.vacationType[:2],
+                'vacationStatus': vacationStatus,
+                'sortKey': vacation.empId.empRank,
+            })
+
+            if vacation.vacationType != '일차' and vacation.empId.empId not in serviceDept.values_list('empId', flat=True):
+                if vacation.empId.dispatchCompany == '내근':
+                    flag = ''
+                else:
+                    flag = '상주'
+
+                if vacation.vacationType == '오전반차':
+                    startDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 14, 0)
+                    endDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0)
+                elif vacation.vacationType == '오후반차':
+                    startDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0)
+                    endDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 14, 0)
+
+                listService.append({
+                    'serviceId': '',
+                    'flag': flag,
+                    'empName': vacation.empName,
+                    'serviceBeginDatetime': startDateTime,
+                    'serviceFinishDatetime': endDateTime,
+                    'serviceStatus': '',
+                    'companyName': vacation.empId.dispatchCompany,
+                    'serviceType': '',
+                    'serviceTitle': vacation.empId.message,
+                    'sortKey': vacation.empId.empRank,
+                })
 
     listService.sort(key=lambda x: x['sortKey'])
     listEducation.sort(key=lambda x: x['sortKey'])
