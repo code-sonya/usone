@@ -804,31 +804,30 @@ def dashboard_location(request):
         serviceType=F('serviceId__serviceType__typeName'),
         serviceTitle=F('serviceId__serviceTitle'),
     )
-    tables = [
-        {
-            'team': '영업1팀',
-            'services': services.filter(empDeptName='영업1팀')
-        },
-        {
-            'team': '영업2팀',
-            'services': services.filter(empDeptName='영업2팀')
-        },
-        {
-            'team': '인프라서비스사업팀',
-            'services': services.filter(empDeptName='인프라서비스사업팀')
-        },
-        {
-            'team': '솔루션지원팀',
-            'services': services.filter(empDeptName='솔루션지원팀')
-        },
-        {
-            'team': 'DB지원팀',
-            'services': services.filter(empDeptName='DB지원팀')
-        },
-    ]
-
     # 20년 2월 1일 이전
     if day <= '2020-01-31':
+        tables = [
+            {
+                'team': '영업1팀',
+                'services': services.filter(empDeptName='영업1팀')
+            },
+            {
+                'team': '영업2팀',
+                'services': services.filter(empDeptName='영업2팀')
+            },
+            {
+                'team': '인프라서비스사업팀',
+                'services': services.filter(empDeptName='인프라서비스사업팀')
+            },
+            {
+                'team': '솔루션지원팀',
+                'services': services.filter(empDeptName='솔루션지원팀')
+            },
+            {
+                'team': 'DB지원팀',
+                'services': services.filter(empDeptName='DB지원팀')
+            },
+        ]
         Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
 
         solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
@@ -909,6 +908,24 @@ def dashboard_location(request):
     # 20년 2월 1일 부터
     else:
         Date = datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+        tables = [
+            {
+                'team': '[인프라솔루션사업부]영업팀',
+                'services': services.filter(empDeptName__in=["인프라솔루션사업부", "영업팀"])
+            },
+            {
+                'team': '[R&D 전략사업부]TA팀·AI Labs',
+                'services': services.filter(empDeptName__in=["R&D 전략사업부", "Technical Architecture팀", "AI Platform Labs"])
+            },
+            {
+                'team': '[Platform Biz]솔루션팀',
+                'services': services.filter(empDeptName='솔루션팀')
+            },
+            {
+                'team': '[Platform Biz]DB Expert팀',
+                'services': services.filter(empDeptName='DB Expert팀')
+            },
+        ]
 
         sales = dayreport_query(empDeptName=["영업팀"], day=day)
         rnd = dayreport_query(empDeptName=["Technical Architecture팀", "AI Platform Labs"], day=day)
@@ -916,12 +933,12 @@ def dashboard_location(request):
         solution = dayreport_query(empDeptName=["솔루션팀"], day=day)
         rows = [
             [
-                {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
-                {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+                {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+                {'title': '[R&D 전략사업부]TA팀·AI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
             ],
             [
-                {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-                {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+                {'title': '[Platform Biz]솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': '[Platform Biz]DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
             ]
         ]
 
