@@ -131,8 +131,8 @@
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-info text-uppercase mb-1">[{{ todayYear }}년]<br>목표매출 / 예상매출 / 달성률</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {% if cumulativeGoal.cumulativeGoalSalePrice %}{{ cumulativeGoal.cumulativeGoalSalePrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
-                {% if cumulativeRevenues.revenuePrice %}{{ cumulativeRevenues.revenuePrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
+                {% if sumGoals.yearSalesSum %}{{ sumGoals.yearSalesSum|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
+                {% if sumRevenues.revenuePrice %}{{ sumRevenues.revenuePrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if allPercent %}{{ allPercent.salePricePercent }}{% else %}-{% endif %}%
               </div>
             </div>
@@ -151,8 +151,8 @@
             <div class="col mr-2">
               <div class="text-sm font-weight-bold text-info text-uppercase mb-1">[{{ todayYear }}년]<br>목표이익 / 예상이익 / 달성률</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {% if cumulativeGoal.cumulativeGoalProfitPrice %}{{ cumulativeGoal.cumulativeGoalProfitPrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
-                {% if cumulativeRevenues.revenueProfitPrice %}{{ cumulativeRevenues.revenueProfitPrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
+                {% if sumGoals.yearProfitSum %}{{ sumGoals.yearProfitSum|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
+                {% if sumRevenues.revenueProfitPrice %}{{ sumRevenues.revenueProfitPrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if allPercent %}{{ allPercent.profitPricePercent }}{% else %}-{% endif %}%
               </div>
             </div>
