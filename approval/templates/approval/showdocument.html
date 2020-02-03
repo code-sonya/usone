@@ -15,7 +15,7 @@
 {% block content %}
   <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-      <h6 class="m-0 h3 text-gray-800">전자 결재 ({{ category }})</h6>
+      <h6 class="m-0 h3 text-gray-800">{{ title }}</h6>
       <div class="dropdown no-arrow">
         <a class="btn btn-primary"  href="/approval/postdocument/" role="button">
           <i class="fas fa-pen fa-fw d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen fa-fw"></i> 등록</span>
@@ -25,6 +25,55 @@
 
     <div class="card-body">
       <div class="table-responsive mt-3">
+        <div class="mb-3">
+          {% if category == '진행' %}
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('')">
+              <span class="d-xl-none">전체</span>
+              <span class="d-none d-xl-block">진행전체</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('결재예정')">
+              <span class="d-xl-none">예정</span>
+              <span class="d-none d-xl-block">결재예정</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('결재대기')">
+              <span class="d-xl-none">대기</span>
+              <span class="d-none d-xl-block">결재대기</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('결재완료')">
+              <span class="d-xl-none">완료</span>
+              <span class="d-none d-xl-block">결재완료</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('참조문서')">
+              <span class="d-xl-none">참조</span>
+              <span class="d-none d-xl-block">참조문서</span>
+            </a>
+          {% elif category == '완료' %}
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('')">
+              <span class="d-xl-none">전체</span>
+              <span class="d-none d-xl-block">완료전체</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('기안문서')">
+              <span class="d-xl-none">기안</span>
+              <span class="d-none d-xl-block">기안문서</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('결재문서')">
+              <span class="d-xl-none">결재</span>
+              <span class="d-none d-xl-block">결재문서</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('참조문서')">
+              <span class="d-xl-none">참조</span>
+              <span class="d-none d-xl-block">참조문서</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('반려문서')">
+              <span class="d-xl-none">반려</span>
+              <span class="d-none d-xl-block">반려문서</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_option('조회문서')">
+              <span class="d-xl-none">조회</span>
+              <span class="d-none d-xl-block">조회문서</span>
+            </a>
+          {% endif %}
+        </div>
         <table id="showdocument" class="hover row-border">
           <thead>
           <tr>
@@ -55,19 +104,33 @@
 {% block script %}
   <script type="text/javascript">
 
-    $(document).ready(function() {
+    function btn_option(option) {
+        load_datatable($('#showdocument').DataTable(), '{{ category }}', option);
+    }
 
+    function load_datatable(table, category, option) {
+        table.rows().remove();
+        $.ajax({
+            url: "{% url 'approval:showdocumentasjson' %}",
+            method: 'GET',
+            cache: false,
+            data: {
+                'category': category,
+                'option': option,
+            },
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                for (let i = 0; i < returnData.length; i++) {
+                    table.row.add(returnData[i])
+                }
+                table.draw()
+            }
+        });
+    }
+
+    $(document).ready(function() {
         let table = $('#showdocument').DataTable({
             "processing": true,
-            "ajax": {
-                "processing": true,
-                "type": 'GET',
-                "data": {
-                    'category': "{{ category }}",
-                },
-                "url": "{% url 'approval:showdocumentasjson' %}",
-                "dataSrc": ""
-            },
             "columnDefs": [
                 {
                     targets: 0,
@@ -136,7 +199,6 @@
                 },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                console.log(aData);
                 if (aData.draftDatetime) {
                     $('td', nRow).eq(3).text(aData.draftDatetime.split('-').join('.').split('T').slice(0, 1));
                 } else {
@@ -161,6 +223,8 @@
                 location.href = '/approval/viewdocument/' + data.documentId + '/';
             {% endif %}
         });
+
+        load_datatable(table, '{{ category }}', '');
     })
 
   </script>

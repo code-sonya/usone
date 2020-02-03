@@ -419,6 +419,9 @@ def mail_approval(employee, document, type):
         if type == "결재요청":
             title = "'{}' 결재 요청".format(document.title)
             html = approvalhtml(document)
+        elif type == '참조문서':
+            title = "'{}' 참조 문서".format(document.title)
+            html = approvalhtml(document)
         elif type == "결재완료":
             title = "'{}' 결재 완료".format(document.title)
             html = approvaldonehtml(document)

@@ -15,14 +15,16 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models.functions import Coalesce
 from django.views.decorators.http import require_POST
 
+from approval.models import Document
 from hr.models import Employee, AdminEmail
 from service.models import Servicereport
 from client.models import Company, Customer
-from logs.models import OrderLog
+from logs.models import OrderLog, ContractLog
 from .forms import ContractForm, GoalForm, PurchaseorderformForm
 from .models import Contract, Category, Revenue, Contractitem, Goal, Purchase, Cost, Expense, Acceleration, Incentive, \
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Contractfile, Purchasecategory, Purchasefile,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Purchasecontractitem, Classification, Contractcomment,\
+    IncentiveDept
 from .functions import viewContract, dailyReportRows, cal_revenue_incentive, cal_acc, cal_emp_incentive, cal_over_gp, \
     empIncentive, cal_monthlybill, cal_profitloss, daily_report_sql3, award, summary, detailPurchase, billing_schedule, mail_purchaseorder
 
@@ -71,6 +73,7 @@ def post_contract(request):
             for item in jsonItem:
                 Contractitem.objects.create(
                     contractId=post,
+                    companyName=Company.objects.filter(companyNameKo=item["revenueCategoryCompany"]).first(),
                     mainCategory=item["mainCategory"],
                     subCategory=item["subCategory"],
                     itemName=item["itemName"],
@@ -179,6 +182,9 @@ def copy_contract(request, contractId):
 
     # 단계 Opportunity로 변경
     contract.contractStep = 'Opportunity'
+    contract.empId = request.user.employee
+    contract.empName = request.user.employee.empName
+    contract.empDeptName = request.user.employee.empDeptName
 
     # 관리번호 자동생성
     yy = str(datetime.now().year)[2:]
@@ -186,9 +192,9 @@ def copy_contract(request, contractId):
     contract.contractCode = 'O-' + yy + mm + '-' + str(contract.contractId)
 
     # 생성로그, 수정로그
-    contract.writeEmpId = Employee.objects.get(empId=request.user.employee.empId)
+    contract.writeEmpId = request.user.employee
     contract.writeDatetime = datetime.now()
-    contract.editEmpId = Employee.objects.get(empId=request.user.employee.empId)
+    contract.editEmpId = request.user.employee
     contract.editDatetime = datetime.now()
 
     # 확인서 내용은 삭제
@@ -198,15 +204,12 @@ def copy_contract(request, contractId):
     contract.confirmComment = ''
     contract.save()
 
-    # 세부사항, 매출, 매입, 원가, 하도급 생성
+    # 매출 세부사항, 매출 빌링스케쥴, 매입 세부사항, 매입 빌링스케쥴, 원가 생성
     items = Contractitem.objects.filter(contractId=beforeContract)
     revenues = Revenue.objects.filter(contractId=beforeContract)
+    purchaseItems = Purchasecontractitem.objects.filter(contractId=beforeContract)
     purchases = Purchase.objects.filter(contractId=beforeContract)
     costs = Cost.objects.filter(contractId=beforeContract)
-    purchaseTypeAs = Purchasetypea.objects.filter(contractId=beforeContract)
-    purchaseTypeBs = Purchasetypeb.objects.filter(contractId=beforeContract)
-    purchaseTypeCs = Purchasetypec.objects.filter(contractId=beforeContract)
-    purchaseTypeDs = Purchasetyped.objects.filter(contractId=beforeContract)
 
     for item in items:
         item.pk = None
@@ -215,31 +218,27 @@ def copy_contract(request, contractId):
     for revenue in revenues:
         revenue.pk = None
         revenue.contractId = contract
+        revenue.empId = request.user.employee
+        revenue.billingDate = None
+        revenue.predictDepositDate = None
+        revenue.depositDate = None
+        revenue.revenueStatus = 'N'
         revenue.save()
+    for item in purchaseItems:
+        item.pk = None
+        item.contractId = contract
+        item.save()
     for purchase in purchases:
         purchase.pk = None
         purchase.contractId = contract
+        purchase.billingDate = None
+        purchase.predictWithdrawDate = None
+        purchase.withdrawDate = None
         purchase.save()
     for cost in costs:
         cost.pk = None
         cost.contractId = contract
         cost.save()
-    for purchaseTypeA in purchaseTypeAs:
-        purchaseTypeA.pk = None
-        purchaseTypeA.contractId = contract
-        purchaseTypeA.save()
-    for purchaseTypeB in purchaseTypeBs:
-        purchaseTypeB.pk = None
-        purchaseTypeB.contractId = contract
-        purchaseTypeB.save()
-    for purchaseTypeC in purchaseTypeCs:
-        purchaseTypeC.pk = None
-        purchaseTypeC.contractId = contract
-        purchaseTypeC.save()
-    for purchaseTypeD in purchaseTypeDs:
-        purchaseTypeD.pk = None
-        purchaseTypeD.contractId = contract
-        purchaseTypeD.save()
 
     return redirect('sales:modifycontract', contract.contractId)
 
@@ -302,11 +301,39 @@ def view_contract(request, contractId):
 @login_required
 def modify_contract(request, contractId):
     contractInstance = Contract.objects.get(contractId=contractId)
+    beforeSalePrice = contractInstance.salePrice
+    beforeProfitPrice = contractInstance.profitPrice
+    beforeProfitRatio = contractInstance.profitRatio
 
     if request.method == "POST":
         form = ContractForm(request.POST, request.FILES, instance=contractInstance)
 
         if form.is_valid():
+            # 계약금액, 이익금액이 변경 되었을 경우 로그기록
+            afterSalePrice = form.clean()['salePrice']
+            afterProfitPrice = form.clean()['profitPrice']
+            afterProfitRatio = form.clean()['profitRatio']
+            if beforeSalePrice != afterSalePrice or beforeProfitPrice != afterProfitPrice:
+                logs = ContractLog.objects.filter(contractId=contractInstance)
+                if logs:
+                    changeCount = len(logs) + 1
+                else:
+                    changeCount = 1
+                ContractLog.objects.create(
+                    empId=request.user.employee,
+                    contractId=contractInstance,
+                    changeCount=changeCount,
+                    beforeSalePrice=beforeSalePrice,
+                    beforeProfitPrice=beforeProfitPrice,
+                    beforeProfitRatio=beforeProfitRatio,
+                    afterSalePrice=afterSalePrice,
+                    afterProfitPrice=afterProfitPrice,
+                    afterProfitRatio=afterProfitRatio,
+                    diffSalePrice=afterSalePrice-beforeSalePrice,
+                    diffProfitPrice=afterProfitPrice-beforeProfitPrice,
+                    diffProfitRatio=afterProfitRatio-beforeProfitRatio,
+                )
+
             # 계약내용 수정
             post = form.save(commit=False)
             post.editEmpId = Employee.objects.get(empId=request.user.employee.empId)
@@ -335,6 +362,7 @@ def modify_contract(request, contractId):
                 if item['itemId'] == '추가':
                     Contractitem.objects.create(
                         contractId=post,
+                        companyName=Company.objects.filter(companyNameKo=item["revenueCategoryCompany"]).first(),
                         mainCategory=item["mainCategory"],
                         subCategory=item["subCategory"],
                         itemName=item["itemName"],
@@ -343,6 +371,7 @@ def modify_contract(request, contractId):
                 else:
                     itemInstance = Contractitem.objects.get(contractItemId=int(item["itemId"]))
                     itemInstance.contractId = post
+                    itemInstance.companyName = Company.objects.filter(companyNameKo=item["revenueCategoryCompany"]).first()
                     itemInstance.mainCategory = item["mainCategory"]
                     itemInstance.subCategory = item["subCategory"]
                     itemInstance.itemName = item["itemName"]
@@ -494,7 +523,6 @@ def modify_contract(request, contractId):
             jsonCostId = []
 
             for cost in jsonCost:
-                print(cost)
                 if cost['costId'] == '추가':
                     Cost.objects.create(
                         contractId=post,
@@ -511,7 +539,6 @@ def modify_contract(request, contractId):
                     costInstance.costPrice = int(cost["costPrice"])
                     costInstance.billingTime = None
                     costInstance.billingDate = datetime(year=int(cost["costDate"]), month=12, day=31)
-                    print(costInstance.billingDate)
                     costInstance.comment = cost["costComment"]
                     costInstance.save()
                     jsonCostId.append(int(cost["costId"]))
@@ -551,6 +578,7 @@ def modify_contract(request, contractId):
 
         context = {
             'form': form,
+            'contractEmpId': contractInstance.empId.empId,
             'contractStep': contractInstance.contractStep,
             'items': items,
             'purchaseItems': purchaseItems,
@@ -564,9 +592,6 @@ def modify_contract(request, contractId):
             'orderPaper': orderPaper,
             'companyNames': companyNames,
             'empNames': empNames,
-
-
-
         }
         return render(request, 'sales/postcontract.html', context)
 
@@ -700,34 +725,33 @@ def contracts_asjson(request):
     else:
         contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
 
-    if user.departmentName.deptLevel == 0 or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empDeptName == '경영지원본부' or user.user.is_staff or user.empPosition.positionRank < 1:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
     else:
-        if user.empName == '최규성':
-            contracts = contracts.filter(Q(empId=user.empId) | Q(empName='이용주'))
-        elif user.empName == '전세현':
-            contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표') | Q(empName='이용주'))
-        elif user.empName == '전병선':
-            contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표'))
-        else:
-            contracts = contracts.filter(empId=user.empId)
+        # if user.empName == '최규성':
+        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='이용주'))
+        # elif user.empName == '전세현':
+        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표') | Q(empName='이용주'))
+        # elif user.empName == '전병선':
+        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표'))
+        # else:
+        #     contracts = contracts.filter(empId=user.empId)
+        contracts = contracts.filter(Q(empId=user.empId) | Q(empId__empStatus='N'))
 
+    revenues = Revenue.objects.all()
+    purchases = Purchase.objects.all()
     if startdate:
-        revenues = Revenue.objects.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
-        purchases = Purchase.objects.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
-        contracts = contracts.filter(
-            Q(contractId__in=revenues) |
-            Q(contractId__in=purchases)
-        )
+        revenues = revenues.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
+        purchases = purchases.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
     if enddate:
-        revenues = Revenue.objects.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
-        purchases = Purchase.objects.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
-        contracts = contracts.filter(
-            Q(contractId__in=revenues) |
-            Q(contractId__in=purchases)
-        )
+        revenues = revenues.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+        purchases = purchases.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+    contracts = contracts.filter(
+        Q(contractId__in=revenues) |
+        Q(contractId__in=purchases)
+    )
     if contractStep != '전체' and contractStep != '':
         contracts = contracts.filter(contractStep=contractStep)
     if empDeptName != '전체' and empDeptName != '':
@@ -784,17 +808,17 @@ def revenues_asjson(request):
         else:
             revenues = Revenue.objects.all()
 
-    if user.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empDeptName == '경영지원본부' or user.user.is_staff or user.empPosition.positionRank < 1:
         None
     elif user.empManager == 'Y':
         revenues = revenues.filter(contractId__empDeptName=user.empDeptName)
     else:
-        revenues = revenues.filter(contractId__empId=user.empId)
+        revenues = revenues.filter(Q(contractId__empId=user.empId) | Q(contractId__empId__empStatus='N'))
 
     if startdate:
-        revenues = revenues.filter(Q(predictBillingDate__gte=startdate) or Q(predictDepositDate__gte=startdate))
+        revenues = revenues.filter(predictBillingDate__gte=startdate)
     if enddate:
-        revenues = revenues.filter(Q(predictBillingDate__lte=enddate) or Q(predictDepositDate__lte=enddate))
+        revenues = revenues.filter(predictBillingDate__lte=enddate)
     if empDeptName != '전체' and empDeptName != '':
         revenues = revenues.filter(contractId__empDeptName=empDeptName)
     if empName != '전체' and empName != '':
@@ -1168,17 +1192,17 @@ def purchases_asjson(request):
         else:
             purchase = Purchase.objects.all()
 
-    if user.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empDeptName == '경영지원본부' or user.user.is_staff or user.empPosition.positionRank < 1:
         None
     elif user.empManager == 'Y':
         purchase = purchase.filter(contractId__empDeptName=user.empDeptName)
     else:
-        purchase = purchase.filter(contractId__empId=user.empId)
+        purchase = purchase.filter(Q(contractId__empId=user.empId) | Q(contractId__empId__empStatus='N'))
 
     if startdate:
-        purchase = purchase.filter(Q(predictBillingDate__gte=startdate) or Q(predictWithdrawDate__gte=startdate))
+        purchase = purchase.filter(predictBillingDate__gte=startdate)
     if enddate:
-        purchase = purchase.filter(Q(predictBillingDate__lte=enddate) or Q(predictWithdrawDate__lte=enddate))
+        purchase = purchase.filter(predictBillingDate__lte=enddate)
     if empDeptName != '전체' and empDeptName != '':
         purchase = purchase.filter(contractId__empDeptName=empDeptName)
     if empName != '전체' and empName != '':
@@ -1518,16 +1542,27 @@ def transfer_contract(request):
 @csrf_exempt
 def empid_asjson(request):
     empId = request.POST['empId']
-    contracts = Contract.objects.filter(Q(empId=empId) & Q(transferContractId__isnull=True))
-    contracts = contracts.values()
+    startdate = request.POST['transferStartDate']
+    enddate = request.POST['transferEndDate']
+    if empId:
+        revenues = Revenue.objects.filter(empId=empId, revenueStatus='N')
+    else:
+        revenues = Revenue.objects.filter(revenueStatus='N')
+
+    if startdate:
+        revenues = revenues.filter(billingDate__gte=startdate)
+
+    if enddate:
+        revenues = revenues.filter(billingDate__lte=enddate)
+
+    contractIds = revenues.values_list('contractId__contractId', flat=True).distinct()
+    contracts = Contract.objects.filter(contractId__in=contractIds).values()
 
     for contract in contracts:
-        revenues = Revenue.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
-        contract['revenue'] = list(revenues.values('revenueId', 'contractId', 'revenueCompany_id', 'empId__empName', 'predictBillingDate', 'billingDate', 'revenuePrice'))
-        # purchase = Purchase.objects.filter(contractId=contract['contractId']).order_by('predictBillingDate')
-        # contract['purchase'] = list(purchase.values())
-        # cost = Cost.objects.filter(contractId=contract['contractId'])
-        # contract['cost'] = list(cost.values())
+        revenue = revenues.filter(contractId=contract['contractId']).order_by('predictBillingDate')
+        contract['revenue'] = list(revenue.values(
+            'revenueId', 'contractId', 'revenueCompany_id', 'empId__empName', 'predictBillingDate', 'billingDate', 'revenuePrice')
+        )
 
     structure = json.dumps(list(contracts), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -1536,8 +1571,8 @@ def empid_asjson(request):
 @login_required
 @csrf_exempt
 def save_transfercontract(request):
-    empId = Employee.objects.get(empId=request.GET['afterempName'])
-    transferrevenues = request.GET.getlist('revenuecheck')
+    empId = Employee.objects.get(empId=request.POST['afterempName'])
+    transferrevenues = request.POST.getlist('revenuecheck')
     for revenueId in transferrevenues:
         # 매출 영업대표 변경
         revenue = Revenue.objects.get(revenueId=revenueId)
@@ -1855,7 +1890,7 @@ def inadvance_asjson(request):
 
     contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
 
-    if user.empPosition.positionName == '임원' or user.empDeptName == '경영지원본부' or user.user.is_staff:
+    if user.empDeptName == '경영지원본부' or user.user.is_staff or user.empPosition.positionRank < 1:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
@@ -2038,7 +2073,7 @@ def contract_revenues(request):
     contractId = request.POST['contractId']
     revenues = Revenue.objects.filter(Q(contractId__contractId=contractId))
     revenues = revenues.values(
-        'billingTime', 'predictBillingDate', 'billingDate', 'predictDepositDate', 'depositDate',
+        'billingTime', 'empId__empName', 'predictBillingDate', 'billingDate', 'predictDepositDate', 'depositDate',
         'revenueCompany__companyNameKo', 'revenuePrice', 'revenueProfitPrice', 'comment', 'revenueId'
     )
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
@@ -2096,35 +2131,73 @@ def contract_services(request):
 @csrf_exempt
 def view_incentive(request, year, empId):
     year = str(year)
-    empName = Employee.objects.get(empId=empId).empName
-    empDeptName = Employee.objects.get(empId=empId).empDeptName
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
-    if not incentive:
-        msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
-    goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
-    if not goal:
-        msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
-    table1, table2, table3 = empIncentive(year, empId)
-    table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(year, empDeptName, table2, goal.first(), empName, incentive, empId)
+    if int(year) <= 2019:
+        # 2019년 정책 (팀별 목표, 팀별 매출)
+        empName = Employee.objects.get(empId=empId).empName
+        empDeptName = IncentiveDept.objects.get(empId=empId, year=year).deptName
+        incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+        if not incentive:
+            msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
+        if not goal:
+            msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        table1, table2, table3 = empIncentive(year, empId)
+        table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(
+            year, empDeptName, table2, goal.first(), empName, incentive, empId
+        )
 
-    context = {
-        'empId': empId,
-        'empName': empName,
-        'table1': table1,
-        'table2': table2,
-        'table3': table3,
-        'table4': table4,
-        'sumachieveIncentive': sumachieveIncentive,
-        'sumachieveAward': sumachieveAward,
-        'GPachieve': GPachieve,
-        'newCount': newCount,
-        'overGp': overGp,
-        'incentiveRevenues': incentiveRevenues,
-        'year': year,
-    }
-    return render(request, 'sales/viewincentive.html', context)
+        context = {
+            'empId': empId,
+            'empName': empName,
+            'table1': table1,
+            'table2': table2,
+            'table3': table3,
+            'table4': table4,
+            'sumachieveIncentive': sumachieveIncentive,
+            'sumachieveAward': sumachieveAward,
+            'GPachieve': GPachieve,
+            'newCount': newCount,
+            'overGp': overGp,
+            'incentiveRevenues': incentiveRevenues,
+            'year': year,
+        }
+        return render(request, 'sales/viewincentive.html', context)
+
+    else:
+        # 2020년 정책
+        empName = Employee.objects.get(empId=empId).empName
+        empDeptName = Employee.objects.get(empId=empId).empDeptName
+        incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+        if not incentive:
+            msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
+        if not goal:
+            msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        table1, table2, table3 = empIncentive(year, empId)
+        table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(
+            year, empDeptName, table2, goal.first(), empName, incentive, empId
+        )
+
+        context = {
+            'empId': empId,
+            'empName': empName,
+            'table1': table1,
+            'table2': table2,
+            'table3': table3,
+            'table4': table4,
+            'sumachieveIncentive': sumachieveIncentive,
+            'sumachieveAward': sumachieveAward,
+            'GPachieve': GPachieve,
+            'newCount': newCount,
+            'overGp': overGp,
+            'incentiveRevenues': incentiveRevenues,
+            'year': year,
+        }
+        return render(request, 'sales/viewincentive.html', context)
 
 
 @login_required
@@ -2136,24 +2209,24 @@ def upload_profitloss(request):
 
 @login_required
 def save_profitloss(request):
-    todayYear = datetime.today().year
-    todayMonth = datetime.today().month
-
-    if request.POST["month"] == str(todayMonth):
+    date = request.POST["month"]
+    todayYear = int(date[:4])
+    todayMonth = int(date[6:])
+    if datetime.today().year == todayYear and datetime.today().month == todayMonth:
         today = datetime.today()
-
     else:
-        today = datetime(todayYear, int(request.POST["month"]), 1)
-        todayMonth = request.POST["month"]
-
+        today = datetime(todayYear, todayMonth, 1) + relativedelta(months=1) - relativedelta(days=1)
 
     profitloss_file = request.FILES["profitloss_file"]
     xl_file = pd.ExcelFile(profitloss_file)
     data = pd.read_excel(xl_file, index_col=0)
     data = data.fillna(0)
+    # select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
+    #               '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
+    #               '솔루션지원팀(5100)', 'DB지원팀(5300)']
     select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
-                  '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
-                  '솔루션지원팀(5100)', 'DB지원팀(5300)']
+                  '인프라_부사장(3000)', '영업팀(3100)', 'R&D전략_이사(4000)', 'TA팀(4100)', 'AI Platform Labs팀(4200)', 'Platform Biz_이사(5000)',
+                  '솔루션팀(5100)', 'DB Expert팀(5200)']
     index_lst = ["".join(i.split()) for i in data.index]
     if 'Ⅳ.판매비와관리비' not in index_lst or 'Ⅴ.영업이익' not in index_lst:
         return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅳ.판매비와관리비 , Ⅴ.영업이익이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
@@ -2175,8 +2248,12 @@ def save_profitloss(request):
             else:
                 group = sub
 
-            for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
-                                   '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀']):
+            # for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
+            #                        '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀']):
+            #     Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
+            #                            expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+            for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라_부사장', '영업팀',
+                                   'R&D전략_이사', 'TA팀', 'AI Platform Labs팀', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
                 Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
                                        expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
@@ -2188,15 +2265,14 @@ def save_profitloss(request):
 
 @login_required
 def save_cost(request):
-    todayYear = datetime.today().year
-    todayMonth = datetime.today().month
-
-    if request.POST["month"] == str(todayMonth):
+    date = request.POST["month"]
+    todayYear = int(date[:4])
+    todayMonth = int(date[6:])
+    if datetime.today().year == todayYear and datetime.today().month == todayMonth:
         today = datetime.today()
-
     else:
-        today = datetime(todayYear, int(request.POST["month"]), 1)
-        todayMonth = request.POST["month"]
+        today = datetime(todayYear, todayMonth, 1) + relativedelta(months=1) - relativedelta(days=1)
+
     cost_file = request.FILES["cost_file"]
     xl_file = pd.ExcelFile(cost_file)
     data = pd.read_excel(xl_file, index_col=0)
@@ -2205,7 +2281,8 @@ def save_cost(request):
     if 'Ⅲ.당기총공사비용' not in index_lst or 'Ⅰ.노무비' not in index_lst or 'Ⅱ.경비' not in index_lst:
         return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅰ.노무비, Ⅱ.경비, Ⅲ.당기총공사비용이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
 
-    select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
+    # select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
+    select_col = ['솔루션팀(5100)', 'DB Expert팀(5200)']
     Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
 
     main_cate = ''
@@ -2226,7 +2303,8 @@ def save_cost(request):
             break
         else:
             if main_cate != '':
-                for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
+                # for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
+                for i, v in enumerate(['솔루션팀', 'DB Expert팀']):
                     Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
                                            expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
@@ -2461,8 +2539,16 @@ def change_incentive_all(request):
 @login_required
 @csrf_exempt
 def monthly_bill(request):
-    todayYear = datetime.today().year
-    todayMonth = datetime.today().month
+    if request.method == 'POST':
+        todayYear = int(request.POST['searchYear'])
+        todayMonth = 12
+        if todayYear == datetime.today().year:
+            todayYear = datetime.today().year
+            todayMonth = datetime.today().month
+    else:
+        todayYear = datetime.today().year
+        todayMonth = datetime.today().month
+
     if todayMonth in [1, 2, 3]:
         todayQuarter = 1
     elif todayMonth in [4, 5, 6]:
@@ -2513,27 +2599,71 @@ def monthly_bill(request):
         sum_expenseDetail = expenseDetail.aggregate(sum_expenseDetail=Sum('expenseMoney__sum'), sum_expensePercent=Sum('expensePercent'))
 
 
-    # 3.월별 예상 손익 계산서 현황
-    # 인프라솔루션사업부문
-    businessAll, sum_businessAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스'], todayYear)
-    businessExecutives, sum_businessExecutives = cal_profitloss(['인프라솔루션_임원'], todayYear)
-    businessSales1, sum_businessSales1 = cal_profitloss(['영업1팀'], todayYear)
-    businessSales2, sum_businessSales2 = cal_profitloss(['영업2팀'], todayYear)
-    businessInfra, sum_businessInfra = cal_profitloss(['인프라서비스'], todayYear)
-    # 고객서비스부문
-    serviceAll, sum_serviceAll = cal_profitloss(['고객서비스_임원', '솔루션지원팀', 'DB지원팀'], todayYear)
-    serviceExecutives, sum_serviceExecutives = cal_profitloss(['고객서비스_임원'], todayYear)
-    serviceSolution, sum_serviceSolution = cal_profitloss(['솔루션지원팀'], todayYear)
-    serviceDB, sum_serviceDB = cal_profitloss(['DB지원팀'], todayYear)
-    # 경영지원
-    supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
-    # supportCEO = cal_profitloss(['대표이사'], todayYear)
-    # supportPresident = cal_profitloss(['사장'], todayYear)
-    # supportAuditingDirector = cal_profitloss(['감사'], todayYear)
-    # supportAdvisingDirector = cal_profitloss(['고문'], todayYear)
-    # supportManagement = cal_profitloss(['경영지원본부'], todayYear)
-    # 전체
-    unioneAll, sum_unioneAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+
+    if todayYear < 2020:
+        # 3.월별 예상 손익 계산서 현황
+        businessAll, sum_businessAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스'], todayYear)
+        businessExecutives, sum_businessExecutives = cal_profitloss(['인프라솔루션_임원'], todayYear)
+        businessSales1, sum_businessSales1 = cal_profitloss(['영업1팀'], todayYear)
+        businessSales2, sum_businessSales2 = cal_profitloss(['영업2팀'], todayYear)
+        businessInfra, sum_businessInfra = cal_profitloss(['인프라서비스'], todayYear)
+        # 고객서비스부문
+        serviceAll, sum_serviceAll = cal_profitloss(['고객서비스_임원', '솔루션지원팀', 'DB지원팀'], todayYear)
+        serviceExecutives, sum_serviceExecutives = cal_profitloss(['고객서비스_임원'], todayYear)
+        serviceSolution, sum_serviceSolution = cal_profitloss(['솔루션지원팀'], todayYear)
+        serviceDB, sum_serviceDB = cal_profitloss(['DB지원팀'], todayYear)
+        # 경영지원
+        supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+        # 전체
+        unioneAll, sum_unioneAll = cal_profitloss(['인프라솔루션_임원', '영업1팀', '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+
+        business = [{'name': '1) 인프라솔루션사업부문', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll, 'btn': 'Y'},
+                     {'name': '① 임원', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives, 'btn': 'N'},
+                     {'name': '② 영업1팀', 'class': 'businessSales1', 'expense': businessSales1, 'sum': sum_businessSales1, 'btn': 'N'},
+                     {'name': '③ 영업2팀', 'class': 'businessSales2',  'expense': businessSales2, 'sum': sum_businessSales2, 'btn': 'N'},
+                     {'name': '④ 인프라서비스사업팀', 'class': 'businessInfra',  'expense': businessInfra, 'sum': sum_businessInfra, 'btn': 'N'},
+                     {'name': '2) 고객서비스부문',  'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll, 'btn': 'Y'},
+                     {'name': '① 임원', 'class': 'serviceExecutives',  'expense': serviceExecutives, 'sum': sum_serviceExecutives, 'btn': 'N'},
+                     {'name': '② 솔루션지원팀', 'class': 'serviceSolution',  'expense': serviceSolution, 'sum': sum_serviceSolution, 'btn': 'N'},
+                     {'name': '③ DB지원팀', 'class': 'serviceDB',  'expense': serviceDB, 'sum': sum_serviceDB, 'btn': 'N'},
+                     {'name': '3) 경영지원', 'class': 'supportAll',  'expense': supportAll, 'sum': sum_supportAll, 'btn': 'N'},
+                     {'name': '', 'class': 'unioneAll', 'sum': sum_unioneAll, 'btn': 'N'}
+                     ]
+    else:
+        # 3.월별 예상 손익 계산서 현황
+        # 인프라솔루션사업부
+        businessAll, sum_businessAll = cal_profitloss(['인프라_부사장', '영업팀'], todayYear)
+        businessExecutives, sum_businessExecutives = cal_profitloss(['인프라_부사장'], todayYear)
+        businessSales1, sum_businessSales1 = cal_profitloss(['영업팀'], todayYear)
+        # R&D 전략사업부
+        strategyAll, sum_strategyAll = cal_profitloss(['R&D전략_이사', 'TA팀', 'AI Platform Labs팀'], todayYear)
+        strategyExecutives, sum_strategyExecutives = cal_profitloss(['R&D전략_이사'], todayYear)
+        strategyTA, sum_strategyTA = cal_profitloss(['TA팀'], todayYear)
+        strategyAI, sum_strategyAI = cal_profitloss(['AI Platform Labs팀'], todayYear)
+        # Platform Biz
+        serviceAll, sum_serviceAll = cal_profitloss(['Platform Biz_이사', '솔루션팀', 'DB Expert팀'], todayYear)
+        serviceExecutives, sum_serviceExecutives = cal_profitloss(['Platform Biz_이사'], todayYear)
+        serviceSolution, sum_serviceSolution = cal_profitloss(['솔루션팀'], todayYear)
+        serviceDB, sum_serviceDB = cal_profitloss(['DB Expert팀'], todayYear)
+        # 경영지원
+        supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+        # 전체
+        unioneAll, sum_unioneAll = cal_profitloss(['인프라_부사장', '영업팀', 'R&D전략_이사', 'TA팀', 'AI Platform Labs팀', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+
+        business = [{'name': '1) 인프라솔루션사업부', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll, 'btn': 'Y'},
+                     {'name': '① 인프라_부사장', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives, 'btn': 'N'},
+                     {'name': '② 영업팀', 'class': 'businessSales1', 'expense': businessSales1, 'sum': sum_businessSales1, 'btn': 'N'},
+                     {'name': '2) R&D 전략사업부', 'class': 'strategyAll', 'expense': strategyAll, 'sum': sum_strategyAll, 'btn': 'Y'},
+                     {'name': '① R&D전략_이사', 'class': 'strategyExecutives', 'sum': sum_strategyExecutives, 'btn': 'N'},
+                     {'name': '② TA팀', 'class': 'strategyTA', 'expense': strategyTA, 'sum': sum_strategyTA, 'btn': 'N'},
+                     {'name': '③ AI Platform Labs팀', 'class': 'strategyAI', 'expense': strategyAI, 'sum': sum_strategyAI, 'btn': 'N'},
+                     {'name': '3) Platform Biz', 'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll, 'btn': 'Y'},
+                     {'name': '① Platform Biz_이사', 'class': 'serviceExecutives', 'expense': serviceExecutives, 'sum': sum_serviceExecutives, 'btn': 'N'},
+                     {'name': '② 솔루션팀', 'class': 'serviceSolution', 'expense': serviceSolution, 'sum': sum_serviceSolution, 'btn': 'N'},
+                     {'name': '③ DB Expert팀', 'class': 'serviceDB', 'expense': serviceDB, 'sum': sum_serviceDB, 'btn': 'N'},
+                     {'name': '4) 경영지원', 'class': 'supportAll', 'expense': supportAll, 'sum': sum_supportAll, 'btn': 'N'},
+                     {'name': '', 'class': 'unioneAll', 'sum': sum_unioneAll, 'btn': 'N'}
+                    ]
 
     context = {
         'todayYear': todayYear,
@@ -2546,18 +2676,7 @@ def monthly_bill(request):
         'expenseDate': expenseDate,
         'todayMonth_table': todayMonth_table,
         'month_table': month_table,
-        'business': [{'name': '1) 인프라솔루션사업부문', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll, 'btn': 'Y'},
-                     {'name': '① 임원', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives, 'btn':'N'},
-                     {'name': '② 영업1팀', 'class': 'businessSales1', 'expense': businessSales1, 'sum': sum_businessSales1, 'btn':'N'},
-                     {'name': '③ 영업2팀', 'class': 'businessSales2',  'expense': businessSales2, 'sum': sum_businessSales2, 'btn':'N'},
-                     {'name': '④ 인프라서비스사업팀', 'class': 'businessInfra',  'expense': businessInfra, 'sum': sum_businessInfra, 'btn':'N'},
-                     {'name': '2) 고객서비스부문',  'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll, 'btn': 'Y'},
-                     {'name': '① 임원', 'class': 'serviceExecutives',  'expense': serviceExecutives, 'sum': sum_serviceExecutives, 'btn':'N'},
-                     {'name': '② 솔루션지원팀', 'class': 'serviceSolution',  'expense': serviceSolution, 'sum': sum_serviceSolution, 'btn':'N'},
-                     {'name': '③ DB지원팀', 'class': 'serviceDB',  'expense': serviceDB, 'sum': sum_serviceDB, 'btn':'N'},
-                     {'name': '3) 경영지원', 'class': 'supportAll',  'expense': supportAll, 'sum': sum_supportAll, 'btn': 'N'},
-                     {'name': '', 'class': 'unioneAll', 'sum': sum_unioneAll, 'btn': 'N'}
-                     ],
+        'business': business,
     }
     return render(request, 'sales/monthlybill.html', context)
 
@@ -2833,45 +2952,93 @@ def view_salaryall_pdf(request, year):
 
 def view_incentive_pdf(request, year, empId):
     year = str(year)
-    empName = Employee.objects.get(empId=empId).empName
-    empDeptName = Employee.objects.get(empId=empId).empDeptName
-    incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
-    if not incentive:
-        msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
-    goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
-    if not goal:
-        msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
-        return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
-    table1, table2, table3 = empIncentive(year, empId)
-    table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues \
-        = award(year, empDeptName, table2, goal.first(), empName, incentive, empId)
-    context = {
-        'empId': empId,
-        'empName': empName,
-        'table1': table1,
-        'table2': table2,
-        'table3': table3,
-        'table4': table4,
-        'sumachieveIncentive': sumachieveIncentive,
-        'sumachieveAward': sumachieveAward,
-        'GPachieve': GPachieve,
-        'newCount': newCount,
-        'overGp': overGp,
-        'incentiveRevenues': incentiveRevenues,
-        'year': year,
-    }
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="{}님인센티브현황.pdf"'.format(empId)
+    if int(year) <= 2019:
+        # 2019년 정책 (팀별 목표, 팀별 매출)
+        empName = Employee.objects.get(empId=empId).empName
+        empDeptName = IncentiveDept.objects.get(empId=empId, year=year).deptName
+        incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+        if not incentive:
+            msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
+        if not goal:
+            msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        table1, table2, table3 = empIncentive(year, empId)
+        table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(
+            year, empDeptName, table2, goal.first(), empName, incentive, empId
+        )
 
-    template = get_template('sales/viewincentivepdf.html')
-    html = template.render(context, request)
-    # create a pdf
-    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
-    # if error then show some funy view
-    if pisaStatus.err:
-        return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    return response
+        context = {
+            'empId': empId,
+            'empName': empName,
+            'table1': table1,
+            'table2': table2,
+            'table3': table3,
+            'table4': table4,
+            'sumachieveIncentive': sumachieveIncentive,
+            'sumachieveAward': sumachieveAward,
+            'GPachieve': GPachieve,
+            'newCount': newCount,
+            'overGp': overGp,
+            'incentiveRevenues': incentiveRevenues,
+            'year': year,
+        }
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="{}님인센티브현황.pdf"'.format(empId)
+
+        template = get_template('sales/viewincentivepdf.html')
+        html = template.render(context, request)
+        # create a pdf
+        pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+        # if error then show some funy view
+        if pisaStatus.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+    else:
+        # 2020년 정책
+        empName = Employee.objects.get(empId=empId).empName
+        empDeptName = IncentiveDept.objects.get(empId=empId, year=year).deptName
+        incentive = Incentive.objects.filter(Q(empId=empId) & Q(year=year))
+        if not incentive:
+            msg = '인센티브 산출에 필요한 개인 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        goal = Goal.objects.filter(Q(empDeptName=empDeptName) & Q(year=year))
+        if not goal:
+            msg = '인센티브 산출에 필요한 목표 정보가 없습니다.'
+            return render(request, 'sales/viewincentive.html', {'msg': msg, 'empName': empName, 'empId': empId, 'year': year})
+        table1, table2, table3 = empIncentive(year, empId)
+        table4, sumachieveIncentive, sumachieveAward, GPachieve, newCount, overGp, incentiveRevenues = award(
+            year, empDeptName, table2, goal.first(), empName, incentive, empId
+        )
+
+        context = {
+            'empId': empId,
+            'empName': empName,
+            'table1': table1,
+            'table2': table2,
+            'table3': table3,
+            'table4': table4,
+            'sumachieveIncentive': sumachieveIncentive,
+            'sumachieveAward': sumachieveAward,
+            'GPachieve': GPachieve,
+            'newCount': newCount,
+            'overGp': overGp,
+            'incentiveRevenues': incentiveRevenues,
+            'year': year,
+        }
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="{}님인센티브현황.pdf"'.format(empId)
+
+        template = get_template('sales/viewincentivepdf.html')
+        html = template.render(context, request)
+        # create a pdf
+        pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+        # if error then show some funy view
+        if pisaStatus.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
+
 
 
 def save_contract_files(request, contractId):
@@ -3006,17 +3173,15 @@ def view_ordernoti_pdf(request, contractId):
         else:
             maxYear = rMaxYear
 
-        delta = relativedelta(years=+1)
         yearList = []
-        y = minYear['predictBillingDate__year__min']
-        while y <= maxYear['predictBillingDate__year__max']:
+        for y in range(minYear['predictBillingDate__year__min'].year, maxYear['predictBillingDate__year__max'].year+1):
             yearList.append(y)
-            y += delta
+
         monthList = []
         for y in yearList:
             dateList = []
             for d in range(1, 13):
-                dateList.append('{}-{}'.format(y.year, str(d).zfill(2)))
+                dateList.append('{}-{}'.format(y, str(d).zfill(2)))
             monthList.append(dateList)
         context['yearList'] = monthList
 
@@ -3032,15 +3197,16 @@ def view_ordernoti_pdf(request, contractId):
         sumpBillingSchedule = []
         rBillingSchedule = []
         sumrBillingSchedule = []
+
         for month in monthList:
             sumrBillingSchedule.append(
                 {'list': month, 'year': month[0][:4], 'name': 'sum', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
             sumpBillingSchedule.append(
                 {'list': month, 'year': month[0][:4], 'name': 'sum', '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
             for c in list(set(companyPurchases)):
-                pBillingSchedule.append({'list':month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
+                pBillingSchedule.append({'list': month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
             for c in list(set(companyRevenues)):
-                rBillingSchedule.append({'list':month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
+                rBillingSchedule.append({'list': month, 'year': month[0][:4], 'name': c, '1': '', '2': '', '3': '', '4': '', '5': '', '6': '', '7': '', '8': '', '9': '', '10': '', '11': '', '12': '', 'sum': 0})
         # 매입
         for group in groupPurchases:
             for schedule in pBillingSchedule:
@@ -3389,12 +3555,32 @@ def view_purchase_order(request, orderId):
         contractId=purchaseOrder.contractId,
         purchaseCompany=purchaseOrder.purchaseCompany
     )
+
+    # 수주통보서 결재 완료 여부 확인 (최종 수주통보서의 상태가 완료된 건에 대해서만 발송 가능)
+    ordernotis = Document.objects.filter(
+        contractId=purchaseOrder.contractId,
+        formId__formTitle='수주통보서',
+    ).exclude(
+        documentStatus='임시'
+    ).order_by(
+        '-draftDatetime'
+    )
+    if ordernotis:
+        ordernoti = ordernotis.first()
+        if ordernoti.documentStatus == '완료':
+            isApproval = True
+        else:
+            isApproval = False
+    else:
+        isApproval = False
+
     context = {
         'purchaseOrder': purchaseOrder,
         'purchaseOrderFiles': purchaseOrderFiles,
         'relatedPurchaseEstimate': relatedPurchaseEstimate,
         'purchaseFiles': purchaseFiles,
         'email': email,
+        'isApproval': isApproval,
     }
     return render(request, 'sales/viewpurchaseorder.html', context)
 
@@ -3523,6 +3709,7 @@ def delete_related_purchase_estimate(request, relatedId):
 
 
 @login_required
+@csrf_exempt
 def send_purchaseorder(request, orderId):
     if request.method == 'POST':
         orders = Purchaseorder.objects.get(orderId=orderId)
@@ -3534,7 +3721,6 @@ def send_purchaseorder(request, orderId):
         empEmail ='{}@{}'.format(empEmail, address)
         if empEmail:
             result = mail_purchaseorder(empEmail, request.user.employee.empEmail, orders, purchaseorderfile, relatedpurchaseestimate)
-
         if result == 'Y':
             OrderLog.objects.create(
                 empId=Employee(empId=request.user.employee.empId),
@@ -3544,6 +3730,8 @@ def send_purchaseorder(request, orderId):
             )
             orders.sendDatetime=datetime.now()
             orders.save()
+            structure = json.dumps(result, cls=DjangoJSONEncoder)
+            return HttpResponse(structure, content_type='application/json')
         else:
             OrderLog.objects.create(
                 empId=Employee(empId=request.user.employee.empId),
@@ -3553,8 +3741,8 @@ def send_purchaseorder(request, orderId):
                 orderStatus='전송실패',
                 orderError=result,
             )
-
-        return redirect('sales:viewpurchaseorder', orderId)
+            structure = json.dumps('N', cls=DjangoJSONEncoder)
+            return HttpResponse(structure, content_type='application/json')
 
 
 @login_required
@@ -3669,3 +3857,89 @@ def save_purchasecategory(request):
     return HttpResponse(structure, content_type='application/json')
 
 
+@login_required
+@csrf_exempt
+def comment_asjson(request):
+    contractId = request.POST['contractId']
+    # 의견
+    comments = Contractcomment.objects.filter(Q(contractId=contractId)).order_by('created')
+    comments = comments.values('commentId', 'author__empName', 'comment', 'created').annotate(
+        viewer=Case(
+            When(author=request.user.employee.empId, then=Value("Y")),
+            default=Value("N"),
+            output_field=CharField()
+        )
+    )
+    structure = json.dumps(list(comments), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def save_comment(request):
+    comment = request.POST['comment']
+    contractId = request.POST['contractId']
+    contract = Contract.objects.get(contractId=contractId)
+    employee = Employee.objects.get(empId=request.user.employee.empId)
+    # 댓글 추가
+    comments = Contractcomment.objects.create(
+        contractId=contract,
+        author=employee,
+        comment=comment,
+        created=datetime.now()
+    )
+    # 알림 추가 부분(나중에)
+
+
+    comments = Contractcomment.objects.filter(commentId=comments.commentId)\
+        .values('commentId', 'author__empName', 'comment', 'created').annotate(
+        viewer=Case(
+            When(author=request.user.employee.empId, then=Value("Y")),
+            default=Value("N"),
+            output_field=CharField()
+        )
+    )
+    structure = json.dumps(list(comments), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def closing_revenues(request):
+    context = {}
+    return render(request, 'sales/closingrevenues.html', context)
+
+
+@login_required
+@csrf_exempt
+def save_closingrevenues(request):
+    closingrevenues = request.POST.getlist('revenuecheck')
+    for revenueId in closingrevenues:
+        # 매출 상태 변경 : Y-마감
+        revenue = Revenue.objects.get(revenueId=revenueId)
+        revenue.revenueStatus = 'Y'
+        revenue.save()
+
+    return redirect('sales:closingrevenues')
+
+
+@login_required
+@csrf_exempt
+def closing_revenue_money(request):
+    startdate = request.POST['transferStartDate']
+    enddate = request.POST['transferEndDate']
+    revenues = Revenue.objects.filter(revenueStatus='N')
+    if startdate:
+        revenues = revenues.filter(billingDate__gte=startdate)
+    if enddate:
+        revenues = revenues.filter(billingDate__lte=enddate)
+
+    result = [
+        {
+            'revenuePrice': revenues.aggregate(Sum('revenuePrice'))['revenuePrice__sum'],
+            'profitPrice': revenues.aggregate(Sum('revenueProfitPrice'))['revenueProfitPrice__sum'],
+        }
+    ]
+
+    structure = json.dumps(list(result), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

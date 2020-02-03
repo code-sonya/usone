@@ -1,0 +1,292 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  계약금액 변경이력
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+    .buttons-copy {
+      background-color: #4e73df;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-excel {
+      background-color: #36b9cc;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .buttons-print {
+      background-color: #f6c23e;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card shadow mb-4">
+
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800"> 계약금액 변경 이력 </h6>
+
+          <div class="dropdown no-arrow">
+            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="showcontracts" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>변경일자</th>
+                <th>작성자</th>
+                <th>관리번호</th>
+                <th>계약명</th>
+                <th>계약금액</th>
+                <th>이익금액</th>
+                <th>이익률</th>
+                <th>변경회차</th>
+                <th class="d-none">contractId</th>
+              </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
+                <input type="date" max="9999-12-31" class="form-control" name="startDate" value="{{ startDate }}">
+              </div>
+              <div class="col-6">
+                <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
+                <input type="date" max="9999-12-31" class="form-control" name="endDate" value="{{ endDate }}">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="empDeptName" class="font-weight-light text-primary">계약명</label>
+                <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 16);
+      }
+
+      $(document).ready(function () {
+
+          let showcontracts = $('#showcontracts').DataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'GET',
+                  "data": {
+                      'startDate': '{{ startDate }}',
+                      'endDate': '{{ endDate }}',
+                      'contractName': '{{ contractName }}'
+                  },
+                  "url": "{% url 'logs:contractlog_ajax_url' %}",
+                  "dataSrc": ""
+              },
+              "columnDefs": [
+                  {
+                      targets: 0,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "datetime",
+                  },
+                  {
+                      targets: 1,
+                      width: "5%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "empName",
+                  },
+                  {
+                      targets: 2,
+                      width: "15%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "contractCode",
+                  },
+                  {
+                      targets: 3,
+                      width: "30%",
+                      className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                      data: "contractName",
+                  },
+                  {
+                      targets: 4,
+                      width: "15%",
+                      className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                      render: function (data, type, row) {
+                          var str = '<div>' +
+                              row['beforeSalePrice'].toLocaleString() + '<br>' +
+                              '→ ' + row['afterSalePrice'].toLocaleString() + '<br>';
+                          if (row['diffSalePrice'] > 0) {
+                              str += '<span class="text-danger">' + '(' + row['diffSalePrice'].toLocaleString() + ')</span>'
+                          } else if (row['diffSalePrice'] < 0) {
+                              str += '<span class="text-primary">' + '(' + row['diffSalePrice'].toLocaleString() + ')</span>'
+                          } else {
+                              str += '(' + row['diffSalePrice'].toLocaleString() + ')'
+                          }
+                          str += '</div>';
+                          return str
+                      },
+                  },
+                  {
+                      targets: 5,
+                      width: "15%",
+                      className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                      render: function (data, type, row) {
+                          var str = '<div>' +
+                              row['beforeProfitPrice'].toLocaleString() + '<br>' +
+                              '→ ' + row['afterProfitPrice'].toLocaleString() + '<br>';
+                          if (row['diffProfitPrice'] > 0) {
+                              str += '<span class="text-danger">' + '(' + row['diffProfitPrice'].toLocaleString() + ')</span>'
+                          } else if (row['diffProfitPrice'] < 0) {
+                              str += '<span class="text-primary">' + '(' + row['diffProfitPrice'].toLocaleString() + ')</span>'
+                          } else {
+                              str += '(' + row['diffProfitPrice'].toLocaleString() + ')'
+                          }
+                          str += '</div>';
+                          return str
+                      },
+                  },
+                  {
+                      targets: 6,
+                      width: "5%",
+                      className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                      render: function (data, type, row) {
+                          var str = '<div>' +
+                              row['beforeProfitRatio'].toLocaleString() + '%<br>' +
+                              '→ ' + row['afterProfitRatio'].toLocaleString() + '%<br>';
+                          if (row['diffProfitRatio'] > 0) {
+                              str += '<span class="text-danger">' + '(' + row['diffProfitRatio'].toLocaleString() + '%)</span>'
+                          } else if (row['diffProfitRatio'] < 0) {
+                              str += '<span class="text-primary">' + '(' + row['diffProfitRatio'].toLocaleString() + '%)</span>'
+                          } else {
+                              str += '(' + row['diffProfitRatio'].toLocaleString() + '%)'
+                          }
+                          str += '</div>';
+                          return str
+                      },
+                  },
+                  {
+                      targets: 7,
+                      width: "5%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "changeCount",
+                  },
+                  {
+                      targets: 8,
+                      className: "d-none",
+                      data: "contractId__contractId",
+                  },
+              ],
+              dom: 'Blfrtip',
+              buttons: [
+                  {
+                      extend: 'excel',
+                      text: '엑셀',
+                      footer: true
+                  },
+                  {
+                      extend: 'copy',
+                      text: '복사',
+                      footer: true
+                  },
+                  {
+                      extend: 'print',
+                      text: '인쇄',
+                      footer: true
+                  }
+              ],
+              "deferRender": true,
+              "order": [[0, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(0)', nRow).text(replaceAll(aData.datetime,"-","."));
+              }
+          });
+
+          $("#showcontracts").on("click", 'tr', function () {
+              const data = showcontracts.row(this).data();
+              window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId__contractId + '/'
+          });
+      });
+  </script>
+
+{% endblock %}

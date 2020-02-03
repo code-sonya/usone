@@ -55,11 +55,15 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">손익계산서</h6>
-          <span class="text-right">[부가세 별도]</span>
+          <h6 class="m-0 h3 text-gray-800">{{ todayYear }}년 손익계산서</h6>
+          <div class="dropdown">
+            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
+            </a>
+          </div>
         </div>
         <div class="row ml-3 mt-3">
-          ※ 본 자료의 매출액과 GP집계는 <span class="text-primary ml-1 mr-1"> Firm </span> 기준으로 <span class="text-success ml-1 mr-1"> Oppt'y</span> 수치가 제외 되어 있음
+          ※ 본 자료의 매출액과 GP집계는 <span class="text-primary ml-1 mr-1"> Firm </span> 기준으로 <span class="text-success ml-1 mr-1"> Oppt'y</span> 수치가 제외 되어 있음. [부가세 별도]
         </div>
 
         <div class="card-body">
@@ -261,7 +265,11 @@
             </div>
             {% for lst in business %}
               <div class="row" id="{{ lst.class }}">
-                <span class="ml-3"> {{ lst.name }}</span>
+                {% if lst.class == 'supportAll' or lst.btn == 'Y' %}
+                <span class="ml-3 text-primary font-weight-bold"> {{ lst.name }}</span>
+                {% else %}
+                <span class="ml-3 small"> {{ lst.name }}</span>
+                {% endif %}
                 <br>
                 <table class="pc-table ml-3 mr-3 mb-1">
                   <thead>
@@ -322,7 +330,7 @@
                   </tbody>
                 </table>
                 {% if lst.btn == 'Y' %}
-                  <div id="more_{{ lst.class }}" class="text-warning ml-3 mb-1" name="down"> ▶ 상세보기</div>
+                 <div id="more_{{ lst.class }}" class="text-dark ml-3 mb-1" name="down"> ▶ 상세보기</div>
                 {% endif %}
               </div>
             {% endfor %}
@@ -332,11 +340,41 @@
       </div>
     </div>
   </div>
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12 mb-3 mb-sm-0">
+                <label for="searchYear" class="text-primary">조회년도</label>
+                <input type="number" max="9999" class="form-control" id="searchYear" name="searchYear" value="{{ todayYear }}">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-success" href="#" onclick="btn_filter()">조회</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
 
 
-|intcomma {% block script %}
+{% block script %}
 
   <script>
       const etc = '<tr><td>기타</td><td style="text-align:right" class="text-primary"><i class="fas fa-plus-circle" id="btn"> 더보기</td></tr>';
@@ -350,6 +388,11 @@
       const etc_serviceSolution = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_serviceSolution"> 더보기</td><td colspan=13></td></tr>';
       const etc_serviceDB = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_serviceDB"> 더보기</td><td colspan=13></td></tr>';
       const etc_supportAll = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_supportAll"> 더보기</td><td colspan=13></td></tr>';
+      // 추가
+      const etc_strategyAll = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_strategyAll"> 더보기</td><td colspan=13></td></tr>';
+      const etc_strategyExecutives = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_strategyExecutives"> 더보기</td><td colspan=13></td></tr>';
+      const etc_strategyTA = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_strategyTA"> 더보기</td><td colspan=13></td></tr>';
+      const etc_strategyAI = '<tr><td class="text-primary"><i class="fas fa-plus-circle" id="btn_strategyAI"> 더보기</td><td colspan=13></td></tr>';
       $('.expense:gt(2)').hide().last().after(etc);
       $('.businessAll').hide().last().after(etc_businessAll);
       $('.businessExecutives').hide().last().after(etc_businessExecutives);
@@ -361,7 +404,15 @@
       $('.serviceSolution').hide().last().after(etc_serviceSolution);
       $('.serviceDB').hide().last().after(etc_serviceDB);
       $('.supportAll').hide().last().after(etc_supportAll);
+      // 추가
+      $('.strategyAll').hide().last().after(etc_strategyAll);
+      $('.strategyExecutives').hide().last().after(etc_strategyExecutives);
+      $('.strategyTA').hide().last().after(etc_strategyAI);
+      $('.strategyAI').hide().last().after(etc_serviceDB);
 
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
 
       $('#btn').click(function () {
           let a = this;
@@ -506,6 +557,59 @@
           }
       });
 
+      // 추가
+      $('#btn_strategyExecutives').click(function () {
+          let a = this;
+          if ($('#btn_strategyExecutives').attr('class') == 'fas fa-plus-circle') {
+              $('.strategyExecutives:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.strategyExecutives:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.strategyExecutives').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_strategyTA').click(function () {
+          let a = this;
+          if ($('#btn_strategyTA').attr('class') == 'fas fa-plus-circle') {
+              $('.strategyTA:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.strategyTA:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.strategyTA').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_strategyAI').click(function () {
+          let a = this;
+          if ($('#btn_strategyAI').attr('class') == 'fas fa-plus-circle') {
+              $('.strategyAI:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.strategyAI:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.strategyAI').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
+      $('#btn_strategyAll').click(function () {
+          let a = this;
+          if ($('#btn_strategyAll').attr('class') == 'fas fa-plus-circle') {
+              $('.strategyAll:not(:visible):lt(50)').fadeIn(function () {
+                  if ($('.strategyAll:not(:visible)').length == 0) $(a).attr('class', 'fas fa-minus-circle').text(' 접기');
+              });
+              return false;
+          } else {
+              $('.strategyAll').hide();
+              $(a).attr('class', 'fas fa-plus-circle').text(' 더보기')
+          }
+      });
+
       $('#more_businessAll').click(function () {
           let a = this;
           if($('#more_businessAll').attr('name')=='down'){
@@ -539,6 +643,22 @@
           }
 
       });
+      //추가
+      $('#more_strategyAll').click(function () {
+          let a = this;
+          if($('#more_strategyAll').attr('name')=='down'){
+                $('#strategyExecutives').show();
+                $('#strategyTA').show();
+                $('#strategyAI').show();
+               $(a).attr('name','up').text(' ▼ 접기');
+          }else{
+              $(a).attr('name','down').text(' ▶ 상세보기');
+               $('#strategyExecutives').hide();
+               $('#strategyTA').hide();
+               $('#strategyAI').hide();
+          }
+
+      });
 
       $(document).ready(function () {
           $('#businessExecutives').hide();
@@ -548,6 +668,10 @@
           $('#serviceExecutives').hide();
           $('#serviceSolution').hide();
           $('#serviceDB').hide();
+      // 추가
+          $('#strategyExecutives').hide();
+          $('#strategyTA').hide();
+          $('#strategyAI').hide();
       });
 
 

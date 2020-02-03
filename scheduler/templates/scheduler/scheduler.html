@@ -98,27 +98,21 @@
               <form name="DeptCheck" id="DeptCheck" method="post">
                 {% csrf_token %}
                 <div class="h6 mb-0 font-weight-bold text-gray-800" style="align:center;margin-left: 30px">
-                  {% if postDeptList %}
+
+                  {% for group in GroupDeptList %}
+                    <div class="row">
+                      <label><input type="checkbox" name="ckdept" class="{{ group.deptId }}all"  value="{{ group.deptName }}" {% if group.checked == "Y" %} checked {% endif %}> {{ group.deptName }}</label>
+                    </div>
                     {% for i in DeptList %}
-                      <div class="row">
-                        {% if i in postDeptList %}
-                          <label><input type="checkbox" name="ckdept" value="{{ i }}" checked> {{ i }} </label>
-                        {% else %}
-                          <label><input type="checkbox" name="ckdept" value="{{ i }}"> {{ i }} </label>
-                        {% endif %}
-                      </div>
+
+                      {% if i.parentDept__deptName == group.deptName %}
+                       <div class="row">
+                        <label><input type="checkbox" class="{{ i.parentDept }} ml-3" name="ckdept" value="{{ i.deptName }}" {% if group.checked == "Y" %} checked {% endif %} {% if i.checked == "Y" %} checked {% endif %}> {{ i.deptName }}</label>
+                       </div>
+                      {% endif %}
                     {% endfor %}
-                  {% else %}
-                    {% for i in DeptList %}
-                      <div class="row">
-                        {% if i == empDeptName %}
-                          <label><input type="checkbox" name="ckdept" value="{{ i }}" checked> {{ i }} </label>
-                        {% else %}
-                          <label><input type="checkbox" name="ckdept" value="{{ i }}"> {{ i }} </label>
-                        {% endif %}
-                      </div>
-                    {% endfor %}
-                  {% endif %}
+                  {% endfor %}
+
 
                 </div>
                 <div class="text-center">
@@ -149,6 +143,12 @@
 {% block script %}
 
   <script type="text/javascript">
+
+      {% for group in GroupDeptList %}
+            $('.{{ group.deptId }}'+'all').click(function () {
+            $('.{{ group.deptId }}').prop('checked', this.checked);
+        });
+      {% endfor %}
       function btnView() {
           document.getElementById("SearchLayer").style.display = 'inline'
       }
@@ -409,21 +409,19 @@
                               {% else %}
                                   type: 'N',
                                   {%  if i.serviceType == "정기점검" %}
-                                      {#backgroundColor: '#3DBD9A',#}
-                                      {#borderColor: '#3DBD9A'#}
                                       backgroundColor: '#496fdb',
                                       borderColor: '#496fdb',
                                   {% elif i.serviceType == "일반작업지원" %}
                                       backgroundColor: '#36b9cc',
                                       borderColor: '#36b9cc',
-                                      {#backgroundColor: '#365D66',#}
-                                      {#borderColor: '#45a18d',#}
                                   {% elif i.serviceType == "프로젝트" %}
                                       backgroundColor: '#835dab',
                                       borderColor: '#835dab',
+                                  {% elif i.serviceType.punctualityStatus == "N" %}
+                                      backgroundColor: '#f67a15',
+                                      borderColor: '#f67a15',
                                   {% else %}
                                       backgroundColor: '#1cc88a',
-                                      {#borderColor: '#487ea1',#}
                                       borderColor: '#1cc88a',
                                   {% endif %}
                                   textColor: 'white'
@@ -477,6 +475,9 @@
                                   {% elif i.serviceType == "프로젝트" %}
                                       backgroundColor: '#835dab',
                                       borderColor: '#835dab',
+                                  {% elif i.serviceType.punctualityStatus == "N" %}
+                                      backgroundColor: '#f67a15',
+                                      borderColor: '#f67a15',
                                   {% else %}
                                       backgroundColor: '#1cc88a',
                                       borderColor: '#1cc88a',

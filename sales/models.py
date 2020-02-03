@@ -54,7 +54,6 @@ class Contract(models.Model):
     confirmComment = models.CharField(max_length=200, null=True, blank=True)
     modifyContract = models.CharField(max_length=10, choices=modifyContractChoices, default='Y')
 
-
     def __str__(self):
         return self.contractName
 
@@ -76,6 +75,7 @@ class Revenue(models.Model):
     depositDate = models.DateField(null=True, blank=True)
     billingTime = models.CharField(max_length=10, null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
+    revenueStatus = models.CharField(max_length=10, default='N')
 
     def __str__(self):
         return '{} {}'.format(self.billingTime, self.contractId.contractName)
@@ -117,6 +117,7 @@ class Category(models.Model):
 class Contractitem(models.Model):
     contractItemId = models.AutoField(primary_key=True)
     contractId = models.ForeignKey(Contract, on_delete=models.CASCADE)
+    companyName = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     mainCategory = models.CharField(max_length=50)
     subCategory = models.CharField(max_length=50)
     itemName = models.CharField(max_length=50)
@@ -216,6 +217,16 @@ class Incentive(models.Model):
 
     def __str__(self):
         return str(self.empId.empName) + str(self.year) + '년 ' + str(self.quarter) + '분기 인센티브'
+
+
+class IncentiveDept(models.Model):
+    incentiveDeptId = models.AutoField(primary_key=True)
+    year = models.IntegerField()
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    deptName = models.CharField(max_length=100, default='')
+
+    def __str__(self):
+        return str(self.year) + '년 ' + str(self.empId.empName) + '님의 부서는 ' + self.deptName
 
 
 class Contractfile(models.Model):
@@ -374,3 +385,11 @@ class Purchasecontractitem(models.Model):
 
     def __str__(self):
         return '{} : {}'.format(self.contractId.contractName, self.itemName)
+
+
+class Contractcomment(models.Model):
+    commentId = models.AutoField(primary_key=True)
+    contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
+    author = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    comment = models.CharField(max_length=255)
+    created = models.DateTimeField()

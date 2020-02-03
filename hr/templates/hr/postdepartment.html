@@ -55,6 +55,12 @@
                 <td class="text-center align-middle bg-light"><b>상위부서</b></td>
                 <td>{{ form.parentDept }}</td>
               </tr>
+              <tr>
+                <td class="text-center align-middle bg-light text-primary"><b>시작일자</b></td>
+                <td>{{ form.startDate }}</td>
+                <td class="text-center align-middle bg-light"><b>종료일자</b></td>
+                <td>{{ form.endDate }}</td>
+              </tr>
             </form>
             </tbody>
           </table>
@@ -79,6 +85,7 @@
       function btn_save() {
           const deptName = $('#deptName').val();
           const deptLevel = $('#deptLevel').val();
+          const startDate = $('#startDate').val();
 
           if (!deptName) {
               alert('부서명을 입력해주세요.');
@@ -88,6 +95,11 @@
               alert('부서단계를 입력해주세요.');
               return false;
           }
+          if (!startDate) {
+              alert('부서명을 사용하는 시작일자 입력해주세요.');
+              return false;
+          }
+
 
           if (confirm('등록 하시겠습니까?')) {
               $.ajax({

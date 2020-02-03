@@ -34,7 +34,7 @@ class ServicereportForm(forms.ModelForm):
 
         widgets = {
             'companyName': forms.TextInput(attrs={'class': 'form-control magicsearch', 'id': 'companyName', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(companyName)'}),
-            'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType"}),
+            'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType", 'onchange': 'btn_serviceType()'}),
             'serviceLocation': forms.Select(attrs={'class': 'form-control', 'id': 'serviceLocation'}),
             'directgo': forms.Select(attrs={'class': 'form-control', 'id': 'directgo'}),
             'serviceTitle': forms.TextInput(attrs={'class': 'form-control', 'id': 'serviceTitle'}),

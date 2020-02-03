@@ -116,7 +116,7 @@ def post_service(request, postdate):
                 post.serviceDate = str(post.serviceBeginDatetime)[:10]
                 post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                 post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                 post.save()
                 return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
 
@@ -134,7 +134,7 @@ def post_service(request, postdate):
                     if timeCalculateFlag:
                         post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                         post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                        post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                        post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                         timeCalculateFlag = False
                     Servicereport.objects.create(
                         # contractId=post.contractId,
@@ -176,7 +176,7 @@ def post_service(request, postdate):
                         if timeCalculateFlag:
                             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                             post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                            post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                            post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                             timeCalculateFlag = False
                         Servicereport.objects.create(
                             # contractId=post.contractId,
@@ -216,7 +216,7 @@ def post_service(request, postdate):
                     if timeCalculateFlag:
                         post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                         post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                        post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                        post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                         timeCalculateFlag = False
                     Servicereport.objects.create(
                         # contractId=post.contractId,
@@ -695,11 +695,24 @@ def view_service(request, serviceId):
     except:
         board = None
 
+    beforeServiceDate = service.serviceDate - datetime.timedelta(days=1)
+    afterServiceDate = service.serviceDate + datetime.timedelta(days=1)
+
+    coWorkerSign = Servicereport.objects.filter(
+        serviceDate__lte=afterServiceDate,
+        serviceDate__gte=beforeServiceDate,
+        companyName=service.companyName,
+        coWorker__contains=service.empId.empId,
+    ).exclude(
+        serviceSignPath='/media/images/signature/nosign.jpg'
+    )
+
     context = {
         'service': service,
         'contractName': contractName,
         'board': board,
         'coWorker': coWorker,
+        'coWorkerSign': coWorkerSign,
     }
 
     if service.serviceStatus == "Y":
@@ -759,8 +772,11 @@ def modify_service(request, serviceId):
                 post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
             post.serviceDate = str(post.serviceBeginDatetime)[:10]
             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
-            post.serviceOverHour = overtime(form.clean()['startdate'] + ' ' + form.clean()['starttime'], post.serviceFinishDatetime)
-            post.serviceRegHour = post.serviceHour - post.serviceOverHour
+            post.serviceOverHour = overtime(
+                form.clean()['startdate'] + ' ' + form.clean()['starttime'],
+                form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            )
+            post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
             post.coWorker = request.POST['coWorkerId']
             post.save()
             return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
@@ -924,97 +940,159 @@ def delete_vacation(request, vacationId):
 
 @login_required
 def day_report(request, day=None):
+    # 20년 2월 1일 이전
     if day is None:
         day = str(datetime.datetime.today())[:10]
-    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
-    beforeDate = Date - datetime.timedelta(days=1)
-    afterDate = Date + datetime.timedelta(days=1)
 
-    solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
-    db = dayreport_query2(empDeptName="DB지원팀", day=day)
-    sales1 = dayreport_query2(empDeptName="영업1팀", day=day)
-    sales2 = dayreport_query2(empDeptName="영업2팀", day=day)
-    infra = dayreport_query2(empDeptName="인프라서비스사업팀", day=day)
+    if day <= '2020-01-31':
+        Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+        beforeDate = Date - datetime.timedelta(days=1)
+        afterDate = Date + datetime.timedelta(days=1)
 
-    dept = request.user.employee.empDeptName
+        solution = dayreport_query2(empDeptName="솔루션지원팀", day=day)
+        db = dayreport_query2(empDeptName="DB지원팀", day=day)
+        sales1 = dayreport_query2(empDeptName="영업1팀", day=day)
+        sales2 = dayreport_query2(empDeptName="영업2팀", day=day)
+        infra = dayreport_query2(empDeptName="인프라서비스사업팀", day=day)
 
-    rows = []
-    if dept == '영업2팀':
-        rows.append([
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-        ])
-        rows.append([
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-        ])
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
-    elif dept == '솔루션지원팀':
-        rows.append([
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-        ])
-        rows.append([
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-        ])
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
-    elif dept == 'DB지원팀':
-        rows.append([
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-        ])
-        rows.append([
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-        ])
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
-    elif dept == '인프라서비스사업팀':
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
-        rows.append([
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-        ])
-        rows.append([
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-        ])
+        dept = request.user.employee.empDeptName
+
+        rows = []
+        if dept == '영업2팀':
+            rows.append([
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+            ])
+            rows.append([
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+        elif dept == '솔루션지원팀':
+            rows.append([
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+            rows.append([
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            ])
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+        elif dept == 'DB지원팀':
+            rows.append([
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+            ])
+            rows.append([
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            ])
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+        elif dept == '인프라서비스사업팀':
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+            rows.append([
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            ])
+            rows.append([
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+        else:
+            rows.append([
+                {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
+                {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
+            ])
+            rows.append([
+                {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+            rows.append([
+                {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
+                {'title': '', 'service': '', 'education': '', 'vacation': ''},
+            ])
+
+        context = {
+            'day': day,
+            'Date': Date,
+            'beforeDate': beforeDate,
+            'afterDate': afterDate,
+            'rows': rows,
+        }
+
+        return render(request, 'service/dayreport.html', context)
+
+    # 20년 2월 1일 부터
     else:
-        rows.append([
-            {'title': '영업1팀', 'service': sales1[0], 'education': sales1[1], 'vacation': sales1[2]},
-            {'title': '영업2팀', 'service': sales2[0], 'education': sales2[1], 'vacation': sales2[2]},
-        ])
-        rows.append([
-            {'title': '솔루션지원팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-            {'title': 'DB지원팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-        ])
-        rows.append([
-            {'title': '인프라서비스사업팀', 'service': infra[0], 'education': infra[1], 'vacation': infra[2]},
-            {'title': '', 'service': '', 'education': '', 'vacation': ''},
-        ])
+        Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+        beforeDate = Date - datetime.timedelta(days=1)
+        afterDate = Date + datetime.timedelta(days=1)
 
-    context = {
-        'day': day,
-        'Date': Date,
-        'beforeDate': beforeDate,
-        'afterDate': afterDate,
-        'rows': rows,
-    }
+        sales = dayreport_query(empDeptName=["인프라솔루션사업부", "영업팀"], day=day)
+        rnd = dayreport_query(empDeptName=["R&D 전략사업부", "Technical Architecture팀", "AI Platform Labs"], day=day)
+        db = dayreport_query(empDeptName=["Platform Biz", "DB Expert팀"], day=day)
+        solution = dayreport_query(empDeptName=["Platform Biz", "솔루션팀"], day=day)
 
-    return render(request, 'service/dayreport.html', context)
+        dept = request.user.employee.empDeptName
+        rows = []
+        if dept == "Technical Architecture팀" or dept == "AI Platform Labs":
+            rows.append([
+                {'title': '[R&D 전략사업부]TA팀·AI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+                {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+            ])
+            rows.append([
+                {'title': '[Platform Biz]솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': '[Platform Biz]DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+        elif dept == '솔루션팀':
+            rows.append([
+                {'title': '[Platform Biz]솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': '[Platform Biz]DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
+            rows.append([
+                {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+                {'title': '[R&D 전략사업부]TA팀·AI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+            ])
+        elif dept == 'DB Expert팀':
+            rows.append([
+                {'title': '[Platform Biz]DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+                {'title': '[Platform Biz]솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+            ])
+            rows.append([
+                {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+                {'title': '[R&D 전략사업부]TA팀·dAI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+            ])
+        else:
+            rows.append([
+                {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+                {'title': '[R&D 전략사업부]TA팀·AI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+            ])
+            rows.append([
+                {'title': '[Platform Biz]솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': '[Platform Biz]DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+            ])
 
+        context = {
+            'day': day,
+            'Date': Date,
+            'beforeDate': beforeDate,
+            'afterDate': afterDate,
+            'rows': rows,
+        }
+
+        return render(request, 'service/dayreport.html', context)
 
 @login_required
 def view_service_pdf(request, serviceId):
@@ -1060,7 +1138,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         service.serviceDate = str(service.serviceBeginDatetime)[:10]
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
         service.serviceOverHour = overtime(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.serviceRegHour = round(service.serviceHour - service.serviceOverHour, 1)
         service.serviceStatus = 'B'
         service.save()
 
@@ -1072,7 +1150,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         service.serviceStartDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
         service.serviceOverHour = overtime(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.serviceRegHour = round(service.serviceHour - service.serviceOverHour, 1)
         service.serviceStatus = 'S'
         service.save()
 
@@ -1084,7 +1162,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
         service.serviceEndDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
         service.serviceOverHour = overtime(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.serviceRegHour = round(service.serviceHour - service.serviceOverHour, 1)
         service.serviceStatus = 'E'
         service.save()
 
@@ -1129,7 +1207,7 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
             service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay_etc(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
         else:
             service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        service.serviceRegHour = service.serviceHour - service.serviceOverHour
+        service.serviceRegHour = round(service.serviceHour - service.serviceOverHour, 1)
         service.serviceStatus = 'Y'
 
         # overhour create
@@ -1217,7 +1295,7 @@ def admin_service(request, serviceId):
                 post.serviceDate = str(post.serviceBeginDatetime)[:10]
                 post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                 post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                 post.coWorker = request.POST['coWorkerId']
 
                 # 초과근무 등록
@@ -1229,7 +1307,7 @@ def admin_service(request, serviceId):
                     post.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(
                         str(post.serviceBeginDatetime), str(post.serviceFinishDatetime)
                     )
-                post.serviceRegHour = post.serviceHour - post.serviceOverHour
+                post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                 post.serviceStatus = 'Y'
                 post.save()
 
@@ -1478,3 +1556,13 @@ def post_service_type(request):
 def delete_service_type(request, typeId):
     Servicetype.objects.get(typeId=typeId).delete()
     return redirect('service:showservicetype')
+
+
+@login_required
+def coworker_sign(request, serviceId):
+    if request.method == 'POST':
+        signId = Servicereport.objects.get(serviceId=request.POST['signId'])
+        service = Servicereport.objects.get(serviceId=serviceId)
+        service.serviceSignPath = signId.serviceSignPath
+        service.save()
+        return redirect('service:viewservice', serviceId)

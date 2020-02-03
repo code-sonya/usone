@@ -9,6 +9,85 @@
 {% block css %}
 
   <style type="text/css">
+    .bubble {
+      z-index:100;
+      position: relative;
+      height: auto;
+      padding: 10px 10px 10px 10px;
+      background: #FFFFFF;
+      border-radius: 5px;
+      border: #7F7F7F solid 1px;
+      position: absolute;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    .bubble:after {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-width: 0 16px 20px 17.5px;
+      border-color: #FFFFFF transparent;
+      display: block;
+      width: 0;
+      z-index: 1;
+      top: -18.5px;
+      /*left: 49px;*/
+    }
+
+    .bubble:before {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-width: 0 16px 20px 17.5px;
+      border-color: #7F7F7F transparent;
+      display: block;
+      width: 0;
+      z-index: 0;
+      top: -20px;
+      /*left: 49px;*/
+    }
+
+    .bubble-right {
+      z-index:100;
+      position: relative;
+      height: auto;
+      padding: 10px 10px 10px 10px;
+      background: #FFFFFF;
+      border-radius: 5px;
+      border: #7F7F7F solid 1px;
+      position: absolute;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    .bubble-right:after {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-width: 0 16px 20px 17.5px;
+      border-color: #FFFFFF transparent;
+      display: block;
+      width: 0;
+      z-index: 1;
+      top: -18.5px;
+      /*left: 49px;*/
+    }
+
+    .bubble-right:before {
+      content: '';
+      position: absolute;
+      border-style: solid;
+      border-width: 0 16px 20px 17.5px;
+      border-color: #7F7F7F transparent;
+      display: block;
+      width: 0;
+      z-index: 0;
+      top: -20px;
+      /*left: 49px;*/
+    }
+
+
     .flow-table {
       color: #333333;
       table-layout: fixed;
@@ -113,18 +192,26 @@
       <div>
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h3 class="m-0 text-gray-800"> [{{ contract.contractCode }}] {{ contract.contractName }} </h3>
-          <div style="font-size: 14px">
-            {% if contract.writeEmpId and contract.writeDatetime %}
-            작성 : {{ contract.writeEmpId }} ({{ contract.writeDatetime | date:"Y.m.d H:i" }})<br>
-            {% endif %}
-            {% if contract.editEmpId and contract.editDatetime %}
-            수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
-            {% endif %}
+          <div class="d-flex flex-row align-items-center justify-content-between">
+            <div style="font-size: 14px">
+              {% if contract.writeEmpId and contract.writeDatetime %}
+              작성 : {{ contract.writeEmpId }} ({{ contract.writeDatetime | date:"Y.m.d H:i" }})<br>
+              {% endif %}
+              {% if contract.editEmpId and contract.editDatetime %}
+              수정 : {{ contract.editEmpId }} ({{ contract.editDatetime | date:"Y.m.d H:i" }})
+              {% endif %}
+            </div>&nbsp;&nbsp;
+            <a class="btn btn-info" href="#" onclick="open_comment()">
+              <i class="fas fa-comment-dots d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-comment-dots"></i> 의견</span>
+            </a>
+            <a class="btn btn-success ml-1" href="#" role="button" id="historyLink" data-toggle="modal" data-target="#historyModal">
+              <i class="fas fa-history d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-history"></i> 히스토리</span>
+            </a>
+
           </div>
         </div>
 
         <div class="card-body">
-
           <div class="d-flex align-items-center justify-content-between mb-3">
             <h5 class="text-dark mb-3"><b>
               <span id="processDown" onclick="downClick('process', 'processUp', 'processDown')">▼</span>
@@ -171,12 +258,16 @@
                 </td>
                 <td>
                   <a data-toggle="modal" data-target="#confirmModal" class="text-success"><i class="fas fa-pen-alt"></i></a>
-                  <b>납품,구축,검수확인서</b>
+                  <b>확인서</b>
                   <a href="#" onclick="open_upload('납품,구축,검수확인서')"><i class="fas fa-paperclip"></i></a>
                 </td>
                 <td>
                   <b>매출발행</b>
                   <a href="#" onclick="open_upload('매출발행')"><i class="fas fa-paperclip"></i></a>
+                </td>
+                <td>
+                  <b>기타문서</b>
+                  <a href="#" onclick="open_upload('기타문서')"><i class="fas fa-paperclip"></i></a>
                 </td>
               </tr>
               <tr>
@@ -297,6 +388,21 @@
                     {% endif %}
                   {% endif %}
                 </a></td>
+                <td><a href="#" onclick="open_download('기타문서')">
+                  {% if files_h|length == 0 %}
+                    <img class="td-img" src="/media/icon/ordermail_grey.png"><br>
+                  {% elif files_h|length == 1 %}
+                    <img class="td-img" src="/media/icon/ordermail1.png"><br>
+                  {% elif files_h|length == 2 %}
+                    <img class="td-img" src="/media/icon/ordermail2.png"><br>
+                  {% elif files_h|length == 3 %}
+                    <img class="td-img" src="/media/icon/ordermail3.png"><br>
+                  {% elif files_h|length == 4 %}
+                    <img class="td-img" src="/media/icon/ordermail4.png"><br>
+                  {% elif files_h|length >= 5 %}
+                    <img class="td-img" src="/media/icon/ordermail5.png"><br>
+                  {% endif %}
+                </a></td>
               </tr>
             </table>
           </div>
@@ -349,7 +455,7 @@
             <tr>
               <td class="bg-light">거&nbsp; &nbsp; &nbsp;래&nbsp; &nbsp; &nbsp;처</td>
               <td class="text-left pl-4">
-                <a href="/client/viewclient/{{ contract.saleCompanyName.companyName }}" class="text-dark">
+                <a href="/client/viewclient/{{ contract.saleCompanyName.companyName }}" target="_blank" class="text-dark">
                   {{ contract.saleCompanyName.companyNameKo }}
                 </a>
                 <a href="/client/viewcustomer/{{ contract.saleCustomerId.customerId }}" class="text-dark">
@@ -361,7 +467,7 @@
               </td>
               <td class="bg-light">최 종 고 객 사</td>
               <td class="text-left pl-4">
-                <a href="/client/viewclient/{{ contract.endCompanyName.companyName }}" class="text-dark">
+                <a href="/client/viewclient/{{ contract.endCompanyName.companyName }}" target="_blank" class="text-dark">
                   {{ contract.endCompanyName.companyNameKo }}
                 </a>
               </td>
@@ -537,19 +643,21 @@
             <table class="pc-table" id="categoryItem">
               <thead>
               <tr class="bg-primary">
-                <td class="text-gray-100">대분류</td>
-                <td class="text-gray-100">소분류</td>
-                <td class="text-gray-100">상세내용</td>
-                <td class="text-gray-100">가격</td>
+                <td colspan="1" class="text-gray-100">매출처</td>
+                <td colspan="1" class="text-gray-100">대분류</td>
+                <td colspan="1" class="text-gray-100">소분류</td>
+                <td colspan="2" class="text-gray-100">상세내용</td>
+                <td colspan="1" class="text-gray-100">가격</td>
               </tr>
               </thead>
               <tbody>
               {% for item in items %}
                 <tr class="thtd">
-                  <td>{{ item.mainCategory }}</td>
-                  <td>{{ item.subCategory }}</td>
-                  <td class="text-left">{{ item.itemName }}</td>
-                  <td class="text-right">{{ item.itemPrice | intcomma }}</td>
+                  <td colspan="1" class="text-left">{{ item.companyName.companyNameKo }}</td>
+                  <td colspan="1">{{ item.mainCategory }}</td>
+                  <td colspan="1">{{ item.subCategory }}</td>
+                  <td colspan="2" class="text-left">{{ item.itemName }}</td>
+                  <td colspan="1" class="text-right">{{ item.itemPrice | intcomma }}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -568,19 +676,21 @@
                 <thead>
                 <tr class="bg-primary">
                   <td class="text-gray-100" width="5%">회차</td>
+                  <td class="text-gray-100" width="7%">담당자</td>
                   <td class="text-gray-100" width="10%">매출예정일</td>
                   <td class="text-gray-100" width="10%">매출일</td>
                   <td class="text-gray-100" width="10%">수금예정일</td>
                   <td class="text-gray-100" width="10%">수금일</td>
                   <td class="text-gray-100" width="15%">매출처</td>
-                  <td class="text-gray-100" width="12%">매출금액</td>
-                  <td class="text-gray-100" width="13%">이익금액</td>
+                  <td class="text-gray-100" width="10%">매출금액</td>
+                  <td class="text-gray-100" width="8%">이익금액</td>
                   <td class="text-gray-100" width="15%">비고</td>
                   <th class="d-none">revenueId</th>
                 </tr>
                 </thead>
                 <tfoot>
                 <tr>
+                  <th style="padding: 8px 10px; text-align: right"></th>
                   <th style="padding: 8px 10px; text-align: right"></th>
                   <th style="padding: 8px 10px; text-align: right"></th>
                   <th style="padding: 8px 10px; text-align: right"></th>
@@ -616,7 +726,7 @@
               <tbody>
               {% for item in purchaseItems %}
                 <tr class="thtd">
-                  <td colspan="1" class="text-left">{% if item.companyName %}{{ item.companyName }}{% endif %}</td>
+                  <td colspan="1" class="text-left">{% if item.companyName %}{{ item.companyName.companyNameKo }}{% endif %}</td>
                   <td colspan="1">{{ item.mainCategory }}</td>
                   <td colspan="1">{{ item.subCategory }}</td>
                   <td colspan="2" class="text-left">{{ item.itemName }}</td>
@@ -902,6 +1012,14 @@
                 <td class="text-right">{{ f.fileSize }} MB</td>
               </tr>
             {% endfor %}
+            {% for f in files_h %}
+              <tr name="filesH" class="d-none">
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a onclick="downloadLog('/media/{{ f.file }}','기타문서')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
+              </tr>
+            {% endfor %}
             </tbody>
           </table>
         </div>
@@ -913,7 +1031,6 @@
   <div class="modal fade" id="purchaseDownloadModal" tabindex="-1" role="dialog" aria-labelledby="purchaseDownloadModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
-
         <div class="modal-header bg-info text-gray-100">
           <h5 class="modal-title" id="purchaseDownloadModalLabel">매입견적서 목록</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
@@ -1284,6 +1401,100 @@
     </div>
   </div>
 
+   <!-- comment modal -->
+  <div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="commentModalLabel">의견</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body m-2" id="comment-modal-body">
+        </div>
+        <div class="modal-footer">
+            <input class="form-control" name="comment" type="text" id="comment">
+            <a class="btn btn-info small" href="#" onclick="comment_send()"><i class="fa fa-paper-plane"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- history modal -->
+  <div class="modal fade" id="historyModal" tabindex="-1" role="dialog" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="historyModalLabel">계약금액 & 이익금액 변경내역</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body" style="padding: 2rem">
+          <table class="file-table">
+            <thead>
+            <tr>
+              <td width="20%"><b>변경일자</b></td>
+              <td width="10%"><b>작성자</b></td>
+              <td width="20%"><b>계약금액</b></td>
+              <td width="20%"><b>이익금액</b></td>
+              <td width="15%"><b>이익률</b></td>
+              <td width="15%"><b>변경회차</b></td>
+            </tr>
+            </thead>
+            <tbody>
+              {% for log in history %}
+                <tr>
+                  <td>{{ log.datetime | date:"Y.m.d H:i" }}</td>
+                  <td>{{ log.empId.empName }}</td>
+                  <td class="text-right">
+                    {{ log.beforeSalePrice | intcomma }}<br>
+                    → {{ log.afterSalePrice | intcomma }}<br>
+                    {% if log.diffSalePrice > 0 %}
+                      <span class="text-danger">({{ log.diffSalePrice | intcomma }})</span>
+                    {% elif log.diffSalePrice < 0 %}
+                      <span class="text-primary">({{ log.diffSalePrice | intcomma }})</span>
+                    {% else %}
+                      ({{ log.diffSalePrice | intcomma }})
+                    {% endif %}
+                  </td>
+                  <td class="text-right">
+                    {{ log.beforeProfitPrice | intcomma }}<br>
+                    → {{ log.afterProfitPrice | intcomma }}<br>
+                    {% if log.diffProfitPrice > 0 %}
+                      <span class="text-danger">({{ log.diffProfitPrice | intcomma }})</span>
+                    {% elif log.diffProfitPrice < 0 %}
+                      <span class="text-primary">({{ log.diffProfitPrice | intcomma }})</span>
+                    {% else %}
+                      ({{ log.diffProfitPrice | intcomma }})
+                    {% endif %}
+                  </td>
+                  <td class="text-right">
+                    {{ log.beforeProfitRatio | floatformat }}%<br>
+                    → {{ log.afterProfitRatio | floatformat }}%<br>
+                    {% if log.diffProfitRatio > 0 %}
+                      <span class="text-danger">({{ log.diffProfitRatio | floatformat }}%)</span>
+                    {% elif log.diffProfitRatio < 0 %}
+                      <span class="text-primary">({{ log.diffProfitRatio | floatformat }}%)</span>
+                    {% else %}
+                      ({{ log.diffProfitRatio | floatformat }}%)
+                    {% endif %}
+                  </td>
+                  <td>{{ log.changeCount }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 
 
@@ -1554,7 +1765,6 @@
                       <td class="text-right">{% if companyTotalWithdraw.total_filter_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_filter_withdraw | intcomma }}{% endif %}<br>
                         ({% if companyTotalWithdraw.total_ratio_withdraw == None %}0{% else %}{{ companyTotalWithdraw.total_ratio_withdraw }}{% endif %}%)
                       </td>
-
                     </tr>
                     </tbody>
                   </table>
@@ -1575,13 +1785,14 @@
                 <thead>
                 <tr class="bg-primary">
                   <td class="text-gray-100" width="5%">회차</td>
+                  <td class="text-gray-100" width="7%">담당자</td>
                   <td class="text-gray-100" width="10%">매출예정일</td>
                   <td class="text-gray-100" width="10%">매출일</td>
                   <td class="text-gray-100" width="10%">수금예정일</td>
                   <td class="text-gray-100" width="10%">수금일</td>
                   <td class="text-gray-100" width="15%">매출처</td>
-                  <td class="text-gray-100" width="12%">매출금액</td>
-                  <td class="text-gray-100" width="13%">이익금액</td>
+                  <td class="text-gray-100" width="9%">매출금액</td>
+                  <td class="text-gray-100" width="9%">이익금액</td>
                   <td class="text-gray-100" width="15%">비고</td>
                   <th class="d-none">revenueId</th>
                 </tr>
@@ -1705,7 +1916,7 @@
         </div>
       </div>
 
-      {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empId == contract.empId.empId %}
+      {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empId == contract.empId.empId or user.is_staff %}
         <div class="text-center" style="padding: 0px 20px 20px 20px">
           {% if contract.contractStep == 'Opportunity' %}
           <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
@@ -1763,6 +1974,74 @@
           }
       }
 
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 16);
+      }
+
+      function open_comment() {
+          $.ajax({
+              url: "{% url 'sales:commentasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "contractId": '{{ contract.contractId }}',
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  $('#comment-modal-body').empty();
+                  for(var i=0; i<returnData.length ; i++){
+                      if(returnData[i].viewer=='Y'){
+                          $('#comment-modal-body').append('<div class="right text-right p-2">' +
+                              '<span class="small" style="vertical-align: sub">'+ replaceAll(returnData[i].created, "-", ".") +' </span>' +
+                              '<span class="bg-secondary text-white p-2"  style="border-radius: 15px 15px 15px 15px">'+
+                              returnData[i].comment +
+                              '</span></div>');
+                      }else if(returnData[i].viewer=='N'){
+                          $('#comment-modal-body').append(
+                              '<div class="text-secondary small p-2">' + returnData[i].author__empName + '</div>' +
+                              '<div class="left text-left">' +
+                              '<span class="bg-primary text-white p-2" style="border-radius: 15px 15px 15px 15px">'+  returnData[i].comment + '</span>' +
+                              '<span class="small" style="vertical-align: sub"> '+ replaceAll(returnData[i].created, "-", ".") +'</span>' +
+                              '</div>');
+                      }
+                  }
+                  $('#commentModal').modal('show');
+              }
+          });
+      }
+
+      function comment_send() {
+          const comment = $('#comment');
+          if(comment.val() == ''){
+              alert('의견을 입력해 주세요 :)');
+              return false;
+          }
+          $.ajax({
+              url: "{% url 'sales:savecomment' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "comment": comment.val(),
+                  "contractId": '{{ contract.contractId }}',
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  for(var i=0; i<returnData.length ; i++){
+                      $('#comment-modal-body').append('<div class="right text-right p-2">' +
+                        '<span class="small" style="vertical-align: sub">'+ replaceAll(returnData[i].created, "-", ".") +' </span>' +
+                        '<span class="bg-secondary text-white p-2"  style="border-radius: 15px 15px 15px 15px">'+
+                        returnData[i].comment +
+                        '</span></div>');
+                  }
+                  comment.val('');
+              },error:function(request,status,error){
+                              alert("관리자에 문의하세요 :) \n"+"code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+              }
+          });
+      }
+
+
       function open_upload(fileType) {
           $('#fileType').text(fileType);
           $('#uploadModalLabel').text(fileType + ' 등록');
@@ -1779,7 +2058,6 @@
       }
 
       function open_download(fileType) {
-          // $('#noFile');
           $('#downloadModalLabel').text(fileType + ' 목록');
           $('#downloadModal').modal('show');
           let filesB = $('tr[name=filesB]');
@@ -1787,6 +2065,7 @@
           let filesE = $('tr[name=filesE]');
           let filesF = $('tr[name=filesF]');
           let filesG = $('tr[name=filesG]');
+          let filesH = $('tr[name=filesH]');
           let nofile = $('#noFile');
           let head = $('#head');
 
@@ -1805,49 +2084,61 @@
           if (!filesG.hasClass('d-none')) {
               filesG.addClass('d-none')
           }
+          if (!filesH.hasClass('d-none')) {
+              filesH.addClass('d-none')
+          }
 
           if (fileType === '매출견적서') {
               filesB.removeClass('d-none');
-              if(filesB.length == 0){
+              if (filesB.length === 0) {
                   nofile.show();
                   head.hide();
-              }else{
+              } else {
                   nofile.hide();
                   head.show();
               }
           } else if (fileType === '계약서') {
               filesC.removeClass('d-none');
-              if(filesC.length == 0){
+              if (filesC.length === 0) {
                   nofile.show();
                   head.hide();
-              }else{
+              } else {
                   nofile.hide();
                   head.show();
               }
           } else if (fileType === '매입발주서') {
               filesE.removeClass('d-none');
-              if(filesE.length == 0){
+              if (filesE.length === 0) {
                   nofile.show();
                   head.hide();
-              }else{
+              } else {
                   nofile.hide();
                   head.show();
               }
           } else if (fileType === '납품,구축,검수확인서') {
               filesF.removeClass('d-none');
-              if(filesF.length == 0){
+              if (filesF.length === 0) {
                   nofile.show();
                   head.hide();
-              }else{
+              } else {
                   nofile.hide();
                   head.show();
               }
           } else if (fileType === '매출발행') {
               filesG.removeClass('d-none');
-              if(filesG.length == 0){
+              if (filesG.length === 0) {
                   nofile.show();
                   head.hide();
-              }else{
+              } else{
+                  nofile.hide();
+                  head.show();
+              }
+          } else if (fileType === '기타문서') {
+              filesH.removeClass('d-none');
+              if (filesH.length === 0) {
+                  nofile.show();
+                  head.hide();
+              } else{
                   nofile.hide();
                   head.show();
               }
@@ -2166,6 +2457,53 @@
       }
 
       $(document).ready(function () {
+
+          // 체크박스 전체선택
+          $('.ckbxall').click(function () {
+              $('.ckbx').prop('checked', this.checked);
+          });
+          $('.ckbx').click(function () {
+              $('.ckbxall').prop('checked', false);
+          });
+          $('.ckbxall2').click(function () {
+              $('.ckbx2.ckbx-checked').prop('checked', this.checked);
+          });
+          $('.ckbx2').click(function () {
+              $('.ckbxall2').prop('checked', false);
+          });
+
+          // 매입견적서 업로드 화면
+          const purchaseCompany = $('#purchaseCompany');
+          const purchaseFiles = $('#purchaseFiles');
+          let option;
+          let input_file;
+          let companyCount;
+          let strCount;
+
+          companyCount = 0;
+          {% for c in purchaseCompany %}
+              strCount = companyCount.toString();
+              option = '<option value="' + strCount + '">' + '{{ c }}' + '</option>';
+              purchaseCompany.append(option);
+              companyCount += 1;
+          {% endfor %}
+
+          companyCount = 0;
+          {% for c in purchaseCompany %}
+              strCount = companyCount.toString();
+              {% if forloop.first %}
+                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split">';
+              {% else %}
+                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split d-none">';
+              {% endif %}
+              input_file += '<span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>';
+              input_file += '<input id="purchaseFiles' + strCount + '" name="purchaseFiles' + strCount + '" ' +
+                  'type="file" multiple="multiple" class="d-none" onchange="purchase_file_names(this.id)">';
+              input_file += '</label>';
+              purchaseFiles.append(input_file);
+              companyCount += 1;
+          {% endfor %}
+
           $('#revenues').dataTable({
               "autoWidth": true,
               "processing": true,
@@ -2180,6 +2518,7 @@
               },
               "columns": [
                   {data: 'billingTime'},
+                  {data: 'empId__empName'},
                   {data: 'predictBillingDate'},
                   {data: 'billingDate'},
                   {data: 'predictDepositDate'},
@@ -2197,13 +2536,14 @@
                   {targets: 3, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                  {targets: 8, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
-                  {targets: 9, className: "d-none"},
+                  {targets: 8, className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                  {targets: 9, className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 10, className: "d-none"},
               ],
               "deferRender": true,
-              "order": [[1, 'asc']],
+              "order": [[2, 'asc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -2223,20 +2563,20 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
-                  $('td:eq(7)', nRow).text(aData.revenueProfitPrice.toLocaleString());
-                  $('td:eq(8)', nRow).text(aData.comment).css('color', '#e74a3b');
+                  $('td:eq(7)', nRow).text(aData.revenuePrice.toLocaleString());
+                  $('td:eq(8)', nRow).text(aData.revenueProfitPrice.toLocaleString());
+                  $('td:eq(9)', nRow).text(aData.comment).css('color', '#e74a3b');
 
-                  $('td:eq(1)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
+                  $('td:eq(2)', nRow).text(replaceDate(aData.predictBillingDate, aData.billingDate, "-", ".", "발행", 7));
                   if (aData.billingDate != null) {
-                      $('td:eq(1)', nRow).css('color', '#b7b9cc');
+                      $('td:eq(2)', nRow).css('color', '#b7b9cc');
                   }
-                  $('td:eq(2)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
-                  $('td:eq(3)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
+                  $('td:eq(3)', nRow).text(replaceDate(aData.billingDate, null, "-", ".", null, 10));
+                  $('td:eq(4)', nRow).text(replaceDate(aData.predictDepositDate, aData.depositDate, "-", ".", "수금", 10));
                   if (aData.depositDate != null) {
-                      $('td:eq(3)', nRow).css('color', '#b7b9cc');
+                      $('td:eq(4)', nRow).css('color', '#b7b9cc');
                   }
-                  $('td:eq(4)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
+                  $('td:eq(5)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
 
                   {% if revenueId %}
                       if (aData.revenueId === {{ revenueId }}) {
@@ -2248,16 +2588,16 @@
                   var api = this.api(), data;
 
                   var revenueResult = 0;
-                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
                       revenueResult += parseFloat(data);
                   });
-                  $(api.column(6).footer()).html(revenueResult.toLocaleString());
+                  $(api.column(7).footer()).html(revenueResult.toLocaleString());
 
                   var profitResult = 0;
-                  api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                  api.column(8, {search: 'applied'}).data().each(function (data, index) {
                       profitResult += parseFloat(data);
                   });
-                  $(api.column(7).footer()).html(profitResult.toLocaleString());
+                  $(api.column(8).footer()).html(profitResult.toLocaleString());
               },
           });
 
@@ -2478,7 +2818,7 @@
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   $('td:eq(6)', nRow).text(aData.salary.toLocaleString());
                   $('td:eq(7)', nRow).text(aData.overSalary.toLocaleString());
-
+                  $('td:eq(3)', nRow).html('<a target="_blank" href="/service/viewservice/' + aData.serviceId + '/">' + aData.serviceTitle + '</a>');
                   $('td:eq(2)', nRow).text(replaceDate(aData.serviceDate, null, "-", ".", null, 10));
               },
               "footerCallback": function () {
@@ -2565,7 +2905,6 @@
                       "next": "→",
                       "previous": "←"
                   },
-
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   $('td:eq(6)', nRow).text(aData.revenuePrice.toLocaleString());
@@ -2845,53 +3184,6 @@
                   $(api.column(7).footer()).html(overSalaryresult.toLocaleString());
               },
           });
-
-          // 체크박스 전체선택
-          $('.ckbxall').click(function () {
-              $('.ckbx').prop('checked', this.checked);
-          });
-          $('.ckbx').click(function () {
-              $('.ckbxall').prop('checked', false);
-          });
-          $('.ckbxall2').click(function () {
-              $('.ckbx2.ckbx-checked').prop('checked', this.checked);
-          });
-          $('.ckbx2').click(function () {
-              $('.ckbxall2').prop('checked', false);
-          });
-
-          // 매입견적서 업로드 화면
-          const purchaseCompany = $('#purchaseCompany');
-          const purchaseFiles = $('#purchaseFiles');
-          let option;
-          let input_file;
-          let companyCount;
-          let strCount;
-
-          companyCount = 0;
-          {% for c in purchaseCompany %}
-              strCount = companyCount.toString();
-              option = '<option value="' + strCount + '">' + '{{ c }}' + '</option>';
-              purchaseCompany.append(option);
-              companyCount += 1;
-          {% endfor %}
-
-          companyCount = 0;
-          {% for c in purchaseCompany %}
-              strCount = companyCount.toString();
-              {% if forloop.first %}
-                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split">';
-              {% else %}
-                  input_file = '<label id="purchaseFile' + strCount + '" class="m-0 btn btn-info btn-icon-split d-none">';
-              {% endif %}
-              input_file += '<span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>';
-              input_file += '<input id="purchaseFiles' + strCount + '" name="purchaseFiles' + strCount + '" ' +
-                  'type="file" multiple="multiple" class="d-none" onchange="purchase_file_names(this.id)">';
-              input_file += '</label>';
-              purchaseFiles.append(input_file);
-              companyCount += 1;
-          {% endfor %}
-
       });
 
 

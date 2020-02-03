@@ -415,7 +415,7 @@
 
           $("#showcontracts").on("click", 'tr', function () {
               const data = contractsTable.row(this).data();
-              location.href = '/sales/viewcontract/' + data.contractId + '/'
+              window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId + '/'
           });
       });
 

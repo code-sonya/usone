@@ -2,33 +2,32 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django import forms
+from django.utils import timezone
 
 
 class Position(models.Model):
-    positionId = models.IntegerField(primary_key=True)
+    positionId = models.AutoField(primary_key=True)
     positionName = models.CharField(max_length=10)
     positionSalary = models.IntegerField(default=0)
+    positionRank = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['positionRank']
 
     def __str__(self):
         return self.positionName
 
 
 class Employee(models.Model):
-    statusChoices = (
-        ('Y', '재직'), ('N', '퇴사')
-    )
-    managerChoices = (
-        ('Y', '부서장'), ('N', '팀원')
-    )
-    RewardAvailableChoices = (
-        ('가능', '가능'), ('불가능', '불가능')
-    )
+    statusChoices = (('Y', '재직'), ('N', '퇴사'))
+    managerChoices = (('Y', '부서장'), ('N', '팀원'))
+    RewardAvailableChoices = (('가능', '가능'), ('불가능', '불가능'))
 
     empId = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     empCode = models.CharField(max_length=20, null=True, blank=True)
     empName = models.CharField(max_length=10)
-    empPosition = models.ForeignKey(Position, on_delete=models.PROTECT)
+    empPosition = models.ForeignKey(Position, on_delete=models.SET_NULL, null=True, blank=True)
     empManager = models.CharField(max_length=1, choices=managerChoices, default='N')
     empPhone = models.CharField(max_length=20)
     empEmail = models.EmailField(max_length=254)
@@ -75,14 +74,19 @@ class Punctuality(models.Model):
 
 
 class Department(models.Model):
+    statusChoices = (('Y', '사용'), ('N', '미사용'))
     deptId = models.AutoField(primary_key=True)
-    deptName = models.CharField(max_length=20, unique=True)
+    deptName = models.CharField(max_length=100, unique=True)
     deptManager = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     deptLevel = models.IntegerField(default=0)
     parentDept = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+    startDate = models.DateField(null=True, blank=True)
+    endDate = models.DateField(null=True, blank=True)
+    departmentStatus = models.CharField(max_length=10, choices=statusChoices, default='Y')
 
     def __str__(self):
         return str(self.deptName)
+
 
 class AdminEmail(models.Model):
     adminId = models.AutoField(primary_key=True)
@@ -109,3 +113,26 @@ class AdminVacation(models.Model):
 
     def __str__(self):
         return str(self.vacationId)
+
+
+class ReturnVacation(models.Model):
+    returnId = models.AutoField(primary_key=True)
+    returnDateTime = models.DateTimeField(null=True, blank=True)
+    empId = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    vacationId = models.ForeignKey('service.Vacation', on_delete=models.PROTECT)
+    comment = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.returnId)
+
+
+class Alert(models.Model):
+    alertId = models.AutoField(primary_key=True)
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    text = models.CharField(max_length=255, null=True, blank=True)
+    url = models.CharField(max_length=255, null=True, blank=True)
+    createdDatetime = models.DateTimeField(default=timezone.now)
+    clickedDatetime = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return str(self.alertId)

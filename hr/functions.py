@@ -39,7 +39,7 @@ def is_holiday(date):
 
 
 def save_punctuality(dateList):
-    users = User.objects.filter(Q(employee__empStatus='Y')).exclude(Q(employee__empPosition=0) | Q(employee__empDeptName='미정')) \
+    users = User.objects.filter(Q(employee__empStatus='Y')).exclude(Q(employee__empDeptName='미정')).exclude(Q(employee__empName='관리자'))\
         .values('employee__empId', 'employee__empName', 'employee__empDeptName', 'employee__empPosition', 'employee__empRank', 'employee__dispatchCompany') \
         .order_by('employee__empDeptName', 'employee__empPosition', 'employee__empRank')
 
@@ -47,7 +47,7 @@ def save_punctuality(dateList):
         if datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10])).weekday() not in [5, 6] and is_holiday(date) == False:
             Date_min = datetime.datetime.combine(datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10])), datetime.datetime.min.time())
             Date_max = datetime.datetime.combine(datetime.datetime(int(date[:4]), int(date[5:7]), int(date[8:10])), datetime.datetime.max.time())
-            print(Date_min, Date_max)
+
             for user in users:
                 # 기본
                 user['status'] = '-'
@@ -61,9 +61,9 @@ def save_punctuality(dateList):
 
                 # 업로드된 데이터 날짜의 employee 첫번째 지문 기록
                 attendance = Attendance.objects.filter(Q(attendanceDate=date) & Q(empId_id=user['employee__empId'])).order_by('attendanceTime').first()
-                service = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='Y') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
+                service = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='Y') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min))).exclude(serviceType__punctualityStatus='N')
                 sangju = Servicereport.objects.filter(Q(empId_id=user['employee__empId']) & Q(directgo='N') & Q(serviceType__typeName__icontains='상주') & (Q(serviceStartDatetime__lte=Date_max) & Q(serviceEndDatetime__gte=Date_min)))
-                # print("service:", service, "sangju:", sangju)
+
                 # 휴가
                 if vacation:
                     # 일차 or 오전반차
@@ -82,7 +82,7 @@ def save_punctuality(dateList):
                         elif service:
                             # 오후반차이고 직출 교육일때
                             user['status'] = '직출'
-                            if service.first().serviceType.typeName == '교육':
+                            if service.first().serviceType.typeName == '':
                                 user['comment'] = '교육 / 오후반차'
                             # 오후반차이고 직출일때
                             else:
@@ -165,12 +165,11 @@ def check_absence(id, startdate, enddate, contain):
 
 
 def year_absence(year):
-    users = User.objects.filter(Q(employee__empStatus='Y')).exclude(Q(employee__empPosition__positionName='임원') | Q(employee__empDeptName='미정')) \
-        .values('employee__empId', 'employee__empName', 'employee__empDeptName', 'employee__empPosition', 'employee__empRank', 'employee__dispatchCompany') \
+    users = User.objects.filter(Q(employee__empStatus='Y')).exclude(Q(employee__empDeptName='미정')).exclude(Q(employee__empName='관리자'))\
+        .values('employee__empId', 'employee__empName', 'employee__empDeptName', 'employee__empPosition__positionName', 'employee__empRank', 'employee__dispatchCompany') \
         .order_by('employee__empDeptName', 'employee__empPosition', 'employee__empRank')
 
     for user in users:
-        user['employeePositionName'] = employee_empPosition(user['employee__empPosition'])
         q1absence = check_absence(user['employee__empId'], '{}-01-01'.format(year), '{}-04-01'.format(year), True)
         q2absence = check_absence(user['employee__empId'], '{}-04-01'.format(year), '{}-07-01'.format(year), True)
         q3absence = check_absence(user['employee__empId'], '{}-07-01'.format(year), '{}-10-01'.format(year), True)
@@ -211,21 +210,49 @@ def year_absence(year):
     team4 = []
     team5 = []
     team6 = []
+    team7 = []
+    team8 = []
+    team9 = []
+    team10 = []
+    # if str(datetime.datetime.today())[:10] <= '2020-01-31':
+    #     for user in users:
+    #         if user['employee__empDeptName'] == '경영지원본부':
+    #             team1.append(user)
+    #         elif user['employee__empDeptName'] == '영업1팀':
+    #             team2.append(user)
+    #         elif user['employee__empDeptName'] == '영업2팀':
+    #             team3.append(user)
+    #         elif user['employee__empDeptName'] == '인프라서비스사업팀':
+    #             team4.append(user)
+    #         elif user['employee__empDeptName'] == '솔루션지원팀':
+    #             team5.append(user)
+    #         elif user['employee__empDeptName'] == 'DB지원팀':
+    #             team6.append(user)
+    #     userList = (team1, team2, team3, team4, team5, team6)
+    # else:
     for user in users:
-        if user['employee__empDeptName'] == '경영지원본부':
+        if user['employee__empDeptName'] == '인프라솔루션사업부':
             team1.append(user)
-        elif user['employee__empDeptName'] == '영업1팀':
+        elif user['employee__empDeptName'] == '영업팀':
             team2.append(user)
-        elif user['employee__empDeptName'] == '영업2팀':
+        elif user['employee__empDeptName'] == 'R&D 전략사업부':
             team3.append(user)
-        elif user['employee__empDeptName'] == '인프라서비스사업팀':
+        elif user['employee__empDeptName'] == 'AI Platform Labs':
             team4.append(user)
-        elif user['employee__empDeptName'] == '솔루션지원팀':
+        elif user['employee__empDeptName'] == 'Technical Architecture팀':
             team5.append(user)
-        elif user['employee__empDeptName'] == 'DB지원팀':
+        elif user['employee__empDeptName'] == 'Platform Biz':
             team6.append(user)
+        elif user['employee__empDeptName'] == 'DB Expert팀':
+            team7.append(user)
+        elif user['employee__empDeptName'] == '솔루션팀':
+            team8.append(user)
+        elif user['employee__empDeptName'] == '경영지원본부':
+            team9.append(user)
+        elif user['employee__empDeptName'] == '경영지원실':
+            team10.append(user)
 
-    userList = (team1, team2, team3, team4, team5, team6)
+    userList = (team1, team2, team3, team4, team5, team6, team7, team8, team9, team10)
     return userList
 
 
@@ -262,7 +289,7 @@ def adminemail_test(smtpEmail, smtpPassword, smtpServer, smtpPort, smtpSecure):
 
 
 def siteMap():
-    departments = Department.objects.all().order_by('deptName')
+    departments = Department.objects.filter(departmentStatus='Y').order_by('deptName')
     deptLevel_min = departments.aggregate(Min('deptLevel'))['deptLevel__min']
     deptLevel_max = departments.aggregate(Max('deptLevel'))['deptLevel__max']
     deptLevelList = []

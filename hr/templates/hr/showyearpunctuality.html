@@ -85,7 +85,7 @@
                       <td colspan="2"></td>
                     {% endifchanged %}
                   <td>{{ user.employee__empName }}</td>
-                  <td>{{ user.employeePositionName }}</td>
+                  <td>{{ user.employee__empPosition__positionName }}</td>
                   {% if user.q1absenceDate %}
                     <td colspan="2" name="absence">
                       {% for date in user.q1absenceDate %}

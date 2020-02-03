@@ -150,6 +150,7 @@
                   <thead style="width:100%">
                   <tr>
                     <th>구분</th>
+                    <th class="font-weight-bold text-primary">매출처 <i class="fas fa-angle-double-down" onclick="changeRevenueCompany('revenueCategoryCompany')"></i></th>
                     <th class="font-weight-bold text-primary">대분류
                       {% if user.is_staff %}
                       <a class="text-white" href="#" role="button" id="categoryLink" data-toggle="modal" data-target="#categoryModal">
@@ -192,7 +193,7 @@
                   <th>매출일</th>
                   <th>수금예정일</th>
                   <th>수금일</th>
-                  <th class="font-weight-bold text-primary">매출처 <i class="fas fa-angle-double-down" onclick="changeRevenueCompany()"></i></th>
+                  <th class="font-weight-bold text-primary">매출처 <i class="fas fa-angle-double-down" onclick="changeRevenueCompany('revenueCompany')"></i></th>
                   <th class="font-weight-bold text-primary">매출금액</th>
                   <th class="font-weight-bold text-primary">이익금액</th>
                   <th>비고</th>
@@ -1297,8 +1298,8 @@
               alert("이익금액을 입력해주세요.");
               return false;
           }
-          if (document.getElementById("contractDate").value === '') {
-              alert("계약일을 입력해주세요.");
+          if (!isDay(document.getElementById("contractDate").value)) {
+              alert("유효한 계약일을 입력해주세요.\n(정확한 입력을 위해 달력에서 선택해 주세요.)");
               return false;
           }
            if (document.getElementById("modifyContractPaper").value === '') {
@@ -1314,6 +1315,9 @@
           const lengthItem = $('[name="itemId"]').length;
           const listItem = new Array();
           for (var i = 0; i <= lengthItem - 1; i++) {
+              if ($('input[name="revenueCategoryCompany"]').eq(i).val() == '') {
+                  return btn_false("매출 세부사항의 매출처를 입력해주세요.");
+              }
               if ($('select[name="mainCategory"]').eq(i).val() == '') {
                   return btn_false("매출 세부사항의 대분류를 입력해주세요.");
               }
@@ -1325,6 +1329,7 @@
               }
               var data = new Object();
               data.itemId = $('div[name="itemId"]').eq(i).text();
+              data.revenueCategoryCompany = $('input[name="revenueCategoryCompany"]').eq(i).val();
               data.mainCategory = $('select[name="mainCategory"]').eq(i).val();
               data.subCategory = $('select[name="subCategory"]').eq(i).val();
               data.itemName = $('input[name="itemName"]').eq(i).val();
@@ -1387,8 +1392,8 @@
                   return btn_false("매입 세부사항의 금액을 입력해주세요.");
               }
               var data = new Object();
-              data.purchaseCategoryCompany = $('input[name="purchaseCategoryCompany"]').eq(i).val();
               data.purchaseItemId = $('div[name="purchaseItemId"]').eq(i).text();
+              data.purchaseCategoryCompany = $('input[name="purchaseCategoryCompany"]').eq(i).val();
               data.purchaseMainCategory = $('select[name="purchaseMainCategory"]').eq(i).val();
               data.purchaseSubCategory = $('select[name="purchaseSubCategory"]').eq(i).val();
               data.purchaseItemName = $('input[name="purchaseItemName"]').eq(i).val();
@@ -1620,8 +1625,8 @@
           });
       }
 
-      function changeRevenueCompany() {
-          $('input[name=revenueCompany]').trigger('set', {id: $('#saleCompanyNames').attr('data-id')});
+      function changeRevenueCompany(objName) {
+          $('input[name=' + objName + ']').trigger('set', {id: $('#saleCompanyNames').attr('data-id')});
       }
 
       function changeStep(t2, t3, t4) {
@@ -1732,7 +1737,6 @@
               endCompanyNames.trigger('clear');
           }
       }
-
 
       $(document).ready(function () {
           // 빌링스케줄 생성(매출) 고객사명 자동완성
@@ -1895,18 +1899,49 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "24%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "24%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "24%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "24%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 5, width: "16%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
+                  {targets: 6, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                      $(td).css('padding-bottom', '30px');
+                      $(td).css('padding-top', '20px');
+                    }
+                  },
               ],
           });
-
 
           $('#addItem').on('click', function () {
               t1.row.add([
                   '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">추가</div>',
+                  '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="revenueCategoryCompany" id="item5' + itemCounter + '" onkeydown="magicsearchtab(item5' + itemCounter + ')">',
                   '<select style="width:200px" class="input-form" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
                   '</select>',
                   '<select style="width:200px" class="input-form" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
@@ -1915,36 +1950,48 @@
                   '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
               $('.money').simpleMoneyFormat();
+              document.getElementById("item5" + itemCounter).setAttribute("data-id", $('#saleCompanyNames').attr('data-id'));
+              $('#item5' + itemCounter).magicsearch({
+                  dataSource: companyList,
+                  fields: 'value',
+                  id: 'id',
+                  format: '%value%',
+                  multiStyle: {space: 5, width: 80},
+                  noResult: '검색결과없음',
+                  focusShow: true,
+                  maxShow: 100,
+              });
               $.ajax({
-                      url: "{% url 'sales:maincategory_ajax_url' %}",
-                      method: 'POST',
-                      cache: false,
-                      data:{"contractId": ''},
-                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                      success: function (returnData) {
-                          var maincategory = returnData;
-                          $('#item1'+itemCounter).empty();
-                          $('#item1'+itemCounter).append('<option value="" selected="">--대분류--</option>');
-                          for (var count = 0; count < maincategory.length; count++) {
-                              var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
-                              $('#item1'+itemCounter).append(option);
-                          }
-                          itemCounter++;
-                      },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  url: "{% url 'sales:maincategory_ajax_url' %}",
+                  method: 'POST',
+                  cache: false,
+                  data:{"contractId": ''},
+                  headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                  success: function (returnData) {
+                      var maincategory = returnData;
+                      $('#item1'+itemCounter).empty();
+                      $('#item1'+itemCounter).append('<option value="" selected="">--대분류--</option>');
+                      for (var count = 0; count < maincategory.length; count++) {
+                          var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
+                          $('#item1'+itemCounter).append(option);
                       }
-
+                      itemCounter++;
+                  }, error:function(request,status,error){
+                      alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  }
               });
               $('input[name=itemPrice]').on("change keyup paste input", function() {
                   totalPrice('itemPrice', 'totalItemPrice');
               });
-
           });
 
           {% if items %}
               {% for item in items %}
                   t1.row.add([
                       '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="revenueCategoryCompany" ' +
+                      'data-id="{{ item.companyName }}"' +
+                      'id="item5' + itemCounter + '" onkeydown="magicsearchtab(item5' + itemCounter + ')">',
                       '<select style="width:200px" class="input-form" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
                       '</select>',
                       '<select style="width:200px" class="input-form" size="1" id="item2' + itemCounter + '" name="subCategory"> <option value="init" selected="selected">--소분류--</option>',
@@ -1973,10 +2020,23 @@
                           $('#item1' + i).val(data[i].mainCategory).prop("selected", true);
                           itemChangeAdd("item1" + i, "item2" + i, data[i].subCategory, i);
                       }
-                  },error:function(request,status,error){
-                          alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  }, error:function(request,status,error){
+                      alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
                   }
               });
+
+              for (var p = 0; p < itemCounter; p++) {
+                  $('#item5' + p).magicsearch({
+                      dataSource: companyList,
+                      fields: 'value',
+                      id: 'id',
+                      format: '%value%',
+                      multiStyle: {space: 5, width: 80},
+                      noResult: '검색결과없음',
+                      focusShow: true,
+                      maxShow: 100,
+                  });
+              }
 
               $('.money').simpleMoneyFormat();
               $('input[name=itemPrice]').on("change keyup paste input", function() {
@@ -1993,7 +2053,7 @@
                   .draw();
           });
 
-          // 매출세부정보
+          // 매출 빌링스케쥴
           var t2 = $('#revenue').DataTable({
               "autoWidth": true,
               "searching": false,
@@ -2108,17 +2168,21 @@
               {% for revenue in revenues %}
                   t2.row.add([
                       '<div class="text-center d-none" value="0" name="revenueId" id="revenue0' + revenueCounter + '">{{ revenue.revenueId }}</div>',
-                      '<input class="input-form" type="month" max="9999-12" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m" }}">',
-                      '<input class="input-form" type="date" max="9999-12-31" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}" ' +
-                      'onchange="changeBillingDates(\'revenue2' + revenueCounter + '\',\'revenue1' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
+                      '<input class="input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" type="month" max="9999-12" name="predictBillingDate" id="revenue1' + revenueCounter + '" value="{{ revenue.predictBillingDate | date:"Y-m" }}">',
+                      '<input class="input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" type="date" max="9999-12-31" name="billingDate" id="revenue2' + revenueCounter + '" value="{{ revenue.billingDate | date:"Y-m-d" }}" ' +
+                          'onchange="changeBillingDates(\'revenue2' + revenueCounter + '\',\'revenue1' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
                       '<input class="input-form" type="date" max="9999-12-31" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
                       '<input class="input-form" type="date" max="9999-12-31" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}" ' +
-                      'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}" onkeydown="magicsearchtab(revenue5' + revenueCounter + ')">',
-                      '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
-                      '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
+                          'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
+                      '<input class="magicsearch input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}" onkeydown="magicsearchtab(revenue5' + revenueCounter + ')">',
+                      '<input class="money input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
+                      '<input class="money input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
                       '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.comment }}">',
-                      '<i class="fas fa-times-circle" name="remove">'
+                      {% if revenue.revenueStatus == 'Y' %}
+                          '<span class="small">{{ revenue.empId.empName }}</span>'
+                      {% else %}
+                          '<i class="fas fa-times-circle" name="remove">'
+                      {% endif %}
                   ]);
                   revenueCounter++;
               {% endfor %}
@@ -2142,6 +2206,9 @@
               $('input[name=revenueProfitPrice]').on("change keyup paste input", function() {
                   totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
               });
+              $('.notChange').attr('readonly', '');
+              $('.notChange').css("pointer-events", "none");
+              $('.notChange').css("background-color", '#eaecf4');
           {% else %}
               $('#addRevenue').click();
           {% endif %}
@@ -2489,7 +2556,7 @@
                   '<i class="fas fa-times-circle" name="remove" >'
               ]).draw(false);
               $('.money').simpleMoneyFormat();
-               $('#purchaseItem1' + purchaseItemCounter).magicsearch({
+              $('#purchaseItem1' + purchaseItemCounter).magicsearch({
                   dataSource: companyList,
                   fields: 'value',
                   id: 'id',
@@ -2500,29 +2567,27 @@
                   maxShow: 100,
               });
               $.ajax({
-                      url: "{% url 'sales:purchasemaincategory_asjson' %}",
-                      method: 'POST',
-                      cache: false,
-                      data:{"contractId": ''},
-                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                      success: function (returnData) {
-                          var maincategory = returnData;
-                          $('#purchaseItem2'+purchaseItemCounter).empty();
-                          $('#purchaseItem2'+purchaseItemCounter).append('<option value="" selected="">--대분류--</option>');
-                          for (var count = 0; count < maincategory.length; count++) {
-                              var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
-                              $('#purchaseItem2'+purchaseItemCounter).append(option);
-                          }
-                          purchaseItemCounter++;
-                      },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  url: "{% url 'sales:purchasemaincategory_asjson' %}",
+                  method: 'POST',
+                  cache: false,
+                  data:{"contractId": ''},
+                  headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                  success: function (returnData) {
+                      var maincategory = returnData;
+                      $('#purchaseItem2'+purchaseItemCounter).empty();
+                      $('#purchaseItem2'+purchaseItemCounter).append('<option value="" selected="">--대분류--</option>');
+                      for (var count = 0; count < maincategory.length; count++) {
+                          var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
+                          $('#purchaseItem2'+purchaseItemCounter).append(option);
                       }
-
+                      purchaseItemCounter++;
+                  },error:function(request,status,error){
+                      alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  }
               });
               $('input[name=purchaseItemPrice]').on("change keyup paste input", function() {
                   totalPrice('purchaseItemPrice', 'totalpurchaseItemPrice');
               });
-
           });
 
           {% if purchaseItems %}

@@ -168,6 +168,9 @@ def post_document(request):
                 for empId in whoApproval['do']:
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "결재요청")
+                for empId in whoApproval['check']:
+                    employee = Employee.objects.get(empId=empId)
+                    mail_approval(employee, document, "참조문서")
 
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
@@ -336,6 +339,9 @@ def modify_document(request, documentId):
                 for empId in whoApproval['do']:
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "결재요청")
+                for empId in whoApproval['check']:
+                    employee = Employee.objects.get(empId=empId)
+                    mail_approval(employee, document, "참조문서")
 
         if request.POST['documentStatus'] == '임시':
             return redirect("approval:showdocumenttemp")
@@ -746,6 +752,8 @@ def documentform_asjson(request):
                 Q(categoryId__secondCategory=request.GET['secondCategory'])
             ).values(
                 'formNumber', 'formTitle', 'approvalFormat'
+            ).order_by(
+                'formNumber'
             )
             structure = json.dumps(list(documentForm), cls=DjangoJSONEncoder)
             return HttpResponse(structure, content_type='application/json')
@@ -969,8 +977,52 @@ def showdocument_asjson(request):
 
         # option 적용
         if 'option' in request.GET.keys():
-            if request.GET['option'] == '반려제외':
-                documentsDoneReject = []
+            option = request.GET['option']
+            if category == '진행':
+                if option == '결재완료':
+                    documentsIngWait = []  # 진행, 결재대기
+                    documentsIngWill = []  # 진행, 결재예정
+                    documentsIngCheck = []  # 진행, 참조문서
+                if option == '결재대기':
+                    documentsIngDone = []  # 진행, 진행중
+                    documentsIngWill = []  # 진행, 결재예정
+                    documentsIngCheck = []  # 진행, 참조문서
+                if option == '결재예정':
+                    documentsIngDone = []  # 진행, 진행중
+                    documentsIngWait = []  # 진행, 결재대기
+                    documentsIngCheck = []  # 진행, 참조문서
+                if option == '참조문서':
+                    documentsIngDone = []  # 진행, 진행중
+                    documentsIngWait = []  # 진행, 결재대기
+                    documentsIngWill = []  # 진행, 결재예정
+            if category == '완료':
+                if option == '반려제외':
+                    documentsDoneReject = []
+                if option == '기안문서':
+                    documentsDoneApproval = []  # 완료, 결재문서
+                    documentsDoneCheck = []  # 완료, 참조문서
+                    documentsDoneReject = []  # 완료, 반려문서
+                    documentsDoneView = []  # 완료, 조회가능
+                if option == '결재문서':
+                    documentsDoneWrite = []  # 완료, 기안문서
+                    documentsDoneCheck = []  # 완료, 참조문서
+                    documentsDoneReject = []  # 완료, 반려문서
+                    documentsDoneView = []  # 완료, 조회가능
+                if option == '참조문서':
+                    documentsDoneWrite = []  # 완료, 기안문서
+                    documentsDoneApproval = []  # 완료, 결재문서
+                    documentsDoneReject = []  # 완료, 반려문서
+                    documentsDoneView = []  # 완료, 조회가능
+                if option == '반려문서':
+                    documentsDoneWrite = []  # 완료, 기안문서
+                    documentsDoneApproval = []  # 완료, 결재문서
+                    documentsDoneCheck = []  # 완료, 참조문서
+                    documentsDoneView = []  # 완료, 조회가능
+                if option == '조회문서':
+                    documentsDoneWrite = []  # 완료, 기안문서
+                    documentsDoneApproval = []  # 완료, 결재문서
+                    documentsDoneCheck = []  # 완료, 참조문서
+                    documentsDoneReject = []  # 완료, 반려문서
 
         # 관리자 조회
         if category == '관리자진행':
@@ -988,7 +1040,7 @@ def showdocument_asjson(request):
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
             displayStatus1=Value('진행', output_field=CharField()),
-            displayStatus2=Value('진행중', output_field=CharField())
+            displayStatus2=Value('결재완료', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
             'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
@@ -1084,7 +1136,7 @@ def showdocument_asjson(request):
             formNumber=F('formId__formNumber'),
             formTitle=F('formId__formTitle'),
             displayStatus1=Value('완료', output_field=CharField()),
-            displayStatus2=Value('조회가능', output_field=CharField())
+            displayStatus2=Value('조회문서', output_field=CharField())
         ).values(
             'documentId', 'documentNumber', 'title', 'empName', 'draftDatetime',
             'formNumber', 'formTitle', 'documentStatus', 'modifyDatetime', 'displayStatus1', 'displayStatus2'
@@ -1152,6 +1204,7 @@ def showdocument_asjson(request):
 def show_document_all(request):
     context = {
         'category': '전체',
+        'title': '전체 문서함',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1160,6 +1213,7 @@ def show_document_all(request):
 def show_document_ing(request):
     context = {
         'category': '진행',
+        'title': '진행 문서함',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1168,6 +1222,7 @@ def show_document_ing(request):
 def show_document_done(request):
     context = {
         'category': '완료',
+        'title': '완료 문서함',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1176,6 +1231,7 @@ def show_document_done(request):
 def show_document_temp(request):
     context = {
         'category': '임시',
+        'title': '임시 문서함',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1184,6 +1240,7 @@ def show_document_temp(request):
 def show_document_admin_ing(request):
     context = {
         'category': '관리자진행',
+        'title': '전체진행문서함 (관리자)',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1192,6 +1249,7 @@ def show_document_admin_ing(request):
 def show_document_admin_done(request):
     context = {
         'category': '관리자완료',
+        'title': '전체완료문서함 (관리자)',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1200,6 +1258,7 @@ def show_document_admin_done(request):
 def show_document_admin_reject(request):
     context = {
         'category': '관리자반려',
+        'title': '전체반려문서함 (관리자)',
     }
     return render(request, 'approval/showdocument.html', context)
 
@@ -1328,7 +1387,7 @@ def return_document(request, approvalId):
     # 계약 수정 권한
     if document.formId.formTitle == '수주통보서':
         contract = Contract.objects.get(contractId=document.contractId.contractId)
-        contract.modifyContract = 'N'
+        contract.modifyContract = 'Y'
         contract.save()
 
     # 반려 메일
@@ -1465,13 +1524,14 @@ def post_contract_document(request, contractId, documentType):
         lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
         contractPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
 
-    # 수주통보서(orderPaper)
-    lastFile = files.filter(fileCategory='수주통보서')
-    if lastFile:
-        maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
-        lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
-        orderPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
-
+    # 수주통보서
+    lastOrderNoti = Document.objects.filter(contractId=contract, formId__formTitle='수주통보서', documentStatus='완료')
+    if lastOrderNoti:
+        maxDraftDatetime = lastOrderNoti.aggregate(Max('draftDatetime'))['draftDatetime__max']
+        lastOrderNoti = lastOrderNoti.get(draftDatetime=maxDraftDatetime)
+        orderPaper = '<a href="/approval/viewdocument/' + str(lastOrderNoti.documentId) + '">' + lastOrderNoti.title + '</a>'
+    else:
+        orderPaper = '수주통보서 없음.'
 
     # 확인서(confirmPaper)
     lastFile = files.filter(fileCategory='납품,구축,검수확인서')
@@ -1479,14 +1539,13 @@ def post_contract_document(request, contractId, documentType):
         maxUploadDatetime = lastFile.aggregate(Max('uploadDatetime'))['uploadDatetime__max']
         lastFile = lastFile.get(uploadDatetime=maxUploadDatetime)
         confirmPaper = '<a href="/media/' + str(lastFile.file) + '" download>' + lastFile.fileName + '</a>'
+    else:
+        confirmPaper = '확인서 없음.'
 
     contentHtml = formId.formHtml
 
     # 1. 수주통보서
     if formTitle == '수주통보서':
-        print(formTitle)
-        contract.modifyContract = 'N'
-        contract.save()
         # N차 수정 수주통보서
         N = len(Document.objects.filter(
             formId__categoryId__firstCategory='영업',
@@ -1510,10 +1569,8 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('최종고객사자동입력', contract.endCompanyName.companyNameKo)
         else:
             contentHtml = contentHtml.replace('최종고객사자동입력', '')
-        # contentHtml = contentHtml.replace('대분류자동입력', contract.mainCategory)
-        # contentHtml = contentHtml.replace('소분류자동입력', contract.subCategory)
-        contentHtml = contentHtml.replace('산업군자동입력', contract.saleIndustry)
-        contentHtml = contentHtml.replace('판매유형자동입력',  contract.saleType)
+        contentHtml = contentHtml.replace('산업군판매유형자동입력', contract.saleIndustry + ' · ' + contract.saleType)
+        contentHtml = contentHtml.replace('대분류소분류자동입력',  contract.mainCategory + ' · ' + contract.subCategory)
         contentHtml = contentHtml.replace('계약일자동입력', str(contract.contractDate))
         if contract.contractStartDate or contract.contractEndDate:
             contentHtml = contentHtml.replace(
@@ -1554,7 +1611,6 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('마진분석결과자동입력', '<span style="color: red;">' + str(profitRatio-15) + '%</span>')
         else:
             contentHtml = contentHtml.replace('마진분석결과자동입력', '<span style="color: blue;">' + str(profitRatio - 15) + '%</span>')
-            print('blue')
 
         # 고객정보
         if contract.saleCompanyName.ceo:
@@ -1575,9 +1631,18 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('영업담당자이메일자동입력', '')
 
         if contract.saleTaxCustomerId:
-            contentHtml = contentHtml.replace('세금담당자이름자동입력', contract.saleTaxCustomerId.customerName)
-            contentHtml = contentHtml.replace('세금담당자연락처자동입력', contract.saleTaxCustomerId.customerPhone)
-            contentHtml = contentHtml.replace('세금담당자이메일자동입력', contract.saleTaxCustomerId.customerEmail)
+            if contract.saleTaxCustomerId.customerName:
+                contentHtml = contentHtml.replace('세금담당자이름자동입력', contract.saleTaxCustomerId.customerName)
+            else:
+                contentHtml = contentHtml.replace('세금담당자이름자동입력', '-')
+            if contract.saleTaxCustomerId.customerPhone:
+                contentHtml = contentHtml.replace('세금담당자연락처자동입력', contract.saleTaxCustomerId.customerPhone)
+            else:
+                contentHtml = contentHtml.replace('세금담당자연락처자동입력', '-')
+            if contract.saleTaxCustomerId.customerEmail:
+                contentHtml = contentHtml.replace('세금담당자이메일자동입력', contract.saleTaxCustomerId.customerEmail)
+            else:
+                contentHtml = contentHtml.replace('세금담당자이메일자동입력', '-')
         else:
             contentHtml = contentHtml.replace('세금담당자이름자동입력', '')
             contentHtml = contentHtml.replace('세금담당자연락처자동입력', '')
@@ -1589,10 +1654,18 @@ def post_contract_document(request, contractId, documentType):
 
         if revenueItem:
             tempStr = ''
+            sumRevenue = 0
             for item in revenueItem:
+                sumRevenue += item.itemPrice
+                if item.companyName:
+                    companyName = item.companyName.companyNameKo
+                else:
+                    companyName = '-'
                 tempStr += '''<tr style="height: 25px; font-size: 14px;">
                     <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
                     ''' + '매출' + '''</td>
+                    <td style="text-align: left; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                    ''' + companyName + '''</td>
                     <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
                     ''' + item.mainCategory + '''</td>
                     <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
@@ -1602,11 +1675,21 @@ def post_contract_document(request, contractId, documentType):
                     <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
                     ''' + format(item.itemPrice, ',') + '''</td>
                 </tr>'''
-            contentHtml = contentHtml.replace('<tr><td colspan="5">매출세부사항자동입력</td></tr>', tempStr)
+            tempStr += '''<tr style="height: 25px; font-size: 14px;">
+                <td colspan="5" style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + 'TOTAL' + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                ''' + format(sumRevenue, ',') + '''</td>
+            </tr>'''
+            contentHtml = contentHtml.replace('<tr><td colspan="6">매출세부사항자동입력</td></tr>', tempStr)
+        else:
+            contentHtml = contentHtml.replace('<tr><td colspan="6">매출세부사항자동입력</td></tr>', '<tr><td colspan="6">매출세부사항없음</td></tr>')
 
         if purchaseItem:
             tempStr = ''
+            sumPurchase = 0
             for item in purchaseItem:
+                sumPurchase += item.itemPrice
                 if item.companyName:
                     companyName = item.companyName.companyNameKo
                 else:
@@ -1625,7 +1708,15 @@ def post_contract_document(request, contractId, documentType):
                     <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
                     ''' + format(item.itemPrice, ',') + '''</td>
                 </tr>'''
+            tempStr += '''<tr style="height: 25px; font-size: 14px;">
+                <td colspan="5" style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro;">
+                ''' + 'TOTAL' + '''</td>
+                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">
+                ''' + format(sumPurchase, ',') + '''</td>
+            </tr>'''
             contentHtml = contentHtml.replace('<tr><td colspan="6">매입세부사항자동입력</td></tr>', tempStr)
+        else:
+            contentHtml = contentHtml.replace('<tr><td colspan="6">매입세부사항자동입력</td></tr>', '<tr><td colspan="6">매입세부사항없음</td></tr>')
 
         # Billing Schedule
         if len(purchases) > 0 or len(revenues) > 0:
@@ -1651,19 +1742,15 @@ def post_contract_document(request, contractId, documentType):
             else:
                 maxYear = rMaxYear
 
-            delta = relativedelta(years=+1)
-
             yearList = []
-            y = minYear['predictBillingDate__year__min']
-            while y <= maxYear['predictBillingDate__year__max']:
+            for y in range(minYear['predictBillingDate__year__min'].year, maxYear['predictBillingDate__year__max'].year + 1):
                 yearList.append(y)
-                y += delta
 
             monthList = []
             for y in yearList:
                 dateList = []
                 for d in range(1, 13):
-                    dateList.append('{}-{}'.format(y.year, str(d).zfill(2)))
+                    dateList.append('{}-{}'.format(y, str(d).zfill(2)))
                 monthList.append(dateList)
 
             groupPurchases = purchases.values(
@@ -1811,63 +1898,64 @@ def post_contract_document(request, contractId, documentType):
                 ''' + intcomma(sumBilling['sum']) + '''</td>
               </tr>
                     '''
-            # 업체별 매입
-            for billing in pBillingSchedule:
-                if billing['list'] == year:
-                    tempStr += '''
-              <tr style="height: 25px; font-size: 11px;">
-                <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">매입</td>
-                <td style="text-align: left; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + billing['name'] + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['3']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['4']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['5']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['6']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['7']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['8']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['9']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['10']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['11']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['12']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(billing['sum']) + '''</td>
-              </tr>
-                    '''
-            # 매입총합
-            for sumBilling in sumpBillingSchedule:
-                if sumBilling['list'] == year:
-                    tempStr += '''
-              <tr style="height: 25px; font-size: 11px; margin-bottom: 5px">
-                <td colspan="2" style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">TOTAL</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['1']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['2']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['3']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['4']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['5']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['6']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['7']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['8']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['9']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['10']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['11']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['12']) + '''</td>
-                <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
-                ''' + intcomma(sumBilling['sum']) + '''</td>
-              </tr>
-                    '''
+            if pBillingSchedule:
+                # 업체별 매입
+                for billing in pBillingSchedule:
+                    if billing['list'] == year:
+                        tempStr += '''
+                  <tr style="height: 25px; font-size: 11px;">
+                    <td style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">매입</td>
+                    <td style="text-align: left; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + billing['name'] + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['1']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['2']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['3']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['4']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['5']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['6']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['7']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['8']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['9']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['10']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['11']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px;">''' + intcomma(billing['12']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(billing['sum']) + '''</td>
+                  </tr>
+                        '''
+                # 매입총합
+                for sumBilling in sumpBillingSchedule:
+                    if sumBilling['list'] == year:
+                        tempStr += '''
+                  <tr style="height: 25px; font-size: 11px; margin-bottom: 5px">
+                    <td colspan="2" style="text-align: center; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">TOTAL</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['1']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['2']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['3']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['4']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['5']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['6']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['7']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['8']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['9']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['10']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['11']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['12']) + '''</td>
+                    <td style="text-align: right; border: 1px solid grey; padding-left: 10px; padding-right: 10px; background-color: gainsboro">
+                    ''' + intcomma(sumBilling['sum']) + '''</td>
+                  </tr>
+                        '''
             tempStr += '</table></td></tr>'
 
         contentHtml = contentHtml.replace('<tr><td>빌링스케쥴자동입력</td></tr>', tempStr)
@@ -1878,8 +1966,14 @@ def post_contract_document(request, contractId, documentType):
         contentHtml = contentHtml.replace('매출처자동입력', revenueCompany)
         contentHtml = contentHtml.replace('매출액자동입력', format(revenuePrice, ',') + '원')
         contentHtml = contentHtml.replace('GP자동입력', format(profitPrice, ',') + '원 (' + str(profitRatio) + '%)')
-        contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
-        contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
+        if purchaseCompany:
+            contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
+        else:
+            contentHtml = contentHtml.replace('매입처자동입력', '')
+        if purchasePrice:
+            contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
+        else:
+            contentHtml = contentHtml.replace('매입액자동입력', '')
         contentHtml = contentHtml.replace('수주통보서링크', orderPaper)
         contentHtml = contentHtml.replace('납품,구축,검수확인서링크', confirmPaper)
 
@@ -1927,7 +2021,7 @@ def post_contract_document(request, contractId, documentType):
         formId=formId,
         preservationYear=formId.preservationYear,
         securityLevel=formId.securityLevel,
-        title='[' + contract.contractName + '] ' + formTitle + ' 결재 자동생성',
+        title='[' + contract.contractName + '] ' + formTitle + ' 결재',
         contentHtml=contentHtml,
         writeDatetime=datetime.datetime.now(),
         modifyDatetime=datetime.datetime.now(),

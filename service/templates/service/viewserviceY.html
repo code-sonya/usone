@@ -66,194 +66,32 @@
 {% block content %}
   <div class="row">
     <div class="col-xl-2"></div>
-    <!-- SERVICE REPORT -->
-    <div id="serviceReport" class="col-xl-8 d-none" style="z-index: 2">
-      <div class="text-right mb-3" style="min-width: 1000px">
-        {% if service.empId.empId == user.employee.empId %}
-              {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-               <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-                  <i class="fas fa-file-signature text-gray-100"></i>
-                </a>
-              {% endif %}
-          <a href="#" class="btn btn-info" style="width: 50px; height: 42px;" onclick="location.href='/mail/{{ service.serviceId }}'">
-            <i class="fas fa-envelope text-gray-100" style="font-size: 1.5em;"></i>
-          </a>
-          &nbsp;&nbsp;
-        {% endif %}
-        <a href="#" class="btn btn-danger" style="width: 50px; height: 42px;" onclick="location.href='/service/viewservicepdf/{{ service.serviceId }}'">
-          <i class="fas fa-file-pdf text-gray-100" style="font-size: 1.5em;"></i>
-        </a>
-      </div>
-
-      <table class="table">
-        <tbody>
-        <tr style="height: 75px;">
-          <td style="width: 1000px; text-align: center;" colspan="10">
-            <strong style="font-size: 40px">SERVICE REPORT</strong>
-          </td>
-        </tr>
-        <tr style="height: 25px;">
-          <td style="width: 195px; text-align: center;" colspan="2">
-            <strong>고 객 사</strong></td>
-          <td style="width: 195px; text-align: center;" colspan="2">
-            <strong>지 원 종 류</strong></td>
-          <td style="width: 205px; text-align: center;" colspan="2">
-            <strong>개 시 일 시</strong></td>
-          <td style="width: 205px; text-align: center;" colspan="2">
-            <strong>완 료 일 시</strong></td>
-          <td style="width: 195px; text-align: center;" colspan="2">
-            <strong>소 요 시 간</strong></td>
-        </tr>
-        <tr style="height: 50px;">
-          <td style="width: 195px; text-align: center; font-size:14px" colspan="2">
-            <strong>
-              <a href="/client/viewclient/{{ service.companyName }}/" style="font-size: 18px; color:black">{{ service.companyName }}</a>
-            </strong> 귀중
-          </td>
-          <td style="width: 195px; text-align: center;" colspan="2">
-            {{ service.serviceType }}
-          </td>
-          <td style="width: 205px; text-align: center;" colspan="2">
-            {{ service.serviceBeginDatetime | date:"Y년 m월 d일 H:i" }}
-          </td>
-          <td style="width: 205px; text-align: center;" colspan="2">
-            {{ service.serviceFinishDatetime | date:"Y년 m월 d일 H:i" }}
-          </td>
-          <td style="width: 195px; text-align: center;" colspan="2">
-            {{ service.serviceHour }} 시간
-          </td>
-        </tr>
-        <tr style="height: 370px;">
-          <td style="width: 1000px; vertical-align: top; white-space: normal" colspan="10">
-            <p>&nbsp;</p>&nbsp;&nbsp;&nbsp;&nbsp;
-            <strong>내 용 :</strong>
-            <p>
-            <div style="padding-left: 40px">{{ service.serviceTitle }}</div>
-            </p>
-            <p>
-            <div style="padding-left: 40px">{{ service.serviceDetails|linebreaksbr }}</div>
-            </p>
-            {% if coWorker %}
-              <br><br>
-              <p>
-              <div style="padding-left: 40px">
-                # 서비스 지원 동행 : 유니원아이앤씨
-                {% for name in coWorker %}
-                  {% if forloop.last %}
-                    {{ name }}
-                  {% else %}
-                    {{ name }},
-                  {% endif %}
-                {% endfor %}
-              </div></p>
-            {% endif %}
-          </td>
-        </tr>
-        <tr style="height: 20px;">
-          <td style="width: 300px;" colspan="3">
-            <strong>&nbsp;&nbsp;지원담당부서 :</strong>
-            {{ service.empDeptName }}
-          </td>
-          <td style="width: 300px;" colspan="3">
-            <strong>&nbsp;&nbsp;고객담당부서 :</strong>
-            {% if service.customerDeptName == None %}
-              &nbsp;
-            {% else %}
-              {{ service.customerDeptName }}
-            {% endif %}
-          </td>
-          <td style="width: 100px; text-align: center;" colspan="2" rowspan="4">
-            <strong>고객<br>서명</strong>
-          </td>
-          <td style="width: 300px; text-align: center;" colspan="2" rowspan="4">
-            <img src="{{ service.serviceSignPath }}" height="100px" width="198px">
-          </td>
-        </tr>
-        <tr style="height: 20px;">
-          <td style="width: 300px;" colspan="3">
-            <strong>&nbsp;&nbsp;담 당 자 :</strong>
-            {{ service.empName }}
-          </td>
-          <td style="width: 300px;" colspan="3">
-            <strong>&nbsp;&nbsp;담 당 자 :</strong>
-            {% if service.customerName == None %}
-              &nbsp;
-            {% else %}
-              {{ service.customerName }}
-            {% endif %}
-          </td>
-        </tr>
-        <tr style="height: 20px;">
-          <td style="width: 300px;" colspan="3">
-            <strong>&nbsp;&nbsp;연 락 처 :</strong>
-            {{ service.empId.empPhone }}
-          </td>
-
-          <td style="width: 300px;" colspan="3">
-            <strong>&nbsp;&nbsp;연 락 처 :</strong>
-            {% if service.customerPhone == None %}
-              &nbsp;
-            {% else %}
-              {{ service.customerPhone }}
-            {% endif %}
-          </td>
-        </tr>
-        <tr style="height: 20px;">
-          <td style="width: 300px;" colspan="3">
-            <strong>&nbsp;&nbsp;이 메 일 :</strong>
-            {{ service.empId.empEmail }}
-          </td>
-          <td style="width: 300px;" colspan="3">
-            <strong>&nbsp;&nbsp;이 메 일 :</strong>
-            {% if service.customerEmail == None %}
-              &nbsp;
-            {% else %}
-              {{ service.customerEmail }}
-            {% endif %}
-          </td>
-        </tr>
-        </tbody>
-      </table>
-      <div class="text-center mb-2" style="min-width: 1000px">
-        {% if board == None %}
-          <a href="#" class="btn btn-primary btn-icon-split" onclick="btn_board()">
-            <span class="icon text-white-50"><i class="fas fa-pen-fancy"></i></span>
-            <span class="text p-2">게시물 작성</span>
-          </a>
-        {% else %}
-          <a href="#" class="btn btn-primary btn-icon-split" onclick="location.href='/noticeboard/viewboard/{{ board.boardId }}/'">
-            <span class="icon text-white-50"><i class="fas fa-link"></i></span>
-            <span class="text p-2">게시글 보기</span>
-          </a>
-        {% endif %}
-        <a href="#" class="btn btn-warning btn-icon-split" onclick="btn_copy()">
-          <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
-          <span class="text p-2"> 복사 </span>
-        </a>
-      </div>
-    </div>
-
-    <!-- SERVICE SUMMARY -->
     <div id="serviceSummary" class="col-xl-8">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> No. {{ service.serviceId }} </h6>
+          <h3 class="m-0 text-gray-800 d-none d-xl-block"> No. {{ service.serviceId }} </h3>
+          <h6 class="m-0 text-gray-800 d-xl-none"> No. {{ service.serviceId }} </h6>
           <div class="text-right mb-2">
             {% if service.empId.empId == user.employee.empId %}
+              <!-- 첨부 파일 업로드 및 다운로드 기능 완료 후 오픈
               <a href="#" role="button" id="uploadLink" data-toggle="modal" data-target="#uploadModal" class="btn btn-success">
                 <i class="fas fa-user-cog text-gray-100"></i>
               </a>
+              -->
               {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-              <a href="#" class="btn btn-warning" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-                <i class="fas fa-pen text-gray-100"></i>
+              <a class="btn btn-success" href="#" role="button" id="signLink" data-toggle="modal" data-target="#signModal">
+                <i class="fas fa-signature d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-signature"></i> 서명</span>
               </a>
               {% endif %}
-              <a href="#" class="btn btn-info" onclick="location.href='/mail/{{ service.serviceId }}'">
-                <i class="fas fa-envelope text-gray-100"></i>
+              <a class="btn btn-info" href="/mail/{{ service.serviceId }}" role="button">
+                <i class="fas fa-envelope d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-envelope"></i> 메일</span>
               </a>
             {% endif %}
-            <a href="#" class="btn btn-danger" onclick="location.href='/service/viewservicepdf/{{ service.serviceId }}'">
-              <i class="fas fa-download text-gray-100"></i>
+            <a class="btn btn-danger" href="/service/viewservicepdf/{{ service.serviceId }}" role="button">
+              <i class="fas fa-download d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-download"></i> PDF</span>
+            </a>
+            <a class="btn btn-warning" href="#" role="button" onclick="btn_copy()">
+              <i class="fas fa-copy d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-copy"></i> 복사</span>
             </a>
           </div>
         </div>
@@ -332,10 +170,12 @@
                 <span class="text p-2">게시글 보기</span>
               </a>
             {% endif %}
-            <a href="#" class="btn btn-warning btn-icon-split" onclick="btn_copy()">
-              <span class="icon text-white-50"> <i class="fas fa-copy"> </i> </span>
-              <span class="text p-2"> 복사 </span>
-            </a>
+            {% if service.empId.empId == user.employee.empId %}
+              <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+                <span class="icon text-white"> <i class="fas fa-edit"></i> </span>
+                <span class="text p-2"> 수정 </span>
+              </a>
+            {% endif %}
           </div>
 
         </div>
@@ -344,7 +184,7 @@
     <div class="col-xl-2"></div>
   </div>
 
-  <!-- confirm Modal -->
+  <!-- upload Modal -->
   <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
@@ -388,6 +228,57 @@
     </div>
   </div>
 
+  <!-- sign Modal -->
+  <div class="modal fade" id="signModal" tabindex="-1" role="dialog" aria-labelledby="signModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-success text-gray-100">
+          <h5 class="modal-title" id="signModalLabel">동행자 서명 가져오기</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="signForm" method="POST" enctype="multipart/form-data"
+                action="/service/coworkersign/{{ service.serviceId }}/">
+            {% csrf_token %}
+          </form>
+          <span class="text-danger font-weight-bold">※ 기간: 해당일정 전후 1일</span><br>
+          <span class="text-danger font-weight-bold">※ 조건: 내가 동행자로 포함된 일정 중 고객 서명이 있는 일정</span><br>
+          <table class="file-table" style="width: 100%;">
+            <thead>
+            <tr>
+              <th style="width: 10%">선택</th>
+              <th style="width: 20%">날짜</th>
+              <th style="width: 20%">성함</th>
+              <th style="width: 20%">고객사</th>
+              <th style="width: 30%">제목</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for service in coWorkerSign %}
+            <tr>
+              <td><input type="radio" name="signId" value="{{ service.serviceId }}"></td>
+              <td>{{ service.serviceDate }}</td>
+              <td>{{ service.empName }}</td>
+              <td>{{ service.companyName.companyName }}</td>
+              <td>{{ service.serviceTitle }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-success" href="#" onclick="btn_sign()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 {% endblock %}
 
@@ -403,6 +294,25 @@
       function btn_copy(){
           if (confirm("일정을 복사 하시겠습니까?") === true) {
               location.href = '/service/copyservice/' + {{ service.serviceId }} + '/';
+          }
+      }
+
+      function btn_sign() {
+          if (confirm("해당일정의 서명을 복사 하시겠습니까?") === true) {
+              let signId = $('input[name="signId"]:checked').val();
+              const form = $('#signForm');
+              $('<input />', {
+                  type: 'hidden',
+                  name: 'signId',
+                  value: signId
+              }).appendTo(form);
+              form.submit();
+          }
+      }
+
+      function btn_modify(){
+          if (confirm("일정을 수정 하시겠습니까?") === true) {
+              location.href = '/service/modifyservice/' + {{ service.serviceId }} + '/';
           }
       }
 
@@ -459,7 +369,7 @@
                   uploadForm.submit();
               }
 
-          }else{
+          } else{
               alert("계약명이 있어야 검수확인서 업로드가 가능합니다.");
           }
 

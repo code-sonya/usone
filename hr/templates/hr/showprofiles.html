@@ -31,6 +31,20 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
+          <div class="mb-3">
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_empStatus('')">
+              <span class="d-xl-none">전체</span>
+              <span class="d-none d-xl-block">전체</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_empStatus('Y')">
+              <span class="d-xl-none">재직</span>
+              <span class="d-none d-xl-block">재직</span>
+            </a>
+            <a class="btn btn-secondary" href="#" role="button" onclick="btn_empStatus('N')">
+              <span class="d-xl-none">퇴사</span>
+              <span class="d-none d-xl-block">퇴사</span>
+            </a>
+          </div>
           <table id="showprofiles" class="hover row-border" style="width: 100%;">
             <thead>
             <tr>
@@ -58,17 +72,32 @@
 
   <script type="text/javascript">
 
-      $(document).ready(function () {
-          $('#showprofiles').dataTable({
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'GET',
-                  "data": {
-                  },
-                  "url": "{% url 'hr:showprofilesasjson' %}",
-                  "dataSrc": ""
+      function btn_empStatus(empStatus) {
+          load_datatable($('#showprofiles').DataTable(), empStatus);
+      }
+
+      function load_datatable(table, empStatus) {
+          table.rows().remove();
+          $.ajax({
+              url: "{% url 'hr:showprofilesasjson' %}",
+              method: 'GET',
+              cache: false,
+              data: {
+                  "empStatus": empStatus,
               },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  for (let i = 0; i < returnData.length; i++) {
+                      table.row.add(returnData[i])
+                  }
+                  table.draw()
+              }
+          });
+      }
+
+      $(document).ready(function () {
+          let showprofiles = $('#showprofiles').DataTable({
+              "processing": true,
               "columnDefs": [
                   {
                       targets: 0,
@@ -160,12 +189,13 @@
               },
           });
 
-          const showprofiles = $('#showprofiles').DataTable();
-
           $("#showprofiles").on("click", 'tr', function () {
               const data = showprofiles.row(this).data();
+              console.log(data);
               location.href = '/hr/viewprofile/' + data.empId + '/'
           });
+
+          load_datatable(showprofiles, 'Y')
       });
 
   </script>

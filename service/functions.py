@@ -365,19 +365,155 @@ def dayreport_query2(empDeptName, day):
         holiday = False
 
     serviceDept = Servicereport.objects.filter(
-        Q(empDeptName=empDeptName) & (Q(serviceBeginDatetime__lte=Date_max) & Q(serviceFinishDatetime__gte=Date_min))
+        Q(empDeptName=empDeptName) &
+        (Q(serviceBeginDatetime__lte=Date_max) & Q(serviceFinishDatetime__gte=Date_min))
     ).order_by('serviceBeginDatetime')
 
     vacationDept = Vacation.objects.filter(
-        Q(empDeptName=empDeptName) & Q(vacationDate=Date) & (
-            Q(vacationStatus='Y') | Q(vacationStatus='N')
-        )
+        Q(empDeptName=empDeptName) &
+        Q(vacationDate=Date) &
+        (Q(vacationStatus='Y') | Q(vacationStatus='N'))
     )
 
     inDept = User.objects.filter(
-        Q(employee__empDeptName=empDeptName) & Q(employee__empStatus='Y')
+        Q(employee__empDeptName=empDeptName) &
+        Q(employee__empStatus='Y')
     ).exclude(
-        Q(employee__empId__in=serviceDept.values('empId')) | Q(employee__empId__in=vacationDept.values('empId'))
+        Q(employee__empId__in=serviceDept.values('empId')) |
+        Q(employee__empId__in=vacationDept.values('empId'))
+    )
+
+    listService = []
+    listEducation = []
+    listVacation = []
+
+    for service in serviceDept:
+        if service.serviceType.typeName == '상주' or service.serviceType.typeName == '프로젝트상주':
+            flag = '상주'
+        elif service.directgo == 'Y':
+            flag = '직출'
+        else:
+            flag = ''
+
+        if service.serviceType.typeName == '':
+            listEducation.append({
+                'serviceId': service.serviceId,
+                'flag': flag,
+                'empName': service.empName,
+                'serviceBeginDatetime': service.serviceBeginDatetime,
+                'serviceFinishDatetime': service.serviceFinishDatetime,
+                'serviceStatus': service.serviceStatus,
+                'serviceTitle': service.serviceTitle,
+                'sortKey': service.empId.empRank,
+            })
+        else:
+            listService.append({
+                'serviceId': service.serviceId,
+                'flag': flag,
+                'empName': service.empName,
+                'serviceBeginDatetime': service.serviceBeginDatetime,
+                'serviceFinishDatetime': service.serviceFinishDatetime,
+                'serviceStatus': service.serviceStatus,
+                'companyName': service.companyName,
+                'serviceType': service.serviceType.typeName,
+                'serviceTitle': service.serviceTitle,
+                'sortKey': service.empId.empRank,
+            })
+
+    if not holiday:
+        for emp in inDept:
+            listService.append({
+                'serviceId': '',
+                'flag': '',
+                'empName': emp.employee.empName,
+                'serviceBeginDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0),
+                'serviceFinishDatetime': datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0),
+                'serviceStatus': '',
+                'companyName': emp.employee.dispatchCompany,
+                'serviceType': '',
+                'serviceTitle': emp.employee.message,
+                'sortKey': emp.employee.empRank,
+            })
+
+        for vacation in vacationDept:
+            if vacation.vacationStatus == 'Y':
+                vacationStatus = ''
+            elif vacation.vacationStatus == 'N':
+                vacationStatus = '(결재중)'
+            listVacation.append({
+                'empName': vacation.empName,
+                'serviceBeginDatetime': Date,
+                'vacationType': vacation.vacationType[:2],
+                'vacationStatus': vacationStatus,
+                'sortKey': vacation.empId.empRank,
+            })
+
+            if vacation.vacationType != '일차' and vacation.empId.empId not in serviceDept.values_list('empId', flat=True):
+                if vacation.empId.dispatchCompany == '내근':
+                    flag = ''
+                else:
+                    flag = '상주'
+
+                if vacation.vacationType == '오전반차':
+                    startDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 14, 0)
+                    endDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 18, 0)
+                elif vacation.vacationType == '오후반차':
+                    startDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 9, 0)
+                    endDateTime = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]), 14, 0)
+
+                listService.append({
+                    'serviceId': '',
+                    'flag': flag,
+                    'empName': vacation.empName,
+                    'serviceBeginDatetime': startDateTime,
+                    'serviceFinishDatetime': endDateTime,
+                    'serviceStatus': '',
+                    'companyName': vacation.empId.dispatchCompany,
+                    'serviceType': '',
+                    'serviceTitle': vacation.empId.message,
+                    'sortKey': vacation.empId.empRank,
+                })
+
+    listService.sort(key=lambda x: x['sortKey'])
+    listEducation.sort(key=lambda x: x['sortKey'])
+    listVacation.sort(key=lambda x: x['sortKey'])
+
+    queryService = []
+    queryEducation = []
+    queryVacation = []
+
+    for l in listService:
+        temp = QueryDict('', mutable=True)
+        temp.update(l)
+        queryService.append(temp)
+    for l in listEducation:
+        temp = QueryDict('', mutable=True)
+        temp.update(l)
+        queryEducation.append(temp)
+    for l in listVacation:
+        temp = QueryDict('', mutable=True)
+        temp.update(l)
+        queryVacation.append(temp)
+
+    return queryService, queryEducation, queryVacation
+
+
+def dayreport_query(empDeptName, day):
+    Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    Date_min = datetime.datetime.combine(Date, datetime.datetime.min.time())
+    Date_max = datetime.datetime.combine(Date, datetime.datetime.max.time())
+
+    # 일정
+    serviceDept = Servicereport.objects.filter(
+        Q(empId__empDeptName__in=empDeptName) &
+        (Q(serviceBeginDatetime__lte=Date_max) & Q(serviceFinishDatetime__gte=Date_min))
+    ).order_by('serviceBeginDatetime')
+
+    # 휴가
+    vacationDept = Vacation.objects.filter(
+        Q(empId__empDeptName__in=empDeptName) &
+        Q(vacationDate=Date) &
+        (Q(vacationStatus='Y') | Q(vacationStatus='N'))
     )
 
     listService = []
@@ -416,6 +552,33 @@ def dayreport_query2(empDeptName, day):
                 'serviceTitle': service.serviceTitle,
                 'sortKey': service.empId.empRank,
             })
+
+    # # 내근 추가 전
+    # for vacation in vacationDept:
+    #     vacationStatus = ''
+    #     if vacation.vacationStatus == 'N':
+    #         vacationStatus = '(결재중)'
+    #     listVacation.append({
+    #         'empName': vacation.empName,
+    #         'serviceBeginDatetime': Date,
+    #         'vacationType': vacation.vacationType[:2],
+    #         'vacationStatus': vacationStatus,
+    #         'sortKey': vacation.empId.empRank,
+    #     })
+
+    # 내근 추가
+    if datetime.datetime.weekday(Date) >= 5 or Eventday.objects.filter(Q(eventDate=Date) & Q(eventType='휴일')):
+        holiday = True
+    else:
+        holiday = False
+
+    inDept = User.objects.filter(
+        Q(employee__empDeptName__in=empDeptName) &
+        Q(employee__empStatus='Y')
+    ).exclude(
+        Q(employee__empId__in=serviceDept.values('empId')) |
+        Q(employee__empId__in=vacationDept.values('empId'))
+    )
 
     if not holiday:
         for emp in inDept:

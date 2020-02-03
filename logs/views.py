@@ -1,4 +1,3 @@
-
 import json
 
 from django.contrib.auth.decorators import login_required
@@ -6,11 +5,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Sum, FloatField, F, Case, When, Count
 
-from .models import DownloadLog, OrderLog, ApprovalLog
+from .models import DownloadLog, OrderLog, ApprovalLog, ContractLog
 from hr.models import Employee
 from sales.models import Contract
 import datetime
+
 
 def insert_downloadlog(request):
     downloadUrl = request.POST['downloadUrl']
@@ -164,7 +165,57 @@ def order_asjson(request):
     if empName:
         orders = orders.filter(empId__empName__icontains=empName)
 
-    orders = orders.values('orderDatetime', 'empId__empDeptName', 'empId__empName', 'toEmail', 'orderId__title', 'orderId__orderId', 'orderStatus', 'orderLogId')
-    print(orders)
+    orders = orders.values('orderDatetime', 'empId__empDeptName', 'empId__empName', 'toEmail', 'orderId__title', 'orderId__orderId', 'orderStatus', 'orderLogId', 'orderError')
     structure = json.dumps(list(orders), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+
+@login_required
+def show_contract_log(request):
+    if request.method == 'POST':
+        startDate = request.POST['startDate']
+        endDate = request.POST['endDate']
+        contractName = request.POST['contractName']
+    else:
+        startDate = ''
+        endDate = ''
+        contractName = ''
+    context = {
+        'startDate': startDate,
+        'endDate': endDate,
+        'contractName': contractName,
+    }
+    return render(request, 'logs/showcontracts.html', context)
+
+
+@login_required
+def contractlog_asjson(request):
+    logs = ContractLog.objects.all()
+    if request.method == 'GET':
+        keys = request.GET.keys()
+        if 'startDate' in keys:
+            if request.GET['startDate']:
+                logs = logs.filter(datetime__gte=request.GET['startDate'])
+        if 'endDate' in keys:
+            if request.GET['endDate']:
+                logs = logs.filter(datetime__lte=request.GET['endDate'])
+        if 'contractId' in keys:
+            if request.GET['contractId']:
+                logs = logs.filter(contractId=request.GET['contractId'])
+        if 'contractName' in keys:
+            if request.GET['contractName']:
+                logs = logs.filter(contractId__contractName__icontains=request.GET['contractName'])
+    logs = logs.annotate(
+        empName=F('empId__empName'),
+        contractCode=F('contractId__contractCode'),
+        contractName=F('contractId__contractName'),
+    ).values(
+        'datetime', 'empName', 'contractCode', 'contractName',
+        'beforeSalePrice', 'beforeProfitPrice', 'beforeProfitRatio',
+        'afterSalePrice', 'afterProfitPrice', 'afterProfitRatio',
+        'diffSalePrice', 'diffProfitPrice', 'diffProfitRatio',
+        'changeCount', 'contractId__contractId',
+    )
+    structure = json.dumps(list(logs), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

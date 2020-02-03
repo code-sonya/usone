@@ -18,9 +18,10 @@ from django.views.decorators.csrf import csrf_exempt
 from extrapay.models import Car
 from .forms import EmployeeForm, DepartmentForm, UserForm
 from .functions import save_punctuality, check_absence, year_absence, adminemail_test, siteMap
-from .models import AdminEmail, AdminVacation
-from .models import Attendance, Employee, Punctuality, Department
+from .models import Attendance, Employee, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation
 from service.models import Vacation
+from approval.models import Document
+from extrapay.models import ExtraPay
 
 
 @login_required
@@ -59,7 +60,16 @@ def show_profiles(request):
 
 @login_required
 def showprofiles_asjson(request):
-    employees = Employee.objects.all().annotate(
+    empStatus = ''
+    if 'empStatus' in request.GET.keys():
+        if request.GET['empStatus']:
+            empStatus = request.GET['empStatus']
+
+    employees = Employee.objects.all()
+    if empStatus:
+        employees = employees.filter(empStatus=empStatus)
+
+    employees = employees.annotate(
         userName=F('user__username'),
         positionName=F('empPosition__positionName'),
         lastLogin=F('user__last_login'),
@@ -175,6 +185,7 @@ def view_department(request, deptId):
     if request.method == 'POST':
         form = DepartmentForm(request.POST, instance=dept)
         post = form.save(commit=False)
+        post.departmentStatus = request.POST['departmentStatus']
         post.save()
         Employee.objects.filter(departmentName=dept).update(empDeptName=post.deptName)
         return redirect('hr:showdepartments')
@@ -192,7 +203,11 @@ def view_department(request, deptId):
 def post_department(request):
     if request.method == 'POST':
         form = DepartmentForm(request.POST)
+        # if form.is_valid():
+        #     form.save()
         form.save()
+        # else:
+        #     print('!!')
         return redirect('hr:showdepartments')
 
     else:
@@ -253,34 +268,87 @@ def show_punctuality(request, day=None):
 
     punctuality = Punctuality.objects.filter(punctualityDate=day).order_by('empId__empPosition')
     punctualityList = []
+
+    # if day <= '2020-01-31':
+    #     punctualityList.append(
+    #         punctuality.filter(empId__empDeptName='경영지원본부').values(
+    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+    #         )
+    #     )
+    #     punctualityList.append(
+    #         punctuality.filter(empId__empDeptName='영업1팀').values(
+    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+    #         )
+    #     )
+    #     punctualityList.append(
+    #         punctuality.filter(empId__empDeptName='영업2팀').values(
+    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+    #         )
+    #     )
+    #     punctualityList.append(
+    #         punctuality.filter(empId__empDeptName='인프라서비스사업팀').values(
+    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+    #         )
+    #     )
+    #     punctualityList.append(
+    #         punctuality.filter(empId__empDeptName='솔루션지원팀').values(
+    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+    #         )
+    #     )
+    #     punctualityList.append(
+    #         punctuality.filter(empId__empDeptName='DB지원팀').values(
+    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+    #         )
+    #     )
+    # else:
     punctualityList.append(
         punctuality.filter(empId__empDeptName='경영지원본부').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
         )
     )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='영업1팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctuality.filter(empId__empDeptName='경영지원실').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
         )
     )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='영업2팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctuality.filter(empId__empDeptName='인프라솔루션사업부').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
         )
     )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='인프라서비스사업팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctuality.filter(empId__empDeptName='영업팀').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
         )
     )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='솔루션지원팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctuality.filter(empId__empDeptName='R&D 전략사업부').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
         )
     )
     punctualityList.append(
-        punctuality.filter(empId__empDeptName='DB지원팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition', 'punctualityType', 'comment', 'punctualityId'
+        punctuality.filter(empId__empDeptName='AI Platform Labs').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='Technical Architecture팀').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='Platform Biz').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='DB Expert팀').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
+        )
+    )
+    punctualityList.append(
+        punctuality.filter(empId__empDeptName='솔루션팀').values(
+            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
         )
     )
 
@@ -639,6 +707,7 @@ def vacationsexcel_asjson(request):
         vacationDict = {'createAnnualLeave': 0, 'createSpecialLeave': 0, 'remainingAnnualLeave': 0, 'remainingSpecialLeave': 0,
                         'useAnnualLeave': 0, 'useSpecialLeave': 0, 'useTraining': 0, 'useInvestigation': 0, 'useSickleave': 0, 'useMaternityleave': 0, 'useCompensation': 0}
         employee = Employee.objects.get(empId=emp['empId'])
+        vacationDict['empId'] = employee.empId
         vacationDict['empName'] = employee.empName
         vacationDict['empStartDate'] = employee.empStartDate
         vacationDict['empDeptName'] = employee.empDeptName
@@ -668,4 +737,123 @@ def vacationsexcel_asjson(request):
         vacationList.append(vacationDict)
     structure = json.dumps(vacationList, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def return_vacation(request):
+    if request.method == 'POST':
+        year = request.POST['year']
+    else:
+        year = str(datetime.datetime.today().year)
+
+    employees = Employee.objects.filter(Q(empStatus='Y'))
+    context = {
+        'year': year,
+        'employees': employees,
+    }
+    return render(request, 'hr/returnvacation.html', context)
+
+
+@login_required
+@csrf_exempt
+def returnvacation_asjson(request):
+    year = request.POST['year']
+
+    # 휴가 취소 내역
+    if year:
+        returnVacations = ReturnVacation.objects.filter(Q(returnDateTime__year=year))\
+            .values('returnDateTime', 'empId__empDeptName', 'empId__empName', 'vacationId__documentId__documentId', 'vacationId__documentId__title', 'vacationId__vacationDate',  'vacationId__vacationType', 'vacationId__vacationCategory__categoryName', 'comment')
+
+    else:
+        returnVacations = ReturnVacation.objects.all()\
+            .values('returnDateTime', 'empId__empDeptName', 'empId__empName', 'vacationId__documentId__documentId', 'vacationId__documentId__title', 'vacationId__vacationType', 'vacationId__vacationCategory__categoryName', 'comment')
+
+
+    structure = json.dumps(list(returnVacations), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def vacationdocument_asjson(request):
+    empId = request.POST['empId']
+    vacationdocument = Document.objects.filter(Q(writeEmp=empId) & Q(documentStatus='완료') & Q(formId__formTitle='휴가신청서')).values('documentId','writeEmp', 'draftDatetime', 'title')
+
+    structure = json.dumps(list(vacationdocument), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def cancel_vacation(request):
+    empId = request.POST['empId']
+    documentId = request.POST['document']
+    comment = request.POST['comment']
+    document = Document.objects.get(documentId=documentId)
+    document.documentStatus = '결재완료후취소'
+    document.save()
+    empId = Employee.objects.get(empId=empId)
+    returnvacations = Vacation.objects.filter(Q(documentId=documentId))
+    for returnvacation in returnvacations:
+        # vacation = Vacation.objects.get(vacationId=returnvacation.vacationId)
+        ReturnVacation.objects.create(
+            empId=empId,
+            returnDateTime=datetime.datetime.now(),
+            vacationId=returnvacation,
+            comment=comment,
+        )
+        returnvacation.vacationStatus='X'
+        returnvacation.comment='결재완료후취소'
+        returnvacation.save()
+        vacationDay = 0
+        if returnvacation.vacationType == '일차':
+            vacationDay += 1
+        else:
+            vacationDay += 0.5
+        categoryName = returnvacation.vacationCategory.categoryName
+        if categoryName == '연차':
+            empId.empAnnualLeave += vacationDay
+            empId.save()
+        elif categoryName == '특별휴가':
+            empId.empSpecialLeave += vacationDay
+            empId.save()
+        elif categoryName == '보상휴가':
+            rewardVacationType = returnvacation.rewardVacationType
+            now = document.draftDatetime
+            yyyy = str(now)[:4]
+            mm = str(now)[5:7]
+            if mm == '01':
+                yyyyBefore = str(int(yyyy) - 1)
+                mmBefore = '12'
+            else:
+                yyyyBefore = yyyy
+                mmBefore = str(int(mm) - 1).zfill(2)
+            if rewardVacationType == '당월보상휴가':
+                # 보상휴가일수
+                extraWork = ExtraPay.objects.filter(empId=empId, overHourDate__year=yyyy, overHourDate__month=mm)
+                extraWorkObj = extraWork.first()
+                extraWorkObj.compensatedHour -= vacationDay * 8
+                extraWorkObj.save()
+            elif rewardVacationType == '전월보상휴가':
+                # 보상휴가일수
+                extraWorkBefore = ExtraPay.objects.filter(empId=empId, overHourDate__year=yyyyBefore, overHourDate__month=mmBefore)
+                extraWorkBeforeObj = extraWorkBefore.first()
+                extraWorkBeforeObj.compensatedHour -= vacationDay * 8
+                extraWorkBeforeObj.save()
+
+    return redirect('hr:returnvacation')
+
+
+@login_required
+@csrf_exempt
+def detailvacation_asjson(request):
+    empId = request.POST['empId']
+    year = request.POST['year']
+
+    vacations = Vacation.objects.filter(Q(empId=empId) & Q(vacationDate__year=year) & Q(vacationStatus='Y')).values('vacationDate', 'vacationType', 'vacationCategory__categoryName')
+
+    structure = json.dumps(list(vacations), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
 

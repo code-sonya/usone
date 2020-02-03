@@ -10,6 +10,6 @@ urlpatterns = [
     url(r'^viewcustomer/(?P<customerId>.+)/$', views.view_customer, name='view_customer'),
     url(r'^postcustomer/(?P<companyName>.+)/$', views.post_customer, name='post_customer'),
     url(r'^deletecustomer/(?P<customerId>.+)/$', views.delete_customer, name='delete_customer'),
-    url(r'^clientjson/$', views.client_asjson, name='client_ajax_url'),
+    url(r'^servicejson/$', views.service_asjson, name='service_ajax_url'),
     url(r'^filterjson/$', views.filter_asjson, name='filter_ajax_url'),
 ]

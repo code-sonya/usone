@@ -4,9 +4,9 @@ from .models import Servicereport, Serviceform, Vacation, Geolocation, Servicety
 
 @admin.register(Servicereport)
 class ServicereportAdmin(admin.ModelAdmin):
-    list_display = ('serviceDate', 'empDeptName', 'empName', 'companyName', 'serviceType', 'serviceTitle', 'serviceOverHour')
+    list_display = ('serviceId', 'serviceDate', 'empDeptName', 'empName', 'companyName', 'serviceType', 'serviceTitle')
     list_filter = ('empDeptName', 'empName', 'companyName', )
-    list_display_links = ['serviceDate', 'empName', 'companyName']
+    list_display_links = ['serviceId', 'serviceDate', 'empName', 'companyName']
 
 
 @admin.register(Serviceform)
@@ -32,7 +32,7 @@ class GeolocationAdmin(admin.ModelAdmin):
 
 @admin.register(Servicetype)
 class ServicetypeAdmin(admin.ModelAdmin):
-    list_display = ('typeId', 'typeName', 'orderNumber')
+    list_display = ('typeId', 'typeName', 'orderNumber', 'dashboardStatus', 'punctualityStatus')
     list_filter = ('typeName',)
     list_display_links = ['typeId', 'typeName', 'orderNumber']
 

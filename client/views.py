@@ -18,9 +18,11 @@ import datetime
 
 @login_required
 @csrf_exempt
-def client_asjson(request):
+def service_asjson(request):
     companyName = request.POST['companyName']
-    services = Servicereport.objects.filter(companyName=companyName).values('serviceId', 'serviceDate', 'empName', 'empDeptName', 'serviceType', 'serviceHour', 'serviceOverHour', 'serviceTitle')
+    services = Servicereport.objects.filter(companyName=companyName).values(
+        'serviceId', 'serviceDate', 'empName', 'empDeptName', 'serviceType__typeName', 'serviceHour', 'serviceOverHour', 'serviceTitle'
+    )
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 

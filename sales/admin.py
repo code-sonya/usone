@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, Contractfile,\
+from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, IncentiveDept, Contractfile,\
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchasecategory,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Classification, Purchasecontractitem
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Classification, Purchasecontractitem, Contractcomment
 
 
 @admin.register(Contract)
@@ -88,6 +88,13 @@ class IncentiveAdmin(admin.ModelAdmin):
     list_display_links = ('empId', 'year', 'quarter')
 
 
+@admin.register(IncentiveDept)
+class IncentiveDeptAdmin(admin.ModelAdmin):
+    list_display = ('incentiveDeptId', 'year', 'empId', 'deptName')
+    list_filter = ('year',)
+    list_display_links = ('incentiveDeptId', 'year', 'empId', 'deptName')
+
+
 @admin.register(Contractfile)
 class ContractfileAdmin(admin.ModelAdmin):
     list_display = ('fileId', 'fileCategory', 'fileName', 'fileSize')
@@ -164,4 +171,10 @@ class RelatedpurchaseestimateAdmin(admin.ModelAdmin):
     list_filter = ('purchaseOrder',)
     list_display_links = ['relatedId', 'purchaseOrder', 'purchaseEstimate']
 
+
+@admin.register(Contractcomment)
+class ContractcommentAdmin(admin.ModelAdmin):
+    list_display = ('commentId', 'contractId', 'author', 'comment', 'created')
+    list_filter = ('author',)
+    list_display_links = ['commentId', 'contractId', 'author', 'comment', 'created']
 

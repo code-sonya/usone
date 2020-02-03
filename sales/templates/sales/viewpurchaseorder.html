@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  영업관리
+  매입발주서
 {% endblock %}
 
 
@@ -36,11 +36,15 @@
         {{ purchaseOrder.purchaseCompany.companyNameKo }}
         매입발주서
       </div>
-      <div class="dropdown no-arrow">
-        <a class="dropdown-toggle" href="#" role="button" id="emailLink" data-toggle="modal" data-target="#emailModal">
-          <i class="fas fa-at fa-fw text-info"></i>
-        </a>
-      </div>
+      {% if isApproval %}
+        <div class="dropdown no-arrow">
+          <a class="btn btn-info" href="#" role="button" id="emailLink" data-toggle="modal" data-target="#emailModal">
+            <i class="fas fa-at d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-at"></i> 메일</span>
+          </a>
+        </div>
+      {% else %}
+        <span>수주통보서 결재 후<br>매입처 메일 발송 가능</span>
+      {% endif %}
     </div>
 
     <div class="card-body">
@@ -140,7 +144,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="emailForm" action="/sales/sendpurchaseorder/{{ purchaseOrder.orderId }}/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_email();}">
+          <form id="emailForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_email();}">
             {% csrf_token %}
             <label class="text-primary mb-0">수신자</label>
             <div class="row mb-1">
@@ -256,9 +260,28 @@
       function btn_email() {
         const smtpEmail = $('#smtpEmail').val();
         const smtpStatus = $('#smtpStatus').val();
-        const emailForm = $("#emailForm");
+        const empEmail = $("#empEmail").val();
+        const address = $("#address").val();
         if(smtpStatus == '정상' && smtpEmail != '') {
-            emailForm.submit();
+            $.ajax({
+                url: "/sales/sendpurchaseorder/{{ purchaseOrder.orderId }}/",
+                method: 'POST',
+                cache: false,
+                data: {
+                    "empEmail": empEmail,
+                    'address': address,
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (returnData) {
+                    if (returnData === 'Y') {
+                        alert('메일 전송 성공! : )');
+                        $('#emailModal').modal('hide');
+                    } else {
+                        alert('메일전송에 실패했습니다. 매입발주서 전송이력을 확인해주세요.');
+                        $('#emailModal').modal('hide');
+                    }
+                }
+            });
         }else{
             alert('이메일 전송기능은 SMTP 설정이 되어있어야 사용가능합니다.\n관리자 이메일을 확인해주세요 :)');
         }

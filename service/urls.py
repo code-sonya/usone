@@ -30,4 +30,5 @@ urlpatterns = [
     url(r'^viewservicetype/(?P<typeId>.+)/$', views.view_service_type, name='viewservicetype'),
     url(r'^postservicetype/$', views.post_service_type, name='postservicetype'),
     url(r'^deleteservicetype/(?P<typeId>.+)/$', views.delete_service_type, name='deleteservicetype'),
+    url(r'^coworkersign/(?P<serviceId>.+)/$', views.coworker_sign, name='coworkersign'),
 ]
