@@ -1072,7 +1072,7 @@ def day_report(request, day=None):
             ])
             rows.append([
                 {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
-                {'title': '[R&D 전략사업부]TA팀·AI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+                {'title': '[R&D 전략사업부]TA팀·dAI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
             ])
         else:
             rows.append([
