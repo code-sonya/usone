@@ -1049,39 +1049,39 @@ def day_report(request, day=None):
         rows = []
         if dept == "Technical Architecture팀" or dept == "AI Platform Labs":
             rows.append([
-                {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
-                {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+                {'title': '[R&D 전략사업부]TA팀·AI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+                {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
             ])
             rows.append([
-                {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-                {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+                {'title': '[Platform Biz]솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': '[Platform Biz]DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
             ])
         elif dept == '솔루션팀':
             rows.append([
-                {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-                {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+                {'title': '[Platform Biz]솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': '[Platform Biz]DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
             ])
             rows.append([
-                {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
-                {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+                {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+                {'title': '[R&D 전략사업부]TA팀·AI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
             ])
         elif dept == 'DB Expert팀':
             rows.append([
-                {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
-                {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': '[Platform Biz]DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+                {'title': '[Platform Biz]솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
             ])
             rows.append([
-                {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
-                {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+                {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+                {'title': '[R&D 전략사업부]TA팀·AI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
             ])
         else:
             rows.append([
-                {'title': '영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
-                {'title': 'R&D 전략사업부', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
+                {'title': '[인프라솔루션사업부]영업팀', 'service': sales[0], 'education': sales[1], 'vacation': sales[2]},
+                {'title': '[R&D 전략사업부]TA팀·AI Labs', 'service': rnd[0], 'education': rnd[1], 'vacation': rnd[2]},
             ])
             rows.append([
-                {'title': '솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
-                {'title': 'DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
+                {'title': '[Platform Biz]솔루션팀', 'service': solution[0], 'education': solution[1], 'vacation': solution[2]},
+                {'title': '[Platform Biz]DB Expert팀', 'service': db[0], 'education': db[1], 'vacation': db[2]},
             ])
 
         context = {

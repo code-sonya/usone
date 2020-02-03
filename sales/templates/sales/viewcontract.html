@@ -1916,7 +1916,7 @@
         </div>
       </div>
 
-      {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empId == contract.empId.empId %}
+      {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empId == contract.empId.empId or user.is_staff %}
         <div class="text-center" style="padding: 0px 20px 20px 20px">
           {% if contract.contractStep == 'Opportunity' %}
           <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
