@@ -295,6 +295,19 @@
       </a>
     </li>
 
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseWorks" aria-expanded="true" aria-controls="collapseWorks">
+        <i class="fas fa-fw fa-tools text-white"></i>
+        <span class="text-white">업무관리</span>
+      </a>
+      <div id="collapseWorks" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <a class="collapse-item" href="/daesungwork/managecenter/">센터별담당자관리</a>
+          <a class="collapse-item" href="/hr/emailregistration">센터별체크리스트</a>
+        </div>
+      </div>
+    </li>
+
     <!-- Divider -->
     {% if user.is_staff %}
     <hr class="sidebar-divider d-none d-md-block">

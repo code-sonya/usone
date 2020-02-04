@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'extrapay',
     'approval',
     'logs',
+    'daesungwork',
 ]
 
 MIDDLEWARE = [
