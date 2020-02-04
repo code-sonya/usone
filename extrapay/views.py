@@ -57,9 +57,10 @@ def over_asjson(request):
 
     extrapay = ExtraPay.objects.all()
     if searchdate:
-        extrapay = ExtraPay.filter(
+        extrapay = extrapay.filter(
             Q(overHourDate__year=searchYear) &
-            Q(overHourDate__month=searchMonth))
+            Q(overHourDate__month=searchMonth)
+        )
 
     extrapaylist = extrapay.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'compensatedComment', 'extraPayId')
     structure = json.dumps(list(extrapaylist), cls=DjangoJSONEncoder)
@@ -199,10 +200,10 @@ def show_fuel(request):
 
     btnStatus = 'N'
     if m == 12:
-        if datetime(y+1, 1, 5) > datetime.today():
+        if datetime(y+1, 1, 7) > datetime.today():
             btnStatus = 'Y'
     else:
-        if datetime(y, m+1, 5) > datetime.today():
+        if datetime(y, m+1, 7) > datetime.today():
             btnStatus = 'Y'
     context = {
         'empId': request.user.employee.empId,
@@ -283,9 +284,9 @@ def approval_fuel(request, empId):
 
     btnStatus = 'N'
     if m == 12:
-        approvalDate = datetime(y+1, 1, 5)
+        approvalDate = datetime(y+1, 1, 7)
     else:
-        approvalDate = datetime(y, m+1, 5)
+        approvalDate = datetime(y, m+1, 7)
     if approvalDate > datetime.today():
         btnStatus = 'Y'
 
