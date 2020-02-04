@@ -17,7 +17,7 @@ from django.db.models.functions import Coalesce, Concat
 from xhtml2pdf import pisa
 from service.functions import link_callback
 
-from hr.models import Employee
+from hr.models import Employee, Department
 from service.models import Servicereport, Geolocation
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
 from .functions import cal_overhour, Round, cal_extraPay, cal_fuel
@@ -448,12 +448,22 @@ def approvalfuel_asjson(request):
 def adminfuel_asjson(request):
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
-    empId = request.POST['empId']
-    empDeptName = Employee.objects.get(empId=empId).empDeptName
+    employee = request.user.employee
+    empDeptName = employee.empDeptName
+    empDeptLevel = employee.departmentName.deptLevel
 
     fuels = Fuel.objects.select_related()
-    if empDeptName != '경영지원본부' and empDeptName != '임원':
-        fuels = fuels.filter(geolocationId__serviceId__empDeptName=empDeptName)
+
+    if empDeptLevel == 0 or empDeptName in ['경영지원본부', '경영지원실']:
+        None
+    elif empDeptLevel == 1:
+        empDeptNames = Department.objects.filter(parentDept=employee.departmentName).values_list('deptName', flat=True)
+        fuels = fuels.filter(
+            Q(geolocationId__serviceId__empId__empDeptName__in=empDeptNames) |
+            Q(geolocationId__serviceId__empId__empDeptName=empDeptName)
+        )
+    elif empDeptLevel == 2:
+        fuels = fuels.filter(geolocationId__serviceId__empId__empDeptName=empDeptName)
 
     fuels = fuels.filter(
         Q(geolocationId__serviceId__serviceDate__gte=startdate) &
@@ -479,7 +489,7 @@ def adminfuel_asjson(request):
 
     fuels = fuels.values(
         'empId', 'empDeptName', 'empPosition', 'empName', 'car', 'progress', 'approval', 'reject',
-         'sum_distance', 'sum_fuelMoney', 'sum_tollMoney', 'sum_totalMoney',
+        'sum_distance', 'sum_fuelMoney', 'sum_tollMoney', 'sum_totalMoney',
     )
 
     structure = json.dumps(list(fuels), cls=DjangoJSONEncoder)
