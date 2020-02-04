@@ -638,14 +638,19 @@ def overhour_all(request):
         todayMonth = datetime.today().month
         today = '{}-{}'.format(todayYear, todayMonth)
 
-    extrapayInfra, sumInfra = cal_extraPay('인프라서비스사업팀', todayYear, todayMonth)
-    extrapaySolution, sumSolution = cal_extraPay('솔루션지원팀', todayYear, todayMonth)
-    extrapayDB, sumDB = cal_extraPay('DB지원팀', todayYear, todayMonth)
-    extrapaySupport, sumSupport = cal_extraPay('미정', todayYear, todayMonth)
+    # 현재 조직도 변경 후 인원
+    extrapayPlatform, sumPlatform = cal_extraPay(['platform Biz', '솔루션팀', 'DB Expert'], todayYear, todayMonth)
+    extrapayStrategy, sumStrategy = cal_extraPay(['R&D 전략사업부', 'Technical Architecture팀', 'AI Platform Labs'], todayYear, todayMonth)
+
+    # 예전 퇴사자들도 표시하기 위해
+    extrapayInfra, sumInfra = cal_extraPay(['인프라서비스사업팀'], todayYear, todayMonth)
+    extrapaySolution, sumSolution = cal_extraPay(['솔루션지원팀'], todayYear, todayMonth)
+    extrapayDB, sumDB = cal_extraPay(['DB지원팀'], todayYear, todayMonth)
+    extrapaySupport, sumSupport = cal_extraPay(['미정'], todayYear, todayMonth)
 
     sumEmp = {'sumoverHour': 0, 'sumcompensatedHour': 0, 'sumoverandfoodCost': 0, 'sumfoodCost': 0, 'sumCost': 0}
 
-    for sum in [sumInfra, sumSolution, sumDB]:
+    for sum in [sumPlatform, sumStrategy, sumInfra, sumSolution, sumDB]:
         sumEmp['sumoverHour'] += sum['sumoverHour']
         sumEmp['sumcompensatedHour'] += sum['sumcompensatedHour']
         sumEmp['sumoverandfoodCost'] += sum['sumoverandfoodCost']
@@ -659,6 +664,7 @@ def overhour_all(request):
     sumEmp['sumCost'] = round(sumEmp['sumCost'], 2)
 
     sumAll = (sumEmp['sumCost'] or 0) + (sumSupport['sumCost'] or 0)
+    extrapayList = [extrapayPlatform, extrapayStrategy, extrapayInfra, extrapaySolution, extrapayDB]
     context = {
         'today': today,
         'todayYear': todayYear,
@@ -670,6 +676,7 @@ def overhour_all(request):
         'sumEmp': sumEmp,
         'sumSupport': sumSupport,
         'sumAll': sumAll,
+        'extrapayList': extrapayList,
     }
     return render(request, 'extrapay/overhourall.html', context)
 
@@ -776,14 +783,19 @@ def view_extrapay_pdf(request, yearmonth):
     todayYear = int(yearmonth[:4])
     todayMonth = int(yearmonth[5:7])
 
-    extrapayInfra, sumInfra = cal_extraPay('인프라서비스사업팀', todayYear, todayMonth)
-    extrapaySolution, sumSolution = cal_extraPay('솔루션지원팀', todayYear, todayMonth)
-    extrapayDB, sumDB = cal_extraPay('DB지원팀', todayYear, todayMonth)
-    extrapaySupport, sumSupport = cal_extraPay('미정', todayYear, todayMonth)
+    # 현재 조직도 변경 후 인원
+    extrapayPlatform, sumPlatform = cal_extraPay(['platform Biz', '솔루션팀', 'DB Expert'], todayYear, todayMonth)
+    extrapayStrategy, sumStrategy = cal_extraPay(['R&D 전략사업부', 'Technical Architecture팀', 'AI Platform Labs'], todayYear, todayMonth)
+
+    # 예전 퇴사자들도 표시하기 위해
+    extrapayInfra, sumInfra = cal_extraPay(['인프라서비스사업팀'], todayYear, todayMonth)
+    extrapaySolution, sumSolution = cal_extraPay(['솔루션지원팀'], todayYear, todayMonth)
+    extrapayDB, sumDB = cal_extraPay(['DB지원팀'], todayYear, todayMonth)
+    extrapaySupport, sumSupport = cal_extraPay(['미정'], todayYear, todayMonth)
 
     sumEmp = {'sumoverHour': 0, 'sumcompensatedHour': 0, 'sumoverandfoodCost': 0, 'sumfoodCost': 0, 'sumCost': 0}
-
-    for sum in [sumInfra, sumSolution, sumDB]:
+    extrapayList = [extrapayPlatform, extrapayStrategy, extrapayInfra, extrapaySolution, extrapayDB]
+    for sum in [sumPlatform, sumStrategy, sumInfra, sumSolution, sumDB]:
         sumEmp['sumoverHour'] += sum['sumoverHour']
         sumEmp['sumcompensatedHour'] += sum['sumcompensatedHour']
         sumEmp['sumoverandfoodCost'] += sum['sumoverandfoodCost']
@@ -797,6 +809,7 @@ def view_extrapay_pdf(request, yearmonth):
     sumEmp['sumCost'] = round(sumEmp['sumCost'], 2)
 
     sumAll = (sumEmp['sumCost'] or 0) + (sumSupport['sumCost'] or 0)
+    extrapayList = [extrapayPlatform, extrapayStrategy, extrapayInfra, extrapaySolution, extrapayDB]
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,
@@ -807,6 +820,7 @@ def view_extrapay_pdf(request, yearmonth):
         'sumEmp': sumEmp,
         'sumSupport': sumSupport,
         'sumAll': sumAll,
+        'extrapayList': extrapayList,
     }
 
     response = HttpResponse(content_type='application/pdf')

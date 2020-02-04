@@ -124,7 +124,7 @@ def overtime(str_start_datetime, str_end_datetime):
 def round_down(startDatetime, endDatetime):
     diff = endDatetime - startDatetime
     h = (diff.days * 24) + (diff.seconds / 3600)
-    m = h - int(h)
+    m = round((h - int(h)), 3)
     if m < 1/6:
         return int(h)
     elif m < 2/6:
@@ -165,8 +165,13 @@ def overtime_extrapay(startDatetime, endDatetime):
                 if startDatetime < minDate:
                     minDate = startDatetime
                 if beforeOvertime > maxDate:
-                    maxDate = beforeOvertime
-                overtime += round_down(startDatetime, beforeOvertime)
+                    # 6시 이전에 끝났을 경우
+                    if endDatetime < beforeOvertime:
+                        maxDate = endDatetime
+                        overtime += round_down(startDatetime, endDatetime)
+                    else:
+                        maxDate = beforeOvertime
+                        overtime += round_down(startDatetime, beforeOvertime)
             # 같은날 22:00 보다 끝나는 시간이 크다면 초과근무 맞음
             if endDatetime > startOvertime:
                 if startOvertime < minDate:
@@ -198,11 +203,19 @@ def overtime_extrapay(startDatetime, endDatetime):
                     maxDate = beforeOvertime
                 overtime += round_down(tempStartDatetime, beforeOvertime)
 
-            if tempStartOvertime < minDate:
-                minDate = tempStartOvertime
-            if tempEndDatetime > maxDate:
-                maxDate = tempEndDatetime
-            overtime += round_down(tempStartOvertime, tempEndDatetime)
+            if tempStartDatetime > tempStartOvertime:
+                if tempStartDatetime < minDate:
+                    minDate = tempStartDatetime
+                if tempEndDatetime > maxDate:
+                    maxDate = tempEndDatetime
+                overtime += round_down(tempStartDatetime, tempEndDatetime)
+
+            else:
+                if tempStartOvertime < minDate:
+                    minDate = tempStartOvertime
+                if tempEndDatetime > maxDate:
+                    maxDate = tempEndDatetime
+                overtime += round_down(tempStartOvertime, tempEndDatetime)
 
         while tempEndDatetime != endDatetime:
             tempStartOvertime = tempStartOvertime + datetime.timedelta(days=1)
@@ -261,11 +274,16 @@ def overtime_extrapay_etc(startDatetime, endDatetime):
                 if startDatetime < minDate:
                     minDate = startDatetime
                 if beforeOvertime > maxDate:
-                    maxDate = beforeOvertime
-                overtime += round_down(startDatetime, beforeOvertime)
+                    # 6시 이전에 끝났을 경우
+                    if endDatetime < beforeOvertime:
+                        maxDate = endDatetime
+                        overtime += round_down(startDatetime, endDatetime)
+                    else:
+                        maxDate = beforeOvertime
+                        overtime += round_down(startDatetime, beforeOvertime)
 
             # 같은날 07:30 ~ 09:00 사이에 근무하면 초과근무 맞음
-            if startDatetime <= beforeOvertime2 or endDatetime <= startOvertime2:
+            if beforeOvertime < startDatetime and (startDatetime <= beforeOvertime2 or endDatetime <= startOvertime2):
                 tmpStartDatetime = startDatetime
                 tmpEndDatetime = endDatetime
                 if startDatetime < startOvertime2:
@@ -277,6 +295,7 @@ def overtime_extrapay_etc(startDatetime, endDatetime):
                 if tmpEndDatetime > maxDate:
                     maxDate = tmpEndDatetime
                 overtime += round_down(tmpStartDatetime, tmpEndDatetime)
+
                 # 같은날 22:00 보다 끝나는 시간이 크다면 초과근무 맞음
             if endDatetime > startOvertime:
                 if startOvertime < minDate:

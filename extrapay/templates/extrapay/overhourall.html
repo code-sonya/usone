@@ -71,8 +71,8 @@
           </tr>
           </thead>
           <tbody>
-          {% if extrapayInfra %}
-          {% for row in extrapayInfra %}
+          {% for extrapay in extrapayList %}
+            {% for row in extrapay %}
             {% ifchanged row.empDeptName %}
             <tr class="bg-light">
             <td class="thtd">{{ row.empDeptName }}</td>
@@ -88,46 +88,8 @@
             <td class="thtd text-right">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
             <td class="thtd text-right">{{ row.sumCost |floatformat:0|intcomma }}</td>
           </tr>
+            {% endfor %}
           {% endfor %}
-          {% endif %}
-          {% if extrapaySolution %}
-          {% for row in extrapaySolution %}
-            {% ifchanged row.empDeptName %}
-            <tr class="bg-light">
-            <td class="thtd">{{ row.empDeptName }}</td>
-            {% else %}
-            <tr class="thtd">
-            <td class="thtd"></td>
-            {% endifchanged %}
-            <td class="thtd">{{ row.empPosition }}</td>
-            <td class="thtd"><a href="/extrapay/viewoverhour/{{ row.extraPayId }}/">{{ row.empName }}</a></td>
-            <td class="thtd text-right">{{ row.sumOverhour |floatformat:"2"}}</td>
-            <td class="thtd text-right">{{ row.compensatedHour }}</td>
-            <td class="thtd text-right">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
-            <td class="thtd text-right">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
-            <td class="thtd text-right">{{ row.sumCost |floatformat:0|intcomma }}</td>
-          </tr>
-          {% endfor %}
-          {% endif %}
-          {% if extrapayDB %}
-          {% for row in extrapayDB %}
-            {% ifchanged row.empDeptName %}
-            <tr class="bg-light">
-            <td class="thtd">{{ row.empDeptName }}</td>
-            {% else %}
-            <tr class="thtd">
-            <td class="thtd"></td>
-            {% endifchanged %}
-            <td class="thtd">{{ row.empPosition }}</td>
-            <td class="thtd"><a href="/extrapay/viewoverhour/{{ row.extraPayId }}/">{{ row.empName }}</a></td>
-            <td class="thtd text-right">{{ row.sumOverhour |floatformat:"2"}}</td>
-            <td class="thtd text-right">{{ row.compensatedHour }}</td>
-            <td class="thtd text-right">{{ row.sumOverhourFoodCost |floatformat:0|intcomma }}</td>
-            <td class="thtd text-right">{{ row.sumFoodCost |floatformat:0|intcomma }}</td>
-            <td class="thtd text-right">{{ row.sumCost |floatformat:0|intcomma }}</td>
-          </tr>
-          {% endfor %}
-          {% endif %}
           <tr class="thtd" style="background-color: lightsalmon">
             <td class="thtd" colspan="3">소계</td>
             <td class="thtd text-right">{{ sumEmp.sumoverHour |floatformat:"2"}}</td>
