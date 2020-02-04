@@ -1,0 +1,325 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+센터별 담당자 조회
+{% endblock %}
+
+
+{% block css %}
+
+<style type="text/css">
+  .input-form {
+    border: 1px solid #d1d3e2;
+    border-radius: .35rem;
+    padding: .375rem .75rem;
+    font-size: 0.9em;
+    color: #6e707e;
+    width: 170px;
+  }
+
+  pc-table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .pc-table td, .pc-table th {
+    padding: 5px 15px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 17px;
+    border: 1px solid rgba(206, 210, 219, 0.64);
+  }
+
+  .dataTable td {
+    padding: 10px;
+  }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card shadow mb-4">
+
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800"> 센터별 담당자 관리 </h6>
+      </div>
+
+      <div class="card-body">
+        <div class="row">
+          <h5 class="text-primary">
+            <span class="ml-3 text-dark">▼</span> 담당자 배정 현황 조회
+          </h5>
+        </div>
+        <!--<form method="POST" id="centerManagerForm">-->
+        <div class="row col-12">
+          <span class="col-xl-1 m-0">번호: {{ centermanager.centerManagerId }}</span>
+          <span class="col-xl-3 m-0">기간: {{ centermanager.startDate }} ~ {{ centermanager.endDate }}</span>
+          <span class="col-xl-2 m-0">작성자: {{ centermanager.writeEmp.empName }} </span>
+          <span class="col-xl-3 m-0">작성일시: {{ centermanager.createdDatetime | date:'Y-m-d H:m' }} </span>
+        </div>
+        <div class="row mb-3 center">
+          <table class="pc-table ml-3 mr-3 mt-1" style="width: 100%;">
+            <tr style="background-color: #c5e4f8; color: black;">
+              <th class="font-weight-normal">담당자</th>
+              <th class="font-weight-normal">담당구역</th>
+              <th class="font-weight-normal">추가관리</th>
+              <th class="font-weight-normal">대청소담당구역</th>
+            </tr>
+
+            {% for emp in centermanageremps %}
+            <tr>
+              <th class="font-weight-normal text-dark" style="background-color: #deeef8;">{{ emp.empId.empName }}</th>
+              <th class="font-weight-normal text-dark">{{ emp.manageArea.centerName }}</th>
+              <th class="font-weight-normal text-dark">{{ emp.additionalArea }}</th>
+              <th class="font-weight-normal text-dark">{{ emp.cleanupArea.centerName }}</th>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+        <div class="text-right mr-1 mt-3">
+            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+              <span class="text"> 삭제 </span>
+            </a>
+            <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+              <span class="text"> 수정 </span>
+            </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+    var managerCounter = 0;
+
+    function btn_cancel() {
+        if (confirm("취소 하시겠습니까?") === true) {
+            history.back();
+        } else {
+            return false;
+        }
+    }
+
+    function btn_false(msg) {
+        alert(msg);
+        return false;
+    }
+
+    function btn_save() {
+        if (document.getElementById("startDate").value === '') {
+            alert("적용기간 시작 날짜를 입력해주세요.");
+            return false;
+        }
+        if (document.getElementById("endDate").value === '') {
+            alert("적용기간 종료 날짜를 입력해주세요.");
+            return false;
+        }
+
+        const centerManagerForm = document.getElementById("centerManagerForm");
+
+        // 센터 담당자
+        const lengthItem = $('[name="centerManagerEmpId"]').length;
+        const listItem = new Array();
+        for (var i = 0; i <= lengthItem - 1; i++) {
+            if ($('input[name="empId"]').eq(i).val() == '') {
+                return btn_false("담당자를 선택해 주세요.");
+            }
+            if ($('select[name="manageArea"]').eq(i).val() == '') {
+                return btn_false("담당구역을 선택해 주세요.");
+            }
+            var data = new Object();
+            data.centerManagerEmpId = $('div[name="centerManagerEmpId"]').eq(i).text();
+            data.empId = $('select[name="empId"]').eq(i).val();
+            data.manageArea = $('select[name="manageArea"]').eq(i).val();
+            data.additionalArea = $('input[name="additionalArea"]').eq(i).val();
+            data.cleanupArea = $('select[name="cleanupArea"]').eq(i).val();
+            listItem.push(data);
+        }
+        const jsonManagerEmp = JSON.stringify(listItem);
+        const item = document.createElement("input");
+        item.setAttribute("type", "hidden");
+        item.setAttribute("name", "jsonManagerEmp");
+        item.setAttribute("value", jsonManagerEmp);
+        centerManagerForm.appendChild(item);
+
+        if (confirm("저장 하시겠습니까?") === true) {
+            centerManagerForm.submit();
+        }
+    }
+
+    // 센터별 담당자
+    var t1 = $('#manager').DataTable({
+        "autoWidth": true,
+        "scrollCollapse": true,
+        "deferRender": true,
+        "order": [[1, 'desc']],
+        "searching": false,
+        "paging": false,
+        "info": false,
+        "scrollY": "80vh",
+        "scrollX": true,
+        "scrollCollapse": true,
+        "language": {
+            "lengthMenu": "_MENU_개씩 보기",
+            "search": "검색:",
+            "zeroRecords": "담당자를 등록해 주세요 : )",
+            "processing": "로딩중",
+            "paginate": {
+                "first": "처음",
+                "last": "끝",
+                "next": "→",
+                "previous": "←"
+            },
+        },
+        'fnCreatedRow': function (nRow, aData, iDataIndex) {
+            $(nRow).attr('id', 'row' + iDataIndex);
+        },
+        "ordering": false,
+        "columnDefs": [
+            {
+                targets: 0, width: "0%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none",
+            },
+            {
+                targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+            },
+            {
+                targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+            },
+            {
+                targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+            },
+            {
+                targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+            },
+            {
+                targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+            },
+        ],
+    });
+
+    $('#addManager').on('click', function () {
+        t1.row.add([
+            '<div class="text-center d-none" value="0" name="centerManagerEmpId" id="item0' + managerCounter + '">추가</div>',
+            '<select style="width:200px" class="input-form" type="text" name="empId" id="item1' + managerCounter + '"></select>',
+            '<select style="width:200px" class="input-form" type="text" name="manageArea" id="item2' + managerCounter + '"></select>',
+            '<input style="width:200px" class="input-form" type="text" name="additionalArea" id="item3' + managerCounter + '">',
+            '<select style="width:200px" class="input-form" type="text" name="cleanupArea" id="item4' + managerCounter + '"></select>',
+            '<i class="fas fa-times-circle" name="remove" >'
+        ]).draw(false);
+
+        $.ajax({
+            url: "{% url 'daesungwork:centerasjson' %}",
+            method: 'POST',
+            cache: false,
+            data: {"centerManagerId": ''},
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                var centerNames = returnData[0];
+                var employees = returnData[1];
+                $('#item1' + managerCounter).empty();
+                $('#item1' + managerCounter).append('<option value="" selected="">--담당자--</option>');
+                $('#item2' + managerCounter).empty();
+                $('#item2' + managerCounter).append('<option value="" selected="">--담당구역--</option>');
+                $('#item4' + managerCounter).empty();
+                $('#item4' + managerCounter).append('<option value="" selected="">--담당구역--</option>');
+                for (var count = 0; count < employees.length; count++) {
+                    var option = $("<option value=" + employees[count].empId + ">" + employees[count].empName + "</option>");
+                    $('#item1' + managerCounter).append(option);
+                }
+                for (var count = 0; count < centerNames.length; count++) {
+                    const option = $("<option value=" + centerNames[count].centerName + ">" + centerNames[count].centerName + "</option>");
+                    const option1 = $("<option value=" + centerNames[count].centerName + ">" + centerNames[count].centerName + "</option>");
+                    $('#item2' + managerCounter).append(option);
+                    $('#item4' + managerCounter).append(option1);
+                }
+                managerCounter++;
+            }, error: function (request, status, error) {
+                alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+            }
+        });
+    });
+
+    {%
+        if managers %}
+    {%
+        for manager in managers %}
+    t1.row.add([
+        '<div class="text-center d-none" value="0" name="itemId" id="item0' + managerCounter + '">추가</div>',
+        '<select style="width:200px" class="input-form" type="text" name="empId" id="item1' + managerCounter + '"></select>',
+        '<select style="width:200px" class="input-form" type="text" name="manageArea" id="item2' + managerCounter + '"></select>',
+        '<input style="width:200px" class="input-form" type="text" name="additionalArea" id="item3' + managerCounter + '" value="{{ manager.additionalArea }}">',
+        '<select style="width:200px" class="input-form" type="text" name="cleanupArea" id="item4' + managerCounter + '"></select>',
+        '<i class="fas fa-times-circle" name="remove" >',
+    ]).draw(false);
+    managerCounter++;
+    {%
+        endfor %
+    }
+    $.ajax({
+        url: "{% url 'daesungwork:centerasjson' %}",
+        method: 'POST',
+        cache: false,
+        data: {"centerManagerId": '{{ centerManagerId }}'},
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        success: function (returnData) {
+            var centerNames = returnData[0];
+            var employees = returnData[1];
+            var data = returnData[2];
+            for (var i = 0; i < data.length; i++) {
+                $('#item1' + managerCounter).empty();
+                $('#item1' + managerCounter).append('<option value="" selected="">--담당자--</option>');
+                $('#item2' + managerCounter).empty();
+                $('#item2' + managerCounter).append('<option value="" selected="">--담당구역--</option>');
+                $('#item4' + managerCounter).empty();
+                $('#item4' + managerCounter).append('<option value="" selected="">--담당구역--</option>');
+                for (var count = 0; count < employees.length; count++) {
+                    var option = $("<option value=" + employees[count].empId + ">" + employees[count].empName + "</option>");
+                    $('#item1' + managerCounter).append(option);
+                }
+                $('#item1' + i).val(data[i].empId).prop("selected", true);
+                for (var count = 0; count < centerNames.length; count++) {
+                    const option = $("<option value=" + centerNames[count].centerName + ">" + centerNames[count].centerName + "</option>");
+                    const option1 = $("<option value=" + centerNames[count].centerName + ">" + centerNames[count].centerName + "</option>");
+                    $('#item2' + managerCounter).append(option);
+                    $('#item4' + managerCounter).append(option1);
+                }
+                $('#item2' + i).val(data[i].manageArea).prop("selected", true);
+                $('#item4' + i).val(data[i].cleanupArea).prop("selected", true);
+            }
+
+            managerCounter++;
+        }, error: function (request, status, error) {
+            alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
+        }
+    });
+
+    {% else %
+    }
+    $('#addManager').click();
+    {%
+        endif %
+    }
+
+    $('#centermanager').on('click', 'i', function () {
+        t1
+            .row($(this).parents('tr'))
+            .remove()
+            .draw();
+    });
+</script>
+
+{% endblock %}

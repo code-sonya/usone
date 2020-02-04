@@ -158,7 +158,10 @@ def check_profile(request):
 
 @login_required
 def show_departments(request):
-    deptLevelList = siteMap()
+    if Department.objects.all():
+        deptLevelList = siteMap()
+    else:
+        deptLevelList = ''
     context = {
         "deptLevelList": deptLevelList,
     }

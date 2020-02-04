@@ -12,7 +12,7 @@ class Center(models.Model):
 
 
 class CenterManager(models.Model):
-    centerMangerId = models.AutoField(primary_key=True)
+    centerManagerId = models.AutoField(primary_key=True)
     writeEmp = models.ForeignKey(Employee, on_delete=models.CASCADE)
     createdDatetime = models.DateTimeField(default=timezone.now)
     startDate = models.DateField(null=True, blank=True)
@@ -20,7 +20,7 @@ class CenterManager(models.Model):
     centerManagerStatus = models.CharField(max_length=10, default='Y')
 
     def __str__(self):
-        return str(self.centerMangerId)
+        return str(self.centerManagerId)
 
 
 class CenterManagerEmp(models.Model):
