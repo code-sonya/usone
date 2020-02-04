@@ -30,6 +30,11 @@
     </div>
     <div class="card-body">
       <div class="table-responsive">
+        <form id="clickForm" method="POST" class="d-none">
+          {% csrf_token %}
+          <input type="month" max="9999-12" class="form-control" name="findDate" value="{{ startdate | slice:'0:7' }}">
+        </form>
+
         <table id="adminfuel" class="hover row-border" width="100%" style="width: 100%;">
           <thead>
           <tr>
@@ -118,7 +123,6 @@
                 "data": {
                     "startdate": "{{ startdate }}",
                     "enddate": "{{ enddate }}",
-                    "empId": "{{ user.employee.empId }}"
                 },
                 "url": "{% url 'extrapay:adminfuelasjson' %}",
                 "dataSrc": ""
@@ -254,7 +258,12 @@
 
         $('#adminfuel').on("click", 'tr', function () {
             const data = adminfuel.row(this).data();
-            location.href = '/extrapay/approvalfuel/' + data.empId + '/'
+            // location.href = '/extrapay/approvalfuel/' + data.empId + '/';
+
+            let form = $('#clickForm');
+            form.attr('action', '/extrapay/approvalfuel/' + data.empId + '/');
+            form.submit();
+
         });
     })
 
