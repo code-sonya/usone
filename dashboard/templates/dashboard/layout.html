@@ -308,6 +308,18 @@
       </div>
     </li>
 
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#report" aria-expanded="true" aria-controls="report">
+        <i class="fas fa-fw fa-tools text-white"></i>
+        <span class="text-white">보고관리<span>
+      </a>
+      <div id="report" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <a class="collapse-item" href="/service/showreports/">주간회의록</a>
+        </div>
+      </div>
+    </li>
+
     <!-- Divider -->
     {% if user.is_staff %}
     <hr class="sidebar-divider d-none d-md-block">

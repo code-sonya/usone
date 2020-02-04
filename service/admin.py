@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Servicereport, Serviceform, Vacation, Geolocation, Servicetype, Vacationcategory
+from .models import Servicereport, Serviceform, Vacation, Geolocation, Servicetype, Vacationcategory, Report, Participant
 
 
 @admin.register(Servicereport)
@@ -42,3 +42,17 @@ class VacationcategoryAdmin(admin.ModelAdmin):
     list_display = ('categoryId', 'categoryName')
     list_filter = ('categoryName',)
     list_display_links = ['categoryId', 'categoryName']
+
+
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ('reportId', 'category', 'reportDate', 'writeDatetime', 'modifyDatetime')
+    list_filter = ('category',)
+    list_display_links = ['reportId', 'category', 'reportDate', 'writeDatetime', 'modifyDatetime']
+
+
+@admin.register(Participant)
+class ParticipantAdmin(admin.ModelAdmin):
+    list_display = ('participantId', 'reportId', 'empId')
+    list_filter = ('participantId', 'reportId', 'empId')
+    list_display_links = ['participantId', 'reportId', 'empId']

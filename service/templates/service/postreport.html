@@ -1,0 +1,212 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  회의록
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">회의록 작성</h6>
+        </div>
+
+        <div class="card-body">
+          <form id="reportForm" method="POST">
+            {% csrf_token %}
+            <div class="form-group row">
+              <div class="col-6">
+                <label for="category" class="font-weight-bold text-primary">유형</label>
+                {{ form.category }}
+              </div>
+              <div class="col-6">
+                <label for="location" class="font-weight-bold text-primary">장소</label>
+                {{ form.location }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-6">
+                <label for="reportDate" class="font-weight-bold text-primary">일자</label>
+                {{ form.reportDate }}
+              </div>
+              <div class="col-6">
+                <label for="reportTime" class="font-weight-bold text-primary">시간</label>
+                {{ form.reportTime }}
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-6">
+                <label for="leader" class="font-weight-bold text-primary">리더</label>
+                <input id="leader" class="form-control magicsearch" autocomplete="off" onkeydown="magicsearchtab('#leader')">
+              </div>
+              <div class="col-6">
+                <label for="writer" class="font-weight-bold text-primary">작성자</label>
+                <input id="writer" class="form-control magicsearch" autocomplete="off" onkeydown="magicsearchtab('#writer')">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12">
+                <label for="participants" class="font-weight-bold text-primary">참가자</label>
+                <input id="participants" class="form-control magicsearch" autocomplete="off">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="col-12">
+                <label for="title" class="font-weight-bold text-primary">목적</label>
+                {{ form.title }}
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="contents" class="font-weight-bold text-primary">내용</label>
+              <div id="contents"></div>
+            </div>
+
+            <div class="text-center">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2"></div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              history.back();
+          } else {
+              return false;
+          }
+      }
+
+      function btn_save() {
+          let form = $('#reportForm');
+
+          const leader = $('#leader').data('id').toString();
+          $('<input />', {
+              type: 'hidden',
+              name: 'leader',
+              value: leader
+          }).appendTo(form);
+
+          const writer = $('#writer').data('id').toString();
+          $('<input />', {
+              type: 'hidden',
+              name: 'writer',
+              value: writer
+          }).appendTo(form);
+
+          
+
+          {#form.submit();#}
+      }
+
+      var value = "";
+
+      function magicsearchtab(input) {
+          value = $(input).attr('data-id');
+          $(input).blur(function () {
+              if (value !== "") {
+                  $(input).trigger('set', {id: value});
+              }
+          });
+      }
+
+      $(document).ready(function () {
+          // 리더 자동완성
+          const leader = document.getElementById('leader');
+          {% if leader %}
+              leader.setAttribute("data-id", "{{ leader }}");
+          {% endif %}
+          $('#leader').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              noResult: '검색결과없음',
+              focusShow: true,
+              maxShow: 100,
+          });
+          leader.removeAttribute("style");
+          leader.parentElement.removeAttribute("style");
+
+          // 작성자 자동완성
+          const writer = document.getElementById('writer');
+          {% if writer %}
+              writer.setAttribute("data-id", "{{ writer }}");
+          {% else %}
+              writer.setAttribute("data-id", "{{ user.employee.empId }}");
+          {% endif %}
+          $('#writer').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              noResult: '검색결과없음',
+              focusShow: false,
+          });
+          writer.removeAttribute("style");
+          writer.parentElement.removeAttribute("style");
+          writer.setAttribute("readonly", "readonly");
+
+          // 참가자 자동완성
+          const participants = document.getElementById('participants');
+          {% if participants %}
+              participants.setAttribute("data-id", "{{ participants }}");
+          {% endif %}
+
+          $('#participants').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'value',
+              id: 'id',
+              multiple: true,
+              multiField: 'value',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+              maxShow: 100,
+          });
+          participants.removeAttribute("style");
+          participants.parentElement.removeAttribute("style");
+
+          // 본문 작성
+          const toolbar = [
+              ['font', ['fontsize', 'bold', 'italic', 'underline', 'strikethrough', 'forecolor', 'backcolor']],
+              ['font2', ['ol', 'ul', 'paragraph', 'height']],
+              ['insert', ['picture', 'link', 'table', 'hr']],
+              ['util', ['codeview', 'help']]
+          ];
+          const contents = $('#contents');
+          contents.summernote({
+              tabsize: 2,
+              height: document.documentElement.clientHeight * 0.5,
+              toolbar: toolbar,
+              spellCheck: false,
+              disableGrammar: true,
+          });
+
+      });
+
+  </script>
+
+{% endblock %}
