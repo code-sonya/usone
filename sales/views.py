@@ -2225,7 +2225,7 @@ def save_profitloss(request):
     #               '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
     #               '솔루션지원팀(5100)', 'DB지원팀(5300)']
     select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
-                  '인프라_부사장(3000)', '영업팀(3100)', 'R&D전략_이사(4000)', 'TA팀(4100)', 'AI Platform Labs팀(4200)', 'Platform Biz_이사(5000)',
+                  '인프라_부사장(3000)', '영업팀(3100)', 'R&D전략_이사(4000)', 'TA팀(4100)', 'AI Platform Labs(4200)', 'Platform Biz_이사(5000)',
                   '솔루션팀(5100)', 'DB Expert팀(5200)']
     index_lst = ["".join(i.split()) for i in data.index]
     if 'Ⅳ.판매비와관리비' not in index_lst or 'Ⅴ.영업이익' not in index_lst:
@@ -2253,7 +2253,7 @@ def save_profitloss(request):
             #     Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
             #                            expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
             for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라_부사장', '영업팀',
-                                   'R&D전략_이사', 'TA팀', 'AI Platform Labs팀', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
+                                   'R&D전략_이사', 'TA팀', 'AI Platform Labs', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
                 Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
                                        expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
@@ -2636,10 +2636,10 @@ def monthly_bill(request):
         businessExecutives, sum_businessExecutives = cal_profitloss(['인프라_부사장'], todayYear)
         businessSales1, sum_businessSales1 = cal_profitloss(['영업팀'], todayYear)
         # R&D 전략사업부
-        strategyAll, sum_strategyAll = cal_profitloss(['R&D전략_이사', 'TA팀', 'AI Platform Labs팀'], todayYear)
+        strategyAll, sum_strategyAll = cal_profitloss(['R&D전략_이사', 'TA팀', 'AI Platform Labs'], todayYear)
         strategyExecutives, sum_strategyExecutives = cal_profitloss(['R&D전략_이사'], todayYear)
         strategyTA, sum_strategyTA = cal_profitloss(['TA팀'], todayYear)
-        strategyAI, sum_strategyAI = cal_profitloss(['AI Platform Labs팀'], todayYear)
+        strategyAI, sum_strategyAI = cal_profitloss(['AI Platform Labs'], todayYear)
         # Platform Biz
         serviceAll, sum_serviceAll = cal_profitloss(['Platform Biz_이사', '솔루션팀', 'DB Expert팀'], todayYear)
         serviceExecutives, sum_serviceExecutives = cal_profitloss(['Platform Biz_이사'], todayYear)
@@ -2648,7 +2648,7 @@ def monthly_bill(request):
         # 경영지원
         supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
         # 전체
-        unioneAll, sum_unioneAll = cal_profitloss(['인프라_부사장', '영업팀', 'R&D전략_이사', 'TA팀', 'AI Platform Labs팀', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+        unioneAll, sum_unioneAll = cal_profitloss(['인프라_부사장', '영업팀', 'R&D전략_이사', 'TA팀', 'AI Platform Labs', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
 
         business = [{'name': '1) 인프라솔루션사업부', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll, 'btn': 'Y'},
                      {'name': '① 인프라_부사장', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives, 'btn': 'N'},
@@ -2656,7 +2656,7 @@ def monthly_bill(request):
                      {'name': '2) R&D 전략사업부', 'class': 'strategyAll', 'expense': strategyAll, 'sum': sum_strategyAll, 'btn': 'Y'},
                      {'name': '① R&D전략_이사', 'class': 'strategyExecutives', 'sum': sum_strategyExecutives, 'btn': 'N'},
                      {'name': '② TA팀', 'class': 'strategyTA', 'expense': strategyTA, 'sum': sum_strategyTA, 'btn': 'N'},
-                     {'name': '③ AI Platform Labs팀', 'class': 'strategyAI', 'expense': strategyAI, 'sum': sum_strategyAI, 'btn': 'N'},
+                     {'name': '③ AI Platform Labs', 'class': 'strategyAI', 'expense': strategyAI, 'sum': sum_strategyAI, 'btn': 'N'},
                      {'name': '3) Platform Biz', 'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll, 'btn': 'Y'},
                      {'name': '① Platform Biz_이사', 'class': 'serviceExecutives', 'expense': serviceExecutives, 'sum': sum_serviceExecutives, 'btn': 'N'},
                      {'name': '② 솔루션팀', 'class': 'serviceSolution', 'expense': serviceSolution, 'sum': sum_serviceSolution, 'btn': 'N'},
