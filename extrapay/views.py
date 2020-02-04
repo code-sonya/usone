@@ -649,7 +649,7 @@ def overhour_all(request):
         today = '{}-{}'.format(todayYear, todayMonth)
 
     # 현재 조직도 변경 후 인원
-    extrapayPlatform, sumPlatform = cal_extraPay(['platform Biz', '솔루션팀', 'DB Expert'], todayYear, todayMonth)
+    extrapayPlatform, sumPlatform = cal_extraPay(['platform Biz', '솔루션팀', 'DB Expert팀'], todayYear, todayMonth)
     extrapayStrategy, sumStrategy = cal_extraPay(['R&D 전략사업부', 'Technical Architecture팀', 'AI Platform Labs'], todayYear, todayMonth)
 
     # 예전 퇴사자들도 표시하기 위해
@@ -794,7 +794,7 @@ def view_extrapay_pdf(request, yearmonth):
     todayMonth = int(yearmonth[5:7])
 
     # 현재 조직도 변경 후 인원
-    extrapayPlatform, sumPlatform = cal_extraPay(['platform Biz', '솔루션팀', 'DB Expert'], todayYear, todayMonth)
+    extrapayPlatform, sumPlatform = cal_extraPay(['platform Biz', '솔루션팀', 'DB Expert팀'], todayYear, todayMonth)
     extrapayStrategy, sumStrategy = cal_extraPay(['R&D 전략사업부', 'Technical Architecture팀', 'AI Platform Labs'], todayYear, todayMonth)
 
     # 예전 퇴사자들도 표시하기 위해
