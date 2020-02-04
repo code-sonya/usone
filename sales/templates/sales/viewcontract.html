@@ -1944,7 +1944,8 @@
 
       function btn_firm() {
           let msg = "Firm으로 전환 하시겠습니까?\n" +
-              "관리번호가 계약일을 기준으로 자동생성되며, Opportunity로 돌아올 수 없습니다.";
+              "관리번호는 오늘날짜 기준으로 자동생성되며,\n" +
+              "Opportunity로 돌아올 수 없습니다.";
           if (confirm(msg) === true) {
               location.href = '/sales/changecontractstep/Firm/' + {{ contract.contractId }} + '/';
           }

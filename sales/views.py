@@ -3393,8 +3393,9 @@ def change_contract_step(request, contractStep, contractId):
 
     if contractStep == 'Firm':
         # 관리번호 자동생성
-        yy = str(contract.contractDate)[2:4]
-        mm = str(contract.contractDate)[5:7]
+        today = str(datetime.now())[:10]
+        yy = str(today)[2:4]
+        mm = str(today)[5:7]
         count = [int(code[-3:]) for code in Contract.objects.filter(Q(contractCode__startswith=yy)).values_list('contractCode', flat=True)]
         count.append(0)
         codeNumber = str(max(count) + 1).zfill(3)
@@ -3421,7 +3422,6 @@ def change_contract_step(request, contractStep, contractId):
 def save_classification(request):
     classification = request.POST['classification']
     categoryName = request.POST['categoryName']
-    print(classification, categoryName)
     if Purchasecategory.objects.filter(purchaseType=classification, categoryName=categoryName).first():
         result = 'N'
     else:

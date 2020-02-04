@@ -57,9 +57,10 @@ def over_asjson(request):
 
     extrapay = ExtraPay.objects.all()
     if searchdate:
-        extrapay = ExtraPay.filter(
+        extrapay = extrapay.filter(
             Q(overHourDate__year=searchYear) &
-            Q(overHourDate__month=searchMonth))
+            Q(overHourDate__month=searchMonth)
+        )
 
     extrapaylist = extrapay.values('overHourDate', 'empId__empDeptName', 'empName', 'sumOverHour', 'compensatedHour', 'compensatedComment', 'extraPayId')
     structure = json.dumps(list(extrapaylist), cls=DjangoJSONEncoder)
