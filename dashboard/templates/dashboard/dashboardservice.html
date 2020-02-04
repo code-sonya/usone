@@ -668,7 +668,7 @@
           type: 'bar',
           data: {
               labels: [
-                  {% for i in emp_support_time %}
+                  {% for i in overSpportTime %}
                       "{{ i.empName }}",
                   {% endfor %}
               ],
@@ -678,7 +678,7 @@
                   borderColor: "#4e73df",
                   backgroundColor: colors,
                   data: [
-                      {% for i in emp_support_time %}
+                      {% for i in overSpportTime %}
                           "{{ i.sum_overTime }}",
                       {% endfor %}
                   ],

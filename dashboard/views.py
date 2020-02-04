@@ -53,12 +53,15 @@ def dashboard_service(request):
     all_support_Overtime = all_support_data.aggregate(Sum('serviceOverHour'))
 
     # 고객사별 지원통계
-    customer_support_time = all_support_data.values('companyName').annotate(sum_supportTime=Sum('serviceHour')).order_by('-sum_supportTime')
+    customer_support_time = all_support_data.values('companyName').annotate(sum_supportTime=Sum('serviceHour')).exclude(sum_supportTime=0).order_by('-sum_supportTime')
 
     # 엔지니어별 지원통계
     emp_support_time = all_support_data.values('empName').annotate(sum_supportTime=Sum('serviceHour'))\
-                                                        .annotate(sum_supportCount=Count('empName'))\
-                                                        .annotate(sum_overTime=Sum('serviceOverHour'))
+                                                        .annotate(sum_supportCount=Count('empName')).order_by('-sum_supportTime')
+
+
+    overSpportTime = all_support_data.values('empName').annotate(sum_overTime=Sum('serviceOverHour')).exclude(sum_overTime=0).order_by('-sum_overTime')
+
     # 타입별 지원통계
     type_support_time = all_support_data.values('serviceType__typeName').annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType__typeName')
 
@@ -72,6 +75,7 @@ def dashboard_service(request):
         'empDeptName': empDeptName,
         'customer_support_time': customer_support_time,
         'emp_support_time': emp_support_time,
+        'overSpportTime': overSpportTime,
         'type_support_time': type_support_time,
         'multi_type': multi_type,
         'all_support_data': all_support_data,
