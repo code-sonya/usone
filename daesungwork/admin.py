@@ -11,9 +11,9 @@ class CenterAdmin(admin.ModelAdmin):
 
 @admin.register(CenterManager)
 class CenterManagerAdmin(admin.ModelAdmin):
-    list_display = ('centerMangerId', 'writeEmp', 'createdDatetime', 'startDate', 'endDate', 'centerManagerStatus')
+    list_display = ('centerManagerId', 'writeEmp', 'createdDatetime', 'startDate', 'endDate', 'centerManagerStatus')
     list_filter = ('writeEmp', 'centerManagerStatus')
-    list_display_links = ['centerMangerId', 'writeEmp', 'createdDatetime', 'startDate', 'endDate', 'centerManagerStatus']
+    list_display_links = ['centerManagerId', 'writeEmp', 'createdDatetime', 'startDate', 'endDate', 'centerManagerStatus']
 
 
 @admin.register(CenterManagerEmp)
