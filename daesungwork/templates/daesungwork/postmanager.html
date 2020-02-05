@@ -54,7 +54,7 @@
     <div class="card shadow mb-4">
 
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="m-0 h3 text-gray-800"> 센터별 담당자 관리 </h6>
+        <h6 class="m-0 h3 text-gray-800"> 센터별 담당자 관리</h6>
       </div>
 
       <div class="card-body">
@@ -133,6 +133,7 @@
           // 센터 담당자
           const lengthItem = $('[name="centerManagerEmpId"]').length;
           const listItem = new Array();
+          console.log('lengthItem:', lengthItem);
           for (var i = 0; i <= lengthItem - 1; i++) {
               if ($('input[name="empId"]').eq(i).val() == '') {
                   return btn_false("담당자를 선택해 주세요.");
@@ -245,17 +246,20 @@
                     $('#item2' + managerCounter).append(option);
                     $('#item4' + managerCounter).append(option1);
                 }
+
                 managerCounter++;
+                console.log(managerCounter);
             }, error: function (request, status, error) {
                 alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
             }
         });
     });
 
-    {% if managers %}
-        {% for manager in managers %}
+    {% if centerManagerEmps %}
+        {% for manager in centerManagerEmps %}
+            console.log(manager);
             t1.row.add([
-                  '<div class="text-center d-none" value="0" name="itemId" id="item0' + managerCounter + '">추가</div>',
+                  '<div class="text-center d-none" value="0" name="centerManagerEmpId" id="item0' + managerCounter + '">{{ manager.managerId }}</div>',
                   '<select style="width:200px" class="input-form" type="text" name="empId" id="item1' + managerCounter + '"></select>',
                   '<select style="width:200px" class="input-form" type="text" name="manageArea" id="item2' + managerCounter + '"></select>',
                   '<input style="width:200px" class="input-form" type="text" name="additionalArea" id="item3' + managerCounter + '" value="{{ manager.additionalArea }}">',
@@ -263,7 +267,9 @@
                   '<i class="fas fa-times-circle" name="remove" >',
             ]).draw(false);
             managerCounter++;
+            console.log(managerCounter);
         {% endfor %}
+
         $.ajax({
             url: "{% url 'daesungwork:centerasjson' %}",
             method: 'POST',
@@ -275,6 +281,7 @@
                 var employees = returnData[1];
                 var data = returnData[2];
                 for(var i=0;i<data.length;i++) {
+                    console.log(data[i].empId__empName);
                     $('#item1' + managerCounter).empty();
                     $('#item1' + managerCounter).append('<option value="" selected="">--담당자--</option>');
                     $('#item2' + managerCounter).empty();
@@ -283,20 +290,18 @@
                     $('#item4' + managerCounter).append('<option value="" selected="">--담당구역--</option>');
                     for (var count = 0; count < employees.length; count++) {
                         var option = $("<option value=" + employees[count].empId + ">" + employees[count].empName + "</option>");
-                        $('#item1' + managerCounter).append(option);
+                        $('#item1' + i).append(option);
                     }
                     $('#item1' + i).val(data[i].empId).prop("selected", true);
                     for (var count = 0; count < centerNames.length; count++) {
                         const option = $("<option value=" + centerNames[count].centerName + ">" + centerNames[count].centerName + "</option>");
                         const option1 = $("<option value=" + centerNames[count].centerName + ">" + centerNames[count].centerName + "</option>");
-                        $('#item2' + managerCounter).append(option);
-                        $('#item4' + managerCounter).append(option1);
+                        $('#item2' + i).append(option);
+                        $('#item4' + i).append(option1);
                     }
-                    $('#item2' + i).val(data[i].manageArea).prop("selected", true);
-                    $('#item4' + i).val(data[i].cleanupArea).prop("selected", true);
+                    $('#item2' + i).val(data[i].manageArea__centerName).prop("selected", true);
+                    $('#item4' + i).val(data[i].cleanupArea__centerName).prop("selected", true);
                 }
-
-                managerCounter++;
             }, error: function (request, status, error) {
                 alert("code:" + request.status + "\n" + "message:" + request.responseText + "\n" + "error:" + error);
             }
@@ -306,7 +311,7 @@
         $('#addManager').click();
     {% endif %}
 
-    $('#centermanager').on('click', 'i', function () {
+    $('#manager').on('click', 'i', function () {
         t1
             .row($(this).parents('tr'))
             .remove()
