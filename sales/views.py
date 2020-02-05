@@ -2211,7 +2211,7 @@ def upload_profitloss(request):
 def save_profitloss(request):
     date = request.POST["month"]
     todayYear = int(date[:4])
-    todayMonth = int(date[6:])
+    todayMonth = int(date[5:])
     if datetime.today().year == todayYear and datetime.today().month == todayMonth:
         today = datetime.today()
     else:
@@ -2221,12 +2221,14 @@ def save_profitloss(request):
     xl_file = pd.ExcelFile(profitloss_file)
     data = pd.read_excel(xl_file, index_col=0)
     data = data.fillna(0)
-    # select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
-    #               '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
-    #               '솔루션지원팀(5100)', 'DB지원팀(5300)']
-    select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
-                  '인프라_부사장(3000)', '영업팀(3100)', 'R&D전략_이사(4000)', 'TA팀(4100)', 'AI Platform Labs팀(4200)', 'Platform Biz_이사(5000)',
-                  '솔루션팀(5100)', 'DB Expert팀(5200)']
+    if todayYear < 2020:
+        select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
+                  '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
+                  '솔루션지원팀(5100)', 'DB지원팀(5300)']
+    else:
+        select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
+                      '인프라_부사장(3000)', '영업팀(3100)', 'R&D전략_이사(4000)', 'TA팀(4100)', 'AI Platform Labs(4200)', 'Platform Biz_이사(5000)',
+                      '솔루션팀(5100)', 'DB Expert팀(5200)']
     index_lst = ["".join(i.split()) for i in data.index]
     if 'Ⅳ.판매비와관리비' not in index_lst or 'Ⅴ.영업이익' not in index_lst:
         return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅳ.판매비와관리비 , Ⅴ.영업이익이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
@@ -2247,15 +2249,16 @@ def save_profitloss(request):
                 group = '상여금'
             else:
                 group = sub
-
-            # for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
-            #                        '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀']):
-            #     Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
-            #                            expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
-            for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라_부사장', '영업팀',
-                                   'R&D전략_이사', 'TA팀', 'AI Platform Labs팀', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
-                Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
-                                       expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+            if todayYear < 2020:
+                for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
+                                       '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀']):
+                    Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
+                                           expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+            else:
+                for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라_부사장', '영업팀',
+                                       'R&D전략_이사', 'TA팀', 'AI Platform Labs', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
+                    Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
+                                           expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
         if "".join(index.split()) == 'Ⅳ.판매비와관리비':
             status = True
@@ -2267,7 +2270,7 @@ def save_profitloss(request):
 def save_cost(request):
     date = request.POST["month"]
     todayYear = int(date[:4])
-    todayMonth = int(date[6:])
+    todayMonth = int(date[5:])
     if datetime.today().year == todayYear and datetime.today().month == todayMonth:
         today = datetime.today()
     else:
@@ -2281,8 +2284,10 @@ def save_cost(request):
     if 'Ⅲ.당기총공사비용' not in index_lst or 'Ⅰ.노무비' not in index_lst or 'Ⅱ.경비' not in index_lst:
         return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅰ.노무비, Ⅱ.경비, Ⅲ.당기총공사비용이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
 
-    # select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
-    select_col = ['솔루션팀(5100)', 'DB Expert팀(5200)']
+    if todayYear < 2020:
+        select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
+    else:
+        select_col = ['솔루션팀(5100)', 'DB Expert팀(5200)']
     Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
 
     main_cate = ''
@@ -2303,10 +2308,14 @@ def save_cost(request):
             break
         else:
             if main_cate != '':
-                # for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
-                for i, v in enumerate(['솔루션팀', 'DB Expert팀']):
-                    Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
-                                           expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+                if todayYear < 2020:
+                    for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
+                        Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
+                                               expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+                else:
+                    for i, v in enumerate(['솔루션팀', 'DB Expert팀']):
+                        Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
+                                               expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
     return redirect('sales:uploadprofitloss')
 
@@ -2636,10 +2645,10 @@ def monthly_bill(request):
         businessExecutives, sum_businessExecutives = cal_profitloss(['인프라_부사장'], todayYear)
         businessSales1, sum_businessSales1 = cal_profitloss(['영업팀'], todayYear)
         # R&D 전략사업부
-        strategyAll, sum_strategyAll = cal_profitloss(['R&D전략_이사', 'TA팀', 'AI Platform Labs팀'], todayYear)
+        strategyAll, sum_strategyAll = cal_profitloss(['R&D전략_이사', 'TA팀', 'AI Platform Labs'], todayYear)
         strategyExecutives, sum_strategyExecutives = cal_profitloss(['R&D전략_이사'], todayYear)
         strategyTA, sum_strategyTA = cal_profitloss(['TA팀'], todayYear)
-        strategyAI, sum_strategyAI = cal_profitloss(['AI Platform Labs팀'], todayYear)
+        strategyAI, sum_strategyAI = cal_profitloss(['AI Platform Labs'], todayYear)
         # Platform Biz
         serviceAll, sum_serviceAll = cal_profitloss(['Platform Biz_이사', '솔루션팀', 'DB Expert팀'], todayYear)
         serviceExecutives, sum_serviceExecutives = cal_profitloss(['Platform Biz_이사'], todayYear)
@@ -2648,7 +2657,7 @@ def monthly_bill(request):
         # 경영지원
         supportAll, sum_supportAll = cal_profitloss(['대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
         # 전체
-        unioneAll, sum_unioneAll = cal_profitloss(['인프라_부사장', '영업팀', 'R&D전략_이사', 'TA팀', 'AI Platform Labs팀', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
+        unioneAll, sum_unioneAll = cal_profitloss(['인프라_부사장', '영업팀', 'R&D전략_이사', 'TA팀', 'AI Platform Labs', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀', '대표이사', '사장', '감사', '고문', '경영지원본부'], todayYear)
 
         business = [{'name': '1) 인프라솔루션사업부', 'class': 'businessAll', 'expense': businessAll, 'sum': sum_businessAll, 'btn': 'Y'},
                      {'name': '① 인프라_부사장', 'class': 'businessExecutives', 'expense': businessExecutives, 'sum': sum_businessExecutives, 'btn': 'N'},
@@ -2656,7 +2665,7 @@ def monthly_bill(request):
                      {'name': '2) R&D 전략사업부', 'class': 'strategyAll', 'expense': strategyAll, 'sum': sum_strategyAll, 'btn': 'Y'},
                      {'name': '① R&D전략_이사', 'class': 'strategyExecutives', 'sum': sum_strategyExecutives, 'btn': 'N'},
                      {'name': '② TA팀', 'class': 'strategyTA', 'expense': strategyTA, 'sum': sum_strategyTA, 'btn': 'N'},
-                     {'name': '③ AI Platform Labs팀', 'class': 'strategyAI', 'expense': strategyAI, 'sum': sum_strategyAI, 'btn': 'N'},
+                     {'name': '③ AI Platform Labs', 'class': 'strategyAI', 'expense': strategyAI, 'sum': sum_strategyAI, 'btn': 'N'},
                      {'name': '3) Platform Biz', 'class': 'serviceAll', 'expense': serviceAll, 'sum': sum_serviceAll, 'btn': 'Y'},
                      {'name': '① Platform Biz_이사', 'class': 'serviceExecutives', 'expense': serviceExecutives, 'sum': sum_serviceExecutives, 'btn': 'N'},
                      {'name': '② 솔루션팀', 'class': 'serviceSolution', 'expense': serviceSolution, 'sum': sum_serviceSolution, 'btn': 'N'},

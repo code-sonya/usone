@@ -69,9 +69,9 @@ class GoalAdmin(admin.ModelAdmin):
 
 @admin.register(Expense)
 class ExpenseAdmin(admin.ModelAdmin):
-    list_display = ('expenseType', 'expenseDept', 'expenseMain', 'expenseSub', 'expenseMoney')
-    list_filter = ('expenseType', 'expenseDept', 'expenseMain', 'expenseSub', 'expenseMoney')
-    list_display_links = ['expenseType', 'expenseDept', 'expenseMain', 'expenseSub', 'expenseMoney']
+    list_display = ('expenseDate', 'expenseType', 'expenseDept', 'expenseMain', 'expenseSub', 'expenseMoney', 'expenseStatus')
+    list_filter = ('expenseType', 'expenseDept', 'expenseMain', 'expenseSub', 'expenseStatus')
+    list_display_links = ['expenseType', 'expenseDept', 'expenseMain', 'expenseSub', 'expenseStatus']
 
 
 @admin.register(Acceleration)
