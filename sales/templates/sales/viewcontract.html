@@ -177,7 +177,6 @@
       border-bottom: 1px solid #e3e6f0;
       font-size: 14px;
       text-align: center;
-      white-space: nowrap;
     }
 
   </style>
@@ -1039,31 +1038,33 @@
         </div>
 
         <div class="modal-body" style="padding: 2rem">
+          <div class="text-center m-3" id="noFile2"><h5>업로드된 <span class="text-info">파일</span>이 없습니다.</h5></div>
+          <table class="file-table">
+            <thead>
+            <tr id="head2" class="text-secondary">
+              <td width="15%"><b>매입처</b></td>
+              <td width="15%"><b>일시</b></td>
+              <td width="15%"><b>작성자</b></td>
+              <td width="40%"><b>파일명</b></td>
+              <td width="15%"><b>파일크기</b></td>
+            </tr>
+            </thead>
+            <tbody>
           {% for company in purchaseCompany %}
-            <div class="text-dark ml-2"> ▼ {{ company }}</div>
-            <table class="file-table">
-              <thead>
-              <tr>
-                <td width="20%"><b>일시</b></td>
-                <td width="20%"><b>작성자</b></td>
-                <td width="40%"><b>파일명</b></td>
-                <td width="20%"><b>파일크기</b></td>
+            {% for f in files_a %}
+              {% if f.purchaseCompany.companyNameKo == company %}
+              <tr name="filesA">
+                <td>{{ company }}</td>
+                <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ f.uploadEmp.empName }}</td>
+                <td class="text-left"><a onclick="downloadLog('/media/{{ f.file }}', '매입견적서')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
+                <td class="text-right">{{ f.fileSize }} MB</td>
               </tr>
-              </thead>
-              <tbody>
-              {% for f in files_a %}
-                {% if f.purchaseCompany.companyNameKo == company %}
-                <tr name="filesA">
-                  <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
-                  <td>{{ f.uploadEmp.empName }}</td>
-                  <td class="text-left"><a onclick="downloadLog('/media/{{ f.file }}', '매입견적서')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
-                  <td class="text-right">{{ f.fileSize }} MB</td>
-                </tr>
-                {% endif %}
-              {% endfor %}
-              </tbody>
-            </table>
+              {% endif %}
+            {% endfor %}
           {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1161,10 +1162,10 @@
         </div>
 
         <div class="modal-body" style="padding: 2rem">
-
+          <div class="text-center m-3" id="noFile3"><h5><span class="text-info">수주통보서</span>가 없습니다.</h5></div>
           <table class="file-table">
             <thead>
-            <tr>
+            <tr id="head3" class="text-secondary">
               <td width="15%"><b>기안일시</b></td>
               <td width="10%"><b>작성자</b></td>
               <td width="10%"><b>문서번호</b></td>
@@ -1174,7 +1175,7 @@
             </thead>
             <tbody>
               {% for document in ordernotis %}
-                <tr>
+                <tr name="ordernoti">
                   <td>{{ document.draftDatetime | date:"Y.m.d H:i" }}</td>
                   <td>{{ document.writeEmp }}</td>
                   <td><a href="/approval/viewdocument/{{ document.documentId }}" target="_blank">{{ document.documentNumber }}</a></td>
@@ -1200,35 +1201,37 @@
           </button>
         </div>
         <div class="modal-body" style="padding: 2rem">
+          <div class="text-center m-3" id="noFile4"><h5>업로드된 <span class="text-info">파일</span>이 없습니다.</h5></div>
+          <table class="file-table">
+            <thead>
+            <tr id="head4" class="text-secondary">
+              <td width="15%"><b>매입처</b></td>
+              <td width="15%"><b>일시</b></td>
+              <td width="15%"><b>작성자</b></td>
+              <td width="40%"><b>매입발주서</b></td>
+              <td width="15%"><b>발송시간</b></td>
+            </tr>
+            </thead>
+            <tbody>
           {% for company in purchaseCompany %}
-            <div class="text-dark ml-2"> ▼ {{ company }}</div>
-            <table class="file-table">
-              <thead>
-              <tr>
-                <td width="20%"><b>일시</b></td>
-                <td width="20%"><b>작성자</b></td>
-                <td width="40%"><b>매입발주서</b></td>
-                <td width="20%"><b>발송시간</b></td>
-              </tr>
-              </thead>
-              <tbody>
-                {% for document in purchaseOrderDocument %}
-                  {% if document.purchaseCompany.companyNameKo == company %}
-                    <tr>
-                      <td>{{ document.modifyDatetime | date:"Y.m.d H:i" }}</td>
-                      <td>{{ document.writeEmp }}</td>
-                      <td class="text-left">
-                        <a href="/sales/viewpurchaseorder/{{ document.orderId }}">
-                          {{ document.title }}
-                        </a>
-                      </td>
-                      <td>{% if document.sendDatetime %}{{ document.sendDatetime }}{% else %}-{% endif %}</td>
-                    </tr>
-                  {% endif %}
-                {% endfor %}
-              </tbody>
-            </table>
+            {% for document in purchaseOrderDocument %}
+              {% if document.purchaseCompany.companyNameKo == company %}
+                <tr name="filesE">
+                  <td>{{ company }}</td>
+                  <td>{{ document.modifyDatetime | date:"Y.m.d H:i" }}</td>
+                  <td>{{ document.writeEmp }}</td>
+                  <td class="text-left">
+                    <a href="/sales/viewpurchaseorder/{{ document.orderId }}">
+                      {{ document.title }}
+                    </a>
+                  </td>
+                  <td>{% if document.sendDatetime %}{{ document.sendDatetime }}{% else %}-{% endif %}</td>
+                </tr>
+              {% endif %}
+            {% endfor %}
           {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -2149,16 +2152,49 @@
       function open_purchase_download(fileType) {
           $('#purchaseDownloadModalLabel').text(fileType + ' 목록');
           $('#purchaseDownloadModal').modal('show');
+          let filesA = $('tr[name=filesA]');
+          let nofile = $('#noFile2');
+          let head = $('#head2');
+
+          if (filesA.length === 0) {
+              nofile.show();
+              head.hide();
+          } else {
+              nofile.hide();
+              head.show();
+          }
       }
 
       function open_ordernoti_download(fileType) {
           $('#ordernotiModalLabel').text(fileType + ' 문서함');
           $('#ordernotiModal').modal('show');
+          let ordernoti = $('tr[name=ordernoti]');
+          let nofile = $('#noFile3');
+          let head = $('#head3');
+
+          if (ordernoti.length === 0) {
+              nofile.show();
+              head.hide();
+          } else {
+              nofile.hide();
+              head.show();
+          }
       }
 
       function open_purchase_order_document(fileType) {
           $('#purchaseOrderDocumentModalLabel').text(fileType + ' 문서함');
           $('#purchaseOrderDocumentModal').modal('show');
+          let filesE = $('tr[name=filesE]');
+          let nofile = $('#noFile4');
+          let head = $('#head4');
+
+          if (filesE.length === 0) {
+              nofile.show();
+              head.hide();
+          } else {
+              nofile.hide();
+              head.show();
+          }
       }
 
 
