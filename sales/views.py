@@ -2221,12 +2221,14 @@ def save_profitloss(request):
     xl_file = pd.ExcelFile(profitloss_file)
     data = pd.read_excel(xl_file, index_col=0)
     data = data.fillna(0)
-    # select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
-    #               '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
-    #               '솔루션지원팀(5100)', 'DB지원팀(5300)']
-    select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
-                  '인프라_부사장(3000)', '영업팀(3100)', 'R&D전략_이사(4000)', 'TA팀(4100)', 'AI Platform Labs(4200)', 'Platform Biz_이사(5000)',
-                  '솔루션팀(5100)', 'DB Expert팀(5200)']
+    if todayYear < 2020:
+        select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
+                  '인프라솔루션_임원(3000)', '영업1팀(3100)', '영업2팀(3200)', '인프라서비스(3400)', '고객서비스_임원(5000)',
+                  '솔루션지원팀(5100)', 'DB지원팀(5300)']
+    else:
+        select_col = ['합    계', '대표이사(1000)', '감사(1100)', '고문(1200)', '경영지원본부(1300)', '사장(1400)',
+                      '인프라_부사장(3000)', '영업팀(3100)', 'R&D전략_이사(4000)', 'TA팀(4100)', 'AI Platform Labs(4200)', 'Platform Biz_이사(5000)',
+                      '솔루션팀(5100)', 'DB Expert팀(5200)']
     index_lst = ["".join(i.split()) for i in data.index]
     if 'Ⅳ.판매비와관리비' not in index_lst or 'Ⅴ.영업이익' not in index_lst:
         return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅳ.판매비와관리비 , Ⅴ.영업이익이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
@@ -2247,15 +2249,16 @@ def save_profitloss(request):
                 group = '상여금'
             else:
                 group = sub
-
-            # for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
-            #                        '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀']):
-            #     Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
-            #                            expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
-            for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라_부사장', '영업팀',
-                                   'R&D전략_이사', 'TA팀', 'AI Platform Labs', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
-                Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
-                                       expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+            if todayYear < 2020:
+                for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라솔루션_임원', '영업1팀',
+                                       '영업2팀', '인프라서비스', '고객서비스_임원', '솔루션지원팀', 'DB지원팀']):
+                    Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
+                                           expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+            else:
+                for i, v in enumerate(['전사', '대표이사', '감사', '고문', '경영지원본부', '사장', '인프라_부사장', '영업팀',
+                                       'R&D전략_이사', 'TA팀', 'AI Platform Labs', 'Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
+                    Expense.objects.create(expenseDate=today, expenseType='손익', expenseDept=v, expenseMain='판관비',
+                                           expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
         if "".join(index.split()) == 'Ⅳ.판매비와관리비':
             status = True
@@ -2281,8 +2284,10 @@ def save_cost(request):
     if 'Ⅲ.당기총공사비용' not in index_lst or 'Ⅰ.노무비' not in index_lst or 'Ⅱ.경비' not in index_lst:
         return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅰ.노무비, Ⅱ.경비, Ⅲ.당기총공사비용이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
 
-    # select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
-    select_col = ['솔루션팀(5100)', 'DB Expert팀(5200)']
+    if todayYear < 2020:
+        select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
+    else:
+        select_col = ['솔루션팀(5100)', 'DB Expert팀(5200)']
     Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
 
     main_cate = ''
@@ -2303,10 +2308,14 @@ def save_cost(request):
             break
         else:
             if main_cate != '':
-                # for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
-                for i, v in enumerate(['솔루션팀', 'DB Expert팀']):
-                    Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
-                                           expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+                if todayYear < 2020:
+                    for i, v in enumerate(['솔루션지원팀', 'DB지원팀']):
+                        Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
+                                               expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
+                else:
+                    for i, v in enumerate(['솔루션팀', 'DB Expert팀']):
+                        Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
+                                               expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
     return redirect('sales:uploadprofitloss')
 
