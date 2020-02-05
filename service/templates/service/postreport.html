@@ -1,0 +1,241 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  회의록
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+    .table {
+      color: #333333;
+      width: 100%;
+    }
+
+    .table td, .table th {
+      padding: .5rem;
+      vertical-align: middle;
+      border-top: 1px solid #e3e6f0;
+      font-size: 16px;
+      text-align: center;
+      /*white-space: nowrap;*/
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">회의록 작성</h6>
+        </div>
+
+        <div class="card-body">
+          <form id="reportForm" method="POST">{% csrf_token %}
+            <table class="table">
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="category" class="font-weight-bold text-primary">유 형</label></td>
+                <td style="width: 35%">{{ form.category }}</td>
+                <td class="bg-light" style="width: 15%"><label for="location" class="font-weight-bold text-primary">장 소</label></td>
+                <td style="width: 35%">{{ form.location }}</td>
+              </tr>
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="reportDate" class="font-weight-bold text-primary">일 자</label></td>
+                <td style="width: 35%">{{ form.reportDate }}</td>
+                <td class="bg-light" style="width: 15%"><label for="reportTime" class="font-weight-bold text-primary">시 간</label></td>
+                <td style="width: 35%">{{ form.reportTime }}</td>
+              </tr>
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="leader" class="font-weight-bold text-primary">리 더</label></td>
+                <td style="width: 35%"><input id="leader" class="form-control magicsearch" autocomplete="off" onkeydown="magicsearchtab('#leader')"></td>
+                <td class="bg-light" style="width: 15%"><label for="writer" class="font-weight-bold text-primary">작성자</label></td>
+                <td style="width: 35%"><input id="writer" class="form-control magicsearch" autocomplete="off" onkeydown="magicsearchtab('#writer')"></td>
+              </tr>
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="participants" class="font-weight-bold text-primary">참가자</label></td>
+                <td colspan="3" style="width: 85%"><input id="participants" class="form-control magicsearch" autocomplete="off"></td>
+              </tr>
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="title" class="font-weight-bold text-primary">목 적</label></td>
+                <td colspan="3" style="width: 85%">{{ form.title }}</td>
+              </tr>
+            </table>
+            <div id="contents"></div>
+
+            <div class="text-center mt-3">
+              <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
+                <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+                <span class="text"> 취소 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 </span>
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_cancel() {
+          if (confirm("취소하시겠습니까?") === true) {
+              history.back();
+          } else {
+              return false;
+          }
+      }
+
+      function btn_save() {
+          if ($('#category').val() === '') {
+              alert('회의 유형을 입력해주세요.');
+              return false;
+          } else if ($('#location').val() === '') {
+              alert('회의장소를 입력해주세요.');
+              return false;
+          } else if ($('#reportDate').val() === '') {
+              alert('회의일자를 입력해주세요.');
+              return false;
+          } else if ($('#reportTime').val() === '') {
+              alert('회의시간을 입력해주세요.');
+              return false;
+          } else if ($('#leader').val() === '') {
+              alert('리더를 입력해주세요.');
+              return false;
+          } else if ($('#title').val() === '') {
+              alert('회의목적을 입력해주세요.');
+              return false;
+          }
+
+          const form = $('#reportForm');
+          $('<input />', {
+              type: 'hidden',
+              name: 'leader',
+              value: $('#leader').data('id').toString()
+          }).appendTo(form);  // 리더
+          $('<input />', {
+              type: 'hidden',
+              name: 'writer',
+              value: $('#writer').data('id').toString()
+          }).appendTo(form);  // 작성자
+          $('<input />', {
+              type: 'hidden',
+              name: 'participants',
+              value: $('#participants').data('id').toString()
+          }).appendTo(form);  // 참가자
+          $('<input />', {
+              type: 'hidden',
+              name: 'contents',
+              value: $('#contents').summernote('code')
+          }).appendTo(form);  // 내용
+
+          form.submit();
+      }
+
+      var value = "";
+
+      function magicsearchtab(input) {
+          value = $(input).attr('data-id');
+          $(input).blur(function () {
+              if (value !== "") {
+                  $(input).trigger('set', {id: value});
+              }
+          });
+      }
+
+      $(document).ready(function () {
+          // 리더 자동완성
+          const leader = document.getElementById('leader');
+          {% if leader %}
+              leader.setAttribute("data-id", "{{ leader }}");
+          {% endif %}
+          $('#leader').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              noResult: '검색결과없음',
+              focusShow: true,
+              maxShow: 100,
+          });
+          leader.removeAttribute("style");
+          leader.parentElement.removeAttribute("style");
+
+          // 작성자 자동완성
+          const writer = document.getElementById('writer');
+          {% if writer %}
+              writer.setAttribute("data-id", "{{ writer }}");
+          {% else %}
+              writer.setAttribute("data-id", "{{ user.employee.empId }}");
+          {% endif %}
+          $('#writer').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'value',
+              id: 'id',
+              format: '%value%',
+              noResult: '검색결과없음',
+              focusShow: false,
+          });
+          writer.removeAttribute("style");
+          writer.parentElement.removeAttribute("style");
+          writer.readOnly = true;
+          $('#writer').focus(function() { this.blur(); });
+
+          // 참가자 자동완성
+          const participants = document.getElementById('participants');
+          {% if participants %}
+              participants.setAttribute("data-id", "{{ participants }}");
+          {% endif %}
+          $('#participants').magicsearch({
+              dataSource: {{ empNames|safe }},
+              fields: 'value',
+              id: 'id',
+              multiple: true,
+              multiField: 'value',
+              format: '%value%',
+              multiStyle: {space: 5, width: 80},
+              noResult: '검색결과없음',
+              focusShow: true,
+              maxShow: 100,
+          });
+          participants.removeAttribute("style");
+          participants.parentElement.removeAttribute("style");
+
+          // 본문 작성
+          const toolbar = [
+              ['font', ['fontsize', 'bold', 'italic', 'underline', 'strikethrough', 'forecolor', 'backcolor']],
+              ['font2', ['ol', 'ul', 'paragraph', 'height']],
+              ['insert', ['picture', 'link', 'table', 'hr']],
+              ['util', ['codeview', 'help']]
+          ];
+          const contents = $('#contents');
+          contents.summernote({
+              tabsize: 2,
+              height: document.documentElement.clientHeight * 0.5,
+              toolbar: toolbar,
+              spellCheck: false,
+              disableGrammar: true,
+          });
+          {% if contents %}
+              contents.summernote('code', '{{ contents | safe }}');
+          {% endif %}
+      });
+
+  </script>
+
+{% endblock %}

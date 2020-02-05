@@ -27,7 +27,12 @@
   <link href="{% static 'hr/vendor/jqueryui/jquery-ui.min.css' %}" rel="stylesheet">
   <link href="{% static 'hr/vendor/magicsearch/jquery.magicsearch.min.css' %}" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css" rel="stylesheet">
-
+  <style>
+  p {
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+  }
+  </style>
   {% block css %}{% endblock %}
 
 </head>
@@ -304,6 +309,18 @@
         <div class="bg-white py-2 collapse-inner rounded">
           <a class="collapse-item" href="/daesungwork/showcentermanagers/">센터별담당자관리</a>
           <a class="collapse-item" href="/daesungwork/showchecklist/">센터별체크리스트</a>
+        </div>
+      </div>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#report" aria-expanded="true" aria-controls="report">
+        <i class="fas fa-fw fa-tools text-white"></i>
+        <span class="text-white">보고관리<span>
+      </a>
+      <div id="report" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+          <a class="collapse-item" href="/service/showreports/">주간회의록</a>
         </div>
       </div>
     </li>

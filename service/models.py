@@ -31,7 +31,7 @@ class Servicereport(models.Model):
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     empName = models.CharField(max_length=10)
     empDeptName = models.CharField(max_length=30)
-    companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
+    companyName = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     serviceType = models.ForeignKey(Servicetype, on_delete=models.SET_NULL, null=True, blank=True)
     serviceBeginDatetime = models.DateTimeField(null=True, blank=True)
     serviceStartDatetime = models.DateTimeField(null=True, blank=True)
@@ -147,3 +147,37 @@ class Geolocation(models.Model):
 
     def __str__(self):
         return str(self.serviceId)
+
+
+# 주간회의록
+class Report(models.Model):
+    categoryChoices = (
+        ('주간회의', '주간회의'),
+        ('월간회의', '월간회의'),
+        ('전체회의', '전체회의'),
+        ('기타', '기타'),
+    )
+
+    reportId = models.AutoField(primary_key=True)
+    category = models.CharField(max_length=100, choices=categoryChoices)
+    reportDate = models.DateField()
+    reportTime = models.TimeField()
+    location = models.CharField(max_length=100, default='회의실')
+    leader = models.ForeignKey(Employee, null=True, blank=True, on_delete=models.SET_NULL)
+    title = models.CharField(max_length=255)
+    contents = models.TextField()
+    writer = models.ForeignKey(Employee, null=True, blank=True, on_delete=models.SET_NULL, related_name='writer')
+    writeDatetime = models.DateTimeField(auto_now_add=True)
+    modifyDatetime = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.reportDate) + str(self.category) + ' [' + str(self.title) + ']'
+
+
+class Participant(models.Model):
+    participantId = models.AutoField(primary_key=True)
+    reportId = models.ForeignKey(Report, on_delete=models.CASCADE)
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.reportId.reportDate) + '참석자 :' + str(self.empId.empName)

@@ -14,10 +14,10 @@ from hr.models import Employee
 from noticeboard.models import Board
 from sales.models import Contract
 from extrapay.models import OverHour, ExtraPay
-from .forms import ServicereportForm, ServiceformForm, AdminServiceForm, ServiceTypeForm
+from .forms import ServicereportForm, ServiceformForm, AdminServiceForm, ServiceTypeForm, ReportForm
 from .functions import *
 from approval.functions import who_approval, mail_approval
-from .models import Servicereport, Vacation, Serviceform, Geolocation, Servicetype, Vacationcategory
+from .models import Servicereport, Vacation, Serviceform, Geolocation, Servicetype, Vacationcategory, Report, Participant
 from sales.models import Contractfile
 from approval.models import Document, Documentform, Documentfile, Relateddocument, Approval
 
@@ -1566,3 +1566,151 @@ def coworker_sign(request, serviceId):
         service.serviceSignPath = signId.serviceSignPath
         service.save()
         return redirect('service:viewservice', serviceId)
+
+
+# 주간회의록
+@login_required
+def show_reports(request):
+    context = {}
+    return render(request, 'service/showreports.html', context)
+
+
+@login_required
+@csrf_exempt
+def reports_asjson(request):
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    category = request.POST['category']
+    writer = request.POST['writer']
+
+    reports = Report.objects.all()
+    if startdate:
+        reports = reports.filter(reportDate__gte=startdate)
+    if enddate:
+        reports = reports.filter(reportDate__lte=enddate)
+    if category:
+        reports = reports.filter(category=category)
+    if writer:
+        reports = reports.filter(writer__empName__icontains=writer)
+    result = reports.values('reportId', 'category', 'reportDate', 'writer__empName', 'writeDatetime', 'modifyDatetime')
+    structure = json.dumps(list(result), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def post_report(request):
+    if request.method == 'POST':
+        form = ReportForm(request.POST)
+
+        if form.is_valid():
+            # 회의록 등록
+            post = form.save(commit=False)
+            post.leader = Employee.objects.get(empId=request.POST['leader'])
+            post.writer = Employee.objects.get(empId=request.POST['writer'])
+            post.contents = request.POST['contents']
+            post.save()
+
+            # 참가자 등록
+            participants = request.POST['participants'].split(',')
+            for participant in participants:
+                Participant.objects.create(
+                    reportId=post,
+                    empId=Employee.objects.get(empId=participant),
+                )
+            return redirect('service:showreports')
+
+        else:
+            return HttpResponse('입력된 양식이 잘못되었습니다.')
+
+    else:
+        form = ReportForm()
+        form.fields['category'].initial = '주간회의'
+        form.fields['reportDate'].initial = str(datetime.datetime.now())[:10]
+        form.fields['reportTime'].initial = "10:00"
+        contents = weekly_report(request.GET['startdate'], request.GET['enddate'])
+
+        # 직원 자동완성
+        empList = Employee.objects.filter(Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {'id': emp.empId, 'value': emp.empName}
+            empNames.append(temp)
+
+        context = {
+            'form': form,
+            'empNames': empNames,
+            'contents': contents,
+        }
+        return render(request, 'service/postreport.html', context)
+
+
+@login_required
+def view_report(request, reportId):
+    report = Report.objects.get(reportId=reportId)
+    participants = Participant.objects.filter(reportId=report)
+    context = {
+        'report': report,
+        'participants': participants,
+    }
+    return render(request, 'service/viewreport.html', context)
+
+
+@login_required
+def delete_report(request, reportId):
+    Report.objects.get(reportId=reportId).delete()
+    return redirect('service:showreports')
+
+
+@ login_required
+def modify_report(request, reportId):
+    instance = Report.objects.get(reportId=reportId)
+    participants = Participant.objects.filter(reportId__reportId=reportId)
+
+    if request.method == 'POST':
+        form = ReportForm(request.POST, instance=instance)
+
+        if form.is_valid():
+            # 회의록 등록
+            post = form.save(commit=False)
+            post.leader = Employee.objects.get(empId=request.POST['leader'])
+            post.writer = Employee.objects.get(empId=request.POST['writer'])
+            post.contents = request.POST['contents']
+            post.save()
+
+            # 참가자 등록
+            participants.delete()
+            participants = request.POST['participants'].split(',')
+            for participant in participants:
+                Participant.objects.create(
+                    reportId=post,
+                    empId=Employee.objects.get(empId=participant),
+                )
+            return redirect('service:showreports')
+
+        else:
+            return HttpResponse('입력된 양식이 잘못되었습니다.')
+
+    else:
+        form = ReportForm(instance=instance)
+
+        # 직원 자동완성
+        empList = Employee.objects.filter(Q(empStatus='Y'))
+        empNames = []
+        for emp in empList:
+            temp = {'id': emp.empId, 'value': emp.empName}
+            empNames.append(temp)
+
+        participantIds = ''
+        for participant in participants:
+            participantIds += (str(participant.empId.empId) + ',')
+        participantIds = participantIds[:-1]
+
+        context = {
+            'form': form,
+            'empNames': empNames,
+            'leader': instance.leader.empId,
+            'writer': instance.writer.empId,
+            'participants': participantIds,
+            'contents': instance.contents,
+        }
+        return render(request, 'service/postreport.html', context)

@@ -1,7 +1,7 @@
 from django import forms
 
 from client.models import Company
-from .models import Servicereport, Serviceform, Servicetype
+from .models import Servicereport, Serviceform, Servicetype, Report
 
 
 class ServicereportForm(forms.ModelForm):
@@ -165,4 +165,19 @@ class ServiceTypeForm(forms.ModelForm):
         widgets = {
             'typeName': forms.TextInput(attrs={'class': 'form-control', 'id': 'typeName'}),
             'orderNumber': forms.TextInput(attrs={'class': 'form-control', 'id': "orderNumber"}),
+        }
+
+
+class ReportForm(forms.ModelForm):
+
+    class Meta:
+        model = Report
+        fields = ('category', 'location', 'reportDate', 'reportTime', 'title')
+
+        widgets = {
+            'category': forms.Select(attrs={'id': 'category', 'class': 'form-control'}),
+            'location': forms.TextInput(attrs={'id': 'location', 'class': 'form-control'}),
+            'reportDate': forms.TextInput(attrs={'id': 'reportDate', 'class': 'form-control', 'type': 'date', "max": '9999-12-31'}),
+            'reportTime': forms.TextInput(attrs={'id': 'reportTime', 'class': 'form-control', 'type': 'time'}),
+            'title': forms.TextInput(attrs={'id': 'title', 'class': 'form-control'})
         }

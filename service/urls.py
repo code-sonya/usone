@@ -31,4 +31,11 @@ urlpatterns = [
     url(r'^postservicetype/$', views.post_service_type, name='postservicetype'),
     url(r'^deleteservicetype/(?P<typeId>.+)/$', views.delete_service_type, name='deleteservicetype'),
     url(r'^coworkersign/(?P<serviceId>.+)/$', views.coworker_sign, name='coworkersign'),
+    # 주간회의록
+    url(r'^showreports/$', views.show_reports, name='showreports'),
+    url(r'^reportsasjson/$', views.reports_asjson, name='reportsasjson'),
+    url(r'^postreport/$', views.post_report, name='postreport'),
+    url(r'^viewreport/(?P<reportId>.+)/$', views.view_report, name='viewreport'),
+    url(r'^deletereport/(?P<reportId>.+)/$', views.delete_report, name='deletereport'),
+    url(r'^modifyreport/(?P<reportId>.+)/$', views.modify_report, name='modifyreport'),
 ]
