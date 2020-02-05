@@ -24,7 +24,7 @@
         <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
           <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
         </a>
-        <a class="btn btn-primary" href="/service/postreport/" role="button">
+        <a class="btn btn-primary" href="#" role="button" data-toggle="modal" data-target="#insertModal">
           <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
         </a>
       </div>
@@ -91,10 +91,44 @@
             </div>
           </form>
         </div>
-
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insert Modal -->
+  <div class="modal fade" id="insertModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="insertModalLabel">일정조회일자</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="insertForm" method="GET" action="/service/postreport/" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="startdate" class="text-primary font-weight-bold">시작일자</label>
+                <input type="date" max="9999-12-31" class="form-control" name="startdate">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label for="enddate" class="text-primary font-weight-bold">종료일자</label>
+                <input type="date" max="9999-12-31" class="form-control" name="enddate">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_insert()">등록</a>
         </div>
       </div>
     </div>
@@ -108,6 +142,10 @@
   <script type="text/javascript">
       function btn_filter() {
           $("#filterForm").submit();
+      }
+
+      function btn_insert() {
+          $("#insertForm").submit();
       }
 
       function replaceAll(str, searchStr, replaceStr) {
@@ -197,7 +235,7 @@
 
           $("#showreports").on("click", 'tr', function () {
               const data = reportsTable.row(this).data();
-              window.open('about:blank').location.href = '#'
+              window.open('about:blank').location.href = '/service/viewreport/' + data.reportId + '/';
           });
       });
 

@@ -31,7 +31,7 @@ class Servicereport(models.Model):
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     empName = models.CharField(max_length=10)
     empDeptName = models.CharField(max_length=30)
-    companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
+    companyName = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     serviceType = models.ForeignKey(Servicetype, on_delete=models.SET_NULL, null=True, blank=True)
     serviceBeginDatetime = models.DateTimeField(null=True, blank=True)
     serviceStartDatetime = models.DateTimeField(null=True, blank=True)
@@ -171,7 +171,7 @@ class Report(models.Model):
     modifyDatetime = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return str(self.reportDate) + str(self.category) + '[' + str(self.title) + ']'
+        return str(self.reportDate) + str(self.category) + ' [' + str(self.title) + ']'
 
 
 class Participant(models.Model):

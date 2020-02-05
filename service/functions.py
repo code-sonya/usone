@@ -890,3 +890,78 @@ def reverse_geo(lat, lng):
     region = region.strip()
 
     return alias, region
+
+
+def weekly_report(startDate, endDate):
+    reportForm = '''
+    <h4 style="text-align: center">주 요 내 용</h4>
+    <table style="border: currentColor; width: 100%; border-collapse: collapse; font-size: 16px;">
+      <tbody>
+      <tr style="height:36px">
+        <td colspan="15" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 15%;"><b>일 자</b></td>
+        <td colspan="85" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 85%;"><b>내 용</b></td>
+      </tr>
+      주요내용 자동작성
+      <tr style="height:36px">
+        <td colspan="15" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 15%;">기타</td>
+        <td colspan="85" style="text-align: left; padding: 5px 10px; border: 1pt solid; width: 85%;"></td>
+      </tr>
+      </tbody>
+    </table>
+    <br>
+    <h4 style="text-align: center">실 천 의 제</h4>
+    <table style="border: currentColor; width: 100%; border-collapse: collapse; font-size: 16px;">
+      <tbody>
+      <tr style="height:36px">
+        <td colspan="50" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 50%;"><b>지 시 사 항</b></td>
+        <td colspan="20" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 20%;"><b>담 당 자</b></td>
+        <td colspan="20" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 20%;"><b>기 한</b></td>
+        <td colspan="10" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 10%;"><b>완 료 여 부</b></td>
+      </tr>
+      <tr style="height:36px">
+        <td colspan="50" style="text-align: left; padding: 5px 10px; border: 1pt solid; width: 50%;"></td>
+        <td colspan="20" style="text-align: center; padding: 5px 10px; border: 1pt solid; width: 20%;"></td>
+        <td colspan="20" style="text-align: center; padding: 5px 10px; border: 1pt solid; width: 20%;"></td>
+        <td colspan="10" style="text-align: center; padding: 5px 10px; border: 1pt solid; width: 10%;"></td>
+      </tr>
+      </tbody>
+    </table>
+    '''
+    tempStr = ''
+    days = date_list(startDate, endDate)
+    weekday = ['월', '화', '수', '목', '금', '토', '일']
+    for day in days:
+        tempStr += '''
+        <tr style="height:36px">
+          <td colspan="15" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 15%;">
+        ''' + str(day)[2:] + ' (' + str(weekday[day.weekday()]) + ')' + '''
+          </td>
+          <td colspan="85" style="text-align: left; padding: 5px 10px; border: 1pt solid; width: 85%;">
+        '''
+        # 일정 작성
+        service = Servicereport.objects.filter(serviceDate__gte=startDate, serviceDate__lte=endDate)
+        tempService = service.filter(serviceDate=day)
+        if tempService:
+            for s in tempService:
+                tempStr += '''
+            * ''' + str(s.empName) + ' : ' + '<a href="/service/viewservice/' + str(s.serviceId) + '/">' + s.serviceTitle + '</a>' + '''<br>    
+                '''
+        # 휴가 작성
+        vacation = Vacation.objects.filter(vacationDate__gte=startDate, vacationDate__lte=endDate)
+        vacation = vacation.exclude(vacationStatus='R')
+        tempVacation = vacation.filter(vacationDate=day)
+        if tempVacation:
+            tempStr += '<br><span style="color: #e74a3b"><b>휴무자</b></span><br>'
+            for v in tempVacation:
+                tempStr += '''
+                    * ''' + str(v.empName) + ' (' + str(v.vacationCategory.categoryName) + ', ' + v.vacationType + ') : ' + v.comment + '''<br>    
+                        '''
+        tempStr += '''
+          </td>
+        </tr>
+        '''
+    reportForm = reportForm.replace('주요내용 자동작성', tempStr)
+    reportForm = reportForm.replace('\'', '"')
+    reportForm = reportForm.replace('\r', '')
+    reportForm = reportForm.replace('\n', '')
+    return reportForm

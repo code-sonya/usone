@@ -6,67 +6,71 @@
 {% endblock %}
 
 
+{% block css %}
+
+  <style type="text/css">
+
+    .table {
+      color: #333333;
+      width: 100%;
+    }
+
+    .table td, .table th {
+      padding: .5rem;
+      vertical-align: middle;
+      border-top: 1px solid #e3e6f0;
+      font-size: 16px;
+      text-align: center;
+      /*white-space: nowrap;*/
+    }
+
+  </style>
+
+{% endblock %}
+
+
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-2"></div>
-    <div class="col-xl-8">
+    <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h6 class="m-0 h3 text-gray-800">회의록 작성</h6>
         </div>
 
         <div class="card-body">
-          <form id="reportForm" method="POST">
-            {% csrf_token %}
-            <div class="form-group row">
-              <div class="col-6">
-                <label for="category" class="font-weight-bold text-primary">유형</label>
-                {{ form.category }}
-              </div>
-              <div class="col-6">
-                <label for="location" class="font-weight-bold text-primary">장소</label>
-                {{ form.location }}
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-6">
-                <label for="reportDate" class="font-weight-bold text-primary">일자</label>
-                {{ form.reportDate }}
-              </div>
-              <div class="col-6">
-                <label for="reportTime" class="font-weight-bold text-primary">시간</label>
-                {{ form.reportTime }}
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-6">
-                <label for="leader" class="font-weight-bold text-primary">리더</label>
-                <input id="leader" class="form-control magicsearch" autocomplete="off" onkeydown="magicsearchtab('#leader')">
-              </div>
-              <div class="col-6">
-                <label for="writer" class="font-weight-bold text-primary">작성자</label>
-                <input id="writer" class="form-control magicsearch" autocomplete="off" onkeydown="magicsearchtab('#writer')">
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-12">
-                <label for="participants" class="font-weight-bold text-primary">참가자</label>
-                <input id="participants" class="form-control magicsearch" autocomplete="off">
-              </div>
-            </div>
-            <div class="form-group row">
-              <div class="col-12">
-                <label for="title" class="font-weight-bold text-primary">목적</label>
-                {{ form.title }}
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="contents" class="font-weight-bold text-primary">내용</label>
-              <div id="contents"></div>
-            </div>
+          <form id="reportForm" method="POST">{% csrf_token %}
+            <table class="table">
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="category" class="font-weight-bold text-primary">유 형</label></td>
+                <td style="width: 35%">{{ form.category }}</td>
+                <td class="bg-light" style="width: 15%"><label for="location" class="font-weight-bold text-primary">장 소</label></td>
+                <td style="width: 35%">{{ form.location }}</td>
+              </tr>
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="reportDate" class="font-weight-bold text-primary">일 자</label></td>
+                <td style="width: 35%">{{ form.reportDate }}</td>
+                <td class="bg-light" style="width: 15%"><label for="reportTime" class="font-weight-bold text-primary">시 간</label></td>
+                <td style="width: 35%">{{ form.reportTime }}</td>
+              </tr>
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="leader" class="font-weight-bold text-primary">리 더</label></td>
+                <td style="width: 35%"><input id="leader" class="form-control magicsearch" autocomplete="off" onkeydown="magicsearchtab('#leader')"></td>
+                <td class="bg-light" style="width: 15%"><label for="writer" class="font-weight-bold text-primary">작성자</label></td>
+                <td style="width: 35%"><input id="writer" class="form-control magicsearch" autocomplete="off" onkeydown="magicsearchtab('#writer')"></td>
+              </tr>
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="participants" class="font-weight-bold text-primary">참가자</label></td>
+                <td colspan="3" style="width: 85%"><input id="participants" class="form-control magicsearch" autocomplete="off"></td>
+              </tr>
+              <tr>
+                <td class="bg-light" style="width: 15%"><label for="title" class="font-weight-bold text-primary">목 적</label></td>
+                <td colspan="3" style="width: 85%">{{ form.title }}</td>
+              </tr>
+            </table>
+            <div id="contents"></div>
 
-            <div class="text-center">
+            <div class="text-center mt-3">
               <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_cancel()">
                 <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
                 <span class="text"> 취소 </span>
@@ -80,7 +84,6 @@
         </div>
       </div>
     </div>
-    <div class="col-xl-2"></div>
   </div>
 
 {% endblock %}
@@ -99,25 +102,49 @@
       }
 
       function btn_save() {
-          let form = $('#reportForm');
+          if ($('#category').val() === '') {
+              alert('회의 유형을 입력해주세요.');
+              return false;
+          } else if ($('#location').val() === '') {
+              alert('회의장소를 입력해주세요.');
+              return false;
+          } else if ($('#reportDate').val() === '') {
+              alert('회의일자를 입력해주세요.');
+              return false;
+          } else if ($('#reportTime').val() === '') {
+              alert('회의시간을 입력해주세요.');
+              return false;
+          } else if ($('#leader').val() === '') {
+              alert('리더를 입력해주세요.');
+              return false;
+          } else if ($('#title').val() === '') {
+              alert('회의목적을 입력해주세요.');
+              return false;
+          }
 
-          const leader = $('#leader').data('id').toString();
+          const form = $('#reportForm');
           $('<input />', {
               type: 'hidden',
               name: 'leader',
-              value: leader
-          }).appendTo(form);
-
-          const writer = $('#writer').data('id').toString();
+              value: $('#leader').data('id').toString()
+          }).appendTo(form);  // 리더
           $('<input />', {
               type: 'hidden',
               name: 'writer',
-              value: writer
-          }).appendTo(form);
+              value: $('#writer').data('id').toString()
+          }).appendTo(form);  // 작성자
+          $('<input />', {
+              type: 'hidden',
+              name: 'participants',
+              value: $('#participants').data('id').toString()
+          }).appendTo(form);  // 참가자
+          $('<input />', {
+              type: 'hidden',
+              name: 'contents',
+              value: $('#contents').summernote('code')
+          }).appendTo(form);  // 내용
 
-          
-
-          {#form.submit();#}
+          form.submit();
       }
 
       var value = "";
@@ -166,14 +193,14 @@
           });
           writer.removeAttribute("style");
           writer.parentElement.removeAttribute("style");
-          writer.setAttribute("readonly", "readonly");
+          writer.readOnly = true;
+          $('#writer').focus(function() { this.blur(); });
 
           // 참가자 자동완성
           const participants = document.getElementById('participants');
           {% if participants %}
               participants.setAttribute("data-id", "{{ participants }}");
           {% endif %}
-
           $('#participants').magicsearch({
               dataSource: {{ empNames|safe }},
               fields: 'value',
@@ -204,7 +231,9 @@
               spellCheck: false,
               disableGrammar: true,
           });
-
+          {% if contents %}
+              contents.summernote('code', '{{ contents | safe }}');
+          {% endif %}
       });
 
   </script>
