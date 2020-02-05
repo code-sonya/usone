@@ -33,3 +33,24 @@ class CenterManagerEmp(models.Model):
 
     def __str__(self):
         return str(self.managerId)
+
+
+class CheckList(models.Model):
+    checkListId = models.AutoField(primary_key=True)
+    checkListName = models.CharField(max_length=30)
+    checkListStatus = models.CharField(max_length=10, default='Y')
+
+    def __str__(self):
+        return str(self.checkListId)
+
+
+class ConfirmCheckList(models.Model):
+    checkListStatusChoices = (('Y', '정상'), ('N', '이상'))
+    confirmId = models.AutoField(primary_key=True)
+    empId = models.ForeignKey(Employee, on_delete=models.PROTECT, null=True, blank=True)
+    centerId = models.ForeignKey(Center, on_delete=models.PROTECT, null=True, blank=True)
+    confirmDate = models.DateField()
+    checkListId = models.ForeignKey(CheckList, on_delete=models.PROTECT)
+    checkListStatus = models.CharField(max_length=10, choices=checkListStatusChoices, default='Y')
+    comment = models.CharField(max_length=50, null=True, blank=True)
+    file = models.FileField(upload_to="contract/%Y_%m")
