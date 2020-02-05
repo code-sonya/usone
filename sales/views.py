@@ -2210,10 +2210,8 @@ def upload_profitloss(request):
 @login_required
 def save_profitloss(request):
     date = request.POST["month"]
-    print(date)
     todayYear = int(date[:4])
     todayMonth = int(date[5:])
-    print(todayYear, todayMonth)
     if datetime.today().year == todayYear and datetime.today().month == todayMonth:
         today = datetime.today()
     else:
