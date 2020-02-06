@@ -31,6 +31,7 @@
     </div>
 
     <div class="card-body">
+      {% csrf_token %}
       <div class="mb-3">
         <h5>▼ <span class="text-primary font-weight-bold">주간회의록 목록</span></h5>
       </div>
@@ -237,7 +238,7 @@
 
           $("#showreports").on("click", 'tr', function () {
               const data = reportsTable.row(this).data();
-              location.href = '/service/viewreport/' + data.reportId + '/';
+              window.open('about:blank').location.href = '/service/viewreport/' + data.reportId + '/';
           });
       });
 

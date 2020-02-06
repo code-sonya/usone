@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 
 from django.shortcuts import render, HttpResponse, redirect
 from django.core.serializers.json import DjangoJSONEncoder
@@ -58,3 +59,53 @@ def post_book(request):
 
         structure = json.dumps(result, cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def post_rentals(request):
+    context = {}
+    return render(request, 'supply/postrentals.html', context)
+
+
+@login_required
+@csrf_exempt
+def books_asjson(request):
+    books = Book.objects.all()
+    result = books.values(
+        'bookId', 'name', 'author', 'publisher', 'status', 'rentalId__predictReturnDate', 'rentalId__renter__empId',
+    )
+    structure = json.dumps(list(result), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def post_rent(request):
+    if request.method == 'POST':
+
+        if request.POST['type'] == 'rent':
+            returnDate = timedelta(days=14)
+
+            book = Book.objects.get(bookId=request.POST['bookId'])
+
+            rental = Bookrental.objects.create(
+                bookId=book,
+                renter=request.user.employee,
+                predictReturnDate=datetime.today() + returnDate,
+            )
+
+            book.status = 'N'
+            book.rentalId = rental
+            book.save()
+
+        elif request.POST['type'] == 'return':
+            book = Book.objects.get(bookId=request.POST['bookId'])
+
+            rental = Bookrental.objects.get(rentalId=book.rentalId.rentalId)
+            rental.returnDate = datetime.today()
+            rental.save()
+
+            book.status = 'Y'
+            book.rentalId = None
+            book.save()
+
+        return redirect('supply:postrentals')

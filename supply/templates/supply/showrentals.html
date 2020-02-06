@@ -114,27 +114,22 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="text-primary font-weight-bold">시작일자</label>
+                <label class="text-primary font-weight-bold">시작일자</label>
                 <input type="date" max="9999-12-31" class="form-control" name="startdate" value="{{ startdate }}">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="enddate" class="text-primary font-weight-bold">종료일자</label>
+                <label class="text-primary font-weight-bold">종료일자</label>
                 <input type="date" max="9999-12-31" class="form-control" name="enddate" value="{{ enddate }}">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="text-primary font-weight-bold">회의유형</label>
-                <select class="form-control" name="category">
-                  <option value="">전체</option>
-                  {% for c in categories %}
-                    <option value="{{ c }}">{{ c }}</option>
-                  {% endfor %}
-                </select>
+                <label class="text-primary font-weight-bold">대출부서</label>
+                <input class="form-control" name="renterDept" value="{{ renterDept }}">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="enddate" class="text-primary font-weight-bold">작성자</label>
-                <input class="form-control" name="writer" value="{{ writer }}">
+                <label class="text-primary font-weight-bold">대출자</label>
+                <input class="form-control" name="renterName" value="{{ renterName }}">
               </div>
             </div>
           </form>

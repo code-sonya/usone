@@ -13,6 +13,7 @@ class Book(models.Model):
     author = models.CharField(max_length=100)
     publisher = models.CharField(max_length=100)
     status = models.CharField(max_length=10, choices=statusChoices, default='Y')
+    rentalId = models.ForeignKey('Bookrental', null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
@@ -23,8 +24,8 @@ class Bookrental(models.Model):
     bookId = models.ForeignKey(Book, on_delete=models.CASCADE)
     renter = models.ForeignKey(Employee, on_delete=models.CASCADE)
     rentDate = models.DateField(auto_now_add=True)
-    predictReturnDate = models.DateField(null=True, blank=True)
     returnDate = models.DateField(null=True, blank=True)
+    predictReturnDate = models.DateField(null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
