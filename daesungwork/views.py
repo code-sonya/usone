@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
 from hr.models import Employee
-from .models import Center, CenterManager, CenterManagerEmp
+from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList
 from .forms import CenterManagerForm
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
@@ -175,3 +175,68 @@ def delete_centermanager(request, centerManagerId):
     centermanager = CenterManager.objects.get(centerManagerId=centerManagerId)
     centermanager.delete()
     return redirect('daesungwork:showcentermanagers')
+
+
+@login_required
+@csrf_exempt
+def show_checklist(request):
+    template = loader.get_template('daesungwork/showchecklist.html')
+    centers = Center.objects.filter(centerStatus="Y")
+    employees = Employee.objects.filter(empStatus="Y")
+    checklist = CheckList.objects.filter(checkListStatus="Y")
+    today = datetime.datetime.today()
+    if CheckList.objects.all():
+        if request.method == 'POST':
+            centerName = request.POST['centerName']
+            searchDay = request.POST['searchDay']
+            thisMonday = datetime.datetime(int(searchDay[:4]), int(searchDay[5:7]), int(searchDay[8:10]))
+            thisSunday = thisMonday + datetime.timedelta(days=6)
+            lastMonday = thisMonday - datetime.timedelta(days=7)
+            nextMonday = thisMonday + datetime.timedelta(days=7)
+
+        else:
+            thisMonday = today - datetime.timedelta(days=today.weekday())
+            thisSunday = thisMonday + datetime.timedelta(days=6)
+            lastMonday = thisMonday - datetime.timedelta(days=7)
+            nextMonday = thisMonday + datetime.timedelta(days=7)
+
+        context = {
+            'today': today,
+            'thisMonday': thisMonday,
+            'thisSunday': thisSunday,
+            'lastMonday': lastMonday.date,
+            'nextMonday': nextMonday.date,
+            'centers': centers,
+            'employees': employees,
+            'checklist': checklist,
+        }
+        return HttpResponse(template.render(context, request))
+    else:
+        return HttpResponse('점검 항목이 없습니다. 점검항목을 등록해 주세요.')
+
+
+@login_required
+@csrf_exempt
+def post_checklist(request):
+    if request.POST:
+        print(request.POST)
+        centerName = request.POST['modalCenterName']
+        modalEmpName = request.POST['modalEmpName']
+        modalCheckDate = request.POST['modalCheckDate']
+        checkListName = request.POST.getlist('checkListName')
+        cklist = request.POST.getlist('cklist')
+        comment = request.POST.getlist('comment')
+        centerId = Center.objects.get(centerName=centerName)
+        checkListId = CheckList.objects.get(checkListName=checkListName)
+        empId = Employee.objects.get(empId=modalEmpName)
+        # ConfirmCheckList.objects.create(
+        #     centerId=centerId,
+        #     empId=empId,
+        #     confirmDate=modalCheckDate,
+        #     checkListId=CheckList.objects.get(checkListName=checkListName),
+        #
+        # )
+        return redirect('daesungwork:showchecklist')
+
+    else:
+        return HttpResponse('점검 항목이 없습니다. 점검항목을 등록해 주세요.')
