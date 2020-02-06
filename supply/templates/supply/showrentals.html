@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  회의록
+  도서관리
 {% endblock %}
 
 
@@ -19,7 +19,7 @@
 
   <div class="card shadow mb-4">
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-      <h6 class="m-0 h3 text-gray-800">회의록</h6>
+      <h6 class="m-0 h3 text-gray-800">도서열람대장</h6>
       <div class="dropdown no-arrow">
         <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
           <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
@@ -31,19 +31,65 @@
     </div>
 
     <div class="card-body">
-      <div class="mb-3">
-        <h5>▼ <span class="text-primary font-weight-bold">주간회의록 목록</span></h5>
+      <div class="row mb-3">
+        <div class="col-xl-4">
+          <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="font-weight-bold text-primary text-uppercase mb-1">보유도서</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">몇 건</div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="font-weight-bold text-primary text-uppercase mb-1">대출도서</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">몇 건</div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="font-weight-bold text-primary text-uppercase mb-1">연체도서</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">몇 건</div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-clock fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
       <div class="table-responsive">
-        <table id="showreports" class="hover row-border" style="width: 100%;">
+        <table id="showrentals" class="hover row-border" style="width: 100%;">
           <thead>
           <tr class="bg-light">
-            <th>번호</th>
-            <th>회의유형</th>
-            <th>회의일자</th>
-            <th>작성자</th>
-            <th>작성시간</th>
-            <th>최종수정시간</th>
+            <th>대출일</th>
+            <th>도서명</th>
+            <th>지은이</th>
+            <th>출판사</th>
+            <th>대출자</th>
+            <th>반납일</th>
+            <th>비고</th>
           </tr>
           </thead>
         </table>
@@ -107,23 +153,29 @@
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="insertModalLabel">일정조회일자</h5>
+          <h5 class="modal-title" id="insertModalLabel">도서등록</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span class="text-gray-100" aria-hidden="true">×</span>
           </button>
         </div>
 
         <div class="modal-body">
-          <form id="insertForm" method="GET" action="/service/postreport/" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
+          <form id="insertForm" method="POST" action="/supply/postbook/" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
             {% csrf_token %}
             <div class="row mb-1">
+              <div class="col-12 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">도서명</label>
+                <input class="form-control" name="name">
+              </div>
+            </div>
+            <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="text-primary font-weight-bold">시작일자</label>
-                <input type="date" max="9999-12-31" class="form-control" name="startdate">
+                <label class="text-primary font-weight-bold">지은이</label>
+                <input class="form-control" name="author">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
-                <label for="enddate" class="text-primary font-weight-bold">종료일자</label>
-                <input type="date" max="9999-12-31" class="form-control" name="enddate">
+                <label class="text-primary font-weight-bold">출판사</label>
+                <input class="form-control" name="publisher">
               </div>
             </div>
           </form>
@@ -147,7 +199,27 @@
       }
 
       function btn_insert() {
-          $("#insertForm").submit();
+          $.ajax({
+              url: "{% url 'supply:postbook' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "name": $('#insertForm [name="name"]').val(),
+                  "author": $('#insertForm [name="author"]').val(),
+                  "publisher": $('#insertForm [name="publisher"]').val(),
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData === 'N') {
+                      alert('이미 등록된 도서입니다.');
+                      return false;
+                  } else if (returnData === 'Y') {
+                      $('.close').click();
+                      alert('도서 등록이 완료되었습니다.');
+                      location.reload();
+                  }
+              }
+          });
       }
 
       function replaceAll(str, searchStr, replaceStr) {
@@ -156,7 +228,7 @@
       }
 
       $(document).ready(function () {
-          const reportsTable = $('#showreports').DataTable({
+          const reportsTable = $('#showrentals').DataTable({
               "processing": true,
               "ajax": {
                   "processing": true,
@@ -164,10 +236,10 @@
                   "data": {
                       'startdate': '{{ startdate }}',
                       'enddate': '{{ enddate }}',
-                      'category': '{{ category }}',
-                      'writer': '{{ writer }}',
+                      'status': '{{ status }}',
+                      'renter': '{{ renter }}',
                   },
-                  "url": "{% url 'service:reportsasjson' %}",
+                  "url": "{% url 'supply:rentalsasjson' %}",
                   "dataSrc": ""
               },
               "columnDefs": [
@@ -175,37 +247,43 @@
                       targets: 0,
                       width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "reportId",
+                      data: "rentDate",
                   },
                   {
                       targets: 1,
-                      width: "18%",
+                      width: "20%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "category",
+                      data: "bookId__name",
                   },
                   {
                       targets: 2,
-                      width: "18%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "reportDate",
+                      data: "bookId__author",
                   },
                   {
                       targets: 3,
-                      width: "18%",
+                      width: "20%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "writer__empName",
+                      data: "bookId__publisher",
                   },
                   {
                       targets: 4,
-                      width: "18%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "writeDatetime",
+                      data: "renter__empName",
                   },
                   {
                       targets: 5,
-                      width: "18%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "modifyDatetime",
+                      data: "returnDate",
+                  },
+                  {
+                      targets: 6,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "comment",
                   },
               ],
               "deferRender": true,
@@ -230,8 +308,6 @@
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   let row = $('td', nRow);
-                  row.eq(4).text(aData.writeDatetime.split('T').join(' ').slice(0, 16));
-                  row.eq(5).text(aData.modifyDatetime.split('T').join(' ').slice(0, 16));
               },
           });
 

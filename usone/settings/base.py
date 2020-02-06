@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'approval',
     'logs',
     'daesungwork',
+    'supply',
 ]
 
 MIDDLEWARE = [

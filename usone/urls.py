@@ -39,7 +39,7 @@ urlpatterns = [
     url(r'^approval/', include('approval.urls')),
     url(r'^logs/', include('logs.urls')),
     url(r'^daesungwork/', include('daesungwork.urls')),
-
+    url(r'^supply/', include('supply.urls')),
 ]
 
 urlpatterns += static(
