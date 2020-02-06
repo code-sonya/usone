@@ -81,7 +81,10 @@
               <div class="col-6 mb-3 mb-sm-0">
                 <label for="startdate" class="text-primary font-weight-bold">회의유형</label>
                 <select class="form-control" name="category">
-                  <!-- 회의유형 옵션추가 -->
+                  <option value="">전체</option>
+                  {% for c in categories %}
+                    <option value="{{ c }}">{{ c }}</option>
+                  {% endfor %}
                 </select>
               </div>
               <div class="col-6 mb-3 mb-sm-0">
@@ -235,7 +238,7 @@
 
           $("#showreports").on("click", 'tr', function () {
               const data = reportsTable.row(this).data();
-              window.open('about:blank').location.href = '/service/viewreport/' + data.reportId + '/';
+              location.href = '/service/viewreport/' + data.reportId + '/';
           });
       });
 

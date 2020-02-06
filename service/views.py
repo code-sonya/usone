@@ -1571,7 +1571,25 @@ def coworker_sign(request, serviceId):
 # 주간회의록
 @login_required
 def show_reports(request):
-    context = {}
+    if request.method == 'POST':
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        category = request.POST['category']
+        writer = request.POST['writer']
+    else:
+        startdate = ''
+        enddate = ''
+        category = ''
+        writer = ''
+    categories = [i[0] for i in Report.categoryChoices]
+
+    context = {
+        'startdate': startdate,
+        'enddate': enddate,
+        'category': category,
+        'writer': writer,
+        'categories': categories,
+    }
     return render(request, 'service/showreports.html', context)
 
 
