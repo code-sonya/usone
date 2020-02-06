@@ -218,9 +218,9 @@
         $('#showdocument').on("click", 'tr', function () {
             const data = table.row(this).data();
             {% if documentStatus == '임시' %}
-                location.href = '/approval/modifydocument/' + data.documentId + '/';
+                window.open('about:blank').location.href = '/approval/modifydocument/' + data.documentId + '/';
             {% else %}
-                location.href = '/approval/viewdocument/' + data.documentId + '/';
+                window.open('about:blank').location.href = '/approval/viewdocument/' + data.documentId + '/';
             {% endif %}
         });
 
