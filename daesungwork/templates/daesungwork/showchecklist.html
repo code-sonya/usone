@@ -80,15 +80,14 @@
           </h6>
         </form>
           <div class="row mb-3 center">
-            {% if centermanager %}
+            {% if checkLists %}
               <table class="pc-table m-2" style="width: 100%;">
                 <tr style="background-color: #c5e4f8; color: black;">
-                  <th class="font-weight-normal">담당자</th>
+                  <th class="font-weight-normal">점검내용</th>
                   <th class="font-weight-normal">담당구역</th>
                   <th class="font-weight-normal">추가관리</th>
                   <th class="font-weight-normal">대청소담당구역</th>
                 </tr>
-
                 {% for emp in centermanageremps %}
                   <tr>
                     <th class="font-weight-normal text-dark" style="background-color: #deeef8;">{{ emp.empId.empName }}</th>
@@ -133,7 +132,7 @@
 </div>
 
 <div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="postModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
@@ -178,15 +177,17 @@
               {% if checklist %}
                   <table class="pc-table2" style="width: 100%;">
                     <tr style="background-color: #c5e4f8;color: black">
-                      <td>점검항목</td>
-                      <td><input type="checkbox" class="checkall"> 점검여부</td>
+                      <td>항목</td>
+                      <td><input type="checkbox" class="checkall">점검여부</td>
                       <td>비고</td>
+                      <td>첨부파일</td>
                     </tr>
                     {% for check in checklist %}
                     <tr>
                       <td name="checkListName" style="background-color: #deeef8; color: black">{{ check.checkListName }}</td>
-                      <td><input naem="cklist" type="checkbox" class="check" value="{{ check.checkListName }}"></td>
-                      <td><input name="comment" type="text" class="form-control"></td>
+                      <td style="color: black"><input name="checkListBox" type="checkbox" class="check" value="{{ check.checkListId }}"></td>
+                      <td><input name="checkListComment" type="text" class="form-control"></td>
+                      <td><input name="checkListFiles" type="file" class="file"></td>
                     </tr>
                     {% endfor %}
                   </table>
@@ -226,6 +227,25 @@
             return false;
         }
         const postForm = document.getElementById('postForm');
+
+        // 센터 담당자
+        const lengthItem = $('[name="checkListName"]').length;
+        const listItem = new Array();
+        console.log('lengthItem:', lengthItem);
+        for (var i = 0; i <= lengthItem - 1; i++) {
+            var data = new Object();
+            data.checkListName = $('td[name="checkListName"]').eq(i).text();
+            data.checkListBox = $('input[name="checkListBox"]').eq(i).is(":checked");
+            data.checkListComment = $('input[name="checkListComment"]').eq(i).val();
+            data.checkListFiles = $('input[name="checkListFiles"]').eq(i).val();
+            listItem.push(data);
+          }
+        const jsonCheckList = JSON.stringify(listItem);
+        const item = document.createElement("input");
+        item.setAttribute("type", "hidden");
+        item.setAttribute("name", "jsonCheckList");
+        item.setAttribute("value", jsonCheckList);
+        postForm.appendChild(item);
         postForm.submit();
 
     }

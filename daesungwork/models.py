@@ -53,4 +53,4 @@ class ConfirmCheckList(models.Model):
     checkListId = models.ForeignKey(CheckList, on_delete=models.PROTECT)
     checkListStatus = models.CharField(max_length=10, choices=checkListStatusChoices, default='Y')
     comment = models.CharField(max_length=50, null=True, blank=True)
-    file = models.FileField(upload_to="contract/%Y_%m")
+    file = models.FileField(upload_to="checkList/%Y_%m")

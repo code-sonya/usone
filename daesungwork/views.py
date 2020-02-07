@@ -223,19 +223,24 @@ def post_checklist(request):
         centerName = request.POST['modalCenterName']
         modalEmpName = request.POST['modalEmpName']
         modalCheckDate = request.POST['modalCheckDate']
-        checkListName = request.POST.getlist('checkListName')
-        cklist = request.POST.getlist('cklist')
-        comment = request.POST.getlist('comment')
         centerId = Center.objects.get(centerName=centerName)
-        checkListId = CheckList.objects.get(checkListName=checkListName)
         empId = Employee.objects.get(empId=modalEmpName)
-        # ConfirmCheckList.objects.create(
-        #     centerId=centerId,
-        #     empId=empId,
-        #     confirmDate=modalCheckDate,
-        #     checkListId=CheckList.objects.get(checkListName=checkListName),
-        #
-        # )
+
+        jsonCheckList = json.loads(request.POST['jsonCheckList'])
+        for item in jsonCheckList:
+            if item['checkListBox']:
+                checkListStatus = 'Y'
+            else:
+                checkListStatus = 'N'
+            ConfirmCheckList.objects.create(
+                centerId=centerId,
+                empId=empId,
+                confirmDate=modalCheckDate,
+                checkListId=CheckList.objects.get(checkListName=item['checkListName']),
+                checkListStatus=checkListStatus,
+                comment=item['checkListComment'],
+                file=item['checkListFiles'],
+            )
         return redirect('daesungwork:showchecklist')
 
     else:
