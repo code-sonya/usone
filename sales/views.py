@@ -2287,7 +2287,7 @@ def save_cost(request):
     if todayYear < 2020:
         select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
     else:
-        select_col = ['솔루션팀(5100)', 'DB Expert팀(5200)']
+        select_col = ['Platform Biz_이사(5000)', '솔루션팀(5100)', 'DB Expert팀(5200)']
     Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
 
     main_cate = ''
@@ -2313,7 +2313,7 @@ def save_cost(request):
                         Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
                                                expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
                 else:
-                    for i, v in enumerate(['솔루션팀', 'DB Expert팀']):
+                    for i, v in enumerate(['Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
                         Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
                                                expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
