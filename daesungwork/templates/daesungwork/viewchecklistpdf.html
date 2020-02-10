@@ -1,0 +1,145 @@
+{% load staticfiles %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+  <meta charset="utf-8">
+
+  <style type="text/css">
+    @font-face {
+      font-family: KBIZHanmaumMyungjo;
+      src: url({% static '/mail/KBIZHanmaumMyungjo.ttf' %});
+    }
+
+    html {
+      font-family: KBIZHanmaumMyungjo, serif;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin-left: 40pt;
+      margin-right: 40pt;
+      margin-top: 50pt;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid grey;
+      border-collapse: collapse;
+    }
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+      border-top: 1px dotted #858796a3;
+      background-color: #ebfaff;
+    }
+
+
+  </style>
+</head>
+<body>
+<div style="text-align: center;">
+  <strong style="font-size: 35px;">{{ todayYear }}년 {{ todayQuarter }}분기 인센티브 현황</strong>
+</div>
+<br>
+<br>
+<br>
+<table width="300px" align="right">
+  <tr class="thtd" style="height: 30px">
+    <td class="thtd" rowspan="2" colspan="2" style="background-color:gainsboro">결재</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">담당자</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">팀장</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">사장</td>
+    <td class="thtd" colspan="2" style="background-color:gainsboro">대표이사</td>
+  </tr>
+  <tr class="thtd" style="height: 70px">
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="2"></td>
+  </tr>
+</table>
+<div style="font-size: 14px">결재일자 : &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;년 &nbsp; &nbsp;  &nbsp; &nbsp;월 &nbsp; &nbsp;  &nbsp; &nbsp;일</div>
+<table class="pc-table">
+  <thead class="thtd">
+  <tr class="thtd">
+    <td class="thtd" colspan="3">구분</td>
+    <td class="thtd" colspan="6">{{ todayQuarter }}분기 누계 급여 정보</td>
+    <td class="thtd" colspan="3">인센티브 산출</td>
+    <td class="thtd" colspan="6">인센티브</td>
+    <td class="thtd" colspan="2">AWARD</td>
+  </tr>
+  <tr class="thtd">
+    <td class="thtd" rowspan="2">직급</td>
+    <td class="thtd" rowspan="2">성명</td>
+    <td class="thtd" rowspan="2">목표<br>달성률</td>
+    <td class="thtd" colspan="2">연봉</td>
+    <td class="thtd" colspan="2">기본급</td>
+    <td class="thtd" colspan="2">베팅액</td>
+    <td class="thtd" colspan="2">인정율</td>
+    <td class="thtd" colspan="1">ACC</td>
+    <td class="thtd" colspan="2">{{ todayQuarter }}분기누계</td>
+    <td class="thtd" colspan="2">{{ beforeQuarter }}분기누계지급</td>
+    <td class="thtd" colspan="2">{{ nextMonth }}월급여대장</td>
+    <td class="thtd" colspan="2">분기</td>
+  </tr>
+  <tr class="thtd">
+    <td class="thtd" colspan="2">A</td>
+    <td class="thtd" colspan="2">B</td>
+    <td class="thtd" colspan="2">C</td>
+    <td class="thtd" colspan="2">D</td>
+    <td class="thtd" colspan="1">E</td>
+    <td class="thtd" colspan="2">
+      <div style="font-size: small">D가100%미만:C*D=F</div>
+      <div style="font-size: small">그외:((C*D)-C)*E+C=F</div>
+    </td>
+    <td class="thtd" colspan="2">G</td>
+    <td class="thtd" colspan="2">F-G=H</td>
+    <td class="thtd" colspan="2">I</td>
+  </tr>
+  </thead>
+  <tbody>
+  {% for row in table %}
+    <tr class="thtd">
+      <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
+      <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
+      <td class="thtd" colspan="1" style="background-color: white">{{ row.achieveRatio }}</td>
+      <td class="thtd" colspan="2" style="background-color: white">{{ row.sum_salary | intcomma }}</td>
+      <td class="thtd" colspan="2" style="background-color: white">{{ row.sum_basicSalary | intcomma }}</td>
+      <td class="thtd" colspan="2" style="background-color: white">{{ row.sum_bettingSalary | intcomma }}</td>
+      <td class="thtd" colspan="2" style="background-color: white">{{ row.creditRatio }}</td>
+      <td class="thtd" colspan="1" style="background-color: white">{{ row.ACC }}</td>
+      <td class="thtd" colspan="2" style="background-color: white">{{ row.cumulateIncentive| intcomma }}</td>
+      <td class="thtd" colspan="2" style="background-color: white">{{ row.before_achieve | intcomma }}</td>
+      <td class="thtd" colspan="2" style="background-color: white">{{ row.achieveIncentive | intcomma }}</td>
+      <td class="thtd" colspan="2" style="background-color: white">{{ row.achieveAward | intcomma }}</td>
+    </tr>
+  {% endfor %}
+  <tr class="thtd bg">
+    <td class="thtd" colspan="3">합계</td>
+    <td class="thtd" colspan="2">{{ sum_table.sum_salary | intcomma}}</td>
+    <td class="thtd" colspan="2">{{ sum_table.sum_basicSalary | intcomma }}</td>
+    <td class="thtd" colspan="2">{{ sum_table.sum_bettingSalary | intcomma}}</td>
+    <td class="thtd" colspan="2"></td>
+    <td class="thtd" colspan="1"></td>
+    <td class="thtd" colspan="2">{{ sum_table.sum_cumulateIncentive | intcomma }}</td>
+    <td class="thtd" colspan="2">{{ sum_table.sum_achieveIncentive | intcomma }}</td>
+    <td class="thtd" colspan="2">{{ sum_table.achieveIncentive | intcomma }}</td>
+    <td class="thtd" colspan="2">{{ sum_table.achieveAward | intcomma }}</td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
