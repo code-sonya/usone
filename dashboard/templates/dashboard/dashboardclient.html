@@ -392,8 +392,8 @@
             method: 'POST',
             cache: false,
             data: {
-                'startdate': '{{ startdate| date:'Y-m-d' }}',
-                'enddate': '{{ enddate| date:'Y-m-d' }}',
+                'startdate': "{{ startdate| date:'Y-m-d' }}",
+                'enddate': "{{ enddate| date:'Y-m-d' }}",
                 'companyName': filterArray['companyName'],
             },
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
@@ -412,8 +412,8 @@
             method: 'POST',
             cache: false,
             data: {
-                'startdate': '{{ startdate| date:'Y-m-d' }}',
-                'enddate': '{{ enddate| date:'Y-m-d' }}',
+                'startdate': "{{ startdate| date:'Y-m-d' }}",
+                'enddate': "{{ enddate| date:'Y-m-d' }}",
                 'companyName': filterArray['companyName'],
                 'contractStep': '{{ contractStep }}',
             },
@@ -483,6 +483,7 @@
     filterArray['companyName'] = '';
     filterArray['contract'] = '';
     filterArray['service'] = '';
+    console.log(filterArray);
 
     // 매출금액 마진금액 산포도
     var ctx = document.getElementById("scatterPriceProfit").getContext('2d');
@@ -970,8 +971,8 @@
                 "processing": true,
                 "type": 'POST',
                 "data": {
-                    'startdate': '{{ startdate| date:'Y-m-d' }}',
-                    'enddate': '{{ enddate| date:'Y-m-d' }}',
+                    'startdate': "{{ startdate| date:'Y-m-d' }}",
+                     'enddate': "{{ enddate| date:'Y-m-d' }}",
                     'companyName': filterArray['companyName'],
                     'contractStep': '{{ contractStep }}',
                 },

@@ -970,6 +970,7 @@ def dashboard_client(request):
         enddate = request.POST['enddate']
         endCompanyName = request.POST['endCompanyName']
         contractStep = request.POST['contractStep']
+        print(request.POST)
 
         if contractStep:
             contracts = contracts.filter(Q(contractStep=contractStep))
@@ -990,6 +991,7 @@ def dashboard_client(request):
         axesMax = companySummary.aggregate(maxprice=Max('price'))['maxprice'] + 10
 
     else:
+        contracts = contracts.filter(contractDate__year=datetime.today().year)
         startdate = contracts.aggregate(startdate=Min('contractDate'))['startdate']
         enddate = contracts.aggregate(enddate=Max('contractDate'))['enddate']
         endCompanyName = ''
@@ -1079,7 +1081,7 @@ def contracts_asjson(request):
 
     contracts = Contract.objects.all().exclude(contractStep='Drop')
     if contractStep:
-        contracts = Contract.objects.filter(Q(contractStep=contractStep))
+        contracts = contracts.objects.filter(Q(contractStep=contractStep))
     if startdate:
         contracts = contracts.filter(Q(contractDate__gte=startdate))
     if enddate:
