@@ -13,6 +13,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max, Value, CharField
 import json
 import datetime
+from dateutil.relativedelta import relativedelta
+from xhtml2pdf import pisa
+from service.functions import link_callback
 
 
 # Create your views here.
@@ -183,22 +186,47 @@ def show_checklist(request):
     template = loader.get_template('daesungwork/showchecklist.html')
     centers = Center.objects.filter(centerStatus="Y")
     employees = Employee.objects.filter(empStatus="Y")
-    checklist = CheckList.objects.filter(checkListStatus="Y")
+    checklist = CheckList.objects.filter(checkListStatus="Y").order_by('checkListId')
+    confirmCheckList = ConfirmCheckList.objects.all()
     today = datetime.datetime.today()
     if CheckList.objects.all():
         if request.method == 'POST':
+            print(request.POST)
             centerName = request.POST['centerName']
             searchDay = request.POST['searchDay']
+            confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
             thisMonday = datetime.datetime(int(searchDay[:4]), int(searchDay[5:7]), int(searchDay[8:10]))
             thisSunday = thisMonday + datetime.timedelta(days=6)
             lastMonday = thisMonday - datetime.timedelta(days=7)
             nextMonday = thisMonday + datetime.timedelta(days=7)
-
+            confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
+            cheklistDict = {}
+            for check in checklist:
+                cheklistDict[check.checkListId] = ''
+            dateList = []
+            for day in range(0, 7):
+                data = confirmCheckList.filter(confirmDate=(thisMonday + relativedelta(days=day))).order_by('checkListId')
+                dateList.append({'empName': data.values('empId__empName').first(),
+                                 'confirmDate': (thisMonday + relativedelta(days=day)),
+                                 'data': data})
         else:
+            centerName = centers.first().centerName
+            confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
             thisMonday = today - datetime.timedelta(days=today.weekday())
             thisSunday = thisMonday + datetime.timedelta(days=6)
             lastMonday = thisMonday - datetime.timedelta(days=7)
             nextMonday = thisMonday + datetime.timedelta(days=7)
+            searchDay = thisMonday
+            confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
+            cheklistDict = {}
+            for check in checklist:
+                cheklistDict[check.checkListId] = ''
+            dateList = []
+            for day in range(0, 7):
+                data = confirmCheckList.filter(confirmDate=(thisMonday + relativedelta(days=day))).order_by('checkListId')
+                dateList.append({'empName': data.values('empId__empName').first(),
+                                 'confirmDate': (thisMonday + relativedelta(days=day)),
+                                 'data': data})
 
         context = {
             'today': today,
@@ -209,6 +237,10 @@ def show_checklist(request):
             'centers': centers,
             'employees': employees,
             'checklist': checklist,
+            'confirmCheckList': confirmCheckList,
+            'dateList': dateList,
+            'centerName': centerName,
+            'searchDay': searchDay,
         }
         return HttpResponse(template.render(context, request))
     else:
@@ -219,24 +251,60 @@ def show_checklist(request):
 @csrf_exempt
 def post_checklist(request):
     if request.POST:
-        print(request.POST)
         centerName = request.POST['modalCenterName']
         modalEmpName = request.POST['modalEmpName']
         modalCheckDate = request.POST['modalCheckDate']
-        checkListName = request.POST.getlist('checkListName')
-        cklist = request.POST.getlist('cklist')
-        comment = request.POST.getlist('comment')
         centerId = Center.objects.get(centerName=centerName)
-        checkListId = CheckList.objects.get(checkListName=checkListName)
         empId = Employee.objects.get(empId=modalEmpName)
-        # ConfirmCheckList.objects.create(
-        #     centerId=centerId,
-        #     empId=empId,
-        #     confirmDate=modalCheckDate,
-        #     checkListId=CheckList.objects.get(checkListName=checkListName),
-        #
-        # )
+
+        jsonCheckList = json.loads(request.POST['jsonCheckList'])
+        ConfirmCheckList.objects.filter(Q(confirmDate=modalCheckDate) & Q(centerId__centerName=centerName)).delete()
+        for item in jsonCheckList:
+            if item['checkListBox']:
+                checkListStatus = 'Y'
+            else:
+                checkListStatus = 'N'
+
+            file = None
+            if item['checkListFiles']:
+                fileName = item['checkListFiles'].split('\\')[-1]
+                for f in request.FILES.getlist('checkListFiles'):
+                    if f.name == fileName:
+                        file = f
+                        break
+
+            ConfirmCheckList.objects.create(
+                centerId=centerId,
+                empId=empId,
+                confirmDate=modalCheckDate,
+                checkListId=CheckList.objects.get(checkListName=item['checkListName']),
+                checkListStatus=checkListStatus,
+                comment=item['checkListComment'],
+                file=file,
+            )
         return redirect('daesungwork:showchecklist')
 
     else:
         return HttpResponse('점검 항목이 없습니다. 점검항목을 등록해 주세요.')
+
+
+@login_required
+@csrf_exempt
+def view_checklist_pdf(request, month):
+    todayYear = month[:4]
+    todayMonth = month[5:]
+    context = {
+        'todayYear': todayYear,
+        'todayMonth': todayMonth,
+    }
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{} 센터별 체크리스트.pdf"'.format(month)
+
+    template = get_template('daesungwork/viewchecklistpdf.html')
+    html = template.render(context, request)
+    # create a pdf
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response

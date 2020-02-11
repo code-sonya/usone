@@ -48,54 +48,66 @@
     <div class="card shadow mb-4">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 h3 text-gray-800"> 센터별 체크리스트</h6>
-        <a class="btn bg-primary text-white" href="#" role="button" id="postLink" data-toggle="modal" data-target="#postModal">
-            <span>점검</span>
-        </a>
       </div>
 
       <div class="card-body">
         <form method="POST" id="searchForm">
           {% csrf_token %}
-          <div class="row col-12">
-            <span class="col-xl-2 m-0">
-              <select class="form-control" id="centerName">
-                {% for center in centers %}
-                <option value="{{ center.centerName }}">
-                  {{ center.centerName }}
-                </option>
-                {% endfor %}
-              </select>
-            </span>
-          </div>
           <h5 class="text-center d-none d-xl-block mb-3">
             <i class="fas fa-angle-left text-primary" onclick="btn_move(1)"></i>
-            {{ thisMonday | date:"Y년 m월 d일" }} ~ {{ thisSunday | date:"Y년 m월 d일" }}
+            {{ thisMonday | date:"Y-m-d" }} ~ {{ thisSunday | date:"Y-m-d" }}
             <i class="fas fa-angle-right text-primary" onclick="btn_move(2)"></i>
           </h5>
 
           <h6 class="text-center d-xl-none mb-3">
             <i class="fas fa-angle-left text-primary" onclick="btn_move(1)"></i>
-            {{ thisMonday | date:"Y년 m월 d일" }} ~ {{ thisSunday | date:"Y년 m월 d일" }}
+            {{ thisMonday | date:"Y-m-d" }} ~ {{ thisSunday | date:"Y-m-d" }}
             <i class="fas fa-angle-right text-primary" onclick="btn_move(2)"></i>
           </h6>
+          <div class="row m-1 justify-content-between">
+            <span>
+              <select class="form-control" id="centerName" onchange="btn_change(this.value)">
+                {% for center in centers %}
+                <option value="{{ center.centerName }}" {% if centerName == center.centerName %} selected {% endif %} >
+                  {{ center.centerName }}
+                </option>
+                {% endfor %}
+              </select>
+            </span>
+            <a class="btn bg-primary text-white" href="#" role="button" id="postLink" data-toggle="modal" data-target="#postModal">
+              <span>점검</span>
+            </a>
+          </div>
         </form>
           <div class="row mb-3 center">
-            {% if centermanager %}
+            {% if confirmCheckList%}
               <table class="pc-table m-2" style="width: 100%;">
                 <tr style="background-color: #c5e4f8; color: black;">
-                  <th class="font-weight-normal">담당자</th>
-                  <th class="font-weight-normal">담당구역</th>
-                  <th class="font-weight-normal">추가관리</th>
-                  <th class="font-weight-normal">대청소담당구역</th>
+                  <th width="10%" class="font-weight-normal" style="background-color: #deeef8;">점검일자</th>
+                  <th width="10%" class="font-weight-normal bg-gray-400">점검자</th>
+                  {% for check in checklist %}
+                  <th width="10%" class="font-weight-normal" >{{ check.checkListName}}</th>
+                  {% endfor %}
                 </tr>
-
-                {% for emp in centermanageremps %}
-                  <tr>
-                    <th class="font-weight-normal text-dark" style="background-color: #deeef8;">{{ emp.empId.empName }}</th>
-                    <th class="font-weight-normal text-dark">{{ emp.manageArea.centerName }}</th>
-                    <th class="font-weight-normal text-dark">{{ emp.additionalArea }}</th>
-                    <th class="font-weight-normal text-dark">{{ emp.cleanupArea.centerName }}</th>
-                  </tr>
+                {% for date in dateList %}
+                <tr>
+                  <th width="10%" class="font-weight-normal text-dark" style="background-color: #deeef8;">{{ date.confirmDate |date:'Y-m-d' }}</th>
+                  <th width="10%" class="font-weight-normal bg-gray-200">{{ date.empName.empId__empName }}</th>
+                  {% if date.data %}
+                    {% for d in date.data %}
+                      <th width="10%" class="font-weight-normal text-dark" >
+                        {% if d.checkListStatus != 'Y'  %} 이상 {% else %} V {% endif %}
+                        {% if d.file %}
+                        <a href="/media/{{ d.file }}" target="_blank"><i class="fas fa-camera-retro text-primary"></i></a>
+                        {% endif %}
+                      </th>
+                    {% endfor %}
+                  {% else %}
+                    {% for check in checklist %}
+                    <th width="10%" class="font-weight-normal text-dark" ></th>
+                    {% endfor %}
+                  {% endif %}
+                </tr>
                 {% endfor %}
               </table>
             {% else %}
@@ -103,29 +115,15 @@
               <tr style="background-color: #deeef8; color: black;">
                 <td><span style="width:100%" class="text-center center mb-3">조회 기간에 해당하는 <span class="text-danger">체크리스트 없음</span></span></td>
               </tr>
-
             </table>
             {% endif %}
           </div>
         </form>
-
-        <div class="row justify-content-between">
-          <h5 class="text-primary ml-3 mr-3">
-            <span class="text-dark">▼</span> 작성 목록
-          </h5>
-        </div>
-
-        <div id="centerManagerdiv">
-          <table id="showcentermanagers" class="display" style="width:100%">
-            <thead style="width:100%">
-            <tr style="background-color: #deeef8; color: black;">
-              <td>번호</td>
-              <td>기간</td>
-              <td>작성자</td>
-              <td>작성일시</td>
-            </tr>
-            </thead>
-          </table>
+        <div class="input-group" style="width: 220px;">
+          <input type="month" class="form-control" name="pdfmonth" id="pdfmonth">
+          <a class="btn bg-warning text-white" onclick="btn_pdf()">
+            <span>PDF</span>
+          </a>
         </div>
       </div>
     </div>
@@ -133,7 +131,7 @@
 </div>
 
 <div class="modal fade" id="postModal" tabindex="-1" role="dialog" aria-labelledby="postModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
@@ -144,7 +142,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="postForm" action="/daesungwork/postchecklist/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_post();}">
+          <form id="postForm" action="/daesungwork/postchecklist/" enctype="multipart/form-data" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_post();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6">
@@ -178,15 +176,17 @@
               {% if checklist %}
                   <table class="pc-table2" style="width: 100%;">
                     <tr style="background-color: #c5e4f8;color: black">
-                      <td>점검항목</td>
-                      <td><input type="checkbox" class="checkall"> 점검여부</td>
+                      <td>항목</td>
+                      <td><input type="checkbox" class="checkall">점검여부</td>
                       <td>비고</td>
+                      <td>첨부파일</td>
                     </tr>
                     {% for check in checklist %}
                     <tr>
                       <td name="checkListName" style="background-color: #deeef8; color: black">{{ check.checkListName }}</td>
-                      <td><input naem="cklist" type="checkbox" class="check" value="{{ check.checkListName }}"></td>
-                      <td><input name="comment" type="text" class="form-control"></td>
+                      <td style="color: black"><input name="checkListBox" type="checkbox" class="check" value="{{ check.checkListId }}"></td>
+                      <td><input name="checkListComment" type="text" class="form-control"></td>
+                      <td><input name="checkListFiles" type="file" class="file"></td>
                     </tr>
                     {% endfor %}
                   </table>
@@ -208,16 +208,36 @@
 
 <script type="text/javascript">
     $('.checkall').click(function () {
-            $('.check').prop('checked', this.checked);
+        $('.check').prop('checked', this.checked);
     });
 
     function replaceAll(str, searchStr, replaceStr) {
-          if (str != null) {
-              var new_str = str.split(searchStr).join(replaceStr);
-              return new_str.split("T").join(" ").slice(0, 16);
-          } else {
-              return '-'
-          }
+        if (str != null) {
+            var new_str = str.split(searchStr).join(replaceStr);
+            return new_str.split("T").join(" ").slice(0, 16);
+        } else {
+            return '-'
+        }
+    }
+    
+    function btn_pdf() {
+        const month = document.getElementById("pdfmonth").value;
+        window.open('/daesungwork/viewchecklistpdf/'+ month + '/');
+    }
+    
+    function btn_change(centerName) {
+        const searchForm = document.getElementById('searchForm');
+        const searchDayInput = document.createElement("input");
+        searchDayInput.setAttribute("type", "hidden");
+        searchDayInput.setAttribute("name", "searchDay");
+        searchDayInput.setAttribute("value", "{{ thisMonday |date:'Y-m-d'}}");
+        searchForm.appendChild(searchDayInput);
+        const centerNameInput = document.createElement("input");
+        centerNameInput.setAttribute("type", "hidden");
+        centerNameInput.setAttribute("name", "centerName");
+        centerNameInput.setAttribute("value", centerName);
+        searchForm.appendChild(centerNameInput);
+        searchForm.submit();
     }
 
     function btn_post() {
@@ -226,6 +246,25 @@
             return false;
         }
         const postForm = document.getElementById('postForm');
+
+        // 센터 담당자
+        const lengthItem = $('[name="checkListName"]').length;
+        const listItem = new Array();
+        console.log('lengthItem:', lengthItem);
+        for (var i = 0; i <= lengthItem - 1; i++) {
+            var data = new Object();
+            data.checkListName = $('td[name="checkListName"]').eq(i).text();
+            data.checkListBox = $('input[name="checkListBox"]').eq(i).is(":checked");
+            data.checkListComment = $('input[name="checkListComment"]').eq(i).val();
+            data.checkListFiles = $('input[name="checkListFiles"]').eq(i).val();
+            listItem.push(data);
+          }
+        const jsonCheckList = JSON.stringify(listItem);
+        const item = document.createElement("input");
+        item.setAttribute("type", "hidden");
+        item.setAttribute("name", "jsonCheckList");
+        item.setAttribute("value", jsonCheckList);
+        postForm.appendChild(item);
         postForm.submit();
 
     }
@@ -270,68 +309,6 @@
 
     $(document).ready(function () {
 
-        $('#showcentermanagers').dataTable({
-            "processing": true,
-            "ajax": {
-                "processing": true,
-                "type": 'POST',
-                "data": {
-                    "userId": "{{ user.employee.empId }}",
-                },
-                "url": "{% url 'daesungwork:centermanagerasjson' %}",
-                "dataSrc": ""
-            },
-            "columns": [
-                {data: "centerManagerId", },
-                {data: "startDate",
-                  "render": function (data, type, row) {
-                        return '<div>'+ row['startDate'] +" ~ "+ row['endDate'] +'</div>'
-                  },
-                },
-                {data: "writeEmp__empName"},
-                {data: "createdDatetime"},
-            ],
-            "columnDefs": [
-                {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 1, width: "35%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 3, width: "35%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-            ],
-            "deferRender": true,
-            "bLengthChange" : false,
-            "order": [[0, 'desc']],
-            "searching": false,
-            "paging": true,
-            "info": false,
-            "scrollY": "80vh",
-            "scrollX": true,
-            "scrollCollapse": true,
-            "language": {
-                "lengthMenu": "_MENU_",
-                "search": "검색:",
-                "zeroRecords": "결과 없음",
-                "processing": "로딩중",
-                "paginate": {
-                    "first": "처음",
-                    "last": "끝",
-                    "next": "→",
-                    "previous": "←"
-                },
-            },
-            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(3)', nRow).text(replaceAll(aData.createdDatetime, "-", "-"));
-            },
-            "footerCallback": function () {
-            },
-        });
-
-        const centermanagersTable = $('#showcentermanagers').DataTable();
-
-        $("#showcentermanagers").on("click", 'tr', function () {
-            const data = centermanagersTable.row(this).data();
-            // window.open('about:blank').location.href = '/daesungwork/viewcentermanager/' + data.centerManagerId + '/';
-            location.href = '/daesungwork/viewcentermanager/' + data.centerManagerId + '/'
-        });
     });
 
 
