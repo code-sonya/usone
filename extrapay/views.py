@@ -284,9 +284,9 @@ def approval_fuel(request, empId):
 
     btnStatus = 'N'
     if m == 12:
-        approvalDate = datetime(y+1, 1, 7)
+        approvalDate = datetime(y+1, 1, 15)
     else:
-        approvalDate = datetime(y, m+1, 7)
+        approvalDate = datetime(y, m+1, 15)
     if approvalDate > datetime.today():
         btnStatus = 'Y'
 
@@ -1026,11 +1026,15 @@ def view_fuel_pdf(request, yearmonth):
 
     fuels = [
         cal_fuel(todayYear, todayMonth, '경영지원본부'),
-        cal_fuel(todayYear, todayMonth, '영업1팀'),
-        cal_fuel(todayYear, todayMonth, '영업2팀'),
-        cal_fuel(todayYear, todayMonth, '인프라서비스사업팀'),
-        cal_fuel(todayYear, todayMonth, '솔루션지원팀'),
-        cal_fuel(todayYear, todayMonth, 'DB지원팀'),
+        cal_fuel(todayYear, todayMonth, '경영지원실'),
+        cal_fuel(todayYear, todayMonth, '인프라솔루션사업부'),
+        cal_fuel(todayYear, todayMonth, '영업팀'),
+        cal_fuel(todayYear, todayMonth, 'R&D 전략사업부'),
+        cal_fuel(todayYear, todayMonth, 'Technical Architecture팀'),
+        cal_fuel(todayYear, todayMonth, 'AI Platform Labs'),
+        cal_fuel(todayYear, todayMonth, 'Platform Biz'),
+        cal_fuel(todayYear, todayMonth, '솔루션팀'),
+        cal_fuel(todayYear, todayMonth, 'DB Expert팀'),
     ]
 
     summary = cal_fuel(todayYear, todayMonth)
