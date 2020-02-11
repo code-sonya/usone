@@ -2234,7 +2234,7 @@ def save_profitloss(request):
         return HttpResponse("잘못된 양식입니다. 엑셀에 Ⅳ.판매비와관리비 , Ⅴ.영업이익이 포함 되어 있어야 합니다. 관리자에게 문의하세요 :)")
 
     status = False
-    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='손익') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
+    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='손익') & Q(expenseDate__year=todayYear) & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
     for index, rows in data[select_col].iterrows():
 
         if "".join(index.split()) == 'Ⅴ.영업이익':
@@ -2287,8 +2287,8 @@ def save_cost(request):
     if todayYear < 2020:
         select_col = ['솔루션지원팀(5100)', 'DB지원팀(5300)']
     else:
-        select_col = ['솔루션팀(5100)', 'DB Expert팀(5200)']
-    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가') & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
+        select_col = ['Platform Biz_이사(5000)', '솔루션팀(5100)', 'DB Expert팀(5200)']
+    Expense.objects.filter(Q(expenseStatus='Y') & Q(expenseType='원가') & Q(expenseDate__year=todayYear) & Q(expenseDate__month=todayMonth)).update(expenseStatus='N')
 
     main_cate = ''
     for index, rows in data[select_col].iterrows():
@@ -2313,7 +2313,7 @@ def save_cost(request):
                         Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
                                                expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
                 else:
-                    for i, v in enumerate(['솔루션팀', 'DB Expert팀']):
+                    for i, v in enumerate(['Platform Biz_이사', '솔루션팀', 'DB Expert팀']):
                         Expense.objects.create(expenseDate=today, expenseType='원가', expenseDept=v, expenseMain=main_cate,
                                                expenseSub=sub, expenseMoney=rows[i], expenseGroup=group)
 
