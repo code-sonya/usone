@@ -48,8 +48,7 @@ def filter_asjson(request):
             Q(saleEmpId=empId)
         )
 
-    companylist = companylist.values('companyName', 'companyNameKo', 'saleEmpId__empName', 'dbMainEmpId__empName', 'dbSubEmpId__empName', 'solutionMainEmpId__empName',
-                                     'solutionSubEmpId__empName', 'dbContractEndDate', 'solutionContractEndDate')
+    companylist = companylist.values('companyName', 'companyNameKo', 'saleEmpId__empName', 'ceo', 'companyNumber', 'companyAddress',)
     structure = json.dumps(list(companylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -94,6 +93,29 @@ def post_client(request):
             'form': form,
         }
         return HttpResponse(template.render(context, request))
+
+
+@login_required
+def modify_client(request, companyName):
+    template = loader.get_template('client/postclient.html')
+    companyInstance = Company.objects.get(companyName=companyName)
+    if request.method == "POST":
+        form = CompanyForm(request.POST, instance=companyInstance)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+
+            return redirect('client:view_client', companyName)
+
+    else:
+        form = CompanyForm(instance=companyInstance)
+        context = {
+            'form': form,
+            'modify': 'N'
+        }
+        return HttpResponse(template.render(context, request))
+
+
 
 
 @login_required

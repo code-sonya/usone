@@ -11,15 +11,19 @@
   <style type="text/css">
 
     .table {
-      color: #585858;
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      margin-bottom: 1rem;
       font-weight: normal;
     }
 
     .table td, .table th {
       padding: .75rem;
       vertical-align: middle;
-      border-top: 1px solid #ffffff;
+      border: 1px solid #e6eaf2;
       white-space: normal;
+      font-size: 1.0vw;
     }
 
     .a {
@@ -54,7 +58,6 @@
 
     }
 
-
   </style>
 
 {% endblock %}
@@ -69,44 +72,69 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> {{ company.companyName }} </h6>
+          <h6 class="m-0 h3 text-gray-800"> {{ company.companyNameKo }} [{{ company.companyName }}] </h6>
         </div>
 
         <div class="card-body">
           {% csrf_token %}
-          <table class="table mb-0" width="100%">
+          <table class="table p-2" width="100%">
             <tbody>
             <tr class="row">
-              <td class="col-2 a"><b>영업대표</b></td>
+              <td class="col-2 a"><b>담당자</b></td>
               <td class="col-10">{{ company.saleEmpId.empName }}</td>
+            </tr>
+            <tr class="row">
+              <td class="col-2 a"><b>고객사 대표</b></td>
+              <td class="col-10">
+                {% if company.ceo %}
+                  {{ company.ceo }}
+                {% else %}
+                  -
+                {% endif %}</td>
+            </tr>
+            <tr class="row">
+              <td class="col-2 a"><b>사업자등록번호</b></td>
+              <td class="col-10">
+                {% if company.companyNumber %}
+                  {{ company.companyNumber }}
+                {% else %}
+                  -
+                {% endif %}</td>
             </tr>
 
             <tr class="row">
               <td class="col-2 a"><b>주소</b></td>
-              <td class="col-10">{{ company.companyAddress }}</td>
-            </tr>
-
-            <tr class="row">
-              <th class="col-2 a">진행계약</th>
               <td class="col-10">
-                {% if contracts %}
-                  {% for contract in contracts %}
-
-                    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' %}
-                      <span>[<a class='text-info' href="/sales/viewcontract/{{ contract.contractId }}/">{{ contract.contractCode }}</a>]</span>
-                    {% else %}
-                      <span>[{{ contract.contractCode }}]</span>
-                    {% endif %}
-                    <span>{{ contract.contractName }}</span>
-                    ({{ contract.contractStartDate }} ~ {{ contract.contractEndDate }})
-                    <br>
-                  {% endfor %}
+                {% if company.companyAddress %}
+                  {{ company.companyAddress }}
+                {% else %}
+                  -
                 {% endif %}
+
               </td>
             </tr>
+
+            <!--<tr class="row">-->
+              <!--<th class="col-2 a">진행계약</th>-->
+              <!--<td class="col-10">-->
+                <!--{% if contracts %}-->
+                  <!--{% for contract in contracts %}-->
+
+                    <!--{% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' %}-->
+                      <!--<span>[<a class='text-info' href="/sales/viewcontract/{{ contract.contractId }}/">{{ contract.contractCode }}</a>]</span>-->
+                    <!--{% else %}-->
+                      <!--<span>[{{ contract.contractCode }}]</span>-->
+                    <!--{% endif %}-->
+                    <!--<span>{{ contract.contractName }}</span>-->
+                    <!--({{ contract.contractStartDate }} ~ {{ contract.contractEndDate }})-->
+                    <!--<br>-->
+                  <!--{% endfor %}-->
+                <!--{% endif %}-->
+              <!--</td>-->
+            <!--</tr>-->
             <tr class="row">
-              <th class="col-2 a">담당자<br>
-                <a href="#" class="btn btn-info btn-icon-split btn-sm" onclick="location.href='/client/postcustomer/{{ company.companyName }}'">
+              <th class="col-2 a">고객사담당자<br>
+                <a href="#" class="btn btn-success btn-icon-split btn-sm" onclick="location.href='/client/postcustomer/{{ company.companyName }}'">
                   <span id="check" class="icon text-white-50">
                     <i class="fas fa-plus"></i>
                   </span>
@@ -121,181 +149,191 @@
               </td>
             </tr>
 
-            <tr class="row">
-              <th class="col-2 a">엔지니어</th>
-              <td class="col-10">
-                <table class="table table" style="margin-bottom: 0px">
-                  <thead>
-                  <tr class="row" style="text-align: center;">
-                    <td class="col-3"><B>DB 담당자(정)</B></td>
-                    <td class="col-3"><B>DB 담당자(부)</B></td>
-                    <td class="col-3"><B>SYSTEM 담당자(정)</B></td>
-                    <td class="col-3"><B>SYSTEM 담당자(부)</B></td>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr class="row" style="text-align: center;">
-                    <td class="col-3">{% if company.dbMainEmpId %}{{ company.dbMainEmpId.empName }}{% else %}-{% endif %}</td>
-                    <td class="col-3">{% if company.dbSubEmpId %}{{ company.dbSubEmpId.empName }}{% else %}-{% endif %}</td>
-                    <td class="col-3">{% if company.solutionMainEmpId %}{{ company.solutionMainEmpId.empName }}{% else %}-{% endif %}</td>
-                    <td class="col-3">{% if company.solutionSubEmpId %}{{ company.solutionSubEmpId.empName }}{% else %}-{% endif %}</td>
-                  </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
+            <!--<tr class="row">-->
+              <!--<th class="col-2 a">엔지니어</th>-->
+              <!--<td class="col-10">-->
+                <!--<table class="table table" style="margin-bottom: 0px">-->
+                  <!--<thead>-->
+                  <!--<tr class="row" style="text-align: center;">-->
+                    <!--<td class="col-3"><B>DB 담당자(정)</B></td>-->
+                    <!--<td class="col-3"><B>DB 담당자(부)</B></td>-->
+                    <!--<td class="col-3"><B>SYSTEM 담당자(정)</B></td>-->
+                    <!--<td class="col-3"><B>SYSTEM 담당자(부)</B></td>-->
+                  <!--</tr>-->
+                  <!--</thead>-->
+                  <!--<tbody>-->
+                  <!--<tr class="row" style="text-align: center;">-->
+                    <!--<td class="col-3">{% if company.dbMainEmpId %}{{ company.dbMainEmpId.empName }}{% else %}-{% endif %}</td>-->
+                    <!--<td class="col-3">{% if company.dbSubEmpId %}{{ company.dbSubEmpId.empName }}{% else %}-{% endif %}</td>-->
+                    <!--<td class="col-3">{% if company.solutionMainEmpId %}{{ company.solutionMainEmpId.empName }}{% else %}-{% endif %}</td>-->
+                    <!--<td class="col-3">{% if company.solutionSubEmpId %}{{ company.solutionSubEmpId.empName }}{% else %}-{% endif %}</td>-->
+                  <!--</tr>-->
+                  <!--</tbody>-->
+                <!--</table>-->
+              <!--</td>-->
+            <!--</tr>-->
 
-            <tr class="row b">
-              <th class="col-2 a">DB정보</th>
-              <td class="col-10">
-                <table class="table table" style="font-size: 12px">
-                  <thead>
-                  <tr>
-                    <td><b>CLASSIFICATION</b></td>
-                    <td><b>SID</b></td>
-                    <td><b>VERSION</b></td>
-                    <td><b>DBTYPE</b></td>
-                    <td><b>OSTYPE</b></td>
-                    <td><b>APPLIANCE</b></td>
-                    <td><b>DUPLICATION</b></td>
-                    <td><b>DATASIZE_MB</b></td>
-                    <td><b>REMARKS</b></td>
-                  </tr>
-                  </thead>
+            <!--<tr class="row b">-->
+              <!--<th class="col-2 a">DB정보</th>-->
+              <!--<td class="col-10">-->
+                <!--<table class="table table" style="font-size: 12px">-->
+                  <!--<thead>-->
+                  <!--<tr>-->
+                    <!--<td><b>CLASSIFICATION</b></td>-->
+                    <!--<td><b>SID</b></td>-->
+                    <!--<td><b>VERSION</b></td>-->
+                    <!--<td><b>DBTYPE</b></td>-->
+                    <!--<td><b>OSTYPE</b></td>-->
+                    <!--<td><b>APPLIANCE</b></td>-->
+                    <!--<td><b>DUPLICATION</b></td>-->
+                    <!--<td><b>DATASIZE_MB</b></td>-->
+                    <!--<td><b>REMARKS</b></td>-->
+                  <!--</tr>-->
+                  <!--</thead>-->
 
-                  <tbody>
-                  {% for db in dbms %}
-                    <tr>
-                      <td> {{ db.CLASSIFICATION }} </td>
-                      <td> {{ db.SID }} </td>
-                      <td> {{ db.VERSION }} </td>
-                      <td> {{ db.DBTYPE }} </td>
-                      <td> {{ db.OSTYPE }} </td>
-                      <td> {{ db.APPLIANCE }} </td>
-                      <td> {{ db.DUPLICATION }} </td>
-                      <td> {{ db.DATASIZE_MB }} </td>
-                      <td> {{ db.REMARKS }} </td>
-                    </tr>
-                  {% endfor %}
-                  </tbody>
-                </table>
-              </td>
-            </tr>
+                  <!--<tbody>-->
+                  <!--{% for db in dbms %}-->
+                    <!--<tr>-->
+                      <!--<td> {{ db.CLASSIFICATION }} </td>-->
+                      <!--<td> {{ db.SID }} </td>-->
+                      <!--<td> {{ db.VERSION }} </td>-->
+                      <!--<td> {{ db.DBTYPE }} </td>-->
+                      <!--<td> {{ db.OSTYPE }} </td>-->
+                      <!--<td> {{ db.APPLIANCE }} </td>-->
+                      <!--<td> {{ db.DUPLICATION }} </td>-->
+                      <!--<td> {{ db.DATASIZE_MB }} </td>-->
+                      <!--<td> {{ db.REMARKS }} </td>-->
+                    <!--</tr>-->
+                  <!--{% endfor %}-->
+                  <!--</tbody>-->
+                <!--</table>-->
+              <!--</td>-->
+            <!--</tr>-->
 
-            <tr class="row">
-              <td class="col-2 a"><b>DB참고사항</b></td>
-              <td class="col-10">
-                <p id="db_comment_text">
-                  {% if company.dbComment %}{{ company.dbComment }}{% else %}{% endif %}
-                </p>
-                {% if user.employee.empId == company.dbMainEmpId.empId or user.employee.empId == company.dbSubEmpId.empId %}
-                  <form id="dbsaveComment" method="POST">
-                    {% csrf_token %}
-                    <textarea id="dbtextArea" name="dbtextArea" style="display: none" class="form-control" rows="3">{{ company.dbComment }}</textarea>
-                    <button id="dbcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="dbcommentSubmit()">저장</button>
-                  </form>
-                  <button id="dbcomment" algin="right" class="btn btn-info c" onclick="db_comment()">참고사항작성</button>
-                  <br>
-                {% endif %}
-              </td>
-            </tr>
+            <!--<tr class="row">-->
+              <!--<td class="col-2 a"><b>DB참고사항</b></td>-->
+              <!--<td class="col-10">-->
+                <!--<p id="db_comment_text">-->
+                  <!--{% if company.dbComment %}{{ company.dbComment }}{% else %}{% endif %}-->
+                <!--</p>-->
+                <!--{% if user.employee.empId == company.dbMainEmpId.empId or user.employee.empId == company.dbSubEmpId.empId %}-->
+                  <!--<form id="dbsaveComment" method="POST">-->
+                    <!--{% csrf_token %}-->
+                    <!--<textarea id="dbtextArea" name="dbtextArea" style="display: none" class="form-control" rows="3">{{ company.dbComment }}</textarea>-->
+                    <!--<button id="dbcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="dbcommentSubmit()">저장</button>-->
+                  <!--</form>-->
+                  <!--<button id="dbcomment" algin="right" class="btn btn-info c" onclick="db_comment()">참고사항작성</button>-->
+                  <!--<br>-->
+                <!--{% endif %}-->
+              <!--</td>-->
+            <!--</tr>-->
 
-            <tr class="row b">
-              <th class="col-2 a">SYSTEM정보</th>
-              <td class="col-10">{{ company.companySystem }}</td>
-            </tr>
+            <!--<tr class="row b">-->
+              <!--<th class="col-2 a">SYSTEM정보</th>-->
+              <!--<td class="col-10">{{ company.companySystem }}</td>-->
+            <!--</tr>-->
 
-            <tr class="row">
-              <th class="col-2 a">SYSTEM참고사항</th>
-              <td class="col-10">
-                <p id="sol_comment_text" method="POST">
-                  {% if company.solutionComment %}{{ company.solutionComment }}{% else %}{% endif %}
-                </p>
-                {% if user.employee.empId == company.solutionMainEmpId.empId or user.employee.empId == company.solutionSubEmpId.empId %}
-                  <form name="solsaveComment" method="POST">
-                    {% csrf_token %}
-                    <textarea id="soltextArea" name="soltextArea" style="display: none" class="form-control" rows="3"> </textarea>
-                    <button id="solcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="solcommentSubmit()">저장</button>
-                  </form>
-                  <button id="solcomment" algin="right" class="btn btn-info c" onclick="sol_comment()">참고사항작성</button><br>
-                {% endif %}
-              </td>
-            </tr>
-            </tbody>
+            <!--<tr class="row">-->
+              <!--<th class="col-2 a">SYSTEM참고사항</th>-->
+              <!--<td class="col-10">-->
+                <!--<p id="sol_comment_text" method="POST">-->
+                  <!--{% if company.solutionComment %}{{ company.solutionComment }}{% else %}{% endif %}-->
+                <!--</p>-->
+                <!--{% if user.employee.empId == company.solutionMainEmpId.empId or user.employee.empId == company.solutionSubEmpId.empId %}-->
+                  <!--<form name="solsaveComment" method="POST">-->
+                    <!--{% csrf_token %}-->
+                    <!--<textarea id="soltextArea" name="soltextArea" style="display: none" class="form-control" rows="3"> </textarea>-->
+                    <!--<button id="solcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="solcommentSubmit()">저장</button>-->
+                  <!--</form>-->
+                  <!--<button id="solcomment" algin="right" class="btn btn-info c" onclick="sol_comment()">참고사항작성</button><br>-->
+                <!--{% endif %}-->
+              <!--</td>-->
+            <!--</tr>-->
+            <!--</tbody>-->
           </table>
+          {% if user.is_staff %}
+          <div class="text-center">
+            <a href="#" class="btn btn-info btn-icon-split center" onclick="btn_modify()">
+            <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
+            <span class="text"> 수정 </span>
+            </a>
+          </div>
+          {% endif %}
+
         </div>
+
       </div>
 
-      {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
-        <div class="card shadow mb-4">
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 h3 text-gray-700">계약 이력</h6>
-          </div>
-          <div class="card-body">
-            <table id="showcontracts" class="mb-0 text-gray-600" width="100%">
-              <thead>
-              <tr class="bg-light">
-                <th>단계</th>
-                <th>영업부서</th>
-                <th>영업담당</th>
-                <th>계약명</th>
-                <th>거래처</th>
-                <th>매출금액</th>
-                <th>이익금액</th>
-                <th>계약일</th>
-                <th class="d-none">contractId</th>
-              </tr>
-              </thead>
-              <tfoot>
-              <tr>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th>TOTAL :</th>
-                <th></th>
-                <th></th>
-                <th></th>
-              </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
-      {% endif %}
+      <!--{% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}-->
+        <!--<div class="card shadow mb-4">-->
+          <!--<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">-->
+            <!--<h6 class="m-0 h3 text-gray-700">계약 이력</h6>-->
+          <!--</div>-->
+          <!--<div class="card-body">-->
+            <!--<table id="showcontracts" class="mb-0 text-gray-600" width="100%">-->
+              <!--<thead>-->
+              <!--<tr class="bg-light">-->
+                <!--<th>단계</th>-->
+                <!--<th>영업부서</th>-->
+                <!--<th>영업담당</th>-->
+                <!--<th>계약명</th>-->
+                <!--<th>거래처</th>-->
+                <!--<th>매출금액</th>-->
+                <!--<th>이익금액</th>-->
+                <!--<th>계약일</th>-->
+                <!--<th class="d-none">contractId</th>-->
+              <!--</tr>-->
+              <!--</thead>-->
+              <!--<tfoot>-->
+              <!--<tr>-->
+                <!--<th></th>-->
+                <!--<th></th>-->
+                <!--<th></th>-->
+                <!--<th></th>-->
+                <!--<th>TOTAL :</th>-->
+                <!--<th></th>-->
+                <!--<th></th>-->
+                <!--<th></th>-->
+              <!--</tr>-->
+              <!--</tfoot>-->
+            <!--</table>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--{% endif %}-->
 
-      <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-700">지원 이력</h6>
-        </div>
-        <div class="card-body">
-          <table id="showservices" class="mb-0 text-gray-600" width="100%">
-            <thead>
-            <tr class="bg-light">
-              <th>날짜</th>
-              <th>성함</th>
-              <th>부서</th>
-              <th>구분</th>
-              <th>지원시간</th>
-              <th>초과근무</th>
-              <th>내용</th>
-              <th class="d-none">serviceId</th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th>TOTAL :</th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-            </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
+      <!--<div class="card shadow mb-4">-->
+        <!--<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">-->
+          <!--<h6 class="m-0 h3 text-gray-700">지원 이력</h6>-->
+        <!--</div>-->
+        <!--<div class="card-body">-->
+          <!--<table id="showservices" class="mb-0 text-gray-600" width="100%">-->
+            <!--<thead>-->
+            <!--<tr class="bg-light">-->
+              <!--<th>날짜</th>-->
+              <!--<th>성함</th>-->
+              <!--<th>부서</th>-->
+              <!--<th>구분</th>-->
+              <!--<th>지원시간</th>-->
+              <!--<th>초과근무</th>-->
+              <!--<th>내용</th>-->
+              <!--<th class="d-none">serviceId</th>-->
+            <!--</tr>-->
+            <!--</thead>-->
+            <!--<tfoot>-->
+            <!--<tr>-->
+              <!--<th></th>-->
+              <!--<th></th>-->
+              <!--<th></th>-->
+              <!--<th>TOTAL :</th>-->
+              <!--<th></th>-->
+              <!--<th></th>-->
+              <!--<th></th>-->
+              <!--<th></th>-->
+            <!--</tr>-->
+            <!--</tfoot>-->
+          <!--</table>-->
+        <!--</div>-->
+      <!--</div>-->
     </div>
   </div>
 
@@ -308,6 +346,11 @@
       function replaceAll(str, searchStr, replaceStr) {
           var new_str = str.split(searchStr).join(replaceStr);
           return new_str.split("T").join(" ").slice(0, 10);
+      }
+
+      function btn_modify() {
+          location.href = '/client/modifyclient/{{ company.companyName }}/'
+
       }
 
       function db_comment() {

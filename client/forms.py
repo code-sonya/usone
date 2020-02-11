@@ -22,7 +22,7 @@ class CompanyForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CompanyForm, self).__init__(*args, **kwargs)
-        self.fields["saleEmpId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
+        self.fields["saleEmpId"].queryset = Employee.objects.filter(Q(empStatus='Y'))
 
 
 class CustomerForm(forms.ModelForm):
