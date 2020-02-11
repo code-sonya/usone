@@ -16,6 +16,8 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from xhtml2pdf import pisa
 from service.functions import link_callback
+import calendar
+
 
 
 # Create your views here.
@@ -191,7 +193,6 @@ def show_checklist(request):
     today = datetime.datetime.today()
     if CheckList.objects.all():
         if request.method == 'POST':
-            print(request.POST)
             centerName = request.POST['centerName']
             searchDay = request.POST['searchDay']
             confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
@@ -227,7 +228,6 @@ def show_checklist(request):
                 dateList.append({'empName': data.values('empId__empName').first(),
                                  'confirmDate': (thisMonday + relativedelta(days=day)),
                                  'data': data})
-
         context = {
             'today': today,
             'thisMonday': thisMonday,
@@ -241,6 +241,7 @@ def show_checklist(request):
             'dateList': dateList,
             'centerName': centerName,
             'searchDay': searchDay,
+            'checklists': checklist,
         }
         return HttpResponse(template.render(context, request))
     else:
@@ -293,9 +294,29 @@ def post_checklist(request):
 def view_checklist_pdf(request, month):
     todayYear = month[:4]
     todayMonth = month[5:]
+    centers = Center.objects.filter(centerStatus="Y")
+    checklists = CheckList.objects.filter(checkListStatus="Y").order_by('checkListId')
+    table = []
+    for center in centers:
+        for checklist in checklists:
+            rowDict = {'centerName': center.centerName, 'checkListId': checklist.checkListId, 'checkListName': checklist.checkListName}
+            confirmCheckList = ConfirmCheckList.objects.filter(Q(centerId=center.centerId) & Q(checkListId=checklist.checkListId))
+            dateTuple = calendar.monthrange(int(todayYear), int(todayMonth))
+            dateDict = []
+            for date in range(1, dateTuple[1]+1):
+                try:
+                    dateDict.append(confirmCheckList.get(confirmDate='{}-{}-{}'.format(todayYear, todayMonth, date)).checkListStatus)
+                except:
+                    dateDict.append('-')
+            rowDict['dateDict'] = dateDict
+            table.append(rowDict)
+
     context = {
         'todayYear': todayYear,
         'todayMonth': todayMonth,
+        'checklists': checklists,
+        'table': table,
+        'days':  range(1, dateTuple[1]+1)
     }
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="{} 센터별 체크리스트.pdf"'.format(month)

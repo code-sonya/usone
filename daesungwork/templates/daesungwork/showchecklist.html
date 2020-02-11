@@ -81,7 +81,7 @@
         </form>
           <div class="row mb-3 center">
             {% if confirmCheckList%}
-              <table class="pc-table m-2" style="width: 100%;">
+              <table class="pc-table m-2 d-none d-xl-block" style="width: 100%;">
                 <tr style="background-color: #c5e4f8; color: black;">
                   <th width="10%" class="font-weight-normal" style="background-color: #deeef8;">점검일자</th>
                   <th width="10%" class="font-weight-normal bg-gray-400">점검자</th>
@@ -110,6 +110,39 @@
                 </tr>
                 {% endfor %}
               </table>
+            <!--모바일 화면-->
+              <table class="pc-table m-2 d-xl-none" style="width: 100%;">
+                <tr style="background-color: #c5e4f8; color: black;">
+                  <th width="10%" class="font-weight-normal" style="background-color: #deeef8;font-size: small;">일자</th>
+                  {% for check in checklist %}
+                  <th width="10%" class="font-weight-normal" style="font-size: small;">{{ check.checkListId}}</th>
+                  {% endfor %}
+                </tr>
+                {% for date in dateList %}
+                <tr>
+                  <th width="10%" class="font-weight-normal text-dark" style="background-color: #deeef8;font-size: x-small">{{ date.confirmDate |date:'Y.m.d' }}</th>
+                  {% if date.data %}
+                    {% for d in date.data %}
+                      <th width="10%" class="font-weight-normal text-dark" style="font-size: x-small">
+                        {% if d.checkListStatus != 'Y'  %} X {% else %} V {% endif %}
+                        {% if d.file %}
+                        <a href="/media/{{ d.file }}" target="_blank"><i class="fas fa-camera-retro text-primary"></i></a>
+                        {% endif %}
+                      </th>
+                    {% endfor %}
+                  {% else %}
+                    {% for check in checklist %}
+                    <th width="10%" class="font-weight-normal text-dark" ></th>
+                    {% endfor %}
+                  {% endif %}
+                </tr>
+                {% endfor %}
+              </table>
+              <div class="d-xl-none small m-2">
+                {% for checklist in checklists %}
+                <span>{{ checklist.checkListId }} : {{ checklist.checkListName }}</span>
+                {% endfor %}
+              </div>
             {% else %}
             <table class="pc-table m-2" style="width: 100%;">
               <tr style="background-color: #deeef8; color: black;">
@@ -120,7 +153,7 @@
           </div>
         </form>
         <div class="input-group" style="width: 220px;">
-          <input type="month" class="form-control" name="pdfmonth" id="pdfmonth">
+          <input type="month" class="form-control" name="pdfmonth" id="pdfmonth" max="9999-12">
           <a class="btn bg-warning text-white" onclick="btn_pdf()">
             <span>PDF</span>
           </a>
@@ -222,6 +255,10 @@
     
     function btn_pdf() {
         const month = document.getElementById("pdfmonth").value;
+        if(month==''){
+            alert("조회일자를 입력해주세요.");
+            return false;
+        }
         window.open('/daesungwork/viewchecklistpdf/'+ month + '/');
     }
     
