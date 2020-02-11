@@ -30,3 +30,26 @@ class Bookrental(models.Model):
 
     def __str__(self):
         return str(self.renter.empName) + ', ' + str(self.bookId.name)
+
+
+class Saving(models.Model):
+    savingId = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class SavingQuantity(models.Model):
+    quantityId = models.AutoField(primary_key=True)
+    savingId = models.ForeignKey(Saving, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+    standard = models.CharField(max_length=100, null=True, blank=True)
+    purchaseCompany = models.CharField(max_length=100, null=True, blank=True)
+    purchaseDate = models.DateField(null=True, blank=True)
+    location = models.CharField(max_length=100, null=True, blank=True)
+    purchaseEmp = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    comment = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return self.savingId.name
