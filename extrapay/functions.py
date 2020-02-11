@@ -113,7 +113,7 @@ def cal_fuel(todayYear, todayMonth, empDeptName=None):
     )
 
     if empDeptName:
-        fuels = fuels.filter(geolocationId__serviceId__empDeptName=empDeptName)
+        fuels = fuels.filter(geolocationId__serviceId__empId__empDeptName=empDeptName)
 
         fuelsEmp = fuels.values(
             'geolocationId__serviceId__empId',
@@ -121,20 +121,20 @@ def cal_fuel(todayYear, todayMonth, empDeptName=None):
         ).annotate(
             empId=F('geolocationId__serviceId__empId'),
             sumDistance=Sum('geolocationId__distance'),
-            empDeptName=F('geolocationId__serviceId__empDeptName'),
+            empDeptName=F('geolocationId__serviceId__empId__empDeptName'),
             empPosition=F('geolocationId__serviceId__empId__empPosition__positionName'),
             empName=F('geolocationId__serviceId__empName'),
             sumFuelMoney=Sum('fuelMoney'),
             sumTollMoney=Sum('geolocationId__tollMoney'),
             sumTotalMoney=F('sumFuelMoney') + F('sumTollMoney'),
             distanceRatio=F('geolocationId__distanceRatio'),
-            countFuel=Count('geolocationId__serviceId__empName'),
         )
 
         for f in fuelsEmp:
             emp = Employee.objects.get(empId=f['empId'])
             oilMpk = oil.get(carId__carId=emp.carId_id).mpk
             f['oilMpk'] = oilMpk
+            f['countFuel'] = len(fuelsEmp)
 
     else:
         fuelsEmp = fuels.aggregate(
