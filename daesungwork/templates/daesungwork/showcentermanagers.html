@@ -44,7 +44,8 @@
           </div>
           <div class="row mb-3 center">
             {% if centermanager %}
-              <table class="pc-table m-2 d-xl-block d-none" style="width: 100%;">
+            <div class="d-none d-lg-block ml-3 mr-3" style="width: 100%">
+              <table class="pc-table" style="width: 100%;">
                 <tr style="background-color: #c5e4f8; color: black;">
                   <th class="font-weight-normal">담당자</th>
                   <th class="font-weight-normal">담당구역</th>
@@ -61,8 +62,8 @@
                   </tr>
                 {% endfor %}
               </table>
-
-              <table class="pc-table m-2 d-xl-none" style="width: 100%;">
+            </div>
+              <table class="pc-table m-2 d-lg-none" style="width: 100%;">
                 <tr style="background-color: #c5e4f8; color: black;">
                   <th class="font-weight-normal" style="font-size: x-small">담당자</th>
                   <th class="font-weight-normal" style="font-size: x-small">구역</th>

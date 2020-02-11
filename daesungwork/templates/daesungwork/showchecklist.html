@@ -53,13 +53,13 @@
       <div class="card-body">
         <form method="POST" id="searchForm">
           {% csrf_token %}
-          <h5 class="text-center d-none d-xl-block mb-3">
+          <h5 class="text-center d-none d-xl-block mb-1">
             <i class="fas fa-angle-left text-primary" onclick="btn_move(1)"></i>
             {{ thisMonday | date:"Y-m-d" }} ~ {{ thisSunday | date:"Y-m-d" }}
             <i class="fas fa-angle-right text-primary" onclick="btn_move(2)"></i>
           </h5>
 
-          <h6 class="text-center d-xl-none mb-3">
+          <h6 class="text-center d-xl-none mb-1">
             <i class="fas fa-angle-left text-primary" onclick="btn_move(1)"></i>
             {{ thisMonday | date:"Y-m-d" }} ~ {{ thisSunday | date:"Y-m-d" }}
             <i class="fas fa-angle-right text-primary" onclick="btn_move(2)"></i>
@@ -81,7 +81,8 @@
         </form>
           <div class="row mb-3 center">
             {% if confirmCheckList%}
-              <table class="pc-table m-2 d-none d-xl-block" style="width: 100%;">
+            <div class="m-2 d-none d-xl-block" style="width: 100%;">
+              <table class="pc-table" style="width: 100%;">
                 <tr style="background-color: #c5e4f8; color: black;">
                   <th width="10%" class="font-weight-normal" style="background-color: #deeef8;">점검일자</th>
                   <th width="10%" class="font-weight-normal bg-gray-400">점검자</th>
@@ -110,6 +111,7 @@
                 </tr>
                 {% endfor %}
               </table>
+            </div>
             <!--모바일 화면-->
               <table class="pc-table m-2 d-xl-none" style="width: 100%;">
                 <tr style="background-color: #c5e4f8; color: black;">
