@@ -114,23 +114,23 @@ def cal_fuel(todayYear, todayMonth, empDeptName=None):
 
     if empDeptName:
         fuels = fuels.filter(geolocationId__serviceId__empId__empDeptName=empDeptName)
+        print(fuels)
 
         fuelsEmp = fuels.values(
-            'geolocationId__serviceId__empId',
-            'geolocationId__distanceRatio',
+            'geolocationId__serviceId__empId'
         ).annotate(
             empId=F('geolocationId__serviceId__empId'),
-            sumDistance=Sum('geolocationId__distance'),
+            sumDistance=Sum(F('geolocationId__distance') * F('geolocationId__distanceRatio')),
             empDeptName=F('geolocationId__serviceId__empId__empDeptName'),
             empPosition=F('geolocationId__serviceId__empId__empPosition__positionName'),
             empName=F('geolocationId__serviceId__empName'),
             sumFuelMoney=Sum('fuelMoney'),
             sumTollMoney=Sum('geolocationId__tollMoney'),
             sumTotalMoney=F('sumFuelMoney') + F('sumTollMoney'),
-            distanceRatio=F('geolocationId__distanceRatio'),
         )
 
         for f in fuelsEmp:
+            print(f)
             emp = Employee.objects.get(empId=f['empId'])
             oilMpk = oil.get(carId__carId=emp.carId_id).mpk
             f['oilMpk'] = oilMpk

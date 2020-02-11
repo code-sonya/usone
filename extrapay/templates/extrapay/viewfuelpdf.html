@@ -86,7 +86,7 @@
     <td class="thtd" colspan="1">직급</td>
     <td class="thtd" colspan="1">성명</td>
     <td class="thtd" colspan="1">km당<br>유류비(원)</td>
-    <td class="thtd" colspan="1">이동거리<br>(가산비율)</td>
+    <td class="thtd" colspan="1">이동거리<br>(km)</td>
     <td class="thtd" colspan="1">통행료</td>
     <td class="thtd" colspan="1">유류비</td>
     <td class="thtd" colspan="1">합계</td>
@@ -102,7 +102,7 @@
       <td class="thtd" colspan="1" style="background-color: white">{{ row.empPosition }}</td>
       <td class="thtd" colspan="1" style="background-color: white">{{ row.empName }}</td>
       <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.oilMpk }}</td>
-      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance |floatformat:1 }}<br>({{ row.distanceRatio }})</td>
+      <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumDistance |floatformat:1 }}</td>
       <td class="thtd" colspan="1" style="background-color: white;text-align: right">{{ row.sumTollMoney |floatformat:0|intcomma }}</td>
       <td class="thtd" colspan="1" style="background-color: white; text-align: right">{{ row.sumFuelMoney |floatformat:0|intcomma }}</td>
       <td class="thtd" colspan="1" style="background-color: white; text-align: right">{{ row.sumTotalMoney |floatformat:0|intcomma }}</td>

@@ -32,7 +32,6 @@ def over_hour(request):
         searchdate = request.POST['searchdate']
         filter = 'Y'
 
-
     else:
         searchdate = ''
         filter = 'N'
