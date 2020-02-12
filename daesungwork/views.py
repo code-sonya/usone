@@ -329,3 +329,36 @@ def view_checklist_pdf(request, month):
     if pisaStatus.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
+
+
+@login_required
+@csrf_exempt
+def show_centers(request):
+    template = loader.get_template('daesungwork/showcenters.html')
+    if request.method == 'POST':
+        Center.objects.create(
+            centerName=request.POST['centerName']
+        )
+    centers = Center.objects.filter(centerStatus="Y")
+    context = {
+        "centers": centers,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def delete_center(request):
+    if request.method == 'POST':
+        try:
+            centerId = request.POST.get('centerId', None)
+            center = Center.objects.get(centerId=centerId)
+            center.centerStatus = 'N'
+            center.save()
+            return redirect('daesungwork:showcenters')
+        except Exception as e:
+            print(e)
+            return redirect('daesungwork:showcenters')
+    else:
+        print('else')
+        return HttpResponse('오류발생! 관리자에게 문의하세요 :(')

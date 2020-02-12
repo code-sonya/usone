@@ -1,0 +1,223 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+센터 관리
+{% endblock %}
+
+{% block css %}
+<style>
+  pc-table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .pc-table td, .pc-table th {
+    padding: 5px 15px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 17px;
+    border: 1px solid rgba(206, 210, 219, 0.64);
+  }
+
+  pc-table2 {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .pc-table2 td, .pc-table th {
+    padding: 3px 10px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 15px;
+    border: 1px solid rgba(206, 210, 219, 0.64);
+  }
+
+  .file_input_textbox {
+    float: left;
+    height: 29px;
+  }
+
+  .file_input_div {
+    position: relative;
+    width: 80px;
+    height: 36px;
+    overflow: hidden;
+  }
+
+  .file_input_img_btn {
+    padding: 0 0 0 5px;
+  }
+
+  .file_input_hidden {
+    font-size: 29px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    -ms-filter: alpha(opacity=0);
+    cursor: pointer;
+  }
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+  <div class="col-xl-1"></div>
+  <div class="col-xl-10">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800">센터 관리</h6>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" id="postForm">
+          {% csrf_token %}
+          <div class="text-center m-3">
+            <div class="input-group">
+              <input type="text" class="form-control" name="centerName" id="centerName">
+              <span class="btn bg-primary text-white" onclick="btn_post()">등록</span>
+            </div>
+          </div>
+        </form>
+        <div class="row m-3 center">
+          {% if centers%}
+
+          <table class="pc-table" style="width: 100%;">
+            <tr style="background-color: #c5e4f8; color: black;">
+              <th width="20%" class="font-weight-normal" style="background-color: #deeef8;">센터ID</th>
+              <th width="70%" class="font-weight-normal">센터명</th>
+              <th width="10%" class="font-weight-normal"><i class="fas fa-trash"></i></th>
+            </tr>
+            {% for center in centers %}
+            <tr>
+              <th width="20%" class="font-weight-normal text-dark" style="background-color: #deeef8;">{{ center.centerId }}</th>
+              <th width="70%" class="font-weight-normal">{{ center.centerName }}</th>
+              <th width="10%" class="font-weight-normal"><i class="fas fa-times-circle" id="{{ center.centerId }}" onclick="btn_delete(this)"></th>
+            </tr>
+            {% endfor %}
+          </table>
+          {% else %}
+          <table class="pc-table m-2" style="width: 100%;">
+            <tr style="background-color: #deeef8; color: black;">
+              <td><span style="width:100%" class="text-center center mb-3"><span class="text-danger">센터정보 없음</span></span></td>
+            </tr>
+          </table>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-1"></div>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+
+<script type="text/javascript">
+    function btn_delete(val) {
+        const centerId = val.id;
+        if (confirm("센터 정보를 삭제하시겠습니까?") == true) {
+            const form = $('<form></form>');
+            form.attr('action', '/daesungwork/deletecenter/');
+            form.attr('method', 'POST');
+            form.appendTo('body');
+
+            const center = $('<input type="hidden" value="' + centerId + '" name="centerId">');
+            form.append(center);
+            form.submit();
+        }
+    }
+
+    function replaceAll(str, searchStr, replaceStr) {
+        if (str != null) {
+            var new_str = str.split(searchStr).join(replaceStr);
+            return new_str.split("T").join(" ").slice(0, 16);
+        } else {
+            return '-'
+        }
+    }
+
+    function btn_change(centerName) {
+        const searchForm = document.getElementById('searchForm');
+        const searchDayInput = document.createElement("input");
+        searchDayInput.setAttribute("type", "hidden");
+        searchDayInput.setAttribute("name", "searchDay");
+        searchDayInput.setAttribute("value", "{{ thisMonday |date:'Y-m-d'}}");
+        searchForm.appendChild(searchDayInput);
+        const centerNameInput = document.createElement("input");
+        centerNameInput.setAttribute("type", "hidden");
+        centerNameInput.setAttribute("name", "centerName");
+        centerNameInput.setAttribute("value", centerName);
+        searchForm.appendChild(centerNameInput);
+        searchForm.submit();
+    }
+
+    function btn_post() {
+        if (document.getElementById("centerName").value === '') {
+            alert("센터명을 입력해주세요.");
+            return false;
+        }
+        const postForm = document.getElementById('postForm');
+        postForm.submit();
+
+    }
+
+    function btn_move(searchMonday) {
+        if (searchMonday == 1) {
+            const searchForm = document.getElementById("searchForm");
+            const searchDayInput = document.createElement("input");
+            searchDayInput.setAttribute("type", "hidden");
+            searchDayInput.setAttribute("name", "searchDay");
+            searchDayInput.setAttribute("value", "{{ lastMonday |date:'Y-m-d'}}");
+            searchForm.appendChild(searchDayInput);
+            const centerName = document.getElementById("centerName").value;
+            const centerNameInput = document.createElement("input");
+            centerNameInput.setAttribute("type", "hidden");
+            centerNameInput.setAttribute("name", "centerName");
+            centerNameInput.setAttribute("value", centerName);
+            searchForm.appendChild(centerNameInput);
+
+            searchForm.submit();
+
+
+        } else {
+            const searchForm = document.getElementById("searchForm");
+            const searchDay = document.createElement("input");
+            searchDay.setAttribute("type", "hidden");
+            searchDay.setAttribute("name", "searchDay");
+            searchDay.setAttribute("value", "{{ nextMonday |date:'Y-m-d'}}");
+            searchForm.appendChild(searchDay);
+            const centerName = document.getElementById("centerName").value;
+            const centerNameInput = document.createElement("input");
+            centerNameInput.setAttribute("type", "hidden");
+            centerNameInput.setAttribute("name", "centerName");
+            centerNameInput.setAttribute("value", centerName);
+            searchForm.appendChild(centerNameInput);
+
+            searchForm.submit();
+
+        }
+
+    }
+
+    $(document).ready(function () {
+
+    });
+
+
+</script>
+
+{% endblock %}

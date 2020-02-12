@@ -16,4 +16,7 @@ urlpatterns = [
     url(r'^showchecklist/$', views.show_checklist, name='showchecklist'),
     url(r'^postchecklist/$', views.post_checklist, name='postchecklist'),
     url(r'^viewchecklistpdf/(?P<month>.+)/$', views.view_checklist_pdf, name='viewchecklistpdf'),
+    # 센터 관리
+    url(r'^showcenters/$', views.show_centers, name='showcenters'),
+    url(r'^deletecenter/$', views.delete_center, name='deletecenter'),
 ]

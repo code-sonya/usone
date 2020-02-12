@@ -37,6 +37,31 @@
     font-size: 15px;
     border: 1px solid rgba(206, 210, 219, 0.64);
   }
+
+  .file_input_textbox {
+    float:left;
+    height:29px;
+  }
+  .file_input_div {
+      position:relative;
+      width:80px;
+      height:36px;
+      overflow:hidden;
+  }
+  .file_input_img_btn {
+      padding:0 0 0 5px;
+  }
+  .file_input_hidden {
+      font-size:29px;
+      position:absolute;
+      right:0px;
+      top:0px;
+      opacity:0;
+      filter: alpha(opacity=0);
+      -ms-filter: alpha(opacity=0);
+      cursor:pointer;
+  }
+
 </style>
 {% endblock %}
 
@@ -87,7 +112,7 @@
                   <th width="10%" class="font-weight-normal" style="background-color: #deeef8;">점검일자</th>
                   <th width="10%" class="font-weight-normal bg-gray-400">점검자</th>
                   {% for check in checklist %}
-                  <th width="10%" class="font-weight-normal" >{{ check.checkListName}}</th>
+                  <th width="10%" class="font-weight-normal">{{ check.checkListName}}</th>
                   {% endfor %}
                 </tr>
                 {% for date in dateList %}
@@ -194,7 +219,7 @@
                 <label for="modalEmpName" class="text-primary">점검자</label>
                 <select class="form-control" name="modalEmpName" id="modalEmpName">
                   {% for emp in employees %}
-                    <option value="{{ emp.empId }}">
+                    <option value="{{ emp.empId }}" {% if user.employee.empId == emp.empId %} selected {% endif %}>
                       {{ emp.empName }}
                     </option>
                   {% endfor %}
@@ -212,8 +237,8 @@
                   <table class="pc-table2" style="width: 100%;">
                     <tr style="background-color: #c5e4f8;color: black">
                       <td>항목</td>
-                      <td><input type="checkbox" class="checkall">점검여부</td>
-                      <td>비고</td>
+                      <td><input type="checkbox" class="checkall">점검</td>
+                      <td class="d-table-cell">비고</td>
                       <td>첨부파일</td>
                     </tr>
                     {% for check in checklist %}
@@ -221,7 +246,8 @@
                       <td name="checkListName" style="background-color: #deeef8; color: black">{{ check.checkListName }}</td>
                       <td style="color: black"><input name="checkListBox" type="checkbox" class="check" value="{{ check.checkListId }}"></td>
                       <td><input name="checkListComment" type="text" class="form-control"></td>
-                      <td><input name="checkListFiles" type="file" class="file"></td>
+                      <td>
+                      <input name="checkListFiles" type="file" class="file" style="width: 100px">
                     </tr>
                     {% endfor %}
                   </table>
