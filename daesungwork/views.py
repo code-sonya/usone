@@ -211,23 +211,27 @@ def show_checklist(request):
                                  'confirmDate': (thisMonday + relativedelta(days=day)),
                                  'data': data})
         else:
-            centerName = centers.first().centerName
-            confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
-            thisMonday = today - datetime.timedelta(days=today.weekday())
-            thisSunday = thisMonday + datetime.timedelta(days=6)
-            lastMonday = thisMonday - datetime.timedelta(days=7)
-            nextMonday = thisMonday + datetime.timedelta(days=7)
-            searchDay = thisMonday
-            confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
-            cheklistDict = {}
-            for check in checklist:
-                cheklistDict[check.checkListId] = ''
-            dateList = []
-            for day in range(0, 7):
-                data = confirmCheckList.filter(confirmDate=(thisMonday + relativedelta(days=day))).order_by('checkListId')
-                dateList.append({'empName': data.values('empId__empName').first(),
-                                 'confirmDate': (thisMonday + relativedelta(days=day)),
-                                 'data': data})
+            if centers:
+                centerName = centers.first().centerName
+                confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
+                thisMonday = today - datetime.timedelta(days=today.weekday())
+                thisSunday = thisMonday + datetime.timedelta(days=6)
+                lastMonday = thisMonday - datetime.timedelta(days=7)
+                nextMonday = thisMonday + datetime.timedelta(days=7)
+                searchDay = thisMonday
+                confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
+                cheklistDict = {}
+                for check in checklist:
+                    cheklistDict[check.checkListId] = ''
+                dateList = []
+                for day in range(0, 7):
+                    data = confirmCheckList.filter(confirmDate=(thisMonday + relativedelta(days=day))).order_by('checkListId')
+                    dateList.append({'empName': data.values('empId__empName').first(),
+                                     'confirmDate': (thisMonday + relativedelta(days=day)),
+                                     'data': data})
+            else:
+                return HttpResponse('센터 정보가 없습니다. 센터를 등록해 주세요.')
+
         context = {
             'today': today,
             'thisMonday': thisMonday,
