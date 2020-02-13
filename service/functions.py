@@ -894,7 +894,7 @@ def reverse_geo(lat, lng):
 
 def weekly_report(startDate, endDate):
     reportForm = '''
-    <h4 style="text-align: center">주 요 내 용</h4>
+    <h4 style="text-align: center;">주 요 내 용</h4>
     <table style="border: #333; width: 100%; border-collapse: collapse; font-size: 16px;">
       <tbody>
       <tr>
