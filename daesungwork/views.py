@@ -59,7 +59,7 @@ def post_manager(request):
                     empId=Employee.objects.get(empId=item["empId"]),
                     manageArea=Center.objects.get(centerName=item["manageArea"]),
                     additionalArea=item["additionalArea"],
-                    cleanupArea=Center.objects.get(centerName=item["cleanupArea"]),
+                    cleanupArea=Center.objects.filter(centerName=item["cleanupArea"]).first(),
                 )
 
             return redirect('daesungwork:showcentermanagers')
