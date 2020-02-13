@@ -57,7 +57,7 @@ def post_manager(request):
                 CenterManagerEmp.objects.create(
                     centerManagerId=post,
                     empId=Employee.objects.get(empId=item["empId"]),
-                    manageArea=Center.objects.get(centerName=item["manageArea"]),
+                    manageArea=Center.objects.filter(centerName=item["manageArea"]).first(),
                     additionalArea=item["additionalArea"],
                     cleanupArea=Center.objects.filter(centerName=item["cleanupArea"]).first(),
                 )
