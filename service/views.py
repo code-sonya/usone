@@ -1740,8 +1740,10 @@ def modify_report(request, reportId):
 @login_required
 def view_report_pdf(request, reportId):
     report = Report.objects.get(reportId=reportId)
+    participants = Participant.objects.filter(reportId=report)
     context = {
-        'report': report
+        'report': report,
+        'participants': participants,
     }
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="{} 회의록.pdf"'.format(report.reportDate)
