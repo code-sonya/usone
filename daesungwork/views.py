@@ -230,7 +230,7 @@ def show_checklist(request):
                                      'confirmDate': (thisMonday + relativedelta(days=day)),
                                      'data': data})
             else:
-                return HttpResponse('센터 정보가 없습니다. 센터를 등록해 주세요.')
+                return redirect('daesungwork:showcenters')
 
         context = {
             'today': today,
