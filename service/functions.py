@@ -913,16 +913,16 @@ def weekly_report(startDate, endDate):
     <table style="border: #333; width: 100%; border-collapse: collapse; font-size: 16px;">
       <tbody>
       <tr>
-        <td colspan="50" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 50%;"><b>지 시 사 항</b></td>
+        <td colspan="45" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 45%;"><b>지 시 사 항</b></td>
         <td colspan="20" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 20%;"><b>담 당 자</b></td>
         <td colspan="20" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 20%;"><b>기 한</b></td>
-        <td colspan="10" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 10%;"><b>완 료 여 부</b></td>
+        <td colspan="15" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 15%;"><b>완 료 여 부</b></td>
       </tr>
       <tr>
-        <td colspan="50" style="text-align: left; padding: 5px 10px; border: 1pt solid; width: 50%;"></td>
+        <td colspan="45" style="text-align: left; padding: 5px 10px; border: 1pt solid; width: 45%;"></td>
         <td colspan="20" style="text-align: center; padding: 5px 10px; border: 1pt solid; width: 20%;"></td>
         <td colspan="20" style="text-align: center; padding: 5px 10px; border: 1pt solid; width: 20%;"></td>
-        <td colspan="10" style="text-align: center; padding: 5px 10px; border: 1pt solid; width: 10%;"></td>
+        <td colspan="15" style="text-align: center; padding: 5px 10px; border: 1pt solid; width: 15%;"></td>
       </tr>
       </tbody>
     </table>
