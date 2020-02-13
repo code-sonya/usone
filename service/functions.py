@@ -936,7 +936,7 @@ def weekly_report(startDate, endDate):
           <td colspan="15" style="text-align: center; font-size:14px; background: #e6e6e6; padding: 2px 5px; border: 1pt solid; width: 15%;">
         ''' + str(day)[2:] + ' (' + str(weekday[day.weekday()]) + ')' + '''
           </td>
-          <td colspan="85" style="text-align: left; padding: 2px 5px; border: 1pt solid; width: 85%;">
+          <td colspan="85" style="text-align: left; font-size:14px; padding: 2px 5px; border: 1pt solid; width: 85%;">
         '''
         # 일정 작성
         service = Servicereport.objects.filter(serviceDate__gte=startDate, serviceDate__lte=endDate)
