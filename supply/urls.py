@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^savingsasjson/$', views.savings_asjson, name='savingsasjson'),
     url(r'^postsaving/$', views.post_saving, name='postsaving'),
     url(r'^viewsaving/(?P<savingId>.+)/$', views.view_saving, name='viewsaving'),
+    url(r'^deletesaving/(?P<savingId>.+)/$', views.delete_saving, name='deletesaving'),
 ]

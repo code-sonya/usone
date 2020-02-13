@@ -37,7 +37,7 @@
     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
       <h6 class="m-0 h3 text-gray-800">비품 관리</h6>
       <div class="dropdown no-arrow">
-        <a class="btn btn-danger" href="#" role="button" data-toggle="modal" data-target="#insertModal">
+        <a class="btn btn-danger" href="#" onclick="btn_delete()">
           <i class="fas fa-trash d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-trash"></i> 삭제</span>
         </a>
         <a class="btn btn-primary" href="#" role="button" data-toggle="modal" data-target="#insertModal">
@@ -199,6 +199,11 @@
 {% block script %}
 
   <script type="text/javascript">
+      function btn_delete() {
+          if (confirm("비품정보를 삭제하시겠습니까?") === true) {
+              location.href = '/supply/deletesaving/' + {{ saving.savingId }} + '/';
+          }
+      }
 
       function btn_insert() {
           if (!$('#insertForm [name="quantity"]').val()) {

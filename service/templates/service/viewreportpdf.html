@@ -1,0 +1,101 @@
+{% load staticfiles %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+  <meta charset="utf-8">
+
+  <style type="text/css">
+    @font-face {
+      font-family: KBIZHanmaumMyungjo;
+      src: url({% static '/mail/KBIZHanmaumMyungjo.ttf' %});
+    }
+
+    html {
+      font-family: KBIZHanmaumMyungjo, serif;
+    }
+
+    @page {
+      size: A4;
+      margin-left: 25pt;
+      margin-right: 25pt;
+      margin-top: 50pt;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid grey;
+      border-collapse: collapse;
+    }
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 14px;
+      border-top: 1px dotted #858796a3;
+      background-color: #ebfaff;
+    }
+
+
+  </style>
+</head>
+<body>
+<div style="text-align: center;">
+  <strong style="font-size: 35px;">회의록</strong>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<table class="pc-table">
+  <tbody>
+   <tr class="thtd">
+    <td class="thtd" colspan="3">유형</td>
+    <td class="thtd" colspan="3" style="background-color: white">{{ report.category }}</td>
+    <td class="thtd" colspan="3">장소</td>
+    <td class="thtd" colspan="3" style="background-color: white">{{ report.location }}</td>
+  </tr>
+  <tr class="thtd">
+    <td class="thtd" colspan="3">일자</td>
+    <td class="thtd" colspan="3" style="background-color: white">{{ report.reportDate }} ({{ report.reportDate | date:"D" | slice:"0:1" }})</td>
+    <td class="thtd" colspan="3">시간</td>
+    <td class="thtd" colspan="3" style="background-color: white">{{ report.reportTime | date:"H:i" }}</td>
+  </tr>
+  <tr class="thtd">
+    <td class="thtd" colspan="3">리더</td>
+    <td class="thtd" colspan="3" style="background-color: white">{{ report.leader.empName }}</td>
+    <td class="thtd" colspan="3">작성자</td>
+    <td class="thtd" colspan="3" style="background-color: white">{{ report.writer.empName }}</td>
+  </tr>
+  <tr class="thtd">
+    <td class="thtd" colspan="3">참가자</td>
+    <td class="thtd" colspan="9" style="background-color: white">
+      {% for participant in participants %}
+        {% if forloop.last %}
+          {{ participant.empId.empName }}
+        {% else %}
+          {{ participant.empId.empName }},&nbsp;&nbsp;
+        {% endif %}
+      {% endfor %}
+    </td>
+  </tr>
+  <tr class="thtd">
+    <td class="thtd" colspan="3">목적</td>
+    <td class="thtd" colspan="9" style="background-color: white">{{ report.title }}</td>
+  </tr>
+  </tbody>
+</table>
+<div style="font-size: 17px"> {{ report.contents | safe }} </div>
+</body>
+</html>

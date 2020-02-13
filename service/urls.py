@@ -38,4 +38,5 @@ urlpatterns = [
     url(r'^viewreport/(?P<reportId>.+)/$', views.view_report, name='viewreport'),
     url(r'^deletereport/(?P<reportId>.+)/$', views.delete_report, name='deletereport'),
     url(r'^modifyreport/(?P<reportId>.+)/$', views.modify_report, name='modifyreport'),
+    url(r'^viewreportpdf/(?P<reportId>.+)/$', views.view_report_pdf, name='viewreportpdf'),
 ]

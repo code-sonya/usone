@@ -1629,12 +1629,13 @@ def post_report(request):
             post.save()
 
             # 참가자 등록
-            participants = request.POST['participants'].split(',')
-            for participant in participants:
-                Participant.objects.create(
-                    reportId=post,
-                    empId=Employee.objects.get(empId=participant),
-                )
+            if request.POST['participants']:
+                participants = request.POST['participants'].split(',')
+                for participant in participants:
+                    Participant.objects.create(
+                        reportId=post,
+                        empId=Employee.objects.get(empId=participant),
+                    )
             return redirect('service:showreports')
 
         else:
@@ -1697,12 +1698,13 @@ def modify_report(request, reportId):
 
             # 참가자 등록
             participants.delete()
-            participants = request.POST['participants'].split(',')
-            for participant in participants:
-                Participant.objects.create(
-                    reportId=post,
-                    empId=Employee.objects.get(empId=participant),
-                )
+            if request.POST['participants']:
+                participants = request.POST['participants'].split(',')
+                for participant in participants:
+                    Participant.objects.create(
+                        reportId=post,
+                        empId=Employee.objects.get(empId=participant),
+                    )
             return redirect('service:showreports')
 
         else:
@@ -1731,4 +1733,25 @@ def modify_report(request, reportId):
             'participants': participantIds,
             'contents': instance.contents,
         }
-        return render(request, 'service/postreport.html', context)
+        return render(request, 'service/postreport.html', context)\
+
+
+
+@login_required
+def view_report_pdf(request, reportId):
+    report = Report.objects.get(reportId=reportId)
+    context = {
+        'report': report
+    }
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{} 회의록.pdf"'.format(report.reportDate)
+
+    template = get_template('service/viewreportpdf.html')
+    html = template.render(context, request)
+    # create a pdf
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+

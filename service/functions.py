@@ -895,7 +895,7 @@ def reverse_geo(lat, lng):
 def weekly_report(startDate, endDate):
     reportForm = '''
     <h4 style="text-align: center">주 요 내 용</h4>
-    <table style="border: currentColor; width: 100%; border-collapse: collapse; font-size: 16px;">
+    <table style="border: #333; width: 100%; border-collapse: collapse; font-size: 16px;">
       <tbody>
       <tr style="height:36px">
         <td colspan="15" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 15%;"><b>일 자</b></td>
@@ -910,7 +910,7 @@ def weekly_report(startDate, endDate):
     </table>
     <br>
     <h4 style="text-align: center">실 천 의 제</h4>
-    <table style="border: currentColor; width: 100%; border-collapse: collapse; font-size: 16px;">
+    <table style="border: #333; width: 100%; border-collapse: collapse; font-size: 16px;">
       <tbody>
       <tr style="height:36px">
         <td colspan="50" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 50%;"><b>지 시 사 항</b></td>
@@ -933,10 +933,10 @@ def weekly_report(startDate, endDate):
     for day in days:
         tempStr += '''
         <tr style="height:36px">
-          <td colspan="15" style="text-align: center; background: #e6e6e6; padding: 5px 10px; border: 1pt solid; width: 15%;">
+          <td colspan="15" style="text-align: center; font-size:14px; background: #e6e6e6; padding: 2px 5px; border: 1pt solid; width: 15%;">
         ''' + str(day)[2:] + ' (' + str(weekday[day.weekday()]) + ')' + '''
           </td>
-          <td colspan="85" style="text-align: left; padding: 5px 10px; border: 1pt solid; width: 85%;">
+          <td colspan="85" style="text-align: left; padding: 2px 5px; border: 1pt solid; width: 85%;">
         '''
         # 일정 작성
         service = Servicereport.objects.filter(serviceDate__gte=startDate, serviceDate__lte=endDate)

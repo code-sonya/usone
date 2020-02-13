@@ -57,7 +57,7 @@ def post_manager(request):
                 CenterManagerEmp.objects.create(
                     centerManagerId=post,
                     empId=Employee.objects.get(empId=item["empId"]),
-                    manageArea=Center.objects.filter(centerName=item["manageArea"]).first(),
+                    manageArea=Center.objects.get(centerName=item["manageArea"]),
                     additionalArea=item["additionalArea"],
                     cleanupArea=Center.objects.filter(centerName=item["cleanupArea"]).first(),
                 )
@@ -101,7 +101,7 @@ def modify_centermanager(request, centerManagerId):
                     managerEmpInstance = CenterManagerEmp.objects.get(managerId=int(item['centerManagerEmpId']))
                     managerEmpInstance.centerManagerId = post
                     managerEmpInstance.empId = Employee.objects.get(empId=item["empId"])
-                    managerEmpInstance.manageArea = Center.objects.get(centerName=item["manageArea"])
+                    managerEmpInstance.manageArea = Center.objects.filter(centerName=item["manageArea"]).first()
                     managerEmpInstance.additionalArea = item["additionalArea"]
                     managerEmpInstance.cleanupArea = Center.objects.filter(centerName=item["cleanupArea"]).first()
                     managerEmpInstance.save()
@@ -132,7 +132,7 @@ def modify_centermanager(request, centerManagerId):
 def center_asjson(request):
     centerManagerId = request.POST['centerManagerId']
     if centerManagerId:
-        centers = Center.objects.all().values('centerName').order_by('centerName')
+        centers = Center.objects.filter(centerStatus='Y').values('centerName').order_by('centerName')
         employees = Employee.objects.filter(empStatus='Y').values('empName', 'empId').order_by('empId')
         centerManagerEmps = CenterManagerEmp.objects.filter(centerManagerId=centerManagerId)\
             .values('empId', 'empId__empName', 'manageArea__centerName', 'additionalArea', 'cleanupArea__centerName')
@@ -142,7 +142,7 @@ def center_asjson(request):
         jsonList.append(list(centerManagerEmps))
 
     else:
-        centers = Center.objects.all().values('centerName').order_by('centerName')
+        centers = Center.objects.filter(centerStatus='Y').values('centerName').order_by('centerName')
         employees = Employee.objects.filter(empStatus='Y').values('empName', 'empId').order_by('empId')
         jsonList = []
         jsonList.append(list(centers))
@@ -230,7 +230,7 @@ def show_checklist(request):
                                      'confirmDate': (thisMonday + relativedelta(days=day)),
                                      'data': data})
             else:
-                return redirect('daesungwork:showcenters')
+                return HttpResponse('센터 정보가 없습니다. 센터정보를 등록해 주세요.')
 
         context = {
             'today': today,
@@ -340,8 +340,9 @@ def view_checklist_pdf(request, month):
 def show_centers(request):
     template = loader.get_template('daesungwork/showcenters.html')
     if request.method == 'POST':
+        centerName = request.POST['centerName']
         Center.objects.create(
-            centerName=request.POST['centerName']
+            centerName=centerName.replace(" ", "")
         )
     centers = Center.objects.filter(centerStatus="Y")
     context = {

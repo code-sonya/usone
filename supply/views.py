@@ -235,3 +235,10 @@ def view_saving(request, savingId):
         'emps': emps,
     }
     return render(request, 'supply/viewsaving.html', context)
+
+
+@login_required
+def delete_saving(request, savingId):
+    Saving.objects.get(savingId=savingId).delete()
+
+    return redirect("supply:showsavings")
