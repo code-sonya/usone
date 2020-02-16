@@ -161,7 +161,8 @@ def savings_asjson(request):
             {
                 'savingId': saving.savingId,
                 'name': saving.name,
-                'quantity': quantity.quantity,
+                'quantity': saving.quantity,
+                'money': saving.money,
                 'standard': quantity.standard,
                 'purchaseCompany': quantity.purchaseCompany,
                 'location': quantity.location,
@@ -190,10 +191,15 @@ def post_saving(request):
             if Saving.objects.filter(name=request.POST['name']):
                 result = 'N'
             else:
-                savingId = Saving.objects.create(name=request.POST['name'])
+                savingId = Saving.objects.create(
+                    name=request.POST['name'],
+                    quantity=request.POST['quantity'],
+                    money=request.POST['money'],
+                )
                 SavingQuantity.objects.create(
                     savingId=savingId,
                     quantity=request.POST['quantity'],
+                    money=request.POST['money'],
                     standard=request.POST['standard'],
                     purchaseCompany=request.POST['purchaseCompany'],
                     purchaseDate=request.POST['purchaseDate'] or None,
@@ -208,6 +214,7 @@ def post_saving(request):
             SavingQuantity.objects.create(
                 savingId=savingId,
                 quantity=request.POST['quantity'],
+                money=request.POST['money'],
                 standard=request.POST['standard'],
                 purchaseCompany=request.POST['purchaseCompany'],
                 purchaseDate=request.POST['purchaseDate'] or None,
@@ -215,6 +222,9 @@ def post_saving(request):
                 purchaseEmp=Employee.objects.get(empId=request.POST['purchaseEmp']),
                 comment=request.POST['comment'],
             )
+            savingId.quantity += int(request.POST['quantity'])
+            savingId.money += int(request.POST['money'])
+            savingId.save()
             result = 'Y'
 
         structure = json.dumps(result, cls=DjangoJSONEncoder)

@@ -1,4 +1,5 @@
 {% extends "dashboard/layout.html" %}
+{% load humanize %}
 
 
 {% block title %}
@@ -54,28 +55,28 @@
         <table class="table" style="width: 100%;">
           <thead>
           <tr class="bg-light">
-            <th style="width: 5%">연번</th>
-            <th style="width: 15%">품명</th>
-            <th style="width: 5%">수량</th>
+            <th style="width: 5%">품명</th>
+            <th style="width: 10%">현재수량</th>
+            <th style="width: 10%">누적금액</th>
             <th style="width: 10%">규격</th>
             <th style="width: 15%">구입처</th>
-            <th style="width: 15%">사용기관<br>(설치장소)</th>
-            <th style="width: 10%">구입일</th>
-            <th style="width: 10%">인수자</th>
+            <th style="width: 15%">최근 설치장소<br>(사용기관)</th>
+            <th style="width: 10%">최근 구매일<br>(소모일)</th>
+            <th style="width: 10%">최근 인수자<br>(검수자)</th>
             <th style="width: 15%">비고</th>
           </tr>
           </thead>
           <tbody>
           <tr>
-            <td>{{ saving.savingId }}</td>
             <td>{{ saving.name }}</td>
-            <td>{{ lastQuantity.quantity }}</td>
+            <td>{{ saving.quantity | intcomma }}</td>
+            <td class="text-right">{{ saving.money | intcomma }}</td>
             <td>{% if lastQuantity.standard %}{{ lastQuantity.standard }}{% endif %}</td>
             <td>{% if lastQuantity.purchaseCompany %}{{ lastQuantity.purchaseCompany }}{% endif %}</td>
             <td>{% if lastQuantity.location %}{{ lastQuantity.location }}{% endif %}</td>
             <td>{% if lastQuantity.purchaseDate %}{{ lastQuantity.purchaseDate }}{% endif %}</td>
             <td>{{ lastQuantity.purchaseEmp.empName }}</td>
-            <td>{% if lastQuantity.comment %}{{ lastQuantity.comment }}{% endif %}</td>
+            <td class="text-left">{% if lastQuantity.comment %}{{ lastQuantity.comment }}{% endif %}</td>
           </tr>
           </tbody>
         </table>
@@ -88,29 +89,29 @@
         <table class="table" style="width: 100%;">
           <thead>
           <tr class="bg-light">
-            <th style="width: 5%">연번</th>
-            <th style="width: 15%">품명</th>
-            <th style="width: 5%">수량</th>
+            <th style="width: 5%">품명</th>
+            <th style="width: 10%">수량</th>
+            <th style="width: 10%">금액</th>
             <th style="width: 10%">규격</th>
             <th style="width: 15%">구입처</th>
-            <th style="width: 15%">사용기관<br>(설치장소)</th>
-            <th style="width: 10%">구입일</th>
-            <th style="width: 10%">인수자</th>
+            <th style="width: 15%">설치장소<br>(사용기관)</th>
+            <th style="width: 10%">구매일<br>(소모일)</th>
+            <th style="width: 10%">인수자<br>(검수자)</th>
             <th style="width: 15%">비고</th>
           </tr>
           </thead>
           <tbody>
           {% for q in quantity %}
           <tr>
-            <td>{{ saving.savingId }}</td>
             <td>{{ saving.name }}</td>
-            <td>{{ q.quantity }}</td>
+            <td>{{ q.quantity | intcomma }}</td>
+            <td class="text-right">{{ q.money | intcomma }}</td>
             <td>{% if q.standard %}{{ q.standard }}{% endif %}</td>
             <td>{% if q.purchaseCompany %}{{ q.purchaseCompany }}{% endif %}</td>
             <td>{% if q.location %}{{ q.location }}{% endif %}</td>
             <td>{% if q.purchaseDate %}{{ q.purchaseDate }}{% endif %}</td>
             <td>{{ q.purchaseEmp.empName }}</td>
-            <td>{% if q.comment %}{{ q.comment }}{% endif %}</td>
+            <td class="text-left">{% if q.comment %}{{ q.comment }}{% endif %}</td>
           </tr>
           {% endfor %}
           </tbody>
@@ -122,7 +123,7 @@
 
   <!-- Insert Modal -->
   <div class="modal fade" id="insertModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-info text-gray-100">
@@ -136,40 +137,44 @@
           <form id="insertForm" method="POST" action="/supply/postsaving/" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
             {% csrf_token %}
             <div class="row mb-1">
-              <div class="col-12 mb-3 mb-sm-0">
+              <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">품명</label>
-                <select class="form-control" name="name">
+                <select class="form-control" name="selectName" id="selectName" readonly>
                   <option value="{{ saving.savingId }}">{{ saving.name }}</option>
                 </select>
               </div>
-            </div>
-            <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label class="text-primary font-weight-bold">수량</label>
-                <input class="form-control" name="quantity" type="number">
-              </div>
-              <div class="col-6 mb-3 mb-sm-0">
-                <label class="text-primary font-weight-bold">규격</label>
+                <label class="text-secondary font-weight-bold">규격</label>
                 <input class="form-control" name="standard">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label class="text-primary font-weight-bold">구입처</label>
+                <label class="text-primary font-weight-bold">수량 (소모시 음수 입력)</label>
+                <input class="form-control" name="quantity" type="number" value="0">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">금액</label>
+                <input class="form-control" name="money" type="number" value="0">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-secondary font-weight-bold">구입처</label>
                 <input class="form-control" name="purchaseCompany">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
-                <label class="text-primary font-weight-bold">사용기관 (설치장소)</label>
+                <label class="text-primary font-weight-bold">설치장소 (사용기관)</label>
                 <input class="form-control" name="location">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label class="text-primary font-weight-bold">구입일</label>
+                <label class="text-primary font-weight-bold">구매일 (소모일)</label>
                 <input class="form-control" name="purchaseDate" type="date" max="9999-12-31">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
-                <label class="text-primary font-weight-bold">인수자</label>
+                <label class="text-primary font-weight-bold">인수자 (검수자)</label>
                 <select class="form-control" name="purchaseEmp">
                   {% for emp in emps %}
                     <option value="{{ emp.empId }}">{{ emp.empName }}</option>
@@ -179,7 +184,7 @@
             </div>
             <div class="row mb-1">
               <div class="col-12 mb-3 mb-sm-0">
-                <label class="text-primary font-weight-bold">비고</label>
+                <label class="text-secondary font-weight-bold">비고</label>
                 <input class="form-control" name="comment">
               </div>
             </div>
@@ -210,12 +215,20 @@
               alert('수량을 입력해주세요.');
               return false;
           }
+          if (!$('#insertForm [name="money"]').val()) {
+              alert('금액을 입력해주세요.');
+              return false;
+          }
+          if (!$('#insertForm [name="location"]').val()) {
+              alert('설치장소 (사용기관)을 입력해주세요.');
+              return false;
+          }
           if (!$('#insertForm [name="purchaseDate"]').val()) {
-              alert('구매일을 입력해주세요.');
+              alert('구매일 (소모일)을 입력해주세요.');
               return false;
           }
           if (!$('#insertForm [name="purchaseEmp"]').val()) {
-              alert('인수자를 입력해주세요.');
+              alert('인수자 (검수자)를 입력해주세요.');
               return false;
           }
 
@@ -225,8 +238,9 @@
               cache: false,
               data: {
                   "newSaving": "false",
-                  "name": $('#insertForm [name="name"]').val(),
+                  "name": $('#insertForm [name="selectName"]').val(),
                   "quantity": $('#insertForm [name="quantity"]').val(),
+                  "money": $('#insertForm [name="money"]').val(),
                   "standard": $('#insertForm [name="standard"]').val(),
                   "purchaseCompany": $('#insertForm [name="purchaseCompany"]').val(),
                   "purchaseDate": $('#insertForm [name="purchaseDate"]').val(),

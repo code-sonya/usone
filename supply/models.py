@@ -35,6 +35,8 @@ class Bookrental(models.Model):
 class Saving(models.Model):
     savingId = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
+    quantity = models.IntegerField(default=0)
+    money = models.BigIntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -44,6 +46,7 @@ class SavingQuantity(models.Model):
     quantityId = models.AutoField(primary_key=True)
     savingId = models.ForeignKey(Saving, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
+    money = models.BigIntegerField(default=0)
     standard = models.CharField(max_length=100, null=True, blank=True)
     purchaseCompany = models.CharField(max_length=100, null=True, blank=True)
     purchaseDate = models.DateField(null=True, blank=True)
