@@ -272,7 +272,7 @@
           </a>
           <a class="collapse-item" href="/approval/showdocument/done/">완료</a>
           <a class="collapse-item" href="/approval/showdocument/temp/">임시</a>
-          {% if user.is_staff %}
+          {% if user.is_staff or user.employee.empPosition.positionName == '임원' %}
           <h6 class="collapse-header">━━ 관리자문서함 ━━</h6>
           <a class="collapse-item" href="/approval/showdocument/admin/ing/">전체진행문서</a>
           <a class="collapse-item" href="/approval/showdocument/admin/done/">전체완료문서</a>
@@ -309,7 +309,9 @@
         <div class="bg-white py-2 collapse-inner rounded">
           <a class="collapse-item" href="/daesungwork/showchecklist/">센터별체크리스트</a>
           <a class="collapse-item" href="/daesungwork/showcentermanagers/">센터별담당자관리</a>
+          {% if user.is_staff or user.employee.empPosition.positionName == '임원' %}
           <a class="collapse-item" href="/daesungwork/showcenters/">센터관리</a>
+          {% endif %}
         </div>
       </div>
     </li>
