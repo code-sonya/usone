@@ -47,6 +47,9 @@
         <h6 class="m-0 h3 text-gray-800">{{ todayYear }}년 {{ todayMonth }}월 시간외수당 근무내역</h6>
 
         <div class="dropdown no-arrow">
+          <a class="btn btn-danger" href="#" role="button" id="extraPayLink" data-toggle="modal" data-target="#extraPayModal">
+            <i class="fas fa-calculator d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-calculator"></i> 계산</span>
+          </a>
           <a class="btn btn-warning" href="#" role="button" onclick="location.href='/extrapay/viewextrapaypdf/{{ today }}/'">
             <i class="fas fa-download d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-download"></i> PDF</span>
           </a>
@@ -191,14 +194,76 @@
   </div>
 </div>
 
+<!-- extraPay Modal -->
+<div class="modal fade" id="extraPayModal" tabindex="-1" role="dialog" aria-labelledby="extraPayModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header bg-info text-gray-100">
+        <h5 class="modal-title" id="extraPayModalLabel">수당 계산</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span class="text-gray-100" aria-hidden="true">×</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="extraPayForm" action="/extrapay/changeExtraPay/{{ today }}/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+          {% csrf_token %}
+          <div class="row mb-1">
+            <div class="col-12">
+              <h6 class="text-center"> < {{ today }} 시간외수당 목록 > </h6>
+              <table id="changeextrapay" class="pc-table thtd" style="margin:2px">
+                <thead>
+                <tr class="bg-secondary text-white thtd">
+                  <th colspan=1><input type="checkbox" class="ckbxall"></th>
+                  <th colspan=2>성명</th>
+                  <th colspan=2>시간외수당합계</th>
+                  <th class="d-none">extraPayId</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for extrapay in extrapayList %}
+                {% for row in extrapay %}
+                <tr class="thtd">
+                  <th colspan=1><input type="checkbox" class="ckbx"></th>
+                  <th colspan=2>{{ row.empName }}</th>
+                  <th colspan=2>{{ row.sumCost |floatformat:0|intcomma }}</th>
+                  <th class="d-none" id="extraPayId">{{ row.extraPayId }}</th>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+        <a class="btn btn-info" href="#" onclick="btn_change()">변경</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 
 {% block script %}
 <script type="text/javascript">
 
+    $('.ckbxall').click(function () {
+        $('.ckbx').prop('checked', this.checked);
+    });
+
     function btn_filter() {
         document.getElementById("filterForm").submit();
+    }
+
+    function btn_change() {
+        // document.getElementById("extraPayForm").submit();
+        alert('개발 준비중입니다.');
     }
 
     function replaceAll(str, searchStr, replaceStr) {
