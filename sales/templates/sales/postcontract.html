@@ -128,10 +128,10 @@
 
               <div class="form-group row">
                 <div class="col-2">
-                  <label for="depositCondition" class="font-weight-bold"> 수금조건 </label> {{ form.depositCondition }}
+                  <label for="depositCondition" class="font-weight-bold text-primary"> 수금조건 </label> {{ form.depositCondition }}
                 </div>
                 <div class="col-2">
-                  <label for="depositConditionDay" class="font-weight-bold"> 수금조건일자 </label> {{ form.depositConditionDay }}
+                  <label for="depositConditionDay" class="font-weight-bold text-primary"> 수금조건일자 </label> {{ form.depositConditionDay }}
                 </div>
                 <div class="col-2">
                   <label for="modifyContractPaper" class="font-weight-bold text-primary"> 수정수주통보서대상 </label> {{ form.modifyContractPaper }}
@@ -1296,6 +1296,14 @@
           }
           if (document.getElementById("profitPrice").value === '') {
               alert("이익금액을 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("depositCondition").value === '') {
+              alert("수금조건을 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("depositConditionDay").value === '') {
+              alert("수금조건일자를 입력해주세요.");
               return false;
           }
           if (!isDay(document.getElementById("contractDate").value)) {
