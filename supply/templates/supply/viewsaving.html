@@ -149,9 +149,16 @@
               </div>
             </div>
             <div class="row mb-1">
-              <div class="col-6 mb-3 mb-sm-0">
-                <label class="text-primary font-weight-bold">수량 (소모시 음수 입력)</label>
+              <div class="col-4 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">수량</label>
                 <input class="form-control" name="quantity" type="number" value="0">
+              </div>
+              <div class="col-2 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">구분</label>
+                <select class="form-control" name="quantityType">
+                  <option value="1">구입</option>
+                  <option value="-1">소모</option>
+                </select>
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">금액</label>
@@ -239,7 +246,7 @@
               data: {
                   "newSaving": "false",
                   "name": $('#insertForm [name="selectName"]').val(),
-                  "quantity": $('#insertForm [name="quantity"]').val(),
+                  "quantity": $('#insertForm [name="quantity"]').val() * $('#insertForm [name="quantityType"]').val(),
                   "money": $('#insertForm [name="money"]').val(),
                   "standard": $('#insertForm [name="standard"]').val(),
                   "purchaseCompany": $('#insertForm [name="purchaseCompany"]').val(),
