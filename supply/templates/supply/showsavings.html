@@ -92,20 +92,20 @@
               </div>
               <div class="col-2 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">구분</label>
-                <select class="form-control" name="quantityType">
+                <select class="form-control" name="quantityType" id="quantityType" onchange="btn_change(this.value)">
                   <option value="1">구입</option>
                   <option value="-1">소모</option>
                 </select>
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">금액</label>
-                <input class="form-control" name="money" type="number" value="0">
+                <input class="form-control" name="money" id="money" type="number" value="0">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-secondary font-weight-bold">구입처</label>
-                <input class="form-control" name="purchaseCompany">
+                <input class="form-control" name="purchaseCompany" id="purchaseCompany">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">설치장소 (사용기관)</label>
@@ -148,6 +148,19 @@
 {% block script %}
 
   <script type="text/javascript">
+
+      function btn_change(seleted) {
+          if(seleted=="-1"){
+            $("#money").val(0);
+            $("#money").attr("readonly",true);
+            $("#purchaseCompany").val('');
+            $("#purchaseCompany").attr("readonly", true);
+
+          }else{
+            $("#money").attr("readonly",false);
+            $("#purchaseCompany").attr("readonly", false);
+          }
+      }
 
       function btn_insert() {
           let newSaving;
@@ -243,19 +256,19 @@
               "columnDefs": [
                   {
                       targets: 0,
-                      width: "5%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "name",
                   },
                   {
                       targets: 1,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "quantity",
                   },
                   {
                       targets: 2,
-                      width: "5%",
+                      width: "10%",
                       className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
                       data: "money",
                   },
@@ -267,13 +280,13 @@
                   },
                   {
                       targets: 4,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "purchaseCompany",
                   },
                   {
                       targets: 5,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "location",
                   },
@@ -291,7 +304,7 @@
                   },
                   {
                       targets: 8,
-                      width: "15%",
+                      width: "20%",
                       className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                       data: "comment",
                   },

@@ -10,22 +10,20 @@
 {% block css %}
 
   <style type="text/css">
-    .table {
+    pc-table {
       color: #333333;
+      table-layout: fixed;
       width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
     }
 
-    .table thead th {
-      vertical-align: middle;
-    }
-
-    .table td, .table th {
-      padding: .5rem;
-      vertical-align: middle;
-      border-top: 1px solid #e3e6f0;
-      font-size: 16px;
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
       text-align: center;
-      /*white-space: nowrap;*/
+      vertical-align: middle;
+      font-size: 17px;
+      border: 1px solid rgba(206, 210, 219, 0.64);
     }
   </style>
 
@@ -51,53 +49,70 @@
       <div class="mb-3">
         <h5>▼ <span class="text-primary font-weight-bold">비품 정보 상세</span></h5>
       </div>
-      <div class="table-responsive">
-        <table class="table" style="width: 100%;">
-          <thead>
-          <tr class="bg-light">
-            <th style="width: 5%">품명</th>
-            <th style="width: 10%">현재수량</th>
-            <th style="width: 10%">누적금액</th>
-            <th style="width: 10%">규격</th>
-            <th style="width: 15%">구입처</th>
-            <th style="width: 15%">최근 설치장소<br>(사용기관)</th>
-            <th style="width: 10%">최근 구매일<br>(소모일)</th>
-            <th style="width: 10%">최근 인수자<br>(검수자)</th>
-            <th style="width: 15%">비고</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td>{{ saving.name }}</td>
-            <td>{{ saving.quantity | intcomma }}</td>
-            <td class="text-right">{{ saving.money | intcomma }}</td>
-            <td>{% if lastQuantity.standard %}{{ lastQuantity.standard }}{% endif %}</td>
-            <td>{% if lastQuantity.purchaseCompany %}{{ lastQuantity.purchaseCompany }}{% endif %}</td>
-            <td>{% if lastQuantity.location %}{{ lastQuantity.location }}{% endif %}</td>
-            <td>{% if lastQuantity.purchaseDate %}{{ lastQuantity.purchaseDate }}{% endif %}</td>
-            <td>{{ lastQuantity.purchaseEmp.empName }}</td>
-            <td class="text-left">{% if lastQuantity.comment %}{{ lastQuantity.comment }}{% endif %}</td>
-          </tr>
-          </tbody>
-        </table>
+      <div class="row mb-3">
+        <div class="col-xl-4">
+          <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="font-weight-bold text-primary text-uppercase mb-1">품 명</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ saving.name }}</div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-box fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="font-weight-bold text-primary text-uppercase mb-1">현재 잔여 수량</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ saving.quantity | intcomma }}</div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-sort-amount-down fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="font-weight-bold text-primary text-uppercase mb-1">누적 구매 비용</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ saving.money | intcomma }}원</div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="mb-3">
         <h5>▼ <span class="text-primary font-weight-bold">등록/수정 이력</span></h5>
       </div>
       <div class="table-responsive">
-        <table class="table" style="width: 100%;">
+        <table class="pc-table" style="width: 100%;">
           <thead>
-          <tr class="bg-light">
-            <th style="width: 5%">품명</th>
+          <tr style="background-color: #deeef8; color: black;">
+            <th style="width: 10%">품명</th>
             <th style="width: 10%">수량</th>
             <th style="width: 10%">금액</th>
             <th style="width: 10%">규격</th>
-            <th style="width: 15%">구입처</th>
-            <th style="width: 15%">설치장소<br>(사용기관)</th>
+            <th style="width: 10%">구입처</th>
+            <th style="width: 10%">설치장소<br>(사용기관)</th>
             <th style="width: 10%">구매일<br>(소모일)</th>
             <th style="width: 10%">인수자<br>(검수자)</th>
-            <th style="width: 15%">비고</th>
+            <th style="width: 20%">비고</th>
           </tr>
           </thead>
           <tbody>
@@ -155,20 +170,20 @@
               </div>
               <div class="col-2 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">구분</label>
-                <select class="form-control" name="quantityType">
+                <select class="form-control" name="quantityType" onchange="btn_change(this.value)">
                   <option value="1">구입</option>
                   <option value="-1">소모</option>
                 </select>
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">금액</label>
-                <input class="form-control" name="money" type="number" value="0">
+                <input class="form-control" name="money" id="money" type="number" value="0">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-secondary font-weight-bold">구입처</label>
-                <input class="form-control" name="purchaseCompany">
+                <input class="form-control" name="purchaseCompany" id="purchaseCompany">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">설치장소 (사용기관)</label>
@@ -214,6 +229,19 @@
       function btn_delete() {
           if (confirm("비품정보를 삭제하시겠습니까?") === true) {
               location.href = '/supply/deletesaving/' + {{ saving.savingId }} + '/';
+          }
+      }
+
+      function btn_change(seleted) {
+          if(seleted=="-1"){
+            $("#money").val(0);
+            $("#money").attr("readonly",true);
+            $("#purchaseCompany").val('');
+            $("#purchaseCompany").attr("readonly", true);
+
+          }else{
+            $("#money").attr("readonly",false);
+            $("#purchaseCompany").attr("readonly", false);
           }
       }
 
