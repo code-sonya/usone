@@ -889,11 +889,12 @@ def show_salarys(request):
 @login_required
 @csrf_exempt
 def salary_asjson(request):
-
     empName = request.POST['empName']
-    employee = Employee.objects.filter(Q(empStatus='Y') &
-                                       (Q(empDeptName='솔루션지원팀') | Q(empDeptName='DB지원팀') | Q(empDeptName='경영지원본부') | (Q(empDeptName='인프라서비스사업팀'))) &
-                                       Q(empSalary__gt=0))
+    employee = Employee.objects.filter(
+        Q(empStatus='Y') &
+        Q(empRewardAvailable='가능') &
+        Q(empSalary__gt=0)
+    )
     if empName:
         employee = Employee.objects.filter(Q(empId=empName))
 
