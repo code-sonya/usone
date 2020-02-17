@@ -63,7 +63,7 @@
         <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">[{{ todayYear }}년]<br>목표이익 / 젼체이익 / 달성률</div>
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">[{{ todayYear }}년]<br>목표이익 / 전체이익 / 달성률</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
                 {% if sumGoals.yearProfitSum %}{{ sumGoals.yearProfitSum|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if sumRevenuesFirm.revenueProfitPrice %}{{ sumRevenuesFirm.revenueProfitPrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
