@@ -343,7 +343,7 @@
     </li>
 
     <!-- Divider -->
-    {% if user.is_staff %}
+    {% if user.is_staff or user.employee.empPosition.positionName == '임원' %}
     <hr class="sidebar-divider d-none d-md-block">
       <li class="nav-item">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="true" aria-controls="collapseSettings">
