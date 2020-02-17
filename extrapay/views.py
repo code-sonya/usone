@@ -874,8 +874,9 @@ def show_salarys(request):
 
     employee = Employee.objects.filter(
         Q(empStatus='Y') &
-        Q(empSalary=0) &
-        (Q(empDeptName='솔루션지원팀') | Q(empDeptName='DB지원팀') | Q(empDeptName='경영지원본부') | (Q(empDeptName='인프라서비스사업팀'))))
+        Q(empRewardAvailable='가능') &
+        Q(empSalary=0)
+    )
 
     context = {
         'filter': filter,

@@ -24,6 +24,7 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
     extrapays = ExtraPay.objects.filter(Q(overHourDate__year=todayYear) &
                                         Q(overHourDate__month=todayMonth) &
                                         Q(empId__empDeptName__in=empDeptName) &
+                                        Q(empId__empSalary__gt=0) &
                                         Q(empId__empRewardAvailable='가능')).order_by('empId__empDeptName', 'empId__empPosition')
     table = []
     sumEmp = {'sumoverHour': 0, 'sumcompensatedHour': 0, 'sumoverandfoodCost': 0, 'sumfoodCost': 0, 'sumCost': 0}
