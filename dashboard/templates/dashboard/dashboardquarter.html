@@ -63,7 +63,7 @@
         <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">[{{ todayYear }}년]<br>목표이익 / 젼체이익 / 달성률</div>
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">[{{ todayYear }}년]<br>목표이익 / 전체이익 / 달성률</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
                 {% if sumGoals.yearProfitSum %}{{ sumGoals.yearProfitSum|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if sumRevenuesFirm.revenueProfitPrice %}{{ sumRevenuesFirm.revenueProfitPrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
@@ -83,9 +83,9 @@
         <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">[{{ todayQuarter }}분기]<br>누적목표매출 / 누적매출 / 달성률</div>
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">[{{ todayQuarter }}분기]<br>목표매출 / {{ todayQuarter }}분기누적매출 / 달성률</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {% if cumulativeGoal.cumulativeGoalSalePrice %}{{ cumulativeGoal.cumulativeGoalSalePrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
+                {% if sumGoals.yearSalesSum %}{{ sumGoals.yearSalesSum|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if cumulativeFirmRevenues.revenuePrice %}{{ cumulativeFirmRevenues.revenuePrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if firmPercent %}{{ firmPercent.cumulativeSalePricePercent }}{% else %}-{% endif %}%
               </div>
@@ -103,9 +103,9 @@
         <div class="card-body" style="padding-top: 0.6rem;padding-bottom: 0.6rem">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">[{{ todayQuarter }}분기]<br>누적목표이익 / 누적이익 / 달성률</div>
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">[{{ todayQuarter }}분기]<br>목표이익 / {{ todayQuarter }}분기누적이익 / 달성률</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {% if cumulativeGoal.cumulativeGoalProfitPrice %}{{ cumulativeGoal.cumulativeGoalProfitPrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
+                {% if sumGoals.yearProfitSum %}{{ sumGoals.yearProfitSum|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if cumulativeFirmRevenues.revenueProfitPrice %}{{ cumulativeFirmRevenues.revenueProfitPrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if firmPercent %}{{ firmPercent.cumulativeProfitPricePercent }}{% else %}-{% endif %}%
               </div>
@@ -169,9 +169,9 @@
         <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem;">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">[{{ todayQuarter }}분기]<br>누적목표매출 / 누적예상매출 / 달성률</div>
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">[{{ todayQuarter }}분기]<br>목표매출 / {{ todayQuarter }}분기누적예상매출 / 달성률</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">
-                {% if cumulativeGoal.cumulativeGoalSalePrice %}{{ cumulativeGoal.cumulativeGoalSalePrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
+                {% if sumGoals.yearSalesSum %}{{ sumGoals.yearSalesSum|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if cumulativeRevenues.revenuePrice %}{{ cumulativeRevenues.revenuePrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if allPercent %}{{ allPercent.cumulativeSalePricePercent }}{% else %}-{% endif %}%
               </div>
@@ -189,9 +189,9 @@
         <div class="card-body" style="padding-top: 0.6rem; padding-bottom: 0.6rem;">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">[{{ todayQuarter }}분기]<br>누적목표이익 / 누적예상이익 / 달성률</div>
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">[{{ todayQuarter }}분기]<br>목표이익 / {{ todayQuarter }}분기누적예상이익 / 달성률</div>
               <div class="h5 b-0 font-weight-bold text-gray-800">
-                {% if cumulativeGoal.cumulativeGoalProfitPrice %}{{ cumulativeGoal.cumulativeGoalProfitPrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
+                {% if sumGoals.yearProfitSum %}{{ sumGoals.yearProfitSum|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if cumulativeRevenues.revenueProfitPrice %}{{ cumulativeRevenues.revenueProfitPrice|slugify|slice:"0:-6"|intcomma }}{% else %}-{% endif %} /
                 {% if allPercent %} {{ allPercent.cumulativeProfitPricePercent }} {% else %}-{% endif %}%
               </div>

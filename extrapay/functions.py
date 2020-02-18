@@ -24,6 +24,8 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
     extrapays = ExtraPay.objects.filter(Q(overHourDate__year=todayYear) &
                                         Q(overHourDate__month=todayMonth) &
                                         Q(empId__empDeptName__in=empDeptName) &
+                                        Q(empId__empSalary__gt=0) &
+                                        # Q(empSalary__gt=0) &
                                         Q(empId__empRewardAvailable='가능')).order_by('empId__empDeptName', 'empId__empPosition')
     table = []
     sumEmp = {'sumoverHour': 0, 'sumcompensatedHour': 0, 'sumoverandfoodCost': 0, 'sumfoodCost': 0, 'sumCost': 0}
@@ -45,12 +47,14 @@ def cal_extraPay(empDeptName, todayYear, todayMonth):
                 Q(overHour=0)).aggregate(
                 sumFoodCost=Sum('foodCost'))
 
-            if ((sum_overhours['sumOverhour']or 0)-(extrapay.compensatedHour or 0))*1.5*employee.empSalary > 200000:
+            if ((sum_overhours['sumOverhour']or 0)-(extrapay.compensatedHour or 0))*1.5*extrapay.empSalary > 200000:
                 real_cost = 200000
             else:
-                real_cost = ((sum_overhours['sumOverhour']or 0)-(extrapay.compensatedHour or 0))*1.5*employee.empSalary
+                real_cost = ((sum_overhours['sumOverhour']or 0)-(extrapay.compensatedHour or 0))*1.5*extrapay.empSalary
 
             extrapay_dict['extraPayId'] = extrapay.extraPayId
+            extrapay_dict['extraSalary'] = extrapay.empSalary
+            extrapay_dict['empSalary'] = employee.empSalary
             extrapay_dict['empDeptName'] = extrapay.empId.empDeptName
             extrapay_dict['empPosition'] = extrapay.empId.empPosition.positionName
             extrapay_dict['empName'] = extrapay.empName

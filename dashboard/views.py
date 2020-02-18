@@ -272,15 +272,19 @@ def dashboard_quarter(request):
     if sumGoals['yearSalesSum'] or sumGoals['yearProfitSum']:
         salePricePercent = round(sumRevenuesFirm['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
         profitPricePercent = round(sumRevenuesFirm['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
-        cumulativeSalePricePercent = round(cumulativeFirmRevenues['revenuePrice'] / cumulativeGoal['cumulativeGoalSalePrice'] * 100, 2)
-        cumulativeProfitPricePercent = round(cumulativeFirmRevenues['revenueProfitPrice'] / cumulativeGoal['cumulativeGoalProfitPrice'] * 100, 2)
+        # cumulativeSalePricePercent = round(cumulativeFirmRevenues['revenuePrice'] / cumulativeGoal['cumulativeGoalSalePrice'] * 100, 2)
+        cumulativeSalePricePercent = round(cumulativeFirmRevenues['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
+        # cumulativeProfitPricePercent = round(cumulativeFirmRevenues['revenueProfitPrice'] / cumulativeGoal['cumulativeGoalProfitPrice'] * 100, 2)
+        cumulativeProfitPricePercent = round(cumulativeFirmRevenues['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
         firmPercent = {'salePricePercent': salePricePercent, 'profitPricePercent': profitPricePercent,
                        'cumulativeSalePricePercent': cumulativeSalePricePercent, 'cumulativeProfitPricePercent': cumulativeProfitPricePercent}
       
         salePricePercent = round(sumRevenues['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
         profitPricePercent = round(sumRevenues['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
-        cumulativeSalePricePercent = round(cumulativeRevenues['revenuePrice'] / cumulativeGoal['cumulativeGoalSalePrice'] * 100, 2)
-        cumulativeProfitPricePercent = round(cumulativeRevenues['revenueProfitPrice'] / cumulativeGoal['cumulativeGoalProfitPrice'] * 100, 2)
+        # cumulativeSalePricePercent = round(cumulativeRevenues['revenuePrice'] / cumulativeGoal['cumulativeGoalSalePrice'] * 100, 2)
+        cumulativeSalePricePercent = round(cumulativeRevenues['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
+        # cumulativeProfitPricePercent = round(cumulativeRevenues['revenueProfitPrice'] / cumulativeGoal['cumulativeGoalProfitPrice'] * 100, 2)
+        cumulativeProfitPricePercent = round(cumulativeRevenues['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
         allPercent = {'salePricePercent': salePricePercent, 'profitPricePercent': profitPricePercent,
                        'cumulativeSalePricePercent': cumulativeSalePricePercent, 'cumulativeProfitPricePercent': cumulativeProfitPricePercent}
     else:
