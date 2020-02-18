@@ -576,7 +576,7 @@ def view_overhour(request, extraPayId):
         Q(extraPayId=extraPayId)
     ).values(
         'overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empSalary', 'empId__empDeptName',
-        'empId__empCode', 'extraPayId', 'empId__empPosition_id__positionName', 'compensatedComment', 'compensatedHour', 'payStatus'
+        'empId__empCode', 'extraPayId', 'empId__empPosition_id__positionName', 'compensatedComment', 'compensatedHour', 'payStatus', 'empSalary'
     ).first()
     overhours = OverHour.objects.filter(
         Q(extraPayId=extraPayId) &
@@ -602,7 +602,7 @@ def view_overhour(request, extraPayId):
     )
 
     if extrapay['payStatus'] == 'N':
-        real_extraPay = int(((sum_overhours['sumOverhour'] or 0)-(extrapay['compensatedHour'] or 0))*1.5*extrapay['empId__empSalary'])
+        real_extraPay = int(((sum_overhours['sumOverhour'] or 0)-(extrapay['compensatedHour'] or 0))*1.5*extrapay['empSalary'])
         if real_extraPay > 200000:
             real_extraPay = 200000
 
@@ -936,7 +936,7 @@ def post_salary(request):
 def view_overhour_pdf(request, extraPayId):
     extrapay = ExtraPay.objects.filter(Q(extraPayId=extraPayId)) \
         .values('overHourDate__year', 'overHourDate__month', 'empId__empName', 'empId__empSalary', 'empId__empDeptName', 'empId__empCode', 'extraPayId', 'empId__empPosition_id__positionName',
-                'compensatedComment', 'compensatedHour', 'payStatus').first()
+                'compensatedComment', 'compensatedHour', 'payStatus', 'empSalary').first()
     overhours = OverHour.objects.filter(Q(extraPayId=extraPayId) &
                                         ~Q(overHour=0) &
                                         Q(overHourStatus='Y'))
@@ -953,7 +953,7 @@ def view_overhour_pdf(request, extraPayId):
                                         sumFoodCost=Sum('foodCost'))
 
     if extrapay['payStatus'] == 'N':
-        real_extraPay = int(((sum_overhours['sumOverhour'] or 0) - (extrapay['compensatedHour'] or 0)) * 1.5 * extrapay['empId__empSalary'])
+        real_extraPay = int(((sum_overhours['sumOverhour'] or 0) - (extrapay['compensatedHour'] or 0)) * 1.5 * extrapay['empSalary'])
         if real_extraPay > 200000:
             real_extraPay = 200000
 
@@ -1021,6 +1021,7 @@ def delete_overhour(request):
         return HttpResponse('오류발생! 관리자에게 문의하세요 :(')
 
 
+@login_required
 def view_fuel_pdf(request, yearmonth):
     todayYear = int(yearmonth[:4])
     todayMonth = int(yearmonth[5:7])
@@ -1059,5 +1060,31 @@ def view_fuel_pdf(request, yearmonth):
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
+
+@login_required
+@csrf_exempt
+def change_extrapays(request, yearmonth):
+    print(yearmonth)
+    today = yearmonth.split('-')
+    todayYear = today[0]
+    todayMonth = today[1]
+    print(todayYear, todayMonth)
+    if request.method == 'POST':
+        extraPayIdList = request.POST.getlist('extraPayId')
+        for extraPayId in extraPayIdList:
+            extra = ExtraPay.objects.get(extraPayId=extraPayId)
+            extra.empSalary = extra.empId.empSalary
+            extra.save()
+
+            overhours = OverHour.objects.filter(Q(extraPayId=extraPayId) & Q(overHour__gt=0))
+            for overhour in overhours:
+                overhour.overHourCost = round((overhour.overHour * 1.5 * overhour.extraPayId.empSalary), 0)
+                overhour.save()
+
+        return redirect('extrapay:overhourall')
+
+    else:
+        print('else')
+        return HttpResponse('오류발생! 관리자에게 문의하세요 :(')
 
 

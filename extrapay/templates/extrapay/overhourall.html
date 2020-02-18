@@ -196,7 +196,7 @@
 
 <!-- extraPay Modal -->
 <div class="modal fade" id="extraPayModal" tabindex="-1" role="dialog" aria-labelledby="extraPayModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
 
       <div class="modal-header bg-info text-gray-100">
@@ -207,17 +207,18 @@
       </div>
 
       <div class="modal-body">
-        <form id="extraPayForm" action="/extrapay/changeExtraPay/{{ today }}/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+        <form id="extraPayForm" action="/extrapay/changeextrapays/{{ today }}/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
           {% csrf_token %}
           <div class="row mb-1">
             <div class="col-12">
-              <h6 class="text-center"> < {{ today }} 시간외수당 목록 > </h6>
+              <h6 class="text-center"> < {{ today }} 수당금액 변경 > </h6>
               <table id="changeextrapay" class="pc-table thtd" style="margin:2px">
                 <thead>
                 <tr class="bg-secondary text-white thtd">
                   <th colspan=1><input type="checkbox" class="ckbxall"></th>
                   <th colspan=2>성명</th>
-                  <th colspan=2>시간외수당합계</th>
+                  <th colspan=2>기존수당금액</th>
+                  <th colspan=2>변경수당금액</th>
                   <th class="d-none">extraPayId</th>
                 </tr>
                 </thead>
@@ -227,8 +228,9 @@
                 <tr class="thtd">
                   <th colspan=1><input type="checkbox" class="ckbx"></th>
                   <th colspan=2>{{ row.empName }}</th>
-                  <th colspan=2>{{ row.sumCost |floatformat:0|intcomma }}</th>
-                  <th class="d-none" id="extraPayId">{{ row.extraPayId }}</th>
+                  <th colspan=2>{{ row.extraSalary |intcomma }}</th>
+                  <th colspan=2>{{ row.empSalary |intcomma }}</th>
+                  <th class="d-none"><input type="text" name="extraPayId" value="{{ row.extraPayId }}"></th>
                 </tr>
                 {% endfor %}
                 {% endfor %}
@@ -262,8 +264,11 @@
     }
 
     function btn_change() {
-        // document.getElementById("extraPayForm").submit();
-        alert('개발 준비중입니다.');
+        const msg = '{{ today }} 수담금액을 변경하시겠습니까?';
+        if (confirm(msg)) {
+            // alert('개발 준비중입니다.');
+            document.getElementById("extraPayForm").submit();
+        }
     }
 
     function replaceAll(str, searchStr, replaceStr) {

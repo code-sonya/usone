@@ -9,6 +9,8 @@ class ExtraPay(models.Model):
     overHourDate = models.DateField(null=True, blank=True)
     sumOverHour = models.FloatField(null=True, blank=True)
     compensatedHour = models.FloatField(null=True, blank=True, default=0)
+    # 해당 시점의 수당 금액
+    empSalary = models.IntegerField(default=0)
     compensatedComment = models.CharField(max_length=30, null=True, blank=True, default='')
     payStatus = models.CharField(max_length=10, default='N')
 

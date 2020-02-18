@@ -1216,7 +1216,6 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
             foodcosts = cal_foodcost(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
             if foodcosts > 0 or overhour > 0:
                 emp = Employee.objects.get(empId=service.empId_id)
-                overhourcost = emp.empSalary*overhour*1.5
 
                 # IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
                 service_year = service.serviceDate.year
@@ -1236,8 +1235,10 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
                         empName=service.empName,
                         overHourDate=service.serviceDate,
                         sumOverHour=overhour,
+                        empSalary=emp.empSalary,
                     )
 
+                overhourcost = extrapay.empSalary * overhour * 1.5
                 OverHour.objects.create(
                     serviceId=service,
                     empId=service.empId,
@@ -1348,6 +1349,7 @@ def admin_service(request, serviceId):
                                 empName=post.empName,
                                 overHourDate=post.serviceDate,
                                 sumOverHour=overhour,
+                                empSalary=emp.empSalary,
                             )
 
                         OverHour.objects.create(
