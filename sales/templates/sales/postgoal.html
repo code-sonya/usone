@@ -154,7 +154,8 @@
           }
       }
 
-      function changeDeptName(empDeptName) {
+      function changeDeptName() {
+          const empDeptName = $("#empDeptName").val();
           $.ajax({
               url: "{% url 'sales:empdept_ajax_url' %}",
               method: 'POST',

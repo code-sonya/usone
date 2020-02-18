@@ -68,7 +68,7 @@ class GoalForm(forms.ModelForm):
         )
 
         widgets = {
-            'empDeptName': forms.Select(attrs={'class': 'form-control', 'id': 'empDeptName', 'onchange': "changeDeptName(this.value)"}),
+            'empDeptName': forms.Select(attrs={'class': 'form-control', 'id': 'empDeptName', 'onchange': "changeDeptName()"}),
             'empName': forms.Select(attrs={'class': 'form-control', 'id': 'empName'}),
             'year': forms.TextInput(attrs={"type": "number", "min": "1900", "max": "2099", "step": "1", 'class': 'form-control', 'id': 'year'}),
             'sales1': forms.TextInput(attrs={'class': 'form-control money', 'id': 'sales1'}),

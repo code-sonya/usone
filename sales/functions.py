@@ -334,7 +334,7 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
         revenuePrice = [i['revenuePrice'] for i in teamRevenue if i['contractId__empDeptName'] == team] or [0]
         profitPrice = [i['revenueProfitPrice'] for i in teamRevenue if i['contractId__empDeptName'] == team] or [0]
         row = {
-            'empDeptName': team[:4],
+            'empDeptName': team,
             'revenueTarget': teamGoal.filter(empDeptName=team)[0]['revenueTarget'],
             'profitTarget': teamGoal.filter(empDeptName=team)[0]['profitTarget'],
             'revenuePrice': revenuePrice[0],
@@ -381,7 +381,6 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
         row['profitRatio'] = '-'
 
     rows.append(row)
-
     return rows
 
 
