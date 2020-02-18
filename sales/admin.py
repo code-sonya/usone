@@ -6,9 +6,9 @@ from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, G
 
 @admin.register(Contract)
 class ContractAdmin(admin.ModelAdmin):
-    list_display = ('contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep', 'contractCode')
-    list_filter = ('saleCompanyName', 'endCompanyName', 'contractCode')
-    list_display_links = ['contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep', 'contractCode']
+    list_display = ('contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep', 'contractCode', 'modifyContract')
+    list_filter = ('modifyContract', 'saleCompanyName', 'endCompanyName', 'contractCode')
+    list_display_links = ['contractName', 'empName', 'saleCompanyName', 'endCompanyName', 'contractStep', 'contractCode', 'modifyContract']
 
 
 @admin.register(Revenue)

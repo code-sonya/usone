@@ -166,8 +166,13 @@ def dashboard_quarter(request):
         profit1=Sum('profit1'), profit2=Sum('profit2'), profit3=Sum('profit3'), profit4=Sum('profit4'), profit5=Sum('profit5'), profit6=Sum('profit6'),
         profit7=Sum('profit7'), profit8=Sum('profit8'), profit9=Sum('profit9'), profit10=Sum('profit10'), profit11=Sum('profit11'), profit12=Sum('profit12'),
     )
+    # 해당 분기 누적 목표
     cumulativeGoalSalePrice = 0
     cumulativeGoalProfitPrice = 0
+    # 헤당 분기 목표
+    quarterGoalSalePrice = 0
+    quarterGoalProfitPrice = 0
+
     # 해당 분기 월 리스트
     monthList = []
     # 연도, 월, 분기
@@ -175,32 +180,37 @@ def dashboard_quarter(request):
         todayQuarter = 1
         monthList = [1, 2, 3]
         if sumGoals['yearSalesSum'] or sumGoals['yearProfitSum']:
+            quarterGoalSalePrice = sumGoals['salesq1']
+            quarterGoalProfitPrice = sumGoals['profitq1']
             cumulativeGoalSalePrice = sumGoals['salesq1']
             cumulativeGoalProfitPrice = sumGoals['profitq1']
     elif todayMonth in [4, 5, 6]:
         todayQuarter = 2
         monthList = [1, 2, 3, 4, 5, 6]
         if sumGoals['yearSalesSum'] or sumGoals['yearProfitSum']:
+            quarterGoalSalePrice = sumGoals['salesq2']
+            quarterGoalProfitPrice = sumGoals['profitq2']
             cumulativeGoalSalePrice = sumGoals['salesq1'] + sumGoals['salesq2']
             cumulativeGoalProfitPrice = sumGoals['profitq1'] + sumGoals['profitq2']
     elif todayMonth in [7, 8, 9]:
         todayQuarter = 3
         monthList = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         if sumGoals['yearSalesSum'] or sumGoals['yearProfitSum']:
+            quarterGoalSalePrice = sumGoals['salesq3']
+            quarterGoalProfitPrice = sumGoals['profitq3']
             cumulativeGoalSalePrice = sumGoals['salesq1'] + sumGoals['salesq2'] + sumGoals['salesq3']
             cumulativeGoalProfitPrice = sumGoals['profitq1'] + sumGoals['profitq2'] + sumGoals['profitq3']
     elif todayMonth in [10, 11, 12]:
         todayQuarter = 4
         monthList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         if sumGoals['yearSalesSum'] or sumGoals['yearProfitSum']:
+            quarterGoalSalePrice = sumGoals['salesq4']
+            quarterGoalProfitPrice = sumGoals['profitq4']
             cumulativeGoalSalePrice = sumGoals['yearSalesSum']
             cumulativeGoalProfitPrice = sumGoals['yearProfitSum']
 
-    dict_quarter = {"q1_start": "{}-01-01".format(todayYear),
-                    "q1_end": "{}-04-01".format(todayYear),
-                    "q2_end": "{}-07-01".format(todayYear),
-                    "q3_end": "{}-10-01".format(todayYear),
-                    "q4_end": "{}-01-01".format(todayYear + 1)}
+    quarterGoals = {"quarterGoalSalePrice":quarterGoalSalePrice, "quarterGoalProfitPrice": quarterGoalProfitPrice}
+
     revenues = Revenue.objects.filter(Q(predictBillingDate__year=todayYear))
     revenuesFirm = revenues.filter(Q(contractId__contractStep='Firm'))
     revenuesOppty = revenues.filter(Q(contractId__contractStep='Opportunity'))
@@ -213,6 +223,15 @@ def dashboard_quarter(request):
     sumRevenuesOppty = revenuesOppty.aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
 
     # 분기별 매출/이익 분석 (Firm)
+    quarterAll = revenues.annotate(
+        quarter=Case(
+            When(predictBillingDate__month__in=[1, 2, 3], then=Value("1분기")),
+            When(predictBillingDate__month__in=[4, 5, 6], then=Value("2분기")),
+            When(predictBillingDate__month__in=[7, 8, 9], then=Value("3분기")),
+            When(predictBillingDate__month__in=[10, 11, 12], then=Value("4분기")),
+            output_field=CharField()
+        )
+    )
     quarterFirm = revenuesFirm.annotate(
         quarter=Case(
             When(predictBillingDate__month__in=[1, 2, 3], then=Value("1분기")),
@@ -233,6 +252,9 @@ def dashboard_quarter(request):
     )
     quarterFirmRevenues = quarterFirm.values('quarter').annotate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
     quarterOpptyRevenues = quarterOppty.values('quarter').annotate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+    # 해당 분기 매출, 이익 (전체/Firm)
+    quarterAllRevenue = quarterAll.filter(quarter='{}분기'.format(todayQuarter)).aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
+    quarterFirmRevenue = quarterFirm.filter(quarter='{}분기'.format(todayQuarter)).aggregate(revenuePrice=Sum('revenuePrice'), revenueProfitPrice=Sum('revenueProfitPrice'))
 
     # 해당 분기 누적 매출, 이익 (전체/Oppty/Firm)
     cumulative = revenues.annotate(
@@ -272,19 +294,31 @@ def dashboard_quarter(request):
     if sumGoals['yearSalesSum'] or sumGoals['yearProfitSum']:
         salePricePercent = round(sumRevenuesFirm['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
         profitPricePercent = round(sumRevenuesFirm['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
+        ## 분기 누적
         # cumulativeSalePricePercent = round(cumulativeFirmRevenues['revenuePrice'] / cumulativeGoal['cumulativeGoalSalePrice'] * 100, 2)
-        cumulativeSalePricePercent = round(cumulativeFirmRevenues['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
         # cumulativeProfitPricePercent = round(cumulativeFirmRevenues['revenueProfitPrice'] / cumulativeGoal['cumulativeGoalProfitPrice'] * 100, 2)
-        cumulativeProfitPricePercent = round(cumulativeFirmRevenues['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
+        ## 전체목표대비분기누적
+        # cumulativeSalePricePercent = round(cumulativeFirmRevenues['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
+        # cumulativeProfitPricePercent = round(cumulativeFirmRevenues['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
+        ## 분기만
+        cumulativeSalePricePercent = round(quarterFirmRevenue['revenuePrice'] / quarterGoals['quarterGoalSalePrice'] * 100, 2)
+        cumulativeProfitPricePercent = round(quarterFirmRevenue['revenueProfitPrice'] / quarterGoals['quarterGoalProfitPrice'] * 100, 2)
+
+
         firmPercent = {'salePricePercent': salePricePercent, 'profitPricePercent': profitPricePercent,
                        'cumulativeSalePricePercent': cumulativeSalePricePercent, 'cumulativeProfitPricePercent': cumulativeProfitPricePercent}
       
         salePricePercent = round(sumRevenues['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
         profitPricePercent = round(sumRevenues['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
+        ## 분기 누적
         # cumulativeSalePricePercent = round(cumulativeRevenues['revenuePrice'] / cumulativeGoal['cumulativeGoalSalePrice'] * 100, 2)
-        cumulativeSalePricePercent = round(cumulativeRevenues['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
         # cumulativeProfitPricePercent = round(cumulativeRevenues['revenueProfitPrice'] / cumulativeGoal['cumulativeGoalProfitPrice'] * 100, 2)
-        cumulativeProfitPricePercent = round(cumulativeRevenues['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
+        ## 전체 목표대비 분기 누적
+        # cumulativeSalePricePercent = round(cumulativeRevenues['revenuePrice'] / sumGoals['yearSalesSum'] * 100, 2)
+        # cumulativeProfitPricePercent = round(cumulativeRevenues['revenueProfitPrice'] / sumGoals['yearProfitSum'] * 100, 2)
+        ## 분기만
+        cumulativeSalePricePercent = round(quarterAllRevenue['revenuePrice'] / quarterGoals['quarterGoalSalePrice'] * 100, 2)
+        cumulativeProfitPricePercent = round(quarterAllRevenue['revenueProfitPrice'] / quarterGoals['quarterGoalProfitPrice'] * 100, 2)
         allPercent = {'salePricePercent': salePricePercent, 'profitPricePercent': profitPricePercent,
                        'cumulativeSalePricePercent': cumulativeSalePricePercent, 'cumulativeProfitPricePercent': cumulativeProfitPricePercent}
     else:
@@ -295,6 +329,7 @@ def dashboard_quarter(request):
         "todayYear": todayYear,
         "todayQuarter": todayQuarter,
         "sumGoals": sumGoals,
+        "quarterGoals": quarterGoals,
         "cumulativeGoal": cumulativeGoal,
         'sumRevenues': sumRevenues,
         'sumRevenuesFirm': sumRevenuesFirm,
