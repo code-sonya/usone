@@ -1203,10 +1203,11 @@ def post_geolocation(request, serviceId, status, latitude, longitude):
 
         service.serviceFinishDatetime = datetime.datetime.now()
         service.serviceHour = str_to_timedelta_hour(str(service.serviceFinishDatetime), str(service.serviceBeginDatetime))
-        if service.empName == '이현수':
-            service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay_etc(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
-        else:
-            service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
+        # if service.empName == '이현수':
+        #     service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay_etc(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
+        # else:
+        #     service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
+        service.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(str(service.serviceBeginDatetime), str(service.serviceFinishDatetime))
         service.serviceRegHour = round(service.serviceHour - service.serviceOverHour, 1)
         service.serviceStatus = 'Y'
 
@@ -1300,14 +1301,17 @@ def admin_service(request, serviceId):
                 post.coWorker = request.POST['coWorkerId']
 
                 # 초과근무 등록
-                if post.empName == '이현수':
-                    post.serviceOverHour, overhour, min_date, max_date = overtime_extrapay_etc(
-                        str(post.serviceBeginDatetime), str(post.serviceFinishDatetime)
-                    )
-                else:
-                    post.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(
-                        str(post.serviceBeginDatetime), str(post.serviceFinishDatetime)
-                    )
+                # if post.empName == '이현수':
+                #     post.serviceOverHour, overhour, min_date, max_date = overtime_extrapay_etc(
+                #         str(post.serviceBeginDatetime), str(post.serviceFinishDatetime)
+                #     )
+                # else:
+                #     post.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(
+                #         str(post.serviceBeginDatetime), str(post.serviceFinishDatetime)
+                #     )
+                post.serviceOverHour, overhour, min_date, max_date = overtime_extrapay(
+                    str(post.serviceBeginDatetime), str(post.serviceFinishDatetime)
+                )
                 post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
                 post.serviceStatus = 'Y'
                 post.save()

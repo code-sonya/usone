@@ -656,7 +656,9 @@ def overhour_all(request):
     extrapayInfra, sumInfra = cal_extraPay(['인프라서비스사업팀'], todayYear, todayMonth)
     extrapaySolution, sumSolution = cal_extraPay(['솔루션지원팀'], todayYear, todayMonth)
     extrapayDB, sumDB = cal_extraPay(['DB지원팀'], todayYear, todayMonth)
-    extrapaySupport, sumSupport = cal_extraPay(['미정'], todayYear, todayMonth)
+
+    # 특수직
+    extrapaySupport, sumSupport = cal_extraPay(['경영지원본부'], todayYear, todayMonth)
 
     sumEmp = {'sumoverHour': 0, 'sumcompensatedHour': 0, 'sumoverandfoodCost': 0, 'sumfoodCost': 0, 'sumCost': 0}
 
@@ -755,8 +757,9 @@ def post_overhour(request):
                 empId=emp,
                 empName=emp.empName,
                 overHourDate='{}-01'.format(overhourDate),
-                sumOverHour=overhour+overHourWeekDay,
+                sumOverHour=overhour + overHourWeekDay,
                 payStatus=status,
+                empSalary=emp.empSalary
             )
 
         OverHour.objects.create(
@@ -1007,8 +1010,9 @@ def delete_overhour(request):
             overhour = OverHour.objects.get(overHourId=overHourId)
             extraPayId = str(overhour.extraPayId_id)
             extrapay = ExtraPay.objects.get(extraPayId=extraPayId)
-            extrapay.sumOverHour = extrapay.sumOverHour - overhour.overHour
-            extrapay.save()
+            if overhour.overHour != 0:
+                extrapay.sumOverHour = round((extrapay.sumOverHour - overhour.overHour), 2)
+                extrapay.save()
             overhour.overHourStatus = 'D'
             overhour.save()
             return redirect('extrapay:viewoverhour', extraPayId)
