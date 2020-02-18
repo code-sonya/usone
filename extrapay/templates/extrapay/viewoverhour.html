@@ -195,7 +195,7 @@
         <tbody>
         {% for row in foodcosts %}
         <tr class="thtd">
-          <td class="thtd" colspan="1">{{ row.serviceId.serviceDate }}</a></td>
+          <td class="thtd" colspan="1">{{ row.serviceId.serviceDate }}</td>
           <td class="thtd" colspan="2">{{ row.serviceId.companyName }}</td>
           <td class="thtd" colspan="2">{{ row.serviceId.serviceBeginDatetime | date:"Y/m/d H:i"}}</td>
           <td class="thtd" colspan="2">{{ row.serviceId.serviceFinishDatetime | date:"Y/m/d H:i"}}</td>
@@ -212,7 +212,7 @@
         <tr class="thtd bg-light">
           <td class="thtd" colspan="3">합계</td>
           <td class="thtd" colspan="4">총 근무시간</td>
-          <td class="thtd" colspan="2">{{ sum_foodcosts.sumServicehour }}</td>
+          <td class="thtd" colspan="2">{{ sum_foodcosts.sumServicehour |floatformat:1 }}</td>
           <td class="thtd" colspan="4">총 식대금액</td>
           <td class="thtd" colspan="1">{{ sum_foodcosts.sumFoodCost |floatformat:0|intcomma }}</td>
           <td class="thtd"></td>
