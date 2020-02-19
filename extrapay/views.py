@@ -804,7 +804,7 @@ def view_extrapay_pdf(request, yearmonth):
     extrapayInfra, sumInfra = cal_extraPay(['인프라서비스사업팀'], todayYear, todayMonth)
     extrapaySolution, sumSolution = cal_extraPay(['솔루션지원팀'], todayYear, todayMonth)
     extrapayDB, sumDB = cal_extraPay(['DB지원팀'], todayYear, todayMonth)
-    extrapaySupport, sumSupport = cal_extraPay(['미정'], todayYear, todayMonth)
+    extrapaySupport, sumSupport = cal_extraPay(['경영지원본부'], todayYear, todayMonth)
 
     sumEmp = {'sumoverHour': 0, 'sumcompensatedHour': 0, 'sumoverandfoodCost': 0, 'sumfoodCost': 0, 'sumCost': 0}
     extrapayList = [extrapayPlatform, extrapayStrategy, extrapayInfra, extrapaySolution, extrapayDB]
