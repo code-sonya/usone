@@ -47,7 +47,8 @@ def scheduler(request, day=None):
     services = Servicereport.objects.filter(
         Q(serviceDate__gte=startDate) &
         Q(serviceDate__lte=endDate) &
-        Q(empDeptName__in=postDeptList)
+        Q(empDeptName__in=postDeptList) &
+        Q(serviceType__calendarStatus='Y')
     )
     vacations = Vacation.objects.filter(
         Q(vacationDate__gte=startDate) &

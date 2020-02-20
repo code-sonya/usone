@@ -13,6 +13,7 @@ class Servicetype(models.Model):
     orderNumber = models.IntegerField(default=0)
     dashboardStatus = models.CharField(max_length=10, choices=statusChoices, default='Y')
     punctualityStatus = models.CharField(max_length=10, choices=statusChoices, default='Y')
+    calendarStatus = models.CharField(max_length=10, choices=statusChoices, default='Y')
 
     class Meta:
         ordering = ['orderNumber', 'typeName']

@@ -251,7 +251,9 @@
               eventLimit: false,
               timeFormat: 'HH:mm',
               eventMouseover: function (data, event, view) {
-                  if (data.type == 'X') {
+                  if (data.type === 'holiday') {
+                      tooltip = '';
+                  } else if (data.type === 'X') {
                       tooltip = '<div class="tooltiptopicevent" ' +
                           'style="color:black;width:auto;height:auto;background:#cceeee;position:absolute;z-index:10001;padding:10px;' +
                           'line-height:130%;font-size:13px;border-radius:0.5em;border:1px solid lightblue;">' +
@@ -290,22 +292,21 @@
                   }
               },
               eventDrop: function (event, delta, revertFunc) {
-                  {#로그인한 유저 엔지니어 이름#}
+                  // 로그인한 유저 엔지니어 이름
                   const userName = "{{ empName }}";
-                  {#선택된 이벤트의 엔지니어 이름, 타입, id#}
+                  // 선택된 이벤트의 엔지니어 이름, 타입, id
                   const empName = event.name;
                   const serviceType = event.type;
-                  console.log(event);
                   const serviceId = event.service_id;
                   const startDate = String(event.start.format());
                   let endDate;
                   if (empName == userName) {
-                      {#완료된 일정일 경우#}
+                      // 완료된 일정일 경우
                       if (serviceType == 'Y') {
                           alert('완료된 일정은 수정할 수 없습니다. :)');
                           revertFunc()
                       } else {
-                          {#휴가일 경우#}
+                          // 휴가일 경우
                           if (serviceType == 'X') {
                               endDate = startDate;
                           } else {
@@ -343,11 +344,10 @@
                       }
                   }
               },
-              {#eventClick: function (info) {alert('Event: ' + info.event.title);},#}
           });
 
           $('#calendar').fullCalendar('addEventSource',
-              {#1.내휴가&팀휴가#}
+              // 1.내휴가 & 팀휴가
               {
                   events: [
                       {% for i in myVacations %}
@@ -359,22 +359,19 @@
                               vacationType: '{{ i.vacationType }}',
                               type: 'X',
                               className: 'me',
+                              backgroundColor: '#FFFF0000',
+                              borderColor: '#FFFF0000',
                               {% if i.vacationStatus == 'N' %}
-                                title: '[{{ i.vacationType }}] {{ i.empName }} [결재중]',
-                                backgroundColor: '#FFFF0000',
-                                borderColor: '#FFFF0000',
-                                textColor: '#2635ff',
+                                  title: '[{{ i.vacationType }}] {{ i.empName }} [결재중]',
+                                  textColor: '#2635ff',
                               {% else %}
-                                title: '[{{ i.vacationType }}] {{ i.empName }}',
-                                backgroundColor: '#FFFF0000',
-                                borderColor: '#FFFF0000',
-                                textColor: '#1cc88a',
+                                  title: '[{{ i.vacationType }}] {{ i.empName }}',
+                                  textColor: '#1cc88a',
                               {% endif %}
                           },
                       {% endfor %}
                       {% for i in teamVacations %}
                           {
-                              // title: '[{{ i.vacationType }}] {{ i.empName }}',
                               start: '{{ i.vacationDate|date:"Y-m-d" }}',
                               end: '{{ i.vacationDate|date:"Y-m-d" }}',
                               service_id: '{{ i.vacationId }}',
@@ -382,29 +379,24 @@
                               vacationType: '{{ i.vacationType }}',
                               type: 'X',
                               className: 'team',
+                              backgroundColor: '#FFFF0000',
+                              borderColor: '#FFFF0000',
                               {% if i.vacationStatus == 'N' %}
-                                title: '[{{ i.vacationType }}] {{ i.empName }}(결재중)',
-                                backgroundColor: '#FFFF0000',
-                                borderColor: '#FFFF0000',
-                                textColor: '#2635ff',
+                                  title: '[{{ i.vacationType }}] {{ i.empName }}(결재중)',
+                                  textColor: '#2635ff',
                               {% else %}
-                                title: '[{{ i.vacationType }}] {{ i.empName }}',
-                                backgroundColor: '#FFFF0000',
-                                borderColor: '#FFFF0000',
-                                textColor: '#1cc88a',
+                                  title: '[{{ i.vacationType }}] {{ i.empName }}',
+                                  textColor: '#1cc88a',
                               {% endif %}
                           },
                       {% endfor %}
                   ],
-                  // backgroundColor: '#FFFF0000',
-                  // borderColor: '#FFFF0000',
-                  // textColor: '#1cc88a'
               },
           );
 
 
           $('#calendar').fullCalendar('addEventSource',
-              {#2.내 일정#}
+              // 2.내 일정
               {
                   events: [
                       {% for i in myServices %}
@@ -462,7 +454,7 @@
           );
 
           $('#calendar').fullCalendar('addEventSource',
-              {#3.팀 일정#}
+              // 3.팀 일정
               {
                   events: [
                       {% for i in teamServices %}
@@ -533,6 +525,7 @@
                               detail: '{{ i.eventName }}',
                               service_type: '공휴일',
                               className: 'holiday',
+                              type: 'holiday',
                           },
                       {% endfor %}
                   ]
@@ -555,12 +548,13 @@
                               detail: '{{ i.eventName }}',
                               service_type: '사내일정',
                               className: 'holiday',
+                              type: 'holiday',
                           },
                       {% endfor %}
-                  ]
-                  , color: "#fffcb4"
-                  , textColor: "#85680f"
-                  , borderColor: "#fbe261"
+                  ],
+                  color: "#fffcb4",
+                  textColor: "#85680f",
+                  borderColor: "#fbe261",
               },
           );
 

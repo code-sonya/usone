@@ -158,9 +158,10 @@ class ServiceTypeForm(forms.ModelForm):
 
     class Meta:
         model = Servicetype
-        fields = ('typeName', 'orderNumber')
+        fields = ('typeName', 'orderNumber', 'calendarStatus')
 
         widgets = {
             'typeName': forms.TextInput(attrs={'class': 'form-control', 'id': 'typeName'}),
             'orderNumber': forms.TextInput(attrs={'class': 'form-control', 'id': "orderNumber"}),
+            'calendarStatus': forms.Select(attrs={'class': 'form-control', 'id': 'calendarStatus'}),
         }
