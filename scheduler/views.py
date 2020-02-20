@@ -43,7 +43,6 @@ def scheduler(request, day=None):
         postDeptList = request.POST.getlist('ckdept')
     else:
         postDeptList = [empDeptName]
-
     # 일정, 휴가, 휴일, 사내일정 (한달)
     services = Servicereport.objects.filter(
         Q(serviceDate__gte=startDate) &
@@ -67,27 +66,41 @@ def scheduler(request, day=None):
         Q(eventDate__lte=endDate)
     )
 
-    GroupDeptList = Department.objects.filter(
-        Q(deptLevel=1) &
-        Q(startDate__year__lte=todayYear) &
-        Q(startDate__month__lte=todayMonth) &
-        ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(endDate__isnull=True))) \
-        .annotate(checked=Case(
-        When(deptName__in=postDeptList, then=Value('Y')),
-        default=Value("N"),
-        output_field=CharField())).values('deptId', 'deptName', 'deptLevel', 'parentDept__deptName', 'checked')
+    deptLevel = Department.objects.aggregate(Max('deptLevel'))['deptLevel__max']
+    groupLevel = deptLevel - 1
 
-    DeptList = Department.objects.filter(
-        Q(deptLevel=2) &
+    GroupDeptList = Department.objects.filter(
+        Q(deptLevel=groupLevel) &
         Q(startDate__year__lte=todayYear) &
         Q(startDate__month__lte=todayMonth) &
-        ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(endDate__isnull=True))) \
-        .annotate(checked=Case(
+        (
+            (Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) |
+            Q(endDate__isnull=True)
+        )
+    ).annotate(
+        checked=Case(
             When(deptName__in=postDeptList, then=Value('Y')),
             default=Value("N"),
-            output_field=CharField())).values('deptName', 'deptLevel', 'parentDept', 'parentDept__deptName', 'checked')
+            output_field=CharField()
+        )
+    ).values('deptId', 'deptName', 'deptLevel', 'parentDept__deptName', 'checked')
 
-    # print(postDeptList)
+    DeptList = Department.objects.filter(
+        Q(deptLevel=deptLevel) &
+        Q(startDate__year__lte=todayYear) &
+        Q(startDate__month__lte=todayMonth) &
+        (
+            (Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) |
+            Q(endDate__isnull=True)
+        )
+    ).annotate(
+        checked=Case(
+            When(deptName__in=postDeptList, then=Value('Y')),
+            default=Value("N"),
+            output_field=CharField()
+        )
+    ).values('deptName', 'deptLevel', 'parentDept', 'parentDept__deptName', 'checked')
+
     # 내 일정, 팀 일정
     myServices = services.filter(empId=empId)
     teamServices = services.exclude(empId=empId)
@@ -136,15 +149,16 @@ def changeDate(request):
         post.serviceEndDatetime = str(endDate)[:10] + ' ' + str(post.serviceEndDatetime)[11:]
         post.serviceFinishDatetime = str(endDate)[:10] + ' ' + str(post.serviceFinishDatetime)[11:]
         post.save()
+        msg = '일정변경이 완료되었습니다.'
 
     # 휴가인 경우
-    else:
-        vacation = get_object_or_404(Vacation, vacationId=serviceId)
-        vacation.vacationDate = str(startDate)[:10]
-        vacation.save()
+    elif serviceType == "X":
+        msg = '휴가는 변경할 수 없습니다.'
 
-    context = {'service_id': serviceId}
-    return HttpResponse(json.dumps(context), content_type="application/json")
+    else:
+        msg = '출발한 일정은 변경할 수 없습니다.'
+
+    return HttpResponse(json.dumps(msg), content_type="application/json")
 
 
 @login_required

@@ -44,6 +44,7 @@
               <th>통행료</th>
               <th>유류비</th>
               <th>합계</th>
+              <th>신청사유</th>
               <th>반려사유</th>
             </tr>
             </thead>
@@ -65,53 +66,54 @@
           </table>
         </div>
         {% if user.employee.empDeptName != '임원' and user.employee.empDeptName != '경영지원본부' or empDeptName == '경영지원본부' and user.employee.empManager == 'Y' %}
-        <h5 class="text-dark font-weight-bold">▼ 진행</h5>
-        <div class="table-responsive">
-          <table id="napprovalfuel" class="hover row-border" width="100%" style="width: 100%;">
-            <thead>
-            <tr>
-              <th>승인</th>
-              <th>반려</th>
-              <th>날짜</th>
-              <th>고객사</th>
-              <th>제목</th>
-              <th>이동거리</th>
-              <th>통행료</th>
-              <th>유류비</th>
-              <th>합계</th>
-              <th>반려사유</th>
-              <th class="d-none">fuelId</th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-            </tr>
-            </tfoot>
-          </table>
-        </div>
-        <br>
-        {% if btnStatus == 'Y' %}
-        <div class="text-center">
-          <form id="approvalfuelForm" method="POST" action="/extrapay/approvalpostfuel/">
-            {% csrf_token %}
-            <input class="d-none" name="empId" value="{{ empId }}">
-          </form>
-          <a href="#" class="btn btn-success btn-icon-split" onclick="btn_post()">
-            <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-            <span class="text"> 완료 </span>
-          </a>
-        </div>
-        {% endif %}
+          <h5 class="text-dark font-weight-bold">▼ 진행</h5>
+          <div class="table-responsive">
+            <table id="napprovalfuel" class="hover row-border" width="100%" style="width: 100%;">
+              <thead>
+              <tr>
+                <th>승인</th>
+                <th>반려</th>
+                <th>날짜</th>
+                <th>고객사</th>
+                <th>제목</th>
+                <th>이동거리</th>
+                <th>통행료</th>
+                <th>유류비</th>
+                <th>합계</th>
+                <th>신청사유</th>
+                <th>반려사유</th>
+                <th class="d-none">fuelId</th>
+              </tr>
+              </thead>
+              <tfoot>
+              <tr>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+                <th style="padding: 8px 10px; text-align: right"></th>
+              </tr>
+              </tfoot>
+            </table>
+          </div>
+          <br>
+          {% if btnStatus == 'Y' %}
+            <div class="text-center">
+              <form id="approvalfuelForm" method="POST" action="/extrapay/approvalpostfuel/">
+                {% csrf_token %}
+                <input class="d-none" name="empId" value="{{ empId }}">
+              </form>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_post()">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 완료 </span>
+              </a>
+            </div>
+          {% endif %}
         {% endif %}
       </div>
     </div>
@@ -441,13 +443,19 @@
                     targets: 9,
                     width: "15%",
                     className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "comment2",
+                },
+                {
+                    targets: 10,
+                    width: "15%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                     data: "fuelId",
                     render: function (data, type, full, meta) {
                         return '<input id="input' + data + '" class="form-control" readonly>';
                     },
                 },
                 {
-                    targets: 10,
+                    targets: 11,
                     className: "d-none fuel-id",
                     data: "fuelId",
                 },
@@ -579,6 +587,12 @@
                 },
                 {
                     targets: 8,
+                    width: "15%",
+                    className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                    data: "comment2"
+                },
+                {
+                    targets: 9,
                     width: "15%",
                     className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                     data: "comment"

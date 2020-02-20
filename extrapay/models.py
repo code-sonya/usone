@@ -65,6 +65,7 @@ class Fuel(models.Model):
     geolocationId = models.OneToOneField("service.Geolocation", on_delete=models.CASCADE, null=True, blank=True)
     fuelMoney = models.IntegerField(null=True, blank=True)
     comment = models.CharField(max_length=200, null=True, blank=True)
+    comment2 = models.CharField(max_length=200, null=True, blank=True)
     fuelStatus = models.CharField(max_length=1, default='N')
 
     def __str__(self):
