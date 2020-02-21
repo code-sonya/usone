@@ -2,138 +2,150 @@
 
 
 {% block title %}
-  고객사
+고객사
 {% endblock %}
 
 
 {% block css %}
 
-  <style type="text/css">
+<style type="text/css">
+
+  .table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    margin-bottom: 1rem;
+    font-weight: normal;
+  }
+
+  .table td, .table th {
+    padding: .75rem;
+    vertical-align: middle;
+    border: 1px solid #e6eaf2;
+    white-space: normal;
+    font-size: 0.9vw;
+  }
+
+  .a {
+    background-color: #e4f1f8;
+    text-align: center;
+  }
+
+  .c {
+    font-size: 0.8vw;
+  }
+
+  .d {
+    font-size: 1.4vw;
+  }
+
+  @media only screen and (max-width: 800px) {
+    .b {
+      display: none;
+    }
 
     .table {
-      color: #333333;
-      table-layout: fixed;
-      width: 100%;
-      margin-bottom: 1rem;
-      font-weight: normal;
-    }
-
-    .table td, .table th {
-      padding: .75rem;
-      vertical-align: middle;
-      border: 1px solid #e6eaf2;
-      white-space: normal;
-      font-size: 1.0vw;
-    }
-
-    .a {
-      background-color: #e4f1f8;
-      text-align: center;
+      font-size: 12px;
     }
 
     .c {
-      font-size: 0.8vw;
+      font-size: 12px;
     }
 
-    .d {
-      font-size: 1.4vw;
+    #register {
+      display: none;
     }
 
-    @media only screen and (max-width: 800px) {
-      .b {
-        display: none;
-      }
+  }
 
-      .table {
-        font-size: 12px;
-      }
-
-      .c {
-        font-size: 12px;
-      }
-
-      #register {
-        display: none;
-      }
-
-    }
-
-  </style>
+</style>
 
 {% endblock %}
 
 
 {% block content %}
 
-  <div class="row">
-    <div class="col-xl-1"></div>
+<div class="row">
+  <div class="col-xl-1"></div>
 
-    <div class="col-xl-10 ">
-      <div class="card shadow mb-4">
+  <div class="col-xl-10 ">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800"> {{ company.companyNameKo }} [{{ company.companyName }}] </h6>
+      </div>
 
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> {{ company.companyNameKo }} [{{ company.companyName }}] </h6>
-        </div>
-
-        <div class="card-body">
+      <div class="card-body">
+        <div class="m-3">
           {% csrf_token %}
-          <table class="table p-2" width="100%">
+          <table class="table" width="100%">
             <tbody>
             <tr class="row">
-              <td class="col-2 a"><b>담당자</b></td>
-              <td class="col-10">{{ company.saleEmpId.empName }}</td>
+              <td class="col-4 a"><b>담당자</b></td>
+              <td class="col-8">{{ company.saleEmpId.empName }}</td>
             </tr>
             <tr class="row">
-              <td class="col-2 a"><b>고객사 대표</b></td>
-              <td class="col-10">
+              <td class="col-4 a"><b>고객사 대표자명</b></td>
+              <td class="col-8">
                 {% if company.ceo %}
-                  {{ company.ceo }}
+                {{ company.ceo }}
                 {% else %}
-                  -
-                {% endif %}</td>
+                -
+                {% endif %}
+              </td>
             </tr>
             <tr class="row">
-              <td class="col-2 a"><b>사업자등록번호</b></td>
-              <td class="col-10">
-                {% if company.companyNumber %}
-                  {{ company.companyNumber }}
-                {% else %}
-                  -
-                {% endif %}</td>
-            </tr>
-
-            <tr class="row">
-              <td class="col-2 a"><b>주소</b></td>
-              <td class="col-10">
+              <td class="col-4 a"><b>주소</b></td>
+              <td class="col-8">
                 {% if company.companyAddress %}
-                  {{ company.companyAddress }}
+                {{ company.companyAddress }}
                 {% else %}
-                  -
+                -
+                {% endif %}
+
+              </td>
+            </tr>
+            <tr class="row">
+              <td class="col-4 a"><b>사업자등록번호</b></td>
+              <td class="col-8">
+                {% if company.companyNumber %}
+                {{ company.companyNumber }}
+                {% else %}
+                -
+                {% endif %}
+              </td>
+            </tr>
+            <tr class="row">
+              <td class="col-4 a"><b>전화번호</b></td>
+              <td class="col-8">
+                {% if company.companyPhone %}
+                {{ company.companyPhone }}
+                {% else %}
+                -
                 {% endif %}
 
               </td>
             </tr>
 
             <!--<tr class="row">-->
-              <!--<th class="col-2 a">진행계약</th>-->
-              <!--<td class="col-10">-->
-                <!--{% if contracts %}-->
-                  <!--{% for contract in contracts %}-->
+            <!--<th class="col-2 a">진행계약</th>-->
+            <!--<td class="col-10">-->
+            <!--{% if contracts %}-->
+            <!--{% for contract in contracts %}-->
 
-                    <!--{% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' %}-->
-                      <!--<span>[<a class='text-info' href="/sales/viewcontract/{{ contract.contractId }}/">{{ contract.contractCode }}</a>]</span>-->
-                    <!--{% else %}-->
-                      <!--<span>[{{ contract.contractCode }}]</span>-->
-                    <!--{% endif %}-->
-                    <!--<span>{{ contract.contractName }}</span>-->
-                    <!--({{ contract.contractStartDate }} ~ {{ contract.contractEndDate }})-->
-                    <!--<br>-->
-                  <!--{% endfor %}-->
-                <!--{% endif %}-->
-              <!--</td>-->
+            <!--{% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' %}-->
+            <!--<span>[<a class='text-info' href="/sales/viewcontract/{{ contract.contractId }}/">{{ contract.contractCode }}</a>]</span>-->
+            <!--{% else %}-->
+            <!--<span>[{{ contract.contractCode }}]</span>-->
+            <!--{% endif %}-->
+            <!--<span>{{ contract.contractName }}</span>-->
+            <!--({{ contract.contractStartDate }} ~ {{ contract.contractEndDate }})-->
+            <!--<br>-->
+            <!--{% endfor %}-->
+            <!--{% endif %}-->
+            <!--</td>-->
             <!--</tr>-->
             <tr class="row">
-              <th class="col-2 a">고객사담당자<br>
+              <th class="col-4 a">고객사담당자<br>
                 <a href="#" class="btn btn-success btn-icon-split btn-sm" onclick="location.href='/client/postcustomer/{{ company.companyName }}'">
                   <span id="check" class="icon text-white-50">
                     <i class="fas fa-plus"></i>
@@ -141,415 +153,429 @@
                   <span id="register" class="text">담당자 등록</span>
                 </a>
               </th>
-              <td class="col-10">
+              <td class="col-8">
                 {% for customer in customers %}
-                  <a href="/client/viewcustomer/{{ customer.pk }}">
-                    {{ customer.customerName }}{% if customer.customerPhone %}({{ customer.customerPhone }}){% else %}{% endif %}</a> <br>
+                <a href="/client/viewcustomer/{{ customer.pk }}">
+                  {{ customer.customerName }}{% if customer.customerPhone %}({{ customer.customerPhone }}){% else %}{% endif %}</a> <br>
                 {% endfor %}
               </td>
             </tr>
 
             <!--<tr class="row">-->
-              <!--<th class="col-2 a">엔지니어</th>-->
-              <!--<td class="col-10">-->
-                <!--<table class="table table" style="margin-bottom: 0px">-->
-                  <!--<thead>-->
-                  <!--<tr class="row" style="text-align: center;">-->
-                    <!--<td class="col-3"><B>DB 담당자(정)</B></td>-->
-                    <!--<td class="col-3"><B>DB 담당자(부)</B></td>-->
-                    <!--<td class="col-3"><B>SYSTEM 담당자(정)</B></td>-->
-                    <!--<td class="col-3"><B>SYSTEM 담당자(부)</B></td>-->
-                  <!--</tr>-->
-                  <!--</thead>-->
-                  <!--<tbody>-->
-                  <!--<tr class="row" style="text-align: center;">-->
-                    <!--<td class="col-3">{% if company.dbMainEmpId %}{{ company.dbMainEmpId.empName }}{% else %}-{% endif %}</td>-->
-                    <!--<td class="col-3">{% if company.dbSubEmpId %}{{ company.dbSubEmpId.empName }}{% else %}-{% endif %}</td>-->
-                    <!--<td class="col-3">{% if company.solutionMainEmpId %}{{ company.solutionMainEmpId.empName }}{% else %}-{% endif %}</td>-->
-                    <!--<td class="col-3">{% if company.solutionSubEmpId %}{{ company.solutionSubEmpId.empName }}{% else %}-{% endif %}</td>-->
-                  <!--</tr>-->
-                  <!--</tbody>-->
-                <!--</table>-->
-              <!--</td>-->
+            <!--<th class="col-2 a">엔지니어</th>-->
+            <!--<td class="col-10">-->
+            <!--<table class="table table" style="margin-bottom: 0px">-->
+            <!--<thead>-->
+            <!--<tr class="row" style="text-align: center;">-->
+            <!--<td class="col-3"><B>DB 담당자(정)</B></td>-->
+            <!--<td class="col-3"><B>DB 담당자(부)</B></td>-->
+            <!--<td class="col-3"><B>SYSTEM 담당자(정)</B></td>-->
+            <!--<td class="col-3"><B>SYSTEM 담당자(부)</B></td>-->
+            <!--</tr>-->
+            <!--</thead>-->
+            <!--<tbody>-->
+            <!--<tr class="row" style="text-align: center;">-->
+            <!--<td class="col-3">{% if company.dbMainEmpId %}{{ company.dbMainEmpId.empName }}{% else %}-{% endif %}</td>-->
+            <!--<td class="col-3">{% if company.dbSubEmpId %}{{ company.dbSubEmpId.empName }}{% else %}-{% endif %}</td>-->
+            <!--<td class="col-3">{% if company.solutionMainEmpId %}{{ company.solutionMainEmpId.empName }}{% else %}-{% endif %}</td>-->
+            <!--<td class="col-3">{% if company.solutionSubEmpId %}{{ company.solutionSubEmpId.empName }}{% else %}-{% endif %}</td>-->
+            <!--</tr>-->
+            <!--</tbody>-->
+            <!--</table>-->
+            <!--</td>-->
             <!--</tr>-->
 
             <!--<tr class="row b">-->
-              <!--<th class="col-2 a">DB정보</th>-->
-              <!--<td class="col-10">-->
-                <!--<table class="table table" style="font-size: 12px">-->
-                  <!--<thead>-->
-                  <!--<tr>-->
-                    <!--<td><b>CLASSIFICATION</b></td>-->
-                    <!--<td><b>SID</b></td>-->
-                    <!--<td><b>VERSION</b></td>-->
-                    <!--<td><b>DBTYPE</b></td>-->
-                    <!--<td><b>OSTYPE</b></td>-->
-                    <!--<td><b>APPLIANCE</b></td>-->
-                    <!--<td><b>DUPLICATION</b></td>-->
-                    <!--<td><b>DATASIZE_MB</b></td>-->
-                    <!--<td><b>REMARKS</b></td>-->
-                  <!--</tr>-->
-                  <!--</thead>-->
+            <!--<th class="col-2 a">DB정보</th>-->
+            <!--<td class="col-10">-->
+            <!--<table class="table table" style="font-size: 12px">-->
+            <!--<thead>-->
+            <!--<tr>-->
+            <!--<td><b>CLASSIFICATION</b></td>-->
+            <!--<td><b>SID</b></td>-->
+            <!--<td><b>VERSION</b></td>-->
+            <!--<td><b>DBTYPE</b></td>-->
+            <!--<td><b>OSTYPE</b></td>-->
+            <!--<td><b>APPLIANCE</b></td>-->
+            <!--<td><b>DUPLICATION</b></td>-->
+            <!--<td><b>DATASIZE_MB</b></td>-->
+            <!--<td><b>REMARKS</b></td>-->
+            <!--</tr>-->
+            <!--</thead>-->
 
-                  <!--<tbody>-->
-                  <!--{% for db in dbms %}-->
-                    <!--<tr>-->
-                      <!--<td> {{ db.CLASSIFICATION }} </td>-->
-                      <!--<td> {{ db.SID }} </td>-->
-                      <!--<td> {{ db.VERSION }} </td>-->
-                      <!--<td> {{ db.DBTYPE }} </td>-->
-                      <!--<td> {{ db.OSTYPE }} </td>-->
-                      <!--<td> {{ db.APPLIANCE }} </td>-->
-                      <!--<td> {{ db.DUPLICATION }} </td>-->
-                      <!--<td> {{ db.DATASIZE_MB }} </td>-->
-                      <!--<td> {{ db.REMARKS }} </td>-->
-                    <!--</tr>-->
-                  <!--{% endfor %}-->
-                  <!--</tbody>-->
-                <!--</table>-->
-              <!--</td>-->
+            <!--<tbody>-->
+            <!--{% for db in dbms %}-->
+            <!--<tr>-->
+            <!--<td> {{ db.CLASSIFICATION }} </td>-->
+            <!--<td> {{ db.SID }} </td>-->
+            <!--<td> {{ db.VERSION }} </td>-->
+            <!--<td> {{ db.DBTYPE }} </td>-->
+            <!--<td> {{ db.OSTYPE }} </td>-->
+            <!--<td> {{ db.APPLIANCE }} </td>-->
+            <!--<td> {{ db.DUPLICATION }} </td>-->
+            <!--<td> {{ db.DATASIZE_MB }} </td>-->
+            <!--<td> {{ db.REMARKS }} </td>-->
+            <!--</tr>-->
+            <!--{% endfor %}-->
+            <!--</tbody>-->
+            <!--</table>-->
+            <!--</td>-->
             <!--</tr>-->
 
             <!--<tr class="row">-->
-              <!--<td class="col-2 a"><b>DB참고사항</b></td>-->
-              <!--<td class="col-10">-->
-                <!--<p id="db_comment_text">-->
-                  <!--{% if company.dbComment %}{{ company.dbComment }}{% else %}{% endif %}-->
-                <!--</p>-->
-                <!--{% if user.employee.empId == company.dbMainEmpId.empId or user.employee.empId == company.dbSubEmpId.empId %}-->
-                  <!--<form id="dbsaveComment" method="POST">-->
-                    <!--{% csrf_token %}-->
-                    <!--<textarea id="dbtextArea" name="dbtextArea" style="display: none" class="form-control" rows="3">{{ company.dbComment }}</textarea>-->
-                    <!--<button id="dbcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="dbcommentSubmit()">저장</button>-->
-                  <!--</form>-->
-                  <!--<button id="dbcomment" algin="right" class="btn btn-info c" onclick="db_comment()">참고사항작성</button>-->
-                  <!--<br>-->
-                <!--{% endif %}-->
-              <!--</td>-->
+            <!--<td class="col-2 a"><b>DB참고사항</b></td>-->
+            <!--<td class="col-10">-->
+            <!--<p id="db_comment_text">-->
+            <!--{% if company.dbComment %}{{ company.dbComment }}{% else %}{% endif %}-->
+            <!--</p>-->
+            <!--{% if user.employee.empId == company.dbMainEmpId.empId or user.employee.empId == company.dbSubEmpId.empId %}-->
+            <!--<form id="dbsaveComment" method="POST">-->
+            <!--{% csrf_token %}-->
+            <!--<textarea id="dbtextArea" name="dbtextArea" style="display: none" class="form-control" rows="3">{{ company.dbComment }}</textarea>-->
+            <!--<button id="dbcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="dbcommentSubmit()">저장</button>-->
+            <!--</form>-->
+            <!--<button id="dbcomment" algin="right" class="btn btn-info c" onclick="db_comment()">참고사항작성</button>-->
+            <!--<br>-->
+            <!--{% endif %}-->
+            <!--</td>-->
             <!--</tr>-->
 
             <!--<tr class="row b">-->
-              <!--<th class="col-2 a">SYSTEM정보</th>-->
-              <!--<td class="col-10">{{ company.companySystem }}</td>-->
+            <!--<th class="col-2 a">SYSTEM정보</th>-->
+            <!--<td class="col-10">{{ company.companySystem }}</td>-->
             <!--</tr>-->
 
             <!--<tr class="row">-->
-              <!--<th class="col-2 a">SYSTEM참고사항</th>-->
-              <!--<td class="col-10">-->
-                <!--<p id="sol_comment_text" method="POST">-->
-                  <!--{% if company.solutionComment %}{{ company.solutionComment }}{% else %}{% endif %}-->
-                <!--</p>-->
-                <!--{% if user.employee.empId == company.solutionMainEmpId.empId or user.employee.empId == company.solutionSubEmpId.empId %}-->
-                  <!--<form name="solsaveComment" method="POST">-->
-                    <!--{% csrf_token %}-->
-                    <!--<textarea id="soltextArea" name="soltextArea" style="display: none" class="form-control" rows="3"> </textarea>-->
-                    <!--<button id="solcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="solcommentSubmit()">저장</button>-->
-                  <!--</form>-->
-                  <!--<button id="solcomment" algin="right" class="btn btn-info c" onclick="sol_comment()">참고사항작성</button><br>-->
-                <!--{% endif %}-->
-              <!--</td>-->
+            <!--<th class="col-2 a">SYSTEM참고사항</th>-->
+            <!--<td class="col-10">-->
+            <!--<p id="sol_comment_text" method="POST">-->
+            <!--{% if company.solutionComment %}{{ company.solutionComment }}{% else %}{% endif %}-->
+            <!--</p>-->
+            <!--{% if user.employee.empId == company.solutionMainEmpId.empId or user.employee.empId == company.solutionSubEmpId.empId %}-->
+            <!--<form name="solsaveComment" method="POST">-->
+            <!--{% csrf_token %}-->
+            <!--<textarea id="soltextArea" name="soltextArea" style="display: none" class="form-control" rows="3"> </textarea>-->
+            <!--<button id="solcommentSave" style="display: none" algin="right" class="btn btn-success c" onclick="solcommentSubmit()">저장</button>-->
+            <!--</form>-->
+            <!--<button id="solcomment" algin="right" class="btn btn-info c" onclick="sol_comment()">참고사항작성</button><br>-->
+            <!--{% endif %}-->
+            <!--</td>-->
             <!--</tr>-->
             <!--</tbody>-->
           </table>
-          {% if user.is_staff %}
-          <div class="text-center">
-            <a href="#" class="btn btn-info btn-icon-split center" onclick="btn_modify()">
+        </div>
+        {% if user.is_staff %}
+
+        <div class="text-center">
+          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+            <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+            <span class="text"> 삭제 </span>
+          </a>
+          <a href="#" class="btn btn-info btn-icon-split center" onclick="btn_modify()">
             <span class="icon text-white-50"> <i class="fas fa-edit"> </i> </span>
             <span class="text"> 수정 </span>
-            </a>
-          </div>
-          {% endif %}
-
+          </a>
         </div>
+
+        {% endif %}
 
       </div>
 
-      <!--{% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}-->
-        <!--<div class="card shadow mb-4">-->
-          <!--<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">-->
-            <!--<h6 class="m-0 h3 text-gray-700">계약 이력</h6>-->
-          <!--</div>-->
-          <!--<div class="card-body">-->
-            <!--<table id="showcontracts" class="mb-0 text-gray-600" width="100%">-->
-              <!--<thead>-->
-              <!--<tr class="bg-light">-->
-                <!--<th>단계</th>-->
-                <!--<th>영업부서</th>-->
-                <!--<th>영업담당</th>-->
-                <!--<th>계약명</th>-->
-                <!--<th>거래처</th>-->
-                <!--<th>매출금액</th>-->
-                <!--<th>이익금액</th>-->
-                <!--<th>계약일</th>-->
-                <!--<th class="d-none">contractId</th>-->
-              <!--</tr>-->
-              <!--</thead>-->
-              <!--<tfoot>-->
-              <!--<tr>-->
-                <!--<th></th>-->
-                <!--<th></th>-->
-                <!--<th></th>-->
-                <!--<th></th>-->
-                <!--<th>TOTAL :</th>-->
-                <!--<th></th>-->
-                <!--<th></th>-->
-                <!--<th></th>-->
-              <!--</tr>-->
-              <!--</tfoot>-->
-            <!--</table>-->
-          <!--</div>-->
-        <!--</div>-->
-      <!--{% endif %}-->
-
-      <!--<div class="card shadow mb-4">-->
-        <!--<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">-->
-          <!--<h6 class="m-0 h3 text-gray-700">지원 이력</h6>-->
-        <!--</div>-->
-        <!--<div class="card-body">-->
-          <!--<table id="showservices" class="mb-0 text-gray-600" width="100%">-->
-            <!--<thead>-->
-            <!--<tr class="bg-light">-->
-              <!--<th>날짜</th>-->
-              <!--<th>성함</th>-->
-              <!--<th>부서</th>-->
-              <!--<th>구분</th>-->
-              <!--<th>지원시간</th>-->
-              <!--<th>초과근무</th>-->
-              <!--<th>내용</th>-->
-              <!--<th class="d-none">serviceId</th>-->
-            <!--</tr>-->
-            <!--</thead>-->
-            <!--<tfoot>-->
-            <!--<tr>-->
-              <!--<th></th>-->
-              <!--<th></th>-->
-              <!--<th></th>-->
-              <!--<th>TOTAL :</th>-->
-              <!--<th></th>-->
-              <!--<th></th>-->
-              <!--<th></th>-->
-              <!--<th></th>-->
-            <!--</tr>-->
-            <!--</tfoot>-->
-          <!--</table>-->
-        <!--</div>-->
-      <!--</div>-->
     </div>
+
+    <!--{% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}-->
+    <!--<div class="card shadow mb-4">-->
+    <!--<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">-->
+    <!--<h6 class="m-0 h3 text-gray-700">계약 이력</h6>-->
+    <!--</div>-->
+    <!--<div class="card-body">-->
+    <!--<table id="showcontracts" class="mb-0 text-gray-600" width="100%">-->
+    <!--<thead>-->
+    <!--<tr class="bg-light">-->
+    <!--<th>단계</th>-->
+    <!--<th>영업부서</th>-->
+    <!--<th>영업담당</th>-->
+    <!--<th>계약명</th>-->
+    <!--<th>거래처</th>-->
+    <!--<th>매출금액</th>-->
+    <!--<th>이익금액</th>-->
+    <!--<th>계약일</th>-->
+    <!--<th class="d-none">contractId</th>-->
+    <!--</tr>-->
+    <!--</thead>-->
+    <!--<tfoot>-->
+    <!--<tr>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--<th>TOTAL :</th>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--</tr>-->
+    <!--</tfoot>-->
+    <!--</table>-->
+    <!--</div>-->
+    <!--</div>-->
+    <!--{% endif %}-->
+
+    <!--<div class="card shadow mb-4">-->
+    <!--<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">-->
+    <!--<h6 class="m-0 h3 text-gray-700">지원 이력</h6>-->
+    <!--</div>-->
+    <!--<div class="card-body">-->
+    <!--<table id="showservices" class="mb-0 text-gray-600" width="100%">-->
+    <!--<thead>-->
+    <!--<tr class="bg-light">-->
+    <!--<th>날짜</th>-->
+    <!--<th>성함</th>-->
+    <!--<th>부서</th>-->
+    <!--<th>구분</th>-->
+    <!--<th>지원시간</th>-->
+    <!--<th>초과근무</th>-->
+    <!--<th>내용</th>-->
+    <!--<th class="d-none">serviceId</th>-->
+    <!--</tr>-->
+    <!--</thead>-->
+    <!--<tfoot>-->
+    <!--<tr>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--<th>TOTAL :</th>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--<th></th>-->
+    <!--</tr>-->
+    <!--</tfoot>-->
+    <!--</table>-->
+    <!--</div>-->
+    <!--</div>-->
   </div>
+</div>
 
 {% endblock %}
 
 
 {% block script %}
 
-  <script type="text/javascript">
-      function replaceAll(str, searchStr, replaceStr) {
-          var new_str = str.split(searchStr).join(replaceStr);
-          return new_str.split("T").join(" ").slice(0, 10);
-      }
+<script type="text/javascript">
+    function replaceAll(str, searchStr, replaceStr) {
+        var new_str = str.split(searchStr).join(replaceStr);
+        return new_str.split("T").join(" ").slice(0, 10);
+    }
 
-      function btn_modify() {
-          location.href = '/client/modifyclient/{{ company.companyName }}/'
+    function btn_modify() {
+        location.href = '/client/modifyclient/{{ company.companyName }}/'
 
-      }
+    }
 
-      function db_comment() {
-          $('#dbcommentSave').css("display", "inline");
-          $('#dbtextArea').css("display", "inline");
-          $('#dbcomment').css("display", "none");
-      }
+    function btn_delete() {
+        if (confirm("고객사 정보를 삭제 하시겠습니까? 해당 고객사와 관련된 정보는 모두 삭제 됩니다.") === true) {
+              location.href = '/client/deleteclient/{{ company.companyName }}/'
+        }
 
-      function sol_comment() {
-          $('#solcommentSave').css("display", "inline");
-          $('#soltextArea').css("display", "inline");
-          $('#solcomment').css("display", "none");
-      }
+    }
 
-      function dbcommentSubmit() {
-          $("#dbsaveComment").submit();
-      }
+    function db_comment() {
+        $('#dbcommentSave').css("display", "inline");
+        $('#dbtextArea').css("display", "inline");
+        $('#dbcomment').css("display", "none");
+    }
 
-      function solcommentSubmit() {
-          $("#solsaveComment").submit();
-      }
+    function sol_comment() {
+        $('#solcommentSave').css("display", "inline");
+        $('#soltextArea').css("display", "inline");
+        $('#solcomment').css("display", "none");
+    }
 
-      $(document).ready(function () {
-          $('#showcontracts').dataTable({
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      "userId": "{{ user.employee.empId }}",
-                      "startdate": "",
-                      "enddate": "",
-                      "contractStep": "",
-                      "empDeptName": "",
-                      "empName": "",
-                      "companyName": "{{ company.companyName }}",
-                      "saleCompanyName": "",
-                      "endCompanyName": "",
-                      "contractName": "",
-                      "mainCategory": "",
-                      "drops": "N",
-                      "modifyContractPaper": "",
-                  },
-                  "url": "{% url 'sales:contracts_ajax_url' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: 'contractStep'},
-                  {data: 'empDeptName'},
-                  {data: 'empName'},
-                  {
-                      data: 'contractName',
-                      render: function (data, type, row) {
-                          return '[' + row["contractCode"] + '] ' + row["contractName"];
-                      }
-                  },
-                  {data: 'saleCompanyName__companyNameKo'},
-                  {data: 'salePrice'},
-                  {data: 'profitPrice'},
-                  {data: 'contractDate'},
-                  {data: 'contractId'},
-              ],
-              "columnDefs": [
-                  {targets: 0, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 1, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 2, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 3, width: "39%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 8, visible: false}
-              ],
-              "deferRender": true,
-              "order": [[7, 'desc']],
-              "searching": true,
-              "paging": true,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_ 개씩 보기",
-                  "search": "검색:",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "다음",
-                      "previous": "이전"
-                  },
-              },
-              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(5)', nRow).text(aData.salePrice.toLocaleString());
-                  $('td:eq(6)', nRow).text(aData.profitPrice.toLocaleString());
-                  $('td:eq(7)', nRow).text(replaceAll(aData.contractDate, "-", "."));
-                  if (aData.contractStep == 'Firm') {
-                      $('td:eq(0)', nRow).css('color', '#4e73df');
-                  } else if (aData.contractStep == 'Opportunity') {
-                      $('td:eq(0)', nRow).css('color', '#1cc88a');
-                  }
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
+    function dbcommentSubmit() {
+        $("#dbsaveComment").submit();
+    }
 
-                  var revenueResult = 0;
-                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
-                      revenueResult += parseFloat(data);
-                  });
-                  $(api.column(5).footer()).html(revenueResult.toLocaleString());
+    function solcommentSubmit() {
+        $("#solsaveComment").submit();
+    }
 
-                  var profitResult = 0;
-                  api.column(6, {search: 'applied'}).data().each(function (data, index) {
-                      profitResult += parseFloat(data);
-                  });
-                  $(api.column(6).footer()).html(profitResult.toLocaleString());
-              },
-          });
+    $(document).ready(function () {
+        $('#showcontracts').dataTable({
+            "processing": true,
+            "ajax": {
+                "processing": true,
+                "type": 'POST',
+                "data": {
+                    "userId": "{{ user.employee.empId }}",
+                    "startdate": "",
+                    "enddate": "",
+                    "contractStep": "",
+                    "empDeptName": "",
+                    "empName": "",
+                    "companyName": "{{ company.companyName }}",
+                    "saleCompanyName": "",
+                    "endCompanyName": "",
+                    "contractName": "",
+                    "mainCategory": "",
+                    "drops": "N",
+                    "modifyContractPaper": "",
+                },
+                "url": "{% url 'sales:contracts_ajax_url' %}",
+                "dataSrc": ""
+            },
+            "columns": [
+                {data: 'contractStep'},
+                {data: 'empDeptName'},
+                {data: 'empName'},
+                {
+                    data: 'contractName',
+                    render: function (data, type, row) {
+                        return '[' + row["contractCode"] + '] ' + row["contractName"];
+                    }
+                },
+                {data: 'saleCompanyName__companyNameKo'},
+                {data: 'salePrice'},
+                {data: 'profitPrice'},
+                {data: 'contractDate'},
+                {data: 'contractId'},
+            ],
+            "columnDefs": [
+                {targets: 0, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 1, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 2, width: "7%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 3, width: "39%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap c"},
+                {targets: 4, width: "10%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap c"},
+                {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap c"},
+                {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap c"},
+                {targets: 7, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 8, visible: false}
+            ],
+            "deferRender": true,
+            "order": [[7, 'desc']],
+            "searching": true,
+            "paging": true,
+            "info": false,
+            "scrollY": "80vh",
+            "scrollX": true,
+            "scrollCollapse": true,
+            "language": {
+                "lengthMenu": "_MENU_ 개씩 보기",
+                "search": "검색:",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "다음",
+                    "previous": "이전"
+                },
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(5)', nRow).text(aData.salePrice.toLocaleString());
+                $('td:eq(6)', nRow).text(aData.profitPrice.toLocaleString());
+                $('td:eq(7)', nRow).text(replaceAll(aData.contractDate, "-", "."));
+                if (aData.contractStep == 'Firm') {
+                    $('td:eq(0)', nRow).css('color', '#4e73df');
+                } else if (aData.contractStep == 'Opportunity') {
+                    $('td:eq(0)', nRow).css('color', '#1cc88a');
+                }
+            },
+            "footerCallback": function () {
+                var api = this.api(), data;
 
-          const contractstable = $('#showcontracts').DataTable();
+                var revenueResult = 0;
+                api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                    revenueResult += parseFloat(data);
+                });
+                $(api.column(5).footer()).html(revenueResult.toLocaleString());
 
-          $("#showcontracts").on("click", 'tr', function () {
-              const data = contractstable.row(this).data();
-              window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId + '/'
-          });
+                var profitResult = 0;
+                api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                    profitResult += parseFloat(data);
+                });
+                $(api.column(6).footer()).html(profitResult.toLocaleString());
+            },
+        });
 
-          $('#showservices').dataTable({
-              "processing": true,
-              "ajax": {
-                  "processing": true,
-                  "type": 'POST',
-                  "data": {
-                      "companyName": "{{ company.companyName }}"
-                  },
-                  "url": "{% url 'client:service_ajax_url' %}",
-                  "dataSrc": ""
-              },
-              "columns": [
-                  {data: "serviceDate"},
-                  {data: "empName"},
-                  {data: "empDeptName"},
-                  {data: "serviceType__typeName"},
-                  {data: "serviceHour"},
-                  {data: "serviceOverHour"},
-                  {data: "serviceTitle"},
-                  {data: "serviceId"},
-              ],
-              "columnDefs": [
-                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 6, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 7, className: "d-none"},
-              ],
-              "deferRender": true,
-              "order": [[0, 'desc']],
-              "searching": true,
-              "paging": true,
-              "info": false,
-              "scrollY": "80vh",
-              "scrollX": true,
-              "scrollCollapse": true,
-              "language": {
-                  "lengthMenu": "_MENU_ 개씩 보기",
-                  "search": "검색:",
-                  "paginate": {
-                      "first": "처음",
-                      "last": "끝",
-                      "next": "다음",
-                      "previous": "이전"
-                  },
-              },
-              "footerCallback": function () {
-                  var api = this.api(), data;
+        const contractstable = $('#showcontracts').DataTable();
 
-                  var hour = 0;
-                  api.column(4, {search: 'applied'}).data().each(function (data, index) {
-                      hour += parseFloat(data);
-                  });
-                  $(api.column(4).footer()).html(hour.toLocaleString());
+        $("#showcontracts").on("click", 'tr', function () {
+            const data = contractstable.row(this).data();
+            window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId + '/'
+        });
 
-                  var overhour = 0;
-                  api.column(5, {search: 'applied'}).data().each(function (data, index) {
-                      overhour += parseFloat(data);
-                  });
-                  $(api.column(5).footer()).html(overhour.toLocaleString());
-              },
-          });
+        $('#showservices').dataTable({
+            "processing": true,
+            "ajax": {
+                "processing": true,
+                "type": 'POST',
+                "data": {
+                    "companyName": "{{ company.companyName }}"
+                },
+                "url": "{% url 'client:service_ajax_url' %}",
+                "dataSrc": ""
+            },
+            "columns": [
+                {data: "serviceDate"},
+                {data: "empName"},
+                {data: "empDeptName"},
+                {data: "serviceType__typeName"},
+                {data: "serviceHour"},
+                {data: "serviceOverHour"},
+                {data: "serviceTitle"},
+                {data: "serviceId"},
+            ],
+            "columnDefs": [
+                {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 6, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                {targets: 7, className: "d-none"},
+            ],
+            "deferRender": true,
+            "order": [[0, 'desc']],
+            "searching": true,
+            "paging": true,
+            "info": false,
+            "scrollY": "80vh",
+            "scrollX": true,
+            "scrollCollapse": true,
+            "language": {
+                "lengthMenu": "_MENU_ 개씩 보기",
+                "search": "검색:",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "다음",
+                    "previous": "이전"
+                },
+            },
+            "footerCallback": function () {
+                var api = this.api(), data;
 
-          var table = $('#showservices').DataTable();
+                var hour = 0;
+                api.column(4, {search: 'applied'}).data().each(function (data, index) {
+                    hour += parseFloat(data);
+                });
+                $(api.column(4).footer()).html(hour.toLocaleString());
 
-          $("#showservices").on("click", 'tr', function () {
-              const data = table.row(this).data();
-              window.open('about:blank').location.href = '/service/viewservice/' + data.serviceId + '/'
-          });
-      });
+                var overhour = 0;
+                api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                    overhour += parseFloat(data);
+                });
+                $(api.column(5).footer()).html(overhour.toLocaleString());
+            },
+        });
 
-  </script>
+        var table = $('#showservices').DataTable();
+
+        $("#showservices").on("click", 'tr', function () {
+            const data = table.row(this).data();
+            window.open('about:blank').location.href = '/service/viewservice/' + data.serviceId + '/'
+        });
+    });
+
+</script>
 
 {% endblock %}

@@ -53,13 +53,15 @@ def post_manager(request):
             post.save()
 
             jsonManagerEmp = json.loads(request.POST['jsonManagerEmp'])
+            print(jsonManagerEmp)
+
             for item in jsonManagerEmp:
                 CenterManagerEmp.objects.create(
                     centerManagerId=post,
                     empId=Employee.objects.get(empId=item["empId"]),
-                    manageArea=Center.objects.get(centerName=item["manageArea"]),
+                    manageArea=Center.objects.get(Q(centerName=item["manageArea"]) & Q(centerStatus='Y')),
                     additionalArea=item["additionalArea"],
-                    cleanupArea=Center.objects.filter(centerName=item["cleanupArea"]).first(),
+                    cleanupArea=Center.objects.filter(Q(centerName=item["cleanupArea"]) & Q(centerStatus='Y')).first(),
                 )
 
             return redirect('daesungwork:showcentermanagers')
@@ -93,17 +95,17 @@ def modify_centermanager(request, centerManagerId):
                     CenterManagerEmp.objects.create(
                         centerManagerId=post,
                         empId=Employee.objects.get(empId=item["empId"]),
-                        manageArea=Center.objects.get(centerName=item["manageArea"]),
+                        manageArea=Center.objects.get(Q(centerName=item["manageArea"]) & Q(centerStatus='Y')),
                         additionalArea=item["additionalArea"],
-                        cleanupArea=Center.objects.filter(centerName=item["cleanupArea"]).first(),
+                        cleanupArea=Center.objects.filter(Q(centerName=item["cleanupArea"]) & Q(centerStatus='Y')).first(),
                     )
                 else:
                     managerEmpInstance = CenterManagerEmp.objects.get(managerId=int(item['centerManagerEmpId']))
                     managerEmpInstance.centerManagerId = post
                     managerEmpInstance.empId = Employee.objects.get(empId=item["empId"])
-                    managerEmpInstance.manageArea = Center.objects.filter(centerName=item["manageArea"]).first()
+                    managerEmpInstance.manageArea = Center.objects.get(Q(centerName=item["manageArea"]) & Q(centerStatus='Y'))
                     managerEmpInstance.additionalArea = item["additionalArea"]
-                    managerEmpInstance.cleanupArea = Center.objects.filter(centerName=item["cleanupArea"]).first()
+                    managerEmpInstance.cleanupArea = Center.objects.filter(Q(centerName=item["cleanupArea"]) & Q(centerStatus='Y')).first()
                     managerEmpInstance.save()
                     jsonManagerEmpId.append(int(item['centerManagerEmpId']))
 
@@ -186,21 +188,58 @@ def delete_centermanager(request, centerManagerId):
 @csrf_exempt
 def show_checklist(request):
     template = loader.get_template('daesungwork/showchecklist.html')
-    centers = Center.objects.filter(centerStatus="Y")
-    employees = Employee.objects.filter(empStatus="Y")
     checklist = CheckList.objects.filter(checkListStatus="Y").order_by('checkListId')
     confirmCheckList = ConfirmCheckList.objects.all()
     today = datetime.datetime.today()
-    if CheckList.objects.all():
-        if request.method == 'POST':
-            centerName = request.POST['centerName']
-            searchDay = request.POST['searchDay']
-            confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
-            thisMonday = datetime.datetime(int(searchDay[:4]), int(searchDay[5:7]), int(searchDay[8:10]))
-            thisSunday = thisMonday + datetime.timedelta(days=6)
-            lastMonday = thisMonday - datetime.timedelta(days=7)
-            nextMonday = thisMonday + datetime.timedelta(days=7)
-            confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
+    centers = Center.objects.filter(Q(centerStatus="Y"))
+
+    # 등록된 센터 정보 있는지(ex.자수실, 비품실 등)
+    if centers:
+        # 등록된 점검 항목 목록이 있는지(ex. 소등상태, 냉난방기구 전원 등)
+        if CheckList.objects.all():
+            if request.method == 'POST':
+                # 조회 기간
+                searchDay = request.POST['searchDay']
+                thisMonday = datetime.datetime(int(searchDay[:4]), int(searchDay[5:7]), int(searchDay[8:10]))
+                thisSunday = thisMonday + datetime.timedelta(days=6)
+                lastMonday = thisMonday - datetime.timedelta(days=7)
+                nextMonday = thisMonday + datetime.timedelta(days=7)
+
+                if request.user.is_staff:
+                    employees = Employee.objects.filter(empStatus='Y')
+                else:
+                    # 담당한 센터가 있는지 확인
+                    centermanager = CenterManagerEmp.objects.filter(Q(empId=request.user.employee.empId))
+                    employees = Employee.objects.filter(empId=request.user.employee.empId)
+                    centermanager = centermanager.filter(Q(centerManagerId__endDate__gte=thisMonday) & Q(centerManagerId__startDate__lte=thisSunday))
+                    centers = centers.filter(centerId__in=centermanager.values_list('manageArea__centerId'))
+
+                # 센터 정보
+                centerName = request.POST['centerName']
+                confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
+                confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
+
+            else:
+                # 조회 기간
+                thisMonday = today - datetime.timedelta(days=today.weekday())
+                thisSunday = thisMonday + datetime.timedelta(days=6)
+                lastMonday = thisMonday - datetime.timedelta(days=7)
+                nextMonday = thisMonday + datetime.timedelta(days=7)
+                searchDay = thisMonday
+
+                if request.user.is_staff:
+                    employees = Employee.objects.filter(empStatus='Y')
+                else:
+                    # 담당한 센터가 있는지 확인
+                    centermanager = CenterManagerEmp.objects.filter(Q(empId=request.user.employee.empId))
+                    employees = Employee.objects.filter(empId=request.user.employee.empId)
+                    centermanager = centermanager.filter(Q(centerManagerId__endDate__gte=thisMonday) & Q(centerManagerId__startDate__lte=thisSunday))
+                    centers = centers.filter(centerId__in=centermanager.values_list('manageArea__centerId'))
+                # 센터 정보
+                centerName = centers.first().centerName
+                confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
+                confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
+
             cheklistDict = {}
             for check in checklist:
                 cheklistDict[check.checkListId] = ''
@@ -210,47 +249,26 @@ def show_checklist(request):
                 dateList.append({'empName': data.values('empId__empName').first(),
                                  'confirmDate': (thisMonday + relativedelta(days=day)),
                                  'data': data})
+            context = {
+                'today': today,
+                'thisMonday': thisMonday,
+                'thisSunday': thisSunday,
+                'lastMonday': lastMonday.date,
+                'nextMonday': nextMonday.date,
+                'centers': centers,
+                'employees': employees,
+                'checklist': checklist,
+                'confirmCheckList': confirmCheckList,
+                'dateList': dateList,
+                'centerName': centerName,
+                'searchDay': searchDay,
+                'checklists': checklist,
+            }
+            return HttpResponse(template.render(context, request))
         else:
-            if centers:
-                centerName = centers.first().centerName
-                confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
-                thisMonday = today - datetime.timedelta(days=today.weekday())
-                thisSunday = thisMonday + datetime.timedelta(days=6)
-                lastMonday = thisMonday - datetime.timedelta(days=7)
-                nextMonday = thisMonday + datetime.timedelta(days=7)
-                searchDay = thisMonday
-                confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
-                cheklistDict = {}
-                for check in checklist:
-                    cheklistDict[check.checkListId] = ''
-                dateList = []
-                for day in range(0, 7):
-                    data = confirmCheckList.filter(confirmDate=(thisMonday + relativedelta(days=day))).order_by('checkListId')
-                    dateList.append({'empName': data.values('empId__empName').first(),
-                                     'confirmDate': (thisMonday + relativedelta(days=day)),
-                                     'data': data})
-            else:
-                return redirect('daesungwork:showcenters')
-
-        context = {
-            'today': today,
-            'thisMonday': thisMonday,
-            'thisSunday': thisSunday,
-            'lastMonday': lastMonday.date,
-            'nextMonday': nextMonday.date,
-            'centers': centers,
-            'employees': employees,
-            'checklist': checklist,
-            'confirmCheckList': confirmCheckList,
-            'dateList': dateList,
-            'centerName': centerName,
-            'searchDay': searchDay,
-            'checklists': checklist,
-        }
-        return HttpResponse(template.render(context, request))
+            return HttpResponse('점검 항목이 없습니다. 점검항목을 등록해 주세요.')
     else:
-        return HttpResponse('점검 항목이 없습니다. 점검항목을 등록해 주세요.')
-
+        return redirect('daesungwork:showcenters')
 
 @login_required
 @csrf_exempt
@@ -259,35 +277,38 @@ def post_checklist(request):
         centerName = request.POST['modalCenterName']
         modalEmpName = request.POST['modalEmpName']
         modalCheckDate = request.POST['modalCheckDate']
-        centerId = Center.objects.get(centerName=centerName)
+        centerId = Center.objects.get(Q(centerName=centerName) & Q(centerStatus='Y'))
         empId = Employee.objects.get(empId=modalEmpName)
 
-        jsonCheckList = json.loads(request.POST['jsonCheckList'])
-        ConfirmCheckList.objects.filter(Q(confirmDate=modalCheckDate) & Q(centerId__centerName=centerName)).delete()
-        for item in jsonCheckList:
-            if item['checkListBox']:
-                checkListStatus = 'Y'
-            else:
-                checkListStatus = 'N'
+        if CenterManagerEmp.objects.filter(Q(empId=empId) & Q(manageArea=centerId.centerId) & Q(centerManagerId__startDate__lte=modalCheckDate) & Q(centerManagerId__endDate__gte=modalCheckDate)) or empId.user.is_staff:
+            jsonCheckList = json.loads(request.POST['jsonCheckList'])
+            ConfirmCheckList.objects.filter(Q(confirmDate=modalCheckDate) & Q(centerId__centerName=centerName)).delete()
+            for item in jsonCheckList:
+                if item['checkListBox']:
+                    checkListStatus = 'Y'
+                else:
+                    checkListStatus = 'N'
 
-            file = None
-            if item['checkListFiles']:
-                fileName = item['checkListFiles'].split('\\')[-1]
-                for f in request.FILES.getlist('checkListFiles'):
-                    if f.name == fileName:
-                        file = f
-                        break
+                file = None
+                if item['checkListFiles']:
+                    fileName = item['checkListFiles'].split('\\')[-1]
+                    for f in request.FILES.getlist('checkListFiles'):
+                        if f.name == fileName:
+                            file = f
+                            break
 
-            ConfirmCheckList.objects.create(
-                centerId=centerId,
-                empId=empId,
-                confirmDate=modalCheckDate,
-                checkListId=CheckList.objects.get(checkListName=item['checkListName']),
-                checkListStatus=checkListStatus,
-                comment=item['checkListComment'],
-                file=file,
-            )
-        return redirect('daesungwork:showchecklist')
+                ConfirmCheckList.objects.create(
+                    centerId=centerId,
+                    empId=empId,
+                    confirmDate=modalCheckDate,
+                    checkListId=CheckList.objects.get(checkListName=item['checkListName']),
+                    checkListStatus=checkListStatus,
+                    comment=item['checkListComment'],
+                    file=file,
+                )
+            return redirect('daesungwork:showchecklist')
+        else:
+            return HttpResponse('{}는(은) {}에 {}의 담당자가 아닙니다. 담당자배정정보를 확인 해주세요.'.format(empId.empName, modalCheckDate, centerName))
 
     else:
         return HttpResponse('점검 항목이 없습니다. 점검항목을 등록해 주세요.')

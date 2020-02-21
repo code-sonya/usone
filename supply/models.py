@@ -3,6 +3,7 @@ from hr.models import Employee
 from client.models import Company, Customer
 from sales.models import Contract
 from extrapay.models import OverHour
+from daesungwork.models import Center
 
 
 class Book(models.Model):
@@ -35,8 +36,8 @@ class Bookrental(models.Model):
 class Saving(models.Model):
     savingId = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, unique=True)
-    quantity = models.IntegerField(default=0)
-    money = models.BigIntegerField(default=0)
+    # quantity = models.IntegerField(default=0)
+    # money = models.BigIntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -50,7 +51,7 @@ class SavingQuantity(models.Model):
     standard = models.CharField(max_length=100, null=True, blank=True)
     purchaseCompany = models.CharField(max_length=100, null=True, blank=True)
     purchaseDate = models.DateField(null=True, blank=True)
-    location = models.CharField(max_length=100, null=True, blank=True)
+    location = models.ForeignKey(Center, null=True, blank=True, on_delete=models.SET_NULL, related_name='location')
     purchaseEmp = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     comment = models.CharField(max_length=255, null=True, blank=True)
 

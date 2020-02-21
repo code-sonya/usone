@@ -13,4 +13,6 @@ urlpatterns = [
     url(r'^deletecustomer/(?P<customerId>.+)/$', views.delete_customer, name='delete_customer'),
     url(r'^servicejson/$', views.service_asjson, name='service_ajax_url'),
     url(r'^filterjson/$', views.filter_asjson, name='filter_ajax_url'),
+    url(r'^deleteclient/(?P<companyName>.+)/$', views.delete_client, name='deleteclient'),
+
 ]

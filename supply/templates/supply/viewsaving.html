@@ -71,7 +71,7 @@
               <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
                   <div class="font-weight-bold text-primary text-uppercase mb-1">현재 잔여 수량</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ saving.quantity | intcomma }}</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sumQuantity.quantity | intcomma }}</div>
                 </div>
                 <div class="col-auto">
                   <i class="fas fa-sort-amount-down fa-2x text-gray-300"></i>
@@ -86,7 +86,7 @@
               <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
                   <div class="font-weight-bold text-primary text-uppercase mb-1">누적 구매 비용</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ saving.money | intcomma }}원</div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sumQuantity.money | intcomma }}원</div>
                 </div>
                 <div class="col-auto">
                   <i class="fas fa-won-sign fa-2x text-gray-300"></i>
@@ -123,7 +123,7 @@
             <td class="text-right">{{ q.money | intcomma }}</td>
             <td>{% if q.standard %}{{ q.standard }}{% endif %}</td>
             <td>{% if q.purchaseCompany %}{{ q.purchaseCompany }}{% endif %}</td>
-            <td>{% if q.location %}{{ q.location }}{% endif %}</td>
+            <td>{% if q.location %}{{ q.location.centerName }}{% endif %}</td>
             <td>{% if q.purchaseDate %}{{ q.purchaseDate }}{% endif %}</td>
             <td>{{ q.purchaseEmp.empName }}</td>
             <td class="text-left">{% if q.comment %}{{ q.comment }}{% endif %}</td>

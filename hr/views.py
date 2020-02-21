@@ -860,3 +860,7 @@ def detailvacation_asjson(request):
     return HttpResponse(structure, content_type='application/json')
 
 
+@login_required
+def delete_employee(request, empId):
+    Employee.objects.get(empId=empId).delete()
+    return redirect('hr:showprofiles')

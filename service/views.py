@@ -578,8 +578,9 @@ def show_services(request):
             yyyyBefore = yyyy
             mmBefore = str(int(mm) - 1).zfill(2)
 
-        startdate = yyyyBefore + '-' + mmBefore + '-01'
-        enddate = ""
+        # startdate = yyyyBefore + '-' + mmBefore + '-01'
+        startdate = today
+        enddate = today
         empDeptName = ""
         empName = ""
         empCheck = 1

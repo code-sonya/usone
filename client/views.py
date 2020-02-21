@@ -81,11 +81,15 @@ def show_clientlist(request):
 def post_client(request):
     template = loader.get_template('client/postclient.html')
     if request.method == "POST":
-        form = CompanyForm(request.POST)
-        post = form.save(commit=False)
-        post.companyStatus = 'Y'
-        post.save()
-        return redirect('client:show_clientlist')
+        try:
+            form = CompanyForm(request.POST)
+            post = form.save(commit=False)
+            post.companyStatus = 'Y'
+            post.save()
+            return redirect('client:show_clientlist')
+        except:
+            return HttpResponse("이미 등록된 고객사입니다. 고객사 영문명은 중복될 수 없습니다.")
+
 
     else:
         form = CompanyForm()
@@ -191,3 +195,10 @@ def post_customer(request, companyName):
             'companyName': companyName
         }
         return render(request, 'client/postcustomer.html', context)
+
+
+@login_required
+def delete_client(request, companyName):
+    company = Company.objects.filter(companyName=companyName).first()
+    company.delete()
+    return redirect('client:show_clientlist')

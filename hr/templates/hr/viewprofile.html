@@ -108,6 +108,10 @@
             </tbody>
           </table>
           <div class="text-center">
+            <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+              <span class="icon text-white-50"> <i class="fas fa-trash-alt"> </i> </span>
+              <span class="text"> 삭제 </span>
+            </a>
             <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
               <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
               <span class="text"> 저장 </span>
@@ -131,5 +135,12 @@
               empForm.submit();
           }
       }
+
+      function btn_delete() {
+        if (confirm("직원정보를 삭제하시겠습니까? 해당 직원과 관련된 정보는 모두 사라집니다.") === true) {
+              location.href = '/hr/deleteemployee/{{ employee.empId }}/'
+        }
+
+    }
   </script>
 {% endblock %}

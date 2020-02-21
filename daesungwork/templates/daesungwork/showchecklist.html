@@ -209,7 +209,7 @@
                 <label for="modalCenterName" class="text-primary">센터명</label>
                 <select class="form-control" name="modalCenterName" id="modalCenterName">
                   {% for center in centers %}
-                    <option value="{{ center.centerName }}">
+                    <option value="{{ center.centerName }}" {% if centerName == center.centerName %} selected {% endif %}>
                       {{ center.centerName }}
                     </option>
                   {% endfor %}
@@ -306,6 +306,10 @@
     }
 
     function btn_post() {
+        if (document.getElementById("modalCenterName").value==''){
+            alert("센터명을 입력해주세요.");
+            return false;
+        }
         if (document.getElementById("modalCheckDate").value === '') {
             alert("점검일자를 입력해주세요.");
             return false;

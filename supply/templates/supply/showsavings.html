@@ -28,6 +28,20 @@
         {% endif %}
       </div>
     </div>
+    <form method="POST" id="searchForm">
+    <div class="row ml-3 mt-3">
+      <span>
+        <select class="form-control" id="center" name="center" onchange="btn_center(this.value)">
+          <option value="">전체</option>
+          {% for center in centers %}
+          <option value="{{ center.centerId }}" {% if centerId == center.centerId %} selected {% endif %} >
+            {{ center.centerName }}
+          </option>
+          {% endfor %}
+        </select>
+      </span>
+    </div>
+    </form>
 
     <div class="card-body">
       <div class="mb-3">
@@ -40,12 +54,12 @@
             <th>품명</th>
             <th>현재수량</th>
             <th>누적금액</th>
-            <th>규격</th>
-            <th>구입처</th>
-            <th>최근 설치장소<br>(사용기관)</th>
-            <th>최근 구매일<br>(소모일)</th>
-            <th>최근 인수자<br>(검수자)</th>
-            <th>비고</th>
+            <!--<th>규격</th>-->
+            <!--<th>구입처</th>-->
+            <!--<th>최근 설치장소<br>(사용기관)</th>-->
+            <!--<th>최근 구매일<br>(소모일)</th>-->
+            <!--<th>최근 인수자<br>(검수자)</th>-->
+            <!--<th>비고</th>-->
           </tr>
           </thead>
         </table>
@@ -111,7 +125,13 @@
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">설치장소 (사용기관)</label>
-                <input class="form-control" name="location">
+                <select class="form-control" name="location">
+                  {% for center in centers %}
+                  <option value="{{ center.centerId }}" {% if centerName == center.centerName %} selected {% endif %} >
+                    {{ center.centerName }}
+                  </option>
+                  {% endfor %}
+                </select>
               </div>
             </div>
             <div class="row mb-1">
@@ -150,6 +170,16 @@
 {% block script %}
 
   <script type="text/javascript">
+
+      function btn_center(centerId) {
+        const searchForm = document.getElementById('searchForm');
+        const centerIdInput = document.createElement("input");
+        centerIdInput.setAttribute("type", "hidden");
+        centerIdInput.setAttribute("name", "centerId");
+        centerIdInput.setAttribute("value", centerId);
+        searchForm.appendChild(centerIdInput);
+        searchForm.submit();
+      }
 
       function btn_change(seleted) {
           if(seleted=="-1"){
@@ -251,6 +281,7 @@
                   "processing": true,
                   "type": 'POST',
                   "data": {
+                      "centerId": "{{ centerId }}"
                   },
                   "url": "{% url 'supply:savingsasjson' %}",
                   "dataSrc": ""
@@ -258,57 +289,21 @@
               "columnDefs": [
                   {
                       targets: 0,
-                      width: "10%",
+                      width: "33%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "name",
+                      data: "savingId__name",
                   },
                   {
                       targets: 1,
-                      width: "10%",
+                      width: "33%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "quantity",
                   },
                   {
                       targets: 2,
-                      width: "10%",
-                      className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap",
+                      width: "33%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "money",
-                  },
-                  {
-                      targets: 3,
-                      width: "10%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "standard",
-                  },
-                  {
-                      targets: 4,
-                      width: "10%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "purchaseCompany",
-                  },
-                  {
-                      targets: 5,
-                      width: "10%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "location",
-                  },
-                  {
-                      targets: 6,
-                      width: "10%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "purchaseDate",
-                  },
-                  {
-                      targets: 7,
-                      width: "10%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "purchaseEmp__empName",
-                  },
-                  {
-                      targets: 8,
-                      width: "20%",
-                      className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
-                      data: "comment",
                   },
               ],
               "deferRender": true,
@@ -338,10 +333,19 @@
               },
           });
 
+          {% if user.is_staff %}
+
           $("#showsavings").on("click", 'tr', function () {
               const data = savingsTable.row(this).data();
-              location.href = '/supply/viewsaving/' + data.savingId + '/';
+              const centerId = "{{ centerId }}";
+              if(centerId==''){
+                  location.href = '/supply/viewsaving/' + data.savingId + '/전체/';
+              }else{
+                  location.href = '/supply/viewsaving/' + data.savingId + '/' + centerId + '/';
+              }
+
           });
+          {% endif %}
 
           $('#newSaving').on('click', function() {
               if ($('#newSaving').is(':checked')) {

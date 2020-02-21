@@ -39,5 +39,6 @@ urlpatterns = [
     url(r'^vacationdocumentasjson/$', views.vacationdocument_asjson, name='vacationdocumentasjson'),
     url(r'^cancelvacation/$', views.cancel_vacation, name='cancelvacation'),
     url(r'^detailvacationasjson/$', views.detailvacation_asjson, name='detailvacationasjson'),
+    url(r'^deleteemployee/(?P<empId>.+)/$', views.delete_employee, name='deleteemployee'),
 ]
 

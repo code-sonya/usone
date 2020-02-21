@@ -9,6 +9,7 @@ from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max,
 
 from .models import Book, Bookrental, Saving, SavingQuantity
 from hr.models import Employee
+from daesungwork.models import Center
 
 
 @login_required
@@ -137,41 +138,37 @@ def post_rent(request):
 
 
 @login_required
+@csrf_exempt
 def show_savings(request):
     emps = Employee.objects.filter(empStatus='Y')
     savings = Saving.objects.all()
-
-    context = {
-        'emps': emps,
-        'savings': savings,
-    }
-    return render(request, 'supply/showsavings.html', context)
+    centers = Center.objects.filter(centerStatus='Y')
+    if centers:
+        if request.method == "POST":
+            centerId = request.POST['centerId']
+        else:
+            centerId = ''
+        context = {
+            'emps': emps,
+            'savings': savings,
+            'centers': centers,
+            'centerId': centerId,
+        }
+        return render(request, 'supply/showsavings.html', context)
+    else:
+        return redirect('daesungwork:showcenters')
 
 
 @login_required
 @csrf_exempt
 def savings_asjson(request):
-    result = []
+    quantity = SavingQuantity.objects.all()
+    centerId = request.POST['centerId']
+    if centerId:
+        quantity = quantity.filter(location=centerId)
+    quantity = quantity.values('savingId', 'savingId__name').annotate(quantity=Sum('quantity'), money=Sum('money'))
 
-    savings = Saving.objects.all()
-    for saving in savings:
-        quantity = SavingQuantity.objects.filter(savingId=saving)
-        quantity = quantity.order_by('-purchaseDate', '-quantityId').first()
-        result.append(
-            {
-                'savingId': saving.savingId,
-                'name': saving.name,
-                'quantity': saving.quantity,
-                'money': saving.money,
-                'standard': quantity.standard,
-                'purchaseCompany': quantity.purchaseCompany,
-                'location': quantity.location,
-                'purchaseDate': quantity.purchaseDate,
-                'purchaseEmp__empName': quantity.purchaseEmp.empName,
-                'comment': quantity.comment,
-            }
-        )
-    structure = json.dumps(list(result), cls=DjangoJSONEncoder)
+    structure = json.dumps(list(quantity), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
 
@@ -193,8 +190,6 @@ def post_saving(request):
             else:
                 savingId = Saving.objects.create(
                     name=request.POST['name'],
-                    quantity=request.POST['quantity'],
-                    money=request.POST['money'],
                 )
                 SavingQuantity.objects.create(
                     savingId=savingId,
@@ -203,7 +198,7 @@ def post_saving(request):
                     standard=request.POST['standard'],
                     purchaseCompany=request.POST['purchaseCompany'],
                     purchaseDate=request.POST['purchaseDate'] or None,
-                    location=request.POST['location'],
+                    location=Center.objects.get(Q(centerStatus='Y') & Q(centerId=request.POST['location'])),
                     purchaseEmp=Employee.objects.get(empId=request.POST['purchaseEmp']),
                     comment=request.POST['comment'],
                 )
@@ -218,13 +213,10 @@ def post_saving(request):
                 standard=request.POST['standard'],
                 purchaseCompany=request.POST['purchaseCompany'],
                 purchaseDate=request.POST['purchaseDate'] or None,
-                location=request.POST['location'],
+                location=Center.objects.get(Q(centerStatus='Y') & Q(centerId=request.POST['location'])),
                 purchaseEmp=Employee.objects.get(empId=request.POST['purchaseEmp']),
                 comment=request.POST['comment'],
             )
-            savingId.quantity += int(request.POST['quantity'])
-            savingId.money += int(request.POST['money'])
-            savingId.save()
             result = 'Y'
 
         structure = json.dumps(result, cls=DjangoJSONEncoder)
@@ -232,16 +224,18 @@ def post_saving(request):
 
 
 @login_required
-def view_saving(request, savingId):
+def view_saving(request, savingId, centerId):
     saving = Saving.objects.get(savingId=savingId)
     quantity = SavingQuantity.objects.filter(savingId__savingId=savingId).order_by('-purchaseDate', '-quantityId')
-    lastQuantity = quantity.first()
     emps = Employee.objects.filter(empStatus='Y')
+    if centerId != '전체':
+        quantity = quantity.filter(location=centerId)
 
+    sumQuantity = quantity.aggregate(quantity=Sum('quantity'), money=Sum('money'))
     context = {
         'saving': saving,
         'quantity': quantity,
-        'lastQuantity': lastQuantity,
+        'sumQuantity': sumQuantity,
         'emps': emps,
     }
     return render(request, 'supply/viewsaving.html', context)
