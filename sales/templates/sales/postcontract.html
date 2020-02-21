@@ -77,22 +77,22 @@
             <div id="Opportunity">
               <div class="form-group row">
                 <div class="col-2 mb-3">
-                  <label for="empId" class="font-weight-bold text-primary"> 영업대표 </label> {{ form.empId }}
+                  <label for="empId" class="font-weight-bold text-primary">담당자</label> {{ form.empId }}
                 </div>
                 <div class="col-10 mb-3">
-                  <label for="contractName" class="font-weight-bold text-primary"> 계약명 </label> {{ form.contractName }}
+                  <label for="contractName" class="font-weight-bold text-primary">계약명</label> {{ form.contractName }}
                 </div>
               </div>
 
               <div class="form-group row">
                 <div class="col-2 mb-3">
-                  <label for="saleType" class="font-weight-bold text-primary"> 판매유형 </label> {{ form.saleType }}
+                  <label for="saleType" class="font-weight-bold text-primary">계약유형</label> {{ form.saleType }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="saleIndustry" class="font-weight-bold text-primary"> 산업군 </label> {{ form.saleIndustry }}
+                  <label for="saleIndustry" class="font-weight-bold text-primary">종류</label> {{ form.saleIndustry }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="saleCompanyNames" class="font-weight-bold text-primary"> 거래처 </label> {{ form.saleCompanyNames }}
+                  <label for="saleCompanyNames" class="font-weight-bold text-primary">거래처(발주처)</label> {{ form.saleCompanyNames }}
                 </div>
                 <div class="col-2 mb-3">
                   <label for="saleCustomerId" class="font-weight-bold"> 거래처 담당자 </label> {{ form.saleCustomerId }}
@@ -100,7 +100,7 @@
                  <div class="col-2 mb-3">
                   <label for="saleTaxCustomerId" class="font-weight-bold"> 거래처 세금담당자 </label> {{ form.saleTaxCustomerId }}
                 </div>
-                <div class="col-2 mb-3">
+                <div class="col-2 mb-3 d-none">
                   <label for="endCompanyNames" class="font-weight-bold"> 최종고객사 </label> {{ form.endCompanyNames }}
                 </div>
               </div>
@@ -116,13 +116,13 @@
                   <label for="profitRatio" class="font-weight-bold">이익율 (%) </label> {{ form.profitRatio }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="contractDate" class="font-weight-bold text-primary">계약일 </label> {{ form.contractDate }}
+                  <label for="contractDate" class="font-weight-bold text-primary">계약일</label> {{ form.contractDate }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="contractStartDate" class="font-weight-bold"> 계약시작일 </label> {{ form.contractStartDate }}
+                  <label for="contractStartDate" class="font-weight-bold">착수일</label> {{ form.contractStartDate }}
                 </div>
                 <div class="col-2 mb-3">
-                  <label for="contractEndDate" class="font-weight-bold"> 계약종료일 </label> {{ form.contractEndDate }}
+                  <label for="contractEndDate" class="font-weight-bold">준공일</label> {{ form.contractEndDate }}
                 </div>
               </div>
 
@@ -133,10 +133,7 @@
                 <div class="col-2">
                   <label for="depositConditionDay" class="font-weight-bold text-primary"> 수금조건일자 </label> {{ form.depositConditionDay }}
                 </div>
-                <div class="col-2">
-                  <label for="modifyContractPaper" class="font-weight-bold text-primary"> 수정수주통보서대상 </label> {{ form.modifyContractPaper }}
-                </div>
-                <div class="col-6">
+                <div class="col-8">
                   <label for="comment" class="font-weight-bold"> 참고사항 </label> {{ form.comment }}
                 </div>
               </div>
@@ -171,7 +168,6 @@
                     <th></th>
                     <th class="text-right">TOTAL : </th>
                     <th><span class="totalItemPrice"></span></th>
-                    <th></th>
                   </tr>
                   </tfoot>
                 </table>
@@ -294,7 +290,7 @@
 
             <div id="costdiv">
               <hr class="divider">
-              <h5 class="text-dark mb-3"><b>&nbsp;&nbsp;&nbsp;(세금계산서 미접수항목)</b>
+              <h5 class="text-dark mb-3"><b>&nbsp;&nbsp;&nbsp;(세금계산서 외 기타항목)</b>
               </h5>
               <table id="cost" class="display" style="width:100%">
                 <thead style="width:100%">
@@ -303,8 +299,8 @@
                   <th></th>
                   <th></th>
                   <th></th>
-                  <th class="font-weight-bold text-primary">매입연도</th>
-                  <th class="font-weight-bold text-primary">매입내역
+                  <th class="font-weight-bold text-primary">지급일</th>
+                  <th class="font-weight-bold text-primary">기타항목
                     {% if user.is_staff %}
                     <a class="text-white" href="#" role="button" id="costContentsLink" data-toggle="modal" data-target="#costContentsModal">
                       <i class="fas fa-plus-circle fa-fw text-info"></i>
@@ -862,20 +858,19 @@
                       $('.close').click();
                       alert('등록이 완료되었습니다.');
                       for (var count = 0; count < itemCounter; count++) {
-                              var exists = false;
-                              $('#item1'+count+' option').each(function(){
-                                  if (this.value == mainCategory ) {
-                                      console.log(this.value);
-                                      exists = true;
-                                      return false;
-                                  }
-                              });
-                              console.log(exists);
-                              if(exists==false){
-                                  const option = $("<option value=" + mainCategory + ">" + mainCategory + "</option>");
-                                  $('#item1'+count).append(option);
+                          var exists = false;
+                          $('#item1'+count+' option').each(function(){
+                              if (this.value == mainCategory ) {
+                                  console.log(this.value);
+                                  exists = true;
+                                  return false;
                               }
-
+                          });
+                          console.log(exists);
+                          if(exists==false){
+                              const option = $("<option value=" + mainCategory + ">" + mainCategory + "</option>");
+                              $('#item1'+count).append(option);
+                          }
                       }
                   }
               }
@@ -912,20 +907,19 @@
                       $('.close').click();
                       alert('등록이 완료되었습니다.');
                       for (var count = 0; count < purchaseItemCounter; count++) {
-                              var exists = false;
-                              $('#purchaseItem2'+count+' option').each(function(){
-                                  if (this.value == mainCategory ) {
-                                      console.log(this.value);
-                                      exists = true;
-                                      return false;
-                                  }
-                              });
-                              console.log(exists);
-                              if(exists==false){
-                                  const option = $("<option value=" + mainCategory + ">" + mainCategory + "</option>");
-                                  $('#purchaseItem2'+count).append(option);
+                          var exists = false;
+                          $('#purchaseItem2'+count+' option').each(function(){
+                              if (this.value == mainCategory ) {
+                                  console.log(this.value);
+                                  exists = true;
+                                  return false;
                               }
-
+                          });
+                          console.log(exists);
+                          if(exists==false){
+                              const option = $("<option value=" + mainCategory + ">" + mainCategory + "</option>");
+                              $('#purchaseItem2'+count).append(option);
+                          }
                       }
                   }
               }
@@ -957,20 +951,19 @@
                       alert('등록이 완료되었습니다.');
                       console.log(costCounter);
                       for (var count = 0; count < costCounter; count++) {
-                              var exists = false;
-                              $('#cost5'+count+' option').each(function(){
-                                  if (this.value == costContents ) {
-                                      console.log(this.value);
-                                      exists = true;
-                                      return false;
-                                  }
-                              });
-                              console.log(exists);
-                              if(exists==false){
-                                  const option = $("<option value=" + costContents + ">" + costContents + "</option>");
-                                  $('#cost5'+count).append(option);
+                          var exists = false;
+                          $('#cost5'+count+' option').each(function(){
+                              if (this.value == costContents ) {
+                                  console.log(this.value);
+                                  exists = true;
+                                  return false;
                               }
-
+                          });
+                          console.log(exists);
+                          if(exists==false){
+                              const option = $("<option value=" + costContents + ">" + costContents + "</option>");
+                              $('#cost5'+count).append(option);
+                          }
                       }
                   }
               }
@@ -1058,7 +1051,6 @@
                   }
               }
           });
-
       }
 
       function btn_billing(classification){
@@ -1186,7 +1178,6 @@
           });
       }
 
-
       function replaceMagic() {
           $('#saleCompanyNames').magicsearch({
               dataSource: companyList,
@@ -1268,7 +1259,6 @@
                   focusShow: true,
               });
           }
-
       }
 
       function btn_false(msg) {
@@ -1308,10 +1298,6 @@
           }
           if (!isDay(document.getElementById("contractDate").value)) {
               alert("유효한 계약일을 입력해주세요.\n(정확한 입력을 위해 달력에서 선택해 주세요.)");
-              return false;
-          }
-           if (document.getElementById("modifyContractPaper").value === '') {
-              alert("수주통보서수정대상 여부를 선택해 주세요.");
               return false;
           }
 
@@ -1637,41 +1623,6 @@
           $('input[name=' + objName + ']').trigger('set', {id: $('#saleCompanyNames').attr('data-id')});
       }
 
-      function changeStep(t2, t3, t4) {
-          const contractStep = '{{ contractStep }}';
-          if (contractStep === 'Firm') {
-              $('#contractStartDate').removeAttr('readonly');
-              $('#contractEndDate').removeAttr('readonly');
-              $('span[name=predict]').addClass('d-none');
-          } else {
-              $('#contractStartDate').val('');
-              $('#contractStartDate').attr('readonly', '');
-              $('#contractEndDate').val('');
-              $('#contractEndDate').attr('readonly', '');
-              $('span[name=predict]').removeClass('d-none');
-          }
-
-          if (contractStep === 'Drop') {
-              t2.rows().remove().draw();
-              $('#revenuediv').addClass('d-none');
-              t3.rows().remove().draw();
-              $('#purchasediv').addClass('d-none');
-              t4.rows().remove().draw();
-              $('#costdiv').addClass('d-none');
-              $('#purchasetypediv').addClass('d-none');
-          } else {
-              $('#revenuediv').removeClass('d-none');
-              if (t2.rows().data().length === 0) {
-                  $('#addRevenue').click();
-              }
-              $('#purchasediv').removeClass('d-none');
-              if (t3.rows().data().length === 0) {
-                  $('#addPurchase').click();
-              }
-              $('#costdiv').removeClass('d-none');
-          }
-      }
-
       function changeCondition() {
           if ($('#depositCondition').val() == '계산서 발행 후' || $('#depositCondition').val() == '당월' || $('#depositCondition').val() == '익월') {
               $('#depositConditionDay').removeAttr('readonly');
@@ -1715,12 +1666,55 @@
           $('#' + predictExecutionDate).val(date);
       }
 
+      function calProfit(revenueName, purchaseName, costName, profitName) {
+          let profit;
+          let revenue = 0;
+          let purchase = 0;
+          let cost = 0;
+
+          const revenueObj = $('input[name=' + revenueName + ']');
+          const purchaseObj = $('input[name=' + purchaseName + ']');
+          const costObj = $('input[name=' + costName + ']');
+
+          for (let i=0; i<revenueObj.length; i++) {
+              revenue += Number(revenueObj.eq(i).val().replace(/,/g, ''))
+          }
+          for (let i=0; i<purchaseObj.length; i++) {
+              purchase += Number(purchaseObj.eq(i).val().replace(/,/g, ''))
+          }
+          for (let i=0; i<costObj.length; i++) {
+              cost += Number(costObj.eq(i).val().replace(/,/g, ''))
+          }
+
+          // 이익 : 매출 - (접수매입 + 미접수매입)
+          profit = revenue - (purchase + cost);
+          $('#salePrice').val(revenue.toLocaleString());
+          $('#profitPrice').val(profit.toLocaleString());
+          $('.totalRevenueProfitPrice').text(profit.toLocaleString());
+          $('#profitRatio').val(((profit/revenue)*100).toFixed(0));
+
+          // 매출별 이익 : 이익 / 매출개수
+          let revenueProfit = Math.floor((profit / revenueObj.length));
+          let adjustment = profit - (revenueProfit * revenueObj.length);
+
+          const profitObj = $('input[name=' + profitName + ']');
+          for (let i=0; i<revenueObj.length; i++) {
+              if (i === revenueObj.length-1) {
+                  profitObj.eq(i).val((revenueProfit + adjustment).toLocaleString())
+              } else {
+                  profitObj.eq(i).val(revenueProfit.toLocaleString())
+              }
+          }
+      }
+
       function totalPrice(inputName, className) {
           let price = 0;
           for (var i = 0; i < $('input[name=' + inputName + ']').length; i++) {
               price += Number($('input[name=' + inputName + ']').eq(i).val().replace(/,/g, ''));
           }
           $('.' + className).text(price.toLocaleString());
+          $('input.' + className).val(price.toLocaleString());
+          calProfit('revenuePrice', 'purchasePrice', 'costPrice', 'revenueProfitPrice');
       }
 
       function downClick(table, up, down) {
@@ -1858,27 +1852,6 @@
           });
           endCompanyNames.removeAttribute("style");
           endCompanyNames.parentElement.removeAttribute("style");
-
-          // 이익율 자동계산
-          $('#salePrice').on("propertychange change keyup paste input", function () {
-              const salePrice = $('#salePrice').val().replace(/,/g, '');
-              const profitPrice = $('#profitPrice').val().replace(/,/g, '');
-              if (salePrice === '0') {
-                  $('#profitRatio').val(0);
-              } else {
-                  $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(0));
-              }
-          });
-
-          $('#profitPrice').on("propertychange change keyup paste input", function () {
-              const salePrice = $('#salePrice').val().replace(/,/g, '');
-              const profitPrice = $('#profitPrice').val().replace(/,/g, '');
-              if (salePrice === '0') {
-                  $('#profitRatio').val(0);
-              } else {
-                  $('#profitRatio').val(((profitPrice / salePrice) * 100).toFixed(0));
-              }
-          });
 
           // 계약종료일 자동입력
           $('#contractStartDate').on("propertychange change keyup paste input", function () {
@@ -2059,6 +2032,7 @@
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
+              totalPrice('itemPrice', 'totalItemPrice');
           });
 
           // 매출 빌링스케쥴
@@ -2076,59 +2050,68 @@
               "ordering": false,
               "columnDefs": [
                   {targets: 0, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap d-none"},
-                  {targets: 1, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  {
+                      targets: 1, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       createdCell: function (td, cellData, rowData, row, col) {
-                      $(td).css('padding-bottom', '30px');
-                      $(td).css('padding-top', '20px');
-                    }
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
                   },
-                  {targets: 2, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  {
+                      targets: 2, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       createdCell: function (td, cellData, rowData, row, col) {
-                      $(td).css('padding-bottom', '30px');
-                      $(td).css('padding-top', '20px');
-                    }
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
                   },
-                  {targets: 3, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                       createdCell: function (td, cellData, rowData, row, col) {
-                      $(td).css('padding-bottom', '30px');
-                      $(td).css('padding-top', '20px');
-                    }
-                  },
-                  {targets: 4, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  {
+                      targets: 3, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       createdCell: function (td, cellData, rowData, row, col) {
-                      $(td).css('padding-bottom', '30px');
-                      $(td).css('padding-top', '20px');
-                    }
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
                   },
-                  {targets: 5, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    createdCell: function (td, cellData, rowData, row, col) {
-                      $(td).css('padding-bottom', '30px');
-                      $(td).css('padding-top', '20px');
-                    }
-                  },
-                  {targets: 6, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    createdCell: function (td, cellData, rowData, row, col) {
-                      $(td).css('padding-bottom', '30px');
-                      $(td).css('padding-top', '20px');
-                    }
-                  },
-                  {targets: 7, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  {
+                      targets: 4, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       createdCell: function (td, cellData, rowData, row, col) {
-                      $(td).css('padding-bottom', '30px');
-                      $(td).css('padding-top', '20px');
-                    }
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
                   },
-                  {targets: 8, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  {
+                      targets: 5, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       createdCell: function (td, cellData, rowData, row, col) {
-                      $(td).css('padding-bottom', '30px');
-                      $(td).css('padding-top', '20px');
-                    }
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
                   },
-                  {targets: 9, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  {
+                      targets: 6, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       createdCell: function (td, cellData, rowData, row, col) {
-                      $(td).css('padding-bottom', '30px');
-                      $(td).css('padding-top', '20px');
-                    }
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+                  {
+                      targets: 7, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+                  {
+                      targets: 8, width: "12%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+                  {
+                      targets: 9, width: "4%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
                   },
               ],
           });
@@ -2145,7 +2128,7 @@
                   '<input class="magicsearch input-form" autocomplete="off" type="text" name="revenueCompany" ' +
                   'id="revenue5' + revenueCounter + '" onkeydown="magicsearchtab(revenue5' + revenueCounter + ')">',
                   '<input class="money input-form" name="revenuePrice" id="revenue6' + revenueCounter + '">',
-                  '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '">',
+                  '<input class="money input-form" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" readonly style="background-color: #eaecf4">',
                   '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '">',
                   '<i class="fas fa-times-circle" name="remove">'
               ]).draw(false);
@@ -2184,7 +2167,7 @@
                           'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
                       '<input class="magicsearch input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}" onkeydown="magicsearchtab(revenue5' + revenueCounter + ')">',
                       '<input class="money input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
-                      '<input class="money input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}">',
+                      '<input class="money input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}" readonly style="background-color: #eaecf4">',
                       '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.comment }}">',
                       {% if revenue.revenueStatus == 'Y' %}
                           '<span class="small">{{ revenue.empId.empName }}</span>'
@@ -2226,6 +2209,8 @@
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
+              totalPrice('revenuePrice', 'totalRevenuePrice');
+              totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
           });
 
           // 매입세부정보 (세금계산서 접수항목)
@@ -2373,6 +2358,7 @@
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
+              totalPrice('purchasePrice', 'totalPurchasePrice');
           });
 
           // 매입세부정보 (세금계산서 미접수항목)
@@ -2408,7 +2394,7 @@
                   '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost2' + costCounter + '" ' +
                   'onchange="changeBillingDates(\'cost2' + costCounter + '\',\'cost1' + costCounter + '\')">',
                   '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost3' + costCounter + '">',
-                  '<input class="input-form" type="number" min="1000" max="9999" name="costDate" id="cost4' + costCounter + '">',
+                  '<input class="input-form" type="date" max="9999-12-31" name="costDate" id="cost4' + costCounter + '">',
                   '<select style="width:255px" class="input-form" id="cost5' + costCounter + '" name="costCompany" ></select>',
                   '<input class="money input-form" style="width: 255px;"  name="costPrice" id="cost6' + costCounter + '">',
                   '<input class="input-form" type="text" name="costComment" id="cost7' + costCounter + '">',
@@ -2432,7 +2418,7 @@
                           }
                           costCounter++;
                       },error:function(request,status,error){
-                              alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                          alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
                       }
 
               });
@@ -2451,7 +2437,7 @@
                       '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost2' + costCounter + '" value="" ' +
                       'onchange="changeBillingDates(\'cost2' + costCounter + '\',\'cost1' + costCounter + '\')">',
                       '<input class="input-form d-none" type="date" max="9999-12-31" name="" id="cost3' + costCounter + '" value="">',
-                      '<input class="input-form" type="number" min="1000" max="9999" name="costDate" id="cost4' + costCounter + '" value="{{ cost.billingDate | date:"Y" }}">',
+                      '<input class="input-form" type="date" max="9999-12-31" name="costDate" id="cost4' + costCounter + '" value="{{ cost.billingDate | date:"Y-m-d" }}">',
                       '<select style="width:255px" class="input-form" id="cost5' + costCounter + '" name="costCompany"></select>',
                       '<input class="money input-form" style="width: 255px;" name="costPrice" id="cost6' + costCounter + '" value="{{ cost.costPrice }}">',
                       '<input class="input-form" type="text" name="costComment" id="cost7' + costCounter + '" value="{{ cost.comment }}">',
@@ -2461,27 +2447,27 @@
               {% endfor %}
               t4.draw();
               $.ajax({
-                          url: "{% url 'sales:classification_ajax_url' %}",
-                          method: 'POST',
-                          cache: false,
-                          data: {'classification': '매입_미접수',
-                                'contractId': '{{ contractId }}'},
-                          headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                          success: function (returnData) {
-                              var classification = returnData[0];
-                              var data = returnData[1];
-                              for(var i=0;i<data.length;i++){
-                                  $('#cost5'+i).empty();
-                                  $('#cost5'+i).append('<option value="" selected="">------</option>');
-                                  for (var count = 0; count < classification.length; count++) {
-                                      var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
-                                      $('#cost5'+i).append(option);
-                                  }
-                                  $('#cost5' + i).val(data[i].costCompany).prop("selected", true);
-                              }
-                          },error:function(request,status,error){
-                                  alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  url: "{% url 'sales:classification_ajax_url' %}",
+                  method: 'POST',
+                  cache: false,
+                  data: {'classification': '매입_미접수',
+                        'contractId': '{{ contractId }}'},
+                  headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                  success: function (returnData) {
+                      var classification = returnData[0];
+                      var data = returnData[1];
+                      for(var i=0;i<data.length;i++){
+                          $('#cost5'+i).empty();
+                          $('#cost5'+i).append('<option value="" selected="">------</option>');
+                          for (var count = 0; count < classification.length; count++) {
+                              var option = $("<option value=" + classification[count].categoryName + ">" + classification[count].categoryName + "</option>");
+                              $('#cost5'+i).append(option);
                           }
+                          $('#cost5' + i).val(data[i].costCompany).prop("selected", true);
+                      }
+                  },error:function(request,status,error){
+                          alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                  }
               });
 
               $('.money').simpleMoneyFormat();
@@ -2495,6 +2481,7 @@
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
+              totalPrice('costPrice', 'totalCostPrice');
           });
 
           // 매입 세부사항
@@ -2550,7 +2537,6 @@
                   },
               ],
           });
-
 
           $('#purchaseAddItem').on('click', function () {
               t5.row.add([
@@ -2667,10 +2653,8 @@
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
+              totalPrice('purchaseItemPrice', 'totalpurchaseItemPrice');
           });
-
-          // 단계에 따른 표기 방법
-          changeStep(t2, t3, t4);
 
           // 합계 수동으로 구해서 넣어주는 것
           totalPrice('itemPrice', 'totalItemPrice');
@@ -2679,7 +2663,6 @@
           totalPrice('purchasePrice', 'totalPurchasePrice');
           totalPrice('costPrice', 'totalCostPrice');
           totalPrice('purchaseItemPrice', 'totalpurchaseItemPrice');
-
       })
   </script>
 

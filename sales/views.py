@@ -145,7 +145,6 @@ def post_contract(request):
                     comment=cost["costComment"],
                 )
 
-
             return redirect('sales:showcontracts')
 
     else:

@@ -342,39 +342,6 @@
           $('#serviceDetails').on("propertychange change keyup paste input", function () {
               document.getElementById("serviceDetails").style.backgroundColor = "#fff";
           });
-
-          {% if form.serviceTitle.value and serviceStatus != 'N' %}
-              $('#startdate').attr('readonly', '');
-              $('#startdate').css("pointer-events", "none");
-              $('#starttime').attr('readonly', '');
-              $('#starttime').css("pointer-events", "none");
-          {% endif %}
-
-          {% if serviceStatus == 'Y' %}
-              $('#companyName').attr('readonly', '');
-              $('#companyName').css("pointer-events", "none");
-              // $('#serviceType').attr('readonly', '');
-              // $('#serviceType').css("pointer-events", "none");
-              $('#startdate').attr('readonly', '');
-              $('#startdate').css("pointer-events", "none");
-              $('#starttime').attr('readonly', '');
-              $('#starttime').css("pointer-events", "none");
-              $('#enddate').attr('readonly', '');
-              $('#enddate').css("pointer-events", "none");
-              $('#endtime').attr('readonly', '');
-              $('#endtime').css("pointer-events", "none");
-              $('#serviceLocation').attr('readonly', '');
-              $('#serviceLocation').css("pointer-events", "none");
-              $('#directgo').attr('readonly', '');
-              $('#directgo').css("pointer-events", "none");
-              // $('#coWorkers').attr('readonly', '');
-              // $('#coWorkers').css("pointer-events", "none");
-              // $('#serviceTitle').attr('readonly', '');
-              // $('#serviceTitle').css("pointer-events", "none");
-              // $('#serviceDetails').attr('readonly', '');
-              // $('#serviceDetails').css("pointer-events", "none");
-          {% endif %}
-
       });
 
   </script>

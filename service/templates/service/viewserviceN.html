@@ -41,17 +41,6 @@
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
           <h3 class="m-0 text-gray-800"> No. {{ service.serviceId }} </h3>
           <div class="text-right mb-2">
-            {% if service.empId.empId == user.employee.empId %}
-              {% if service.serviceStatus != 'N' %}
-                {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-                  <a href="#" class="btn btn-success" onclick="location.href='/signature/selectmanager/{{ service.serviceId }}'">
-                    <i class="fas fa-signature d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-signature"></i> 서명</span>
-                  </a>
-                {% else %}
-                  (서명완료)
-                {% endif %}
-              {% endif %}
-            {% endif %}
             <a class="btn btn-warning" href="#" role="button" onclick="btn_copy()">
               <i class="fas fa-copy d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-copy"></i> 복사</span>
             </a>
@@ -87,11 +76,6 @@
               <td>{{ service.serviceType }}</td>
             </tr>
             <tr>
-              <td class="text-center"><b>출발일시</b></td>
-              <td>{{ service.serviceBeginDatetime | date:"Y. m. d(D" | slice:"0:14" }})
-                {{ service.serviceBeginDatetime | date:"H:i" }}</td>
-            </tr>
-            <tr>
               <td class="text-center"><b>시작일시</b></td>
               <td>{{ service.serviceStartDatetime | date:"Y. m. d(D" | slice:"0:14" }})
                 {{ service.serviceStartDatetime | date:"H:i" }}</td>
@@ -100,11 +84,6 @@
               <td class="text-center"><b>종료일시</b></td>
               <td>{{ service.serviceEndDatetime | date:"Y. m. d(D" | slice:"0:14" }})
                 {{ service.serviceEndDatetime | date:"H:i" }}</td>
-            </tr>
-            <tr>
-              <td class="text-center"><b>도착일시</b></td>
-              <td>{{ service.serviceFinishDatetime | date:"Y. m. d(D" | slice:"0:14" }})
-                {{ service.serviceFinishDatetime | date:"H:i" }}</td>
             </tr>
             <tr>
               <td class="text-center"><b>소요시간</b></td>
@@ -137,29 +116,12 @@
                 <span class="text p-2"> 수정 </span>
               </a>
               {% if service.serviceType.punctualityStatus == 'Y' %}
-
                 {% if service.serviceStatus == 'N' %}
-                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_begin()">
-                  <span class="icon text-white"> <i class="fas fa-walking"> </i> </span>
-                  <span class="text p-2"> 출발 </span>
-                </a>
-                {% elif service.serviceStatus == 'B' %}
-                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_start()">
-                  <span class="icon text-white"> <i class="fas fa-briefcase"> </i> </span>
-                  <span class="text p-2"> 시작 </span>
-                </a>
-                {% elif service.serviceStatus == 'S' %}
-                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_end()">
-                  <span class="icon text-white"> <i class="fas fa-walking"> </i> </span>
-                  <span class="text p-2"> 종료 </span>
-                </a>
-                {% elif service.serviceStatus == 'E' %}
                 <a href="#" class="btn btn-success btn-icon-split" onclick="btn_finish()">
-                  <span class="icon text-white"> <i class="fas fa-flag"> </i> </span>
-                  <span class="text p-2"> 도착 </span>
+                  <span class="icon text-white"> <i class="fas fa-walking"> </i> </span>
+                  <span class="text p-2"> 마감 </span>
                 </a>
                 {% endif %}
-
               {% endif %}
             </div>
           {% endif %}
@@ -195,53 +157,11 @@
           }
       }
 
-      function btn_begin(){
-          if (confirm("출발 하시겠습니까?") === true) {
-              navigator.geolocation.getCurrentPosition(function(pos) {
-                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/begin/'
-                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
-              });
-          }
-      }
-
-      function btn_start(){
-          if (confirm("시작 하시겠습니까?") === true) {
-              navigator.geolocation.getCurrentPosition(function(pos) {
-                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/start/'
-                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
-              });
-          }
-      }
-
-      function btn_end(){
-          if (confirm("종료 하시겠습니까?") === true) {
-              navigator.geolocation.getCurrentPosition(function(pos) {
-                  /* // 시작위치와 종료위치 1km 제한.
-                  if (latlng_distance({{ geo.startLatitude }}, {{ geo.startLongitude }}, pos.coords.latitude, pos.coords.longitude) < 1000) {
-                      location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/end/'
-                          + pos.coords.latitude + '/' + pos.coords.longitude + '/';
-                  } else {
-                      alert('시작지점과 1km 이상 떨어져있습니다.');
-                  }
-                  */
-                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/end/'
-                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
-              });
-          }
-      }
-
       function btn_finish(){
-          let msg;
-          if ('{{ service.serviceSignPath }}' === '/media/images/signature/nosign.jpg') {
-              msg = '도착 후에는 서명을 받을 수 없습니다.\n계속 하시겠습니까?';
-          } else {
-              msg = '도착 하셨습니까?';
-          }
+          let msg = '마감하신 뒤에는 수정이 불가능 합니다. 마감하시겠습니까?';
+
           if (confirm(msg) === true) {
-              navigator.geolocation.getCurrentPosition(function(pos) {
-                  location.href = '/service/postgeolocation/' + {{ service.serviceId }} + '/finish/'
-                      + pos.coords.latitude + '/' + pos.coords.longitude + '/';
-              });
+              location.href = '/service/finishservice/{{ service.serviceId }}/';
           }
       }
 

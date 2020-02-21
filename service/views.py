@@ -738,11 +738,7 @@ def delete_service(request, serviceId):
 
 @login_required
 def modify_service(request, serviceId):
-    # 로그인 사용자 정보
     instance = Servicereport.objects.get(serviceId=serviceId)
-    empId = Employee(empId=request.user.employee.empId)
-    empName = request.user.employee.empName
-    empDeptName = request.user.employee.empDeptName
 
     if request.method == "POST":
         form = ServicereportForm(request.POST, instance=instance)
@@ -753,23 +749,11 @@ def modify_service(request, serviceId):
                 post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
             else:
                 post.contractId = None
-            post.empId = empId
-            post.empName = empName
-            post.empDeptName = empDeptName
-            if post.serviceStatus == 'N':
-                post.serviceBeginDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            elif post.serviceStatus == 'B':
-                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            elif post.serviceStatus == 'S':
-                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            elif post.serviceStatus == 'E':
-                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+
+            post.serviceBeginDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+            post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+            post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
             post.serviceDate = str(post.serviceBeginDatetime)[:10]
             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
             post.serviceOverHour = overtime(
@@ -779,7 +763,7 @@ def modify_service(request, serviceId):
             post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
             post.coWorker = request.POST['coWorkerId']
             post.save()
-            return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
+            return redirect('service:viewservice', serviceId)
     else:
         form = ServicereportForm(instance=instance)
         form.fields['startdate'].initial = str(instance.serviceBeginDatetime)[:10]
@@ -1572,3 +1556,11 @@ def coworker_sign(request, serviceId):
         service.serviceSignPath = signId.serviceSignPath
         service.save()
         return redirect('service:viewservice', serviceId)
+
+
+@login_required
+def finish_service(request, serviceId):
+    service = Servicereport.objects.get(serviceId=serviceId)
+    service.serviceStatus = 'Y'
+    service.save()
+    return redirect('service:viewservice', serviceId)

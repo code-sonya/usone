@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^postservicetype/$', views.post_service_type, name='postservicetype'),
     url(r'^deleteservicetype/(?P<typeId>.+)/$', views.delete_service_type, name='deleteservicetype'),
     url(r'^coworkersign/(?P<serviceId>.+)/$', views.coworker_sign, name='coworkersign'),
+    url(r'^finishservice/(?P<serviceId>.+)/$', views.finish_service, name='finishservice'),
 ]

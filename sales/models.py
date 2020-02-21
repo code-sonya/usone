@@ -4,10 +4,30 @@ from hr.models import Employee
 from client.models import Company, Customer
 
 
+class SaletypeCategory(models.Model):
+    categoryId = models.AutoField(primary_key=True)
+    saleTypeName = models.CharField(max_length=100)
+    orderNumber = models.IntegerField(default=0)
+
+
+class SaleindustryCategory(models.Model):
+    categoryId = models.AutoField(primary_key=True)
+    saleIndustryName = models.CharField(max_length=100)
+    orderNumber = models.IntegerField(default=0)
+
+
 class Contract(models.Model):
-    saleTypeChoices = (('직판', '직판'), ('T1', 'T1'), ('T2', 'T2'), ('기타', '기타'))
-    saleIndustryChoices = (('금융', '금융'), ('공공', '공공'), ('유통 & 제조', '유통 & 제조'), ('통신 & 미디어', '통신 & 미디어'), ('기타', '기타'))
-    contractStepChoices = (('Opportunity', 'Opportunity'), ('Firm', 'Firm'), ('Drop', 'Drop'))
+    saleTypeChoices = []
+    for category in SaletypeCategory.objects.all().order_by('orderNumber'):
+        saleTypeChoices.append((category.saleTypeName, category.saleTypeName))
+    saleTypeChoices = tuple(saleTypeChoices)
+
+    saleIndustryChoices = []
+    for category in SaleindustryCategory.objects.all().order_by('orderNumber'):
+        saleIndustryChoices.append((category.saleIndustryName, category.saleIndustryName))
+    saleIndustryChoices = tuple(saleIndustryChoices)
+
+    contractStepChoices = (('예정', '예정'), ('확정', '확정'), ('실주', '실주'))
     depositConditionChoices = (('계산서 발행 후', '계산서 발행 후'), ('당월', '당월'), ('익월', '익월'), ('당월 말', '당월 말'), ('익월 초', '익월 초'), ('익월 말', '익월 말'))
     modifyContractPaperChoices = (('N', 'N'), ('Y', 'Y'))
     newCompanyChoices = (('N', 'N'), ('Y', 'Y'))
@@ -26,15 +46,15 @@ class Contract(models.Model):
     saleTaxCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleTaxCustomerId', null=True, blank=True)
     saleTaxCustomerName = models.CharField(max_length=10, null=True, blank=True)
     endCompanyName = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='endCompanyName', null=True, blank=True)
-    saleType = models.CharField(max_length=10, choices=saleTypeChoices, default='직판')
-    saleIndustry = models.CharField(max_length=10, choices=saleIndustryChoices, default='금융')
+    saleType = models.CharField(max_length=100, choices=saleTypeChoices, null=True, blank=True)
+    saleIndustry = models.CharField(max_length=100, choices=saleIndustryChoices, null=True, blank=True)
     mainCategory = models.CharField(max_length=50)
     subCategory = models.CharField(max_length=50)
     salePrice = models.BigIntegerField()
     profitPrice = models.BigIntegerField()
     profitRatio = models.FloatField()
     contractDate = models.DateField()
-    contractStep = models.CharField(max_length=20, choices=contractStepChoices, default='Opportunity')
+    contractStep = models.CharField(max_length=20, choices=contractStepChoices, default='예정')
     contractStartDate = models.DateField(null=True, blank=True)
     contractEndDate = models.DateField(null=True, blank=True)
     depositCondition = models.CharField(max_length=20, choices=depositConditionChoices, default='계산서 발행 후', null=True, blank=True)

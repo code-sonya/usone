@@ -1,7 +1,8 @@
 from django.contrib import admin
 from .models import Contract, Revenue, Purchase, Cost, Category, Contractitem, Goal, Expense, Acceleration, Incentive, IncentiveDept, Contractfile,\
     Purchasetypea, Purchasetypeb, Purchasetypec, Purchasetyped, Purchasefile, Purchasecategory,\
-    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Classification, Purchasecontractitem, Contractcomment
+    Purchaseorderform, Purchaseorder, Purchaseorderfile, Relatedpurchaseestimate, Classification, Purchasecontractitem, Contractcomment,\
+    SaleindustryCategory, SaletypeCategory
 
 
 @admin.register(Contract)
@@ -178,3 +179,16 @@ class ContractcommentAdmin(admin.ModelAdmin):
     list_filter = ('author',)
     list_display_links = ['commentId', 'contractId', 'author', 'comment', 'created']
 
+
+@admin.register(SaleindustryCategory)
+class SaleindustryCategoryAdmin(admin.ModelAdmin):
+    list_display = ('categoryId', 'saleIndustryName', 'orderNumber')
+    list_filter = ('categoryId', 'saleIndustryName', 'orderNumber')
+    list_display_links = ['categoryId', 'saleIndustryName', 'orderNumber']
+
+
+@admin.register(SaletypeCategory)
+class SaletypeCategoryAdmin(admin.ModelAdmin):
+    list_display = ('categoryId', 'saleTypeName', 'orderNumber')
+    list_filter = ('categoryId', 'saleTypeName', 'orderNumber')
+    list_display_links = ['categoryId', 'saleTypeName', 'orderNumber']

@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Q
 
 from hr.models import Employee
-from .models import Contract, Goal, Purchaseorderform
+from .models import Contract, Goal, Purchaseorderform, SaleindustryCategory, SaletypeCategory
 
 
 class ContractForm(forms.ModelForm):
@@ -22,7 +22,7 @@ class ContractForm(forms.ModelForm):
         fields = (
             'contractName', 'empId', 'saleCompanyNames', 'saleCustomerId', 'saleTaxCustomerId', 'endCompanyNames',
             'saleType', 'saleIndustry', 'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate',
-            'depositCondition', 'depositConditionDay', 'contractPaper', 'modifyContractPaper', 'orderPaper', 'comment'
+            'depositCondition', 'depositConditionDay', 'contractPaper', 'orderPaper', 'comment'
         )
 
         widgets = {
@@ -32,28 +32,27 @@ class ContractForm(forms.ModelForm):
             'saleTaxCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleTaxCustomerId'}),
             'saleType': forms.Select(attrs={'class': 'form-control', 'id': "saleType", 'onchange': "typeChange()"}),
             'saleIndustry': forms.Select(attrs={'class': 'form-control', 'id': "saleIndustry"}),
-            'salePrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'salePrice'}),
-            'profitPrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profitPrice'}),
-            'profitRatio': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'profitRatio', 'readonly': ''}),
+            'salePrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'salePrice', 'readonly': 'readonly'}),
+            'profitPrice': forms.TextInput(attrs={'class': 'form-control money', 'id': 'profitPrice', 'readonly': 'readonly'}),
+            'profitRatio': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'profitRatio', 'readonly': 'readonly'}),
             'contractDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'contractDate'}),
-            'contractStartDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'contractStartDate', 'readonly': ''}),
-            'contractEndDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'contractEndDate', 'readonly': ''}),
+            'contractStartDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'contractStartDate'}),
+            'contractEndDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'contractEndDate'}),
             'depositCondition': forms.Select(attrs={'class': 'form-control', 'id': 'depositCondition'}),
             'depositConditionDay': forms.TextInput(attrs={'class': 'form-control', 'id': 'depositConditionDay', 'type': "number"}),
             'contractPaper': forms.FileInput(attrs={
                 'class': 'd-none', 'id': 'contractPaper',
-                'onchange': "javascript:document.getElementById('contractPaper_route').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
-            'modifyContractPaper': forms.Select(attrs={'class': 'form-control', 'id': 'modifyContractPaper'}),
+                'onchange': "javascript:document.getElementById('contractPaper_route').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"
+            }),
             'orderPaper': forms.FileInput(attrs={
                 'class': 'd-none', 'id': 'orderPaper',
-                'onchange': "javascript:document.getElementById('orderPaper_route').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}
-            ),
+                'onchange': "javascript:document.getElementById('orderPaper_route').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"
+            }),
             'comment': forms.TextInput(attrs={'class': 'form-control', 'id': 'comment'}),
         }
 
     def __init__(self, *args, **kwargs):
         super(ContractForm, self).__init__(*args, **kwargs)
-        self.fields["empId"].queryset = Employee.objects.filter(Q(empDeptName__contains='영업'))
 
 
 class GoalForm(forms.ModelForm):

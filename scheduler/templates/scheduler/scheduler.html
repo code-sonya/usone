@@ -264,8 +264,8 @@
                           'style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;' +
                           'line-height:130%;font-size:13px;border-radius:0.5em;border:1px solid lightblue;">' +
                           '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br>' +
+                          data.name + ' (' + data.start.format('HH:mm') + ' ~ ' + data.end.format('HH:mm') + ')<br>' +
                           '<span class="text-primary">' + data.contractName + '</span><br>' +
-                          data.start.format('HH:mm') + ' ~ ' + data.end.format('HH:mm') + '<br>' +
                           data.service_title +
                           '</div>';
                   }
@@ -401,7 +401,7 @@
                   events: [
                       {% for i in myServices %}
                           {
-                              title: '{{ i.empName }}',
+                              title: '{{ i.serviceTitle }}',
                               start: '{{ i.serviceBeginDatetime|date:"Y-m-d" }}T{{ i.serviceBeginDatetime|time:"H:i" }}:00',
                               end: '{{ i.serviceFinishDatetime|date:"Y-m-d" }}T{{ i.serviceFinishDatetime|time:"H:i" }}:00',
                               url: '{% url 'service:viewservice' i.serviceId %}',
@@ -459,7 +459,7 @@
                   events: [
                       {% for i in teamServices %}
                           {
-                              title: '{{ i.empName }}',
+                              title: '{{ i.serviceTitle }}',
                               start: '{{ i.serviceBeginDatetime|date:"Y-m-d" }}T{{ i.serviceBeginDatetime|time:"H:i" }}:00',
                               end: '{{ i.serviceFinishDatetime|date:"Y-m-d" }}T{{ i.serviceFinishDatetime|time:"H:i" }}:00',
                               url: '{% url 'service:viewservice' i.serviceId %}',
