@@ -489,7 +489,7 @@ def mail_document(toEmail, fromEmail, document):
 
 
 def approvalhtml(document):
-    url = "https://lop.unioneinc.co.kr/"
+    url = "https://unioneinc.usails.biz/"
     html = """
     <html lang="ko">
     <head>
@@ -551,7 +551,7 @@ def approvalhtml(document):
 
 
 def approvaldonehtml(document):
-    url = "https://lop.unioneinc.co.kr/"
+    url = "https://unioneinc.usails.biz/"
     html = """
     <html lang="ko">
     <head>
@@ -614,7 +614,7 @@ def approvaldonehtml(document):
 
 
 def rejectdonehtml(document):
-    url = "https://lop.unioneinc.co.kr/"
+    url = "https://unioneinc.usails.biz/"
     html = """
     <html lang="ko">
     <head>
@@ -677,7 +677,7 @@ def rejectdonehtml(document):
 
 
 def documenthtml(document):
-    url = "https://lop.unioneinc.co.kr/"
+    url = "https://unioneinc.usails.biz/"
     preservationYear = str(document.preservationYear)
     draftDatetime = ''
     approveDatetime = ''
