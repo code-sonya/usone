@@ -41,6 +41,8 @@ class Employee(models.Model):
     empSalary = models.IntegerField(default=0)
     empAnnualLeave = models.FloatField(default=0)
     empSpecialLeave = models.FloatField(default=0)
+    empSpecialLeave2 = models.FloatField(default=0)
+    empSpecialLeave3 = models.FloatField(default=0)
     empRewardAvailable = models.CharField(max_length=10, choices=RewardAvailableChoices, default='가능')
     empStartDate = models.DateField(null=True, blank=True)
     empEndDate = models.DateField(null=True, blank=True)

@@ -1412,32 +1412,15 @@ def return_document(request, approvalId):
         if categoryName == '연차':
             emp.empAnnualLeave += vacationDay
             emp.save()
-        elif categoryName == '특별휴가':
+        elif categoryName == '근속연차':
             emp.empSpecialLeave += vacationDay
             emp.save()
-        elif categoryName == '보상휴가':
-            rewardVacationType = vacations.first().rewardVacationType
-            now = document.draftDatetime
-            yyyy = str(now)[:4]
-            mm = str(now)[5:7]
-            if mm == '01':
-                yyyyBefore = str(int(yyyy) - 1)
-                mmBefore = '12'
-            else:
-                yyyyBefore = yyyy
-                mmBefore = str(int(mm) - 1).zfill(2)
-            if rewardVacationType == '당월보상휴가':
-                # 보상휴가일수
-                extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
-                extraWorkObj = extraWork.first()
-                extraWorkObj.compensatedHour -= vacationDay * 8
-                extraWorkObj.save()
-            elif rewardVacationType == '전월보상휴가':
-                # 보상휴가일수
-                extraWorkBefore = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyyBefore, overHourDate__month=mmBefore)
-                extraWorkBeforeObj = extraWorkBefore.first()
-                extraWorkBeforeObj.compensatedHour -= vacationDay * 8
-                extraWorkBeforeObj.save()
+        elif categoryName == '금차':
+            emp.empSpecialLeave2 += vacationDay
+            emp.save()
+        elif categoryName == '대체휴무':
+            emp.empSpecialLeave3 += vacationDay
+            emp.save()
 
     return redirect('approval:viewdocument', approval.documentId_id)
 

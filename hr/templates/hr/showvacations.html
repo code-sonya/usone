@@ -121,7 +121,9 @@
                 <label for="vacationType" class="font-weight-bold text-primary">휴가 종류</label>
                 <select type="text" class="form-control" autocomplete="off" id="vacationType" name="vacationType">
                   <option value="연차">연차</option>
-                  <option value="특별휴가">특별휴가</option>
+                  <option value="근속연차">근속연차</option>
+                  <option value="금차">금차</option>
+                  <option value="대체휴무">대체휴무</option>
                 </select>
               </div>
             </div>
@@ -328,18 +330,18 @@
                   .remove()
                   .draw();
                   $.ajax({
-                              type: "POST",
-                              url: "/hr/deletevacation/",
-                              data: {'vacationId': vacationId,
-                                    'empId': vacationId},
-                              dataType: "json",
-                              success: function (response) {
-                                  alert('휴가가 삭제되었습니다.')
-                              },
-                              error: function (request, status, error) {
-                                  alert('휴가가 삭제되었습니다.')
-                              },
-                          });
+                      type: "POST",
+                      url: "/hr/deletevacation/",
+                      data: {'vacationId': vacationId,
+                            'empId': vacationId},
+                      dataType: "json",
+                      success: function (response) {
+                          alert('휴가가 삭제되었습니다.')
+                      },
+                      error: function (request, status, error) {
+                          alert('휴가가 삭제되었습니다.')
+                      },
+                  });
               }
           });
 

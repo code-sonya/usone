@@ -301,23 +301,6 @@ def post_vacation(request):
     empName = emp.empName
     empDeptName = emp.empDeptName
     now = datetime.datetime.now()
-    yyyy = str(now)[:4]
-    mm = str(now)[5:7]
-
-    # 보상휴가일수
-    rewardVacationDay = 0
-    extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
-
-    # 전달 보상휴가일수
-    dayBefore = 15
-    if mm == '01':
-        yyyyBefore = str(int(yyyy) - 1)
-        mmBefore = '12'
-    else:
-        yyyyBefore = yyyy
-        mmBefore = str(int(mm) - 1).zfill(2)
-    rewardVacationDayBefore = 0
-    extraWorkBefore = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyyBefore, overHourDate__month=mmBefore)
 
     if request.method == "POST":
         vacationDays = list(request.POST.keys())[1:-9]
@@ -454,7 +437,6 @@ def post_vacation(request):
             for empId in whoApproval['do']:
                 employee = Employee.objects.get(empId=empId)
                 mail_approval(employee, document, "결재요청")
-                print('호잇', '결재요청')
 
         for vacationDate in vacationDays:
             if request.POST[vacationDate] == 'all':
@@ -484,18 +466,15 @@ def post_vacation(request):
         if vacationCategory.categoryName == '연차':
             emp.empAnnualLeave -= vacationDay
             emp.save()
-        elif vacationCategory.categoryName == '특별휴가':
+        elif vacationCategory.categoryName == '근속연차':
             emp.empSpecialLeave -= vacationDay
             emp.save()
-        elif vacationCategory.categoryName == '보상휴가':
-            if request.POST['rewardVacationType'] == '전월보상휴가':
-                extraWorkBeforeObj = extraWorkBefore.first()
-                extraWorkBeforeObj.compensatedHour += vacationDay * 8
-                extraWorkBeforeObj.save()
-            elif request.POST['rewardVacationType'] == '당월보상휴가':
-                extraWorkObj = extraWork.first()
-                extraWorkObj.compensatedHour += vacationDay * 8
-                extraWorkObj.save()
+        elif vacationCategory.categoryName == '금차':
+            emp.empSpecialLeave2 -= vacationDay
+            emp.save()
+        elif vacationCategory.categoryName == '대체휴무':
+            emp.empSpecialLeave3 -= vacationDay
+            emp.save()
         return redirect('service:showvacations')
 
     else:
@@ -511,18 +490,9 @@ def post_vacation(request):
             }
             empNames.append(temp)
 
-        if extraWork:
-            rewardVacationDay += (((extraWork.first().sumOverHour - extraWork.first().compensatedHour) // 4)/2)
-
-        if datetime.datetime.today().day < dayBefore:
-            if extraWorkBefore:
-                rewardVacationDayBefore += (((extraWorkBefore.first().sumOverHour - extraWorkBefore.first().compensatedHour) // 4) / 2)
-
         context = {
             'empNames': empNames,
             'vacationCategory': Vacationcategory.objects.all(),
-            'rewardVacationDay': rewardVacationDay,
-            'rewardVacationDayBefore': rewardVacationDayBefore,
         }
         return render(request, 'service/postvacation.html', context)
 

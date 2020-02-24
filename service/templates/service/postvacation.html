@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  일정관리
+  휴가관리
 {% endblock %}
 
 
@@ -50,27 +50,21 @@
       <div class="mb-3">
         <div class="d-flex flex-row align-items-center justify-content-between">
           <label class="font-weight-bold text-primary">잔여휴가일수</label>
-          <span class="d-none d-xl-block">※ 전월보상휴가는 당월 15일까지 사용가능합니다.</span>
+          <span class="d-none d-xl-block">※ 전월대체휴무는 산정 후 당월 1일 지급되며 당월 말일까지 사용가능합니다.</span>
         </div>
 
         <table class="pc-table">
           <tr>
-            <td class="bg-light" style="width: 33%">연차</td>
-            <td class="bg-light" style="width: 33%">특별휴가</td>
-            <td class="bg-light" style="width: 17%">
-              전월보상휴가
-              <input type="radio" name="rewardVacationType" class="d-none" value="전월보상휴가">
-            </td>
-            <td class="bg-light" style="width: 17%">
-              당월보상휴가
-              <input type="radio" name="rewardVacationType" class="d-none" value="당월보상휴가">
-            </td>
+            <td class="bg-light">연차</td>
+            <td class="bg-light">근속연차</td>
+            <td class="bg-light">금차</td>
+            <td class="bg-light">대체휴무</td>
           </tr>
           <tr>
             <td>{{ request.user.employee.empAnnualLeave }} 일</td>
             <td>{{ request.user.employee.empSpecialLeave }} 일</td>
-            <td>{{ rewardVacationDayBefore }} 일</td>
-            <td>{{ rewardVacationDay }} 일</td>
+            <td>{{ request.user.employee.empSpecialLeave2 }} 일</td>
+            <td>{{ request.user.employee.empSpecialLeave3 }} 일</td>
           </tr>
         </table>
       </div>
@@ -329,8 +323,8 @@
           const comment = $('#comment').val();
           const empAnnualLeave = parseFloat('{{ request.user.employee.empAnnualLeave }}');
           const empSpecialLeave = parseFloat('{{ request.user.employee.empSpecialLeave }}');
-          const rewardVacationDayBefore = parseFloat('{{ rewardVacationDayBefore }}');
-          const rewardVacationDay = parseFloat('{{ rewardVacationDay }}');
+          const empSpecialLeave2 = parseFloat('{{ request.user.employee.empSpecialLeave2 }}');
+          const empSpecialLeave3 = parseFloat('{{ request.user.employee.empSpecialLeave3 }}');
           let rewardVacationType = $('input:radio[name="rewardVacationType"]:checked').val();
 
           let vacationDays = 0.0;
@@ -356,33 +350,28 @@
 
           if (vacationCategoryText === '연차') {
               if (empAnnualLeave < vacationDays) {
-                  alert('보유하신 연차보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
+                  alert('보유하신 ' + vacationCategoryText + '보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
                   return false;
               }
           }
-          if (vacationCategoryText === '특별휴가') {
+          if (vacationCategoryText === '근속연차') {
               if (empSpecialLeave < vacationDays) {
-                  alert('보유하신 특별휴가보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
+                  alert('보유하신 ' + vacationCategoryText + '보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
                   return false;
               }
           }
-          if (vacationCategoryText === '보상휴가') {
-              if (!rewardVacationType) {
-                  alert('전월보상휴가 또는 당월보상휴가를 선택해주세요.');
+          if (vacationCategoryText === '금차') {
+              if (empSpecialLeave2 < vacationDays) {
+                  alert('보유하신 ' + vacationCategoryText + '보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
                   return false;
-              } else if (rewardVacationType === '전월보상휴가') {
-                  if (rewardVacationDayBefore < vacationDays) {
-                      alert('보유하신 전월보상휴가보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
-                      return false;
-                  }
-              } else if (rewardVacationType === '당월보상휴가') {
-                  if (rewardVacationDay < vacationDays) {
-                      alert('보유하신 당월보상휴가보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
-                      return false;
-                  }
               }
           }
-
+          if (vacationCategoryText === '대체휴무') {
+              if (empSpecialLeave3 < vacationDays) {
+                  alert('보유하신 ' + vacationCategoryText + '보다 휴가일수가 더 많습니다.\n다시 한번 확인해주세요.');
+                  return false;
+              }
+          }
 
           $('<input />', {
               type: 'hidden',
