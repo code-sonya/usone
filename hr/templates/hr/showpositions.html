@@ -1,0 +1,132 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  직급관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 16px;
+      border: 1px solid darkgray;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+  <div>
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800">직급관리</h6>
+        <div class="dropdown no-arrow">
+          {% if user.is_staff %}
+            <a class="btn btn-primary" href="/hr/postposition/" role="button">
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table id="showpositions" class="hover row-border" style="width: 100%;">
+            <thead>
+            <tr>
+              <th>직급명</th>
+              <th>직급순서</th>
+              <th>시급</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      $(document).ready(function () {
+          $('#showpositions').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'GET',
+                  "data": {
+                  },
+                  "url": "{% url 'hr:showpositionsasjson' %}",
+                  "dataSrc": ""
+              },
+              "columnDefs": [
+                  {
+                      targets: 0,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "positionName",
+                  },
+                  {
+                      targets: 1,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "positionRank"
+                  },
+                  {
+                      targets: 2,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "positionSalary",
+                  },
+              ],
+              "deferRender": true,
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": false,
+              "scrollCollapse": true,
+              "order": [[1, 'asc']],
+              "language": {
+                  "lengthMenu": "_MENU_ 개씩 보기",
+                  "search": "검색:",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "다음",
+                      "previous": "이전"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+              },
+              "footerCallback": function () {
+              },
+          });
+
+          const showpositions = $('#showpositions').DataTable();
+
+          $("#showpositions").on("click", 'tr', function () {
+              const data = showpositions.row(this).data();
+              location.href = '/hr/modifyposition/' + data.positionId + '/'
+          });
+      });
+
+  </script>
+
+{% endblock %}

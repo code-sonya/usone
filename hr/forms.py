@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Employee, Department
+from .models import Employee, Department, Position
 
 
 class UserForm(forms.ModelForm):
@@ -63,3 +63,19 @@ class DepartmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DepartmentForm, self).__init__(*args, **kwargs)
+
+
+class PositionForm(forms.ModelForm):
+
+    class Meta:
+        model = Position
+        fields = ('positionName', 'positionRank', 'positionSalary')
+
+        widgets = {
+            'positionName': forms.TextInput(attrs={'class': 'form-control', 'id': 'positionName'}),
+            'positionRank': forms.TextInput(attrs={'class': 'form-control', 'id': 'positionRank', 'type': 'number'}),
+            'positionSalary': forms.TextInput(attrs={'class': 'form-control', 'id': 'positionSalary', 'type': 'number'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(PositionForm, self).__init__(*args, **kwargs)

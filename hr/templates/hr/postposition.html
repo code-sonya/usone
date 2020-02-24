@@ -1,0 +1,100 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+  직급관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 12px 10px 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border: 1px solid lightgray;
+    }
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-xl-8">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">직급 등록 및 수정</h6>
+        </div>
+        <div class="card-body">
+          <table class="pc-table">
+            <tbody>
+            <form class="form-group" method="POST" id="positionForm">
+              {% csrf_token %}
+              <tr>
+                <td class="text-center align-middle bg-light text-primary" style="width: 20%"><b>직&nbsp;&nbsp;급&nbsp;&nbsp;명</b></td>
+                <td class="text-center" style="width: 30%">{{ form.positionName }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light text-primary"><b>직급순위</b></td>
+                <td>{{ form.positionRank }}</td>
+              </tr>
+              <tr>
+                <td class="text-center align-middle bg-light text-primary"><b>직급별시급</b></td>
+                <td>{{ form.positionSalary }}</td>
+              </tr>
+            </form>
+            </tbody>
+          </table>
+          <div class="text-center">
+            <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+              <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+              <span class="text"> 저장 </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-2"></div>
+
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+  <script type="text/javascript">
+      function btn_save() {
+          const positionName = $('#positionName').val();
+          const positionRank = $('#positionRank').val();
+          const positionSalary = $('#positionSalary').val();
+
+          if (!positionName) {
+              alert('직급명을 입력해주세요.');
+              return false;
+          }
+          if (!positionRank) {
+              alert('직급순위를 입력해주세요.');
+              return false;
+          }
+          if (!positionSalary) {
+              alert('직급별시급을 입력해주세요.');
+              return false;
+          }
+          const form = $('#positionForm');
+          form.submit();
+      }
+  </script>
+{% endblock %}

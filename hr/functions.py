@@ -294,7 +294,6 @@ def siteMap():
     deptLevel_max = departments.aggregate(Max('deptLevel'))['deptLevel__max']
     deptLevelList = []
     for level in range(deptLevel_min, deptLevel_max+1):
-        print("level: ", level)
         if deptLevel_min == level:
             deptList = {'level': str(level), 'data': []}
             for dept in departments.filter(Q(deptLevel=level)):
@@ -330,7 +329,6 @@ def siteMap():
 
 def siteMapCol(departments, department, deptLevel, deptLevel_max, deptId):
     if deptLevel_max == deptLevel:
-        print('department:', department)
         colspan = department.aggregate(Count('deptId'))['deptId__count']
         if colspan == 0:
             return 1

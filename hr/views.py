@@ -16,9 +16,9 @@ from django.template import loader
 from django.views.decorators.csrf import csrf_exempt
 
 from extrapay.models import Car
-from .forms import EmployeeForm, DepartmentForm, UserForm
+from .forms import EmployeeForm, DepartmentForm, UserForm, PositionForm
 from .functions import save_punctuality, check_absence, year_absence, adminemail_test, siteMap
-from .models import Attendance, Employee, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation
+from .models import Attendance, Employee, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation, Position
 from service.models import Vacation
 from approval.models import Document
 from extrapay.models import ExtraPay
@@ -863,3 +863,48 @@ def detailvacation_asjson(request):
     return HttpResponse(structure, content_type='application/json')
 
 
+@login_required
+def show_positions(request):
+    context = {}
+    return render(request, 'hr/showpositions.html', context)
+
+
+@login_required
+@csrf_exempt
+def showpositions_asjson(request):
+    positions = Position.objects.all()
+    positions = positions.values('positionName', 'positionRank', 'positionSalary', 'positionId')
+
+    structure = json.dumps(list(positions), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def post_position(request):
+    if request.method == 'POST':
+        form = PositionForm(request.POST)
+        post = form.save(commit=False)
+        post.save()
+        return redirect('hr:showpositions')
+    else:
+        form = PositionForm()
+        context = {
+            'form': form,
+        }
+        return render(request, 'hr/postposition.html', context)
+
+
+@login_required
+def modify_position(request, positionId):
+    position = Position.objects.get(positionId=positionId)
+    if request.method == 'POST':
+        form = PositionForm(request.POST, instance=position)
+        post = form.save(commit=False)
+        post.save()
+        return redirect('hr:showpositions')
+    else:
+        form = PositionForm(instance=position)
+        context = {
+            'form': form,
+        }
+        return render(request, 'hr/postposition.html', context)
