@@ -57,6 +57,14 @@ class Servicereport(models.Model):
         return 'Servicereport : {} {}'.format(self.serviceId, self.empName)
 
 
+class ServiceFile(models.Model):
+    fileId = models.AutoField(primary_key=True)
+    serviceId = models.ForeignKey(Servicereport, on_delete=models.SET_NULL, null=True, blank=True)
+    file = models.FileField(upload_to="service/%Y_%m")
+    fileName = models.CharField(max_length=200)
+    fileSize = models.FloatField()
+
+
 class Serviceform(models.Model):
     serviceTypeChoices = (
         ('교육', '교육'),

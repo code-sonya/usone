@@ -9,24 +9,20 @@ class SaletypeCategory(models.Model):
     saleTypeName = models.CharField(max_length=100)
     orderNumber = models.IntegerField(default=0)
 
+    def __str__(self):
+        return self.saleTypeName
+
 
 class SaleindustryCategory(models.Model):
     categoryId = models.AutoField(primary_key=True)
     saleIndustryName = models.CharField(max_length=100)
     orderNumber = models.IntegerField(default=0)
 
+    def __str__(self):
+        return self.saleIndustryName
+
 
 class Contract(models.Model):
-    saleTypeChoices = []
-    for category in SaletypeCategory.objects.all().order_by('orderNumber'):
-        saleTypeChoices.append((category.saleTypeName, category.saleTypeName))
-    saleTypeChoices = tuple(saleTypeChoices)
-
-    saleIndustryChoices = []
-    for category in SaleindustryCategory.objects.all().order_by('orderNumber'):
-        saleIndustryChoices.append((category.saleIndustryName, category.saleIndustryName))
-    saleIndustryChoices = tuple(saleIndustryChoices)
-
     contractStepChoices = (('예정', '예정'), ('확정', '확정'), ('실주', '실주'))
     depositConditionChoices = (('계산서 발행 후', '계산서 발행 후'), ('당월', '당월'), ('익월', '익월'), ('당월 말', '당월 말'), ('익월 초', '익월 초'), ('익월 말', '익월 말'))
     modifyContractPaperChoices = (('N', 'N'), ('Y', 'Y'))
@@ -46,8 +42,8 @@ class Contract(models.Model):
     saleTaxCustomerId = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='saleTaxCustomerId', null=True, blank=True)
     saleTaxCustomerName = models.CharField(max_length=10, null=True, blank=True)
     endCompanyName = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='endCompanyName', null=True, blank=True)
-    saleType = models.CharField(max_length=100, choices=saleTypeChoices, null=True, blank=True)
-    saleIndustry = models.CharField(max_length=100, choices=saleIndustryChoices, null=True, blank=True)
+    saleType = models.ForeignKey(SaletypeCategory, on_delete=models.SET_NULL, null=True, blank=True)
+    saleIndustry = models.ForeignKey(SaleindustryCategory, on_delete=models.SET_NULL, null=True, blank=True)
     mainCategory = models.CharField(max_length=50)
     subCategory = models.CharField(max_length=50)
     salePrice = models.BigIntegerField()

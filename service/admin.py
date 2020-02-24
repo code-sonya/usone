@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Servicereport, Serviceform, Vacation, Geolocation, Servicetype, Vacationcategory
+from .models import Servicereport, Serviceform, Vacation, Geolocation, Servicetype, Vacationcategory, ServiceFile
 
 
 @admin.register(Servicereport)
@@ -42,3 +42,10 @@ class VacationcategoryAdmin(admin.ModelAdmin):
     list_display = ('categoryId', 'categoryName')
     list_filter = ('categoryName',)
     list_display_links = ['categoryId', 'categoryName']
+
+
+@admin.register(ServiceFile)
+class ServiceFileAdmin(admin.ModelAdmin):
+    list_display = ('fileId', 'fileName', 'fileSize')
+    list_filter = ('fileId', 'fileName', 'fileSize')
+    list_display_links = ['fileId', 'fileName', 'fileSize']

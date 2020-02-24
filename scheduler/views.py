@@ -30,8 +30,6 @@ def scheduler(request, day=None):
     afterMonth = Date + relativedelta(months=1)
     startDate = Date - datetime.timedelta(days=7)
     endDate = afterMonth + datetime.timedelta(days=7)
-    todayYear = Date.year
-    todayMonth = Date.month
 
     # 로그인 유저, 부서 정보
     empId = request.user.employee.empId
@@ -72,12 +70,8 @@ def scheduler(request, day=None):
 
     GroupDeptList = Department.objects.filter(
         Q(deptLevel=groupLevel) &
-        Q(startDate__year__lte=todayYear) &
-        Q(startDate__month__lte=todayMonth) &
-        (
-            (Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) |
-            Q(endDate__isnull=True)
-        )
+        Q(startDate__lte=Date) &
+        (Q(endDate__gte=Date) | Q(endDate__isnull=True))
     ).annotate(
         checked=Case(
             When(deptName__in=postDeptList, then=Value('Y')),
@@ -88,12 +82,8 @@ def scheduler(request, day=None):
 
     DeptList = Department.objects.filter(
         Q(deptLevel=deptLevel) &
-        Q(startDate__year__lte=todayYear) &
-        Q(startDate__month__lte=todayMonth) &
-        (
-            (Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) |
-            Q(endDate__isnull=True)
-        )
+        Q(startDate__lte=Date) &
+        (Q(endDate__gte=Date) | Q(endDate__isnull=True))
     ).annotate(
         checked=Case(
             When(deptName__in=postDeptList, then=Value('Y')),

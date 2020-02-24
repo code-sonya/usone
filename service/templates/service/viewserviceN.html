@@ -23,11 +23,22 @@
       border-top: 1px dotted #858796a3;
     }
 
+    .file-table {
+      color: #333333;
+      width: 100%;
+    }
+
+    .file-table td, .file-table th {
+      padding: .75rem;
+      vertical-align: middle;
+      text-align: center;
+      border-top: 0px;
+    }
+
     @media (max-width:1199px){.mobile-table td, .mobile-table th{font-size: 16px; padding: 4px;}}
     @media (min-width:1200px){.mobile-table td, .mobile-table th{font-size: 18px; padding: 8px;}}
 
   </style>
-
 {% endblock %}
 
 
@@ -100,6 +111,34 @@
               <td class="text-center"><b>내&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;용</b></td>
               <td>{{ service.serviceDetails | linebreaksbr }}</td>
             </tr>
+            <tr>
+              <td class="text-center">
+                <label class="font-weight-bold">첨부파일
+                  {% if service.empId.empId == user.employee.empId and service.serviceStatus != 'Y' %}
+                    <span class="icon text-info"><i class="fas fa-paperclip" style="cursor:pointer"></i></span>
+                    <input id="files" name="files" type="file" multiple="multiple" class="d-none" onchange=file_upload()>
+                    <form id="filesForm" method="POST" enctype="multipart/form-data" class="d-none">{% csrf_token %}</form>
+                  {% endif %}
+                </label>
+              </td>
+              <td>
+                <table class="file-table">
+                  <tbody>
+                  {% for file in files %}
+                    <tr>
+                      <td class="text-left">
+                        <a href="/media/{{ file.file }}" download>{{ file.fileName }}</a>
+                      </td>
+                      <td class="text-right">{{ file.fileSize }} MB</td>
+                      {% if service.empId.empId == user.employee.empId and service.serviceStatus != 'Y' %}
+                      <td><i class="fas fa-times-circle" onclick="file_delete({{ file.fileId }})"></i></td>
+                      {% endif %}
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
             </tbody>
           </table>
 
@@ -118,7 +157,7 @@
               {% if service.serviceType.punctualityStatus == 'Y' %}
                 {% if service.serviceStatus == 'N' %}
                 <a href="#" class="btn btn-success btn-icon-split" onclick="btn_finish()">
-                  <span class="icon text-white"> <i class="fas fa-walking"> </i> </span>
+                  <span class="icon text-white"> <i class="fas fa-check"> </i> </span>
                   <span class="text p-2"> 마감 </span>
                 </a>
                 {% endif %}
@@ -158,11 +197,16 @@
       }
 
       function btn_finish(){
-          let msg = '마감하신 뒤에는 수정이 불가능 합니다. 마감하시겠습니까?';
+          let msg = '마감하신 뒤에는 수정이 불가능 합니다.\n' +
+              '마감하시겠습니까?';
 
           if (confirm(msg) === true) {
               location.href = '/service/finishservice/{{ service.serviceId }}/';
           }
+      }
+
+      function file_delete(fileId) {
+          location.href = '/service/deleteservicefile/' + fileId + '/';
       }
 
       function deg2rad(deg) {
@@ -180,6 +224,13 @@
           dist = Math.acos(dist);
           dist = rad2deg(dist) * 60 * 1.1515 * 1609.344;
           return dist;
+      }
+
+      function file_upload() {
+          let form = $('#filesForm');
+          form.attr("action", "/service/uploadservicefiles/{{ service.serviceId }}/");
+          form.append($("#files"));
+          form.submit();
       }
 
   </script>

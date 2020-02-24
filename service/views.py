@@ -17,7 +17,7 @@ from extrapay.models import OverHour, ExtraPay
 from .forms import ServicereportForm, ServiceformForm, AdminServiceForm, ServiceTypeForm
 from .functions import *
 from approval.functions import who_approval, mail_approval
-from .models import Servicereport, Vacation, Serviceform, Geolocation, Servicetype, Vacationcategory
+from .models import Servicereport, Vacation, Serviceform, Geolocation, Servicetype, Vacationcategory, ServiceFile
 from sales.models import Contractfile
 from approval.models import Document, Documentform, Documentfile, Relateddocument, Approval
 
@@ -105,7 +105,8 @@ def post_service(request, postdate):
             post.empName = empName
             post.empDeptName = empDeptName
             post.coWorker = request.POST['coWorkerId']
-            for_status = request.POST['for']
+            # for_status = request.POST['for']
+            for_status = 'for_n'
 
             # 기본등록
             if for_status == 'for_n':
@@ -251,18 +252,15 @@ def post_service(request, postdate):
         serviceforms = Serviceform.objects.filter(empId=empId)
 
         # 계약명 자동완성
-        contractList = Contract.objects.filter(
-            Q(endCompanyName__isnull=False)
-            # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
-        )
+        contractList = Contract.objects.all()
         contracts = []
         for contract in contractList:
             temp = {
                 'id': contract.pk,
-                'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
+                'value': '[' + contract.saleCompanyName.pk + '] ' + contract.contractName + ' (' +
                          str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
                          str(contract.contractEndDate)[2:].replace('-', '.') + ')',
-                'company': contract.endCompanyName.pk
+                'company': contract.saleCompanyName.pk
             }
             contracts.append(temp)
 
@@ -277,7 +275,12 @@ def post_service(request, postdate):
         empList = Employee.objects.filter(Q(empStatus='Y'))
         empNames = []
         for emp in empList:
-            temp = {'id': emp.empId, 'value': emp.empName}
+            temp = {
+                'id': emp.empId,
+                'value': emp.empName,
+                'position': emp.empPosition.positionName,
+                'dept': emp.empDeptName,
+            }
             empNames.append(temp)
 
         context = {
@@ -674,6 +677,7 @@ def show_services(request):
 def view_service(request, serviceId):
     service = Servicereport.objects.get(serviceId=serviceId)
 
+    # 계약명
     if service.contractId:
         contractName = service.contractId.contractName\
                        + ' (' + str(service.contractId.contractStartDate)[2:].replace('-', '.')\
@@ -682,13 +686,15 @@ def view_service(request, serviceId):
             contractName = ' '.join(contractName.split(' ')[1:])
     else:
         contractName = ''
-
+    # 참석자
     if service.coWorker:
         coWorker = []
         for coWorkerId in service.coWorker.split(','):
             coWorker.append(str(Employee.objects.get(empId=coWorkerId).empName))
     else:
         coWorker = ''
+    # 첨부파일
+    files = ServiceFile.objects.filter(serviceId=service)
 
     try:
         board = Board.objects.get(serviceId__serviceId=serviceId)
@@ -697,7 +703,6 @@ def view_service(request, serviceId):
 
     beforeServiceDate = service.serviceDate - datetime.timedelta(days=1)
     afterServiceDate = service.serviceDate + datetime.timedelta(days=1)
-
     coWorkerSign = Servicereport.objects.filter(
         serviceDate__lte=afterServiceDate,
         serviceDate__gte=beforeServiceDate,
@@ -713,6 +718,7 @@ def view_service(request, serviceId):
         'board': board,
         'coWorker': coWorker,
         'coWorkerSign': coWorkerSign,
+        'files': files,
     }
 
     if service.serviceStatus == "Y":
@@ -1563,4 +1569,25 @@ def finish_service(request, serviceId):
     service = Servicereport.objects.get(serviceId=serviceId)
     service.serviceStatus = 'Y'
     service.save()
+    return redirect('service:viewservice', serviceId)
+
+
+@login_required
+def upload_service_files(request, serviceId):
+    service = Servicereport.objects.get(serviceId=serviceId)
+    for f in request.FILES.getlist('files'):
+        ServiceFile.objects.create(
+            serviceId=service,
+            file=f,
+            fileName=f.name,
+            fileSize=round((f.size / 1048576), 2),
+        )
+    return redirect('service:viewservice', serviceId)
+
+
+@login_required
+def delete_service_file(request, fileId):
+    serviceFile = ServiceFile.objects.get(fileId=fileId)
+    serviceId = serviceFile.serviceId.serviceId
+    serviceFile.delete()
     return redirect('service:viewservice', serviceId)

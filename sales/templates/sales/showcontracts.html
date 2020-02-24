@@ -456,9 +456,9 @@
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   $('td:eq(7)', nRow).text(replaceAll(aData.contractDate, "-", "."));
-                  if (aData.contractStep == 'Firm') {
+                  if (aData.contractStep == '확정') {
                       $('td:eq(0)', nRow).css('color', '#4e73df');
-                  } else if (aData.contractStep == 'Opportunity') {
+                  } else if (aData.contractStep == '예정') {
                       $('td:eq(0)', nRow).css('color', '#1cc88a');
                   }
                   $('td:eq(8)', nRow).text(aData.salePrice.toLocaleString());

@@ -6,6 +6,26 @@
 {% endblock %}
 
 
+{% block css %}
+  <style>
+    .file-table {
+      color: #333333;
+      width: 100%;
+      margin-bottom: 2rem;
+    }
+
+    .file-table td, .file-table th {
+      padding: .75rem;
+      vertical-align: middle;
+      /*border-bottom: 1px solid #e3e6f0;*/
+      font-size: 14px;
+      text-align: center;
+      /*white-space: nowrap;*/
+    }
+  </style>
+{% endblock %}
+
+
 {% block content %}
 
   <div class="row">
@@ -53,7 +73,7 @@
 
         <div class="card-body">
 
-          <form id="ServicereportForm" method="POST">
+          <form id="ServicereportForm" method="POST" enctype="multipart/form-data" >
 
             {% csrf_token %}
             <div class="form-group row">
@@ -85,34 +105,6 @@
                 <label for="endtime" class="font-weight-bold text-primary"> 종료 시간 </label> {{ form.endtime }}
               </div>
             </div>
-            {% if form.serviceTitle.value == None %} <!-- 일정 등록 화면과 일정 수정 화면 구분 -->
-              <div class="form-group row">
-                <div class="col-sm-6 text-center">
-                  <div class="form-group row">
-                    <div class="col-6 text-center">
-                      <input type="radio" id="for1" name="for" value="for_n" checked/>
-                      <label for="for1"> 기본등록 </label>
-                    </div>
-                    <div class="col-6 text-center">
-                      <input type="radio" id="for2" name="for" value="for_my"/>
-                      <label for="for2"> 매월반복 </label>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 text-center">
-                  <div class="form-group row">
-                    <div class="col-6 text-center">
-                      <input type="radio" id="for3" name="for" value="for_hn"/>
-                      <label for="for3"> 기간(휴일제외) </label>
-                    </div>
-                    <div class="col-6 text-center">
-                      <input type="radio" id="for4" name="for" value="for_hy"/>
-                      <label for="for4"> 기간(휴일포함) </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {% endif %}
             <div class="form-group row">
               <div class="col-6">
                 <label for="serviceLocation" class="font-weight-bold text-primary"> 지역 구분 </label> {{ form.serviceLocation }}
@@ -122,7 +114,7 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="coWorkers" class="font-weight-bold text-primary"> 동행자 <span class="text-danger">(초과근무 시 필수 작성)</span> </label> {{ form.coWorkers }}
+              <label for="coWorkers" class="font-weight-bold text-primary"> 참석자 </label> {{ form.coWorkers }}
             </div>
             <div class="form-group">
               <label for="serviceTitle" class="font-weight-bold text-primary"> 제목 </label> {{ form.serviceTitle }}
@@ -160,11 +152,11 @@
 
   <script type="text/javascript">
 
-      function btn_serviceType() {
-          if ($('#serviceType option:selected').text() === '내근') {
-              $('#companyName').trigger('set', {id: '유니원아이앤씨'});
-          }
-      }
+      // function btn_serviceType() {
+      //     if ($('#serviceType option:selected').text() === '내근') {
+      //         $('#companyName').trigger('set', {id: '볕터건축사사무소'});
+      //     }
+      // }
 
       function showVal(newVal) {
           $('#enddate').val(newVal);
@@ -184,21 +176,6 @@
           const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g, '/') +
               ' ' + document.getElementById("endtime").value);
           const diff = ((serviceEndDatetime - serviceStartDatetime) / 3600000).toFixed(1);
-
-          let Form = document.getElementById("ServicereportForm");
-          const coWorkers = document.getElementById('coWorkers').getAttribute('data-id');
-          let coWorkerInput = document.createElement("input");
-          coWorkerInput.setAttribute("type", "hidden");
-          coWorkerInput.setAttribute("name", "coWorkerId");
-          coWorkerInput.setAttribute("value", coWorkers);
-          Form.appendChild(coWorkerInput);
-
-          const contracts = document.getElementById('contracts').getAttribute('data-id');
-          let contractInput = document.createElement("input");
-          contractInput.setAttribute("type", "hidden");
-          contractInput.setAttribute("name", "contractId");
-          contractInput.setAttribute("value", contracts);
-          Form.appendChild(contractInput);
 
           if (document.getElementById("companyName").value === '') {
               alert("고객사 명을 입력해주세요.");
@@ -220,13 +197,40 @@
               alert("시작일시가 종료일시보다 느립니다. 확인해주세요.");
               return false;
           }
-          if (diff > 12) {
-              if (confirm("일정이 12시간 이상입니다.\n반복 일정은 반복 등록 기능을 사용해주세요.\n일정 등록 하시겠습니까?") === true) {
-                  Form.submit();
-              }
-          } else if (confirm("일정 등록 하시겠습니까?") === true) {
-              Form.submit();
+
+          let form = $('#ServicereportForm');
+          $('<input />', {
+              type: 'hidden',
+              name: 'coWorkerId',
+              value: $('#coWorkers').attr('data-id')
+          }).appendTo(form);
+          $('<input />', {
+              type: 'hidden',
+              name: 'contractId',
+              value: $('#contracts').attr('data-id')
+          }).appendTo(form);
+          // 첨부파일
+          form.append($("#files"));
+          let filesName = $('td[name="filesName"]');
+          let filesSize = $('td[name="filesSize"]');
+          let listFile = [];
+          let data;
+          for (let i = 0; i < filesName.length; i++) {
+              data = {};
+              data.fileName = filesName[i].innerText;
+              data.fileSize = filesSize[i].innerText;
+              listFile.push(data);
           }
+          $('<input />', {
+              type: 'hidden',
+              name: 'jsonFile',
+              value: JSON.stringify(listFile)
+          }).appendTo(form);
+
+          if (confirm("일정 등록 하시겠습니까?") === true) {
+              form.submit();
+          }
+
       }
 
       function applyform(companyName, serviceType, serviceStartTime, serviceEndTime, serviceLocation, directgo, serviceTitle, serviceDetails) {
@@ -310,7 +314,7 @@
               id: 'id',
               multiple: true,
               multiField: 'value',
-              format: '%value%',
+              format: '%value% %position% (%dept%)',
               multiStyle: {space: 5, width: 80},
               noResult: '검색결과없음',
               focusShow: false,

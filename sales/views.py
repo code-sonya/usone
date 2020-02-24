@@ -259,11 +259,8 @@ def show_contracts(request):
         modifyContractPaper = request.POST['modifyContractPaper']
 
     else:
-        if request.user.employee.empName == '이현승':
-            startdate = '2018-01-01'
-        else:
-            startdate = str(datetime.now())[:4] + '-01-01'
-        enddate = str(datetime.now())[:4] + '-12-31'
+        startdate = ''
+        enddate = ''
         contractStep = ''
         empDeptName = '전체'
         empName = ''
@@ -720,23 +717,15 @@ def contracts_asjson(request):
     drops = request.POST['drops']
 
     if drops == "Y":
-        contracts = Contract.objects.filter(contractStep='Drop')
+        contracts = Contract.objects.filter(contractStep='실주')
     else:
-        contracts = Contract.objects.filter(Q(contractStep='Opportunity') | Q(contractStep='Firm'))
+        contracts = Contract.objects.filter(Q(contractStep='예정') | Q(contractStep='확정'))
 
-    if user.empDeptName == '경영지원본부' or user.user.is_staff or user.empPosition.positionRank < 1:
+    if user.user.is_staff or user.empPosition.positionRank < 1:
         None
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
     else:
-        # if user.empName == '최규성':
-        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='이용주'))
-        # elif user.empName == '전세현':
-        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표') | Q(empName='이용주'))
-        # elif user.empName == '전병선':
-        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표'))
-        # else:
-        #     contracts = contracts.filter(empId=user.empId)
         contracts = contracts.filter(Q(empId=user.empId) | Q(empId__empStatus='N'))
 
     revenues = Revenue.objects.all()
@@ -2106,20 +2095,10 @@ def contract_costs(request):
 @csrf_exempt
 def contract_services(request):
     contractId = request.POST['contractId']
-    services = Servicereport.objects.filter(
-        Q(contractId=contractId) & Q(serviceStatus='Y') & (Q(empDeptName='DB지원팀') | Q(empDeptName='솔루션지원팀') | Q(empDeptName='인프라서비스사업팀')))
+    services = Servicereport.objects.filter(Q(contractId=contractId) & Q(serviceStatus='Y'))
     services = services.annotate(
-        salary=Case(
-            When(serviceType__typeName='상주' or '프로젝트상주', then=Value(0)),
-            default=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()),
-            output_field=FloatField(),
-        ),
-    ).annotate(
-        overSalary=Case(
-            When(serviceType__typeName='상주' or '프로젝트상주', then=Value(0)),
-            default=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()),
-            output_field=FloatField(),
-        )
+        salary=Cast(F('serviceRegHour') * F('empId__empPosition__positionSalary'), FloatField()),
+        overSalary=Cast(F('serviceOverHour') * F('empId__empPosition__positionSalary') * 1.5, FloatField()),
     )
     services = services.values(
         'empName', 'serviceType__typeName', 'serviceDate', 'serviceTitle',

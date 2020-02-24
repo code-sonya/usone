@@ -44,16 +44,13 @@
     .file-table {
       color: #333333;
       width: 100%;
-      margin-bottom: 2rem;
     }
 
     .file-table td, .file-table th {
       padding: .75rem;
       vertical-align: middle;
-      border-bottom: 1px solid #e3e6f0;
-      font-size: 14px;
       text-align: center;
-      white-space: nowrap;
+      border-top: 0px;
     }
 
     @media (max-width:1199px){.mobile-table td, .mobile-table th{font-size: 16px; padding: 4px;}}
@@ -128,6 +125,34 @@
               <td class="text-center"><b>내&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;용</b></td>
               <td>{{ service.serviceDetails | linebreaksbr }}</td>
             </tr>
+            <tr>
+              <td class="text-center">
+                <label class="font-weight-bold">첨부파일
+                  {% if user.is_staff %}
+                    <span class="icon text-info"><i class="fas fa-paperclip" style="cursor:pointer"></i></span>
+                    <input id="files" name="files" type="file" multiple="multiple" class="d-none" onchange=file_upload()>
+                    <form id="filesForm" method="POST" enctype="multipart/form-data" class="d-none">{% csrf_token %}</form>
+                  {% endif %}
+                </label>
+              </td>
+              <td>
+                <table class="file-table">
+                  <tbody>
+                  {% for file in files %}
+                    <tr>
+                      <td class="text-left">
+                        <a href="/media/{{ file.file }}" download>{{ file.fileName }}</a>
+                      </td>
+                      <td class="text-right">{{ file.fileSize }} MB</td>
+                      {% if user.is_staff %}
+                      <td><i class="fas fa-times-circle" onclick="file_delete({{ file.fileId }})"></i></td>
+                      {% endif %}
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
             </tbody>
           </table>
           <div class="text-center mb-2">
@@ -143,101 +168,6 @@
       </div>
     </div>
     <div class="col-xl-2"></div>
-  </div>
-
-  <!-- upload Modal -->
-  <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-success text-gray-100">
-          <h5 class="modal-title" id="uploadModalLabel">첨부파일 등록</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="uploadForm" method="POST" enctype="multipart/form-data"
-                action="/service/saveconfirmfiles/{{ service.contractId.contractId }}/">
-            {% csrf_token %}
-          </form>
-          <span id="fileType" class="d-none"></span>
-          <table class="file-table">
-            <thead>
-            <tr>
-              <td width="65%"><b>파일명</b></td>
-              <td width="20%"><b>파일크기</b></td>
-              <td width="15%">
-                <label class="m-0 btn btn-success btn-icon-split">
-                  <span class="icon text-white-100"><i class="fas fa-file-upload"></i></span>
-                  <input id="files" name="files" type="file" multiple="multiple" class="d-none" onchange=file_names(this.id)>
-                </label>
-              </td>
-            </tr>
-            </thead>
-            <tbody id="filesTbody">
-            </tbody>
-          </table>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-success" href="#" onclick="btn_upload()">등록</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- sign Modal -->
-  <div class="modal fade" id="signModal" tabindex="-1" role="dialog" aria-labelledby="signModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-success text-gray-100">
-          <h5 class="modal-title" id="signModalLabel">동행자 서명 가져오기</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="signForm" method="POST" enctype="multipart/form-data"
-                action="/service/coworkersign/{{ service.serviceId }}/">
-            {% csrf_token %}
-          </form>
-          <span class="text-danger font-weight-bold">※ 기간: 해당일정 전후 1일</span><br>
-          <span class="text-danger font-weight-bold">※ 조건: 내가 동행자로 포함된 일정 중 고객 서명이 있는 일정</span><br>
-          <table class="file-table" style="width: 100%;">
-            <thead>
-            <tr>
-              <th style="width: 10%">선택</th>
-              <th style="width: 20%">날짜</th>
-              <th style="width: 20%">성함</th>
-              <th style="width: 20%">고객사</th>
-              <th style="width: 30%">제목</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for service in coWorkerSign %}
-            <tr>
-              <td><input type="radio" name="signId" value="{{ service.serviceId }}"></td>
-              <td>{{ service.serviceDate }}</td>
-              <td>{{ service.empName }}</td>
-              <td>{{ service.companyName.companyName }}</td>
-              <td>{{ service.serviceTitle }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-success" href="#" onclick="btn_sign()">등록</a>
-        </div>
-      </div>
-    </div>
   </div>
 
 
