@@ -7,25 +7,12 @@ class Company(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'), ('X', 'X'))
 
     companyName = models.CharField(max_length=100, primary_key=True)
-    companyNameKo = models.CharField(max_length=100, unique=True)
+    companyNameKo = models.CharField(max_length=100, null=True, blank=True)
     companyNumber = models.CharField(max_length=30, null=True, blank=True)
     ceo = models.CharField(max_length=30, null=True, blank=True)
-    saleEmpId = models.ForeignKey(Employee, null=True, blank=True, on_delete=models.CASCADE, related_name='saleEmpID')
-    solutionMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='solutionMainEmpID')
-    solutionSubEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='solutionSubEmpId')
-    dbMainEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='dbMainEmpId')
-    dbSubEmpId = models.ForeignKey(Employee, on_delete=models.CASCADE, null=True, blank=True, related_name='dbSubEmpId')
     companyAddress = models.CharField(max_length=200, null=True, blank=True)
-    companyLatitude = models.FloatField(null=True, blank=True)
-    companyLongitude = models.FloatField(null=True, blank=True)
-    companyDbms = models.TextField(null=True, blank=True)
-    companySystem = models.TextField(null=True, blank=True)
-    dbComment = models.TextField(null=True, blank=True)
-    solutionComment = models.TextField(null=True, blank=True)
-    dbContractStartDate = models.DateField(null=True, blank=True)
-    dbContractEndDate = models.DateField(null=True, blank=True)
-    solutionContractStartDate = models.DateField(null=True, blank=True)
-    solutionContractEndDate = models.DateField(null=True, blank=True)
+    companyPhone = models.CharField(max_length=20, null=True, blank=True)
+    companyComment = models.CharField(max_length=200, null=True, blank=True)
     companyStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     def __str__(self):
@@ -34,7 +21,7 @@ class Company(models.Model):
 
 class Customer(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'))
-    typeChoices = (('솔루션', '솔루션'), ('DB', 'DB'), ('영업', '영업'), ('세금', '세금'))
+    typeChoices = (('실무', '실무'), ('영업', '영업'), ('세금', '세금'))
 
     customerId = models.AutoField(primary_key=True)
     customerName = models.CharField(max_length=10)
@@ -49,4 +36,4 @@ class Customer(models.Model):
         unique_together = (('customerName', 'companyName'),)
 
     def __str__(self):
-        return self.customerName
+        return self.customerName + '(' + self.companyName.companyName + ')'

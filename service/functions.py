@@ -38,10 +38,14 @@ def month_list(startDatetime, endDatetime):
 
 
 def str_to_timedelta_hour(str_endDatetime, str_startDatetime):
-    e = datetime.datetime(year=int(str(str_endDatetime)[:4]), month=int(str(str_endDatetime)[5:7]), day=int(str(str_endDatetime)[8:10]),
-                          hour=int(str(str_endDatetime)[11:13]), minute=int(str(str_endDatetime)[14:16]), second=0)
-    s = datetime.datetime(year=int(str(str_startDatetime)[:4]), month=int(str(str_startDatetime)[5:7]), day=int(str(str_startDatetime)[8:10]),
-                          hour=int(str(str_startDatetime)[11:13]), minute=int(str(str_startDatetime)[14:16]), second=0)
+    e = datetime.datetime(
+        year=int(str(str_endDatetime)[:4]), month=int(str(str_endDatetime)[5:7]), day=int(str(str_endDatetime)[8:10]),
+        hour=int(str(str_endDatetime)[11:13]), minute=int(str(str_endDatetime)[14:16]), second=0
+    )
+    s = datetime.datetime(
+        year=int(str(str_startDatetime)[:4]), month=int(str(str_startDatetime)[5:7]), day=int(str(str_startDatetime)[8:10]),
+        hour=int(str(str_startDatetime)[11:13]), minute=int(str(str_startDatetime)[14:16]), second=0
+    )
     return round((e-s).total_seconds() / 60 / 60, 1)
 
 
@@ -76,7 +80,7 @@ def overtime(str_start_datetime, str_end_datetime):
 
     else:  # 평일 일때
         if d_start.minute != 0:  # 정각 시작하지 않은 경우
-            if d_start.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
+            if d_start.hour in [19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5]:  # 시작 시각이 초과 근무에 해당 할 경우
                 minute_sum += (60 - d_start.minute)
                 d_start = d_start + datetime.timedelta(minutes=(60 - d_start.minute))
             else:  # 초과 근무에 해당 하지 않는 경우
@@ -89,12 +93,11 @@ def overtime(str_start_datetime, str_end_datetime):
 
     else:  # 평일 일때
         if d_finish.minute != 0:  # 정각에 끝나지 않은 경우
-            if d_finish.hour in [22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
+            if d_finish.hour in [19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5]:  # 종료 시각이 초과 근무에 해당 할 경우
                 minute_sum += d_finish.minute
                 d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
             else:
                 d_finish = d_finish - datetime.timedelta(minutes=d_finish.minute)
-
 
     for i in range(0, work_hours(d_start, d_finish), 1):
         a = (d_start + datetime.timedelta(hours=i))
@@ -112,7 +115,7 @@ def overtime(str_start_datetime, str_end_datetime):
                     minute_sum += 60
 
             else:  # 평일
-                if int(a.hour) in [0, 1, 2, 3, 4, 5, 22, 23]:
+                if int(a.hour) in [0, 1, 2, 3, 4, 5, 19, 20, 21, 22, 23]:
                     if d_finish == a:
                         pass
                     else:

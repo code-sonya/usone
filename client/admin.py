@@ -4,9 +4,9 @@ from .models import Company, Customer
 
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ('companyName', 'companyNameKo', 'companyAddress', 'companyStatus')
+    list_display = ('companyName', 'companyAddress', 'companyStatus')
     list_filter = ('companyStatus',)
-    list_display_links = ['companyName', 'companyNameKo', 'companyAddress', 'companyStatus']
+    list_display_links = ['companyName', 'companyAddress', 'companyStatus']
 
 
 @admin.register(Customer)

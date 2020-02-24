@@ -21,7 +21,8 @@ import datetime
 def service_asjson(request):
     companyName = request.POST['companyName']
     services = Servicereport.objects.filter(companyName=companyName).values(
-        'serviceId', 'serviceDate', 'empName', 'empDeptName', 'serviceType__typeName', 'serviceHour', 'serviceOverHour', 'serviceTitle'
+        'serviceId', 'serviceDate', 'empName', 'empDeptName',
+        'serviceType__typeName', 'serviceHour', 'serviceOverHour', 'serviceTitle'
     )
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -30,26 +31,11 @@ def service_asjson(request):
 @login_required
 @csrf_exempt
 def filter_asjson(request):
-    companyName = request.POST["companyName"]
-    empName = request.POST["empName"]
+    companylist = Company.objects.all()
 
-    companylist = Company.objects.filter(companyStatus='Y')
-
-    if companyName:
-        companylist = companylist.filter(companyName__icontains=companyName)
-
-    if empName:
-        empId = Employee.objects.get(empName=empName).empId
-        companylist = companylist.filter(
-            Q(dbMainEmpId=empId) |
-            Q(dbSubEmpId=empId) |
-            Q(solutionMainEmpId=empId) |
-            Q(solutionSubEmpId=empId) |
-            Q(saleEmpId=empId)
-        )
-
-    companylist = companylist.values('companyName', 'companyNameKo', 'saleEmpId__empName', 'dbMainEmpId__empName', 'dbSubEmpId__empName', 'solutionMainEmpId__empName',
-                                     'solutionSubEmpId__empName', 'dbContractEndDate', 'solutionContractEndDate')
+    companylist = companylist.values(
+        'companyName', 'ceo', 'companyNumber', 'companyAddress', 'companyPhone'
+    )
     structure = json.dumps(list(companylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -83,9 +69,10 @@ def post_client(request):
     template = loader.get_template('client/postclient.html')
     if request.method == "POST":
         form = CompanyForm(request.POST)
-        post = form.save(commit=False)
-        post.companyStatus = 'Y'
-        post.save()
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.companyNameKo = form.clean()['companyName']
+            post.save()
         return redirect('client:show_clientlist')
 
     else:
@@ -97,32 +84,37 @@ def post_client(request):
 
 
 @login_required
+def modify_client(request, companyName):
+    template = loader.get_template('client/postclient.html')
+    company = Company.objects.get(companyName=companyName)
+
+    if request.method == 'POST':
+        form = CompanyForm(request.POST, instance=company)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.companyNameKo = form.clean()['companyName']
+            post.save()
+        return redirect('client:view_client', companyName)
+
+    else:
+        form = CompanyForm(instance=company)
+        context = {
+            'form': form,
+        }
+        return HttpResponse(template.render(context, request))
+
+
+@login_required
 def view_client(request, companyName):
     template = loader.get_template('client/viewclient.html')
     company = Company.objects.get(companyName=companyName)
     customers = Customer.objects.filter(companyName=companyName)
-    contracts = Contract.objects.filter(
-        Q(endCompanyName=companyName) & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
-    )
-
-    try:
-        dbms = json.loads(company.companyDbms)
-    except:
-        dbms = "{}"
-
-    if request.method == 'POST':
-        try:
-            company.dbComment = request.POST["dbtextArea"]
-            company.save()
-        except:
-            company.solutionComment = request.POST["soltextArea"]
-            company.save()
+    contracts = Contract.objects.filter(saleCompanyName=companyName)
 
     context = {
         'company': company,
         'customers': customers,
         'contracts': contracts,
-        'dbms': dbms,
     }
     return HttpResponse(template.render(context, request))
 
@@ -169,3 +161,14 @@ def post_customer(request, companyName):
             'companyName': companyName
         }
         return render(request, 'client/postcustomer.html', context)
+
+
+@login_required
+def check_company(request):
+    companyName = request.POST['companyName']
+    if Company.objects.filter(companyName=companyName):
+        result = 'N'
+    else:
+        result = 'Y'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
