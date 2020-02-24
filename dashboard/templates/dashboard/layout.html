@@ -80,7 +80,7 @@
         </a>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
-            <a class="collapse-item" href="/sales/showcontracts/">계약관리</a>
+            <a class="collapse-item" href="/sales/showcontracts/">프로젝트관리</a>
             <a class="collapse-item" href="/sales/showrevenues/">매출관리</a>
             <a class="collapse-item" href="/sales/showpurchases/">매입관리</a>
             <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
@@ -119,6 +119,7 @@
       </li>
     {% endif %}
 
+    <!--
     {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or '영업' in user.employee.empDeptName %}
       <li class="nav-item">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInsentive" aria-expanded="true" aria-controls="collapseUtilities">
@@ -140,43 +141,11 @@
           </div>
         </div>
       </li>
+    {% endif %}
+    -->
     <hr class="sidebar-divider my-0">
-    {% endif %}
 
-    {% if user.employee.empDeptName == '경영지원본부' %}
-      <!-- Nav Item - 초과근무 -->
-      <li class="nav-item">
-          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOverhour" aria-expanded="true" aria-controls="collapseOverhour">
-            <i class="fas fa-fw fa-clock text-white"></i>
-            <span class="text-white">시간외수당</span>
-          </a>
-          <div id="collapseOverhour" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-              <a class="collapse-item" href="/extrapay/overhourall/">시간외수당현황</a>
-              <a class="collapse-item" href="/extrapay/overhour/">시간외수당관리</a>
-              <a class="collapse-item" href="/extrapay/showsalarys/">수당관리</a>
-            </div>
-          </div>
-        </li>
-
-      <!-- Nav Item - 근태관리 -->
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHr" aria-expanded="true" aria-controls="collapseHr">
-          <i class="fas fa-fw fa-user-check text-white"></i>
-          <span class="text-white">근태관리</span>
-        </a>
-        <div id="collapseHr" class="collapse" aria-labelledby="headingHr" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <a class="collapse-item" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">근태현황</a>
-            <a class="collapse-item" href="#" onclick="btn_yearreport('/hr/showyearpunctuality/')">연간지각현황</a>
-            <a class="collapse-item" href="/hr/showabsence/">지각관리</a>
-            <a class="collapse-item" href="/hr/uploadcaps/">CAPS데이터업로드</a>
-          </div>
-        </div>
-      </li>
-    {% endif %}
-
-    {% if user.employee.departmentName.deptLevel == 0 %}
+    {% if user.employee.departmentName.deptLevel == 0 or user.is_staff %}
       <!--
       <li class="nav-item">
         <a class="nav-link" href="/extrapay/overhourall/">

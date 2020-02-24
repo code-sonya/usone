@@ -609,8 +609,8 @@ def show_revenues(request):
         issued = request.POST['issued']
 
     else:
-        startdate = str(datetime.now())[:4] + '-01-01'
-        enddate = str(datetime.now())[:4] + '-12-31'
+        startdate = ''
+        enddate = ''
         empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
@@ -1063,8 +1063,8 @@ def show_purchases(request):
         maincategory = request.POST['maincategory']
         issued = request.POST['issued']
     else:
-        startdate = str(datetime.now())[:4] + '-01-01'
-        enddate = str(datetime.now())[:4] + '-12-31'
+        startdate = ''
+        enddate = ''
         empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
@@ -1831,13 +1831,7 @@ def check_gp(request):
 def check_service(request):
     services = Servicereport.objects.filter(
         Q(contractId__isnull=False) &
-        Q(serviceStatus='Y') &
-        ~Q(serviceType__typeName__icontains='상주') &
-        (
-                Q(empDeptName='DB지원팀') |
-                Q(empDeptName='솔루션지원팀') |
-                Q(empDeptName='인프라서비스사업팀')
-        )
+        Q(serviceStatus='Y')
     )
 
     services = services.values('contractId').annotate(
