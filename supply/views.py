@@ -145,7 +145,10 @@ def show_savings(request):
     centers = Center.objects.filter(centerStatus='Y')
     if centers:
         if request.method == "POST":
-            centerId = request.POST['centerId']
+            if request.POST['centerId']:
+                centerId = int(request.POST['centerId'])
+            else:
+                centerId = ''
         else:
             centerId = ''
         context = {

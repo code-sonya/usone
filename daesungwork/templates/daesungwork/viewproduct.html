@@ -1,0 +1,198 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+
+{% block title %}
+제품 상세 화면
+{% endblock %}
+
+
+{% block css %}
+
+<style type="text/css">
+  pc-table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .pc-table td, .pc-table th {
+    padding: 5px 15px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 17px;
+    border: 1px solid rgba(206, 210, 219, 0.64);
+  }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card shadow mb-4">
+  <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+    <h6 class="m-0 h3 text-gray-800">제품 상세 정보</h6>
+    <div class="dropdown no-arrow">
+      <a class="btn btn-danger" href="#" onclick="btn_delete()">
+        <i class="fas fa-trash d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-trash"></i> 삭제</span>
+      </a>
+      <a class="btn btn-primary" href="#" role="button" data-toggle="modal" data-target="#insertModal">
+        <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="mb-3">
+      <h5>▼ <span class="text-primary font-weight-bold">제품 상세</span></h5>
+    </div>
+    <form method="POST" id="postForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group row m-2">
+        <div class="col-xl-2">
+          <label for="modelName" class="font-weight-bold text-primary"> 모델명 </label> {{ form.modelName }}
+        </div>
+        <div class="col-xl-2">
+          <label for="productName" class="font-weight-bold text-primary"> 제품명 </label> {{ form.productName }}
+        </div>
+        <div class="col-xl-2">
+          <label for="unitPrice" class="font-weight-bold text-primary"> 단가 </label> {{ form.unitPrice }}
+        </div>
+        <div class="col-xl-2">
+          <label for="position" class="font-weight-bold text-primary"> 제품위치 </label> {{ form.position }}
+        </div>
+        <div class="col-xl-3">
+          <label for="productPicture" class="font-weight-bold text-primary"> 제품사진 </label> {{ form.productPicture }}
+        </div>
+        <div class="col-xl-1">
+          <span class="btn bg-info text-white mt-4 center" onclick="btn_modify()">수정</span>
+        </div>
+      </div>
+    </form>
+
+
+    <div class="mb-3">
+      <h5>▼ <span class="text-primary font-weight-bold">상세 사이즈</span></h5>
+    </div>
+    <div class="table-responsive">
+      <table class="pc-table" style="width: 100%;">
+        <thead>
+        <tr style="background-color: #deeef8; color: black;">
+          <th style="width: 40%">모델명</th>
+          <th style="width: 40%">사이즈</th>
+          <th style="width: 20%"><i class="fas fa-trash-alt text-secondary"></i></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for size in sizes %}
+        <tr>
+          <td>{{ size.productId }}</td>
+          <td>{{ size.size}}</td>
+          <td><i class="fas fa-times-circle" id="{{ size.sizeId }}" onclick="btn_deletesize(this)"></i></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- Insert Modal -->
+<div class="modal fade" id="insertModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-header bg-info text-gray-100">
+        <h5 class="modal-title" id="insertModalLabel">사이즈 등록</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span class="text-gray-100" aria-hidden="true">×</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="insertForm" method="POST" action="/daesungwork/postsize/{{ productId }}/" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
+          {% csrf_token %}
+          <div class="row mb-1">
+            <div class="col-12 mb-3 mb-sm-0">
+              <label for="size" class="text-primary font-weight-bold">사이즈</label>
+              <input class="form-control" type="text" name="size" id="size">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+        <a class="btn btn-info" href="#" onclick="btn_insert()">등록</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+
+<script type="text/javascript">
+
+    function btn_deletesize(val) {
+        const sizeId = val.id;
+        if (confirm("사이즈 정보를 삭제하시겠습니까?") == true) {
+            location.href = '/daesungwork/deletesize/' + sizeId + '/';
+        }
+    }
+
+    function btn_delete() {
+        if (confirm("제품 정보를 삭제하시겠습니까?") === true) {
+            location.href = '/daesungwork/deleteproduct/{{ productId }}/';
+        }
+    }
+
+    function btn_modify() {
+        if (document.getElementById("modelName").value === '') {
+              alert("모델명을 입력해주세요.");
+              return false;
+        }
+
+        const postForm = document.getElementById('postForm');
+        postForm.submit();
+    }
+
+    function btn_change(seleted) {
+        if (seleted == "-1") {
+            $("#money").val(0);
+            $("#money").attr("readonly", true);
+            $("#purchaseCompany").val('');
+            $("#purchaseCompany").attr("readonly", true);
+
+        } else {
+            $("#money").attr("readonly", false);
+            $("#purchaseCompany").attr("readonly", false);
+        }
+    }
+
+    function btn_insert() {
+        if (!$('#insertForm [name="size"]').val()) {
+            alert('사이즈를 입력해주세요.');
+            return false;
+        }
+        const insertForm = document.getElementById('insertForm');
+        insertForm.submit();
+    }
+
+    function replaceAll(str, searchStr, replaceStr) {
+        var new_str = str.split(searchStr).join(replaceStr);
+        return new_str.split("T").join(" ").slice(0, 10);
+    }
+
+    $(document).ready(function () {
+
+    });
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,290 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+제품관리
+{% endblock %}
+
+{% block css %}
+<style>
+  pc-table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .pc-table td, .pc-table th {
+    padding: 5px 15px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 17px;
+    border: 1px solid rgba(206, 210, 219, 0.64);
+  }
+
+  pc-table2 {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .pc-table2 td, .pc-table th {
+    padding: 3px 10px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 15px;
+    border: 1px solid rgba(206, 210, 219, 0.64);
+  }
+
+  .file_input_textbox {
+    float: left;
+    height: 29px;
+  }
+
+  .file_input_div {
+    position: relative;
+    width: 80px;
+    height: 36px;
+    overflow: hidden;
+  }
+
+  .file_input_img_btn {
+    padding: 0 0 0 5px;
+  }
+
+  .file_input_hidden {
+    font-size: 29px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    -ms-filter: alpha(opacity=0);
+    cursor: pointer;
+  }
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800">제품관리</h6>
+      </div>
+      <div class="card-body">
+        <div>
+          <form method="POST" id="postForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group row m-2">
+              <div class="col-xl-2">
+                <label for="modelName" class="font-weight-bold text-primary"> 모델명 </label> {{ form.modelName }}
+              </div>
+              <div class="col-xl-2">
+                <label for="productName" class="font-weight-bold text-primary"> 제품명 </label> {{ form.productName }}
+              </div>
+              <div class="col-xl-2">
+                <label for="unitPrice" class="font-weight-bold text-primary"> 단가 </label> {{ form.unitPrice }}
+              </div>
+              <div class="col-xl-2">
+                <label for="position" class="font-weight-bold text-primary"> 제품위치 </label> {{ form.position }}
+              </div>
+              <div class="col-xl-3">
+                <label for="productPicture" class="font-weight-bold text-primary"> 제품사진 </label> {{ form.productPicture }}
+              </div>
+              <div class="col-xl-1">
+                <span class="btn bg-primary text-white mt-4 center" onclick="btn_post()">등록</span>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div id="centerManagerdiv" class="m-3">
+          <table id="showproducts" class="display" style="width:100%">
+            <thead style="width:100%">
+            <tr style="background-color: #deeef8; color: black;">
+              <td>제품사진</td>
+              <td>모델명</td>
+              <td>제품명</td>
+              <td>단가</td>
+              <td>제품위치</td>
+            </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% endblock %}
+
+
+  {% block script %}
+
+  <script type="text/javascript">
+      function btn_delete(val) {
+          const centerId = val.id;
+          if (confirm("센터 정보를 삭제하시겠습니까?") == true) {
+              const form = $('<form></form>');
+              form.attr('action', '/daesungwork/deletecenter/');
+              form.attr('method', 'POST');
+              form.appendTo('body');
+
+              const center = $('<input type="hidden" value="' + centerId + '" name="centerId">');
+              form.append(center);
+              form.submit();
+          }
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          if (str != null) {
+              var new_str = str.split(searchStr).join(replaceStr);
+              return new_str.split("T").join(" ").slice(0, 16);
+          } else {
+              return '-'
+          }
+      }
+
+      function btn_change(centerName) {
+          const searchForm = document.getElementById('searchForm');
+          const searchDayInput = document.createElement("input");
+          searchDayInput.setAttribute("type", "hidden");
+          searchDayInput.setAttribute("name", "searchDay");
+          searchDayInput.setAttribute("value", "{{ thisMonday |date:'Y-m-d'}}");
+          searchForm.appendChild(searchDayInput);
+          const centerNameInput = document.createElement("input");
+          centerNameInput.setAttribute("type", "hidden");
+          centerNameInput.setAttribute("name", "centerName");
+          centerNameInput.setAttribute("value", centerName);
+          searchForm.appendChild(centerNameInput);
+          searchForm.submit();
+      }
+
+      function btn_post() {
+          if (document.getElementById("modelName").value === '') {
+              alert("모델명을 입력해주세요.");
+              return false;
+          }
+
+          const postForm = document.getElementById('postForm');
+          postForm.submit();
+
+      }
+
+      function btn_move(searchMonday) {
+          if (searchMonday == 1) {
+              const searchForm = document.getElementById("searchForm");
+              const searchDayInput = document.createElement("input");
+              searchDayInput.setAttribute("type", "hidden");
+              searchDayInput.setAttribute("name", "searchDay");
+              searchDayInput.setAttribute("value", "{{ lastMonday |date:'Y-m-d'}}");
+              searchForm.appendChild(searchDayInput);
+              const centerName = document.getElementById("centerName").value;
+              const centerNameInput = document.createElement("input");
+              centerNameInput.setAttribute("type", "hidden");
+              centerNameInput.setAttribute("name", "centerName");
+              centerNameInput.setAttribute("value", centerName);
+              searchForm.appendChild(centerNameInput);
+
+              searchForm.submit();
+
+
+          } else {
+              const searchForm = document.getElementById("searchForm");
+              const searchDay = document.createElement("input");
+              searchDay.setAttribute("type", "hidden");
+              searchDay.setAttribute("name", "searchDay");
+              searchDay.setAttribute("value", "{{ nextMonday |date:'Y-m-d'}}");
+              searchForm.appendChild(searchDay);
+              const centerName = document.getElementById("centerName").value;
+              const centerNameInput = document.createElement("input");
+              centerNameInput.setAttribute("type", "hidden");
+              centerNameInput.setAttribute("name", "centerName");
+              centerNameInput.setAttribute("value", centerName);
+              searchForm.appendChild(centerNameInput);
+
+              searchForm.submit();
+
+          }
+
+      }
+
+      $(document).ready(function () {
+          $('#showproducts').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {},
+                  "url": "{% url 'daesungwork:productasjson' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {
+                      data: "productFicture",
+                      "render": function (data, type, row) {
+                          return '<img width="50px" src="' + '/media/' + row['productPicture'] + '/' + '">'
+                      },
+                  },
+                  {data: "modelName",},
+                  {data: "productName",},
+                  {data: "unitPrice"},
+                  {
+                      data: "position__mainCategory__categoryName",
+                      "render": function (data, type, row) {
+                          return '<div>' + row['position__subCategory__categoryName'] + '(' + row['position__subCategory__categoryName'] + ')</div>'
+                      },
+                  },
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+              "deferRender": true,
+              "bLengthChange": false,
+              "order": [[0, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(3)', nRow).text(replaceAll(aData.createdDatetime, "-", "-"));
+              },
+              "footerCallback": function () {
+              },
+          });
+
+          const showproductsTable = $('#showproducts').DataTable();
+
+          $("#showproducts").on("click", 'tr', function () {
+              const data = showproductsTable.row(this).data();
+              location.href = '/daesungwork/viewproduct/' + data.productId + '/'
+          });
+      });
+
+
+  </script>
+
+  {% endblock %}

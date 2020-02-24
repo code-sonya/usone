@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList
+from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, WarehouseMainCategory, WarehouseSubCategory, Warehouse, Product, Size, Sale, Affiliate
 
 
 @admin.register(Center)
@@ -35,3 +35,53 @@ class ConfirmCheckListAdmin(admin.ModelAdmin):
     list_display = ('confirmId', 'empId', 'confirmDate', 'checkListId', 'checkListStatus', 'comment', 'centerId')
     list_filter = ('checkListId', 'checkListStatus')
     list_display_links = ['confirmId', 'confirmDate', 'checkListId', 'checkListStatus', 'comment']
+
+
+@admin.register(WarehouseMainCategory)
+class WarehouseMainCategoryAdmin(admin.ModelAdmin):
+    list_display = ('categoryId', 'categoryName', 'categoryStatus')
+    list_filter = ('categoryName', 'categoryStatus')
+    list_display_links = ['categoryId', 'categoryName', 'categoryStatus']
+
+
+@admin.register(WarehouseSubCategory)
+class WarehouseSubCategoryAdmin(admin.ModelAdmin):
+    list_display = ('categoryId', 'categoryName', 'categoryStatus')
+    list_filter = ('categoryName', 'categoryStatus')
+    list_display_links = ['categoryId', 'categoryName', 'categoryStatus']
+
+
+@admin.register(Warehouse)
+class WarehouseAdmin(admin.ModelAdmin):
+    list_display = ('mainCategory', 'subCategory', 'warehouseDrawing')
+    list_filter = ('mainCategory', 'subCategory', 'warehouseDrawing')
+    list_display_links = ['mainCategory', 'subCategory', 'warehouseDrawing']
+
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ('productId', 'modelName', 'productName', 'unitPrice', 'position', 'productPicture')
+    list_filter = ('modelName', 'productName', 'position')
+    list_display_links = ['productId', 'modelName', 'productName', 'unitPrice', 'position', 'productPicture']
+
+
+@admin.register(Size)
+class SizeAdmin(admin.ModelAdmin):
+    list_display = ('sizeId', 'productId', 'size')
+    list_filter = ('productId', 'size')
+    list_display_links = ['sizeId', 'productId', 'size']
+
+
+@admin.register(Affiliate)
+class AffiliateAdmin(admin.ModelAdmin):
+    list_display = ('affiliateId', 'affiliateName')
+    list_filter = ('affiliateId', 'affiliateName')
+    list_display_links = ['affiliateId', 'affiliateName']
+
+
+@admin.register(Sale)
+class SaleAdmin(admin.ModelAdmin):
+    list_display = ('saleDate', 'affiliate', 'client', 'product', 'size', 'unitPrice', 'quantity', 'salePrice', 'createdDate')
+    list_filter = ('affiliate', 'client', 'product')
+    list_display_links = ['saleDate', 'affiliate', 'client', 'product', 'size', 'unitPrice', 'quantity', 'salePrice', 'createdDate']
+

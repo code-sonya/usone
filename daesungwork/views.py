@@ -2,8 +2,8 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
 from hr.models import Employee
-from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList
-from .forms import CenterManagerForm
+from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, WarehouseMainCategory, WarehouseSubCategory
+from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -388,3 +388,190 @@ def delete_center(request):
     else:
         print('else')
         return HttpResponse('오류발생! 관리자에게 문의하세요 :(')
+
+
+@login_required
+@csrf_exempt
+def show_salestatus(request):
+    template = loader.get_template('daesungwork/showsalestatus.html')
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+
+            return redirect('daesungwork:showsalestatus')
+
+    else:
+        form = SaleForm()
+        affiliates = Affiliate.objects.all()
+        affiliateName = ''
+        context = {
+            'form': form,
+            'affiliates': affiliates,
+            'affiliateName': affiliateName,
+
+        }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def show_products(request):
+    template = loader.get_template('daesungwork/showproducts.html')
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        print(form)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('daesungwork:showproducts')
+
+
+    else:
+        form = ProductForm()
+        context = {
+            'form': form,
+        }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def product_asjson(request):
+    products = Product.objects.all()\
+        .values('productId', 'modelName', 'productName', 'unitPrice', 'productPicture', 'position__mainCategory__categoryName', 'position__subCategory__categoryName').order_by('productId')
+    structure = json.dumps(list(products), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def view_product(request, productId):
+    template = loader.get_template('daesungwork/viewproduct.html')
+    instance = Product.objects.get(productId=productId)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=instance)
+        post = form.save(commit=False)
+        post.save()
+        return redirect('daesungwork:viewproduct', productId)
+
+    else:
+        form = ProductForm(instance=instance)
+        sizes = Size.objects.filter(productId=productId)
+        context = {
+            'form': form,
+            'instance': instance,
+            'sizes': sizes,
+            'productId': productId,
+        }
+
+        return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def delete_product(request, productId):
+    product = Product.objects.get(productId=productId)
+    product.delete()
+    return redirect('daesungwork:showproducts')
+
+
+@login_required
+@csrf_exempt
+def delete_size(request, sizeId):
+    size = Size.objects.get(sizeId=sizeId)
+    productId = size.productId
+    size.delete()
+    return redirect('daesungwork:viewproduct', productId)
+
+
+
+@login_required
+@csrf_exempt
+def post_size(request, productId):
+    product = Product.objects.get(productId=productId)
+    size = request.POST['size']
+    sizes = Size.objects.filter(Q(productId=productId) & Q(size=size))
+    if len(sizes) > 0:
+        return HttpResponse("이미 등록된 사이즈 입니다.")
+    else:
+        Size.objects.create(
+            productId=product,
+            size=size
+        )
+        return redirect('daesungwork:viewproduct', productId)
+
+
+@login_required
+@csrf_exempt
+def show_warehouses(request):
+    template = loader.get_template('daesungwork/showwarehouses.html')
+    if request.method == 'POST':
+        form = WarehouseForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            warehouses = Warehouse.objects.filter(Q(mainCategory__categoryName=post.mainCategory) & Q(subCategory__categoryName=post.subCategory))
+            if len(warehouses) > 0:
+                return HttpResponse("이미 등록된 섹션정보입니다.")
+            else:
+                post.save()
+        else:
+            return HttpResponse("유효하지 않은 형식입니다.")
+
+        return redirect('daesungwork:showwarehouses')
+
+    else:
+        form = WarehouseForm()
+        context = {
+            'form': form,
+        }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def warehouses_asjson(request):
+    warehouses = Warehouse.objects.all()\
+        .values('warehouseId', 'mainCategory__categoryName', 'subCategory__categoryName', 'warehouseDrawing').order_by('warehouseId')
+    structure = json.dumps(list(warehouses), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def post_maincategory(request):
+    categoryName = request.POST['mainCategoryName']
+    maincategorys = WarehouseMainCategory.objects.filter(Q(categoryName=categoryName))
+
+    if len(maincategorys) > 0:
+        return HttpResponse("이미 등록된 창고명 입니다.")
+    else:
+        WarehouseMainCategory.objects.create(
+            categoryName=categoryName
+        )
+        return redirect('daesungwork:showwarehouses')
+
+
+@login_required
+@csrf_exempt
+def post_subcategory(request):
+    categoryName = request.POST['subCategoryName']
+    subcategorys = WarehouseSubCategory.objects.filter(Q(categoryName=categoryName))
+
+    if len(subcategorys) > 0:
+        return HttpResponse("이미 등록된 섹션명 입니다.")
+    else:
+        WarehouseSubCategory.objects.create(
+            categoryName=categoryName
+        )
+        return redirect('daesungwork:showwarehouses')
+
+
+@login_required
+@csrf_exempt
+def delete_warehouse(request, warehouseId):
+    warehouse = Warehouse.objects.get(warehouseId=warehouseId)
+    warehouse.delete()
+    return redirect('daesungwork:showwarehouses')

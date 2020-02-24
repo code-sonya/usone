@@ -19,4 +19,21 @@ urlpatterns = [
     # 센터 관리
     url(r'^showcenters/$', views.show_centers, name='showcenters'),
     url(r'^deletecenter/$', views.delete_center, name='deletecenter'),
+    # 판매 현황
+    url(r'^showsalestatus/$', views.show_salestatus, name='showsalestatus'),
+    # 제품 관리
+    url(r'^showproducts/$', views.show_products, name='showproducts'),
+    url(r'^productasjson/$', views.product_asjson, name='productasjson'),
+    url(r'^viewproduct/(?P<productId>.+)/$', views.view_product, name='viewproduct'),
+    url(r'^deleteproduct/(?P<productId>.+)/$', views.delete_product, name='deleteproduct'),
+    # 사이즈 관리
+    url(r'^postsize/(?P<productId>.+)/$', views.post_size, name='postsize'),
+    url(r'^deletesize/(?P<sizeId>.+)/$', views.delete_size, name='deletesize'),
+    # 창고관리
+    url(r'^showwarehouses/$', views.show_warehouses, name='showwarehouses'),
+    url(r'^warehousesasjson/$', views.warehouses_asjson, name='warehousesasjson'),
+    url(r'^postmaincategory/$', views.post_maincategory, name='postmaincategory'),
+    url(r'^postsubcategory/$', views.post_subcategory, name='postsubcategory'),
+    url(r'^deletewarehouse/(?P<warehouseId>.+)/$', views.delete_warehouse, name='deletewarehouse'),
+
 ]
