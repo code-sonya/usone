@@ -83,13 +83,13 @@
             </tr>
             {% if coWorker %}
             <tr>
-              <td class="text-center"><b>동&nbsp;&nbsp;행&nbsp;&nbsp;자</b></td>
+              <td class="text-center"><b>참&nbsp;&nbsp;석&nbsp;&nbsp;자</b></td>
               <td>{% for name in coWorker %}{% if forloop.last %}{{ name }}{% else %}{{ name }}, {% endif %}{% endfor %}</td>
             </tr>
             {% endif %}
             {% if contractName %}
             <tr>
-              <td class="text-center"><b>계&nbsp;&nbsp;약&nbsp;&nbsp;명</b></td>
+              <td class="text-center"><b>프로젝트명</b></td>
               <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ contractName }}</td>
             </tr>
             {% endif %}

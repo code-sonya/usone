@@ -66,7 +66,10 @@ def scheduler(request, day=None):
     )
 
     deptLevel = Department.objects.aggregate(Max('deptLevel'))['deptLevel__max']
-    groupLevel = deptLevel - 1
+    if deptLevel == 0:
+        groupLevel = 0
+    else:
+        groupLevel = deptLevel - 1
 
     GroupDeptList = Department.objects.filter(
         Q(deptLevel=groupLevel) &

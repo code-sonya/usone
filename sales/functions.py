@@ -144,10 +144,6 @@ def viewContract(request, contractId):
     # 입출금정보 - 총 금액
     totalDeposit = revenues.filter(depositDate__isnull=False).aggregate(sum_deposit=Coalesce(Sum('revenuePrice'), 0))["sum_deposit"]
     totalWithdraw = purchases.filter(withdrawDate__isnull=False).aggregate(sum_withdraw=Coalesce(Sum('purchasePrice'), 0))["sum_withdraw"]
-    if totalDeposit == 0:
-        totalRatio = '-'
-    else:
-        totalRatio = round(totalWithdraw / totalDeposit * 100)
 
     # 입출금정보 - 매출
     companyDeposit = revenues \
@@ -233,7 +229,6 @@ def viewContract(request, contractId):
         # 입출금정보
         'totalDeposit': totalDeposit,
         'totalWithdraw': totalWithdraw,
-        'totalRatio': totalRatio,
         'companyDeposit': companyDeposit,
         'companyTotalDeposit': companyTotalDeposit,
         'companyWithdraw': companyWithdraw,

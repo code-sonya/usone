@@ -747,26 +747,28 @@ def modify_service(request, serviceId):
         form.fields['enddate'].initial = str(instance.serviceFinishDatetime)[:10]
         form.fields['endtime'].initial = str(instance.serviceFinishDatetime)[11:16]
 
-        # 계약명 자동완성
-        contractList = Contract.objects.filter(
-            Q(endCompanyName__isnull=False)
-            # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
-        )
-        contracts = []
-        for contract in contractList:
-            temp = {
-                'id': contract.pk,
-                'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
-                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
-                         str(contract.contractEndDate)[2:].replace('-', '.') + ')',
-                'company': contract.endCompanyName.pk
-            }
-            contracts.append(temp)
-
         if Servicereport.objects.get(serviceId=serviceId).contractId:
             contractId = Servicereport.objects.get(serviceId=serviceId).contractId.contractId
         else:
             contractId = ''
+
+        companyName = Servicereport.objects.get(serviceId=serviceId).companyName
+
+        coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
+        serviceStatus = Servicereport.objects.get(serviceId=serviceId).serviceStatus
+
+        # 계약명 자동완성
+        contractList = Contract.objects.all()
+        contracts = []
+        for contract in contractList:
+            temp = {
+                'id': contract.pk,
+                'value': '[' + contract.saleCompanyName.pk + '] ' + contract.contractName + ' (' +
+                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
+                         str(contract.contractEndDate)[2:].replace('-', '.') + ')',
+                'company': contract.saleCompanyName.pk
+            }
+            contracts.append(temp)
 
         # 고객사명 자동완성
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
@@ -775,17 +777,17 @@ def modify_service(request, serviceId):
             temp = {'id': company.pk, 'value': company.pk}
             companyNames.append(temp)
 
-        companyName = Servicereport.objects.get(serviceId=serviceId).companyName
-
         # 동행자 자동완성
         empList = Employee.objects.filter(Q(empStatus='Y'))
         empNames = []
         for emp in empList:
-            temp = {'id': emp.empId, 'value': emp.empName}
+            temp = {
+                'id': emp.empId,
+                'value': emp.empName,
+                'position': emp.empPosition.positionName,
+                'dept': emp.empDeptName,
+            }
             empNames.append(temp)
-
-        coWorkers = Servicereport.objects.get(serviceId=serviceId).coWorker
-        serviceStatus = Servicereport.objects.get(serviceId=serviceId).serviceStatus
 
         context = {
             'form': form,
@@ -907,14 +909,12 @@ def day_report(request, day=None):
     beforeDate = Date - datetime.timedelta(days=1)
     afterDate = Date + datetime.timedelta(days=1)
 
-    row1_1 = dayreport_query(empDeptName=["볕터건축사사무소", "건축사사무소"], day=day)
-    row1_2 = dayreport_query(empDeptName=["공간정보연구소"], day=day)
+    row1 = dayreport_query(empDeptName=["볕터건축사사무소"], day=day)
+    row2 = dayreport_query(empDeptName=["건축사사무소"], day=day)
+    row3 = dayreport_query(empDeptName=["공간정보연구소"], day=day)
 
     rows = [
-        [
-            {'title': '건축사사무소', 'service': row1_1[0], 'education': row1_1[1], 'vacation': row1_1[2]},
-            {'title': '공간정보연구소', 'service': row1_2[0], 'education': row1_2[1], 'vacation': row1_2[2]},
-        ]
+        {'title': '볕터건축사사무소', 'service': row1[0], 'education': row1[1], 'vacation': row1[2]},
     ]
 
     context = {

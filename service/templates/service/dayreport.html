@@ -41,11 +41,10 @@
     <i class="fas fa-angle-right text-warning" onclick="location.href='/service/dayreport/{{ afterDate | date:'Y-m-d' }}/'"></i>
   </h5>
 
-  {% for rown in rows %}
+  {% for row in rows %}
+    {% if row.title %}
     <div class="row">
-      {% for row in rown %}
-      {% if row.title %}
-      <div class="col-xl-6">
+      <div class="col-xl-12">
         <div class="card shadow mb-4">
           <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h5 class="m-0 text-gray-800">{{ row.title }}</h5>
@@ -94,7 +93,7 @@
                     {{ q.companyName }}<br>
                     {% if q.serviceType %}({{ q.serviceType }}){% endif %}
                   </td>
-                  <td style="white-space: normal">{{ q.serviceTitle }}</td>
+                  <td class="text-left">{{ q.serviceTitle }}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -140,7 +139,7 @@
                 </tr>
 
                 <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
-                  <td colspan="2" style="white-space: normal">{{ q.serviceTitle }}</td>
+                  <td colspan="2" class="text-left">{{ q.serviceTitle }}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -240,9 +239,8 @@
           </div>
         </div>
       </div>
-    {% endif %}
-    {% endfor %}
     </div>
+    {% endif %}
   {% endfor %}
 
 {% endblock %}
