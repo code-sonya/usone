@@ -534,7 +534,7 @@ def modify_contract(request, contractId):
                     costInstance.costCompany = cost["costCompany"]
                     costInstance.costPrice = int(cost["costPrice"])
                     costInstance.billingTime = None
-                    costInstance.billingDate = datetime(year=int(cost["costDate"]), month=12, day=31)
+                    costInstance.billingDate = cost["costDate"]
                     costInstance.comment = cost["costComment"]
                     costInstance.save()
                     jsonCostId.append(int(cost["costId"]))
