@@ -2122,7 +2122,10 @@ def contract_services(request):
             output_field=FloatField(),
         )
     )
-    services = services.values('empName', 'serviceType', 'serviceDate', 'serviceTitle', 'serviceHour', 'serviceRegHour', 'serviceOverHour', 'salary', 'overSalary', 'serviceId')
+    services = services.values(
+        'empName', 'serviceType__typeName', 'serviceDate', 'serviceTitle',
+        'serviceHour', 'serviceRegHour', 'serviceOverHour', 'salary', 'overSalary', 'serviceId'
+    )
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 

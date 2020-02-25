@@ -87,8 +87,8 @@
 
 {% block content %}
 
-  <div id="SearchLayer" style="position:absolute;z-index:999;display:none; width:90%; height:50%;background: none rgba(255,255,255,0.0);
-                                 filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr='#80000000', endColorstr='#80000000');" align='center'>
+  <div id="searchLayer" style="position:absolute;z-index:999;display:none; width:90%; height:50%;background: none rgba(255,255,255,0.0);
+  filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr='#80000000', endColorstr='#80000000');" align="center">
     <div class="col-xl-3 col-md-6 mb-4">
       <div class="card border-left-warning shadow h-100 py-2">
         <div class="card-body">
@@ -97,25 +97,32 @@
               <div class="h5 font-weight-bold text-warning text-uppercase mb-1">부서 목록</div>
               <form name="DeptCheck" id="DeptCheck" method="post">
                 {% csrf_token %}
-                <div class="h6 mb-0 font-weight-bold text-gray-800" style="align:center;margin-left: 30px">
-
+                <div class="h6 mb-0 font-weight-bold text-gray-800" style="align:center; margin-left: 30px">
                   {% for group in GroupDeptList %}
                     <div class="row">
-                      <label><input type="checkbox" name="ckdept" class="{{ group.deptId }}all"  value="{{ group.deptName }}" {% if group.checked == "Y" %} checked {% endif %}> {{ group.deptName }}</label>
+                      <label class="mt-2">
+                        <input type="checkbox" name="ckdept" class="{{ group.deptId }}all"
+                               value="{{ group.deptName }}"
+                               {% if group.checked == "Y" %}checked{% endif %}>
+                        <span class="text-primary">{{ group.deptName }}</span>
+                      </label>
                     </div>
                     {% for i in DeptList %}
-
                       {% if i.parentDept__deptName == group.deptName %}
-                       <div class="row">
-                        <label><input type="checkbox" class="{{ i.parentDept }} ml-3" name="ckdept" value="{{ i.deptName }}" {% if group.checked == "Y" %} checked {% endif %} {% if i.checked == "Y" %} checked {% endif %}> {{ i.deptName }}</label>
-                       </div>
+                      <div class="row">
+                        <label>
+                          <input type="checkbox" name="ckdept" class="{{ i.parentDept }} ml-3"
+                                 value="{{ i.deptName }}"
+                                 {% if group.checked == "Y" %}checked{% endif %}
+                                 {% if i.checked == "Y" %} checked {% endif %}>
+                          {{ i.deptName }}
+                        </label>
+                      </div>
                       {% endif %}
                     {% endfor %}
                   {% endfor %}
-
-
                 </div>
-                <div class="text-center">
+                <div class="text-center mt-3">
                   <a href="#" class="btn btn-danger btn-icon-split" onclick="btnClose()">
                     <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
                     <span class="text"> 취소 </span>
@@ -133,8 +140,12 @@
     </div>
   </div>
 
-  <div id='calendar-container'>
-    <div id='calendar'></div>
+  <div class="row">
+    <div class="col-12">
+      <div id="calendar-container">
+        <div id="calendar"></div>
+      </div>
+    </div>
   </div>
 
 {% endblock %}
@@ -145,25 +156,27 @@
   <script type="text/javascript">
 
       {% for group in GroupDeptList %}
-            $('.{{ group.deptId }}'+'all').click(function () {
-            $('.{{ group.deptId }}').prop('checked', this.checked);
-        });
+          $('.{{ group.deptId }}'+'all').click(function () {
+              $('.{{ group.deptId }}').prop('checked', this.checked);
+          });
       {% endfor %}
+
+      // +팀 버튼 (부서선택 창)
       function btnView() {
-          document.getElementById("SearchLayer").style.display = 'inline'
+          document.getElementById("searchLayer").style.display = 'inline'
       }
-
+      // 부서 선택 창 닫기
       function btnClose() {
-          document.getElementById("SearchLayer").style.display = 'none'
+          document.getElementById("searchLayer").style.display = 'none'
       }
-
+      // 부서 필터 조건 submit
       function btnSubmit() {
           const form_check = document.getElementById('DeptCheck');
           form_check.submit();
       }
-
+      // 내 일정 (팀 일정 삭제)
       function teamRemove(event) {
-          return "team" == event.className;
+          return "team" === event.className[0];
       }
 
       $(document).ready(function () {
@@ -171,6 +184,7 @@
           const month = '{{ Date | date:'m' }}';
           const date = '{{ Date | date:'d' }}';
           const currentDate = new Date(year, month - 1, date);
+          let tooltip;
 
           $('#calendar').fullCalendar({
               customButtons: {
@@ -227,7 +241,8 @@
                   left: 'addCalendar addprev,addnext',
                   center: 'title',
                   right: 'mySchedule addEvent'
-              }, defaultDate: currentDate,
+              },
+              defaultDate: currentDate,
               contentHeight: "auto",
               locale: 'ko',
               selectable: false,
@@ -236,10 +251,23 @@
               eventLimit: false,
               timeFormat: 'HH:mm',
               eventMouseover: function (data, event, view) {
-                  if (data.type == 'X') {
-                      tooltip = '<div class="tooltiptopicevent" style="color:black;width:auto;height:auto;background:#cceeee;position:absolute;z-index:10001;padding:10px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' + '<b>' + '[' + data.vacationType + '] ' + data.name + '</b></div>';
+                  if (data.type === 'holiday') {
+                      tooltip = '';
+                  } else if (data.type === 'X') {
+                      tooltip = '<div class="tooltiptopicevent" ' +
+                          'style="color:black;width:auto;height:auto;background:#cceeee;position:absolute;z-index:10001;padding:10px;' +
+                          'line-height:130%;font-size:13px;border-radius:0.5em;border:1px solid lightblue;">' +
+                          '<b>' + '[' + data.vacationType + '] ' + data.name + '</b>' +
+                          '</div>';
                   } else {
-                      tooltip = '<div class="tooltiptopicevent" style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br><span class="text-primary">' + data.contractName + '</span><br>' + data.start.format('HH:mm') + ' ~ ' + data.end.format('HH:mm') + '<br>' + data.service_title + '</div>';
+                      tooltip = '<div class="tooltiptopicevent" ' +
+                          'style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;' +
+                          'line-height:130%;font-size:13px;border-radius:0.5em;border:1px solid lightblue;">' +
+                          '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br>' +
+                          '<span class="text-primary">' + data.contractName + '</span><br>' +
+                          data.start.format('HH:mm') + ' ~ ' + data.end.format('HH:mm') + '<br>' +
+                          data.service_title +
+                          '</div>';
                   }
                   $("body").append(tooltip);
                   $(this).mouseover(function (e) {
@@ -255,7 +283,6 @@
                   $(this).css('z-index', 8);
                   $('.tooltiptopicevent').remove();
               },
-
               eventRender: function (event, element) {
                   if (event.imageurl) {
                       element.find("span.fc-title").prepend("<img src='" + event.imageurl + "' width='12' height='12' >");
@@ -265,22 +292,21 @@
                   }
               },
               eventDrop: function (event, delta, revertFunc) {
-                  {#로그인한 유저 엔지니어 이름#}
+                  // 로그인한 유저 엔지니어 이름
                   const userName = "{{ empName }}";
-                  {#선택된 이벤트의 엔지니어 이름, 타입, id#}
+                  // 선택된 이벤트의 엔지니어 이름, 타입, id
                   const empName = event.name;
                   const serviceType = event.type;
                   const serviceId = event.service_id;
                   const startDate = String(event.start.format());
                   let endDate;
                   if (empName == userName) {
-                      {#완료된 일정일 경우#}
-                      if (event.serviceType == 'Y') {
+                      // 완료된 일정일 경우
+                      if (serviceType == 'Y') {
                           alert('완료된 일정은 수정할 수 없습니다. :)');
                           revertFunc()
-
                       } else {
-                          {#휴가일 경우#}
+                          // 휴가일 경우
                           if (serviceType == 'X') {
                               endDate = startDate;
                           } else {
@@ -292,10 +318,16 @@
                               data: {'start': startDate, 'end': endDate, 'serviceId': serviceId, 'serviceType': serviceType},
                               dataType: "json",
                               success: function (response) {
-                                  console.log(response.serviceId + "일정 변경");
+                                  alert(response);
+                                  if (response === '휴가는 변경할 수 없습니다.') {
+                                      revertFunc()
+                                  } else if (response === '출발한 일정은 변경할 수 없습니다.') {
+                                      revertFunc()
+                                  }
                               },
                               error: function (request, status, error) {
                                   alert("일정변경실패");
+                                  revertFunc()
                               },
                           });
                       }
@@ -312,13 +344,10 @@
                       }
                   }
               },
-              {#eventClick: function (info) {alert('Event: ' + info.event.title);},#}
-
           });
 
-
           $('#calendar').fullCalendar('addEventSource',
-              {#1.내휴가&팀휴가#}
+              // 1.내휴가 & 팀휴가
               {
                   events: [
                       {% for i in myVacations %}
@@ -330,22 +359,19 @@
                               vacationType: '{{ i.vacationType }}',
                               type: 'X',
                               className: 'me',
+                              backgroundColor: '#FFFF0000',
+                              borderColor: '#FFFF0000',
                               {% if i.vacationStatus == 'N' %}
-                                title: '[{{ i.vacationType }}] {{ i.empName }} [결재중]',
-                                backgroundColor: '#FFFF0000',
-                                borderColor: '#FFFF0000',
-                                textColor: '#2635ff',
+                                  title: '[{{ i.vacationType }}] {{ i.empName }} [결재중]',
+                                  textColor: '#2635ff',
                               {% else %}
-                                title: '[{{ i.vacationType }}] {{ i.empName }}',
-                                backgroundColor: '#FFFF0000',
-                                borderColor: '#FFFF0000',
-                                textColor: '#1cc88a',
+                                  title: '[{{ i.vacationType }}] {{ i.empName }}',
+                                  textColor: '#1cc88a',
                               {% endif %}
                           },
                       {% endfor %}
                       {% for i in teamVacations %}
                           {
-                              // title: '[{{ i.vacationType }}] {{ i.empName }}',
                               start: '{{ i.vacationDate|date:"Y-m-d" }}',
                               end: '{{ i.vacationDate|date:"Y-m-d" }}',
                               service_id: '{{ i.vacationId }}',
@@ -353,29 +379,24 @@
                               vacationType: '{{ i.vacationType }}',
                               type: 'X',
                               className: 'team',
+                              backgroundColor: '#FFFF0000',
+                              borderColor: '#FFFF0000',
                               {% if i.vacationStatus == 'N' %}
-                                title: '[{{ i.vacationType }}] {{ i.empName }}(결재중)',
-                                backgroundColor: '#FFFF0000',
-                                borderColor: '#FFFF0000',
-                                textColor: '#2635ff',
+                                  title: '[{{ i.vacationType }}] {{ i.empName }}(결재중)',
+                                  textColor: '#2635ff',
                               {% else %}
-                                title: '[{{ i.vacationType }}] {{ i.empName }}',
-                                backgroundColor: '#FFFF0000',
-                                borderColor: '#FFFF0000',
-                                textColor: '#1cc88a',
+                                  title: '[{{ i.vacationType }}] {{ i.empName }}',
+                                  textColor: '#1cc88a',
                               {% endif %}
                           },
                       {% endfor %}
                   ],
-                  // backgroundColor: '#FFFF0000',
-                  // borderColor: '#FFFF0000',
-                  // textColor: '#1cc88a'
               },
           );
 
 
           $('#calendar').fullCalendar('addEventSource',
-              {#2.내 일정#}
+              // 2.내 일정
               {
                   events: [
                       {% for i in myServices %}
@@ -407,7 +428,7 @@
                                   borderColor: '#FFFF0000',
                                   textColor: '#656565',
                               {% else %}
-                                  type: 'N',
+                                  type: '{{ i.serviceStatus }}',
                                   {%  if i.serviceType == "정기점검" %}
                                       backgroundColor: '#496fdb',
                                       borderColor: '#496fdb',
@@ -433,7 +454,7 @@
           );
 
           $('#calendar').fullCalendar('addEventSource',
-              {#3.팀 일정#}
+              // 3.팀 일정
               {
                   events: [
                       {% for i in teamServices %}
@@ -504,6 +525,7 @@
                               detail: '{{ i.eventName }}',
                               service_type: '공휴일',
                               className: 'holiday',
+                              type: 'holiday',
                           },
                       {% endfor %}
                   ]
@@ -526,12 +548,13 @@
                               detail: '{{ i.eventName }}',
                               service_type: '사내일정',
                               className: 'holiday',
+                              type: 'holiday',
                           },
                       {% endfor %}
-                  ]
-                  , color: "#fffcb4"
-                  , textColor: "#85680f"
-                  , borderColor: "#fbe261"
+                  ],
+                  color: "#fffcb4",
+                  textColor: "#85680f",
+                  borderColor: "#fbe261",
               },
           );
 

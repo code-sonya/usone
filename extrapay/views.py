@@ -227,11 +227,12 @@ def post_fuel(request):
 
         geolocationIds = json.loads(request.POST['geolocationId'])
         for geolocationId in geolocationIds:
-            geo = Geolocation.objects.get(geolocationId=geolocationId)
+            geo = Geolocation.objects.get(geolocationId=geolocationId[0])
             fuelMoney = ceil(geo.distance * geo.distanceRatio * mpk)
             Fuel.objects.create(
                 geolocationId=geo,
                 fuelMoney=fuelMoney,
+                comment2=geolocationId[1]
             )
     return redirect('extrapay:showfuel')
 
@@ -346,7 +347,7 @@ def approvalfuel_asjson(request):
 
             services = services.values(
                 'fuelId', 'serviceId', 'serviceDate', 'companyName', 'serviceTitle', 'totalMoney',
-                'tollMoney', 'fuelMoney', 'comment', 'fuelStatus', 'distance', 'distanceCode',
+                'tollMoney', 'fuelMoney', 'comment', 'comment2', 'fuelStatus', 'distance', 'distanceCode',
             )
 
             structure = json.dumps(list(services), cls=DjangoJSONEncoder)
@@ -371,7 +372,7 @@ def approvalfuel_asjson(request):
 
             services = services.values(
                 'fuelId', 'serviceId', 'serviceDate', 'companyName', 'serviceTitle', 'totalMoney',
-                'tollMoney', 'fuelMoney', 'comment', 'fuelStatus', 'distance', 'distanceCode',
+                'tollMoney', 'fuelMoney', 'comment', 'comment2', 'fuelStatus', 'distance', 'distanceCode',
             )
 
             structure = json.dumps(list(services), cls=DjangoJSONEncoder)
@@ -456,12 +457,14 @@ def adminfuel_asjson(request):
 
     if empDeptLevel == 0 or empDeptName in ['경영지원본부', '경영지원실']:
         None
+
     elif empDeptLevel == 1:
         empDeptNames = Department.objects.filter(parentDept=employee.departmentName).values_list('deptName', flat=True)
         fuels = fuels.filter(
             Q(geolocationId__serviceId__empId__empDeptName__in=empDeptNames) |
             Q(geolocationId__serviceId__empId__empDeptName=empDeptName)
         )
+
     elif empDeptLevel == 2:
         fuels = fuels.filter(geolocationId__serviceId__empId__empDeptName=empDeptName)
 
@@ -563,7 +566,7 @@ def fuel_asjson(request):
 
         services = services.values(
             'fuelId', 'serviceId', 'serviceDate', 'companyName', 'serviceTitle',
-            'fuelMoney', 'fuelStatus', 'comment', 'distance', 'distanceCode', 'tollMoney', 'totalMoney',
+            'fuelMoney', 'fuelStatus', 'comment', 'comment2', 'distance', 'distanceCode', 'tollMoney', 'totalMoney',
         )
         structure = json.dumps(list(services), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
