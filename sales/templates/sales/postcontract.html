@@ -362,14 +362,14 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-12 mb-6 mb-sm-0">
-                <label for="companyName" class="font-weight-bold text-primary">[기술]고객사 명</label>
+                <label for="companyName" class="font-weight-bold text-primary">고객사 명</label>
                 <input type="text" class="form-control" id="companyName" name="companyName">
               </div>
             </div>
             <div class="row mb-1">
-              <div class="col-12 mb-6 mb-sm-0">
-                <label for="companyNameKo" class="font-weight-bold text-primary">[영업]고객사 명</label>
-                <input type="text" class="form-control" id="companyNameKo" name="companyNameKo">
+              <div class="col-12">
+                <label for="ceo" class="font-weight-bold text-secondary">대표자</label>
+                <input class="form-control" id="ceo" name="ceo">
               </div>
             </div>
             <div class="row mb-1">
@@ -380,19 +380,20 @@
             </div>
             <div class="row mb-1">
               <div class="col-12">
-                <label for="salesEmpId" class="font-weight-bold text-secondary">영업대표</label>
-                <select class="form-control" id="salesEmpId" name="salesEmpId">
-                  <option value="" selected="">---------</option>
-                  {% for emp in empNames %}
-                    <option value="{{ emp.id }}">{{ emp.value }}</option>
-                  {% endfor %}
-                </select>
+                <label for="companyPhone" class="font-weight-bold text-secondary">전화번호</label>
+                <input class="form-control" id="companyPhone" name="companyPhone">
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-12">
                 <label for="companyAddress" class="font-weight-bold text-secondary">주소</label>
                 <input class="form-control" id="companyAddress" name="companyAddress">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-12">
+                <label for="companyComment" class="font-weight-bold text-secondary">참고사항</label>
+                <input class="form-control" id="companyComment" name="companyComment">
               </div>
             </div>
           </form>
@@ -708,31 +709,27 @@
       function btn_register() {
 
           const companyName = document.getElementById("companyName").value;
-          const companyNameKo = document.getElementById("companyNameKo").value;
+          const ceo = document.getElementById("ceo").value;
           const companyNumber = document.getElementById("companyNumber").value;
-          const salesEmpId = document.getElementById("salesEmpId").value;
+          const companyPhone = document.getElementById("companyPhone").value;
           const companyAddress = document.getElementById("companyAddress").value;
+          const companyComment = document.getElementById("companyComment").value;
 
           if (document.getElementById("companyName").value === '') {
-              alert("[기술]고객사 명 입력해주세요.");
+              alert("고객사 명을 입력해주세요.");
               return false;
           }
-
-          if (document.getElementById("companyNameKo").value === '') {
-              alert("[영업]고객사 명 입력해주세요.");
-              return false;
-          }
-
           $.ajax({
               url: "{% url 'sales:savecompany' %}",
               method: 'POST',
               cache: false,
               data: {
                   "companyName": companyName,
-                  "companyNameKo": companyNameKo,
+                  "ceo": ceo,
                   "companyNumber": companyNumber,
-                  "salesEmpId": salesEmpId,
-                  "companyAddress": companyAddress
+                  "companyPhone": companyPhone,
+                  "companyAddress": companyAddress,
+                  "companyComment": companyComment,
               },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {

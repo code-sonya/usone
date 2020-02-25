@@ -1624,19 +1624,25 @@ def show_purchaseinadvance(request):
 
 def save_company(request):
     companyName = request.POST['companyName']
-    companyNameKo = request.POST['companyNameKo']
+    ceo = request.POST['ceo']
     companyNumber = request.POST['companyNumber']
-    if request.POST['salesEmpId']:
-        salesEmpId = Employee.objects.get(empId=request.POST['salesEmpId'])
-    else:
-        salesEmpId = None
+    companyPhone = request.POST['companyPhone']
     companyAddress = request.POST['companyAddress']
+    companyComment = request.POST['companyComment']
 
     if Company.objects.filter(companyName=companyName):
         result = 'N'
     else:
-        Company.objects.create(companyName=companyName, companyNameKo=companyNameKo, companyNumber=companyNumber, saleEmpId=salesEmpId, companyAddress=companyAddress)
-        result = ['Y', companyName, companyNameKo]
+        Company.objects.create(
+            companyName=companyName,
+            companyNameKo=companyName,
+            ceo=ceo,
+            companyNumber=companyNumber,
+            companyPhone=companyPhone,
+            companyAddress=companyAddress,
+            companyComment=companyComment,
+        )
+        result = ['Y', companyName, companyName]
 
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
