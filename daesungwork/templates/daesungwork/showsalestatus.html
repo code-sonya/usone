@@ -4,7 +4,7 @@
 {% block title %}
 판매현황
 {% endblock %}
-
+{% load humanize %}
 {% block css %}
 <style>
   pc-table {
@@ -77,15 +77,25 @@
     <div class="card shadow mb-4">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 h3 text-gray-800">판매현황</h6>
+        <div class="dropdown no-arrow">
+          <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+            <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
+          </a>
+          {% if user.is_staff %}
+          <a class="btn btn-primary" href="#" role="button" data-toggle="modal" data-target="#insertModal">
+            <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
+          </a>
+          {% endif %}
+        </div>
       </div>
       <div class="card-body">
         <form method="POST" id="searchForm">
           <div class="row ml-3 mt-1">
             <span>
-              <select class="form-control" id="center" name="center" onchange="btn_center(this.value)">
-                <option value="">전체</option>
+              <select class="form-control" id="center" name="center" onchange="change_affiliate(this.value)">
+                <option value="all">전체</option>
                 {% for affiliate in affiliates %}
-                <option value="{{ affiliate.affiliateId }}" {% if affiliateName == affiliate.affiliateId %} selected {% endif %}>
+                <option value="{{ affiliate.affiliateId }}" {% if affiliateId == affiliate.affiliateId %} selected {% endif %}>
                   {{ affiliate.affiliateName }}
                 </option>
                 {% endfor %}
@@ -100,7 +110,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">일간판매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.today | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -115,7 +125,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">주간판매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.weekly | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-money-bill fa-2x text-gray-300"></i>
@@ -130,7 +140,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">월간판매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.monthly | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-won-sign fa-2x text-gray-300"></i>
@@ -145,7 +155,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">연간판매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"></div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.yearly | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-comment-dollar fa-2x text-gray-300"></i>
@@ -167,9 +177,9 @@
             <div class="col-xl-2">
               <label for="client" class="font-weight-bold text-primary"> 업체명
                 {% if user.is_staff %}
-                  <a class="text-white" target="_blank" href="/client/postclient/">
-                    <i class="fas fa-plus-circle fa-fw text-info"></i>
-                  </a>
+                <a class="text-white" target="_blank" href="/client/postclient/">
+                  <i class="fas fa-plus-circle fa-fw text-info"></i>
+                </a>
                 {% endif %}
               </label>
               {{ form.client }}
@@ -194,81 +204,91 @@
             </div>
           </div>
         </form>
-        <div class="row m-3 center">
-          {% if centers%}
-
-          <table class="pc-table" style="width: 100%;">
-            <tr style="background-color: #c5e4f8; color: black;">
-              <th width="20%" class="font-weight-normal" style="background-color: #deeef8;">센터ID</th>
-              <th width="70%" class="font-weight-normal">센터명</th>
-              <th width="10%" class="font-weight-normal"><i class="fas fa-trash"></i></th>
-            </tr>
-            {% for center in centers %}
-            <tr>
-              <th width="20%" class="font-weight-normal text-dark" style="background-color: #deeef8;">{{ center.centerId }}</th>
-              <th width="70%" class="font-weight-normal">{{ center.centerName }}</th>
-              <th width="10%" class="font-weight-normal"><i class="fas fa-times-circle" id="{{ center.centerId }}" onclick="btn_delete(this)"></th>
-            </tr>
-            {% endfor %}
-          </table>
-          {% else %}
-          <table class="pc-table m-2" style="width: 100%;">
+        <div id="salesdiv" class="p-3">
+          <table id="showsales" class="display" style="width:100%">
+            <thead style="width:100%">
             <tr style="background-color: #deeef8; color: black;">
-              <td><span style="width:100%" class="text-center center mb-3"><span class="text-danger">판매 정보 없음</span></span></td>
+              <td>판매일자</td>
+              <td>매출처</td>
+              <td>업체명</td>
+              <td>모델명</td>
+              <td>사이즈</td>
+              <td>단가</td>
+              <td>수량</td>
+              <td>판매금액</td>
             </tr>
+            </thead>
+            <tfoot>
+            <tr>
+              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+            </tr>
+            </tfoot>
           </table>
-          {% endif %}
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!--&lt;!&ndash; model Modal &ndash;&gt;-->
-  <!--<div class="modal fade" id="modelModal" tabindex="-1" role="dialog" aria-labelledby="modelModalLabel" aria-hidden="true">-->
-    <!--<div class="modal-dialog" role="document">-->
-      <!--<div class="modal-content">-->
+<!-- model Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
 
-        <!--<div class="modal-header bg-info text-gray-100">-->
-          <!--<h5 class="modal-title" id="categoryModalLabel">모델명 등록</h5>-->
-          <!--<button class="close" type="button" data-dismiss="modal" aria-label="Close">-->
-            <!--<span class="text-gray-100" aria-hidden="true">×</span>-->
-          <!--</button>-->
-        <!--</div>-->
+      <div class="modal-header bg-info text-gray-100">
+        <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+          <span class="text-gray-100" aria-hidden="true">×</span>
+        </button>
+      </div>
 
-        <!--<div class="modal-body">-->
-          <!--<form id="categoryForm" action="/daesungwork/postmodel/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_category();}">-->
-            <!--{% csrf_token %}-->
-            <!--<div class="row mb-1">-->
-              <!--<div class="col-6">-->
-                <!--<label for="modelName" class="font-weight-bold text-primary">모델 명</label>-->
-                <!--<input type="text" class="form-control" id="modelName" name="modelName" required>-->
-              <!--</div>-->
-              <!--<div class="col-6">-->
-                <!--<label for="productName" class="font-weight-bold text-secondary">제품 명</label>-->
-                <!--<input type="text" class="form-control" id="productName" name="modelName" required>-->
-              <!--</div>-->
-            <!--</div>-->
-            <!--<div class="row mb-1">-->
-              <!--<div class="col-6">-->
-                <!--<label for="modelName" class="font-weight-bold text-primary">단가</label>-->
-                <!--<input type="text" class="form-control" id="modelName" name="modelName" required>-->
-              <!--</div>-->
-              <!--<div class="col-6">-->
-                <!--<label for="productName" class="font-weight-bold text-secondary">제품 사진</label>-->
-                <!--<input type="text" class="form-control" id="productName" name="modelName" required>-->
-              <!--</div>-->
-            <!--</div>-->
-          <!--</form>-->
-        <!--</div>-->
+      <div class="modal-body">
+        <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_category();}">
+          {% csrf_token %}
+          <div class="row mb-1">
+            <div class="col-6">
+              <label for="startdate" class="font-weight-bold text-primary">시작 일자</label>
+              <input type="text" class="form-control" id="startdate" name="startdate" required>
+            </div>
+            <div class="col-6">
+              <label for="enddate" class="font-weight-bold text-secondary">종료 일자</label>
+              <input type="text" class="form-control" id="enddate" name="enddate" required>
+            </div>
+          </div>
+          <div class="row mb-1">
+            <div class="col-6">
+              <label for="affiliate" class="font-weight-bold text-primary">매출처</label>
+              <select class="form-control" id="affiliate" name="affiliate">
+                <option value="all">전체</option>
+                {% for affiliate in affiliates %}
+                <option value="{{ affiliate.affiliateId }}" {% if affiliateId == affiliate.affiliateId %} selected {% endif %}>
+                  {{ affiliate.affiliateName }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6">
+              <label for="productName" class="font-weight-bold text-secondary">제품 사진</label>
+              <input type="text" class="form-control" id="productName" name="modelName" required>
+            </div>
+          </div>
+        </form>
+      </div>
 
-        <!--<div class="modal-footer">-->
-          <!--<button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>-->
-          <!--<a class="btn btn-info" href="#" onclick="btn_category()">등록</a>-->
-        <!--</div>-->
-      <!--</div>-->
-    <!--</div>-->
-  <!--</div>-->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+        <a class="btn btn-info" href="#" onclick="btn_category()">등록</a>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
 
@@ -302,23 +322,14 @@
         const unitPrice = $('#unitPrice').val();
         const quantity = $('#quantity').val();
 
-        if(unitPrice!=''&&quantity!=''){
-            $('#salePrice').val(unitPrice*quantity);
+        if (unitPrice != '' && quantity != '') {
+            $('#salePrice').val(unitPrice * quantity);
         }
     }
 
-    function btn_delete(val) {
-        const centerId = val.id;
-        if (confirm("센터 정보를 삭제하시겠습니까?") == true) {
-            const form = $('<form></form>');
-            form.attr('action', '/daesungwork/deletecenter/');
-            form.attr('method', 'POST');
-            form.appendTo('body');
+    function change_affiliate(affiliateId) {
+        location.href = '/daesungwork/showsalestatus/' + affiliateId + '/'
 
-            const center = $('<input type="hidden" value="' + centerId + '" name="centerId">');
-            form.append(center);
-            form.submit();
-        }
     }
 
     function replaceAll(str, searchStr, replaceStr) {
@@ -371,46 +382,87 @@
 
     }
 
-    function btn_move(searchMonday) {
-        if (searchMonday == 1) {
-            const searchForm = document.getElementById("searchForm");
-            const searchDayInput = document.createElement("input");
-            searchDayInput.setAttribute("type", "hidden");
-            searchDayInput.setAttribute("name", "searchDay");
-            searchDayInput.setAttribute("value", "{{ lastMonday |date:'Y-m-d'}}");
-            searchForm.appendChild(searchDayInput);
-            const centerName = document.getElementById("centerName").value;
-            const centerNameInput = document.createElement("input");
-            centerNameInput.setAttribute("type", "hidden");
-            centerNameInput.setAttribute("name", "centerName");
-            centerNameInput.setAttribute("value", centerName);
-            searchForm.appendChild(centerNameInput);
-
-            searchForm.submit();
-
-
-        } else {
-            const searchForm = document.getElementById("searchForm");
-            const searchDay = document.createElement("input");
-            searchDay.setAttribute("type", "hidden");
-            searchDay.setAttribute("name", "searchDay");
-            searchDay.setAttribute("value", "{{ nextMonday |date:'Y-m-d'}}");
-            searchForm.appendChild(searchDay);
-            const centerName = document.getElementById("centerName").value;
-            const centerNameInput = document.createElement("input");
-            centerNameInput.setAttribute("type", "hidden");
-            centerNameInput.setAttribute("name", "centerName");
-            centerNameInput.setAttribute("value", centerName);
-            searchForm.appendChild(centerNameInput);
-
-            searchForm.submit();
-
-        }
-
-    }
-
     $(document).ready(function () {
+        $('#showsales').dataTable({
+            "processing": true,
+            "ajax": {
+                "processing": true,
+                "type": 'POST',
+                "data": {
+                    "affiliateId": "{{ affiliateId }}",
+                },
+                "url": "{% url 'daesungwork:salesasjson' %}",
+                "dataSrc": ""
+            },
+            "columns": [
+                {data: "saleDate"},
+                {data: "affiliate__affiliateName"},
+                {data: "client__companyName"},
+                {data: "product__modelName"},
+                {data: "size__size"},
+                {data: "unitPrice"},
+                {data: "quantity"},
+                {data: "salePrice"},
+            ],
+            "columnDefs": [
+                {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 7, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+            ],
+            "deferRender": true,
+            "bLengthChange": false,
+            "order": [[0, 'desc']],
+            "searching": true,
+            "paging": true,
+            "info": false,
+            "scrollY": "80vh",
+            "scrollX": true,
+            "scrollCollapse": true,
+            "language": {
+                "lengthMenu": "_MENU_",
+                "search": "검색:",
+                "zeroRecords": "결과 없음",
+                "processing": "로딩중",
+                "paginate": {
+                    "first": "처음",
+                    "last": "끝",
+                    "next": "→",
+                    "previous": "←"
+                },
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(0)', nRow).text(replaceAll(aData.saleDate, "-", "-"));
+                $('td:eq(5)', nRow).text(aData.unitPrice.toLocaleString());
+                $('td:eq(7)', nRow).text(aData.salePrice.toLocaleString());
+            },
+            "footerCallback": function () {
+                var api = this.api(), data;
 
+                var unitResult = 0;
+                api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                    unitResult += parseFloat(data);
+                });
+                $(api.column(5).footer()).html(unitResult.toLocaleString());
+
+                var saleResult = 0;
+                api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                    saleResult += parseFloat(data);
+                });
+                $(api.column(7).footer()).html(saleResult.toLocaleString());
+            },
+        });
+
+        const salesTable = $('#showsales').DataTable();
+
+        $("#showsales").on("click", 'tr', function () {
+            const data = salesTable.row(this).data();
+            location.href = '/daesungwork/viewsales/' + data.saleId + '/'
+        });
     });
 
 

@@ -20,8 +20,9 @@ urlpatterns = [
     url(r'^showcenters/$', views.show_centers, name='showcenters'),
     url(r'^deletecenter/$', views.delete_center, name='deletecenter'),
     # 판매 현황
-    url(r'^showsalestatus/$', views.show_salestatus, name='showsalestatus'),
+    url(r'^showsalestatus/(?P<affiliateId>.+)/$', views.show_salestatus, name='showsalestatus'),
     url(r'^modelasjson/$', views.model_asjson, name='modelasjson'),
+    url(r'^salesasjson/$', views.sales_asjson, name='salesasjson'),
     # 제품 관리
     url(r'^showproducts/$', views.show_products, name='showproducts'),
     url(r'^productasjson/$', views.product_asjson, name='productasjson'),
@@ -36,5 +37,4 @@ urlpatterns = [
     url(r'^postmaincategory/$', views.post_maincategory, name='postmaincategory'),
     url(r'^postsubcategory/$', views.post_subcategory, name='postsubcategory'),
     url(r'^deletewarehouse/(?P<warehouseId>.+)/$', views.delete_warehouse, name='deletewarehouse'),
-
 ]

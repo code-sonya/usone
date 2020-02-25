@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
 from hr.models import Employee
-from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, WarehouseMainCategory, WarehouseSubCategory
+from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, WarehouseMainCategory, WarehouseSubCategory, Sale
 from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import get_template
 from django.views.decorators.csrf import csrf_exempt
-from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max, Value, CharField
+from django.db.models import Sum, FloatField, F, Case, When, Count, Q, Min, Max, Value, CharField, IntegerField
 import json
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -392,28 +392,66 @@ def delete_center(request):
 
 @login_required
 @csrf_exempt
-def show_salestatus(request):
+def show_salestatus(request, affiliateId):
     template = loader.get_template('daesungwork/showsalestatus.html')
+    # 일간
+    today = datetime.datetime.today()
+    # 연간
+    todayYear = today.year
+    # 월간
+    todayMonth = today.month
+    # 주간
+    thisMonday = today - datetime.timedelta(days=today.weekday())
+    thisSunday = thisMonday + datetime.timedelta(days=6)
+
     if request.method == 'POST':
         form = SaleForm(request.POST)
 
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
-            return redirect('daesungwork:showsalestatus')
+            return redirect('daesungwork:showsalestatus', affiliateId)
         else:
             return HttpResponse("유효하지 않은 형식입니다. 관리자에게 문의하세요 : (")
-
-
     else:
         form = SaleForm()
         affiliates = Affiliate.objects.all()
-        affiliateName = ''
+        sales = Sale.objects.all()
+        if affiliateId != 'all':
+            sales = sales.filter(affiliate=affiliateId)
+
+        sales = sales.aggregate(
+            yearly=Sum(
+                    Case(
+                        When(saleDate__year=todayYear, then='salePrice'),
+                        default=0, output_field=IntegerField()
+                        )
+                    ),
+            monthly=Sum(
+                    Case(
+                        When(Q(saleDate__year=todayYear) & Q(saleDate__month=todayMonth), then='salePrice'),
+                        default=0, output_field=IntegerField()
+                        )
+                    ),
+            weekly=Sum(
+                Case(
+                    When(Q(saleDate__gte=thisMonday) & Q(saleDate__lte=thisSunday), then='salePrice'),
+                    default=0, output_field=IntegerField()
+                )
+            ),
+            today=Sum(
+                Case(
+                    When(saleDate=today, then='salePrice'),
+                    default=0, output_field=IntegerField()
+                )
+            ),
+        )
+
         context = {
             'form': form,
             'affiliates': affiliates,
-            'affiliateName': affiliateName,
-
+            'affiliateId': affiliateId,
+            'sales': sales,
         }
     return HttpResponse(template.render(context, request))
 
@@ -429,7 +467,6 @@ def show_products(request):
             post = form.save(commit=False)
             post.save()
             return redirect('daesungwork:showproducts')
-
 
     else:
         form = ProductForm()
@@ -591,4 +628,18 @@ def model_asjson(request):
     jsonList.append(list(models))
     jsonList.append(list(sizes))
     structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def sales_asjson(request):
+    affiliateId = request.POST['affiliateId']
+    sales = Sale.objects.all()
+    if affiliateId != 'all':
+        sales = sales.filter(affiliate=affiliateId)
+
+    sales = sales.values('saleId', 'saleDate', 'affiliate__affiliateName', 'client__companyName', 'product__modelName', 'size__size', 'unitPrice', 'quantity', 'salePrice').order_by('-saleDate')
+
+    structure = json.dumps(list(sales), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
