@@ -141,7 +141,7 @@ def post_contract(request):
                     costCompany=cost["costCompany"],
                     costPrice=int(cost["costPrice"]),
                     billingTime=None,
-                    billingDate=datetime(year=int(cost["costDate"]), month=12, day=31),
+                    billingDate=cost["costDate"],
                     comment=cost["costComment"],
                 )
 
@@ -525,7 +525,7 @@ def modify_contract(request, contractId):
                         costCompany=cost["costCompany"],
                         costPrice=int(cost["costPrice"]),
                         billingTime=None,
-                        billingDate=datetime(year=int(cost["costDate"]), month=12, day=31),
+                        billingDate=cost["costDate"],
                         comment=cost["costComment"],
                     )
                 else:
