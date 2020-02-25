@@ -175,22 +175,16 @@
               {{ form.client }}
             </div>
             <div class="col-xl-1">
-              <label for="product" class="font-weight-bold text-primary"> 모델명
-                <!--{% if user.is_staff %}-->
-                  <!--<a class="text-white" href="#" role="button" id="modelLink" data-toggle="modal" data-target="#modelModal">-->
-                    <!--<i class="fas fa-plus-circle fa-fw text-info"></i>-->
-                  <!--</a>-->
-                <!--{% endif %}-->
-              </label> {{ form.product }}
+              <label for="product" class="font-weight-bold text-primary"> 모델명 </label> {{ form.product }}
             </div>
             <div class="col-xl-1">
-              <label for="size" class="font-weight-bold text-primary"> 사이즈 </label> {{ form.size }}
+              <label for="size" class="font-weight-bold"> 사이즈 </label> {{ form.size }}
             </div>
             <div class="col-xl-1">
-              <label for="unitPrice" class="font-weight-bold text-primary"> 단가 </label> {{ form.unitPrice }}
+              <label for="unitPrice" class="font-weight-bold"> 단가 </label> {{ form.unitPrice }}
             </div>
             <div class="col-xl-1">
-              <label for="quantity" class="font-weight-bold text-primary"> 수량 </label> {{ form.quantity }}
+              <label for="quantity" class="font-weight-bold"> 수량 </label> {{ form.quantity }}
             </div>
             <div class="col-xl-1">
               <label for="salePrice" class="font-weight-bold text-primary"> 판매금액 </label> {{ form.salePrice }}
@@ -282,6 +276,37 @@
 {% block script %}
 
 <script type="text/javascript">
+
+    function changeModel(modelName) {
+        $.ajax({
+            url: "{% url 'daesungwork:modelasjson' %}",
+            method: 'POST',
+            cache: false,
+            data: {"modelName": modelName,},
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                var unitPrice = returnData[0];
+                var sizes = returnData[1];
+                $('#size').empty();
+                for (var count = 0; count < sizes.length; count++) {
+                    var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
+                    $('#size').append(option);
+                }
+                $('#unitPrice').val(unitPrice[0].unitPrice);
+                changePrice();
+            }
+        });
+    }
+
+    function changePrice() {
+        const unitPrice = $('#unitPrice').val();
+        const quantity = $('#quantity').val();
+
+        if(unitPrice!=''&&quantity!=''){
+            $('#salePrice').val(unitPrice*quantity);
+        }
+    }
+
     function btn_delete(val) {
         const centerId = val.id;
         if (confirm("센터 정보를 삭제하시겠습니까?") == true) {
@@ -321,8 +346,24 @@
     }
 
     function btn_post() {
-        if (document.getElementById("centerName").value === '') {
-            alert("센터명을 입력해주세요.");
+        if (document.getElementById("saleDate").value === '') {
+            alert("판매일자를 입력해주세요.");
+            return false;
+        }
+        if (document.getElementById("affiliate").value === '') {
+            alert("판매처를 선택해주세요.");
+            return false;
+        }
+        if (document.getElementById("client").value === '') {
+            alert("업체명을 입력해주세요.");
+            return false;
+        }
+        if (document.getElementById("product").value === '') {
+            alert("모델명을 선택해주세요.");
+            return false;
+        }
+        if (document.getElementById("salePrice").value === '') {
+            alert("판매금액을 입력해주세요.");
             return false;
         }
         const postForm = document.getElementById('postForm');

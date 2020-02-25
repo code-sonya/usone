@@ -32,10 +32,10 @@ class SaleForm(forms.ModelForm):
             'saleDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'saleDate'}),
             'affiliate': forms.Select(attrs={'class': 'form-control', 'id': 'affiliate'}),
             'client': forms.Select(attrs={'class': 'form-control', 'id': "client"}),
-            'product': forms.Select(attrs={'class': 'form-control', 'id': 'product'}),
+            'product': forms.Select(attrs={'class': 'form-control', 'id': 'product', 'onchange': 'changeModel(this.value)'}),
             'size': forms.Select(attrs={'class': 'form-control', 'id': 'size'}),
-            'unitPrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'unitPrice'}),
-            'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity'}),
+            'unitPrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'unitPrice', 'onchange': 'changePrice()'}),
+            'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity', 'onchange': 'changePrice()'}),
             'salePrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'salePrice'}),
         }
 
@@ -57,7 +57,7 @@ class ProductForm(forms.ModelForm):
             'unitPrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'unitPrice'}),
             'position': forms.Select(attrs={'class': 'form-control', 'id': 'position'}),
             'productPicture': forms.FileInput(attrs={
-                'class': 'form-control-file', 'id': 'productPicture',
+                'class': 'form-control', 'id': 'productPicture',
                 'onchange': "javascript:document.getElementById('productPicture').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
         }
 
@@ -75,7 +75,7 @@ class WarehouseForm(forms.ModelForm):
             'mainCategory': forms.Select(attrs={'class': 'form-control', 'id': 'mainCategory'}),
             'subCategory': forms.Select(attrs={'class': 'form-control', 'id': 'subCategory'}),
             'warehouseDrawing': forms.FileInput(attrs={
-                'class': 'form-control-file', 'id': 'warehouseDrawing',
+                'class': 'form-control', 'id': 'warehouseDrawing',
                 'onchange': "javascript:document.getElementById('warehouseDrawing').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
         }
 

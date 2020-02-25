@@ -270,7 +270,7 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  $('td:eq(3)', nRow).text(replaceAll(aData.createdDatetime, "-", "-"));
+                  $('td:eq(3)', nRow).text(aData.unitPrice.toLocaleString());
               },
               "footerCallback": function () {
               },

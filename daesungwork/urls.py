@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^deletecenter/$', views.delete_center, name='deletecenter'),
     # 판매 현황
     url(r'^showsalestatus/$', views.show_salestatus, name='showsalestatus'),
+    url(r'^modelasjson/$', views.model_asjson, name='modelasjson'),
     # 제품 관리
     url(r'^showproducts/$', views.show_products, name='showproducts'),
     url(r'^productasjson/$', views.product_asjson, name='productasjson'),

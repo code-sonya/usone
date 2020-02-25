@@ -400,8 +400,10 @@ def show_salestatus(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
-
             return redirect('daesungwork:showsalestatus')
+        else:
+            return HttpResponse("유효하지 않은 형식입니다. 관리자에게 문의하세요 : (")
+
 
     else:
         form = SaleForm()
@@ -575,3 +577,18 @@ def delete_warehouse(request, warehouseId):
     warehouse = Warehouse.objects.get(warehouseId=warehouseId)
     warehouse.delete()
     return redirect('daesungwork:showwarehouses')
+
+
+@login_required
+@csrf_exempt
+def model_asjson(request):
+    productId = request.POST['modelName']
+    models = Product.objects.filter(productId=productId)\
+        .values('productId', 'modelName', 'productName', 'unitPrice').order_by('productId')
+    sizes = Size.objects.filter(productId=productId).values()
+
+    jsonList = []
+    jsonList.append(list(models))
+    jsonList.append(list(sizes))
+    structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

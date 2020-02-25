@@ -126,7 +126,7 @@ class Sale(models.Model):
     affiliate = models.ForeignKey(Affiliate, on_delete=models.PROTECT, null=True)
     client = models.ForeignKey(Company, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    size = models.ForeignKey(Size, on_delete=models.PROTECT, null=True)
+    size = models.ForeignKey(Size, on_delete=models.PROTECT, null=True, blank=True)
     unitPrice = models.IntegerField(null=True, blank=True)
     quantity = models.IntegerField(null=True, blank=True)
     salePrice = models.IntegerField()
