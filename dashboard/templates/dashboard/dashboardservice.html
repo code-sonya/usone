@@ -1,6 +1,6 @@
 {% extends "dashboard/layout.html" %}
 {% block title %}
-  엔지니어 지원 통계
+  직원별 작업 통계
 {% endblock %}
 
 {% block css %}
@@ -35,7 +35,7 @@
   <!-- Page Heading -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <span>
-    <h1 class="h3 mb-0 text-gray-800">엔지니어 지원 통계</h1>
+    <h1 class="h3 mb-0 text-gray-800">직원별 작업 통계</h1>
     <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate }}~{{ enddate }}{%if empDeptName %}, {{ empDeptName }}{% endif %})
 
     </h6>
@@ -55,7 +55,7 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">전체 지원 횟수</div>
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">전체 작업 횟수</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__count %}{{ all_support_time.serviceHour__count }}{% else %}0{% endif %} 건</div>
             </div>
             <div class="col-auto">
@@ -72,7 +72,7 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">전체 지원 시간</div>
+              <div class="text-sm font-weight-bold text-success text-uppercase mb-1">전체 작업 시간</div>
               <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__sum %}{{ all_support_time.serviceHour__sum |floatformat:"2" }}{% else %}0.0{% endif %} 시간</div>
             </div>
             <div class="col-auto">
@@ -107,8 +107,8 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">전체 고객사</div>
-              <div class="h5 b-0 font-weight-bold text-gray-800">{{ customer_support_time|length }}개 고객사 지원</div>
+              <div class="text-sm font-weight-bold text-warning text-uppercase mb-1">전체 발주처</div>
+              <div class="h5 b-0 font-weight-bold text-gray-800">{{ customer_support_time|length }}개</div>
             </div>
             <div class="col-auto">
               <i class="fas fa-building fa-2x text-gray-300"></i>
@@ -125,7 +125,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header-->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">고객사별 지원 시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">용역별 지원 시간</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -189,7 +189,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">직원별 지원 시간</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -205,7 +205,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">서비스타입별 지원 시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">작업유형별 지원 시간</h6>
 
         </div>
         <!-- Card Body -->
@@ -307,7 +307,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 지원 횟수</h6>
+          <h6 class="m-0 font-weight-bold text-primary">직원별 작업 횟수</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">
@@ -323,7 +323,7 @@
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">엔지니어별 초과근무 시간</h6>
+          <h6 class="m-0 font-weight-bold text-primary">직원별 초과근무 시간</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">

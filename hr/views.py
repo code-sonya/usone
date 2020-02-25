@@ -118,10 +118,12 @@ def view_profile(request, empId):
 def post_profile(request):
     if request.method == 'POST':
         userForm = UserForm(request.POST)
+        print(userForm)
         if userForm.is_valid():
             new_user = User.objects.create_user(**userForm.cleaned_data)
 
             empForm = EmployeeForm(request.POST)
+            print(empForm)
             post = empForm.save(commit=False)
             post.user = new_user
             post.empDeptName = post.departmentName.deptName
@@ -132,6 +134,8 @@ def post_profile(request):
                 new_user.save()
 
             return redirect('hr:showprofiles')
+        else:
+            return HttpResponse('잘못된 입력입니다.')
 
     else:
         userForm = UserForm()
