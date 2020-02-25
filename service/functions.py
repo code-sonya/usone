@@ -901,11 +901,15 @@ def reverse_geo(lat, lng):
     body = json.loads(body)
     buffer.close()
 
-    alias = body['results'][0]['region']['area1']['alias']
-    region = body['results'][0]['region']['area1']['name'] + ' ' \
-        + body['results'][0]['region']['area2']['name'] + ' ' \
-        + body['results'][0]['region']['area3']['name'] + ' ' \
-        + body['results'][0]['region']['area4']['name']
-    region = region.strip()
+    if body['results']:
+        alias = body['results'][0]['region']['area1']['alias']
+        region = body['results'][0]['region']['area1']['name'] + ' ' \
+            + body['results'][0]['region']['area2']['name'] + ' ' \
+            + body['results'][0]['region']['area3']['name'] + ' ' \
+            + body['results'][0]['region']['area4']['name']
+        region = region.strip()
+    else:
+        alias = '알수없음'
+        region = '알수없음'
 
     return alias, region
