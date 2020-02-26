@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Q
 
 from hr.models import Employee
-from .models import CenterManager, Sale, Size, Product, Warehouse
+from .models import CenterManager, Sale, Size, Product, Warehouse, DailyReport
 from client.forms import CompanyForm
 from client.models import Company
 
@@ -82,4 +82,24 @@ class WarehouseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(WarehouseForm, self).__init__(*args, **kwargs)
 
+
+
+class DailyReportForm(forms.ModelForm):
+
+    class Meta:
+        model = DailyReport
+        fields = ('workDate', 'writeEmp', 'title', 'contents', 'files')
+
+        widgets = {
+            'workDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'id': 'workDate'}),
+            'writeEmp': forms.Select(attrs={'class': 'form-control', 'id': 'writeEmp'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'type': 'text', 'id': 'title'}),
+            'contents': forms.Textarea(attrs={'class': 'form-control', 'id': 'contents'}),
+            'files': forms.FileInput(attrs={
+                'class': 'form-control', 'id': 'files',
+                'onchange': "javascript:document.getElementById('files').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(DailyReportForm, self).__init__(*args, **kwargs)
 

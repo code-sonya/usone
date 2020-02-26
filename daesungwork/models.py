@@ -133,7 +133,18 @@ class Sale(models.Model):
     createdDate = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return str(self.size)
+        return str(self.saleId)
 
+class DailyReport(models.Model):
+    dailyreportId = models.AutoField(primary_key=True)
+    workDate = models.DateField()
+    writeEmp = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    title = models.CharField(max_length=20, null=True, blank=True)
+    contents = models.TextField(help_text="상세 내용을 작성해 주세요.")
+    writeDatetime = models.DateTimeField(default=timezone.now)
+    modifyDatetime = models.DateTimeField()
+    files = models.FileField(upload_to="dailyreport/", null=True, blank=True)
 
+    def __str__(self):
+        return str(self.writeEmp)
 

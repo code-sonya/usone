@@ -21,8 +21,10 @@ urlpatterns = [
     url(r'^deletecenter/$', views.delete_center, name='deletecenter'),
     # 판매 현황
     url(r'^showsalestatus/(?P<affiliateId>.+)/$', views.show_salestatus, name='showsalestatus'),
+    url(r'^postsale/(?P<affiliateId>.+)/$', views.post_sale, name='postsale'),
     url(r'^modelasjson/$', views.model_asjson, name='modelasjson'),
     url(r'^salesasjson/$', views.sales_asjson, name='salesasjson'),
+    url(r'^deletesale/(?P<saleId>.+)/$', views.delete_sale, name='deletesale'),
     # 제품 관리
     url(r'^showproducts/$', views.show_products, name='showproducts'),
     url(r'^productasjson/$', views.product_asjson, name='productasjson'),
@@ -37,4 +39,8 @@ urlpatterns = [
     url(r'^postmaincategory/$', views.post_maincategory, name='postmaincategory'),
     url(r'^postsubcategory/$', views.post_subcategory, name='postsubcategory'),
     url(r'^deletewarehouse/(?P<warehouseId>.+)/$', views.delete_warehouse, name='deletewarehouse'),
+    # 일일보고
+    url(r'^showdailyreports/$', views.show_dailyreports, name='showdailyreports'),
+    url(r'^dailyreportsasjson/$', views.dailyreports_asjson, name='dailyreportsasjson'),
+    url(r'^postdailyreport/$', views.post_dailyreport, name='postdailyreport'),
 ]
