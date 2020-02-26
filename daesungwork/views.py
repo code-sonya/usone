@@ -830,3 +830,30 @@ def delete_dailyreport(request, dailyreportId):
     dailyreport = DailyReport.objects.get(dailyreportId=dailyreportId)
     dailyreport.delete()
     return redirect('daesungwork:showdailyreports')
+
+
+@login_required
+@csrf_exempt
+def show_productlocation(request):
+    template = loader.get_template('daesungwork/showproductlocation.html')
+    employees = Employee.objects.all()
+    if request.method == 'POST':
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        writer = request.POST['writer']
+    else:
+        startdate = ''
+        enddate = ''
+        writer = ''
+
+    form = DailyReportForm(initial={'writeEmp': request.user.employee.user_id})
+    context = {
+        'form': form,
+        'startdate': startdate,
+        'enddate': enddate,
+        'writer': writer,
+        'employees': employees,
+    }
+
+    return HttpResponse(template.render(context, request))
+

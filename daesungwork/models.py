@@ -112,7 +112,6 @@ class Size(models.Model):
         return str(self.size)
 
 
-
 class Affiliate(models.Model):
     affiliateId = models.AutoField(primary_key=True)
     affiliateName = models.CharField(max_length=20, null=True, blank=True, unique=True)
@@ -126,8 +125,8 @@ class Sale(models.Model):
     saleDate = models.DateField()
     affiliate = models.ForeignKey(Affiliate, on_delete=models.PROTECT, null=True)
     client = models.ForeignKey(Company, on_delete=models.PROTECT)
-    product = models.ForeignKey(Product, on_delete=models.DO_NOTHING)
-    size = models.ForeignKey(Size, on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True)
     unitPrice = models.IntegerField(null=True, blank=True)
     quantity = models.IntegerField(null=True, blank=True)
     salePrice = models.IntegerField()
