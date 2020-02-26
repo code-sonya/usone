@@ -61,9 +61,9 @@ class WarehouseAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('productId', 'modelName', 'productName', 'unitPrice', 'position', 'productPicture')
-    list_filter = ('modelName', 'productName', 'position')
-    list_display_links = ['productId', 'modelName', 'productName', 'unitPrice', 'position', 'productPicture']
+    list_display = ('productId', 'modelName', 'productName', 'unitPrice', 'position', 'productPicture', 'productStatus')
+    list_filter = ('modelName', 'productName', 'position', 'productStatus')
+    list_display_links = ['productId', 'modelName', 'productName', 'unitPrice', 'position', 'productPicture', 'productStatus']
 
 
 @admin.register(Size)

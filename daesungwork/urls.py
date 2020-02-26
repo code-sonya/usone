@@ -43,4 +43,6 @@ urlpatterns = [
     url(r'^showdailyreports/$', views.show_dailyreports, name='showdailyreports'),
     url(r'^dailyreportsasjson/$', views.dailyreports_asjson, name='dailyreportsasjson'),
     url(r'^postdailyreport/$', views.post_dailyreport, name='postdailyreport'),
+    url(r'^viewdailyreport/(?P<dailyreportId>.+)/$', views.view_dailyreport, name='viewdailyreport'),
+    url(r'^deletedailyreport/(?P<dailyreportId>.+)/$', views.delete_dailyreport, name='deletedailyreport'),
 ]

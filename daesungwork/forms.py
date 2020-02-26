@@ -42,6 +42,7 @@ class SaleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(SaleForm, self).__init__(*args, **kwargs)
         self.fields["client"].queryset = Company.objects.filter(Q(companyStatus='Y'))
+        self.fields["product"].queryset = Product.objects.filter(Q(productStatus='Y'))
         # self.fields["size"].queryset = Size.objects.filter(Q(productId=self.fields["product"]["productId"]))
 
 
