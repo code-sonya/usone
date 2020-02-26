@@ -87,7 +87,10 @@
         </div>
       </div>
       <div class="card-body">
-        <div id="dailyreportdiv" class="m-3">
+        {% if startdate or enddate %}
+        <div>조회 기간 :  {% if startdate %} {{ startdate }} {% endif %} ~ {% if enddate %} {{ enddate }} {% endif %} </div>
+        {% endif %}
+        <div id="dailyreportdiv">
           <table id="showdailyreports" class="display" style="width:100%">
             <thead style="width:100%">
             <tr style="background-color: #deeef8; color: black;">
@@ -117,7 +120,7 @@
       </div>
 
       <div class="modal-body">
-        <form id="postForm" enctype="multipart/form-data" action="/daesungwork/postdailyreport/">
+        <form id="postForm" method="POST" enctype="multipart/form-data" action="/daesungwork/postdailyreport/">
           {% csrf_token %}
           <div class="row mb-2">
             <div class="col-6 mb-3 mb-sm-0">
@@ -179,8 +182,8 @@
           </div>
           <div class="row mb-1">
             <div class="col-12">
-              <label for="filterClient" class="font-weight-bold text-primary">작성자</label>
-              <select class="form-control" id="filterClient" name="filterClient">
+              <label for="writer" class="font-weight-bold text-primary">작성자</label>
+              <select class="form-control" id="writer" name="writer">
                 <option value="">------</option>
                 {% for employee in employees %}
                 <option value="{{ employee.empId }}">
@@ -208,19 +211,6 @@
 {% block script %}
 
 <script type="text/javascript">
-    function btn_delete(val) {
-        const centerId = val.id;
-        if (confirm("센터 정보를 삭제하시겠습니까?") == true) {
-            const form = $('<form></form>');
-            form.attr('action', '/daesungwork/deletecenter/');
-            form.attr('method', 'POST');
-            form.appendTo('body');
-
-            const center = $('<input type="hidden" value="' + centerId + '" name="centerId">');
-            form.append(center);
-            form.submit();
-        }
-    }
 
     function btn_filter() {
         document.getElementById("filterForm").submit();
@@ -235,20 +225,6 @@
         }
     }
 
-    function btn_change(centerName) {
-        const searchForm = document.getElementById('searchForm');
-        const searchDayInput = document.createElement("input");
-        searchDayInput.setAttribute("type", "hidden");
-        searchDayInput.setAttribute("name", "searchDay");
-        searchDayInput.setAttribute("value", "{{ thisMonday |date:'Y-m-d'}}");
-        searchForm.appendChild(searchDayInput);
-        const centerNameInput = document.createElement("input");
-        centerNameInput.setAttribute("type", "hidden");
-        centerNameInput.setAttribute("name", "centerName");
-        centerNameInput.setAttribute("value", centerName);
-        searchForm.appendChild(centerNameInput);
-        searchForm.submit();
-    }
 
     function btn_post() {
         if (document.getElementById("workDate").value === '') {
@@ -321,18 +297,19 @@
                 },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(4)', nRow).text(aData.unitPrice.toLocaleString());
+                $('td:eq(1)', nRow).text(replaceAll(aData.workDate, "-", "."));
+                $('td:eq(4)', nRow).text(replaceAll(aData.writeDatetime, "-", "."));
             },
             "footerCallback": function () {
             },
         });
 
-        // const showproductsTable = $('#showproducts').DataTable();
-        //
-        // $("#showproducts").on("click", 'tr', function () {
-        //     const data = showproductsTable.row(this).data();
-        //     location.href = '/daesungwork/viewproduct/' + data.productId + '/'
-        // });
+        const showdailyreportsTable = $('#showdailyreports').DataTable();
+
+        $("#showdailyreports").on("click", 'tr', function () {
+            const data = showdailyreportsTable.row(this).data();
+            location.href = '/daesungwork/viewdailyreport/' + data.dailyreportId + '/'
+        });
     });
 
 

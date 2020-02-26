@@ -479,7 +479,7 @@ def show_salestatus(request, affiliateId):
     affiliates = Affiliate.objects.all()
     sales = Sale.objects.all()
     clients = Company.objects.filter(companyStatus="Y")
-    products = Product.objects.all()
+    products = Product.objects.filter(productStatus='Y')
 
     if request.method == 'POST':
         startdate = request.POST['startdate']
@@ -582,7 +582,7 @@ def show_products(request):
 @login_required
 @csrf_exempt
 def product_asjson(request):
-    products = Product.objects.all()\
+    products = Product.objects.filter(productStatus='Y')\
         .values('productId', 'modelName', 'productName', 'unitPrice', 'productPicture', 'position__mainCategory__categoryName', 'position__subCategory__categoryName').order_by('productId')
     structure = json.dumps(list(products), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -607,6 +607,7 @@ def view_product(request, productId):
             'instance': instance,
             'sizes': sizes,
             'productId': productId,
+            'productImage': instance.productPicture,
         }
 
         return HttpResponse(template.render(context, request))
@@ -616,7 +617,8 @@ def view_product(request, productId):
 @csrf_exempt
 def delete_product(request, productId):
     product = Product.objects.get(productId=productId)
-    product.delete()
+    product.productStatus = 'N'
+    product.save()
     return redirect('daesungwork:showproducts')
 
 
@@ -763,7 +765,7 @@ def sales_asjson(request):
     if filterSize:
         sales = sales.filter(size__size__iexact=filterSize)
 
-    sales = sales.values('saleId', 'saleDate', 'affiliate__affiliateName', 'client__companyName', 'product__modelName', 'size__size', 'unitPrice', 'quantity', 'salePrice').order_by('-saleDate')
+    sales = sales.values('saleId', 'saleDate', 'product__productId', 'affiliate__affiliateName', 'client__companyName', 'product__modelName', 'size__size', 'unitPrice', 'quantity', 'salePrice').order_by('-saleDate')
 
     structure = json.dumps(list(sales), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -805,7 +807,7 @@ def show_dailyreports(request):
         enddate = ''
         writer = ''
 
-    form = DailyReportForm()
+    form = DailyReportForm(initial={'writeEmp': request.user.employee.user_id})
     context = {
         'form': form,
         'startdate': startdate,
@@ -828,7 +830,7 @@ def dailyreports_asjson(request):
     if request.user.is_staff:
         dailyreports = DailyReport.objects.all()
     else:
-        dailyreports = DailyReport.objects.filter(writeEmp=request.user.userId)
+        dailyreports = DailyReport.objects.filter(writeEmp=request.user.employee.user_id)
 
     if startdate:
         dailyreports = dailyreports.filter(workDate__gte=startdate)
@@ -849,10 +851,51 @@ def dailyreports_asjson(request):
 def post_dailyreport(request):
     if request.method == 'POST':
         form = DailyReportForm(request.POST, request.FILES)
-
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
             return redirect('daesungwork:showdailyreports')
         else:
             return HttpResponse("유효하지 않은 형식입니다. 관리자에게 문의하세요 : (")
+
+    else:
+        return HttpResponse("잘못된 접근입니다. : (")
+
+
+@login_required
+@csrf_exempt
+def view_dailyreport(request, dailyreportId):
+    template = loader.get_template('daesungwork/viewdailyreport.html')
+    dailyreportInstance = DailyReport.objects.get(dailyreportId=dailyreportId)
+
+    if request.method == 'POST':
+        form = DailyReportForm(request.POST, request.FILES, instance=dailyreportInstance)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.modifyDatetime = datetime.datetime.now()
+            post.save()
+
+            return redirect('daesungwork:showdailyreports')
+        else:
+            return HttpResponse('유효하지 않은 형식입니다.')
+
+    else:
+        form = DailyReportForm(instance=dailyreportInstance)
+        writer = dailyreportInstance.writeEmp.empName
+        fileName = dailyreportInstance.files
+        context = {
+            'form': form,
+            'writer': writer,
+            'dailyreportId': dailyreportId,
+            'fileName': fileName,
+        }
+
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def delete_dailyreport(request, dailyreportId):
+    dailyreport = DailyReport.objects.get(dailyreportId=dailyreportId)
+    dailyreport.delete()
+    return redirect('daesungwork:showdailyreports')

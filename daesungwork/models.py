@@ -84,7 +84,7 @@ class Warehouse(models.Model):
     warehouseId = models.AutoField(primary_key=True)
     mainCategory = models.ForeignKey(WarehouseMainCategory, on_delete=models.PROTECT)
     subCategory = models.ForeignKey(WarehouseSubCategory, on_delete=models.PROTECT)
-    warehouseDrawing = models.FileField(upload_to="warehouse/", null=True, blank=True)
+    warehouseDrawing = models.FileField(upload_to="warehouse/", null=True, blank=True, default="warehouse/noimage.png")
 
     def __str__(self):
         return str('창고:{} 섹션:{}'.format(self.mainCategory, self.subCategory))
@@ -95,8 +95,9 @@ class Product(models.Model):
     modelName = models.CharField(max_length=20, unique=True)
     productName = models.CharField(max_length=20, null=True, blank=True)
     unitPrice = models.IntegerField(null=True, blank=True, default=0)
-    position = models.ForeignKey(Warehouse, on_delete=models.PROTECT, null=True, blank=True)
-    productPicture = models.FileField(upload_to="product/", null=True, blank=True)
+    position = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True, blank=True)
+    productPicture = models.FileField(upload_to="product/", null=True, blank=True, default="product/noimage.png")
+    productStatus = models.CharField(max_length=20, default='Y')
 
     def __str__(self):
         return str(self.modelName)
@@ -125,8 +126,8 @@ class Sale(models.Model):
     saleDate = models.DateField()
     affiliate = models.ForeignKey(Affiliate, on_delete=models.PROTECT, null=True)
     client = models.ForeignKey(Company, on_delete=models.PROTECT)
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    size = models.ForeignKey(Size, on_delete=models.PROTECT, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.DO_NOTHING)
+    size = models.ForeignKey(Size, on_delete=models.CASCADE, null=True, blank=True)
     unitPrice = models.IntegerField(null=True, blank=True)
     quantity = models.IntegerField(null=True, blank=True)
     salePrice = models.IntegerField()
@@ -143,7 +144,7 @@ class DailyReport(models.Model):
     title = models.CharField(max_length=20, null=True, blank=True)
     contents = models.TextField(help_text="상세 내용을 작성해 주세요.")
     writeDatetime = models.DateTimeField(default=timezone.now)
-    modifyDatetime = models.DateTimeField()
+    modifyDatetime = models.DateTimeField(default=timezone.now, null=True, blank=True)
     files = models.FileField(upload_to="dailyreport/", null=True, blank=True)
 
     def __str__(self):

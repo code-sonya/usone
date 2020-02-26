@@ -1,0 +1,145 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+일일보고 상세
+{% endblock %}
+
+
+{% block css %}
+
+<style type="text/css">
+  .input-form {
+    border: 1px solid #d1d3e2;
+    border-radius: .35rem;
+    padding: .375rem .75rem;
+    font-size: 0.9em;
+    color: #6e707e;
+    width: 170px;
+  }
+
+  pc-table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .pc-table td, .pc-table th {
+    padding: 5px 15px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 17px;
+    border: 1px solid rgba(206, 210, 219, 0.64);
+  }
+
+  .dataTable td {
+    padding: 10px;
+  }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card shadow mb-4">
+
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800"> {{ writer }}님 일일보고 </h6>
+      </div>
+
+      <div class="card-body">
+        <form id="postForm" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row mb-2">
+            <div class="col-6 mb-3 mb-sm-0">
+              <label for="workDate" class="font-weight-bold text-primary"> 업무일자 </label> {{ form.workDate }}
+            </div>
+             <div class="col-6 mb-3 mb-sm-0">
+              <label for="files" class="font-weight-bold text-secondary"> 파일첨부 </label> {{ form.files }}
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-12 mb-3 mb-sm-0">
+              <label for="title" class="font-weight-bold text-primary"> 제목 </label> {{ form.title }}
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col-12 mb-3 mb-sm-0">
+              <label for="contents" class="font-weight-bold text-primary"> 업무내용 </label> {{ form.contents }}
+            </div>
+          </div>
+           <div class="col-6 mb-3 mb-sm-0 d-none">
+              <label for="writeEmp" class="font-weight-bold text-primary d-none"> 작성자 </label> {{ form.writeEmp }}
+           </div>
+        </form>
+        {% if fileName %}
+        <div class="row m-1">
+          <div class="col-6 mb-3 mb-sm-0">
+            <label for="down" class="row font-weight-bold text-secondary">첨부파일</label>
+            <a name="down" href="/media/{{ fileName }}" download=""><i class="fa fa-download"></i> {{ fileName }}</a>
+          </div>
+        </div>
+        {% endif %}
+        <div class="text-right mr-1 mt-3">
+          <a href="#" class="btn btn-secondary btn-icon-split" onclick="btn_cancel()">
+            <span class="text"> 취소 </span>
+          </a>
+          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+            <span class="text"> 삭제 </span>
+          </a>
+          <a href="#" class="btn btn-info btn-icon-split" onclick="btn_modify()">
+            <span class="text"> 수정 </span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+
+    function btn_cancel() {
+        if (confirm("취소 하시겠습니까?") === true) {
+            history.back();
+        } else {
+            return false;
+        }
+    }
+
+    function btn_delete() {
+        if (confirm("삭제 하시겠습니까?") === true) {
+            location.href = '/daesungwork/deletedailyreport/{{ dailyreportId }}/'
+        }
+    }
+
+    function btn_modify() {
+        if (document.getElementById("workDate").value === '') {
+            alert("업무일자를 입력해주세요.");
+            return false;
+        }
+
+
+        if (document.getElementById("title").value === '') {
+            alert("제목을 입력해주세요.");
+            return false;
+        }
+
+        const postForm = document.getElementById('postForm');
+        postForm.submit();
+    }
+
+
+</script>
+
+{% endblock %}

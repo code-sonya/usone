@@ -430,21 +430,6 @@
         }
     }
 
-    function btn_change(centerName) {
-        const searchForm = document.getElementById('searchForm');
-        const searchDayInput = document.createElement("input");
-        searchDayInput.setAttribute("type", "hidden");
-        searchDayInput.setAttribute("name", "searchDay");
-        searchDayInput.setAttribute("value", "{{ thisMonday |date:'Y-m-d'}}");
-        searchForm.appendChild(searchDayInput);
-        const centerNameInput = document.createElement("input");
-        centerNameInput.setAttribute("type", "hidden");
-        centerNameInput.setAttribute("name", "centerName");
-        centerNameInput.setAttribute("value", centerName);
-        searchForm.appendChild(centerNameInput);
-        searchForm.submit();
-    }
-
     function btn_post() {
         if (document.getElementById("saleDate").value === '') {
             alert("판매일자를 입력해주세요.");
@@ -539,6 +524,8 @@
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(0)', nRow).text(replaceAll(aData.saleDate, "-", "-"));
+                $('td:eq(2)', nRow).css('color', '#4e73df');
+                $('td:eq(3)', nRow).css('color', '#4e73df');
                 $('td:eq(5)', nRow).text(aData.unitPrice.toLocaleString());
                 $('td:eq(7)', nRow).text(aData.salePrice.toLocaleString());
             },
@@ -559,12 +546,17 @@
             },
         });
 
-        // const salesTable = $('#showsales').DataTable();
-        //
-        // $("#showsales").on("click", 'tr', function () {
-        //     const data = salesTable.row(this).data();
-        //     location.href = '/daesungwork/viewsale/' + data.saleId + '/'
-        // });
+        const salesTable = $('#showsales').DataTable();
+
+        $("#showsales tbody").on("click", 'tr td:eq(3)', function () {
+            const data = salesTable.data();
+            window.open('about:blank').location.href = '/daesungwork/viewproduct/' + data[0].product__productId + '/'
+        });
+        $("#showsales tbody").on("click", 'tr td:eq(2)', function () {
+            const data = salesTable.data();
+            window.open('about:blank').location.href = '/client/viewclient/' + data[0].client__companyName + '/'
+        });
+
     });
 
 
