@@ -83,7 +83,7 @@
           </a>
           {% if user.is_staff %}
           <a class="btn btn-primary" href="#" role="button" data-toggle="modal" data-target="#insertModal">
-            <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
+            <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 일괄등록</span>
           </a>
           {% endif %}
         </div>
@@ -92,7 +92,7 @@
         <form method="POST" id="searchForm">
           <div class="row ml-3 mt-1">
             <span>
-              <select class="form-control" id="center" name="center" onchange="change_affiliate(this.value)">
+              <select class="form-control" id="affiliates" name="affiliates" onchange="change_affiliate(this.value)">
                 <option value="all">전체</option>
                 {% for affiliate in affiliates %}
                 <option value="{{ affiliate.affiliateId }}" {% if affiliateId == affiliate.affiliateId %} selected {% endif %}>
@@ -103,6 +103,55 @@
             </span>
           </div>
         </form>
+        {% if startdate or enddate %}
+        <div class="row m-2 pt-3">
+          <div class="col-xl-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">조회기간</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if startdate %}{{ startdate }}{% endif %} ~ {% if enddate %} {{ enddate }} {% endif %}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-coins fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card border-left-success shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매금액</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.total | intcomma }}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-coins fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매건수</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.count | intcomma }}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-coins fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
         <div class="row m-2 pt-3">
           <div class="col-xl-3">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -165,7 +214,8 @@
             </div>
           </div>
         </div>
-        <form method="POST" id="postForm">
+        {% endif %}
+        <form method="POST" id="postForm" action="/daesungwork/postsale/{{ affiliateId }}/">
           {% csrf_token %}
           <div class="form-group row m-2 pt-4">
             <div class="col-xl-2">
@@ -216,6 +266,7 @@
               <td>단가</td>
               <td>수량</td>
               <td>판매금액</td>
+              <td><i class="fas fa-trash-alt text-secondary"></i></td>
             </tr>
             </thead>
             <tfoot>
@@ -228,6 +279,7 @@
               <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: center"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: center"></th>
             </tr>
             </tfoot>
           </table>
@@ -250,33 +302,39 @@
       </div>
 
       <div class="modal-body">
-        <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_category();}">
+        <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
           {% csrf_token %}
           <div class="row mb-1">
             <div class="col-6">
               <label for="startdate" class="font-weight-bold text-primary">시작 일자</label>
-              <input type="text" class="form-control" id="startdate" name="startdate" required>
+              <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" required>
             </div>
             <div class="col-6">
-              <label for="enddate" class="font-weight-bold text-secondary">종료 일자</label>
-              <input type="text" class="form-control" id="enddate" name="enddate" required>
+              <label for="enddate" class="font-weight-bold text-primary">종료 일자</label>
+              <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" required>
             </div>
           </div>
           <div class="row mb-1">
-            <div class="col-6">
-              <label for="affiliate" class="font-weight-bold text-primary">매출처</label>
-              <select class="form-control" id="affiliate" name="affiliate">
-                <option value="all">전체</option>
-                {% for affiliate in affiliates %}
-                <option value="{{ affiliate.affiliateId }}" {% if affiliateId == affiliate.affiliateId %} selected {% endif %}>
-                  {{ affiliate.affiliateName }}
+            <div class="col-12">
+              <label for="filterClient" class="font-weight-bold text-primary">업체명</label>
+              <select class="form-control" id="filterClient" name="filterClient">
+                <option value="">------</option>
+                {% for client in clients %}
+                <option value="{{ client.companyName }}">
+                  {{ client.companyName }}
                 </option>
                 {% endfor %}
               </select>
             </div>
+          </div>
+          <div class="row mb-1">
             <div class="col-6">
-              <label for="productName" class="font-weight-bold text-secondary">제품 사진</label>
-              <input type="text" class="form-control" id="productName" name="modelName" required>
+              <label for="filterProduct" class="font-weight-bold text-primary">모델명</label>
+              <input type="text" class="form-control" id="filterProduct" name="filterProduct" required>
+            </div>
+            <div class="col-6">
+              <label for="filterSize" class="font-weight-bold text-primary">사이즈</label>
+              <input type="text" class="form-control" id="filterSize" name="filterSize" required>
             </div>
           </div>
         </form>
@@ -284,7 +342,7 @@
 
       <div class="modal-footer">
         <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-        <a class="btn btn-info" href="#" onclick="btn_category()">등록</a>
+        <a class="btn btn-info" href="#" onclick="btn_filter()">조회</a>
       </div>
     </div>
   </div>
@@ -296,6 +354,18 @@
 {% block script %}
 
 <script type="text/javascript">
+
+    function btn_deletesale(val) {
+        const saleId = val.id;
+        if (confirm("판매정보를 삭제하시겠습니까?") == true) {
+            location.href = '/daesungwork/deletesale/' + saleId + '/';
+        }
+    }
+
+
+    function btn_filter() {
+        document.getElementById("filterForm").submit();
+    }
 
     function changeModel(modelName) {
         $.ajax({
@@ -314,6 +384,25 @@
                 }
                 $('#unitPrice').val(unitPrice[0].unitPrice);
                 changePrice();
+            }
+        });
+    }
+
+    function changeFilterModel() {
+        $.ajax({
+            url: "{% url 'daesungwork:modelasjson' %}",
+            method: 'POST',
+            cache: false,
+            data: {"modelName": modelName,},
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                var sizes = returnData[1];
+                $('#size').empty();
+                for (var count = 0; count < sizes.length; count++) {
+                    var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
+                    $('#size').append(option);
+                }
+                $('#unitPrice').val(unitPrice[0].unitPrice);
             }
         });
     }
@@ -390,6 +479,11 @@
                 "type": 'POST',
                 "data": {
                     "affiliateId": "{{ affiliateId }}",
+                    "startdate": "{{ startdate }}",
+                    "enddate": "{{ enddate }}",
+                    "filterClient": "{{ filterClient }}",
+                    "filterProduct": "{{ filterProduct }}",
+                    "filterSize": "{{ filterSize }}",
                 },
                 "url": "{% url 'daesungwork:salesasjson' %}",
                 "dataSrc": ""
@@ -403,9 +497,15 @@
                 {data: "unitPrice"},
                 {data: "quantity"},
                 {data: "salePrice"},
+                {
+                    data: "saleId",
+                    "render": function (data, type, row) {
+                        return '<i class="fas fa-times-circle" onclick="btn_deletesale(this)" id="' + row['saleId'] + '"</i>'
+                    },
+                },
             ],
             "columnDefs": [
-                {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
@@ -413,6 +513,8 @@
                 {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                 {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {targets: 7, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                {targets: 8, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+
             ],
             "deferRender": true,
             "bLengthChange": false,
@@ -457,12 +559,12 @@
             },
         });
 
-        const salesTable = $('#showsales').DataTable();
-
-        $("#showsales").on("click", 'tr', function () {
-            const data = salesTable.row(this).data();
-            location.href = '/daesungwork/viewsales/' + data.saleId + '/'
-        });
+        // const salesTable = $('#showsales').DataTable();
+        //
+        // $("#showsales").on("click", 'tr', function () {
+        //     const data = salesTable.row(this).data();
+        //     location.href = '/daesungwork/viewsale/' + data.saleId + '/'
+        // });
     });
 
 

@@ -2,8 +2,10 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
 from hr.models import Employee
-from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, WarehouseMainCategory, WarehouseSubCategory, Sale
-from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm
+from client.models import Company
+from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, \
+    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport
+from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -404,55 +406,88 @@ def show_salestatus(request, affiliateId):
     thisMonday = today - datetime.timedelta(days=today.weekday())
     thisSunday = thisMonday + datetime.timedelta(days=6)
 
+    form = SaleForm()
+    affiliates = Affiliate.objects.all()
+    sales = Sale.objects.all()
+    clients = Company.objects.filter(companyStatus="Y")
+    products = Product.objects.all()
+
     if request.method == 'POST':
-        form = SaleForm(request.POST)
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        filterClient = request.POST['filterClient']
+        filterProduct = request.POST['filterProduct']
+        filterSize = request.POST['filterSize']
 
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.save()
-            return redirect('daesungwork:showsalestatus', affiliateId)
-        else:
-            return HttpResponse("유효하지 않은 형식입니다. 관리자에게 문의하세요 : (")
+        if startdate:
+            sales = sales.filter(saleDate__gte=startdate)
+
+        if enddate:
+            sales = sales.filter(saleDate__lte=enddate)
+
+        if filterClient:
+            sales = sales.filter(client=filterClient)
+
+        if filterProduct:
+            sales = sales.filter(product__modelName__icontains=filterProduct)
+
+        if filterSize:
+            # iexact - 대소문자 구별하지 않음.
+            sales = sales.filter(size__size__iexact=filterSize)
+
     else:
-        form = SaleForm()
-        affiliates = Affiliate.objects.all()
-        sales = Sale.objects.all()
-        if affiliateId != 'all':
-            sales = sales.filter(affiliate=affiliateId)
+        startdate = ''
+        enddate = ''
+        filterClient = ''
+        filterProduct = ''
+        filterSize = ''
 
-        sales = sales.aggregate(
-            yearly=Sum(
-                    Case(
-                        When(saleDate__year=todayYear, then='salePrice'),
-                        default=0, output_field=IntegerField()
-                        )
-                    ),
-            monthly=Sum(
-                    Case(
-                        When(Q(saleDate__year=todayYear) & Q(saleDate__month=todayMonth), then='salePrice'),
-                        default=0, output_field=IntegerField()
-                        )
-                    ),
-            weekly=Sum(
-                Case(
-                    When(Q(saleDate__gte=thisMonday) & Q(saleDate__lte=thisSunday), then='salePrice'),
-                    default=0, output_field=IntegerField()
-                )
-            ),
-            today=Sum(
-                Case(
-                    When(saleDate=today, then='salePrice'),
-                    default=0, output_field=IntegerField()
-                )
-            ),
-        )
+    if affiliateId != 'all':
+        affiliateId = int(affiliateId)
+        sales = sales.filter(affiliate=affiliateId)
 
-        context = {
-            'form': form,
-            'affiliates': affiliates,
-            'affiliateId': affiliateId,
-            'sales': sales,
-        }
+    sales = sales.aggregate(
+        yearly=Sum(
+                Case(
+                    When(saleDate__year=todayYear, then='salePrice'),
+                    default=0, output_field=IntegerField()
+                    )
+                ),
+        monthly=Sum(
+                Case(
+                    When(Q(saleDate__year=todayYear) & Q(saleDate__month=todayMonth), then='salePrice'),
+                    default=0, output_field=IntegerField()
+                    )
+                ),
+        weekly=Sum(
+            Case(
+                When(Q(saleDate__gte=thisMonday) & Q(saleDate__lte=thisSunday), then='salePrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        today=Sum(
+            Case(
+                When(saleDate=today, then='salePrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        total=Sum('salePrice'),
+        count=Count('saleId'),
+    )
+    context = {
+        'form': form,
+        'affiliates': affiliates,
+        'affiliateId': affiliateId,
+        'sales': sales,
+        'clients': clients,
+        'products': products,
+        'startdate': startdate,
+        'enddate': enddate,
+        'filterClient': filterClient,
+        'filterProduct': filterProduct,
+        'filterSize': filterSize,
+    }
+
     return HttpResponse(template.render(context, request))
 
 
@@ -462,7 +497,6 @@ def show_products(request):
     template = loader.get_template('daesungwork/showproducts.html')
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
-        print(form)
         if form.is_valid():
             post = form.save(commit=False)
             post.save()
@@ -635,11 +669,121 @@ def model_asjson(request):
 @csrf_exempt
 def sales_asjson(request):
     affiliateId = request.POST['affiliateId']
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    filterClient = request.POST['filterClient']
+    filterProduct = request.POST['filterProduct']
+    filterSize = request.POST['filterSize']
+
     sales = Sale.objects.all()
     if affiliateId != 'all':
         sales = sales.filter(affiliate=affiliateId)
+
+    if startdate:
+        sales = sales.filter(saleDate__gte=startdate)
+
+    if enddate:
+        sales = sales.filter(saleDate__lte=enddate)
+
+    if filterClient:
+        sales = sales.filter(client=filterClient)
+
+    if filterProduct:
+        sales = sales.filter(product__modelName__icontains=filterProduct)
+
+    if filterSize:
+        sales = sales.filter(size__size__iexact=filterSize)
 
     sales = sales.values('saleId', 'saleDate', 'affiliate__affiliateName', 'client__companyName', 'product__modelName', 'size__size', 'unitPrice', 'quantity', 'salePrice').order_by('-saleDate')
 
     structure = json.dumps(list(sales), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def post_sale(request, affiliateId):
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('daesungwork:showsalestatus', affiliateId)
+        else:
+            return HttpResponse("유효하지 않은 형식입니다. 관리자에게 문의하세요 : (")
+
+
+@login_required
+@csrf_exempt
+def delete_sale(request, saleId):
+    sale = Sale.objects.get(saleId=saleId)
+    sale.delete()
+    return redirect('daesungwork:showsalestatus', 'all')
+
+
+@login_required
+@csrf_exempt
+def show_dailyreports(request):
+    template = loader.get_template('daesungwork/showdailyreports.html')
+    employees = Employee.objects.all()
+    if request.method == 'POST':
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        writer = request.POST['writer']
+    else:
+        startdate = ''
+        enddate = ''
+        writer = ''
+
+    form = DailyReportForm()
+    context = {
+        'form': form,
+        'startdate': startdate,
+        'enddate': enddate,
+        'writer': writer,
+        'employees': employees,
+    }
+
+    return HttpResponse(template.render(context, request))
+
+
+
+@login_required
+@csrf_exempt
+def dailyreports_asjson(request):
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    writer = request.POST['writer']
+
+    if request.user.is_staff:
+        dailyreports = DailyReport.objects.all()
+    else:
+        dailyreports = DailyReport.objects.filter(writeEmp=request.user.userId)
+
+    if startdate:
+        dailyreports = dailyreports.filter(workDate__gte=startdate)
+
+    if enddate:
+        dailyreports = dailyreports.filter(workDate__lte=enddate)
+
+    if writer:
+        dailyreports = dailyreports.filter(writeEmp=writer)
+
+    dailyreports = dailyreports.values('dailyreportId', 'workDate', 'writeEmp__empName', 'title', 'writeDatetime')
+    structure = json.dumps(list(dailyreports), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def post_dailyreport(request):
+    if request.method == 'POST':
+        form = DailyReportForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('daesungwork:showdailyreports')
+        else:
+            return HttpResponse("유효하지 않은 형식입니다. 관리자에게 문의하세요 : (")
