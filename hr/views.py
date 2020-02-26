@@ -656,10 +656,10 @@ def save_vacation(request):
             expirationDate=expirationDate,
             comment=comment,
         )
-        if vacationType == '연차':
+        if vacationType == '하계휴가':
             employee.empAnnualLeave += float(vacationDays)
             employee.save()
-        elif vacationType == '특별휴가':
+        elif vacationType == '동계휴가':
             employee.empSpecialLeave += float(vacationDays)
             employee.save()
     return redirect('hr:showvacations')
