@@ -1,0 +1,482 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+
+{% block title %}
+  DP건
+{% endblock %}
+
+
+{% block css %}
+  <style>
+    pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border: 1px solid rgba(206, 210, 219, 0.64);
+    }
+
+    pc-table2 {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table2 td, .pc-table th {
+      padding: 3px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 15px;
+      border: 1px solid rgba(206, 210, 219, 0.64);
+    }
+
+    .file_input_textbox {
+      float: left;
+      height: 29px;
+    }
+
+    .file_input_div {
+      position: relative;
+      width: 80px;
+      height: 36px;
+      overflow: hidden;
+    }
+
+    .file_input_img_btn {
+      padding: 0 0 0 5px;
+    }
+
+    .file_input_hidden {
+      font-size: 29px;
+      position: absolute;
+      right: 0px;
+      top: 0px;
+      opacity: 0;
+      filter: alpha(opacity=0);
+      -ms-filter: alpha(opacity=0);
+      cursor: pointer;
+    }
+
+    .input-form {
+      border: 1px solid #d1d3e2;
+      border-radius: .35rem;
+      padding: .375rem .75rem;
+      font-size: 0.9em;
+      color: #6e707e;
+      width: 170px;
+    }
+  </style>
+{% endblock %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">DP건</h6>
+          <div class="dropdown no-arrow">
+            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
+            </a>
+            {% if user.is_staff %}
+              <a class="btn btn-primary" href="#" role="button" onclick="open_insertmodal()">
+                <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 일괄등록</span>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-body">
+          <h5>▼ <span class="text-primary font-weight-bold">DP건 목록</span></h5>
+          <form method="POST" id="postForm" action="/daesungwork/postdisplay/">
+            {% csrf_token %}
+            <div class="form-group row m-2 pt-4">
+              <div class="col-xl-2">
+                <label for="postDate" class="font-weight-bold text-primary"> 발생일자 </label> {{ form.postDate }}
+              </div>
+              <div class="col-xl-2">
+                <label for="product" class="font-weight-bold text-primary"> 품명 </label> {{ form.product }}
+              </div>
+              <div class="col-xl-2">
+                <label for="size" class="font-weight-bold text-primary"> 사이즈 </label> {{ form.size }}
+              </div>
+              <div class="col-xl-2">
+                <label for="quantity" class="font-weight-bold text-primary"> 수량 </label> {{ form.quantity }}
+              </div>
+              <div class="col-xl-3">
+                <label for="comment" class="font-weight-bold"> 비고 </label> {{ form.comment }}
+              </div>
+              <div class="col-xl-1 text-center">
+                <span class="btn bg-primary text-white mt-4 center" onclick="btn_post()">등록</span>
+              </div>
+            </div>
+          </form>
+          <div class="p-3">
+            <table id="showdisplay" class="display" style="width:100%">
+              <thead>
+              <tr style="background-color: #deeef8; color: black;">
+                <td>발생일자</td>
+                <td>품명</td>
+                <td>사이즈</td>
+                <td>수량</td>
+                <td>비고</td>
+                <td><i class="fas fa-trash-alt text-secondary"></i></td>
+              </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="startdate" class="font-weight-bold text-primary">시작 일자</label>
+                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" required>
+              </div>
+              <div class="col-6">
+                <label for="enddate" class="font-weight-bold text-primary">종료 일자</label>
+                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" required>
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="filterProduct" class="font-weight-bold text-primary">모델명</label>
+                <input type="text" class="form-control" id="filterProduct" name="filterProduct" required>
+              </div>
+              <div class="col-6">
+                <label for="filterSize" class="font-weight-bold text-primary">사이즈</label>
+                <input type="text" class="form-control" id="filterSize" name="filterSize" required>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">조회</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- insert Modal -->
+  <div class="modal fade" id="insertModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="insertModalLabel">일괄등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="insertForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-3">
+                <label class="font-weight-bold text-primary">발생 일자</label>
+                <input type="date" max="9999-12-31" class="form-control" name="postDate" required>
+              </div>
+            </div>
+          </form>
+          <table id="insertTable" class="display" style="width:100%">
+            <thead style="width:100%">
+            <tr>
+              <th class="font-weight-bold text-primary">품명</th>
+              <th class="font-weight-bold text-primary">사이즈</th>
+              <th class="font-weight-bold text-primary">수량</th>
+              <th class="font-weight-bold">비고</th>
+              <th><i id="addDisplay" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_insert()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_insert() {
+          const form = document.getElementById("insertForm");
+
+          // DP 일괄등록
+          const lengthDisplay = $('.insertTableCount').length; // x 그림에 insertTableCount class 추가해서 길이 셈.
+          const listDisplay = [];
+          for (let i=0; i<lengthDisplay; i++) {
+              if ($('select[name="insertProduct"]').eq(i).val() === null) {
+                  alert("품명을 입력해주세요."); return false;
+              }
+              if ($('select[name="insertSize"]').eq(i).val() === null) {
+                  alert("사이즈를 입력해주세요."); return false;
+              }
+              if ($('input[name="insertQuantity"]').eq(i).val() === '') {
+                  alert("수량을 입력해주세요."); return false;
+              }
+
+              var data = new Object();
+              data.product = $('select[name="insertProduct"]').eq(i).val();
+              data.size = $('input[name="insertSize"]').eq(i).val();
+              data.quantity = $('input[name="inserQuantity"]').eq(i).val();
+              data.comment = $('input[name="insertComment"]').eq(i).val();
+              listDisplay.push(data);
+          }
+          const jsonDisplay = JSON.stringify(listDisplay);
+          const display = document.createElement("input");
+          display.setAttribute("type", "hidden");
+          display.setAttribute("name", "jsonDisplay");
+          display.setAttribute("value", jsonDisplay);
+          form.appendChild(display);
+
+          if (confirm("일괄등록 하시겠습니까?") === true) {
+              form.submit();
+          }
+      }
+
+      function btn_deletedisplay(val) {
+          const displayId = val.id;
+          if (confirm("해당 DP건을 삭제하시겠습니까?") == true) {
+              location.href = '/daesungwork/deletedisplay/' + displayId + '/';
+          }
+      }
+
+      function open_insertmodal() {
+          $('#insertModal').modal('show');
+          setTimeout("$('#addDisplay').click()", 150);
+      }
+
+      function btn_filter() {
+          document.getElementById("filterForm").submit();
+      }
+
+      function changeModel(modelName) {
+          $.ajax({
+              url: "{% url 'daesungwork:modelasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"modelName": modelName,},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var sizes = returnData[1];
+                  $('#size').empty();
+                  for (var count = 0; count < sizes.length; count++) {
+                      var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
+                      $('#size').append(option);
+                  }
+              }
+          });
+      }
+
+      function changeFilterModel() {
+          $.ajax({
+              url: "{% url 'daesungwork:modelasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"modelName": modelName,},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var sizes = returnData[1];
+                  $('#size').empty();
+                  for (var count = 0; count < sizes.length; count++) {
+                      var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
+                      $('#size').append(option);
+                  }
+                  $('#unitPrice').val(unitPrice[0].unitPrice);
+              }
+          });
+      }
+
+      function btn_post() {
+          if (document.getElementById("postDate").value === '') {
+              alert("발생일자를 입력해주세요.");
+              return false;
+          }
+          if (document.getElementById("product").value === '') {
+              alert("품명을 선택해주세요.");
+              return false;
+          }
+          if (document.getElementById("size").value === '') {
+              alert("사이즈를 선택해주세요.");
+              return false;
+          }
+          if (document.getElementById("quantity").value === '') {
+              alert("수량을 입력해주세요.");
+              return false;
+          }
+          const postForm = document.getElementById('postForm');
+          postForm.submit();
+      }
+
+      $(document).ready(function () {
+          $('#showdisplay').dataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'startdate': '{{ startdate }}',
+                      'enddate': '{{ enddate }}',
+                      'filterProduct': '{{ filterProduct }}',
+                      'filterSize': '{{ filterSize }}',
+                  },
+                  "url": "{% url 'daesungwork:displayasjson' %}",
+                  "dataSrc": ""
+              },
+              "columns": [
+                  {data: "postDate"},
+                  {data: "product__productName"},
+                  {data: "size__size"},
+                  {data: "quantity"},
+                  {data: "comment"},
+                  {
+                      data: "displayId",
+                      "render": function (data, type, row) {
+                          return '<i class="fas fa-times-circle" onclick="btn_deletedisplay(this)" id="' + data + '"</i>'
+                      },
+                  },
+              ],
+              "columnDefs": [
+                  {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap", orderable: false},
+                  {targets: 5, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap", orderable: false},
+              ],
+              "deferRender": true,
+              "bLengthChange": false,
+              "order": [[0, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+              },
+              "footerCallback": function () {
+              },
+          });
+
+          let insertTable = $('#insertTable').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {
+                      targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+                  {
+                      targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+                  {
+                      targets: 3, width: "35%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+                  {targets: 4, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+              ],
+          });
+
+          let displayCounter = 0;
+          let products = [];
+          {% for product in products %}
+              products.push(['{{ product.productId }}', '{{ product.productName }}']);
+          {% endfor %}
+
+          $('#addDisplay').on('click', function () {
+              insertTable.row.add([
+                  '<select class="input-form" name="insertProduct" id="display1' + displayCounter + '">',
+                  '<select class="input-form" name="insertSize" id="display2' + displayCounter + '">',
+                  '<input class="input-form" name="insertQuantity" id="display3' + displayCounter + '" type="number">',
+                  '<input class="input-form" name="insertComment" id="display4' + displayCounter + '">',
+                  '<i class="fas fa-times-circle insertTableCount">',
+              ]).draw();
+
+              // 여기 매직서치부터
+              displayCounter++;
+          });
+
+          $('#insertTable').on('click', 'i', function () {
+              insertTable
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+      });
+
+
+  </script>
+
+{% endblock %}

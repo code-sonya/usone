@@ -135,6 +135,7 @@ class Sale(models.Model):
     def __str__(self):
         return str(self.saleId)
 
+
 class DailyReport(models.Model):
     dailyreportId = models.AutoField(primary_key=True)
     workDate = models.DateField()
@@ -148,3 +149,14 @@ class DailyReport(models.Model):
     def __str__(self):
         return str(self.writeEmp)
 
+
+class Display(models.Model):
+    displayId = models.AutoField(primary_key=True)
+    postDate = models.DateField()
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    size = models.ForeignKey(Size, on_delete=models.PROTECT, null=True, blank=True)
+    quantity = models.IntegerField(null=True, blank=True)
+    comment = models.CharField(max_length=200, null=True, blank=True, default='')
+
+    def __str__(self):
+        return str(self.displayId)
