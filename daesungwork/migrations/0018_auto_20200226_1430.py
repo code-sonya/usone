@@ -22,9 +22,4 @@ class Migration(migrations.Migration):
                 ('size', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='daesungwork.Size')),
             ],
         ),
-        migrations.AddField(
-            model_name='dailyreport',
-            name='files',
-            field=models.FileField(blank=True, null=True, upload_to='dailyreport/'),
-        ),
     ]
