@@ -1,0 +1,230 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+재고관리
+{% endblock %}
+
+
+{% block css %}
+
+<style type="text/css">
+  .input-form {
+    border: 1px solid #d1d3e2;
+    border-radius: .35rem;
+    padding: .375rem .75rem;
+    font-size: 0.9em;
+    color: #6e707e;
+    width: 170px;
+  }
+
+  .td-img {
+    max-width: 40%;
+    height: auto;
+  }
+
+  .flow-table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .flow-table td, .flow-table th {
+    padding: 5px 15px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 17px;
+    border-top: 0px dotted #858796a3;
+  }
+
+  .dataTable td {
+    padding: 10px;
+  }
+
+  pc-table {
+    color: #333333;
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+  }
+
+  .pc-table td, .pc-table th {
+    padding: 5px 15px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 17px;
+    border: 1px solid rgba(206, 210, 219, 0.64);
+  }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+<div class="row">
+  <div class="col-xl-12">
+    <div class="card shadow mb-4">
+
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800"> 재고관리 </h6>
+      </div>
+
+      <div class="card-body">
+        <form id="changeForm" method="POST">
+          <div class="row mb-3">
+            <div class="input-group">
+              <span class="col-sm-6 col-xl-1 form-control" style="border:1px solid white">유형: </span>
+              <select class="col-sm-6 col-xl-1 form-control mr-1" id="typeId" name="typeId" onchange="btn_change(this.value)">
+                {% for type in types %}
+                <option value="{{ type.typeId }}" {% if typeId == type.typeId %} selected {% endif %}>
+                    {{ type.typeName }}
+                </option>
+                {% endfor %}
+              </select>
+              <span class="col-sm-6 col-xl-1 form-control" style="border:1px solid white">점검일: </span>
+              <input class="col-sm-6 col-xl-1 form-control" type="date" max="9999-12-31" id="checkDate" name="checkDate">
+            </div>
+          </div>
+         </form>
+        <div class="row">
+          <h5 class="text-primary">
+            <span class="ml-3 text-dark">▼</span> 재고 등록
+          </h5>
+        </div>
+        <form method="POST" id="centerManagerForm">
+          <div id="revenuediv" class="overflow-auto">
+            <table id="showstocks" class="pc-table" style="width:100%">
+              <thead style="width:100%">
+              <tr class="text-center" style="background-color: #deeef8; color: black;">
+                <td>모델명</td>
+                {% for size in sizes %}
+                <td>
+                  {{ size.size__size }}
+                </td>
+                {% endfor %}
+                <td><i id="addStock" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></td>
+              </tr>
+              </thead>
+            </table>
+          </div>
+          <div class="text-right mr-1 mt-3">
+            <a href="#" class="btn btn-secondary btn-icon-split" onclick="btn_cancel()">
+              <span class="text"> 취소 </span>
+            </a>
+            <a href="#" class="btn btn-primary btn-icon-split" onclick="btn_save()">
+              <span class="text"> 저장 </span>
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block script %}
+<script>
+    var itemCounter = 0;
+
+    function btn_cancel() {
+        if (confirm("취소 하시겠습니까?") === true) {
+            history.back();
+        } else {
+            return false;
+        }
+    }
+
+    function btn_false(msg) {
+        alert(msg);
+        return false;
+    }
+
+    function btn_change(typeId) {
+         location.href = '/daesungwork/poststock/' + typeId + '/'
+    }
+
+    function btn_save() {
+        if (document.getElementById("startDate").value === '') {
+            alert("적용기간 시작 날짜를 입력해주세요.");
+            return false;
+        }
+        if (document.getElementById("endDate").value === '') {
+            alert("적용기간 종료 날짜를 입력해주세요.");
+            return false;
+        }
+
+        const centerManagerForm = document.getElementById("centerManagerForm");
+
+        // 센터 담당자
+        const lengthItem = $('[name="centerManagerEmpId"]').length;
+        const listItem = new Array();
+        console.log('lengthItem:', lengthItem);
+        for (var i = 0; i <= lengthItem - 1; i++) {
+            if ($('input[name="empId"]').eq(i).val() == '') {
+                return btn_false("담당자를 선택해 주세요.");
+            }
+            if ($('select[name="manageArea"]').eq(i).val() == '') {
+                return btn_false("담당구역을 선택해 주세요.");
+            }
+            var data = new Object();
+            data.centerManagerEmpId = $('div[name="centerManagerEmpId"]').eq(i).text();
+            data.empId = $('select[name="empId"]').eq(i).val();
+            data.manageArea = $('select[name="manageArea"]').eq(i).val();
+            data.additionalArea = $('input[name="additionalArea"]').eq(i).val();
+            data.cleanupArea = $('select[name="cleanupArea"]').eq(i).val();
+            listItem.push(data);
+        }
+        const jsonManagerEmp = JSON.stringify(listItem);
+        const item = document.createElement("input");
+        item.setAttribute("type", "hidden");
+        item.setAttribute("name", "jsonManagerEmp");
+        item.setAttribute("value", jsonManagerEmp);
+        centerManagerForm.appendChild(item);
+
+        if (confirm("저장 하시겠습니까?") === true) {
+            centerManagerForm.submit();
+        }
+    }
+
+    const t1 = $('#showstocks');
+    $('#addStock').on('click', function () {
+        t1.append(
+            '<tr>'+ '<td class="d-none"><div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">추가</div></td>'+
+            '<td><select style="width:200px" class="form-control" size="1" id="item1' + itemCounter + '" name="modelName" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +'</select></td>' +
+            {% for size in sizes %}
+            '<td><input class="form-control" type="text" id="item2-{{ size.size__size }}" name="{{ size.size__size }}"></td>'+
+            {% endfor %}
+            '<td><i class="fas fa-times-circle" name="remove" ></td>'
+        )
+
+        $.ajax({
+            url: "{% url 'daesungwork:typeproductsasjson' %}",
+            method: 'POST',
+            cache: false,
+            data:{"typeId": '{{ typeId }}'},
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                var product = returnData;
+                $('#item1'+itemCounter).empty();
+                $('#item1'+itemCounter).append('<option value="" selected="">------</option>');
+                for (var count = 0; count < product.length; count++) {
+                    var option = $("<option value=" + product[count].productId + ">" + product[count].modelName + "</option>");
+                    $('#item1'+itemCounter).append(option);
+                }
+                itemCounter++;
+            }, error:function(request,status,error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            }
+        });
+    });
+
+</script>
+
+{% endblock %}

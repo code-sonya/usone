@@ -68,7 +68,7 @@ left: 60px; /*position where enlarged image should offset horizontally */
       <div class="row mb-3">
         <div class="input-group">
           <span class="col-sm-6 col-xl-1 form-control" style="border:1px solid white">창고명: </span>
-          <select class="col-sm-6 col-xl-1 form-control" id="maincategory" name="maincategoryId">
+          <select class="col-sm-6 col-xl-1 form-control mr-1" id="maincategory" name="maincategoryId">
             {% for maincategory in maincategorys %}
             <option value="{{ maincategory.categoryId }}" {% if maincategoryId == maincategory.categoryId %} selected {% endif %}>
               {{ maincategory.categoryName }}

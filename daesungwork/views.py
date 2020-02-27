@@ -4,7 +4,7 @@ from django.template import loader
 from hr.models import Employee
 from client.models import Company
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, \
-    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction
+    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction, Type, StockCheck
 from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm, DisplayForm, ReproductionForm
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
@@ -1079,3 +1079,73 @@ def location_asjson(request):
     products = products.values('productId', 'productPicture', 'modelName', 'size__size', 'unitPrice')
     structure = json.dumps(list(products), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def show_stocks(request):
+    template = loader.get_template('daesungwork/showstocks.html')
+    types = Type.objects.all()
+
+    if request.method == 'POST':
+        typeId = request.POST['typeId']
+
+    else:
+        typeId = ''
+
+    context = {
+        'types': types,
+        'typeId': typeId,
+    }
+
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def stocks_asjson(request):
+    typeId = request.POST['typeId']
+    stockchecks = StockCheck.objects.all()
+    if typeId:
+        stockchecks = stockchecks.filter(typeName__typeId=typeId)
+    stockchecks = stockchecks.values('stockcheckId', 'checkDate', 'checkEmp__empName', 'modifyDate')
+    structure = json.dumps(list(stockchecks), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def post_stock(request, typeId):
+    template = loader.get_template('daesungwork/poststocks.html')
+    types = Type.objects.all()
+
+    if request.method == 'POST':
+        typeId = request.POST['typeId']
+    else:
+        if typeId == 'None':
+            typeId = types.first().typeId
+        else:
+            typeId = int(typeId)
+
+
+    products = Product.objects.filter(Q(productStatus='Y') & Q(typeName__typeId=typeId) & Q(size__isnull=False))
+    sizes = products.values('size__size').distinct()
+    products = products.values('productId', 'modelName').distinct()
+    context = {
+        "types": types,
+        "typeId": typeId,
+        'products': products,
+        "sizes": sizes,
+    }
+
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def typeproducts_asjson(request):
+    typeId = request.POST['typeId']
+    products = Product.objects.filter(Q(productStatus='Y') & Q(typeName__typeId=typeId) & Q(size__isnull=False)).values('productId', 'modelName').distinct()
+    structure = json.dumps(list(products), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+

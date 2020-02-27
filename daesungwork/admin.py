@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, WarehouseMainCategory, WarehouseSubCategory, Warehouse, \
-    Product, Size, Sale, Affiliate, DailyReport, Display, Reproduction, Type
+    Product, Size, Sale, Affiliate, DailyReport, Display, Reproduction, Type, StockCheck, ProductCheck
 
 
 @admin.register(Center)
@@ -113,3 +113,17 @@ class ReproductionAdmin(admin.ModelAdmin):
     list_display = ('reproductionId', 'postDate', 'product', 'size', 'quantity', 'comment')
     list_filter = ('product',)
     list_display_links = ['reproductionId', 'postDate', 'product', 'size', 'quantity', 'comment']
+
+
+@admin.register(StockCheck)
+class StockCheckAdmin(admin.ModelAdmin):
+    list_display = ('stockcheckId', 'checkEmp', 'checkDate', 'createdDate')
+    list_filter = ('checkEmp',)
+    list_display_links = ['stockcheckId', 'checkEmp', 'checkDate', 'createdDate']
+
+
+@admin.register(ProductCheck)
+class ProductCheckAdmin(admin.ModelAdmin):
+    list_display = ('productcheckId', 'product', 'productGap')
+    list_filter = ('product', 'productGap')
+    list_display_links = ['productcheckId', 'product', 'productGap']
