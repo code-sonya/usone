@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Q
 
 from hr.models import Employee
-from .models import CenterManager, Sale, Size, Product, Warehouse, DailyReport, Display
+from .models import CenterManager, Sale, Size, Product, Warehouse, DailyReport, Display, Reproduction
 from client.forms import CompanyForm
 from client.models import Company
 
@@ -120,3 +120,21 @@ class DisplayForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DisplayForm, self).__init__(*args, **kwargs)
+
+
+class ReproductionForm(forms.ModelForm):
+
+    class Meta:
+        model = Reproduction
+        fields = ('postDate', 'product', 'size', 'quantity', 'comment')
+
+        widgets = {
+            'postDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'postDate'}),
+            'product': forms.Select(attrs={'class': 'form-control', 'id': 'product', 'onchange': 'changeModel(this.value, "size")'}),
+            'size': forms.Select(attrs={'class': 'form-control', 'id': 'size'}),
+            'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity'}),
+            'comment': forms.TextInput(attrs={'class': 'form-control', 'id': 'comment'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ReproductionForm, self).__init__(*args, **kwargs)

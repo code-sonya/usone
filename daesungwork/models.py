@@ -160,3 +160,15 @@ class Display(models.Model):
 
     def __str__(self):
         return str(self.displayId)
+
+
+class Reproduction(models.Model):
+    reproductionId = models.AutoField(primary_key=True)
+    postDate = models.DateField()
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    size = models.ForeignKey(Size, on_delete=models.PROTECT, null=True, blank=True)
+    quantity = models.IntegerField(null=True, blank=True)
+    comment = models.CharField(max_length=200, null=True, blank=True, default='')
+
+    def __str__(self):
+        return str(self.reproductionId)

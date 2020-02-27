@@ -3,7 +3,7 @@
 
 
 {% block title %}
-  DP건
+  재생건
 {% endblock %}
 
 
@@ -85,7 +85,7 @@
     <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">DP건</h6>
+          <h6 class="m-0 h3 text-gray-800">재생건</h6>
           <div class="dropdown no-arrow">
             <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
@@ -98,8 +98,8 @@
           </div>
         </div>
         <div class="card-body">
-          <h5>▼ <span class="text-primary font-weight-bold">DP건 목록</span></h5>
-          <form method="POST" id="postForm" action="/daesungwork/postdisplay/">
+          <h5>▼ <span class="text-primary font-weight-bold">재생건 목록</span></h5>
+          <form method="POST" id="postForm" action="/daesungwork/postreproduction/">
             {% csrf_token %}
             <div class="form-group row m-2 pt-4">
               <div class="col-xl-2">
@@ -123,7 +123,7 @@
             </div>
           </form>
           <div class="p-3">
-            <table id="showdisplay" class="display" style="width:100%">
+            <table id="showreproduction" class="display" style="width:100%">
               <thead>
               <tr style="background-color: #deeef8; color: black;">
                 <td>발생일자</td>
@@ -200,7 +200,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="insertForm" action="/daesungwork/insertdisplay/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
+          <form id="insertForm" action="/daesungwork/insertreproduction/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-3">
@@ -237,18 +237,6 @@
 
   <script type="text/javascript">
 
-      // 하다가 포기함..
-      let value = "";
-      function magicsearchtab(input) {
-          value = $(input).attr('data-id');
-          $(input).blur(function() {
-              if (value !== "") {
-                  $(input).trigger('set', {id: value});
-                  console.log(value);
-              }
-          });
-      }
-
       function product_select(productSelectId) {
           let productSelectObj = $('#' + productSelectId);
           $.ajax({
@@ -276,9 +264,9 @@
           }
 
           // DP 일괄등록
-          const lengthDisplay = $('.insertTableCount').length; // x 그림에 insertTableCount class 추가해서 길이 셈.
-          const listDisplay = [];
-          for (let i=0; i<lengthDisplay; i++) {
+          const lengthReproduction = $('.insertTableCount').length; // x 그림에 insertTableCount class 추가해서 길이 셈.
+          const listReproduction = [];
+          for (let i=0; i<lengthReproduction; i++) {
               if ($('select[name="insertProduct"]').eq(i).val() === null) {
                   alert("품명을 입력해주세요."); return false;
               }
@@ -294,24 +282,24 @@
               data.size = $('select[name="insertSize"]').eq(i).val();
               data.quantity = $('input[name="insertQuantity"]').eq(i).val();
               data.comment = $('input[name="insertComment"]').eq(i).val();
-              listDisplay.push(data);
+              listReproduction.push(data);
           }
-          const jsonDisplay = JSON.stringify(listDisplay);
-          const display = document.createElement("input");
-          display.setAttribute("type", "hidden");
-          display.setAttribute("name", "jsonDisplay");
-          display.setAttribute("value", jsonDisplay);
-          form.appendChild(display);
+          const jsonReproduction = JSON.stringify(listReproduction);
+          const reproduction = document.createElement("input");
+          reproduction.setAttribute("type", "hidden");
+          reproduction.setAttribute("name", "jsonReproduction");
+          reproduction.setAttribute("value", jsonReproduction);
+          form.appendChild(reproduction);
 
           if (confirm("일괄등록 하시겠습니까?") === true) {
               form.submit();
           }
       }
 
-      function btn_deletedisplay(val) {
+      function btn_deletereproduction(val) {
           const displayId = val.id;
-          if (confirm("해당 DP건을 삭제하시겠습니까?") == true) {
-              location.href = '/daesungwork/deletedisplay/' + displayId + '/';
+          if (confirm("해당 재생건을 삭제하시겠습니까?") == true) {
+              location.href = '/daesungwork/deletereproduction/' + displayId + '/';
           }
       }
 
@@ -383,7 +371,7 @@
       }
 
       $(document).ready(function () {
-          $('#showdisplay').dataTable({
+          $('#showreproduction').dataTable({
               "processing": true,
               "ajax": {
                   "processing": true,
@@ -394,7 +382,7 @@
                       'filterProduct': '{{ filterProduct }}',
                       'filterSize': '{{ filterSize }}',
                   },
-                  "url": "{% url 'daesungwork:displayasjson' %}",
+                  "url": "{% url 'daesungwork:reproductionasjson' %}",
                   "dataSrc": ""
               },
               "columns": [
@@ -404,9 +392,9 @@
                   {data: "quantity"},
                   {data: "comment"},
                   {
-                      data: "displayId",
+                      data: "reproductionId",
                       "render": function (data, type, row) {
-                          return '<i class="fas fa-times-circle" onclick="btn_deletedisplay(this)" id="' + data + '"</i>'
+                          return '<i class="fas fa-times-circle" onclick="btn_deletereproduction(this)" id="' + data + '"</i>'
                       },
                   },
               ],
