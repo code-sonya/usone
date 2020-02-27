@@ -37,15 +37,12 @@ def show_displaystatus(request):
         filterProduct = ''
         filterSize = ''
 
-    products = Product.objects.all()
-
     context = {
         'form': form,
         'startdate': startdate,
         'enddate': enddate,
         'filterProduct': filterProduct,
         'filterSize': filterSize,
-        'products': products,
     }
     return HttpResponse(template.render(context, request))
 
@@ -94,6 +91,22 @@ def delete_display(request, displayId):
 
 
 @login_required
+@csrf_exempt
+def insert_display(request):
+    postDate = request.POST['postDate']
+    jsonDisplay = json.loads(request.POST['jsonDisplay'])
+    for display in jsonDisplay:
+        Display.objects.create(
+            postDate=postDate,
+            product=Product.objects.get(productId=int(display['product'])),
+            size=Size.objects.get(sizeId=int(display['size'])),
+            quantity=int(display['quantity']),
+            comment=display['comment'] or '',
+        )
+    return redirect('daesungwork:showdisplaystatus')
+
+
+@login_required
 def show_centermanagers(request):
     template = loader.get_template('daesungwork/showcentermanagers.html')
     today = datetime.datetime.today()
@@ -106,7 +119,6 @@ def show_centermanagers(request):
         'centermanager': centermanager,
         'centermanageremps': centermanageremps,
         'today': today,
-
     }
     return HttpResponse(template.render(context, request))
 
@@ -576,14 +588,16 @@ def show_products(request):
         context = {
             'form': form,
         }
-    return HttpResponse(template.render(context, request))
+        return HttpResponse(template.render(context, request))
 
 
 @login_required
 @csrf_exempt
 def product_asjson(request):
-    products = Product.objects.filter(productStatus='Y')\
-        .values('productId', 'modelName', 'productName', 'unitPrice', 'productPicture', 'position__mainCategory__categoryName', 'position__subCategory__categoryName').order_by('productId')
+    products = Product.objects.filter(productStatus='Y').values(
+        'productId', 'modelName', 'productName', 'unitPrice', 'productPicture',
+        'position__mainCategory__categoryName', 'position__subCategory__categoryName'
+    ).order_by('productId')
     structure = json.dumps(list(products), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 

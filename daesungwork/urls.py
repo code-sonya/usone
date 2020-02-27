@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^postdisplay/$', views.post_display, name='postdisplay'),
     url(r'^displayasjson/$', views.display_asjson, name='displayasjson'),
     url(r'^deletedisplay/(?P<displayId>.+)/$', views.delete_display, name='deletedisplay'),
+    url(r'^insertdisplay/$', views.insert_display, name='insertdisplay'),
     # 제품 관리
     url(r'^showproducts/$', views.show_products, name='showproducts'),
     url(r'^productasjson/$', views.product_asjson, name='productasjson'),
