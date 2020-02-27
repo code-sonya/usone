@@ -200,7 +200,7 @@
         </div>
 
         <div class="modal-body">
-          <form id="insertForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
+          <form id="insertForm" action="/daesungwork/insertdisplay/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-3">
@@ -237,6 +237,37 @@
 
   <script type="text/javascript">
 
+      // 하다가 포기함..
+      let value = "";
+      function magicsearchtab(input) {
+          value = $(input).attr('data-id');
+          $(input).blur(function() {
+              if (value !== "") {
+                  $(input).trigger('set', {id: value});
+                  console.log(value);
+              }
+          });
+      }
+
+      function product_select(productSelectId) {
+          let productSelectObj = $('#' + productSelectId);
+          $.ajax({
+              url: "{% url 'daesungwork:productasjson' %}",
+              method: 'GET',
+              cache: false,
+              data: {},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  productSelectObj.append('<option value="">------</option>');
+                  for (let i=0; i<returnData.length; i++) {
+                      productSelectObj.append(
+                          '<option value="' + [returnData[i].productId + '">' + returnData[i].modelName] + '</option>'
+                      );
+                  }
+              }
+          });
+      }
+
       function btn_insert() {
           const form = document.getElementById("insertForm");
 
@@ -256,8 +287,8 @@
 
               var data = new Object();
               data.product = $('select[name="insertProduct"]').eq(i).val();
-              data.size = $('input[name="insertSize"]').eq(i).val();
-              data.quantity = $('input[name="inserQuantity"]').eq(i).val();
+              data.size = $('select[name="insertSize"]').eq(i).val();
+              data.quantity = $('input[name="insertQuantity"]').eq(i).val();
               data.comment = $('input[name="insertComment"]').eq(i).val();
               listDisplay.push(data);
           }
@@ -289,7 +320,7 @@
           document.getElementById("filterForm").submit();
       }
 
-      function changeModel(modelName) {
+      function changeModel(modelName, sizeSelectId) {
           $.ajax({
               url: "{% url 'daesungwork:modelasjson' %}",
               method: 'POST',
@@ -298,10 +329,10 @@
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var sizes = returnData[1];
-                  $('#size').empty();
+                  $('#' + sizeSelectId).empty();
                   for (var count = 0; count < sizes.length; count++) {
                       var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
-                      $('#size').append(option);
+                      $('#' + sizeSelectId).append(option);
                   }
               }
           });
@@ -450,21 +481,16 @@
           });
 
           let displayCounter = 0;
-          let products = [];
-          {% for product in products %}
-              products.push(['{{ product.productId }}', '{{ product.productName }}']);
-          {% endfor %}
 
           $('#addDisplay').on('click', function () {
               insertTable.row.add([
-                  '<select class="input-form" name="insertProduct" id="display1' + displayCounter + '">',
+                  '<select class="input-form" name="insertProduct" id="display1' + displayCounter + '" onchange="changeModel(this.value, \'display2' + displayCounter + '\')">',
                   '<select class="input-form" name="insertSize" id="display2' + displayCounter + '">',
                   '<input class="input-form" name="insertQuantity" id="display3' + displayCounter + '" type="number">',
                   '<input class="input-form" name="insertComment" id="display4' + displayCounter + '">',
                   '<i class="fas fa-times-circle insertTableCount">',
               ]).draw();
-
-
+              product_select('display1' + displayCounter);
               displayCounter++;
           });
 
@@ -474,6 +500,7 @@
                   .remove()
                   .draw();
           });
+
       });
 
 

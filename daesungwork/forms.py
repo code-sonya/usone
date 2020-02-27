@@ -112,7 +112,7 @@ class DisplayForm(forms.ModelForm):
 
         widgets = {
             'postDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'postDate'}),
-            'product': forms.Select(attrs={'class': 'form-control', 'id': 'product', 'onchange': 'changeModel(this.value)'}),
+            'product': forms.Select(attrs={'class': 'form-control', 'id': 'product', 'onchange': 'changeModel(this.value, "size")'}),
             'size': forms.Select(attrs={'class': 'form-control', 'id': 'size'}),
             'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity'}),
             'comment': forms.TextInput(attrs={'class': 'form-control', 'id': 'comment'})
