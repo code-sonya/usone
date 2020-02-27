@@ -25,6 +25,11 @@ urlpatterns = [
     url(r'^modelasjson/$', views.model_asjson, name='modelasjson'),
     url(r'^salesasjson/$', views.sales_asjson, name='salesasjson'),
     url(r'^deletesale/(?P<saleId>.+)/$', views.delete_sale, name='deletesale'),
+    # DP 현황
+    url(r'^showdisplaystatus/$', views.show_displaystatus, name='showdisplaystatus'),
+    url(r'^postdisplay/$', views.post_display, name='postdisplay'),
+    url(r'^displayasjson/$', views.display_asjson, name='displayasjson'),
+    url(r'^deletedisplay/(?P<displayId>.+)/$', views.delete_display, name='deletedisplay'),
     # 제품 관리
     url(r'^showproducts/$', views.show_products, name='showproducts'),
     url(r'^productasjson/$', views.product_asjson, name='productasjson'),
