@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, WarehouseMainCategory, WarehouseSubCategory, Warehouse, \
-    Product, Size, Sale, Affiliate, DailyReport, Display, Type
+    Product, Size, Sale, Affiliate, DailyReport, Display, Reproduction, Type
 
 
 @admin.register(Center)
@@ -106,3 +106,10 @@ class DisplayAdmin(admin.ModelAdmin):
     list_display = ('displayId', 'postDate', 'product', 'size', 'quantity', 'comment')
     list_filter = ('product',)
     list_display_links = ['displayId', 'postDate', 'product', 'size', 'quantity', 'comment']
+
+
+@admin.register(Reproduction)
+class ReproductionAdmin(admin.ModelAdmin):
+    list_display = ('reproductionId', 'postDate', 'product', 'size', 'quantity', 'comment')
+    list_filter = ('product',)
+    list_display_links = ['reproductionId', 'postDate', 'product', 'size', 'quantity', 'comment']

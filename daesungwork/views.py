@@ -4,8 +4,8 @@ from django.template import loader
 from hr.models import Employee
 from client.models import Company
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, \
-    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display
-from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm, DisplayForm
+    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction
+from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm, DisplayForm, ReproductionForm
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -104,6 +104,91 @@ def insert_display(request):
             comment=display['comment'] or '',
         )
     return redirect('daesungwork:showdisplaystatus')
+
+
+@login_required
+def show_reproductionstatus(request):
+    template = loader.get_template('daesungwork/showreproductionstatus.html')
+    form = DisplayForm()
+
+    if request.method == 'POST':
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        filterProduct = request.POST['filterProduct']
+        filterSize = request.POST['filterSize']
+    else:
+        startdate = ''
+        enddate = ''
+        filterProduct = ''
+        filterSize = ''
+
+    context = {
+        'form': form,
+        'startdate': startdate,
+        'enddate': enddate,
+        'filterProduct': filterProduct,
+        'filterSize': filterSize,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def post_reproduction(request):
+    if request.method == 'POST':
+        form = ReproductionForm(request.POST)
+
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('daesungwork:showreproductionstatus')
+        else:
+            return HttpResponse("유효하지 않은 형식입니다. 관리자에게 문의하세요 :(")
+
+
+@login_required
+@csrf_exempt
+def reproduction_asjson(request):
+    reproductions = Reproduction.objects.all()
+
+    if request.POST['startdate']:
+        reproductions = reproductions.filter(postDate__gte=request.POST['startdate'])
+    if request.POST['enddate']:
+        reproductions = reproductions.filter(postDate__lte=request.POST['enddate'])
+    if request.POST['filterProduct']:
+        reproductions = reproductions.filter(product__productName__icontains=request.POST['filterProduct'])
+    if request.POST['filterSize']:
+        reproductions = reproductions.filter(size__size__icontains=request.POST['filterSize'])
+
+    reproductions = reproductions.values(
+        'reproductionId', 'postDate', 'product__productName', 'size__size', 'quantity', 'comment'
+    )
+    structure = json.dumps(list(reproductions), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def delete_reproduction(request, reproductionId):
+    reproduction = Reproduction.objects.get(reproductionId=reproductionId)
+    reproduction.delete()
+    return redirect('daesungwork:showreproductionstatus')
+
+
+@login_required
+@csrf_exempt
+def insert_reproduction(request):
+    postDate = request.POST['postDate']
+    jsonReproduction = json.loads(request.POST['jsonReproduction'])
+    for reproduction in jsonReproduction:
+        Reproduction.objects.create(
+            postDate=postDate,
+            product=Product.objects.get(productId=int(reproduction['product'])),
+            size=Size.objects.get(sizeId=int(reproduction['size'])),
+            quantity=int(reproduction['quantity']),
+            comment=reproduction['comment'] or '',
+        )
+    return redirect('daesungwork:showreproductionstatus')
 
 
 @login_required
