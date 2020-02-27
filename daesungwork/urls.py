@@ -51,4 +51,7 @@ urlpatterns = [
     url(r'^postdailyreport/$', views.post_dailyreport, name='postdailyreport'),
     url(r'^viewdailyreport/(?P<dailyreportId>.+)/$', views.view_dailyreport, name='viewdailyreport'),
     url(r'^deletedailyreport/(?P<dailyreportId>.+)/$', views.delete_dailyreport, name='deletedailyreport'),
+    # 제품위치 조회
+    url(r'^showproductlocation/$', views.show_productlocation, name='showproductlocation'),
+
 ]

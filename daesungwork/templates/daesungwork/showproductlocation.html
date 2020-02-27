@@ -1,0 +1,288 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+제품위치조회
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h6 class="m-0 h3 text-gray-800">제품위치조회</h6>
+      <div class="dropdown no-arrow">
+        <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
+          <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 제품명검색</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div class="row mb-3">
+        <img src="{{ maincategory }}" style="width: 100%;">
+      </div>
+
+      <div class="table-responsive">
+        <table id="showrentals" class="hover row-border" style="width: 100%;">
+          <thead>
+          <tr style="background-color: #deeef8; color: black;">
+            <th>대출일</th>
+            <th>도서명</th>
+            <th>지은이</th>
+            <th>출판사</th>
+            <th>대출자</th>
+            <th>반납일</th>
+            <th>비고</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Modal -->
+  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="filterModalLabel">조회조건</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">시작일자</label>
+                <input type="date" max="9999-12-31" class="form-control" name="startdate" value="{{ startdate }}" onchange="btn_change(this.value)">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">종료일자</label>
+                <input type="date" max="9999-12-31" class="form-control" name="enddate" value="{{ enddate }}">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">대출부서</label>
+                <input class="form-control" name="renterDept" value="{{ renterDept }}">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">대출자</label>
+                <input class="form-control" name="renterName" value="{{ renterName }}">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insert Modal -->
+  <div class="modal fade" id="insertModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="insertModalLabel">도서등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="insertForm" method="POST" action="/supply/postbook/" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-12 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">도서명</label>
+                <input class="form-control" name="name">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">지은이</label>
+                <input class="form-control" name="author">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">출판사</label>
+                <input class="form-control" name="publisher">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-info" href="#" onclick="btn_insert()">등록</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      function btn_change(startdate) {
+          const enddate  = dateAddDel(startdate, 1, "m");
+          $("input[type=date][name=enddate]").val(enddate)
+      }
+
+      function dateAddDel(sDate, nNum, type) {
+        var yyyy = parseInt(sDate.substr(0, 4), 10);
+        var mm = parseInt(sDate.substr(5, 2), 10);
+        var dd = parseInt(sDate.substr(8, 2), 10);
+        if (type == "d") {
+          d = new Date(yyyy, mm-1, dd + nNum);
+        } else if (type == "m") {
+          d = new Date(yyyy, mm-1 + nNum, dd);
+        } else if (type == "y") {
+          d = new Date(yyyy + nNum, mm - 1, dd);
+        }
+        yyyy = d.getFullYear();
+        mm = d.getMonth() + 1; mm = (mm < 10) ? '0' + mm : mm;
+        dd = d.getDate(); dd = (dd < 10) ? '0' + dd : dd;
+        return yyyy + '-' +  mm  + '-' + dd;
+      }
+
+      function btn_filter() {
+          $("#filterForm").submit();
+      }
+
+      function btn_insert() {
+          $.ajax({
+              url: "{% url 'supply:postbook' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "name": $('#insertForm [name="name"]').val(),
+                  "author": $('#insertForm [name="author"]').val(),
+                  "publisher": $('#insertForm [name="publisher"]').val(),
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData === 'N') {
+                      alert('이미 등록된 도서입니다.');
+                      return false;
+                  } else if (returnData === 'Y') {
+                      $('.close').click();
+                      alert('도서 등록이 완료되었습니다.');
+                      location.reload();
+                  }
+              }
+          });
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 10);
+      }
+
+      $(document).ready(function () {
+          const reportsTable = $('#showrentals').DataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      'startdate': '{{ startdate }}',
+                      'enddate': '{{ enddate }}',
+                      'renterDept': '{{ renterDept }}',
+                      'renterName': '{{ renterName }}',
+                  },
+                  "url": "{% url 'supply:rentalsasjson' %}",
+                  "dataSrc": ""
+              },
+              "columnDefs": [
+                  {
+                      targets: 0,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "rentDate",
+                  },
+                  {
+                      targets: 1,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "bookId__name",
+                  },
+                  {
+                      targets: 2,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "bookId__author",
+                  },
+                  {
+                      targets: 3,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "bookId__publisher",
+                  },
+                  {
+                      targets: 4,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "renter__empName",
+                  },
+                  {
+                      targets: 5,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "returnDate",
+                  },
+                  {
+                      targets: 6,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "comment",
+                  },
+              ],
+              "deferRender": true,
+              "bLengthChange": false,
+              "order": [[0, 'desc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  let row = $('td', nRow);
+              },
+          });
+      });
+
+  </script>
+
+{% endblock %}
