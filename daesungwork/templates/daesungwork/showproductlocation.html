@@ -257,7 +257,7 @@ left: 60px; /*position where enlarged image should offset horizontally */
                     data: "productPicture",
                      "render": function (data, type, row) {
                          // return '<img height="80px" src="' + '/media/' + row['productPicture'] + '/' + '">'
-                         return '<a class="thumbnail" href="#thumb"><img src="/media/' + row['productPicture'] + '" width="100px" height="66px" border="0" /><span><img src="/media/' + row['productPicture'] + '" /><br />Simply beautiful.</span></a>'
+                         return '<a class="thumbnail" href="#thumb"><img src="/media/' + row['productPicture'] + '" height="80px" border="0" /><span><img src="/media/' + row['productPicture'] + '" /><br /></span></a>'
                      },
                 },
                 {
@@ -286,7 +286,7 @@ left: 60px; /*position where enlarged image should offset horizontally */
             "paging": true,
             "info": false,
             "scrollY": "80vh",
-            "scrollX": true,
+            "scrollX": false,
             "scrollCollapse": true,
             "language": {
                 "lengthMenu": "_MENU_개씩 보기",

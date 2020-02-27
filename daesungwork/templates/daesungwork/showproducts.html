@@ -84,18 +84,21 @@
             {% csrf_token %}
             <div class="form-group row m-2">
               <div class="col-xl-2">
+                <label for="typeName" class="font-weight-bold text-primary"> 제품유형 </label> {{ form.typeName }}
+              </div>
+              <div class="col-xl-2">
                 <label for="modelName" class="font-weight-bold text-primary"> 모델명 </label> {{ form.modelName }}
               </div>
               <div class="col-xl-2">
                 <label for="productName" class="font-weight-bold text-primary"> 제품명 </label> {{ form.productName }}
               </div>
-              <div class="col-xl-2">
+              <div class="col-xl-1">
                 <label for="unitPrice" class="font-weight-bold text-primary"> 단가 </label> {{ form.unitPrice }}
               </div>
               <div class="col-xl-2">
                 <label for="position" class="font-weight-bold text-primary"> 제품위치 </label> {{ form.position }}
               </div>
-              <div class="col-xl-3">
+              <div class="col-xl-2">
                 <label for="productPicture" class="font-weight-bold text-primary"> 제품사진 </label> {{ form.productPicture }}
               </div>
               <div class="col-xl-1">
@@ -108,6 +111,7 @@
           <table id="showproducts" class="display" style="width:100%">
             <thead style="width:100%">
             <tr style="background-color: #deeef8; color: black;">
+              <td>제품유형</td>
               <td>제품사진</td>
               <td>모델명</td>
               <td>제품명</td>
@@ -138,6 +142,10 @@
       }
 
       function btn_post() {
+          if (document.getElementById("typeName").value === '') {
+              alert("제품유형을 선택해주세요.");
+              return false;
+          }
           if (document.getElementById("modelName").value === '') {
               alert("모델명을 입력해주세요.");
               return false;
@@ -159,6 +167,7 @@
                   "dataSrc": ""
               },
               "columns": [
+                  {data: "typeName__typeName",},
                   {
                       data: "productPicture",
                       "render": function (data, type, row) {
@@ -176,11 +185,12 @@
                   },
               ],
               "columnDefs": [
-                  {targets: 0, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
               "deferRender": true,
               "bLengthChange": false,

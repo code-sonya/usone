@@ -681,7 +681,7 @@ def show_products(request):
 def product_asjson(request):
     products = Product.objects.filter(productStatus='Y').values(
         'productId', 'modelName', 'productName', 'unitPrice', 'productPicture',
-        'position__mainCategory__categoryName', 'position__subCategory__categoryName'
+        'position__mainCategory__categoryName', 'position__subCategory__categoryName', 'typeName__typeName'
     ).order_by('productId')
     structure = json.dumps(list(products), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
