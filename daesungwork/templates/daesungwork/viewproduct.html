@@ -60,18 +60,21 @@
       {% csrf_token %}
       <div class="form-group row m-2">
         <div class="col-xl-2">
+          <label for="typeName" class="font-weight-bold text-primary"> 제품유형 </label> {{ form.typeName }}
+        </div>
+        <div class="col-xl-2">
           <label for="modelName" class="font-weight-bold text-primary"> 모델명 </label> {{ form.modelName }}
         </div>
         <div class="col-xl-2">
           <label for="productName" class="font-weight-bold text-primary"> 제품명 </label> {{ form.productName }}
         </div>
-        <div class="col-xl-2">
+        <div class="col-xl-1">
           <label for="unitPrice" class="font-weight-bold text-primary"> 단가 </label> {{ form.unitPrice }}
         </div>
         <div class="col-xl-2">
           <label for="position" class="font-weight-bold text-primary"> 제품위치 </label> {{ form.position }}
         </div>
-        <div class="col-xl-3">
+        <div class="col-xl-2">
           <label for="productPicture" class="font-weight-bold text-primary"> 제품사진 </label> {{ form.productPicture }}
         </div>
         <div class="col-xl-1">

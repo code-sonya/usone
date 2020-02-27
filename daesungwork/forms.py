@@ -50,9 +50,10 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ('modelName', 'productName', 'unitPrice', 'position', 'productPicture')
+        fields = ('typeName', 'modelName', 'productName', 'unitPrice', 'position', 'productPicture')
 
         widgets = {
+            'typeName': forms.Select(attrs={'class': 'form-control', 'id': 'typeName'}),
             'modelName': forms.TextInput(attrs={'class': 'form-control', 'type': 'text', 'id': 'modelName'}),
             'productName': forms.TextInput(attrs={'class': 'form-control', 'type': 'text', 'id': 'productName'}),
             'unitPrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'unitPrice'}),

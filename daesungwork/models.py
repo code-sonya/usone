@@ -90,8 +90,17 @@ class Warehouse(models.Model):
         return str('창고:{} 섹션:{}'.format(self.mainCategory, self.subCategory))
 
 
+class Type(models.Model):
+    typeId = models.AutoField(primary_key=True)
+    typeName = models.CharField(max_length=20, unique=True)
+
+    def __str__(self):
+        return str(self.typeName)
+
+
 class Product(models.Model):
     productId = models.AutoField(primary_key=True)
+    typeName = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True, blank=True)
     modelName = models.CharField(max_length=20, unique=True)
     productName = models.CharField(max_length=20, null=True, blank=True)
     unitPrice = models.IntegerField(null=True, blank=True, default=0)

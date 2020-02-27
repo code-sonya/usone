@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, WarehouseMainCategory, WarehouseSubCategory, Warehouse, \
-    Product, Size, Sale, Affiliate, DailyReport, Display
+    Product, Size, Sale, Affiliate, DailyReport, Display, Type
 
 
 @admin.register(Center)
@@ -57,6 +57,13 @@ class WarehouseAdmin(admin.ModelAdmin):
     list_display = ('mainCategory', 'subCategory', 'warehouseDrawing')
     list_filter = ('mainCategory', 'subCategory', 'warehouseDrawing')
     list_display_links = ['mainCategory', 'subCategory', 'warehouseDrawing']
+
+
+@admin.register(Type)
+class TypeAdmin(admin.ModelAdmin):
+    list_display = ('typeId', 'typeName')
+    list_filter = ('typeId', 'typeName')
+    list_display_links = ['typeId', 'typeName']
 
 
 @admin.register(Product)
