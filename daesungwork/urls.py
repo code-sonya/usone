@@ -52,5 +52,6 @@ urlpatterns = [
     url(r'^deletedailyreport/(?P<dailyreportId>.+)/$', views.delete_dailyreport, name='deletedailyreport'),
     # 제품위치 조회
     url(r'^showproductlocation/$', views.show_productlocation, name='showproductlocation'),
+    url(r'^locationasjson/$', views.location_asjson, name='locationasjson'),
 
 ]

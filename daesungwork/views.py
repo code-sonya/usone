@@ -906,23 +906,77 @@ def delete_dailyreport(request, dailyreportId):
 def show_productlocation(request):
     template = loader.get_template('daesungwork/showproductlocation.html')
     employees = Employee.objects.all()
+    maincategorys = WarehouseMainCategory.objects.all()
+    subcategorys = WarehouseSubCategory.objects.all()
+    products = Product.objects.filter(productStatus='Y')
+
     if request.method == 'POST':
-        startdate = request.POST['startdate']
-        enddate = request.POST['enddate']
-        writer = request.POST['writer']
+
+        # 검색 필터 통해서 모델명으로 검색 했을 때
+        productId = request.POST['productId']
+        sizeId = request.POST['sizeId']
+        # 창고 위치 바꾸는 셀렉트 이용했을 때
+        if request.POST['maincategoryId']:
+            maincategoryId = int(request.POST['maincategoryId'])
+
+        if request.POST['subcategoryId']:
+            subcategoryId = int(request.POST['subcategoryId'])
+
     else:
-        startdate = ''
-        enddate = ''
-        writer = ''
+        productId = ''
+        sizeId = ''
+        maincategoryId = maincategorys.first().categoryId
+        subcategoryId = subcategorys.first().categoryId
+
+
+    # 모델명으로 검색했을
+    if productId:
+        sectionImage = Warehouse.objects.get(Q(warehouseId=Product.objects.get(productId=productId).position.warehouseId))
+        maincategoryId = int(sectionImage.mainCategory.categoryId)
+        subcategoryId = int(sectionImage.subCategory.categoryId)
+    # 창고 번호만 바꿨을 때 혹은 처음 제품위치 조회 클릭 시
+    else:
+        sectionImage = Warehouse.objects.filter(Q(mainCategory=maincategoryId) & Q(subCategory=subcategoryId)).first()
 
     form = DailyReportForm(initial={'writeEmp': request.user.employee.user_id})
     context = {
         'form': form,
-        'startdate': startdate,
-        'enddate': enddate,
-        'writer': writer,
+        'productId': productId,
+        'sizeId': sizeId,
         'employees': employees,
+        'maincategorys': maincategorys,
+        'subcategorys': subcategorys,
+        'maincategoryId': maincategoryId,
+        'subcategoryId': subcategoryId,
+        'sectionImage': sectionImage,
+        'products': products,
     }
 
     return HttpResponse(template.render(context, request))
 
+
+@login_required
+@csrf_exempt
+def location_asjson(request):
+    productId = request.POST['productId']
+    sizeId = request.POST['sizeId']
+    maincategoryId = request.POST['maincategoryId']
+    subcategoryId = request.POST['subcategoryId']
+
+    products = Product.objects.filter(productStatus='Y')
+
+    if productId:
+        products = products.filter(productId=productId)
+
+    if sizeId:
+        products = products.filter(size=sizeId)
+
+    if maincategoryId:
+        products = products.filter(position__mainCategory__categoryId=maincategoryId)
+
+    if subcategoryId:
+        products = products.filter(position__subCategory__categoryId=subcategoryId)
+
+    products = products.values('productId', 'productPicture', 'modelName', 'size__size', 'unitPrice')
+    structure = json.dumps(list(products), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

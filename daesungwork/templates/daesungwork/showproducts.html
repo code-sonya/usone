@@ -127,19 +127,6 @@
   {% block script %}
 
   <script type="text/javascript">
-      function btn_delete(val) {
-          const centerId = val.id;
-          if (confirm("센터 정보를 삭제하시겠습니까?") == true) {
-              const form = $('<form></form>');
-              form.attr('action', '/daesungwork/deletecenter/');
-              form.attr('method', 'POST');
-              form.appendTo('body');
-
-              const center = $('<input type="hidden" value="' + centerId + '" name="centerId">');
-              form.append(center);
-              form.submit();
-          }
-      }
 
       function replaceAll(str, searchStr, replaceStr) {
           if (str != null) {
@@ -150,21 +137,6 @@
           }
       }
 
-      function btn_change(centerName) {
-          const searchForm = document.getElementById('searchForm');
-          const searchDayInput = document.createElement("input");
-          searchDayInput.setAttribute("type", "hidden");
-          searchDayInput.setAttribute("name", "searchDay");
-          searchDayInput.setAttribute("value", "{{ thisMonday |date:'Y-m-d'}}");
-          searchForm.appendChild(searchDayInput);
-          const centerNameInput = document.createElement("input");
-          centerNameInput.setAttribute("type", "hidden");
-          centerNameInput.setAttribute("name", "centerName");
-          centerNameInput.setAttribute("value", centerName);
-          searchForm.appendChild(centerNameInput);
-          searchForm.submit();
-      }
-
       function btn_post() {
           if (document.getElementById("modelName").value === '') {
               alert("모델명을 입력해주세요.");
@@ -173,44 +145,6 @@
 
           const postForm = document.getElementById('postForm');
           postForm.submit();
-
-      }
-
-      function btn_move(searchMonday) {
-          if (searchMonday == 1) {
-              const searchForm = document.getElementById("searchForm");
-              const searchDayInput = document.createElement("input");
-              searchDayInput.setAttribute("type", "hidden");
-              searchDayInput.setAttribute("name", "searchDay");
-              searchDayInput.setAttribute("value", "{{ lastMonday |date:'Y-m-d'}}");
-              searchForm.appendChild(searchDayInput);
-              const centerName = document.getElementById("centerName").value;
-              const centerNameInput = document.createElement("input");
-              centerNameInput.setAttribute("type", "hidden");
-              centerNameInput.setAttribute("name", "centerName");
-              centerNameInput.setAttribute("value", centerName);
-              searchForm.appendChild(centerNameInput);
-
-              searchForm.submit();
-
-
-          } else {
-              const searchForm = document.getElementById("searchForm");
-              const searchDay = document.createElement("input");
-              searchDay.setAttribute("type", "hidden");
-              searchDay.setAttribute("name", "searchDay");
-              searchDay.setAttribute("value", "{{ nextMonday |date:'Y-m-d'}}");
-              searchForm.appendChild(searchDay);
-              const centerName = document.getElementById("centerName").value;
-              const centerNameInput = document.createElement("input");
-              centerNameInput.setAttribute("type", "hidden");
-              centerNameInput.setAttribute("name", "centerName");
-              centerNameInput.setAttribute("value", centerName);
-              searchForm.appendChild(centerNameInput);
-
-              searchForm.submit();
-
-          }
 
       }
 
@@ -226,7 +160,7 @@
               },
               "columns": [
                   {
-                      data: "productFicture",
+                      data: "productPicture",
                       "render": function (data, type, row) {
                           return '<img height="100px" src="' + '/media/' + row['productPicture'] + '/' + '">'
                       },
