@@ -177,61 +177,24 @@
                 <label for="contractStep" class="text-primary">단계</label>
                 <select class="form-control" id="contractStep" name="contractStep">
                   <option value="전체">전체</option>
-                  <option value="Opportunity" {% if contractStep == "Opportunity" %}selected{% endif %}>Opportunity</option>
-                  <option value="Firm" {% if contractStep == "Firm" %}selected{% endif %}>Firm</option>
+                  <option value="예정" {% if contractStep == "예정" %}selected{% endif %}>예정</option>
+                  <option value="확정" {% if contractStep == "확정" %}selected{% endif %}>확정</option>
                 </select>
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="empDeptName" class="text-primary">영업부서</label>
-                <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
-                  <option value="전체">전체</option>
-                  <option value="영업1팀" {% if empDeptName == '영업1팀' %}selected{% endif %}>영업1팀</option>
-                  <option value="영업2팀" {% if empDeptName == '영업2팀' %}selected{% endif %}>영업2팀</option>
-                  {#                  <option value="영업3팀">영업3팀</option>#}
-                </select>
-              </div>
-              <div class="col-6">
-                <label for="empName" class="text-primary">영업담당자</label>
+                <label for="empName" class="text-primary">담당자</label>
                 <select class="form-control" id="empName" name="empName">
                   <option value='전체'>전체</option>
-                  {% if empDeptName != '전체' %}
-                    {% for e in employees %}
-                      {% if e.empDeptName == empDeptName %}
-                        <option value="{{ e.empName }}" {% if empName and empName == e.empName %}selected{% endif %}>{{ e.empName }}</option>
-                      {% endif %}
-                    {% endfor %}
-                  {% else %}
-                    {% for e in employees %}
-                      <option value="{{ e.empName }}" {% if e.empName == empName %}selected{% endif %}>{{ e.empName }}</option>
-                    {% endfor %}
-                  {% endif %}
+                  {% for e in employees %}
+                    <option value="{{ e.empName }}" {% if e.empName == empName %}selected{% endif %}>{{ e.empName }}</option>
+                  {% endfor %}
                 </select>
               </div>
-            </div>
-            <div class="row mb-1">
               <div class="col-6">
                 <label for="saleCompanyName" class="text-primary">거래처</label>
                 <input class="form-control" id="saleCompanyName" name="saleCompanyName" value="{{ saleCompanyName }}">
-              </div>
-              <div class="col-6">
-                <label for="endCompanyName" class="text-primary">최종고객사</label>
-                <input class="form-control" id="endCompanyName" name="endCompanyName" value="{{ endCompanyName }}">
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="mainCategory" class="text-primary">대분류</label>
-                <input class="form-control" id="mainCategory" name="mainCategory" value="{{ mainCategory }}">
-              </div>
-              <div class="col-6">
-                <label for="modifyContractPaper" class="text-primary">수정수주통보서대상</label>
-                <select class="form-control" id="modifyContractPaper" name="modifyContractPaper">
-                  <option value="">------</option>
-                  <option value="Y" {% if modifyContractPaper == 'Y' %}selected{% endif %}>Y</option>
-                  <option value="N" {% if modifyContractPaper == 'N' %}selected{% endif %}>N</option>
-                </select>
               </div>
             </div>
             <div class="row mb-1">

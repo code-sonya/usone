@@ -64,10 +64,10 @@ def post_contract(request):
             post.save()
 
             # 관리번호 자동생성
-            yy = str(datetime.now().year)[2:]
-            mm = str(datetime.now().month).zfill(2)
-            post.contractCode = 'O-' + yy + mm + '-' + str(post.contractId)
-            post.save()
+            # yy = str(datetime.now().year)[2:]
+            # mm = str(datetime.now().month).zfill(2)
+            # post.contractCode = 'O-' + yy + mm + '-' + str(post.contractId)
+            # post.save()
 
             jsonItem = json.loads(request.POST['jsonItem'])
             for item in jsonItem:
@@ -180,15 +180,13 @@ def copy_contract(request, contractId):
     contract.save()
 
     # 단계 Opportunity로 변경
-    contract.contractStep = 'Opportunity'
+    contract.contractStep = '예정'
     contract.empId = request.user.employee
     contract.empName = request.user.employee.empName
     contract.empDeptName = request.user.employee.empDeptName
 
     # 관리번호 자동생성
-    yy = str(datetime.now().year)[2:]
-    mm = str(datetime.now().month).zfill(2)
-    contract.contractCode = 'O-' + yy + mm + '-' + str(contract.contractId)
+    contract.contractCode = '복사'
 
     # 생성로그, 수정로그
     contract.writeEmpId = request.user.employee
@@ -244,19 +242,19 @@ def copy_contract(request, contractId):
 
 @login_required
 def show_contracts(request):
-    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    employees = Employee.objects.filter(Q(empStatus='Y')).order_by('empDeptName', 'empRank')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
         enddate = request.POST["enddate"]
         contractStep = request.POST["contractStep"]
-        empDeptName = request.POST['empDeptName']
+        empDeptName = '전체'
         empName = request.POST['empName']
         saleCompanyName = request.POST['saleCompanyName']
-        endCompanyName = request.POST['endCompanyName']
+        endCompanyName = ''
         contractName = request.POST['contractName']
-        mainCategory = request.POST['mainCategory']
-        modifyContractPaper = request.POST['modifyContractPaper']
+        mainCategory = ''
+        modifyContractPaper = ''
 
     else:
         startdate = ''
@@ -3379,30 +3377,11 @@ def classification_asjson(request):
 @login_required
 def change_contract_step(request, contractStep, contractId):
     contract = Contract.objects.get(contractId=contractId)
-    contract.contractStep = contractStep
 
     if contractStep == 'Firm':
-        # 관리번호 자동생성
-        today = str(datetime.now())[:10]
-        yy = str(today)[2:4]
-        mm = str(today)[5:7]
-        count = [int(code[-3:]) for code in Contract.objects.filter(Q(contractCode__startswith=yy)).values_list('contractCode', flat=True)]
-        count.append(0)
-        codeNumber = str(max(count) + 1).zfill(3)
-        contract.contractCode = yy + mm + '-' + codeNumber
+        contract.contractStep = '확정'
     elif contractStep == 'Drop':
-        # 매출, 매입, 원가, 하도급 삭제(매출 발행 또는 매입 접수 항목은 삭제하지 않음.)
-        Revenue.objects.filter(Q(contractId=contract) & (Q(billingDate__isnull=True) & Q(depositDate__isnull=True))).delete()
-        Purchase.objects.filter(Q(contractId=contract) & (Q(billingDate__isnull=True) & Q(withdrawDate__isnull=True))).delete()
-        Cost.objects.filter(contractId=contract).delete()
-        Purchasetypea.objects.filter(contractId=contract).delete()
-        Purchasetypeb.objects.filter(contractId=contract).delete()
-        Purchasetypec.objects.filter(contractId=contract).delete()
-        Purchasetyped.objects.filter(contractId=contract).delete()
-        # 관리번호 변경
-        yy = str(datetime.now().year)[2:]
-        mm = str(datetime.now().month).zfill(2)
-        contract.contractCode = 'D-' + yy + mm + '-' + contractId
+        contract.contractStep = '실주'
 
     contract.save()
     return redirect('sales:viewcontract', contractId)

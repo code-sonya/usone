@@ -8,24 +8,28 @@ from .models import Contract, Goal, Purchaseorderform, SaleindustryCategory, Sal
 class ContractForm(forms.ModelForm):
     saleCompanyNames = forms.CharField(
         max_length=200, required=False, widget=forms.TextInput(attrs={
-            'class': 'magicsearch form-control', 'id': 'saleCompanyNames', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(saleCompanyNames)', 'onchange': "typeChange()"}
+            'class': 'magicsearch form-control', 'id': 'saleCompanyNames',
+            'autocomplete': 'off', 'onkeydown': 'magicsearchtab(saleCompanyNames)', 'onchange': "typeChange()"}
         )
     )
     endCompanyNames = forms.CharField(
         max_length=200, required=False, widget=forms.TextInput(attrs={
-            'class': 'magicsearch form-control', 'id': 'endCompanyNames', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(endCompanyNames)'}
+            'class': 'magicsearch form-control', 'id': 'endCompanyNames',
+            'autocomplete': 'off', 'onkeydown': 'magicsearchtab(endCompanyNames)'}
         )
     )
 
     class Meta:
         model = Contract
         fields = (
-            'contractName', 'empId', 'saleCompanyNames', 'saleCustomerId', 'saleTaxCustomerId', 'endCompanyNames',
-            'saleType', 'saleIndustry', 'salePrice', 'profitPrice', 'profitRatio', 'contractDate', 'contractStartDate', 'contractEndDate',
-            'depositCondition', 'depositConditionDay', 'contractPaper', 'orderPaper', 'comment'
+            'contractCode', 'contractName', 'empId', 'saleCompanyNames', 'saleCustomerId', 'saleTaxCustomerId',
+            'endCompanyNames', 'saleType', 'saleIndustry', 'salePrice', 'profitPrice', 'profitRatio', 'contractDate',
+            'contractStartDate', 'contractEndDate', 'depositCondition', 'depositConditionDay', 'contractPaper',
+            'orderPaper', 'comment'
         )
 
         widgets = {
+            'contractCode': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractCode'}),
             'contractName': forms.TextInput(attrs={'class': 'form-control', 'id': 'contractName'}),
             'empId': forms.Select(attrs={'class': 'form-control', 'id': 'empId'}),
             'saleCustomerId': forms.Select(attrs={'class': 'form-control', 'id': 'saleCustomerId'}),

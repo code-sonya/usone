@@ -583,7 +583,7 @@ def dayreport_query(empDeptName, day):
         listVacation.append({
             'empName': vacation.empName,
             'serviceBeginDatetime': Date,
-            'vacationType': vacation.vacationType[:2],
+            'vacationType': vacation.vacationCategory,
             'vacationStatus': vacationStatus,
             'sortKey': vacation.empId.empRank,
         })

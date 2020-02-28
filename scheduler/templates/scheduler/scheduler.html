@@ -362,10 +362,10 @@
                               backgroundColor: '#FFFF0000',
                               borderColor: '#FFFF0000',
                               {% if i.vacationStatus == 'N' %}
-                                  title: '[{{ i.vacationType }}] {{ i.empName }} [결재중]',
+                                  title: '[{{ i.vacationCategory }}] {{ i.empName }} [결재중]',
                                   textColor: '#2635ff',
                               {% else %}
-                                  title: '[{{ i.vacationType }}] {{ i.empName }}',
+                                  title: '[{{ i.vacationCategory }}] {{ i.empName }}',
                                   textColor: '#1cc88a',
                               {% endif %}
                           },
@@ -382,10 +382,10 @@
                               backgroundColor: '#FFFF0000',
                               borderColor: '#FFFF0000',
                               {% if i.vacationStatus == 'N' %}
-                                  title: '[{{ i.vacationType }}] {{ i.empName }}(결재중)',
+                                  title: '[{{ i.vacationCategory }}] {{ i.empName }}(결재중)',
                                   textColor: '#2635ff',
                               {% else %}
-                                  title: '[{{ i.vacationType }}] {{ i.empName }}',
+                                  title: '[{{ i.vacationCategory }}] {{ i.empName }}',
                                   textColor: '#1cc88a',
                               {% endif %}
                           },
