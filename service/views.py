@@ -909,7 +909,7 @@ def day_report(request, day=None):
     beforeDate = Date - datetime.timedelta(days=1)
     afterDate = Date + datetime.timedelta(days=1)
 
-    row1 = dayreport_query(empDeptName=["볕터건축사사무소"], day=day)
+    row1 = dayreport_query(empDeptName=["설계", "연구", "총무"], day=day)
     row2 = dayreport_query(empDeptName=["건축사사무소"], day=day)
     row3 = dayreport_query(empDeptName=["공간정보연구소"], day=day)
 
