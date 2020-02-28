@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Q
 
 from hr.models import Employee
-from .models import CenterManager, Sale, Size, Product, Warehouse, DailyReport, Display, Reproduction, StockCheck
+from .models import CenterManager, Sale, Size, Product, Warehouse, DailyReport, Display, Reproduction, Buy, StockCheck
 from client.forms import CompanyForm
 from client.models import Company
 
@@ -29,14 +29,33 @@ class SaleForm(forms.ModelForm):
         fields = ('saleDate', 'affiliate', 'client', 'product', 'size', 'unitPrice', 'quantity', 'salePrice',)
 
         widgets = {
-            'saleDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'saleDate'}),
-            'affiliate': forms.Select(attrs={'class': 'form-control', 'id': 'affiliate'}),
-            'client': forms.Select(attrs={'class': 'form-control', 'id': "client"}),
-            'product': forms.Select(attrs={'class': 'form-control', 'id': 'product', 'onchange': 'changeModel(this.value)'}),
-            'size': forms.Select(attrs={'class': 'form-control', 'id': 'size'}),
-            'unitPrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'unitPrice', 'onchange': 'changePrice()'}),
-            'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity', 'onchange': 'changePrice()'}),
-            'salePrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'salePrice'}),
+            'saleDate': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'saleDate'
+            }),
+            'affiliate': forms.Select(attrs={
+                'class': 'form-control', 'id': 'affiliate'
+            }),
+            'client': forms.Select(attrs={
+                'class': 'form-control', 'id': "client"
+            }),
+            'product': forms.Select(attrs={
+                'class': 'form-control', 'id': 'product',
+                'onchange': 'changeModel(this.value, "size", "unitPrice", "quantity", "salePrice")'
+            }),
+            'size': forms.Select(attrs={
+                'class': 'form-control', 'id': 'size'
+            }),
+            'unitPrice': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'unitPrice',
+                'onchange': 'changePrice("unitPrice", "quantity", "salePrice")'
+            }),
+            'quantity': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'quantity',
+                'onchange': 'changePrice("unitPrice", "quantity", "salePrice")'
+            }),
+            'salePrice': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'salePrice'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
@@ -44,6 +63,49 @@ class SaleForm(forms.ModelForm):
         self.fields["client"].queryset = Company.objects.filter(Q(companyStatus='Y'))
         self.fields["product"].queryset = Product.objects.filter(Q(productStatus='Y'))
         # self.fields["size"].queryset = Size.objects.filter(Q(productId=self.fields["product"]["productId"]))
+
+
+class BuyForm(forms.ModelForm):
+
+    class Meta:
+        model = Buy
+        fields = (
+            'buyDate', 'client', 'product', 'quantity',
+            'salePrice', 'vatPrice', 'totalPrice', 'comment',
+        )
+
+        widgets = {
+            'buyDate': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'buyDate',
+            }),
+            'client': forms.Select(attrs={
+                'class': 'form-control', 'id': "client",
+            }),
+            'product': forms.TextInput(attrs={
+                'class': 'form-control', 'id': 'product',
+            }),
+            'quantity': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'quantity',
+                'onchange': "changePrice('quantity', 'salePrice', 'vatPrice', 'totalPrice')",
+            }),
+            'salePrice': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'salePrice',
+                'onchange': "changePrice('quantity', 'salePrice', 'vatPrice', 'totalPrice')",
+            }),
+            'vatPrice': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'vatPrice', 'readonly': 'readonly',
+            }),
+            'totalPrice': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'totalPrice', 'readonly': 'readonly',
+            }),
+            'comment': forms.TextInput(attrs={
+                'class': 'form-control', 'id': 'comment',
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(BuyForm, self).__init__(*args, **kwargs)
+        self.fields["client"].queryset = Company.objects.filter(Q(companyStatus='Y'))
 
 
 class ProductForm(forms.ModelForm):
@@ -60,7 +122,8 @@ class ProductForm(forms.ModelForm):
             'position': forms.Select(attrs={'class': 'form-control', 'id': 'position'}),
             'productPicture': forms.FileInput(attrs={
                 'class': 'form-control', 'id': 'productPicture',
-                'onchange': "javascript:document.getElementById('productPicture').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"}),
+                'onchange': "javascript:document.getElementById('productPicture').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"
+            }),
         }
 
     def __init__(self, *args, **kwargs):

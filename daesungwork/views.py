@@ -4,8 +4,8 @@ from django.template import loader
 from hr.models import Employee
 from client.models import Company
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, \
-    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction, Type, StockCheck, ProductCheck
-from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm, DisplayForm, ReproductionForm
+    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction, Type, Buy, StockCheck, ProductCheck
+from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm, DisplayForm, ReproductionForm, BuyForm
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -189,6 +189,156 @@ def insert_reproduction(request):
             comment=reproduction['comment'] or '',
         )
     return redirect('daesungwork:showreproductionstatus')
+
+
+@login_required
+@csrf_exempt
+def show_buystatus(request):
+    template = loader.get_template('daesungwork/showbuystatus.html')
+    # 일간
+    today = datetime.datetime.today()
+    # 연간
+    todayYear = today.year
+    # 월간
+    todayMonth = today.month
+    # 주간
+    thisMonday = today - datetime.timedelta(days=today.weekday())
+    thisSunday = thisMonday + datetime.timedelta(days=6)
+
+    form = BuyForm()
+
+    buys = Buy.objects.all()
+    clients = Company.objects.filter(companyStatus="Y")
+
+    if request.method == 'POST':
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        filterClient = request.POST['filterClient']
+        filterProduct = request.POST['filterProduct']
+
+        if startdate:
+            buys = buys.filter(buyDate__gte=startdate)
+        if enddate:
+            buys = buys.filter(buyDate__lte=enddate)
+        if filterClient:
+            buys = buys.filter(client=filterClient)
+        if filterProduct:
+            buys = buys.filter(product__icontains=filterProduct)
+
+    else:
+        startdate = ''
+        enddate = ''
+        filterClient = ''
+        filterProduct = ''
+
+    buys = buys.aggregate(
+        yearly=Sum(
+            Case(
+                When(buyDate__year=todayYear, then='totalPrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        monthly=Sum(
+            Case(
+                When(Q(buyDate__year=todayYear) & Q(buyDate__month=todayMonth), then='totalPrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        weekly=Sum(
+            Case(
+                When(Q(buyDate__gte=thisMonday) & Q(buyDate__lte=thisSunday), then='totalPrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        today=Sum(
+            Case(
+                When(buyDate=today, then='totalPrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        total=Sum('totalPrice'),
+        count=Count('buyId'),
+    )
+    context = {
+        'form': form,
+        'buys': buys,
+        'clients': clients,
+        'startdate': startdate,
+        'enddate': enddate,
+        'filterClient': filterClient,
+        'filterProduct': filterProduct,
+    }
+
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@csrf_exempt
+def post_buy(request):
+    form = BuyForm(request.POST)
+
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.save()
+        return redirect('daesungwork:showbuystatus')
+    else:
+        return HttpResponse("유효하지 않은 형식입니다. 관리자에게 문의하세요 : (")
+
+
+@login_required
+@csrf_exempt
+def buys_asjson(request):
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    filterClient = request.POST['filterClient']
+    filterProduct = request.POST['filterProduct']
+
+    buys = Buy.objects.all()
+    if startdate:
+        buys = buys.filter(buyDate__gte=startdate)
+    if enddate:
+        buys = buys.filter(buyDate__lte=enddate)
+    if filterClient:
+        buys = buys.filter(client=filterClient)
+    if filterProduct:
+        buys = buys.filter(product__icontains=filterProduct)
+
+    buys = buys.values(
+        'buyId', 'buyDate', 'client__companyName', 'product', 'quantity',
+        'salePrice', 'vatPrice', 'totalPrice', 'comment',
+    ).order_by('-buyDate')
+
+    structure = json.dumps(list(buys), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def delete_buy(request, buyId):
+    buy = Buy.objects.get(buyId=buyId)
+    buy.delete()
+    return redirect('daesungwork:showbuystatus')
+
+
+@login_required
+@csrf_exempt
+def insert_buy(request):
+    buyDate = request.POST['buyDate']
+    client = request.POST['insertClient']
+
+    jsonBuy = json.loads(request.POST['jsonBuy'])
+    for buy in jsonBuy:
+        Buy.objects.create(
+            buyDate=buyDate,
+            client=Company.objects.get(companyName=client),
+            product=buy['product'],
+            quantity=int(buy['quantity']),
+            salePrice=int(buy['salePrice']),
+            vatPrice=int(buy['vatPrice']),
+            totalPrice=int(buy['totalPrice']),
+            comment=buy['comment'] or '',
+        )
+    return redirect('daesungwork:showbuystatus')
 
 
 @login_required
@@ -882,6 +1032,27 @@ def post_sale(request, affiliateId):
             return redirect('daesungwork:showsalestatus', affiliateId)
         else:
             return HttpResponse("유효하지 않은 형식입니다. 관리자에게 문의하세요 : (")
+
+
+@login_required
+@csrf_exempt
+def insert_sale(request):
+    saleDate = request.POST['saleDate']
+    affiliates = Affiliate.objects.get(affiliateId=request.POST['affiliates'])
+    client = Company.objects.get(companyName=request.POST['client'])
+    jsonSale = json.loads(request.POST['jsonSale'])
+    for sale in jsonSale:
+        Sale.objects.create(
+            saleDate=saleDate,
+            affiliate=affiliates,
+            client=client,
+            product=Product.objects.get(productId=int(sale['product'])),
+            size=Size.objects.get(sizeId=int(sale['size'])),
+            unitPrice=sale['unitPrice'],
+            quantity=sale['quantity'],
+            salePrice=sale['salePrice'],
+        )
+    return redirect('daesungwork:showsalestatus', request.POST['affiliates'])
 
 
 @login_required

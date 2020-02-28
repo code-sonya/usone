@@ -19,19 +19,25 @@ urlpatterns = [
     # 센터 관리
     url(r'^showcenters/$', views.show_centers, name='showcenters'),
     url(r'^deletecenter/$', views.delete_center, name='deletecenter'),
+    # 구매 현황
+    url(r'^showbuystatus/$', views.show_buystatus, name='showbuystatus'),
+    url(r'^postbuy/$', views.post_buy, name='postbuy'),
+    url(r'^buysasjson/$', views.buys_asjson, name='buysasjson'),
+    url(r'^deletebuy/(?P<buyId>.+)/$', views.delete_buy, name='deletebuy'),
+    url(r'^insertbuy/$', views.insert_buy, name='insertbuy'),
     # 판매 현황
     url(r'^showsalestatus/(?P<affiliateId>.+)/$', views.show_salestatus, name='showsalestatus'),
     url(r'^postsale/(?P<affiliateId>.+)/$', views.post_sale, name='postsale'),
     url(r'^modelasjson/$', views.model_asjson, name='modelasjson'),
     url(r'^salesasjson/$', views.sales_asjson, name='salesasjson'),
     url(r'^deletesale/(?P<saleId>.+)/$', views.delete_sale, name='deletesale'),
+    url(r'^insertsale/$', views.insert_sale, name='insertsale'),
     # 재생 현황
     url(r'^showreproductionstatus/$', views.show_reproductionstatus, name='showreproductionstatus'),
     url(r'^postreproduction/$', views.post_reproduction, name='postreproduction'),
     url(r'^reproductionasjson/$', views.reproduction_asjson, name='reproductionasjson'),
     url(r'^deletereproduction/(?P<reproductionId>.+)/$', views.delete_reproduction, name='deletereproduction'),
     url(r'^insertreproduction/$', views.insert_reproduction, name='insertreproduction'),
-
     # DP 현황
     url(r'^showdisplaystatus/$', views.show_displaystatus, name='showdisplaystatus'),
     url(r'^postdisplay/$', views.post_display, name='postdisplay'),
