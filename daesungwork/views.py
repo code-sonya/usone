@@ -19,6 +19,7 @@ from dateutil.relativedelta import relativedelta
 from xhtml2pdf import pisa
 from service.functions import link_callback
 import calendar
+import json
 
 
 @login_required
@@ -1340,24 +1341,41 @@ def modify_stock(request, stockcheckId):
     template = loader.get_template('daesungwork/poststocks.html')
     stockInstance = StockCheck.objects.get(stockcheckId=stockcheckId)
     productNames = ProductCheck.objects.filter(stockcheck=stockcheckId).values_list('product_id').distinct()
-    print(productNames)
     types = Type.objects.all()
-
     if request.method == 'POST':
-        stockChecks = StockCheck.objects.create(
-            checkDate=request.POST['checkDate'],
-            typeName=Type.objects.get(typeId=request.POST['typeId']),
-            checkEmp=Employee.objects.get(empId=request.user.employee.user_id)
-        )
         jsonStocks = json.loads(request.POST['jsonStocks'])
-
+        stocksId = list(i[0] for i in ProductCheck.objects.filter(stockcheck=stockcheckId).values_list('productcheckId'))
+        jsonStocksId = []
         for item in jsonStocks:
-            ProductCheck.objects.create(
-                product=Product.objects.get(productId=item["productId"]),
-                size=Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first(),
-                productGap=item["productGap"],
-                stockcheck=stockChecks,
-            )
+            if item['itemId'] == '추가':
+                ProductCheck.objects.create(
+                    product=Product.objects.get(productId=item["productId"]),
+                    size=Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first(),
+                    productGap=item["productGap"],
+                    stockcheck=stockInstance,
+                )
+            else:
+                if Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first():
+                    try:
+                        productCheckInstance = ProductCheck.objects.get(Q(product__productId=item["productId"]) & Q(size__size=item["size"]))
+                        productCheckInstance.stockchecks = stockInstance
+                        productCheckInstance.product = Product.objects.get(productId=item["productId"])
+                        productCheckInstance.size = Size.objects.get(Q(productId=item["productId"]) & Q(size=item["size"]))
+                        productCheckInstance.productGap = item["productGap"]
+                        productCheckInstance.save()
+                        jsonStocksId.append(int(productCheckInstance.productcheckId))
+                    except:
+                        ProductCheck.objects.create(
+                            product=Product.objects.get(productId=item["productId"]),
+                            size=Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first(),
+                            productGap=item["productGap"],
+                            stockcheck=stockInstance,
+                        )
+
+        delStocksId = list(set(stocksId) - set(jsonStocksId))
+        if delStocksId:
+            for Id in delStocksId:
+                ProductCheck.objects.filter(productcheckId=Id).delete()
 
         return redirect('daesungwork:showstocks')
     else:
@@ -1366,8 +1384,6 @@ def modify_stock(request, stockcheckId):
         checkStockList = []
         for stock in productNames:
             checkStockList.append(ProductCheck.objects.filter(Q(stockcheck=stockcheckId) & Q(product=stock)))
-        print(checkStockList)
-
     products = Product.objects.filter(Q(productStatus='Y') & Q(typeName__typeId=typeId) & Q(size__isnull=False))
     sizes = products.values('size__size').distinct()
     products = products.values('productId', 'modelName').distinct()

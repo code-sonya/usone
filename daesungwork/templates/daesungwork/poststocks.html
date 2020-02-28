@@ -208,6 +208,7 @@
                 var td = $('.item2'+i).eq(j);
                 if(td.val()!=''){
                     var data = new Object();
+                    data.itemId = $('div[name="itemId"]').eq(i).text();
                     data.productId = $('select[name="modelName"]').eq(i).val();
                     data.size = td.attr('name');
                     data.productGap = td.val();
