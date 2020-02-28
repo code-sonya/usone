@@ -72,9 +72,9 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 h3 text-gray-800"> 재고 등록 </h6>
         <div class="dropdown no-arrow">
-          <a class="btn btn-secondary" href="#" onclick="btn_all()">
-            <i class="fas fa-tshirt d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-tshirt"></i> 전체불러오기</span>
-          </a>
+          <!--<a class="btn btn-secondary" href="#" onclick="btn_all()">-->
+            <!--<i class="fas fa-tshirt d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-tshirt"></i> 전체불러오기</span>-->
+          <!--</a>-->
         </div>
       </div>
 
@@ -253,7 +253,9 @@
               url: "{% url 'daesungwork:typeproductsasjson' %}",
               method: 'POST',
               cache: false,
-              data:{"typeId": '{{ typeId }}'},
+              data:{"typeId": '{{ typeId }}',
+                   "stockcheckId": ''
+              },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
                   var product = returnData;
@@ -269,7 +271,53 @@
                   alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
               }
           });
+
     });
+
+    {% if checkStockList %}
+        {% for product in productNames %}
+            console.log( itemCounter);
+            t1.append(
+                '<tr>'+ '<td class="d-none"><div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ product }}</div></td>'+
+                '<td><select style="width:200px" class="form-control" size="1" id="item1' + itemCounter + '" name="modelName">' +'</select></td>' +
+                {% for size in sizes %}
+                '<td><input class="form-control item2'+ itemCounter + '"  type="text" id="item2'+ itemCounter + '-{{ size.size__size }}" name="{{ size.size__size }}" value=""></td>'+
+                {% endfor %}
+                '<td><i class="fas fa-times-circle" name="remove" ></td>'
+            )
+            itemCounter++;
+        {% endfor %}
+            $.ajax({
+                url: "{% url 'daesungwork:typeproductsasjson' %}",
+                method: 'POST',
+                cache: false,
+                data:{"typeId": '{{ typeId }}',
+                      "stockcheckId": '{{ stockInstance.stockcheckId }}'
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (returnData) {
+                    var product = returnData[0];
+                    var data = returnData[1];
+                    var gap = returnData[2]['gap'];
+                    // console.log(gap);
+                    for (var i = 0; i < data.length ; i++ ){
+                      $('#item1'+i).append('<option value="" selected="">------</option>');
+                      for (var count = 0; count < product.length; count++) {
+                          var option = $("<option value=" + product[count].productId + ">" + product[count].modelName + "</option>");
+                          $('#item1'+i).append(option);
+                      }
+                      $('#item1' + i).val(data[i].product_id).prop("selected", true);
+                      for(var k=0; k< gap[i].length; k++){
+                          $('#item2'+i+'-'+gap[i][k][1]).val(gap[i][k][2])
+                      }
+                    }
+                }, error:function(request,status,error){
+                    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                }
+            });
+    {% else %}
+        $('#addItem').click();
+    {% endif %}
 
     $("#showstocks").on('click', 'i', function(){
               $(this).parent().parent().remove();

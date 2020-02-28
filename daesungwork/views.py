@@ -371,7 +371,6 @@ def post_manager(request):
             post.save()
 
             jsonManagerEmp = json.loads(request.POST['jsonManagerEmp'])
-            print(jsonManagerEmp)
 
             for item in jsonManagerEmp:
                 CenterManagerEmp.objects.create(
@@ -1304,12 +1303,13 @@ def post_stock(request, typeId):
         jsonStocks = json.loads(request.POST['jsonStocks'])
 
         for item in jsonStocks:
-            ProductCheck.objects.create(
-                product=Product.objects.get(productId=item["productId"]),
-                size=Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first(),
-                productGap=item["productGap"],
-                stockcheck=stockChecks,
-            )
+            if Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first():
+                ProductCheck.objects.create(
+                    product=Product.objects.get(productId=item["productId"]),
+                    size=Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first(),
+                    productGap=item["productGap"],
+                    stockcheck=stockChecks,
+                )
 
         return redirect('daesungwork:showstocks')
     else:
@@ -1339,10 +1339,9 @@ def post_stock(request, typeId):
 def modify_stock(request, stockcheckId):
     template = loader.get_template('daesungwork/poststocks.html')
     stockInstance = StockCheck.objects.get(stockcheckId=stockcheckId)
-    productInstance = ProductCheck.objects.filter(stockcheck=stockcheckId)
+    productNames = ProductCheck.objects.filter(stockcheck=stockcheckId).values_list('product_id').distinct()
+    print(productNames)
     types = Type.objects.all()
-    print(stockInstance)
-    print(productInstance)
 
     if request.method == 'POST':
         stockChecks = StockCheck.objects.create(
@@ -1364,6 +1363,10 @@ def modify_stock(request, stockcheckId):
     else:
         typeId = stockInstance.typeName_id
         checkDate = stockInstance.checkDate
+        checkStockList = []
+        for stock in productNames:
+            checkStockList.append(ProductCheck.objects.filter(Q(stockcheck=stockcheckId) & Q(product=stock)))
+        print(checkStockList)
 
     products = Product.objects.filter(Q(productStatus='Y') & Q(typeName__typeId=typeId) & Q(size__isnull=False))
     sizes = products.values('size__size').distinct()
@@ -1374,7 +1377,10 @@ def modify_stock(request, stockcheckId):
         'products': products,
         "sizes": sizes,
         "sizecount": len(sizes),
+        "stockInstance": stockInstance,
         "checkDate": checkDate,
+        "checkStockList": checkStockList,
+        "productNames": productNames,
     }
 
     return HttpResponse(template.render(context, request))
@@ -1383,7 +1389,22 @@ def modify_stock(request, stockcheckId):
 @csrf_exempt
 def typeproducts_asjson(request):
     typeId = request.POST['typeId']
-    products = Product.objects.filter(Q(productStatus='Y') & Q(typeName__typeId=typeId) & Q(size__isnull=False)).values('productId', 'modelName').distinct()
-    structure = json.dumps(list(products), cls=DjangoJSONEncoder)
+    stockcheckId = request.POST['stockcheckId']
+    if stockcheckId:
+        jsonList = []
+        products = Product.objects.filter(Q(productStatus='Y') & Q(typeName__typeId=typeId) & Q(size__isnull=False)).values('productId', 'modelName').distinct()
+        jsonList.append(list(products))
+        productNames = ProductCheck.objects.filter(stockcheck=stockcheckId).values('product_id').distinct()
+        jsonList.append(list(productNames))
+        checkStockList = []
+        for stock in productNames:
+            checkStockList.append(list(ProductCheck.objects.filter(Q(stockcheck=stockcheckId) & Q(product=stock['product_id'])).values_list('product__productId', 'size__size', 'productGap')))
+        print(checkStockList)
+        jsonList.append({'gap': checkStockList})
+
+    else:
+        products = Product.objects.filter(Q(productStatus='Y') & Q(typeName__typeId=typeId) & Q(size__isnull=False)).values('productId', 'modelName').distinct()
+        jsonList = list(products)
+    structure = json.dumps(list(jsonList), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
