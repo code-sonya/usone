@@ -65,5 +65,6 @@ urlpatterns = [
     url(r'^showstocks/$', views.show_stocks, name='showstocks'),
     url(r'^stocksasjson/$', views.stocks_asjson, name='stocksasjson'),
     url(r'^poststock/(?P<typeId>.+)/$', views.post_stock, name='poststock'),
+    url(r'^modifystock/(?P<stockcheckId>.+)/$', views.modify_stock, name='modifystock'),
     url(r'^typeproductsasjson/$', views.typeproducts_asjson, name='typeproductsasjson'),
 ]

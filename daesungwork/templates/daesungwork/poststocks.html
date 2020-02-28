@@ -70,7 +70,12 @@
     <div class="card shadow mb-4">
 
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="m-0 h3 text-gray-800"> 재고관리 </h6>
+        <h6 class="m-0 h3 text-gray-800"> 재고 등록 </h6>
+        <div class="dropdown no-arrow">
+          <a class="btn btn-secondary" href="#" onclick="btn_all()">
+            <i class="fas fa-tshirt d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-tshirt"></i> 전체불러오기</span>
+          </a>
+        </div>
       </div>
 
       <div class="card-body">
@@ -78,7 +83,7 @@
           <div class="row mb-3">
             <div class="input-group">
               <span class="col-sm-6 col-xl-1 form-control" style="border:1px solid white">유형: </span>
-              <select class="col-sm-6 col-xl-1 form-control mr-1" id="typeId" name="typeId" onchange="btn_change(this.value)">
+              <select class="col-sm-6 col-xl-2 form-control mr-1" id="typeId" name="typeId" onchange="btn_change(this.value)">
                 {% for type in types %}
                 <option value="{{ type.typeId }}" {% if typeId == type.typeId %} selected {% endif %}>
                     {{ type.typeName }}
@@ -86,7 +91,7 @@
                 {% endfor %}
               </select>
               <span class="col-sm-6 col-xl-1 form-control" style="border:1px solid white">점검일: </span>
-              <input class="col-sm-6 col-xl-1 form-control" type="date" max="9999-12-31" id="checkDate" name="checkDate">
+              <input class="col-sm-6 col-xl-2 form-control" type="date" max="9999-12-31" id="checkDate" name="checkDate" value="{{ checkDate | date:'Y-m-d' }}">
             </div>
           </div>
          </form>
@@ -95,7 +100,7 @@
             <span class="ml-3 text-dark">▼</span> 재고 등록
           </h5>
         </div>
-        <form method="POST" id="centerManagerForm">
+        <form method="POST" id="stocksForm">
           <div id="revenuediv" class="overflow-auto">
             <table id="showstocks" class="pc-table" style="width:100%">
               <thead style="width:100%">
@@ -106,7 +111,7 @@
                   {{ size.size__size }}
                 </td>
                 {% endfor %}
-                <td><i id="addStock" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></td>
+                <td><span id="addStock" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></span></td>
               </tr>
               </thead>
             </table>
@@ -133,6 +138,34 @@
 <script>
     var itemCounter = 0;
 
+    function btn_all() {
+        if (confirm("모든 모델명을 불러 오시겠습니까?") === true) {
+            $.ajax({
+                url: "{% url 'daesungwork:typeproductsasjson' %}",
+                method: 'POST',
+                cache: false,
+                data:{"typeId": '{{ typeId }}'},
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (returnData) {
+                    var product = returnData;
+                    console.log(product);
+                    for (var count = 0; count < product.length; count++) {
+                         setTimeout(function() {
+                           $('#addStock').click();
+                         }, 3000);
+                    }
+
+                }, error:function(request,status,error){
+                    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+                }
+            });
+
+        } else {
+            return false;
+        }
+
+    }
+
     function btn_cancel() {
         if (confirm("취소 하시겠습니까?") === true) {
             history.back();
@@ -151,78 +184,95 @@
     }
 
     function btn_save() {
-        if (document.getElementById("startDate").value === '') {
-            alert("적용기간 시작 날짜를 입력해주세요.");
+        if (document.getElementById("typeId").value === '') {
+            alert("제품 유형을 선택해주세요.");
             return false;
         }
-        if (document.getElementById("endDate").value === '') {
-            alert("적용기간 종료 날짜를 입력해주세요.");
+        if (document.getElementById("checkDate").value === '') {
+            alert("점검일을 입력해주세요.");
             return false;
         }
 
-        const centerManagerForm = document.getElementById("centerManagerForm");
+        const stocksForm = document.getElementById("stocksForm");
 
-        // 센터 담당자
-        const lengthItem = $('[name="centerManagerEmpId"]').length;
+        // stock
+        const lengthItem = $('[name="itemId"]').length;
         const listItem = new Array();
-        console.log('lengthItem:', lengthItem);
         for (var i = 0; i <= lengthItem - 1; i++) {
-            if ($('input[name="empId"]').eq(i).val() == '') {
-                return btn_false("담당자를 선택해 주세요.");
+            if ($('input[name="modelName"]').eq(i).val() == '') {
+                return btn_false("모델명을 선택해 주세요.");
             }
-            if ($('select[name="manageArea"]').eq(i).val() == '') {
-                return btn_false("담당구역을 선택해 주세요.");
+            //사이즈 크기만큼;
+            const sizecount = {{ sizecount }};
+            for(var j=0; j <= sizecount - 1;j++){
+                var td = $('.item2'+i).eq(j);
+                if(td.val()!=''){
+                    var data = new Object();
+                    data.productId = $('select[name="modelName"]').eq(i).val();
+                    data.size = td.attr('name');
+                    data.productGap = td.val();
+                    listItem.push(data);
+                }
             }
-            var data = new Object();
-            data.centerManagerEmpId = $('div[name="centerManagerEmpId"]').eq(i).text();
-            data.empId = $('select[name="empId"]').eq(i).val();
-            data.manageArea = $('select[name="manageArea"]').eq(i).val();
-            data.additionalArea = $('input[name="additionalArea"]').eq(i).val();
-            data.cleanupArea = $('select[name="cleanupArea"]').eq(i).val();
-            listItem.push(data);
         }
-        const jsonManagerEmp = JSON.stringify(listItem);
+        const jsonStocks = JSON.stringify(listItem);
         const item = document.createElement("input");
         item.setAttribute("type", "hidden");
-        item.setAttribute("name", "jsonManagerEmp");
-        item.setAttribute("value", jsonManagerEmp);
-        centerManagerForm.appendChild(item);
+        item.setAttribute("name", "jsonStocks");
+        item.setAttribute("value", jsonStocks);
+        stocksForm.appendChild(item);
+        const typeId = document.createElement("input");
+        typeId.setAttribute("type", "hidden");
+        typeId.setAttribute("name", "typeId");
+        typeId.setAttribute("value", "{{ typeId }}");
+        stocksForm.appendChild(typeId);
+        const check = document.getElementById("checkDate").value;
+        const checkDate = document.createElement("input");
+        checkDate.setAttribute("type", "hidden");
+        checkDate.setAttribute("name", "checkDate");
+        checkDate.setAttribute("value", check);
+        stocksForm.appendChild(checkDate);
 
         if (confirm("저장 하시겠습니까?") === true) {
-            centerManagerForm.submit();
+            stocksForm.submit();
         }
     }
 
     const t1 = $('#showstocks');
     $('#addStock').on('click', function () {
-        t1.append(
-            '<tr>'+ '<td class="d-none"><div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">추가</div></td>'+
-            '<td><select style="width:200px" class="form-control" size="1" id="item1' + itemCounter + '" name="modelName" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +'</select></td>' +
-            {% for size in sizes %}
-            '<td><input class="form-control" type="text" id="item2-{{ size.size__size }}" name="{{ size.size__size }}"></td>'+
-            {% endfor %}
-            '<td><i class="fas fa-times-circle" name="remove" ></td>'
-        )
+          t1.append(
+              '<tr>'+ '<td class="d-none"><div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">추가</div></td>'+
+              '<td><select style="width:200px" class="form-control" size="1" id="item1' + itemCounter + '" name="modelName">' +'</select></td>' +
+              {% for size in sizes %}
+              '<td><input class="form-control item2'+ itemCounter + '"  type="text" id="item2'+ itemCounter + '" name="{{ size.size__size }}"></td>'+
+              {% endfor %}
+              '<td><i class="fas fa-times-circle" name="remove" ></td>'
+          )
 
-        $.ajax({
-            url: "{% url 'daesungwork:typeproductsasjson' %}",
-            method: 'POST',
-            cache: false,
-            data:{"typeId": '{{ typeId }}'},
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            success: function (returnData) {
-                var product = returnData;
-                $('#item1'+itemCounter).empty();
-                $('#item1'+itemCounter).append('<option value="" selected="">------</option>');
-                for (var count = 0; count < product.length; count++) {
-                    var option = $("<option value=" + product[count].productId + ">" + product[count].modelName + "</option>");
-                    $('#item1'+itemCounter).append(option);
-                }
-                itemCounter++;
-            }, error:function(request,status,error){
-                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-            }
-        });
+          $.ajax({
+              url: "{% url 'daesungwork:typeproductsasjson' %}",
+              method: 'POST',
+              cache: false,
+              data:{"typeId": '{{ typeId }}'},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var product = returnData;
+                  console.log('sks'+itemCounter);
+                  $('#item1'+itemCounter).empty();
+                  $('#item1'+itemCounter).append('<option value="" selected="">------</option>');
+                  for (var count = 0; count < product.length; count++) {
+                      var option = $("<option value=" + product[count].productId + ">" + product[count].modelName + "</option>");
+                      $('#item1'+itemCounter).append(option);
+                  }
+                  itemCounter++;
+              }, error:function(request,status,error){
+                  alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+              }
+          });
+    });
+
+    $("#showstocks").on('click', 'i', function(){
+              $(this).parent().parent().remove();
     });
 
 </script>

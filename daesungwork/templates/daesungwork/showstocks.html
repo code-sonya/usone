@@ -31,7 +31,7 @@
     <form method="POST" id="searchForm">
     <div class="row ml-3 mt-3">
       <span>
-        <select class="form-control" id="typeId" name="typeId" onchange="btn_change(this.value)">
+        <select class="form-control" id="typeId" name="typeId" onchange="btn_change(btn_change)">
           <option value="">전체</option>
           {% for type in types %}
           <option value="{{ type.typeId }}" {% if typeId == type.typeId %} selected {% endif %} >
@@ -52,7 +52,7 @@
           <thead>
           <tr style="background-color: #deeef8; color: black;">
             <th>번호</th>
-            <th>점검월</th>
+            <th>제품유형</th>
             <th>점검일자</th>
             <th>점검자</th>
             <th>수정일시</th>
@@ -70,107 +70,15 @@
 
   <script type="text/javascript">
 
-      function btn_center(centerId) {
-        const searchForm = document.getElementById('searchForm');
-        const centerIdInput = document.createElement("input");
-        centerIdInput.setAttribute("type", "hidden");
-        centerIdInput.setAttribute("name", "centerId");
-        centerIdInput.setAttribute("value", centerId);
-        searchForm.appendChild(centerIdInput);
-        searchForm.submit();
-      }
 
-      function btn_change(seleted) {
-          if(seleted=="-1"){
-            $("#money").val(0);
-            $("#money").attr("readonly",true);
-            $("#purchaseCompany").val('');
-            $("#purchaseCompany").attr("readonly", true);
-
-          }else{
-            $("#money").attr("readonly",false);
-            $("#purchaseCompany").attr("readonly", false);
-          }
-      }
-
-      function btn_insert() {
-          let newSaving;
-          let name = '';
-          if ($('#newSaving').is(':checked')) {
-              newSaving = true;
-              if (!$('#insertForm [name="newName"]').val()) {
-                  alert('품명을 입력해주세요.');
-                  return false;
-              } else {
-                  name = $('#insertForm [name="newName"]').val();
-              }
-          } else {
-              newSaving = false;
-              if (!$('#insertForm [name="selectName"]').val()) {
-                  alert('품명을 선택해주세요.');
-                  return false;
-              } else {
-                  name = $('#insertForm [name="selectName"]').val();
-              }
-          }
-          if (!$('#insertForm [name="quantity"]').val()) {
-              alert('수량을 입력해주세요.');
-              return false;
-          }
-          if (!$('#insertForm [name="money"]').val()) {
-              alert('금액을 입력해주세요.');
-              return false;
-          }
-          if (!$('#insertForm [name="location"]').val()) {
-              alert('설치장소 (사용기관)을 입력해주세요.');
-              return false;
-          }
-          if (!$('#insertForm [name="purchaseDate"]').val()) {
-              alert('구매일 (소모일)을 입력해주세요.');
-              return false;
-          }
-          if (!$('#insertForm [name="purchaseEmp"]').val()) {
-              alert('인수자 (검수자)를 입력해주세요.');
-              return false;
-          }
-
-          $.ajax({
-              url: "{% url 'supply:postsaving' %}",
-              method: 'POST',
-              cache: false,
-              data: {
-                  "newSaving": newSaving,
-                  "name": name,
-                  "quantity": $('#insertForm [name="quantity"]').val() * $('#insertForm [name="quantityType"]').val(),
-                  "money": $('#insertForm [name="money"]').val(),
-                  "standard": $('#insertForm [name="standard"]').val(),
-                  "purchaseCompany": $('#insertForm [name="purchaseCompany"]').val(),
-                  "purchaseDate": $('#insertForm [name="purchaseDate"]').val(),
-                  "location": $('#insertForm [name="location"]').val(),
-                  "purchaseEmp": $('#insertForm [name="purchaseEmp"]').val(),
-                  "comment": $('#insertForm [name="comment"]').val(),
-              },
-              headers: {'X-CSRFToken': '{{ csrf_token }}'},
-              success: function (returnData) {
-                  if (returnData === 'N') {
-                      alert('이미 등록된 비품입니다.');
-                      return false;
-                  } else if (returnData === 'Y') {
-                      $('.close').click();
-                      alert('비품 등록이 완료되었습니다.');
-                      location.reload();
-                  } else if (returnData === 'error') {
-                      $('.close').click();
-                      alert('오류가 발생했습니다. 관리자에게 문의하세요.');
-                      location.reload();
-                  }
-              }
-          });
+      function btn_change() {
+          const searchForm = document.getElementById('searchForm');
+          searchForm.submit();
       }
 
       function replaceAll(str, searchStr, replaceStr) {
           var new_str = str.split(searchStr).join(replaceStr);
-          return new_str.split("T").join(" ").slice(0, 10);
+          return new_str.split("T").join(" ").slice(0, 16);
       }
 
       $(document).ready(function () {
@@ -196,7 +104,7 @@
                       targets: 1,
                       width: "20%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "checkDate",
+                      data: "typeName__typeName",
                   },
                   {
                       targets: 2,
@@ -218,6 +126,7 @@
                   },
               ],
               "deferRender": true,
+              "bLengthChange": false,
               "order": [[0, 'asc']],
               "searching": true,
               "paging": true,
@@ -240,6 +149,11 @@
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   $('td:eq(4)', nRow).text(replaceAll(aData.modifyDate,"-","."));
               },
+          });
+
+          $("#showcheckstocks").on("click", 'tr', function () {
+              const data = checkstocksTable.row(this).data();
+              location.href = '/daesungwork/modifystock/' + data.stockcheckId + '/'
           });
       });
 

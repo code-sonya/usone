@@ -4,7 +4,7 @@ from django.template import loader
 from hr.models import Employee
 from client.models import Company
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, \
-    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction, Type, StockCheck
+    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction, Type, StockCheck, ProductCheck
 from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm, DisplayForm, ReproductionForm
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
@@ -1088,7 +1088,11 @@ def show_stocks(request):
     types = Type.objects.all()
 
     if request.method == 'POST':
-        typeId = request.POST['typeId']
+
+        if request.POST['typeId']:
+            typeId = int(request.POST['typeId'])
+        else:
+            typeId = ''
 
     else:
         typeId = ''
@@ -1108,7 +1112,7 @@ def stocks_asjson(request):
     stockchecks = StockCheck.objects.all()
     if typeId:
         stockchecks = stockchecks.filter(typeName__typeId=typeId)
-    stockchecks = stockchecks.values('stockcheckId', 'checkDate', 'checkEmp__empName', 'modifyDate')
+    stockchecks = stockchecks.values('stockcheckId', 'typeName__typeName', 'checkDate', 'checkEmp__empName', 'modifyDate')
     structure = json.dumps(list(stockchecks), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1117,10 +1121,26 @@ def stocks_asjson(request):
 @csrf_exempt
 def post_stock(request, typeId):
     template = loader.get_template('daesungwork/poststocks.html')
+    today = datetime.datetime.today()
     types = Type.objects.all()
 
     if request.method == 'POST':
-        typeId = request.POST['typeId']
+        stockChecks = StockCheck.objects.create(
+            checkDate=request.POST['checkDate'],
+            typeName=Type.objects.get(typeId=request.POST['typeId']),
+            checkEmp=Employee.objects.get(empId=request.user.employee.user_id)
+        )
+        jsonStocks = json.loads(request.POST['jsonStocks'])
+
+        for item in jsonStocks:
+            ProductCheck.objects.create(
+                product=Product.objects.get(productId=item["productId"]),
+                size=Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first(),
+                productGap=item["productGap"],
+                stockcheck=stockChecks,
+            )
+
+        return redirect('daesungwork:showstocks')
     else:
         if typeId == 'None':
             typeId = types.first().typeId
@@ -1136,10 +1156,57 @@ def post_stock(request, typeId):
         "typeId": typeId,
         'products': products,
         "sizes": sizes,
+        "sizecount": len(sizes),
+        "today": today,
     }
 
     return HttpResponse(template.render(context, request))
 
+
+@login_required
+@csrf_exempt
+def modify_stock(request, stockcheckId):
+    template = loader.get_template('daesungwork/poststocks.html')
+    stockInstance = StockCheck.objects.get(stockcheckId=stockcheckId)
+    productInstance = ProductCheck.objects.filter(stockcheck=stockcheckId)
+    types = Type.objects.all()
+    print(stockInstance)
+    print(productInstance)
+
+    if request.method == 'POST':
+        stockChecks = StockCheck.objects.create(
+            checkDate=request.POST['checkDate'],
+            typeName=Type.objects.get(typeId=request.POST['typeId']),
+            checkEmp=Employee.objects.get(empId=request.user.employee.user_id)
+        )
+        jsonStocks = json.loads(request.POST['jsonStocks'])
+
+        for item in jsonStocks:
+            ProductCheck.objects.create(
+                product=Product.objects.get(productId=item["productId"]),
+                size=Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first(),
+                productGap=item["productGap"],
+                stockcheck=stockChecks,
+            )
+
+        return redirect('daesungwork:showstocks')
+    else:
+        typeId = stockInstance.typeName_id
+        checkDate = stockInstance.checkDate
+
+    products = Product.objects.filter(Q(productStatus='Y') & Q(typeName__typeId=typeId) & Q(size__isnull=False))
+    sizes = products.values('size__size').distinct()
+    products = products.values('productId', 'modelName').distinct()
+    context = {
+        "types": types,
+        "typeId": typeId,
+        'products': products,
+        "sizes": sizes,
+        "sizecount": len(sizes),
+        "checkDate": checkDate,
+    }
+
+    return HttpResponse(template.render(context, request))
 
 @login_required
 @csrf_exempt

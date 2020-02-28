@@ -200,6 +200,7 @@ class ProductCheck(models.Model):
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
     size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True)
     productGap = models.CharField(max_length=10, null=True, blank=True, default='')
+    stockcheck = models.ForeignKey(StockCheck, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return str(self.product + ':' + self.productGap)
+        return str(self.product)
