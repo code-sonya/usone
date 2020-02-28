@@ -3,6 +3,7 @@ from hr.models import Employee
 from django.utils import timezone
 from client.models import Company
 
+
 class Center(models.Model):
     centerId = models.AutoField(primary_key=True)
     centerName = models.CharField(max_length=30)
@@ -143,6 +144,24 @@ class Sale(models.Model):
 
     def __str__(self):
         return str(self.saleId)
+
+
+class Buy(models.Model):
+    buyId = models.AutoField(primary_key=True)
+    buyDate = models.DateField()
+    client = models.ForeignKey(Company, on_delete=models.PROTECT)
+    product = models.CharField(max_length=200, null=True, blank=True)
+    # product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    # size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True)
+    quantity = models.IntegerField(default=0)
+    salePrice = models.IntegerField(default=0)
+    vatPrice = models.IntegerField()
+    totalPrice = models.IntegerField()
+    comment = models.CharField(max_length=200, null=True, blank=True)
+    createdDate = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return str(self.buyId)
 
 
 class DailyReport(models.Model):

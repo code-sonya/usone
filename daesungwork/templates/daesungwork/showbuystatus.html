@@ -3,7 +3,7 @@
 
 
 {% block title %}
-판매현황
+구매현황
 {% endblock %}
 
 
@@ -73,12 +73,11 @@
 
 
 {% block content %}
-
 <div class="row">
   <div class="col-xl-12">
     <div class="card shadow mb-4">
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-        <h6 class="m-0 h3 text-gray-800">판매현황</h6>
+        <h6 class="m-0 h3 text-gray-800">구매현황</h6>
         <div class="dropdown no-arrow">
           <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
             <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
@@ -91,20 +90,6 @@
         </div>
       </div>
       <div class="card-body">
-        <form method="POST" id="searchForm">
-          <div class="row ml-3 mt-1">
-            <span>
-              <select class="form-control" id="affiliates" name="affiliates" onchange="change_affiliate(this.value)">
-                <option value="all">전체</option>
-                {% for affiliate in affiliates %}
-                <option value="{{ affiliate.affiliateId }}" {% if affiliateId == affiliate.affiliateId %} selected {% endif %}>
-                  {{ affiliate.affiliateName }}
-                </option>
-                {% endfor %}
-              </select>
-            </span>
-          </div>
-        </form>
         {% if startdate or enddate %}
         <div class="row m-2 pt-3">
           <div class="col-xl-4">
@@ -128,7 +113,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매금액</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.total | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.total | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -143,7 +128,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매건수</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.count | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.count | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -161,7 +146,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">일간판매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.today | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.today | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -176,7 +161,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">주간판매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.weekly | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.weekly | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-money-bill fa-2x text-gray-300"></i>
@@ -191,7 +176,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">월간판매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.monthly | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.monthly | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-won-sign fa-2x text-gray-300"></i>
@@ -206,7 +191,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">연간판매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.yearly | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.yearly | intcomma }}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-comment-dollar fa-2x text-gray-300"></i>
@@ -217,17 +202,16 @@
           </div>
         </div>
         {% endif %}
-        <form method="POST" id="postForm" action="/daesungwork/postsale/{{ affiliateId }}/">
+
+        <form method="POST" id="postForm" action="/daesungwork/postbuy/">
           {% csrf_token %}
           <div class="form-group row m-2 pt-4">
             <div class="col-xl-2">
-              <label for="saleDate" class="font-weight-bold text-primary"> 판매일자 </label> {{ form.saleDate }}
+              <label for="buyDate" class="font-weight-bold text-primary"> 구매일자 </label>
+              {{ form.buyDate }}
             </div>
             <div class="col-xl-2">
-              <label for="affiliate" class="font-weight-bold text-primary"> 판매처 </label> {{ form.affiliate }}
-            </div>
-            <div class="col-xl-2">
-              <label for="client" class="font-weight-bold text-primary"> 업체명
+              <label for="client" class="font-weight-bold text-primary"> 거래처
                 {% if user.is_staff %}
                 <a class="text-white" target="_blank" href="/client/postclient/">
                   <i class="fas fa-plus-circle fa-fw text-info"></i>
@@ -236,56 +220,64 @@
               </label>
               {{ form.client }}
             </div>
-            <div class="col-xl-1">
-              <label for="product" class="font-weight-bold text-primary"> 모델명 </label> {{ form.product }}
+            <div class="col-xl-2">
+              <label for="product" class="font-weight-bold text-primary"> 품명 </label>
+              {{ form.product }}
             </div>
             <div class="col-xl-1">
-              <label for="size" class="font-weight-bold"> 사이즈 </label> {{ form.size }}
+              <label for="quantity" class="font-weight-bold text-primary"> 수량 </label>
+              {{ form.quantity }}
             </div>
             <div class="col-xl-1">
-              <label for="unitPrice" class="font-weight-bold"> 단가 </label> {{ form.unitPrice }}
+              <label for="salePrice" class="font-weight-bold text-primary"> 공급가 </label>
+              {{ form.salePrice }}
             </div>
             <div class="col-xl-1">
-              <label for="quantity" class="font-weight-bold"> 수량 </label> {{ form.quantity }}
+              <label for="vatPrice" class="font-weight-bold"> 부가세 </label>
+              {{ form.vatPrice }}
             </div>
             <div class="col-xl-1">
-              <label for="salePrice" class="font-weight-bold text-primary"> 판매금액 </label> {{ form.salePrice }}
+              <label for="totalPrice" class="font-weight-bold"> 합계 </label>
+              {{ form.totalPrice }}
             </div>
             <div class="col-xl-1">
-              <span class="btn bg-primary text-white mt-4 center" onclick="btn_post()">등록</span>
+              <label for="comment" class="font-weight-bold"> 비고 </label>
+              {{ form.comment }}
+            </div>
+            <div class="col-xl-1 text-center">
+              <span class="btn bg-primary text-white mt-4" onclick="btn_post()">등록</span>
             </div>
           </div>
         </form>
-        <div id="salesdiv" class="p-3">
-          <table id="showsales" class="display" style="width:100%">
-            <thead style="width:100%">
-            <tr style="background-color: #deeef8; color: black;">
-              <td>판매일자</td>
-              <td>매출처</td>
-              <td>업체명</td>
-              <td>모델명</td>
-              <td>사이즈</td>
-              <td>단가</td>
-              <td>수량</td>
-              <td>판매금액</td>
-              <td><i class="fas fa-trash-alt text-secondary"></i></td>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-            </tr>
-            </tfoot>
-          </table>
-        </div>
+
+        <table id="showbuys" class="display" style="width:100%">
+          <thead style="width:100%">
+          <tr style="background-color: #deeef8; color: black;">
+            <td>구매일자</td>
+            <td>거래처</td>
+            <td>품명</td>
+            <td>수량</td>
+            <td>공급가</td>
+            <td>부가세</td>
+            <td>합계</td>
+            <td>비고</td>
+            <td><i class="fas fa-trash-alt text-secondary"></i></td>
+          </tr>
+          </thead>
+          <tfoot>
+          <tr>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+            <th style="padding: 8px 10px; text-align: right"></th>
+          </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
   </div>
@@ -317,8 +309,8 @@
             </div>
           </div>
           <div class="row mb-1">
-            <div class="col-12">
-              <label for="filterClient" class="font-weight-bold text-primary">업체명</label>
+            <div class="col-6">
+              <label for="filterClient" class="font-weight-bold text-primary">거래처</label>
               <select class="form-control" id="filterClient" name="filterClient">
                 <option value="">------</option>
                 {% for client in clients %}
@@ -328,20 +320,13 @@
                 {% endfor %}
               </select>
             </div>
-          </div>
-          <div class="row mb-1">
             <div class="col-6">
-              <label for="filterProduct" class="font-weight-bold text-primary">모델명</label>
+              <label for="filterProduct" class="font-weight-bold text-primary">품명</label>
               <input type="text" class="form-control" id="filterProduct" name="filterProduct" required>
-            </div>
-            <div class="col-6">
-              <label for="filterSize" class="font-weight-bold text-primary">사이즈</label>
-              <input type="text" class="form-control" id="filterSize" name="filterSize" required>
             </div>
           </div>
         </form>
       </div>
-
       <div class="modal-footer">
         <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
         <a class="btn btn-info" href="#" onclick="btn_filter()">조회</a>
@@ -363,27 +348,16 @@
       </div>
 
       <div class="modal-body">
-        <form id="insertForm" action="/daesungwork/insertsale/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
+        <form id="insertForm" action="/daesungwork/insertbuy/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
           {% csrf_token %}
           <div class="row mb-1">
             <div class="col-3">
-              <label class="font-weight-bold text-primary">판매 일자</label>
-              <input type="date" max="9999-12-31" class="form-control" name="saleDate" id="insertSaleDate" required>
+              <label class="font-weight-bold text-primary">발생 일자</label>
+              <input type="date" max="9999-12-31" class="form-control" name="buyDate" id="insertPostDate" required>
             </div>
             <div class="col-3">
-              <label for="insertAffiliates" class="font-weight-bold text-primary">매출처</label>
-              <select class="form-control" id="insertAffiliates" name="affiliates">
-                <option value="all">전체</option>
-                {% for affiliate in affiliates %}
-                <option value="{{ affiliate.affiliateId }}" {% if affiliateId == affiliate.affiliateId %} selected {% endif %}>
-                  {{ affiliate.affiliateName }}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-3">
-              <label for="insertClient" class="font-weight-bold text-primary">업체명</label>
-              <select class="form-control" id="insertClient" name="client">
+              <label for="insertClient" class="font-weight-bold text-primary">거래처</label>
+              <select class="form-control" id="insertClient" name="insertClient">
                 <option value="">------</option>
                 {% for client in clients %}
                 <option value="{{ client.companyName }}">
@@ -397,12 +371,13 @@
         <table id="insertTable" class="display" style="width:100%">
           <thead style="width:100%">
           <tr>
-            <th class="font-weight-bold text-primary">모델명</th>
-            <th class="font-weight-bold text-primary">사이즈</th>
-            <th class="font-weight-bold text-primary">단가</th>
+            <th class="font-weight-bold text-primary">품명</th>
             <th class="font-weight-bold text-primary">수량</th>
-            <th class="font-weight-bold text-primary">판매금액</th>
-            <th><i id="addSale" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+            <th class="font-weight-bold text-primary">공급가</th>
+            <th class="font-weight-bold text-primary">부가세</th>
+            <th class="font-weight-bold text-primary">합계</th>
+            <th class="font-weight-bold">비고</th>
+            <th><i id="addBuy" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
           </tr>
           </thead>
         </table>
@@ -423,75 +398,26 @@
 
 <script type="text/javascript">
 
-    function btn_deletesale(val) {
-        const saleId = val.id;
-        if (confirm("판매정보를 삭제하시겠습니까?") == true) {
-            location.href = '/daesungwork/deletesale/' + saleId + '/';
+    function btn_deletebuy(val) {
+        const buyId = val.id;
+        if (confirm("구매정보를 삭제하시겠습니까?") == true) {
+            location.href = '/daesungwork/deletebuy/' + buyId + '/';
         }
     }
-
 
     function btn_filter() {
         document.getElementById("filterForm").submit();
     }
 
-    function changeModel(modelName, sizeId, unitPriceId, quantityId, salePriceId) {
-        $.ajax({
-            url: "{% url 'daesungwork:modelasjson' %}",
-            method: 'POST',
-            cache: false,
-            data: {"modelName": modelName,},
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            success: function (returnData) {
-                let unitPrice = returnData[0];
-                let sizes = returnData[1];
-                $('#' + sizeId).empty();
-                for (var count = 0; count < sizes.length; count++) {
-                    var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
-                    $('#' + sizeId).append(option);
-                }
-                $('#' + unitPriceId).val(unitPrice[0].unitPrice);
-                changePrice(unitPriceId, quantityId, salePriceId);
-            }
-        });
-    }
-
-    function changeFilterModel() {
-        $.ajax({
-            url: "{% url 'daesungwork:modelasjson' %}",
-            method: 'POST',
-            cache: false,
-            data: {"modelName": modelName,},
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            success: function (returnData) {
-                var sizes = returnData[1];
-                $('#size').empty();
-                for (var count = 0; count < sizes.length; count++) {
-                    var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
-                    $('#size').append(option);
-                }
-                $('#unitPrice').val(unitPrice[0].unitPrice);
-            }
-        });
-    }
-
-    function changePrice(unitPriceId, quantityId, salePriceId) {
-        const unitPrice = $('#' + unitPriceId).val();
+    function changePrice(quantityId, salePriceId, vatPriceId, totalPriceId) {
         const quantity = $('#' + quantityId).val();
+        const salePrice = $('#' + salePriceId).val();
 
-        if (unitPrice !== '' && quantity !== '') {
-            $('#' + salePriceId).val(unitPrice * quantity);
+        if (salePrice !== '' && quantity !== '') {
+            $('#' + vatPriceId).val((salePrice * 0.1).toFixed(0));
+            $('#' + totalPriceId).val((Number(salePrice) + Number((salePrice * 0.1).toFixed(0))) * Number(quantity));
+            console.log((Number(salePrice) + Number((salePrice * 0.1).toFixed(0))) * Number(quantity));
         }
-    }
-
-    function open_insertmodal() {
-        $('#insertModal').modal('show');
-        setTimeout("$('#addSale').click()", 150);
-    }
-
-    function change_affiliate(affiliateId) {
-        location.href = '/daesungwork/showsalestatus/' + affiliateId + '/'
-
     }
 
     function replaceAll(str, searchStr, replaceStr) {
@@ -504,132 +430,103 @@
     }
 
     function btn_post() {
-        if (document.getElementById("saleDate").value === '') {
-            alert("판매일자를 입력해주세요.");
-            return false;
-        }
-        if (document.getElementById("affiliate").value === '') {
-            alert("판매처를 선택해주세요.");
-            return false;
+        if (document.getElementById("buyDate").value === '') {
+            alert("구매일자를 입력해주세요."); return false;
         }
         if (document.getElementById("client").value === '') {
-            alert("업체명을 입력해주세요.");
-            return false;
+            alert("거래처를 입력해주세요."); return false;
         }
         if (document.getElementById("product").value === '') {
-            alert("모델명을 선택해주세요.");
-            return false;
+            alert("품명을 입력해주세요."); return false;
+        }
+        if (document.getElementById("quantity").value === '') {
+            alert("수량을 입력해주세요"); return false;
         }
         if (document.getElementById("salePrice").value === '') {
-            alert("판매금액을 입력해주세요.");
-            return false;
+            alert("공급가를 입력해주세요."); return false;
         }
         const postForm = document.getElementById('postForm');
         postForm.submit();
     }
 
+    function open_insertmodal() {
+        $('#insertModal').modal('show');
+        setTimeout("$('#addBuy').click()", 150);
+    }
+
     function btn_insert() {
         const form = document.getElementById("insertForm");
 
-        if (!$('#insertSaleDate').val()) {
-            alert("판매일자를 입력해주세요."); return false;
-        }
-        if (!$('#insertAffiliates').val()) {
-            alert("매출처를 선택해주세요."); return false;
+        if (!$('#insertPostDate').val()) {
+            alert("발생일자를 입력해주세요."); return false;
         }
         if (!$('#insertClient').val()) {
-            alert("업체명을 선택해주세요."); return false;
+            alert("거래처를 선택해주세요."); return false;
         }
 
-        // 판매현황 일괄등록
-        const lengthSale = $('.insertTableCount').length; // x 그림에 insertTableCount class 추가해서 길이 셈.
-        const listSale = [];
-        for (let i=0; i<lengthSale; i++) {
-            if ($('select[name="insertProduct"]').eq(i).val() === null) {
-                alert("품명을 선택해주세요."); return false;
-            }
-            if ($('select[name="insertSize"]').eq(i).val() === null) {
-                alert("사이즈를 선택해주세요."); return false;
-            }
-            if ($('input[name="insertUnitPrice"]').eq(i).val() === '') {
-                alert("단가를 입력해주세요."); return false;
+        // 구매현황 일괄등록
+        const lengthBuy = $('.insertTableCount').length; // x 그림에 insertTableCount class 추가해서 길이 셈.
+        const listBuy = [];
+        for (let i=0; i<lengthBuy; i++) {
+            if ($('input[name="insertProduct"]').eq(i).val() === null) {
+                alert("품명을 입력해주세요."); return false;
             }
             if ($('input[name="insertQuantity"]').eq(i).val() === '') {
                 alert("수량을 입력해주세요."); return false;
             }
             if ($('input[name="insertSalePrice"]').eq(i).val() === '') {
-                alert("판매금액을 입력해주세요."); return false;
+                alert("공급가를 입력해주세요."); return false;
             }
 
             var data = new Object();
-            data.product = $('select[name="insertProduct"]').eq(i).val();
-            data.size = $('select[name="insertSize"]').eq(i).val();
-            data.unitPrice = $('input[name="insertUnitPrice"]').eq(i).val();
+            data.product = $('input[name="insertProduct"]').eq(i).val();
             data.quantity = $('input[name="insertQuantity"]').eq(i).val();
             data.salePrice = $('input[name="insertSalePrice"]').eq(i).val();
-            listSale.push(data);
+            data.vatPrice = $('input[name="insertVatPrice"]').eq(i).val();
+            data.totalPrice = $('input[name="insertTotalPrice"]').eq(i).val();
+            data.comment = $('input[name="insertComment"]').eq(i).val();
+            listBuy.push(data);
         }
-        const jsonSale = JSON.stringify(listSale);
-        const sale = document.createElement("input");
-        sale.setAttribute("type", "hidden");
-        sale.setAttribute("name", "jsonSale");
-        sale.setAttribute("value", jsonSale);
-        form.appendChild(sale);
+        const jsonBuy = JSON.stringify(listBuy);
+        const buy = document.createElement("input");
+        buy.setAttribute("type", "hidden");
+        buy.setAttribute("name", "jsonBuy");
+        buy.setAttribute("value", jsonBuy);
+        form.appendChild(buy);
 
         if (confirm("일괄등록 하시겠습니까?") === true) {
             form.submit();
         }
     }
 
-    function product_select(productSelectId) {
-        let productSelectObj = $('#' + productSelectId);
-        $.ajax({
-            url: "{% url 'daesungwork:productasjson' %}",
-            method: 'GET',
-            cache: false,
-            data: {},
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            success: function (returnData) {
-                productSelectObj.append('<option value="">------</option>');
-                for (let i=0; i<returnData.length; i++) {
-                    productSelectObj.append(
-                        '<option value="' + [returnData[i].productId + '">' + returnData[i].modelName] + '</option>'
-                    );
-                }
-            }
-        });
-    }
-
     $(document).ready(function () {
-        $('#showsales').dataTable({
+        $('#showbuys').dataTable({
             "processing": true,
             "ajax": {
                 "processing": true,
                 "type": 'POST',
                 "data": {
-                    "affiliateId": "{{ affiliateId }}",
                     "startdate": "{{ startdate }}",
                     "enddate": "{{ enddate }}",
                     "filterClient": "{{ filterClient }}",
                     "filterProduct": "{{ filterProduct }}",
-                    "filterSize": "{{ filterSize }}",
                 },
-                "url": "{% url 'daesungwork:salesasjson' %}",
+                "url": "{% url 'daesungwork:buysasjson' %}",
                 "dataSrc": ""
             },
             "columns": [
-                {data: "saleDate"},
-                {data: "affiliate__affiliateName"},
+                {data: "buyDate"},
                 {data: "client__companyName"},
-                {data: "product__modelName"},
-                {data: "size__size"},
-                {data: "unitPrice"},
+                {data: "product"},
                 {data: "quantity"},
                 {data: "salePrice"},
+                {data: "vatPrice"},
+                {data: "totalPrice"},
+                {data: "comment"},
                 {
-                    data: "saleId",
+                    data: "buyId",
                     "render": function (data, type, row) {
-                        return '<i class="fas fa-times-circle" onclick="btn_deletesale(this)" id="' + row['saleId'] + '"</i>'
+                        return '<i class="fas fa-times-circle" onclick="btn_deletebuy(this)" id="' + row['buyId'] + '"</i>'
                     },
                 },
             ],
@@ -637,11 +534,11 @@
                 {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 3, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                {targets: 4, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                 {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 7, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
+                {targets: 7, width: "15%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                 {targets: 8, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
 
             ],
@@ -667,37 +564,46 @@
                 },
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                $('td:eq(0)', nRow).text(replaceAll(aData.saleDate, "-", "-"));
-                $('td:eq(2)', nRow).css('color', '#4e73df');
-                $('td:eq(3)', nRow).css('color', '#4e73df');
-                $('td:eq(5)', nRow).text(aData.unitPrice.toLocaleString());
-                $('td:eq(7)', nRow).text(aData.salePrice.toLocaleString());
+                $('td:eq(0)', nRow).text(replaceAll(aData.buyDate, "-", "-"));
+                $('td:eq(1)', nRow).css('color', '#4e73df');
+                $('td:eq(3)', nRow).text(aData.quantity.toLocaleString());
+                $('td:eq(4)', nRow).text(aData.salePrice.toLocaleString());
+                $('td:eq(5)', nRow).text(aData.vatPrice.toLocaleString());
+                $('td:eq(6)', nRow).text(aData.totalPrice.toLocaleString());
             },
             "footerCallback": function () {
-                var api = this.api(), data;
+                let api = this.api(), data;
 
-                var unitResult = 0;
-                api.column(5, {search: 'applied'}).data().each(function (data, index) {
-                    unitResult += parseFloat(data);
+                let quantityResult = 0;
+                api.column(3, {search: 'applied'}).data().each(function (data, index) {
+                    quantityResult += parseFloat(data);
                 });
-                $(api.column(5).footer()).html(unitResult.toLocaleString());
+                $(api.column(3).footer()).html(quantityResult.toLocaleString());
 
-                var saleResult = 0;
-                api.column(7, {search: 'applied'}).data().each(function (data, index) {
+                let saleResult = 0;
+                api.column(4, {search: 'applied'}).data().each(function (data, index) {
                     saleResult += parseFloat(data);
                 });
-                $(api.column(7).footer()).html(saleResult.toLocaleString());
+                $(api.column(4).footer()).html(saleResult.toLocaleString());
+
+                let vatResult = 0;
+                api.column(5, {search: 'applied'}).data().each(function (data, index) {
+                    vatResult += parseFloat(data);
+                });
+                $(api.column(5).footer()).html(vatResult.toLocaleString());
+
+                let totalResult = 0;
+                api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                    totalResult += parseFloat(data);
+                });
+                $(api.column(6).footer()).html(totalResult.toLocaleString());
             },
         });
 
-        const salesTable = $('#showsales').DataTable();
+        const buysTable = $('#showbuys').DataTable();
 
-        $("#showsales tbody").on("click", 'tr td:eq(3)', function () {
-            const data = salesTable.data();
-            window.open('about:blank').location.href = '/daesungwork/viewproduct/' + data[0].product__productId + '/'
-        });
-        $("#showsales tbody").on("click", 'tr td:eq(2)', function () {
-            const data = salesTable.data();
+        $("#showbuys tbody").on("click", 'tr td:eq(1)', function () {
+            const data = buysTable.data();
             window.open('about:blank').location.href = '/client/viewclient/' + data[0].client__companyName + '/'
         });
 
@@ -714,13 +620,7 @@
             },
             "ordering": false,
             "columnDefs": [
-                {
-                    targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                    createdCell: function (td, cellData, rowData, row, col) {
-                        $(td).css('padding-bottom', '30px');
-                        $(td).css('padding-top', '20px');
-                    }
-                },
+                {targets: 0, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {
                     targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     createdCell: function (td, cellData, rowData, row, col) {
@@ -749,27 +649,33 @@
                         $(td).css('padding-top', '20px');
                     }
                 },
-                {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                    {
+                    targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).css('padding-bottom', '30px');
+                        $(td).css('padding-top', '20px');
+                    }
+                },
+                {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
             ],
         });
 
-        let saleCounter = 0;
+        let buyCounter = 0;
 
-        $('#addSale').on('click', function () {
+        $('#addBuy').on('click', function () {
             insertTable.row.add([
-                '<select class="form-control" name="insertProduct" id="buy1' + saleCounter + '"' +
-                    'onchange="changeModel(this.value, \'buy2' + saleCounter + '\', \'buy3' + saleCounter + '\', ' +
-                    '\'buy4' + saleCounter + '\', \'buy5' + saleCounter + '\')">',
-                '<select class="form-control" name="insertSize" id="buy2' + saleCounter + '">',
-                '<input class="form-control" name="insertUnitPrice" id="buy3' + saleCounter + '" type="number"' +
-                    'onchange="changePrice(\'buy3' + saleCounter + '\', \'buy4' + saleCounter + '\', \'buy5' + saleCounter + '\')">',
-                '<input class="form-control" name="insertQuantity" id="buy4' + saleCounter + '" type="number"' +
-                    'onchange="changePrice(\'buy3' + saleCounter + '\', \'buy4' + saleCounter + '\', \'buy5' + saleCounter + '\')">',
-                '<input class="form-control" name="insertSalePrice" id="buy5' + saleCounter + '" type="number">',
+                '<input class="form-control" name="insertProduct" id="buy1' + buyCounter + '">',
+                '<input class="form-control" name="insertQuantity" id="buy2' + buyCounter + '" type="number" value="0"' +
+                'onchange="changePrice(\'buy2' + buyCounter + '\', \'buy3' + buyCounter + '\', \'buy4' + buyCounter + '\', \'buy5' + buyCounter + '\')">',
+                '<input class="form-control" name="insertSalePrice" id="buy3' + buyCounter + '" type="number" value="0"' +
+                'onchange="changePrice(\'buy2' + buyCounter + '\', \'buy3' + buyCounter + '\', \'buy4' + buyCounter + '\', \'buy5' + buyCounter + '\')">',
+                '<input class="form-control" name="insertVatPrice" id="buy4' + buyCounter + '" type="number" readonly>',
+                '<input class="form-control" name="insertTotalPrice" id="buy5' + buyCounter + '" type="number" readonly>',
+                '<input class="form-control" name="insertComment" id="display6' + buyCounter + '">',
                 '<i class="fas fa-times-circle insertTableCount">',
             ]).draw();
-            product_select('buy1' + saleCounter);
-            saleCounter++;
+            changePrice('buy2'+buyCounter, 'buy3'+buyCounter, 'buy4'+buyCounter, 'buy5'+buyCounter);
+            buyCounter++;
         });
 
         $('#insertTable').on('click', 'i', function () {
@@ -778,6 +684,8 @@
                 .remove()
                 .draw();
         });
+
+        changePrice('quantity', 'salePrice', 'vatPrice', 'totalPrice');
 
     });
 
