@@ -200,3 +200,25 @@ class Reproduction(models.Model):
 
     def __str__(self):
         return str(self.reproductionId)
+
+
+class StockCheck(models.Model):
+    stockcheckId = models.AutoField(primary_key=True)
+    typeName = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True, blank=True)
+    checkEmp = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    checkDate = models.DateField()
+    createdDate = models.DateTimeField(default=timezone.now)
+    modifyDate = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return str(self.checkDate)
+
+
+class ProductCheck(models.Model):
+    productcheckId = models.AutoField(primary_key=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True)
+    productGap = models.CharField(max_length=10, null=True, blank=True, default='')
+
+    def __str__(self):
+        return str(self.product + ':' + self.productGap)

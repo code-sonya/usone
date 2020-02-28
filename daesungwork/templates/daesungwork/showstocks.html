@@ -1,0 +1,248 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+ 재고 관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+      <h6 class="m-0 h3 text-gray-800">재고 관리</h6>
+      <div class="dropdown no-arrow">
+        {% if user.is_staff or user.employee.empPosition.positionName == '임원' %}
+        <a class="btn btn-primary" href="/daesungwork/poststock/None/">
+          <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    <form method="POST" id="searchForm">
+    <div class="row ml-3 mt-3">
+      <span>
+        <select class="form-control" id="typeId" name="typeId" onchange="btn_change(this.value)">
+          <option value="">전체</option>
+          {% for type in types %}
+          <option value="{{ type.typeId }}" {% if typeId == type.typeId %} selected {% endif %} >
+            {{ type.typeName }}
+          </option>
+          {% endfor %}
+        </select>
+      </span>
+    </div>
+    </form>
+
+    <div class="card-body">
+      <div class="mb-3">
+        <h5>▼ <span class="text-primary font-weight-bold">재고 목록</span></h5>
+      </div>
+      <div class="table-responsive">
+        <table id="showcheckstocks" class="hover row-border" style="width: 100%;">
+          <thead>
+          <tr style="background-color: #deeef8; color: black;">
+            <th>번호</th>
+            <th>점검월</th>
+            <th>점검일자</th>
+            <th>점검자</th>
+            <th>수정일시</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+
+      function btn_center(centerId) {
+        const searchForm = document.getElementById('searchForm');
+        const centerIdInput = document.createElement("input");
+        centerIdInput.setAttribute("type", "hidden");
+        centerIdInput.setAttribute("name", "centerId");
+        centerIdInput.setAttribute("value", centerId);
+        searchForm.appendChild(centerIdInput);
+        searchForm.submit();
+      }
+
+      function btn_change(seleted) {
+          if(seleted=="-1"){
+            $("#money").val(0);
+            $("#money").attr("readonly",true);
+            $("#purchaseCompany").val('');
+            $("#purchaseCompany").attr("readonly", true);
+
+          }else{
+            $("#money").attr("readonly",false);
+            $("#purchaseCompany").attr("readonly", false);
+          }
+      }
+
+      function btn_insert() {
+          let newSaving;
+          let name = '';
+          if ($('#newSaving').is(':checked')) {
+              newSaving = true;
+              if (!$('#insertForm [name="newName"]').val()) {
+                  alert('품명을 입력해주세요.');
+                  return false;
+              } else {
+                  name = $('#insertForm [name="newName"]').val();
+              }
+          } else {
+              newSaving = false;
+              if (!$('#insertForm [name="selectName"]').val()) {
+                  alert('품명을 선택해주세요.');
+                  return false;
+              } else {
+                  name = $('#insertForm [name="selectName"]').val();
+              }
+          }
+          if (!$('#insertForm [name="quantity"]').val()) {
+              alert('수량을 입력해주세요.');
+              return false;
+          }
+          if (!$('#insertForm [name="money"]').val()) {
+              alert('금액을 입력해주세요.');
+              return false;
+          }
+          if (!$('#insertForm [name="location"]').val()) {
+              alert('설치장소 (사용기관)을 입력해주세요.');
+              return false;
+          }
+          if (!$('#insertForm [name="purchaseDate"]').val()) {
+              alert('구매일 (소모일)을 입력해주세요.');
+              return false;
+          }
+          if (!$('#insertForm [name="purchaseEmp"]').val()) {
+              alert('인수자 (검수자)를 입력해주세요.');
+              return false;
+          }
+
+          $.ajax({
+              url: "{% url 'supply:postsaving' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "newSaving": newSaving,
+                  "name": name,
+                  "quantity": $('#insertForm [name="quantity"]').val() * $('#insertForm [name="quantityType"]').val(),
+                  "money": $('#insertForm [name="money"]').val(),
+                  "standard": $('#insertForm [name="standard"]').val(),
+                  "purchaseCompany": $('#insertForm [name="purchaseCompany"]').val(),
+                  "purchaseDate": $('#insertForm [name="purchaseDate"]').val(),
+                  "location": $('#insertForm [name="location"]').val(),
+                  "purchaseEmp": $('#insertForm [name="purchaseEmp"]').val(),
+                  "comment": $('#insertForm [name="comment"]').val(),
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData === 'N') {
+                      alert('이미 등록된 비품입니다.');
+                      return false;
+                  } else if (returnData === 'Y') {
+                      $('.close').click();
+                      alert('비품 등록이 완료되었습니다.');
+                      location.reload();
+                  } else if (returnData === 'error') {
+                      $('.close').click();
+                      alert('오류가 발생했습니다. 관리자에게 문의하세요.');
+                      location.reload();
+                  }
+              }
+          });
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          var new_str = str.split(searchStr).join(replaceStr);
+          return new_str.split("T").join(" ").slice(0, 10);
+      }
+
+      $(document).ready(function () {
+          const checkstocksTable = $('#showcheckstocks').DataTable({
+              "processing": true,
+              "ajax": {
+                  "processing": true,
+                  "type": 'POST',
+                  "data": {
+                      "typeId": "{{ typeId }}"
+                  },
+                  "url": "{% url 'daesungwork:stocksasjson' %}",
+                  "dataSrc": ""
+              },
+              "columnDefs": [
+                  {
+                      targets: 0,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "stockcheckId",
+                  },
+                  {
+                      targets: 1,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "checkDate",
+                  },
+                  {
+                      targets: 2,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "checkDate",
+                  },
+                  {
+                      targets: 3,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "checkEmp__empName",
+                  },
+                  {
+                      targets: 4,
+                      width: "20%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "modifyDate",
+                  },
+              ],
+              "deferRender": true,
+              "order": [[0, 'asc']],
+              "searching": true,
+              "paging": true,
+              "info": false,
+              "scrollY": "80vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              "language": {
+                  "lengthMenu": "_MENU_개씩 보기",
+                  "search": "검색:",
+                  "zeroRecords": "결과 없음",
+                  "processing": "로딩중",
+                  "paginate": {
+                      "first": "처음",
+                      "last": "끝",
+                      "next": "→",
+                      "previous": "←"
+                  },
+              },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  $('td:eq(4)', nRow).text(replaceAll(aData.modifyDate,"-","."));
+              },
+          });
+      });
+
+  </script>
+
+{% endblock %}

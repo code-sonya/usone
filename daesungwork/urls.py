@@ -67,5 +67,9 @@ urlpatterns = [
     # 제품위치 조회
     url(r'^showproductlocation/$', views.show_productlocation, name='showproductlocation'),
     url(r'^locationasjson/$', views.location_asjson, name='locationasjson'),
-
+    # 재고관리
+    url(r'^showstocks/$', views.show_stocks, name='showstocks'),
+    url(r'^stocksasjson/$', views.stocks_asjson, name='stocksasjson'),
+    url(r'^poststock/(?P<typeId>.+)/$', views.post_stock, name='poststock'),
+    url(r'^typeproductsasjson/$', views.typeproducts_asjson, name='typeproductsasjson'),
 ]

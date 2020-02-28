@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Q
 
 from hr.models import Employee
-from .models import CenterManager, Sale, Size, Product, Warehouse, DailyReport, Display, Reproduction, Buy
+from .models import CenterManager, Sale, Size, Product, Warehouse, DailyReport, Display, Reproduction, Buy, StockCheck
 from client.forms import CompanyForm
 from client.models import Company
 
