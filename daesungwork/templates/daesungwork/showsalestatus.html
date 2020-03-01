@@ -128,7 +128,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매금액</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.total | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.total %}{{ sales.total | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -143,7 +143,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매건수</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.count | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.count %}{{ sales.count | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -161,7 +161,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">일간매출현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.today | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.today %}{{ sales.today | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -176,7 +176,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">주간매출현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.weekly | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.weekly %}{{ sales.weekly | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-money-bill fa-2x text-gray-300"></i>
@@ -191,7 +191,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">월간매출현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.monthly | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.monthly %}{{ sales.monthly | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-won-sign fa-2x text-gray-300"></i>
@@ -206,7 +206,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">연간매출현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sales.yearly | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.yearly %}{{ sales.yearly | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-comment-dollar fa-2x text-gray-300"></i>

@@ -1418,7 +1418,6 @@ def typeproducts_asjson(request):
         checkStockList = []
         for stock in productNames:
             checkStockList.append(list(ProductCheck.objects.filter(Q(stockcheck=stockcheckId) & Q(product=stock['product_id'])).values_list('product__productId', 'size__size', 'productGap')))
-        print(checkStockList)
         jsonList.append({'gap': checkStockList})
 
     else:
