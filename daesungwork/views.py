@@ -1366,7 +1366,7 @@ def modify_stock(request, stockcheckId):
                         jsonStocksId.append(int(productCheckInstance.productcheckId))
                     except:
                         ProductCheck.objects.create(
-                            product=Product.objects.get(Q(stockcheck=stockInstance.stockcheckId) & Q(productId=item["productId"])),
+                            product=Product.objects.get(Q(productId=item["productId"])),
                             size=Size.objects.filter(Q(productId=item["productId"]) & Q(size=item["size"])).first(),
                             productGap=item["productGap"],
                             stockcheck=stockInstance,
