@@ -279,7 +279,7 @@
         {% for product in productNames %}
             console.log( itemCounter);
             t1.append(
-                '<tr>'+ '<td class="d-none"><div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ product }}</div></td>'+
+                '<tr>'+ '<td class="d-none"><div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ product.product_id }}</div></td>'+
                 '<td><select style="width:200px" class="form-control" size="1" id="item1' + itemCounter + '" name="modelName">' +'</select></td>' +
                 {% for size in sizes %}
                 '<td><input class="form-control item2'+ itemCounter + '"  type="text" id="item2'+ itemCounter + '-{{ size.size__size }}" name="{{ size.size__size }}" value=""></td>'+
