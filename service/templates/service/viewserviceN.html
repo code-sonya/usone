@@ -77,9 +77,14 @@
             </tr>
             {% endif %}
             <tr>
-              <td class="text-center"><b>고&nbsp;&nbsp;객&nbsp;&nbsp;사</b></td>
-              <td><b class="text-primary">{{ service.companyName }}</b> ({{ service.serviceLocation }})
+              <td class="text-center"><b>거&nbsp;&nbsp;래&nbsp;&nbsp;처</b></td>
+              <td>
+              {% if service.companyName %}
+                <b class="text-primary">{{ service.companyName }}</b> ({{ service.serviceLocation }})
                 <i class="fas fa-search text-gray-600" onclick="location.href='/client/viewclient/{{ service.companyName }}/'"></i>
+              {% else %}
+                <b class="font-weight-bold text-danger">거래처 없음</b>
+              {% endif %}
               </td>
             </tr>
             <tr>

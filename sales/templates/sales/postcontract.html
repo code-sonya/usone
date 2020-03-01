@@ -687,8 +687,9 @@
       var value = "";
       var resultcompanyName;
       var resultcompanyNameKo;
-      var companyList = new Array();
-      companyList ={{ companyNames|safe }};
+      var companyList = {{ companyNames|safe }};
+      var saleCompanyList = {{ saleCompanyLists|safe }};
+      var purchaseCompanyList = {{ purchaseCompanyLists|safe }};
 
       function magicsearchtab(input) {
           console.log(input);
@@ -1180,7 +1181,7 @@
 
       function replaceMagic() {
           $('#saleCompanyNames').magicsearch({
-              dataSource: companyList,
+              dataSource: saleCompanyList,
               fields: 'value',
               id: 'id',
               format: '%value%',
@@ -1223,22 +1224,12 @@
               }
           });
 
-          $('#endCompanyNames').magicsearch({
-              dataSource: companyList,
-              fields: 'value',
-              id: 'id',
-              format: '%value%',
-              multiStyle: {space: 5, width: 80},
-              noResult: '검색결과없음',
-              focusShow: true,
-          });
-
           var lengthrevenueCompany = $('[name="revenueCompany"]').length;
           var lengthpurchaseCompany = $('[name="purchaseCompany"]').length;
 
           for (var i = 0; i < lengthrevenueCompany; i++) {
               $('#revenue5' + i).magicsearch({
-                  dataSource: companyList,
+                  dataSource: saleCompanyList,
                   fields: 'value',
                   id: 'id',
                   format: '%value%',
@@ -1250,7 +1241,7 @@
 
           for (var j = 0; j < lengthpurchaseCompany; j++) {
               $('#purchase5' + j).magicsearch({
-                  dataSource: companyList,
+                  dataSource: purchaseCompanyList,
                   fields: 'value',
                   id: 'id',
                   format: '%value%',
@@ -1744,7 +1735,7 @@
           // 빌링스케줄 생성(매출) 고객사명 자동완성
           const billingRevenueCompanyName = document.getElementById('billingRevenueCompanyName');
           $('#billingRevenueCompanyName').magicsearch({
-              dataSource: companyList,
+              dataSource: saleCompanyList,
               fields: 'value',
               id: 'id',
               format: '%value%',
@@ -1759,7 +1750,7 @@
           // 빌링스케줄 생성(접수) 고객사명 자동완성
           const billingPurchaseCompanyName = document.getElementById('billingPurchaseCompanyName');
           $('#billingPurchaseCompanyName').magicsearch({
-              dataSource: companyList,
+              dataSource: purchaseCompanyList,
               fields: 'value',
               id: 'id',
               format: '%value%',
@@ -1792,7 +1783,7 @@
               saleCompanyNames.setAttribute("data-id", "{{ saleCompanyNames }}");
           {% endif %}
           $('#saleCompanyNames').magicsearch({
-              dataSource: companyList,
+              dataSource: saleCompanyList,
               fields: 'value',
               id: 'id',
               format: '%value%',
@@ -1834,24 +1825,6 @@
           });
           saleCompanyNames.removeAttribute("style");
           saleCompanyNames.parentElement.removeAttribute("style");
-
-          const endCompanyNames = document.getElementById('endCompanyNames');
-          // 최종고객사 자동완성
-          {% if endCompanyNames %}
-              endCompanyNames.setAttribute("data-id", "{{ endCompanyNames }}");
-          {% endif %}
-          $('#endCompanyNames').magicsearch({
-              dataSource: companyList,
-              fields: 'value',
-              id: 'id',
-              format: '%value%',
-              multiStyle: {space: 5, width: 80},
-              noResult: '검색결과없음',
-              focusShow: true,
-              maxShow: 100,
-          });
-          endCompanyNames.removeAttribute("style");
-          endCompanyNames.parentElement.removeAttribute("style");
 
           // 계약종료일 자동입력
           $('#contractStartDate').on("propertychange change keyup paste input", function () {
@@ -1933,7 +1906,7 @@
               $('.money').simpleMoneyFormat();
               document.getElementById("item5" + itemCounter).setAttribute("data-id", $('#saleCompanyNames').attr('data-id'));
               $('#item5' + itemCounter).magicsearch({
-                  dataSource: companyList,
+                  dataSource: saleCompanyList,
                   fields: 'value',
                   id: 'id',
                   format: '%value%',
@@ -1971,7 +1944,7 @@
                   t1.row.add([
                       '<div class="text-center d-none" value="0" name="itemId" id="item0' + itemCounter + '">{{ item.contractItemId }}</div>',
                       '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 200px;" name="revenueCategoryCompany" ' +
-                      'data-id="{{ item.companyName }}"' +
+                      'data-id="{% if item.companyName %}{{ item.companyName }}{% endif %}"' +
                       'id="item5' + itemCounter + '" onkeydown="magicsearchtab(item5' + itemCounter + ')">',
                       '<select style="width:200px" class="input-form" size="1" id="item1' + itemCounter + '" name="mainCategory" onchange="itemChange( item1' + itemCounter + ",item2" + itemCounter + ')">' +
                       '</select>',
@@ -2008,7 +1981,7 @@
 
               for (var p = 0; p < itemCounter; p++) {
                   $('#item5' + p).magicsearch({
-                      dataSource: companyList,
+                      dataSource: saleCompanyList,
                       fields: 'value',
                       id: 'id',
                       format: '%value%',
@@ -2135,7 +2108,7 @@
               $('.money').simpleMoneyFormat();
               document.getElementById("revenue5" + revenueCounter).setAttribute("data-id", $('#saleCompanyNames').attr('data-id'));
               $('#revenue5' + revenueCounter).magicsearch({
-                  dataSource: companyList,
+                  dataSource: saleCompanyList,
                   fields: 'value',
                   id: 'id',
                   format: '%value%',
@@ -2165,7 +2138,7 @@
                       '<input class="input-form" type="date" max="9999-12-31" name="predictDepositDate" id="revenue3' + revenueCounter + '" value="{{ revenue.predictDepositDate | date:"Y-m-d" }}">',
                       '<input class="input-form" type="date" max="9999-12-31" name="depositDate" id="revenue4' + revenueCounter + '" value="{{ revenue.depositDate | date:"Y-m-d" }}" ' +
                           'onchange="changeExecutionDates(\'revenue4' + revenueCounter + '\',\'revenue3' + revenueCounter + '\')">',
-                      '<input class="magicsearch input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{{ revenue.revenueCompany }}" onkeydown="magicsearchtab(revenue5' + revenueCounter + ')">',
+                      '<input class="magicsearch input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" autocomplete="off" type="text" name="revenueCompany" id="revenue5' + revenueCounter + '" data-id="{% if revenue.revenueCompany %}{{ revenue.revenueCompany }}{% endif %}" onkeydown="magicsearchtab(revenue5' + revenueCounter + ')">',
                       '<input class="money input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" name="revenuePrice" id="revenue6' + revenueCounter + '" value="{{ revenue.revenuePrice }}">',
                       '<input class="money input-form {% if revenue.revenueStatus == 'Y' %}notChange{% endif %}" name="revenueProfitPrice" id="revenue7' + revenueCounter + '" value="{{ revenue.revenueProfitPrice }}" readonly style="background-color: #eaecf4">',
                       '<input class="input-form" type="text" name="revenueComment" id="revenue8' + revenueCounter + '" value="{{ revenue.comment }}">',
@@ -2180,7 +2153,7 @@
               t2.draw();
               for (var r = 0; r < revenueCounter; r++) {
                   $('#revenue5' + r).magicsearch({
-                      dataSource: companyList,
+                      dataSource: saleCompanyList,
                       fields: 'value',
                       id: 'id',
                       format: '%value%',
@@ -2297,7 +2270,7 @@
               ]).draw(false);
               $('.money').simpleMoneyFormat();
               $('#purchase5' + purchaseCounter).magicsearch({
-                  dataSource: companyList,
+                  dataSource: purchaseCompanyList,
                   fields: 'value',
                   id: 'id',
                   format: '%value%',
@@ -2324,7 +2297,7 @@
                       '<input class="input-form" type="date" max="9999-12-31" name="predictWithdrawDate" id="purchase3' + purchaseCounter + '" value="{{ purchase.predictWithdrawDate | date:"Y-m-d" }}">',
                       '<input class="input-form" type="date" max="9999-12-31" name="withdrawDate" id="purchase4' + purchaseCounter + '" value="{{ purchase.withdrawDate | date:"Y-m-d" }}" ' +
                       'onchange="changeExecutionDates(\'purchase4' + purchaseCounter + '\',\'purchase3' + purchaseCounter + '\')">',
-                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{{ purchase.purchaseCompany }}" onkeydown="magicsearchtab(purchase5' + purchaseCounter + ')">',
+                      '<input class="magicsearch input-form" autocomplete="off" type="text" style="width: 255px;" name="purchaseCompany" id="purchase5' + purchaseCounter + '" data-id="{% if purchase.purchaseCompany %}{{ purchase.purchaseCompany }}{% endif %}" onkeydown="magicsearchtab(purchase5' + purchaseCounter + ')">',
                       '<input class="money input-form" style="width: 255px;" name="purchasePrice" id="purchase6' + purchaseCounter + '" value="{{ purchase.purchasePrice }}">',
                       '<input class="input-form" type="text" name="purchaseComment" id="purchase7' + purchaseCounter + '" value="{{ purchase.comment }}">',
                       '<i class="fas fa-times-circle" name="remove">'
@@ -2334,7 +2307,7 @@
               t3.draw();
               for (var p = 0; p < purchaseCounter; p++) {
                   $('#purchase5' + p).magicsearch({
-                      dataSource: companyList,
+                      dataSource: purchaseCompanyList,
                       fields: 'value',
                       id: 'id',
                       format: '%value%',
@@ -2551,7 +2524,7 @@
               ]).draw(false);
               $('.money').simpleMoneyFormat();
               $('#purchaseItem1' + purchaseItemCounter).magicsearch({
-                  dataSource: companyList,
+                  dataSource: purchaseCompanyList,
                   fields: 'value',
                   id: 'id',
                   format: '%value%',
@@ -2629,7 +2602,7 @@
 
                for (var p = 0; p < purchaseItemCounter; p++) {
                   $('#purchaseItem1' + p).magicsearch({
-                      dataSource: companyList,
+                      dataSource: purchaseCompanyList,
                       fields: 'value',
                       id: 'id',
                       format: '%value%',

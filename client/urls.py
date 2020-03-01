@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^checkcompany/$', views.check_company, name='checkcompany'),
     url(r'^modifyclient/(?P<companyName>.+)/$', views.modify_client, name='modifyclient'),
     url(r'^viewclient/(?P<companyName>.+)/$', views.view_client, name='view_client'),
+    url(r'^deleteclient/(?P<companyName>.+)/$', views.delete_client, name='delete_client'),
     url(r'^viewcustomer/(?P<customerId>.+)/$', views.view_customer, name='view_customer'),
     url(r'^postcustomer/(?P<companyName>.+)/$', views.post_customer, name='post_customer'),
     url(r'^deletecustomer/(?P<customerId>.+)/$', views.delete_customer, name='delete_customer'),

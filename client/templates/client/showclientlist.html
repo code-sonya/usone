@@ -2,7 +2,7 @@
 
 
 {% block title %}
-  고객사
+  거래
 {% endblock %}
 
 
@@ -22,7 +22,7 @@
       <div class="card shadow mb-4">
 
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">고객사</h6>
+          <h6 class="m-0 h3 text-gray-800">거래처</h6>
 
           <div class="dropdown no-arrow">
             {% if user.is_staff %}
@@ -44,7 +44,7 @@
                 <th>대표자</th>
                 <th>사업자등록번호</th>
                 <th>주소</th>
-                <th>전화번호</th>
+                <th>거래처종류</th>
               </tr>
               </thead>
             </table>
@@ -84,7 +84,7 @@
                   {
                       targets: 1,
                       width: "20%",
-                      className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "ceo",
                   },
                   {
@@ -96,14 +96,14 @@
                   {
                       targets: 3,
                       width: "20%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                       data: "companyAddress"
                   },
                   {
                       targets: 4,
                       width: "20%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "companyPhone"
+                      data: "companyType"
                   },
               ],
               "searching": true,
@@ -125,7 +125,7 @@
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   if (aData.companyName != "") {
                       $('td:eq(0)', nRow).addClass('text-primary');
-                      $('td:eq(1)', nRow).addClass('text-danger');
+                      $('td:eq(1)', nRow).addClass('font-weight-bold');
                   }
               }
           });

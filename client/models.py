@@ -5,6 +5,11 @@ from hr.models import Employee
 
 class Company(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'), ('X', 'X'))
+    typeChoices = (
+        ('발주처', '발주처'),
+        ('외주업체', '외주업체'),
+        ('기타', '기타'),
+    )
 
     companyName = models.CharField(max_length=100, primary_key=True)
     companyNameKo = models.CharField(max_length=100, null=True, blank=True)
@@ -13,6 +18,7 @@ class Company(models.Model):
     companyAddress = models.CharField(max_length=200, null=True, blank=True)
     companyPhone = models.CharField(max_length=20, null=True, blank=True)
     companyComment = models.CharField(max_length=200, null=True, blank=True)
+    companyType = models.CharField(max_length=100, choices=typeChoices, default='기타')
     companyStatus = models.CharField(max_length=1, choices=statusChoices, default='Y')
 
     def __str__(self):

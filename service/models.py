@@ -32,7 +32,7 @@ class Servicereport(models.Model):
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
     empName = models.CharField(max_length=10)
     empDeptName = models.CharField(max_length=30)
-    companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
+    companyName = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     serviceType = models.ForeignKey(Servicetype, on_delete=models.SET_NULL, null=True, blank=True)
     serviceBeginDatetime = models.DateTimeField(null=True, blank=True)
     serviceStartDatetime = models.DateTimeField(null=True, blank=True)
@@ -88,7 +88,7 @@ class Serviceform(models.Model):
 
     serviceFormId = models.AutoField(primary_key=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    companyName = models.ForeignKey(Company, on_delete=models.CASCADE)
+    companyName = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True)
     serviceType = models.CharField(max_length=30, choices=serviceTypeChoices)
     serviceStartTime = models.TimeField()
     serviceEndTime = models.TimeField()

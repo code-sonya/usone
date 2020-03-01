@@ -10,7 +10,10 @@ class CompanyForm(forms.ModelForm):
 
     class Meta:
         model = Company
-        fields = ('companyName', 'companyNumber', 'ceo', 'companyAddress', 'companyPhone', 'companyComment')
+        fields = (
+            'companyName', 'companyNumber', 'ceo', 'companyAddress',
+            'companyPhone', 'companyComment', 'companyType',
+        )
 
         widgets = {
             'companyName': forms.TextInput(attrs={'class': 'form-control', 'id': 'companyName'}),
@@ -19,6 +22,7 @@ class CompanyForm(forms.ModelForm):
             'companyPhone': forms.TextInput(attrs={'class': 'form-control', 'id': 'companyPhone'}),
             'companyAddress': forms.TextInput(attrs={'class': 'form-control', 'id': 'companyAddress'}),
             'companyComment': forms.TextInput(attrs={'class': 'form-control', 'id': 'companyComment'}),
+            'companyType': forms.Select(attrs={'class': 'form-control', 'id': 'companyType'}),
         }
 
     def __init__(self, *args, **kwargs):

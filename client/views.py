@@ -34,7 +34,7 @@ def filter_asjson(request):
     companylist = Company.objects.all()
 
     companylist = companylist.values(
-        'companyName', 'ceo', 'companyNumber', 'companyAddress', 'companyPhone'
+        'companyName', 'ceo', 'companyNumber', 'companyAddress', 'companyPhone', 'companyType',
     )
     structure = json.dumps(list(companylist), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -117,6 +117,13 @@ def view_client(request, companyName):
         'contracts': contracts,
     }
     return HttpResponse(template.render(context, request))
+
+
+@login_required
+def delete_client(request, companyName):
+    company = Company.objects.get(companyName=companyName)
+    company.delete()
+    return redirect('client:show_clientlist')
 
 
 @login_required

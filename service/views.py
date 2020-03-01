@@ -255,12 +255,20 @@ def post_service(request, postdate):
         contractList = Contract.objects.all()
         contracts = []
         for contract in contractList:
+            if contract.saleCompanyName:
+                tempValue = '[' + contract.saleCompanyName.pk + '] ' + contract.contractName + ' (' + \
+                            str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + \
+                            str(contract.contractEndDate)[2:].replace('-', '.') + ')'
+                tempCompany = contract.saleCompanyName.pk
+            else:
+                tempValue = '[없음] ' + contract.contractName + ' (' + \
+                            str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + \
+                            str(contract.contractEndDate)[2:].replace('-', '.') + ')'
+                tempCompany = '없음'
             temp = {
                 'id': contract.pk,
-                'value': '[' + contract.saleCompanyName.pk + '] ' + contract.contractName + ' (' +
-                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
-                         str(contract.contractEndDate)[2:].replace('-', '.') + ')',
-                'company': contract.saleCompanyName.pk
+                'value': tempValue,
+                'company': tempCompany,
             }
             contracts.append(temp)
 
@@ -603,18 +611,23 @@ def show_services(request):
         sumOverHour = 0
 
     # 계약명 자동완성
-    contractList = Contract.objects.filter(
-        Q(endCompanyName__isnull=False)
-        # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
-    )
+    contractList = Contract.objects.all()
     contracts = []
     for contract in contractList:
+        if contract.saleCompanyName:
+            tempValue = '[' + contract.saleCompanyName.pk + '] ' + contract.contractName + ' (' + \
+                        str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + \
+                        str(contract.contractEndDate)[2:].replace('-', '.') + ')'
+            tempCompany = contract.saleCompanyName.pk
+        else:
+            tempValue = '[없음] ' + contract.contractName + ' (' + \
+                        str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + \
+                        str(contract.contractEndDate)[2:].replace('-', '.') + ')'
+            tempCompany = '없음'
         temp = {
             'id': contract.pk,
-            'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
-                     str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
-                     str(contract.contractEndDate)[2:].replace('-', '.') + ')',
-            'company': contract.endCompanyName.pk
+            'value': tempValue,
+            'company': tempCompany,
         }
         contracts.append(temp)
 
@@ -652,8 +665,9 @@ def view_service(request, serviceId):
         contractName = service.contractId.contractName\
                        + ' (' + str(service.contractId.contractStartDate)[2:].replace('-', '.')\
                        + ' ~ ' + str(service.contractId.contractEndDate)[2:].replace('-', '.') + ')'
-        if contractName.split(' ')[0] == service.companyName.companyName:
-            contractName = ' '.join(contractName.split(' ')[1:])
+        if service.companyName:
+            if contractName.split(' ')[0] == service.companyName.companyName:
+                contractName = ' '.join(contractName.split(' ')[1:])
     else:
         contractName = ''
     # 참석자
@@ -681,6 +695,8 @@ def view_service(request, serviceId):
     ).exclude(
         serviceSignPath='/media/images/signature/nosign.jpg'
     )
+
+    print(service.companyName)
 
     context = {
         'service': service,
@@ -761,12 +777,20 @@ def modify_service(request, serviceId):
         contractList = Contract.objects.all()
         contracts = []
         for contract in contractList:
+            if contract.saleCompanyName:
+                tempValue = '[' + contract.saleCompanyName.pk + '] ' + contract.contractName + ' (' +\
+                    str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +\
+                    str(contract.contractEndDate)[2:].replace('-', '.') + ')'
+                tempCompany = contract.saleCompanyName.pk
+            else:
+                tempValue = '[없음] ' + contract.contractName + ' (' + \
+                    str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +\
+                    str(contract.contractEndDate)[2:].replace('-', '.') + ')'
+                tempCompany = '없음'
             temp = {
                 'id': contract.pk,
-                'value': '[' + contract.saleCompanyName.pk + '] ' + contract.contractName + ' (' +
-                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
-                         str(contract.contractEndDate)[2:].replace('-', '.') + ')',
-                'company': contract.saleCompanyName.pk
+                'value': tempValue,
+                'company': tempCompany,
             }
             contracts.append(temp)
 
@@ -1265,18 +1289,23 @@ def admin_service(request, serviceId):
             form.fields['finishLongitude'].initial = str(geoInstance.finishLongitude)
 
             # 계약명 자동완성
-            contractList = Contract.objects.filter(
-                Q(endCompanyName__isnull=False)
-                # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
-            )
+            contractList = Contract.objects.all()
             contracts = []
             for contract in contractList:
+                if contract.saleCompanyName:
+                    tempValue = '[' + contract.saleCompanyName.pk + '] ' + contract.contractName + ' (' + \
+                                str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + \
+                                str(contract.contractEndDate)[2:].replace('-', '.') + ')'
+                    tempCompany = contract.saleCompanyName.pk
+                else:
+                    tempValue = '[없음] ' + contract.contractName + ' (' + \
+                                str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' + \
+                                str(contract.contractEndDate)[2:].replace('-', '.') + ')'
+                    tempCompany = '없음'
                 temp = {
                     'id': contract.pk,
-                    'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
-                             str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
-                             str(contract.contractEndDate)[2:].replace('-', '.') + ')',
-                    'company': contract.endCompanyName.pk
+                    'value': tempValue,
+                    'company': tempCompany,
                 }
                 contracts.append(temp)
 

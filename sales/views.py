@@ -150,11 +150,31 @@ def post_contract(request):
     else:
         form = ContractForm()
 
-        companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
+        companyList = Company.objects.filter(
+            Q(companyStatus='Y')
+        ).order_by('companyNameKo')
         companyNames = []
         for company in companyList:
             temp = {'id': company.pk, 'value': company.companyNameKo}
             companyNames.append(temp)
+
+        saleCompanyList = Company.objects.filter(
+            Q(companyStatus='Y') &
+            (Q(companyType='발주처') | Q(companyType='기타'))
+        ).order_by('companyNameKo')
+        saleCompanyLists = []
+        for company in saleCompanyList:
+            temp = {'id': company.pk, 'value': company.companyNameKo}
+            saleCompanyLists.append(temp)
+
+        purchaseCompanyList = Company.objects.filter(
+            Q(companyStatus='Y') &
+            (Q(companyType='외주업체') | Q(companyType='기타'))
+        ).order_by('companyNameKo')
+        purchaseCompanyLists = []
+        for company in purchaseCompanyList:
+            temp = {'id': company.pk, 'value': company.companyNameKo}
+            purchaseCompanyLists.append(temp)
 
         empList = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
         empNames = []
@@ -167,6 +187,8 @@ def post_contract(request):
             'contractStep': 'Opportunity',
             'companyNames': companyNames,
             'companyList': companyList,
+            'saleCompanyLists': saleCompanyLists,
+            'purchaseCompanyLists': purchaseCompanyLists,
             'empNames': empNames,
         }
         return render(request, 'sales/postcontract.html', context)
@@ -557,12 +579,29 @@ def modify_contract(request, contractId):
         orderPaper = str(form.save(commit=False).orderPaper).split('/')[-1]
         purchaseItems = Purchasecontractitem.objects.filter(contractId=contractId)
 
-
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
         companyNames = []
         for company in companyList:
             temp = {'id': company.pk, 'value': company.companyNameKo}
             companyNames.append(temp)
+
+        saleCompanyList = Company.objects.filter(
+            Q(companyStatus='Y') &
+            (Q(companyType='발주처') | Q(companyType='기타'))
+        ).order_by('companyNameKo')
+        saleCompanyLists = []
+        for company in saleCompanyList:
+            temp = {'id': company.pk, 'value': company.companyNameKo}
+            saleCompanyLists.append(temp)
+
+        purchaseCompanyList = Company.objects.filter(
+            Q(companyStatus='Y') &
+            (Q(companyType='외주업체') | Q(companyType='기타'))
+        ).order_by('companyNameKo')
+        purchaseCompanyLists = []
+        for company in purchaseCompanyList:
+            temp = {'id': company.pk, 'value': company.companyNameKo}
+            purchaseCompanyLists.append(temp)
 
         empList = Employee.objects.filter(Q(empDeptName__contains='영업') & Q(empStatus='Y'))
         empNames = []
@@ -585,6 +624,8 @@ def modify_contract(request, contractId):
             # 'contractPaper': contractPaper,
             'orderPaper': orderPaper,
             'companyNames': companyNames,
+            'saleCompanyLists': saleCompanyLists,
+            'purchaseCompanyLists': purchaseCompanyLists,
             'empNames': empNames,
         }
         return render(request, 'sales/postcontract.html', context)
