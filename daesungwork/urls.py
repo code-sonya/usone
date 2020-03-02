@@ -74,4 +74,8 @@ urlpatterns = [
     url(r'^modifystock/(?P<stockcheckId>.+)/$', views.modify_stock, name='modifystock'),
     url(r'^typeproductsasjson/$', views.typeproducts_asjson, name='typeproductsasjson'),
     url(r'^viewstockpdf/(?P<stockcheckId>.+)/$', views.view_stock_pdf, name='viewstockpdf'),
+    # 입출고 관리
+    url(r'^showstockinout/$', views.show_stockinout, name='showstockinout'),
+    url(r'^poststockinout/(?P<typeName>.+)/$', views.post_stockinout, name='sohwstockinout'),
+    url(r'^stockinoutasjson/$', views.stockinout_asjson, name='stockinoutasjson'),
 ]

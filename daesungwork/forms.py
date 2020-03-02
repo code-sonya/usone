@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import Q
 
 from hr.models import Employee
-from .models import CenterManager, Sale, Size, Product, Warehouse, DailyReport, Display, Reproduction, Buy, StockCheck
+from .models import CenterManager, Sale, Size, Product, Warehouse, DailyReport, Display, Reproduction, Buy, StockManagement
 from client.forms import CompanyForm
 from client.models import Company
 
@@ -202,3 +202,19 @@ class ReproductionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ReproductionForm, self).__init__(*args, **kwargs)
+
+
+class StockManagementForm(forms.ModelForm):
+
+    class Meta:
+        model = StockManagement
+        fields = ('productName', 'sizeName', 'quantity')
+
+        widgets = {
+            'productName': forms.Select(attrs={'class': 'form-control', 'id': 'productName', 'onchange': 'changeModel(this.value, "sizeName")'}),
+            'sizeName': forms.Select(attrs={'class': 'form-control', 'id': 'sizeName'}),
+            'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(StockManagementForm, self).__init__(*args, **kwargs)

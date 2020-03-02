@@ -4,8 +4,8 @@ from django.template import loader
 from hr.models import Employee
 from client.models import Company
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, \
-    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction, Type, Buy, StockCheck, ProductCheck
-from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm, DisplayForm, ReproductionForm, BuyForm
+    WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction, Type, Buy, StockCheck, ProductCheck, StockManagement
+from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm, DisplayForm, ReproductionForm, BuyForm, StockManagementForm
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -1447,3 +1447,65 @@ def view_stock_pdf(request, stockcheckId):
     if pisaStatus.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
+
+
+@login_required
+@csrf_exempt
+def show_stockinout(request):
+    template = loader.get_template('daesungwork/showstockinout.html')
+    if request.method == 'POST':
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        modelName = request.POST['modelName']
+    else:
+        startdate = ''
+        enddate = ''
+        modelName = ''
+
+
+    form = StockManagementForm()
+    context = {
+        "form": form,
+        "startdate": startdate,
+        "enddate": enddate,
+        "modelName": modelName,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+
+@login_required
+@csrf_exempt
+def post_stockinout(request, typeName):
+    if request.method == 'POST':
+        form = StockManagementForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.managerEmp = Employee.objects.get(empId=request.user.employee.user_id)
+            post.typeName = typeName
+            post.save()
+            return redirect('daesungwork:showstockinout')
+        else:
+            return HttpResponse('유효하지 않은 형식입니다.')
+
+    else:
+        return HttpResponse("잘못된 접근입니다. : (")
+
+
+def stockinout_asjson(request):
+    startdate = request.POST['startdate']
+    enddate = request.POST['enddate']
+    modelName = request.POST['modelName']
+
+    stockmanagement = StockManagement.objects.all()
+    if startdate:
+        stockmanagement = stockmanagement.filter(createdDateTime__gte=startdate)
+    if enddate:
+        stockmanagement = stockmanagement.filter(createdDateTime__lte=enddate)
+    if modelName:
+        stockmanagement = stockmanagement.filter(productName=modelName)
+
+    stockmanagement = stockmanagement.values('stockManagementId', 'managerEmp__empName', 'typeName', 'productName__productPicture', 'productName__modelName', 'sizeName__size', 'quantity', 'createdDateTime')
+
+    structure = json.dumps(list(stockmanagement), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

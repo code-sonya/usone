@@ -223,3 +223,17 @@ class ProductCheck(models.Model):
 
     def __str__(self):
         return str(self.product)
+
+
+class StockManagement(models.Model):
+    typeNameChoices = (('입고', '입고'), ('출고', '출고'))
+    stockManagementId = models.AutoField(primary_key=True)
+    managerEmp = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    typeName = models.CharField(max_length=10, choices=typeNameChoices, default='입고')
+    productName = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
+    sizeName = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True)
+    quantity = models.IntegerField()
+    createdDateTime = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return str(self.stockManagementId)
