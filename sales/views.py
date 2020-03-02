@@ -710,7 +710,7 @@ def contracts_asjson(request):
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     contractStep = request.POST["contractStep"]
-    empDeptName = request.POST['empDeptName']
+    empDeptName = request.POST['empDeptName'].replace('&amp;', '&')
     empName = request.POST['empName']
     companyName = request.POST['companyName']
     saleCompanyName = request.POST['saleCompanyName']
@@ -786,7 +786,7 @@ def contracts_asjson(request):
 def revenues_asjson(request):
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
-    empDeptName = request.POST['empDeptName']
+    empDeptName = request.POST['empDeptName'].replace('&amp;', '&')
     empName = request.POST['empName']
     saleCompanyName = request.POST['saleCompanyName']
     contractName = request.POST['contractName']
@@ -1170,7 +1170,7 @@ def save_purchasetable(request):
 def purchases_asjson(request):
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
-    empDeptName = request.POST['empDeptName']
+    empDeptName = request.POST['empDeptName'].replace('&amp;', '&')
     empName = request.POST['empName']
     saleCompanyName = request.POST['saleCompanyName']
     contractName = request.POST['contractName']
@@ -1880,7 +1880,7 @@ def inadvance_asjson(request):
     startdate = request.POST["startdate"]
     enddate = request.POST["enddate"]
     contractStep = request.POST["contractStep"]
-    empDeptName = request.POST['empDeptName']
+    empDeptName = request.POST['empDeptName'].replace('&amp;', '&')
     empName = request.POST['empName']
     saleCompanyName = request.POST['saleCompanyName']
     endCompanyName = request.POST['endCompanyName']
