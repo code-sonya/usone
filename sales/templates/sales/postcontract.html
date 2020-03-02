@@ -691,7 +691,7 @@
       companyList ={{ companyNames|safe }};
 
       function magicsearchtab(input) {
-          console.log(input);
+          // console.log(input);
           value = $(input).attr('data-id');
           $(input).blur(function() {
               if (value !== "") {
@@ -2226,6 +2226,7 @@
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
+              revenueCounter--;
           });
 
           // 매입세부정보 (세금계산서 접수항목)
@@ -2373,6 +2374,7 @@
                   .row($(this).parents('tr'))
                   .remove()
                   .draw();
+              purchaseCounter--;
           });
 
           // 매입세부정보 (세금계산서 미접수항목)
