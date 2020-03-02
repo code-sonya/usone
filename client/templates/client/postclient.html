@@ -15,7 +15,7 @@
 
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800">고객사 등록</h6>
+          <h6 class="m-0 h3 text-gray-800">거래처 등록</h6>
         </div>
 
         <div class="card-body">
@@ -23,7 +23,7 @@
             {% csrf_token %}
             <div class="row mb-3">
               <div class="col-sm-6">
-                <label for="companyName" class="font-weight-bold text-primary">고객사 명</label>
+                <label for="companyName" class="font-weight-bold text-primary">거래처 명</label>
                 {{ form.companyName }}
               </div>
               <div class="col-sm-6">

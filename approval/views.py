@@ -379,6 +379,40 @@ def delete_document(request, documentId):
 
 
 @login_required
+def admin_delete_document(request, documentId):
+    document = Document.objects.get(documentId=documentId)
+    document.documentStatus = '삭제'
+    document.save()
+
+    if document.formId.formTitle == '휴가신청서':
+        vacations = Vacation.objects.filter(documentId=document)
+        vacationDay = 0
+        for vacation in vacations:
+            if vacation.vacationType == '일차':
+                vacationDay += 1
+            else:
+                vacationDay += 0.5
+
+        emp = document.writeEmp
+        categoryName = vacations.first().vacationCategory.categoryName
+        if categoryName == '연차':
+            emp.empAnnualLeave += vacationDay
+            emp.save()
+        elif categoryName == '근속연차':
+            emp.empSpecialLeave += vacationDay
+            emp.save()
+        elif categoryName == '금차':
+            emp.empSpecialLeave2 += vacationDay
+            emp.save()
+        elif categoryName == '대체휴무':
+            emp.empSpecialLeave3 += vacationDay
+            emp.save()
+        vacations.delete()
+
+    return redirect("approval:showdocumentadmindone")
+
+
+@login_required
 def draft_cancel(request, documentId):
     now = datetime.datetime.now()
     beforeDocument = Document.objects.get(documentId=documentId)
@@ -440,33 +474,17 @@ def draft_cancel(request, documentId):
             if categoryName == '연차':
                 emp.empAnnualLeave += vacationDay
                 emp.save()
-            elif categoryName == '특별휴가':
+            elif categoryName == '근속연차':
                 emp.empSpecialLeave += vacationDay
                 emp.save()
-            elif categoryName == '보상휴가':
-                rewardVacationType = vacations.first().rewardVacationType
-                now = beforeDocument.draftDatetime
-                yyyy = str(now)[:4]
-                mm = str(now)[5:7]
-                if mm == '01':
-                    yyyyBefore = str(int(yyyy) - 1)
-                    mmBefore = '12'
-                else:
-                    yyyyBefore = yyyy
-                    mmBefore = str(int(mm) - 1).zfill(2)
-                if rewardVacationType == '당월보상휴가':
-                    # 보상휴가일수
-                    extraWork = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyy, overHourDate__month=mm)
-                    extraWorkObj = extraWork.first()
-                    extraWorkObj.compensatedHour -= vacationDay * 8
-                    extraWorkObj.save()
-                elif rewardVacationType == '전월보상휴가':
-                    # 보상휴가일수
-                    extraWorkBefore = ExtraPay.objects.filter(empId=emp, overHourDate__year=yyyyBefore, overHourDate__month=mmBefore)
-                    extraWorkBeforeObj = extraWorkBefore.first()
-                    extraWorkBeforeObj.compensatedHour -= vacationDay * 8
-                    extraWorkBeforeObj.save()
+            elif categoryName == '금차':
+                emp.empSpecialLeave2 += vacationDay
+                emp.save()
+            elif categoryName == '대체휴무':
+                emp.empSpecialLeave3 += vacationDay
+                emp.save()
             vacations.delete()
+
             return redirect("service:showvacations")
         return redirect("approval:showdocumenting")
 
@@ -732,13 +750,13 @@ def documentcategory_asjson(request):
         if request.GET['category'] == 'first':
             documentCategory = Documentcategory.objects.values(
                 'firstCategory'
-            ).distinct()
+            ).distinct().order_by('firstCategory')
         elif request.GET['category'] == 'second':
             documentCategory = Documentcategory.objects.filter(
                 firstCategory=request.GET['firstCategory']
             ).values(
                 'secondCategory'
-            ).distinct()
+            ).distinct().order_by('secondCategory')
         structure = json.dumps(list(documentCategory), cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
 

@@ -26,6 +26,7 @@ urlpatterns = [
 
     url(r'^viewdocument/(?P<documentId>.+)/$', views.view_document, name='viewdocument'),
     url(r'^deletedocument/(?P<documentId>.+)/$', views.delete_document, name='deletedocument'),
+    url(r'^admindeletedocument/(?P<documentId>.+)/$', views.admin_delete_document, name='admindeletedocument'),
     url(r'^draftcancel/(?P<documentId>.+)/$', views.draft_cancel, name='draftcancel'),
     url(r'^copydocument/(?P<documentId>.+)/$', views.copy_document, name='copydocument'),
     url(r'^postdocumentcomment/$', views.post_document_comment, name='postdocumentcomment'),

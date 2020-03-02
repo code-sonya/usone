@@ -88,14 +88,18 @@
         <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
         <a class="collapse-item" href="/sales/showoutstandingcollections/">미수금관리</a>
         <a class="collapse-item" href="/sales/showaccountspayables/">외상매입금관리</a>
+        <!--
         <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
         <a class="collapse-item" href="/sales/showpurchaseinadvance/">선매입관리</a>
         <a class="collapse-item" href="/sales/showrevenueinadvance/">미접수관리</a>
+        -->
         {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empPosition.positionName == '임원' %}
           <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
           <a class="collapse-item" href="/sales/checkservice/">프로젝트별투입원가</a>
           <a class="collapse-item" href="/logs/contractlog/">계약금액변경이력</a>
+          <!--
           <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
+          -->
         {% endif %}
       </div>
     </div>

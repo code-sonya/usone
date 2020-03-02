@@ -824,7 +824,7 @@ def revenues_asjson(request):
     user = Employee.objects.get(empId=request.POST['userId'])
 
     if outstandingcollection == 'Y':
-        revenues = Revenue.objects.filter(Q(billingDate__isnull=False) & Q(depositDate__isnull=True))
+        revenues = Revenue.objects.filter(Q(depositDate__isnull=True))
     elif outstandingcollection == 'N':
         if issued == 'A':
             revenues = Revenue.objects.filter(Q(billingDate__isnull=True))
@@ -859,9 +859,12 @@ def revenues_asjson(request):
     if maincategory:
         revenues = revenues.filter(contractId__mainCategory__icontains=maincategory)
 
-    revenues = revenues.values('billingDate', 'contractId__contractCode', 'contractId__contractName', 'revenueCompany__companyNameKo', 'revenuePrice', 'revenueProfitPrice',
-                               'contractId__empName', 'contractId__empDeptName', 'revenueId', 'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
-                               'contractId__depositCondition', 'contractId__depositConditionDay', 'comment')
+    revenues = revenues.values(
+        'billingDate', 'contractId__contractCode', 'contractId__contractName', 'revenueCompany__companyNameKo',
+        'revenuePrice', 'revenueProfitPrice', 'contractId__empName', 'contractId__empDeptName', 'revenueId',
+        'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
+        'contractId__depositCondition', 'contractId__depositConditionDay', 'comment'
+    )
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1208,7 +1211,7 @@ def purchases_asjson(request):
     user = Employee.objects.get(empId=request.POST['userId'])
 
     if accountspayable == 'Y':
-        purchase = Purchase.objects.filter(Q(billingDate__isnull=False) & Q(withdrawDate__isnull=True))
+        purchase = Purchase.objects.filter(Q(withdrawDate__isnull=True))
     elif accountspayable == 'N':
         if issued == 'A':
             purchase = Purchase.objects.filter(billingDate__isnull=True)
