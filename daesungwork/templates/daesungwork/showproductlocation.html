@@ -68,7 +68,7 @@ left: 60px; /*position where enlarged image should offset horizontally */
       <div class="row mb-3">
         <div class="input-group">
           <span class="col-sm-6 col-xl-1 form-control" style="border:1px solid white">창고명: </span>
-          <select class="col-sm-6 col-xl-1 form-control mr-1" id="maincategory" name="maincategoryId">
+          <select class="col-sm-6 col-xl-1 form-control mr-1" id="maincategory" name="maincategoryId" onchange="btn_change()">
             {% for maincategory in maincategorys %}
             <option value="{{ maincategory.categoryId }}" {% if maincategoryId == maincategory.categoryId %} selected {% endif %}>
               {{ maincategory.categoryName }}
@@ -176,18 +176,22 @@ left: 60px; /*position where enlarged image should offset horizontally */
 
 <script type="text/javascript">
     function btn_change(){
-        const changeForm = document.getElementById("changeForm");
-        const productId = document.createElement("input");
-        productId.setAttribute("type", "hidden");
-        productId.setAttribute("name", "productId");
-        productId.setAttribute("value", "{{ productId }}");
-        changeForm.appendChild(productId);
-        const sizeId = document.createElement("input");
-        sizeId.setAttribute("type", "hidden");
-        sizeId.setAttribute("name", "sizeId");
-        sizeId.setAttribute("value", "{{ sizeId }}");
-        changeForm.appendChild(sizeId);
-        changeForm.submit();
+        const maincategory = document.getElementById("maincategory").value;
+        const subcategory = document.getElementById("subcategory").value;
+        if(maincategory !='' && subcategory != ''){
+            const changeForm = document.getElementById("changeForm");
+            const productId = document.createElement("input");
+            productId.setAttribute("type", "hidden");
+            productId.setAttribute("name", "productId");
+            productId.setAttribute("value", "{{ productId }}");
+            changeForm.appendChild(productId);
+            const sizeId = document.createElement("input");
+            sizeId.setAttribute("type", "hidden");
+            sizeId.setAttribute("name", "sizeId");
+            sizeId.setAttribute("value", "{{ sizeId }}");
+            changeForm.appendChild(sizeId);
+            changeForm.submit();
+        }
     }
 
     function changeModel(modelName) {

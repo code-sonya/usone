@@ -113,7 +113,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매금액</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.total | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.total %} {{ buys.total | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -128,7 +128,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매건수</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.count | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.count %}{{ buys.count | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -146,7 +146,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">일간구매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.today | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.today %}{{ buys.today | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -161,7 +161,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">주간구매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.weekly | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.weekly %}{{ buys.weekly | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-money-bill fa-2x text-gray-300"></i>
@@ -176,7 +176,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">월간구매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.monthly | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.monthly %}{{ buys.monthly | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-won-sign fa-2x text-gray-300"></i>
@@ -191,7 +191,7 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">연간구매현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ buys.yearly | intcomma }}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.yearly %}{{ buys.yearly | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-comment-dollar fa-2x text-gray-300"></i>
