@@ -3446,7 +3446,6 @@ def save_classification(request):
 @login_required
 def calculate_billing(request):
     try:
-        print(request.POST)
         company = request.POST['company']
         date = request.POST['date']
         times = int(request.POST['times'])
@@ -3460,7 +3459,6 @@ def calculate_billing(request):
         print('Exception!!!!!:', e)
         jsonList = list({'result': 'N'})
     structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
-    print(structure)
     return HttpResponse(structure, content_type='application/json')
 
 

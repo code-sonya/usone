@@ -1068,14 +1068,14 @@
           let price = '';
           let profit = 0;
           if(classification =="revenue"){
-               company = document.getElementById("billingRevenueCompanyName").value;
+               company = document.getElementById("billingRevenueCompanyName").dataset.id;
                date = document.getElementById("billingRevenueDate").value;
                times = document.getElementById("billingRevenueTimes").value;
                price = document.getElementById("billingRevenuePrice").value;
                profit = document.getElementById("billingRevenueProfit").value;
 
           }else if(classification =="purchase") {
-              company = document.getElementById("billingPurchaseCompanyName").value;
+              company = document.getElementById("billingPurchaseCompanyName").dataset.id;
               date = document.getElementById("billingPurchaseDate").value;
               price = document.getElementById("billingPurchasePrice").value;
               times = document.getElementById("billingPurchaseTimes").value;
