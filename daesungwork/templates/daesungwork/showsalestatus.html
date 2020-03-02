@@ -668,8 +668,8 @@
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(0)', nRow).text(replaceAll(aData.saleDate, "-", "-"));
-                $('td:eq(2)', nRow).css('color', '#4e73df');
-                $('td:eq(3)', nRow).css('color', '#4e73df');
+                // $('td:eq(2)', nRow).css('color', '#4e73df');
+                // $('td:eq(3)', nRow).css('color', '#4e73df');
                 $('td:eq(5)', nRow).text(aData.unitPrice.toLocaleString());
                 $('td:eq(7)', nRow).text(aData.salePrice.toLocaleString());
             },
@@ -690,16 +690,16 @@
             },
         });
 
-        const salesTable = $('#showsales').DataTable();
-
-        $("#showsales tbody").on("click", 'tr td:eq(3)', function () {
-            const data = salesTable.data();
-            window.open('about:blank').location.href = '/daesungwork/viewproduct/' + data[0].product__productId + '/'
-        });
-        $("#showsales tbody").on("click", 'tr td:eq(2)', function () {
-            const data = salesTable.data();
-            window.open('about:blank').location.href = '/client/viewclient/' + data[0].client__companyName + '/'
-        });
+        // const salesTable = $('#showsales').DataTable();
+        //
+        // $("#showsales tbody").on("click", 'tr td:eq(3)', function () {
+        //     const data = salesTable.data();
+        //     window.open('about:blank').location.href = '/daesungwork/viewproduct/' + data[0].product__productId + '/'
+        // });
+        // $("#showsales tbody").on("click", 'tr td:eq(2)', function () {
+        //     const data = salesTable.data();
+        //     window.open('about:blank').location.href = '/client/viewclient/' + data[0].client__companyName + '/'
+        // });
 
         let insertTable = $('#insertTable').DataTable({
             "autoWidth": true,

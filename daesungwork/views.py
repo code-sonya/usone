@@ -1426,3 +1426,24 @@ def typeproducts_asjson(request):
     structure = json.dumps(list(jsonList), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
+@login_required
+@csrf_exempt
+def view_stock_pdf(request, stockcheckId):
+    stockInstance = StockCheck.objects.get(stockcheckId=stockcheckId)
+    productInstance = ProductCheck.objects.filter(stockcheck=stockcheckId).order_by('product', 'size__size')
+    context = {
+        "stockInstance": stockInstance,
+        "productInstance": productInstance,
+    }
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="{} 재고 현황.pdf"'.format(stockInstance.checkDate)
+
+    template = get_template('daesungwork/viewstockpdf.html')
+    html = template.render(context, request)
+    # create a pdf
+    pisaStatus = pisa.CreatePDF(html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisaStatus.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response

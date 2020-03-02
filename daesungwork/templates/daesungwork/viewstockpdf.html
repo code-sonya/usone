@@ -1,0 +1,78 @@
+{% load staticfiles %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+  <meta charset="utf-8">
+
+  <style type="text/css">
+    @font-face {
+      font-family: KBIZHanmaumMyungjo;
+      src: url({% static '/mail/KBIZHanmaumMyungjo.ttf' %});
+    }
+
+    html {
+      font-family: KBIZHanmaumMyungjo, serif;
+    }
+
+    @page {
+      size: A4;
+      margin-left: 30pt;
+      margin-right: 30pt;
+      margin-top: 20pt;
+    }
+
+    .thtd {
+      text-align: center;
+      border: 1px solid grey;
+      border-collapse: collapse;
+    }
+
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+
+    .pc-table td, .pc-table th {
+      /* 상우하좌 */
+      padding: 3px 0px 3px 0px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 13px;
+      border-top: 1px dotted #858796a3;
+      background-color: #ebfaff;
+    }
+
+
+  </style>
+</head>
+<body>
+<div style="text-align: center;">
+  <strong style="font-size: 35px;">{{ stockInstance.typeName }} 재고 변동 </strong>
+</div>
+<br>
+<div style="font-size: 14px">점검일자 : {{ stockInstance.checkDate }} 점검자 : {{ stockInstance.checkEmp.empName }}</div>
+<table class="pc-table">
+  <thead class="thtd">
+  <tr class="thtd">
+    <td class="thtd" colspan="1">모델명</td>
+    <td class="thtd" colspan="1">사이즈</td>
+    <td class="thtd" colspan="1">변동재고량</td>
+  </tr>
+  </thead>
+  <tbody>
+  {% for product in productInstance %}
+  <tr class="thtd">
+    <td class="thtd" colspan="1" style="background-color: white">{% ifchanged product.product %}{{ product.product }}{% endifchanged %}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ product.size }}</td>
+    <td class="thtd" colspan="1" style="background-color: white">{{ product.productGap }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</body>
+</html>

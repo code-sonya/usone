@@ -56,6 +56,7 @@
             <th>점검일자</th>
             <th>점검자</th>
             <th>수정일시</th>
+            <th>PDF</th>
           </tr>
           </thead>
         </table>
@@ -102,7 +103,7 @@
               "columnDefs": [
                   {
                       targets: 0,
-                      width: "20%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "stockcheckId",
                   },
@@ -129,6 +130,15 @@
                       width: "20%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                       data: "modifyDate",
+                  },
+                  {
+                      targets: 5,
+                      width: "10%",
+                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      data: "stockcheckId",
+                      "render": function (data, type, row) {
+                        return '<a target="_blank" href="/daesungwork/viewstockpdf/'+ row['stockcheckId'] +'" ><i class="fas fa-download" id="' + row['stockcheckId'] + '"</i></a>'
+                      },
                   },
               ],
               "deferRender": true,
@@ -157,10 +167,11 @@
               },
           });
 
-          $("#showcheckstocks").on("click", 'tr', function () {
-              const data = checkstocksTable.row(this).data();
+          $("#showcheckstocks").on("click", 'tr td:not(:last-child)', function () {
+              const data = checkstocksTable.row($(this).parent('tr')).data();
               location.href = '/daesungwork/modifystock/' + data.stockcheckId + '/'
           });
+
       });
 
   </script>
