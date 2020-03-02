@@ -151,9 +151,10 @@
                 <label for="empDeptName" class="text-primary">영업부서</label>
                 <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
                   <option value="전체">전체</option>
+                  <option value="영업팀" {% if empDeptName == '영업팀' %}selected{% endif %}>영업팀</option>
+                  <option value="R&D전략사업부(영업)" {% if empDeptName == 'R&D전략사업부(영업)' %}selected{% endif %}>R&D전략사업부</option>
                   <option value="영업1팀" {% if empDeptName == '영업1팀' %}selected{% endif %}>영업1팀</option>
                   <option value="영업2팀" {% if empDeptName == '영업2팀' %}selected{% endif %}>영업2팀</option>
-{#                  <option value="영업3팀">영업3팀</option>#}
                 </select>
               </div>
               <div class="col-6">
