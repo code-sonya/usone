@@ -1682,7 +1682,11 @@
           $('#salePrice').val(revenue.toLocaleString());
           $('#profitPrice').val(profit.toLocaleString());
           $('.totalRevenueProfitPrice').text(profit.toLocaleString());
-          $('#profitRatio').val(((profit/revenue)*100).toFixed(0));
+          if (revenue === 0) {
+              $('#profitRatio').val(0)
+          } else {
+              $('#profitRatio').val(((profit/revenue)*100).toFixed(0));
+          }
 
           // 매출별 이익 : 이익 / 매출개수
           let revenueProfit = Math.floor((profit / revenueObj.length));

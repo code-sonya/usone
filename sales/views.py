@@ -145,7 +145,7 @@ def post_contract(request):
                     comment=cost["costComment"],
                 )
 
-            return redirect('sales:showcontracts')
+            return redirect('sales:viewcontract', post.pk)
 
     else:
         form = ContractForm()

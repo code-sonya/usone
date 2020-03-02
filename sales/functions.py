@@ -298,11 +298,11 @@ def dailyReportRows(year, quarter=4, contractStep="F"):
     sumGoal = teamGoal.aggregate(revenueTargetSum=Sum('revenueTarget'), profitTargetSum=Sum('profitTarget'))
 
     if contractStep == 'F':
-        revenue = revenue.filter(contractId__contractStep='Firm')
+        revenue = revenue.filter(contractId__contractStep='확정')
     elif contractStep == 'O':
-        revenue = revenue.filter(contractId__contractStep='Opportunity')
+        revenue = revenue.filter(contractId__contractStep='예정')
     elif contractStep == 'FO' or contractStep == 'OF':
-        revenue = revenue.filter(Q(contractId__contractStep='Opportunity') | Q(contractId__contractStep='Firm'))
+        revenue = revenue.filter(Q(contractId__contractStep='예정') | Q(contractId__contractStep='확정'))
 
     teamRevenue = list(revenue.values('contractId__empDeptName').annotate(
         revenuePrice=Sum('revenuePrice'),
