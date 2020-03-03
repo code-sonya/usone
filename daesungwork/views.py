@@ -1456,19 +1456,24 @@ def show_stockinout(request):
     if request.method == 'POST':
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
-        modelName = request.POST['modelName']
+        modelName = request.POST['filterProduct']
+        sizeName = request.POST['filterSize']
     else:
         startdate = ''
         enddate = ''
         modelName = ''
-
+        sizeName = ''
 
     form = StockManagementForm()
+    products = Product.objects.filter(productStatus="Y")
+
     context = {
         "form": form,
         "startdate": startdate,
         "enddate": enddate,
         "modelName": modelName,
+        "sizeName": sizeName,
+        "products": products,
     }
     return HttpResponse(template.render(context, request))
 
@@ -1492,10 +1497,13 @@ def post_stockinout(request, typeName):
         return HttpResponse("잘못된 접근입니다. : (")
 
 
+@login_required
+@csrf_exempt
 def stockinout_asjson(request):
     startdate = request.POST['startdate']
     enddate = request.POST['enddate']
     modelName = request.POST['modelName']
+    sizeName = request.POST['sizeName']
 
     stockmanagement = StockManagement.objects.all()
     if startdate:
@@ -1504,8 +1512,9 @@ def stockinout_asjson(request):
         stockmanagement = stockmanagement.filter(createdDateTime__lte=enddate)
     if modelName:
         stockmanagement = stockmanagement.filter(productName=modelName)
+    if sizeName:
+        stockmanagement = stockmanagement.filter(sizeName=sizeName)
 
     stockmanagement = stockmanagement.values('stockManagementId', 'managerEmp__empName', 'typeName', 'productName__productPicture', 'productName__modelName', 'sizeName__size', 'quantity', 'createdDateTime')
-
     structure = json.dumps(list(stockmanagement), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

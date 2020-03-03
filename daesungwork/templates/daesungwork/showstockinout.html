@@ -118,14 +118,28 @@
             <table id="showreproduction" class="display" style="width:100%">
               <thead>
               <tr style="background-color: #deeef8; color: black;">
-                <td>발생일자</td>
-                <td>품명</td>
+                <td>구분</td>
+                <td>제품사진</td>
+                <td>모델명</td>
                 <td>사이즈</td>
-                <td>수량</td>
-                <td>비고</td>
-                <td><i class="fas fa-trash-alt text-secondary"></i></td>
+                <td>입고량</td>
+                <td>출고량</td>
+                <td>작업자</td>
+                <td>작업일시</td>
               </tr>
               </thead>
+              <tfoot>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td class="text-right">TOTAL:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -150,22 +164,29 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-6">
-                <label for="startdate" class="font-weight-bold text-primary">시작 일자</label>
+                <label for="startdate" class="font-weight-bold text-primary">시작 일자(작업일자기준)</label>
                 <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" required>
               </div>
               <div class="col-6">
-                <label for="enddate" class="font-weight-bold text-primary">종료 일자</label>
+                <label for="enddate" class="font-weight-bold text-primary">종료 일자(작업일자기준)</label>
                 <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" required>
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
                 <label for="filterProduct" class="font-weight-bold text-primary">모델명</label>
-                <input type="text" class="form-control" id="filterProduct" name="filterProduct" required>
+                <select type="text" class="form-control" id="filterProduct" name="filterProduct" onchange="changeModel(this.value, 'filterSize')">
+                  <option value="">------</option>
+                  {% for product in products %}
+                  <option value="{{ product.productId }}">{{ product.modelName }}</option>
+                  {% endfor %}
+                </select>
               </div>
               <div class="col-6">
                 <label for="filterSize" class="font-weight-bold text-primary">사이즈</label>
-                <input type="text" class="form-control" id="filterSize" name="filterSize" required>
+                <select type="text" class="form-control" id="filterSize" name="filterSize">
+                     <option value="">------</option>
+                </select>
               </div>
             </div>
           </form>
@@ -174,51 +195,6 @@
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-info" href="#" onclick="btn_filter()">조회</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- insert Modal -->
-  <div class="modal fade" id="insertModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="insertModalLabel">일괄등록</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="insertForm" action="/daesungwork/insertreproduction/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-3">
-                <label class="font-weight-bold text-primary">발생 일자</label>
-                <input type="date" max="9999-12-31" class="form-control" name="postDate" id="insertPostDate" required>
-              </div>
-            </div>
-          </form>
-          <table id="insertTable" class="display" style="width:100%">
-            <thead style="width:100%">
-            <tr>
-              <th class="font-weight-bold text-primary">담당자</th>
-              <th class="font-weight-bold text-primary">구분</th>
-              <th class="font-weight-bold text-primary">모델명</th>
-              <th class="font-weight-bold text-primary">사이즈</th>
-              <th class="font-weight-bold text-primary">수량</th>
-              <th class="font-weight-bold">생성일</th>
-              <!--<th><i id="addDisplay" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>-->
-            </tr>
-            </thead>
-          </table>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_insert()">등록</a>
         </div>
       </div>
     </div>
@@ -252,6 +228,13 @@
 
 
       function btn_filter() {
+          if(document.getElementById("startdate").value === '' &&
+              document.getElementById("enddate").value === '' &&
+              document.getElementById("filterProduct").value === '' &&
+              document.getElementById("filterSize").value === ''){
+              alert("검색조건을 입력해 주세요.");
+              return false;
+          }
           document.getElementById("filterForm").submit();
       }
 
@@ -265,12 +248,22 @@
               success: function (returnData) {
                   var sizes = returnData[1];
                   $('#' + sizeSelectId).empty();
+                   $('#' + sizeSelectId).append("<option value=''>------</option>");
                   for (var count = 0; count < sizes.length; count++) {
                       var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
                       $('#' + sizeSelectId).append(option);
                   }
               }
           });
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          if (str != null) {
+              var new_str = str.split(searchStr).join(replaceStr);
+              return new_str.split("T").join(" ").slice(0, 16);
+          } else {
+              return '-'
+          }
       }
 
       function btn_post(typeName) {
@@ -292,7 +285,7 @@
           {
               postForm.action = "/daesungwork/poststockinout/입고/";
           }
-          else if(mode == "출고")
+          else if(typeName == "출고")
           {
               postForm.action = "/daesungwork/poststockinout/출고/";
           }
@@ -309,35 +302,38 @@
                       'startdate': '{{ startdate }}',
                       'enddate': '{{ enddate }}',
                       'modelName': '{{ modelName }}',
+                      'sizeName': '{{ sizeName }}',
                   },
                   "url": "{% url 'daesungwork:stockinoutasjson' %}",
                   "dataSrc": ""
               },
               "columns": [
-                  {data: "managerEmp__empName"},
                   {data: "typeName"},
                   {data: "productName__productPicture",
                      "render": function (data, type, row) {
-                         return '<a class="thumbnail" href="#thumb"><img src="/media/' + row['productName__productPicture'] + '" height="80px" border="0" /><span><img src="/media/' + row['productName__productPicture'] + '" /><br /></span></a>'
+                         return '<a class="thumbnail" href="#thumb"><img src="/media/' + row['productName__productPicture'] + '" height="80px" border="0" /><span><img src="/media/' + row['productName__productPicture'] + '" /></span></a>'
                      },
                   },
                   {data: "productName__modelName"},
                   {data: "sizeName__size"},
                   {data: "quantity"},
+                  {data: "quantity"},
+                  {data: "managerEmp__empName"},
                   {data: "createdDateTime"},
               ],
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 2, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap", orderable: false},
-                  {targets: 3, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
               "deferRender": true,
               "bLengthChange": false,
-              "order": [[6, 'desc']],
+              "order": [[7, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -357,9 +353,32 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if(aData.typeName === "입고"){
+                      $('td:eq(0)', nRow).css('color', '#df121a').css('font-weight', 'bold');
+                      $('td:eq(5)', nRow).text('');
+                      $('td:eq(4)', nRow).text(aData.quantity.toLocaleString());
+                  }else if(aData.typeName === "출고"){
+                      $('td:eq(0)', nRow).css('color', '#4e73df').css('font-weight', 'bold');
+                      $('td:eq(4)', nRow).text('');
+                      $('td:eq(5)', nRow).text(aData.quantity.toLocaleString());
+                  }
+                  $('td:eq(7)', nRow).text(replaceAll(aData.createdDateTime, "-", "-"));
               },
               "footerCallback": function () {
-              },
+                  var api = this.api();
+                  var inQuantityResult = 0;
+                  var outQuantityResult = 0;
+                  api.data().each(function (data, index) {
+                      if(data.typeName == '입고'){
+                          inQuantityResult += Number(data.quantity);
+                      }else{
+                          outQuantityResult += Number(data.quantity);
+                      }
+                  });
+                  $(api.column(4).footer()).html(inQuantityResult.toLocaleString());
+                  $(api.column(5).footer()).html(outQuantityResult.toLocaleString());
+
+               }
           });
 
       });
