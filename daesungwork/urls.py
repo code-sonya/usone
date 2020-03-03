@@ -78,4 +78,5 @@ urlpatterns = [
     url(r'^showstockinout/$', views.show_stockinout, name='showstockinout'),
     url(r'^poststockinout/(?P<typeName>.+)/$', views.post_stockinout, name='sohwstockinout'),
     url(r'^stockinoutasjson/$', views.stockinout_asjson, name='stockinoutasjson'),
+    url(r'^inoutcheckasjson/$', views.inoutcheck_asjson, name='inoutcheckasjson'),
 ]

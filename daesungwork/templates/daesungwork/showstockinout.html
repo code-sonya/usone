@@ -110,7 +110,7 @@
               </div>
               <div class="col-xl-1 text-center">
                 <span class="btn bg-danger text-white mt-4 center" onclick="btn_post('입고')">입고</span>
-                <span class="btn bg-primary text-white mt-4 center" onclick="btn_post('출고')">출고</span>
+                <span class="btn bg-primary  text-white mt-4 center" onclick="btn_post('출고')">출고</span>
               </div>
             </div>
           </form>
@@ -267,29 +267,49 @@
       }
 
       function btn_post(typeName) {
-          if (document.getElementById("productName").value === '') {
+          const modelName = document.getElementById("productName").value;
+          const sizeName = document.getElementById("sizeName").value;
+          const quantity = document.getElementById("quantity").value;
+          if (modelName === '') {
               alert("제품명을 입력해주세요.");
               return false;
           }
-          if (document.getElementById("sizeName").value === '') {
+          if (sizeName === '') {
               alert("사이즈를 선택해주세요.");
               return false;
           }
-          if (document.getElementById("quantity").value === '') {
+          if (quantity === '') {
               alert("수량을 입력해주세요.");
               return false;
           }
           const postForm = document.getElementById('postForm');
 
-          if(typeName == "입고")
-          {
+          if(typeName == "입고") {
               postForm.action = "/daesungwork/poststockinout/입고/";
+              postForm.submit();
+          }else if(typeName == "출고") {
+              $.ajax({
+              url: "{% url 'daesungwork:inoutcheckasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "modelName": modelName,
+                  "sizeName": sizeName,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                    console.log(returnData)
+                    var result = parseInt(returnData);
+                    if((result-quantity) >= 0){
+                        postForm.action = "/daesungwork/poststockinout/출고/";
+                        postForm.submit();
+                    }else{
+                        alert('재고가 부족합니다 현재 재고량은 ' + result + ' 입니다.')
+                    }
+                  }
+              });
           }
-          else if(typeName == "출고")
-          {
-              postForm.action = "/daesungwork/poststockinout/출고/";
-          }
-          postForm.submit();
+
       }
 
       $(document).ready(function () {

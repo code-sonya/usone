@@ -1518,3 +1518,18 @@ def stockinout_asjson(request):
     stockmanagement = stockmanagement.values('stockManagementId', 'managerEmp__empName', 'typeName', 'productName__productPicture', 'productName__modelName', 'sizeName__size', 'quantity', 'createdDateTime')
     structure = json.dumps(list(stockmanagement), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+@login_required
+@csrf_exempt
+def inoutcheck_asjson(request):
+    modelName = request.POST['modelName']
+    sizeName = request.POST['sizeName']
+    print(request.POST)
+    remainingQuantity = StockManagement.objects.filter(Q(productName=modelName) & Q(sizeName=sizeName))
+    inRemaining = remainingQuantity.filter(typeName='입고').aggregate(sum=Sum('quantity'))['sum'] or 0
+    outRemaining = remainingQuantity.filter(typeName='출고').aggregate(sum=Sum('quantity'))['sum'] or 0
+    # 잔여 수량
+    remaining = inRemaining - outRemaining
+    print(remaining)
+    structure = json.dumps(str(remaining), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
