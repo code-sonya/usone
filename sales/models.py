@@ -137,7 +137,9 @@ class Contractitem(models.Model):
     mainCategory = models.CharField(max_length=50)
     subCategory = models.CharField(max_length=50)
     itemName = models.CharField(max_length=50)
-    itemPrice = models.BigIntegerField()
+    itemPrice = models.BigIntegerField(default=0)
+    itemVatPrice = models.BigIntegerField(default=0)
+    itemTotalPrice = models.BigIntegerField(default=0)
 
     def __str__(self):
         return '{} : {}'.format(self.contractId.contractName, self.itemName)
@@ -397,7 +399,9 @@ class Purchasecontractitem(models.Model):
     mainCategory = models.CharField(max_length=50)
     subCategory = models.CharField(max_length=50)
     itemName = models.CharField(max_length=50, null=True, blank=True)
-    itemPrice = models.BigIntegerField()
+    itemPrice = models.BigIntegerField(default=0)
+    itemVatPrice = models.BigIntegerField(default=0)
+    itemTotalPrice = models.BigIntegerField(default=0)
 
     def __str__(self):
         return '{} : {}'.format(self.contractId.contractName, self.itemName)

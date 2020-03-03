@@ -77,7 +77,9 @@ def post_contract(request):
                     mainCategory=item["mainCategory"],
                     subCategory=item["subCategory"],
                     itemName=item["itemName"],
-                    itemPrice=int(item["itemPrice"])
+                    itemPrice=int(item["itemPrice"]),
+                    itemVatPrice=int(item["itemVatPrice"]),
+                    itemTotalPrice=int(item["itemTotalPrice"]),
                 )
 
             jsonRevenue = json.loads(request.POST['jsonRevenue'])
@@ -117,7 +119,9 @@ def post_contract(request):
                     mainCategory=item["purchaseMainCategory"],
                     subCategory=item["purchaseSubCategory"],
                     itemName=item["purchaseItemName"],
-                    itemPrice=int(item["purchaseItemPrice"])
+                    itemPrice=int(item["purchaseItemPrice"]),
+                    itemVatPrice=int(item["purchaseItemVatPrice"]),
+                    itemTotalPrice=int(item["purchaseItemTotalPrice"]),
                 )
 
             jsonPurchase = json.loads(request.POST['jsonPurchase'])
@@ -382,7 +386,9 @@ def modify_contract(request, contractId):
                         mainCategory=item["mainCategory"],
                         subCategory=item["subCategory"],
                         itemName=item["itemName"],
-                        itemPrice=int(item["itemPrice"])
+                        itemPrice=int(item["itemPrice"]),
+                        itemVatPrice=int(item["itemVatPrice"]),
+                        itemTotalPrice=int(item["itemTotalPrice"]),
                     )
                 else:
                     itemInstance = Contractitem.objects.get(contractItemId=int(item["itemId"]))
@@ -392,6 +398,8 @@ def modify_contract(request, contractId):
                     itemInstance.subCategory = item["subCategory"]
                     itemInstance.itemName = item["itemName"]
                     itemInstance.itemPrice = int(item["itemPrice"])
+                    itemInstance.itemVatPrice = int(item["itemVatPrice"])
+                    itemInstance.itemTotalPrice = int(item["itemTotalPrice"])
                     itemInstance.save()
                     jsonItemId.append(int(item['itemId']))
 
@@ -477,7 +485,9 @@ def modify_contract(request, contractId):
                         mainCategory=item["purchaseMainCategory"],
                         subCategory=item["purchaseSubCategory"],
                         itemName=item["purchaseItemName"],
-                        itemPrice=int(item["purchaseItemPrice"])
+                        itemPrice=int(item["purchaseItemPrice"]),
+                        itemVatPrice=int(item["purchaseItemVatPrice"]),
+                        itemTotalPrice=int(item["purchaseItemTotalPrice"]),
                     )
                 else:
                     purchaseItemInstance = Purchasecontractitem.objects.get(contractItemId=int(item["purchaseItemId"]))
@@ -487,6 +497,8 @@ def modify_contract(request, contractId):
                     purchaseItemInstance.subCategory = item["purchaseSubCategory"]
                     purchaseItemInstance.itemName = item["purchaseItemName"]
                     purchaseItemInstance.itemPrice = int(item["purchaseItemPrice"])
+                    purchaseItemInstance.itemVatPrice = int(item["purchaseItemVatPrice"])
+                    purchaseItemInstance.itemTotalPrice = int(item["purchaseItemTotalPrice"])
                     purchaseItemInstance.save()
                     jsonPurchaseItemId.append(int(item['purchaseItemId']))
 
