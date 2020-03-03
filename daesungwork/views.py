@@ -1464,6 +1464,23 @@ def show_stockinout(request):
         modelName = ''
         sizeName = ''
 
+    product = ''
+    size = ''
+    stockmanagement = StockManagement.objects.all()
+    if startdate:
+        stockmanagement = stockmanagement.filter(createdDateTime__gte=startdate)
+    if enddate:
+        stockmanagement = stockmanagement.filter(createdDateTime__lte=enddate)
+    if modelName:
+        stockmanagement = stockmanagement.filter(productName=modelName)
+        product = Product.objects.get(productId=modelName).modelName
+    if sizeName:
+        stockmanagement = stockmanagement.filter(sizeName=sizeName)
+        size = Size.objects.get(size=sizeName).size
+
+    inRemaining = stockmanagement.filter(typeName='입고').aggregate(sum=Sum('quantity'))['sum'] or 0
+    outRemaining = stockmanagement.filter(typeName='출고').aggregate(sum=Sum('quantity'))['sum'] or 0
+    remaining = inRemaining - outRemaining
     form = StockManagementForm()
     products = Product.objects.filter(productStatus="Y")
 
@@ -1474,6 +1491,11 @@ def show_stockinout(request):
         "modelName": modelName,
         "sizeName": sizeName,
         "products": products,
+
+        # 상단 카드
+        "product": product,
+        "size": size,
+        "remaining": remaining,
     }
     return HttpResponse(template.render(context, request))
 
@@ -1524,12 +1546,10 @@ def stockinout_asjson(request):
 def inoutcheck_asjson(request):
     modelName = request.POST['modelName']
     sizeName = request.POST['sizeName']
-    print(request.POST)
     remainingQuantity = StockManagement.objects.filter(Q(productName=modelName) & Q(sizeName=sizeName))
     inRemaining = remainingQuantity.filter(typeName='입고').aggregate(sum=Sum('quantity'))['sum'] or 0
     outRemaining = remainingQuantity.filter(typeName='출고').aggregate(sum=Sum('quantity'))['sum'] or 0
     # 잔여 수량
     remaining = inRemaining - outRemaining
-    print(remaining)
     structure = json.dumps(str(remaining), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

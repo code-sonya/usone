@@ -95,10 +95,57 @@
           </div>
         </div>
         <div class="card-body">
-          <h5>▼ <span class="text-primary font-weight-bold">입출고 목록</span></h5>
+          <div class="row m-2 pb-3">
+            <div class="col-xl-4">
+              <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="font-weight-bold text-primary text-uppercase mb-1">모델명</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{% if product %}{{ product }}{% else %} 전체 {% endif %}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-coins fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-4">
+              <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="font-weight-bold text-primary text-uppercase mb-1">사이즈</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{% if size %}{{ size }}{% else %} 전체 {% endif %}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-money-bill fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-4">
+              <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                  <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                      <div class="font-weight-bold text-primary text-uppercase mb-1">재고량</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{ remaining | intcomma}}</div>
+                    </div>
+                    <div class="col-auto">
+                      <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h5 class="m-3">▼ <span class="text-primary font-weight-bold">입출고 목록</span></h5>
           <form method="POST" id="postForm">
             {% csrf_token %}
-            <div class="form-group row m-2 pt-4">
+            <div class="form-group row m-2">
               <div class="col-xl-4">
                 <label for="productName" class="font-weight-bold text-primary"> 모델명 </label> {{ form.productName }}
               </div>
