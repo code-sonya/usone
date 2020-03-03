@@ -1476,7 +1476,7 @@ def show_stockinout(request):
         product = Product.objects.get(productId=modelName).modelName
     if sizeName:
         stockmanagement = stockmanagement.filter(sizeName=sizeName)
-        size = Size.objects.get(size=sizeName).size
+        size = Size.objects.get(sizeId=sizeName).size
 
     inRemaining = stockmanagement.filter(typeName='입고').aggregate(sum=Sum('quantity'))['sum'] or 0
     outRemaining = stockmanagement.filter(typeName='출고').aggregate(sum=Sum('quantity'))['sum'] or 0
