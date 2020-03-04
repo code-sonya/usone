@@ -307,11 +307,8 @@
       </a>
       <div id="collapseWorks" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="/daesungwork/showchecklist/">센터별체크리스트</a>
           <a class="collapse-item" href="/daesungwork/showcentermanagers/">센터별담당자관리</a>
-          {% if user.is_staff or user.employee.empPosition.positionName == '임원' %}
-          <a class="collapse-item" href="/daesungwork/showcenters/">센터관리</a>
-          {% endif %}
+          <a class="collapse-item" href="/daesungwork/showchecklist/">센터별체크리스트</a>
         </div>
       </div>
     </li>
@@ -343,10 +340,12 @@
       </a>
       <div id="supply" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="/supply/showrentals/">도서열람대장</a>
           <a class="collapse-item" href="/supply/postrentals/">도서신청</a>
+          {% if user.is_staff %}
+          <a class="collapse-item" href="/supply/showrentals/">도서열람대장</a>
           <a class="collapse-item" href="/supply/showsavings/">비품관리대장</a>
           <a class="collapse-item" href="/daesungwork/showstocks/">재고현황</a>
+          {% endif %}
           <a class="collapse-item" href="/daesungwork/showstockinout/">입출고관리</a>
           <a class="collapse-item" href="/daesungwork/showproductlocation/">제품위치조회</a>
         </div>
@@ -366,6 +365,7 @@
               <h6 class="collapse-header">━━━ 제품&창고 등록 ━━━</h6>
               <a class="collapse-item" href="/daesungwork/showproducts/">제품관리</a>
               <a class="collapse-item" href="/daesungwork/showwarehouses/">창고관리</a>
+              <a class="collapse-item" href="/daesungwork/showcenters/">센터관리</a>
               <h6 class="collapse-header">━━━ 정보 등록 ━━━</h6>
               <a class="collapse-item" href="/hr/showdepartments/">부서관리</a>
               <a class="collapse-item" href="/hr/showprofiles/">직원관리</a>

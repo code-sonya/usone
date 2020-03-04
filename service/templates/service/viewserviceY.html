@@ -78,18 +78,18 @@
                 <i class="fas fa-user-cog text-gray-100"></i>
               </a>
               -->
-              {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}
-              <a class="btn btn-success" href="#" role="button" id="signLink" data-toggle="modal" data-target="#signModal">
-                <i class="fas fa-signature d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-signature"></i> 서명</span>
-              </a>
-              {% endif %}
-              <a class="btn btn-info" href="/mail/{{ service.serviceId }}" role="button">
-                <i class="fas fa-envelope d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-envelope"></i> 메일</span>
-              </a>
-            {% endif %}
-            <a class="btn btn-danger" href="/service/viewservicepdf/{{ service.serviceId }}" role="button">
-              <i class="fas fa-download d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-download"></i> PDF</span>
-            </a>
+<!--              {% if service.serviceSignPath == '/media/images/signature/nosign.jpg' %}-->
+<!--              <a class="btn btn-success" href="#" role="button" id="signLink" data-toggle="modal" data-target="#signModal">-->
+<!--                <i class="fas fa-signature d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-signature"></i> 서명</span>-->
+<!--              </a>-->
+<!--              {% endif %}-->
+<!--              <a class="btn btn-info" href="/mail/{{ service.serviceId }}" role="button">-->
+<!--                <i class="fas fa-envelope d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-envelope"></i> 메일</span>-->
+<!--              </a>-->
+<!--            {% endif %}-->
+<!--            <a class="btn btn-danger" href="/service/viewservicepdf/{{ service.serviceId }}" role="button">-->
+<!--              <i class="fas fa-download d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-download"></i> PDF</span>-->
+<!--            </a>-->
             <a class="btn btn-warning" href="#" role="button" onclick="btn_copy()">
               <i class="fas fa-copy d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-copy"></i> 복사</span>
             </a>
@@ -114,12 +114,14 @@
               <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ contractName }}</td>
             </tr>
             {% endif %}
+            {% if service.companyName %}
             <tr>
               <td class="text-center"><b>고&nbsp;&nbsp;객&nbsp;&nbsp;사</b></td>
               <td><b class="text-primary">{{ service.companyName }}</b> ({{ service.serviceLocation }})
                 <i class="fas fa-search text-gray-600" onclick="location.href='/client/viewclient/{{ service.companyName }}/'"></i>
               </td>
             </tr>
+            {% endif %}
             <tr>
               <td class="text-center"><b>일정구분</b></td>
               <td>{{ service.serviceType }}</td>
