@@ -76,12 +76,15 @@
               <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ contractName }}</td>
             </tr>
             {% endif %}
+            {% if service.companyName %}
             <tr>
               <td class="text-center"><b>고&nbsp;&nbsp;객&nbsp;&nbsp;사</b></td>
-              <td><b class="text-primary">{{ service.companyName }}</b> ({{ service.serviceLocation }})
+              <td><b class="text-primary">
+              {{ service.companyName }}</b> ({{ service.serviceLocation }})
                 <i class="fas fa-search text-gray-600" onclick="location.href='/client/viewclient/{{ service.companyName }}/'"></i>
               </td>
             </tr>
+            {% endif %}
             <tr>
               <td class="text-center"><b>일정구분</b></td>
               <td>{{ service.serviceType }}</td>
@@ -136,31 +139,6 @@
                 <span class="icon text-white"> <i class="fas fa-edit"></i> </span>
                 <span class="text p-2"> 수정 </span>
               </a>
-              {% if service.serviceType.punctualityStatus == 'Y' %}
-
-                {% if service.serviceStatus == 'N' %}
-                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_begin()">
-                  <span class="icon text-white"> <i class="fas fa-walking"> </i> </span>
-                  <span class="text p-2"> 출발 </span>
-                </a>
-                {% elif service.serviceStatus == 'B' %}
-                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_start()">
-                  <span class="icon text-white"> <i class="fas fa-briefcase"> </i> </span>
-                  <span class="text p-2"> 시작 </span>
-                </a>
-                {% elif service.serviceStatus == 'S' %}
-                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_end()">
-                  <span class="icon text-white"> <i class="fas fa-walking"> </i> </span>
-                  <span class="text p-2"> 종료 </span>
-                </a>
-                {% elif service.serviceStatus == 'E' %}
-                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_finish()">
-                  <span class="icon text-white"> <i class="fas fa-flag"> </i> </span>
-                  <span class="text p-2"> 도착 </span>
-                </a>
-                {% endif %}
-
-              {% endif %}
             </div>
           {% endif %}
         </div>
