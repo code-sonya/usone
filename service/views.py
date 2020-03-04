@@ -772,7 +772,11 @@ def modify_service(request, serviceId):
             post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
             post.coWorker = request.POST['coWorkerId']
             post.save()
-            return redirect('service:viewservice', serviceId)
+
+            if request.POST['redirect'] == 'calendar':
+                return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
+            elif request.POST['redirect'] == 'list':
+                return redirect('service:showservices')
     else:
         form = ServicereportForm(instance=instance)
         form.fields['startdate'].initial = str(instance.serviceBeginDatetime)[:10]
