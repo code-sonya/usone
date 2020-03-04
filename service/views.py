@@ -714,10 +714,10 @@ def modify_service(request, serviceId):
 
         if form.is_valid():
             post = form.save(commit=False)
-            if request.POST['contractId']:
-                post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
-            else:
-                post.contractId = None
+            # if request.POST['contractId']:
+            #     post.contractId = Contract.objects.get(contractId=request.POST['contractId'])
+            # else:
+            post.contractId = None
             post.empId = empId
             post.empName = empName
             post.empDeptName = empDeptName
