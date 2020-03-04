@@ -45,7 +45,7 @@ class Servicereport(models.Model):
     directgo = models.CharField(max_length=1, choices=statusChoices, default='N')
     coWorker = models.CharField(max_length=200, null=True, blank=True)
     serviceTitle = models.CharField(max_length=200, help_text="제목을 작성해 주세요.")
-    serviceDetails = models.TextField(help_text="상세 내용을 작성해 주세요.")
+    serviceDetails = models.TextField(null=True, blank=True)
     customerName = models.CharField(max_length=10, null=True, blank=True)
     customerDeptName = models.CharField(max_length=30, null=True, blank=True)
     customerPhone = models.CharField(max_length=20, null=True, blank=True)

@@ -549,7 +549,10 @@ def dayreport_query(empDeptName, day):
             flag = '직출'
         else:
             flag = ''
-
+        if service.contractId:
+            contractName = service.contractId.contractName
+        else:
+            contractName = '-'
         if service.serviceType.typeName == '교육':
             listEducation.append({
                 'serviceId': service.serviceId,
@@ -558,6 +561,7 @@ def dayreport_query(empDeptName, day):
                 'serviceBeginDatetime': service.serviceBeginDatetime,
                 'serviceFinishDatetime': service.serviceFinishDatetime,
                 'serviceStatus': service.serviceStatus,
+                'contractName': contractName,
                 'serviceTitle': service.serviceTitle,
                 'sortKey': service.empId.empRank,
             })
@@ -571,6 +575,7 @@ def dayreport_query(empDeptName, day):
                 'serviceStatus': service.serviceStatus,
                 'companyName': service.companyName,
                 'serviceType': service.serviceType.typeName,
+                'contractName': contractName,
                 'serviceTitle': service.serviceTitle,
                 'sortKey': service.empId.empRank,
             })

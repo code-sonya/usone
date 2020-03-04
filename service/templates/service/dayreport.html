@@ -57,25 +57,21 @@
             <table class="table mb-0 d-none d-xl-table" width="100%">
               <thead>
               <tr>
-                <td width="5%"><b>구분</b></td>
-                <td width="10%"><b>성함</b></td>
-                <td width="20%"><b>시간</b></td>
-                <td width="20%"><b>고객사</b></td>
-                <td width="45%"><b>업무내용</b></td>
+                <td width="5%"><b>성함</b></td>
+                <td width="10%"><b>시간</b></td>
+                <td width="20%"><b>프로젝트</b></td>
+                <td width="15%"><b>발주처</b></td>
+                <td width="15%"><b>일정구분</b></td>
+                <td width="35%"><b>업무내용</b></td>
               </tr>
               </thead>
 
               <tbody>
               {% for q in row.service %}
                 <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
-                  <td>
-                    {% if q.flag == '직출' %} <b style="color: #4e73df">직출</b> {% endif %}
-                    {% if q.flag == '상주' %} <b style="color: #333333">상주</b> {% endif %}
-                  </td>
                   <td>{% ifchanged q.empName %}<b>{{ q.empName }}</b><br>{% endifchanged %}</td>
                   <td>
                     {{ q.serviceBeginDatetime|time:"H:i" }} ~ {{ q.serviceFinishDatetime|time:"H:i" }}
-
                     {% if q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" == day %}
                       <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
                     {% elif q.serviceBeginDatetime.date|date:"Y-m-d" == day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
@@ -83,16 +79,11 @@
                     {% elif q.serviceBeginDatetime.date|date:"Y-m-d" != day and q.serviceFinishDatetime.date|date:"Y-m-d" != day %}
                       <br>({{ q.serviceBeginDatetime|date:"d" }}일) &nbsp&nbsp ({{ q.serviceFinishDatetime|date:"d" }}일)
                     {% endif %}
-
-                    {% if q.serviceStatus == 'B' %}<div style="color: red">(이동중)</div>{% endif %}
-                    {% if q.serviceStatus == 'S' %}<div style="color: red">(업무중)</div>{% endif %}
-                    {% if q.serviceStatus == 'E' %}<div style="color: red">(이동중)</div>{% endif %}
                     {% if q.serviceStatus == 'Y' %}<div style="color: red">(완료)</div>{% endif %}
                   </td>
-                  <td>
-                    {{ q.companyName }}<br>
-                    {% if q.serviceType %}({{ q.serviceType }}){% endif %}
-                  </td>
+                  <td class="text-left">{{ q.contractName }}</td>
+                  <td class="text-left">{{ q.companyName }}</td>
+                  <td>{{ q.serviceType }}</td>
                   <td class="text-left">{{ q.serviceTitle }}</td>
                 </tr>
               {% endfor %}

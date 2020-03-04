@@ -114,13 +114,13 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="coWorkers" class="font-weight-bold text-primary"> 참석자 </label> {{ form.coWorkers }}
+              <label for="coWorkers" class="font-weight-bold"> 참석자 </label> {{ form.coWorkers }}
             </div>
             <div class="form-group">
               <label for="serviceTitle" class="font-weight-bold text-primary"> 제목 </label> {{ form.serviceTitle }}
             </div>
             <div class="form-group">
-              <label for="serviceDetails" class="font-weight-bold text-primary"> 내용 </label> {{ form.serviceDetails }}
+              <label for="serviceDetails" class="font-weight-bold"> 내용 </label> {{ form.serviceDetails }}
             </div>
 
             <div class="text-center">
@@ -128,9 +128,13 @@
                 <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
                 <span class="text"> 취소 </span>
               </a>
-              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+              <a href="#" class="btn btn-primary btn-icon-split" onclick="btn_save('list')">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-                <span class="text"> 저장 </span>
+                <span class="text"> 저장 후 목록으로 </span>
+              </a>
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save('calendar')">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 후 캘린더로 </span>
               </a>
             </div>
 
@@ -170,7 +174,7 @@
           }
       }
 
-      function btn_save() {
+      function btn_save(redirect) {
           const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g, '/') +
               ' ' + document.getElementById("starttime").value);
           const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g, '/') +
@@ -178,7 +182,7 @@
           const diff = ((serviceEndDatetime - serviceStartDatetime) / 3600000).toFixed(1);
 
           if (document.getElementById("companyName").value === '') {
-              alert("고객사 명을 입력해주세요.");
+              alert("거래처 명을 입력해주세요.");
               return false;
           }
           if (document.getElementById("serviceType").value === '') {
@@ -189,16 +193,21 @@
               alert("제목을 입력해주세요.");
               return false;
           }
-          if (document.getElementById("serviceDetails").value === '') {
-              alert("내용을 입력해주세요.");
-              return false;
-          }
+          //if (document.getElementById("serviceDetails").value === '') {
+          //    alert("내용을 입력해주세요.");
+          //    return false;
+          //}
           if (diff < 0) {
               alert("시작일시가 종료일시보다 느립니다. 확인해주세요.");
               return false;
           }
 
           let form = $('#ServicereportForm');
+          $('<input />', {
+              type: 'hidden',
+              name: 'redirect',
+              value: redirect
+          }).appendTo(form);
           $('<input />', {
               type: 'hidden',
               name: 'coWorkerId',

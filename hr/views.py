@@ -633,10 +633,18 @@ def delete_vacation(request):
         vacationId = request.POST.get('vacationId', None)
         adminVacation = AdminVacation.objects.get(vacationId=vacationId)
         employee = Employee.objects.get(empId=adminVacation.empId.empId)
-        employee.empAnnualLeave = employee.empAnnualLeave - adminVacation.vacationDays
+        if adminVacation.vacationType == '연차':
+            employee.empAnnualLeave -= adminVacation.vacationDays
+        elif adminVacation.vacationType == '근속연차':
+            employee.empSpecialLeave -= adminVacation.vacationDays
+        elif adminVacation.vacationType == '금차':
+            employee.empSpecialLeave2 -= adminVacation.vacationDays
+        elif adminVacation.vacationType == '대체휴무':
+            employee.empSpecialLeave3 -= adminVacation.vacationDays
         employee.save()
         adminVacation.delete()
         return HttpResponse(json.dumps({'vacationId': vacationId}), content_type="application/json")
+
 
 @login_required
 @csrf_exempt

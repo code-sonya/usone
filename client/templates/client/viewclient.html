@@ -307,14 +307,18 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.contractStep === '확정') {
+                      $('td:eq(0)', nRow).css('color', '#4e73df');
+                  } else if (aData.contractStep === '예정') {
+                      $('td:eq(0)', nRow).css('color', '#1cc88a');
+                  }
+                  $('td:eq(3)', nRow).html(
+                      '<a target="_blank" href="/sales/viewcontract/' + aData.contractId + '/">' +
+                      '[' + aData.contractCode + '] ' + aData.contractName + '</a>'
+                  );
                   $('td:eq(5)', nRow).text(aData.salePrice.toLocaleString());
                   $('td:eq(6)', nRow).text(aData.profitPrice.toLocaleString());
                   $('td:eq(7)', nRow).text(replaceAll(aData.contractDate, "-", "."));
-                  if (aData.contractStep == 'Firm') {
-                      $('td:eq(0)', nRow).css('color', '#4e73df');
-                  } else if (aData.contractStep == 'Opportunity') {
-                      $('td:eq(0)', nRow).css('color', '#1cc88a');
-                  }
               },
               "footerCallback": function () {
                   var api = this.api(), data;
@@ -331,13 +335,6 @@
                   });
                   $(api.column(6).footer()).html(profitResult.toLocaleString());
               },
-          });
-
-          const contractstable = $('#showcontracts').DataTable();
-
-          $("#showcontracts").on("click", 'tr', function () {
-              const data = contractstable.row(this).data();
-              window.open('about:blank').location.href = '/sales/viewcontract/' + data.contractId + '/'
           });
 
           $('#showservices').dataTable({

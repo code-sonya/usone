@@ -638,7 +638,9 @@
                 <td colspan="1" class="text-gray-100">대분류</td>
                 <td colspan="1" class="text-gray-100">소분류</td>
                 <td colspan="2" class="text-gray-100">상세내용</td>
-                <td colspan="1" class="text-gray-100">가격</td>
+                <td colspan="1" class="text-gray-100">공급가액</td>
+                <td colspan="1" class="text-gray-100">부가세</td>
+                <td colspan="1" class="text-gray-100">합계금액</td>
               </tr>
               </thead>
               <tbody>
@@ -649,6 +651,8 @@
                   <td colspan="1">{{ item.subCategory }}</td>
                   <td colspan="2" class="text-left">{{ item.itemName }}</td>
                   <td colspan="1" class="text-right">{{ item.itemPrice | intcomma }}</td>
+                  <td colspan="1" class="text-right">{{ item.itemVatPrice | intcomma }}</td>
+                  <td colspan="1" class="text-right">{{ item.itemTotalPrice | intcomma }}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -711,7 +715,9 @@
                 <td colspan="1" class="text-gray-100">대분류</td>
                 <td colspan="1" class="text-gray-100">소분류</td>
                 <td colspan="2" class="text-gray-100">상세내용</td>
-                <td colspan="1" class="text-gray-100">가격</td>
+                <td colspan="1" class="text-gray-100">공급가액</td>
+                <td colspan="1" class="text-gray-100">부가세</td>
+                <td colspan="1" class="text-gray-100">합계금액</td>
               </tr>
               </thead>
               <tbody>
@@ -722,6 +728,8 @@
                   <td colspan="1">{{ item.subCategory }}</td>
                   <td colspan="2" class="text-left">{{ item.itemName }}</td>
                   <td colspan="1" class="text-right">{{ item.itemPrice | intcomma }}</td>
+                  <td colspan="1" class="text-right">{{ item.itemVatPrice | intcomma }}</td>
+                  <td colspan="1" class="text-right">{{ item.itemTotalPrice | intcomma }}</td>
                 </tr>
               {% endfor %}
               </tbody>
