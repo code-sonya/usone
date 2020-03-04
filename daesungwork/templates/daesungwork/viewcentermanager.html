@@ -84,6 +84,7 @@
             {% endfor %}
           </table>
         </div>
+        {% if user.is_staff %}
         <div class="text-right mr-1 mt-3">
             <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
               <span class="text"> 삭제 </span>
@@ -92,7 +93,7 @@
               <span class="text"> 수정 </span>
             </a>
         </div>
-
+        {% endif %}
       </div>
     </div>
   </div>
