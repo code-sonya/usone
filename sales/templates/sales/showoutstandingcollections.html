@@ -427,12 +427,6 @@
                       targets: 7, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
-                      {% if modifyMode == 'Y' %}
-                      "render": function (data, type, row) {
-                          return '<input type="date" max="9999-12-31" id="predictDepositDate' + row["revenueId"] + '" ' +
-                              'name="predictDepositDate" class="input-form" value="' + row["predictDepositDate"] + '" />'
-                      },
-                      {% endif %}
                       targets: 8, className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"
                   },
                   {
@@ -520,6 +514,11 @@
                       }
                       $('td:eq(9)', nRow).text(replaceDate(aData.depositDate, null, "-", ".", null, 10));
                       $('td:eq(12)', nRow).text(aData.comment).css('color', '#e74a3b');
+                  {% elif modifyMode == 'Y' %}
+                      $('td:eq(8)', nRow).html(
+                          '<input type="date" max="9999-12-31" id="predictDepositDate' + aData.revenueId + '" ' +
+                          'name="predictDepositDate" class="input-form" value="' + aData.predictDepositDate + '" />'
+                      );
                   {% endif %}
                   if (aData.predictDepositDate < '{{ today | date:"Y-m-d" }}') {
                       $('td:eq(8)', nRow).css('color', '#ff0000');
