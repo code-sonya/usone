@@ -650,10 +650,12 @@ def overhour_all(request):
         todayMonth = int(request.POST['searchdate'][5:7])
         today = request.POST['searchdate'][:7]
     else:
-        todayYear = datetime.today().year
-        todayMonth = datetime.today().month
+        now = datetime.today()
         todayDay = datetime.today().day
-        print(todayDay)
+        if todayDay < 15:
+            now = now - relativedelta(months=1)
+        todayYear = now.year
+        todayMonth = now.month
         today = '{}-{}'.format(todayYear, todayMonth)
 
     # 현재 조직도 변경 후 인원
