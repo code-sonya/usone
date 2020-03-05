@@ -652,6 +652,8 @@ def overhour_all(request):
     else:
         todayYear = datetime.today().year
         todayMonth = datetime.today().month
+        todayDay = datetime.today().day
+        print(todayDay)
         today = '{}-{}'.format(todayYear, todayMonth)
 
     # 현재 조직도 변경 후 인원

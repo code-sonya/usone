@@ -198,7 +198,7 @@
                   "processing": true,
                   "type": 'POST',
                   "data": {
-                      "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
+                      "empName": "{{ empName }}",
                   },
                   "url": "{% url 'extrapay:salary_ajax_url' %}",
                   "dataSrc": ""
@@ -241,9 +241,9 @@
                   {
                       "render": function (data, type, row) {
                               return '<input type="number" id="empSalary' + row["empId"] + '" ' +
-                                  'name="empSalary" class="input-form" step="1" value='+row["empSalary"]+'>'
+                                  'name="empSalary" class="form-control" step="1" value='+row["empSalary"]+'>'
                        },
-                      targets: 2, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                      targets: 2, width: "30%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                   {
                       "render": function (data, type, row) {
                           return '<div name="empId" >' + data + '</div>'
