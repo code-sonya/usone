@@ -41,7 +41,7 @@
   <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center bg-white" href="#" onclick="btn_dayreport('/service/dayreport/')">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center bg-white" href="/">
       <div class="sidebar-brand-text mx-4"><img src="/media/logo/usails.png" width="120px"></div>
     </a>
     {% if user.is_staff %}
@@ -147,7 +147,9 @@
       <div id="collapseSchedule" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
           <h6 class="collapse-header">일정관리</h6>
+          {% if user.is_staff %}
           <a class="collapse-item" href="#" onclick="btn_dayreport('/service/dayreport/')">일일업무</a>
+          {% endif %}
           <a class="collapse-item" href="#" onclick="btn_dayreport('/scheduler/scheduler/')">캘린더</a>
           <a class="collapse-item" href="/service/showservices/">일정관리</a>
         </div>

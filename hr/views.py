@@ -7,9 +7,7 @@ import pandas as pd
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import F
-from django.db.models import Max
-from django.db.models import Q, Sum, Case, When, FloatField, Count
+from django.db.models import F, Q, Sum, Case, When, FloatField, Count, Max, Min
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.template import loader
@@ -19,7 +17,7 @@ from extrapay.models import Car
 from .forms import EmployeeForm, DepartmentForm, UserForm, PositionForm
 from .functions import save_punctuality, check_absence, year_absence, adminemail_test, siteMap
 from .models import Attendance, Employee, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation, Position
-from service.models import Vacation
+from service.models import Vacation, Servicereport
 from approval.models import Document
 from extrapay.models import ExtraPay
 
@@ -246,124 +244,20 @@ def show_punctuality(request, day=None):
     if day is None:
         day = str(datetime.datetime.today())[:10]
     Date = datetime.datetime(int(day[:4]), int(day[5:7]), int(day[8:10]))
+    beforeDate = Date - datetime.timedelta(days=1)
+    afterDate = Date + datetime.timedelta(days=1)
 
-    if datetime.datetime.weekday(Date) == 0:
-        beforeDate = Date - datetime.timedelta(days=3)
-        afterDate = Date + datetime.timedelta(days=1)
-    elif datetime.datetime.weekday(Date) == 4:
-        beforeDate = Date - datetime.timedelta(days=1)
-        afterDate = Date + datetime.timedelta(days=3)
-    else:
-        beforeDate = Date - datetime.timedelta(days=1)
-        afterDate = Date + datetime.timedelta(days=1)
+    punctualityList = Servicereport.objects.filter(serviceDate=Date).values(
+        'empId', 'empName', 'empDeptName', 'empId__empRank'
+    ).annotate(
+        start=Min('serviceStartDatetime'),
+        end=Max('serviceEndDatetime'),
+        hour=Sum('serviceHour'),
+        reg=Sum('serviceRegHour'),
+        over=Sum('serviceOverHour'),
+    ).order_by('empDeptName', 'empId__empRank')
 
-    year = day[:4]
-    month = day[5:7]
-
-    # 분기
-    if month in ['01', '02', '03']:
-        startdate = '{}-01-01'.format(year)
-    elif month in ['04', '05', '06']:
-        startdate = '{}-04-01'.format(year)
-    elif month in ['07', '08', '09']:
-        startdate = '{}-07-01'.format(year)
-    else:
-        startdate = '{}-10-01'.format(year)
-
-    punctuality = Punctuality.objects.filter(punctualityDate=day).order_by('empId__empPosition')
-    punctualityList = []
-
-    # if day <= '2020-01-31':
-    #     punctualityList.append(
-    #         punctuality.filter(empId__empDeptName='경영지원본부').values(
-    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-    #         )
-    #     )
-    #     punctualityList.append(
-    #         punctuality.filter(empId__empDeptName='영업1팀').values(
-    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-    #         )
-    #     )
-    #     punctualityList.append(
-    #         punctuality.filter(empId__empDeptName='영업2팀').values(
-    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-    #         )
-    #     )
-    #     punctualityList.append(
-    #         punctuality.filter(empId__empDeptName='인프라서비스사업팀').values(
-    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-    #         )
-    #     )
-    #     punctualityList.append(
-    #         punctuality.filter(empId__empDeptName='솔루션지원팀').values(
-    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-    #         )
-    #     )
-    #     punctualityList.append(
-    #         punctuality.filter(empId__empDeptName='DB지원팀').values(
-    #             'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-    #         )
-    #     )
-    # else:
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='경영지원본부').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='경영지원실').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='인프라솔루션사업부').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='영업팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='R&D 전략사업부').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='AI Platform Labs').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='Technical Architecture팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='Platform Biz').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='DB Expert팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-    punctualityList.append(
-        punctuality.filter(empId__empDeptName='솔루션팀').values(
-            'empId_id', 'empId__empDeptName', 'empId__empName', 'empId__empPosition__positionName', 'punctualityType', 'comment', 'punctualityId'
-        )
-    )
-
-    for pun in punctualityList:
-        for user in pun:
-            absence = check_absence(user['empId_id'], startdate, day, False)
-            if absence:
-                user['absenceDate'] = []
-                for a in absence:
-                    user['absenceDate'].append(a.punctualityDate)
-                user['absenceCount'] = len(absence)
+    vacationList = Vacation.objects.filter(vacationDate=Date).order_by('empDeptName', 'empId__empRank')
 
     context = {
         'day': day,
@@ -371,7 +265,7 @@ def show_punctuality(request, day=None):
         'beforeDate': beforeDate,
         'afterDate': afterDate,
         'punctualityList': punctualityList,
-        'sumpunctuality': len(punctuality)
+        'vacationList': vacationList,
     }
     return HttpResponse(template.render(context, request))
 
@@ -602,10 +496,75 @@ def show_vacations(request):
         year = request.POST['year']
     else:
         year = str(datetime.datetime.today().year)
-    employees = Employee.objects.filter(Q(empStatus='Y'))
+
+    employees = Employee.objects.filter(empStatus='Y').order_by('department__deptId', 'empRank')
+    vacationCategories = ['연차', '근속연차', '금차', '대체휴무']
+
+    adminVacations = AdminVacation.objects.filter(
+        creationDateTime__year=year,
+    ).values(
+        'empId', 'empId__empName', 'vacationType'
+    ).annotate(
+        empName=F('empId__empName'),
+        category=F('vacationType'),
+        days=Sum('vacationDays'),
+    )
+
+    vacations = Vacation.objects.filter(
+        vacationDate__year=year,
+        vacationCategory__categoryName__in=vacationCategories,
+    ).values(
+        'empId', 'empId__empName', 'vacationCategory__categoryName'
+    ).annotate(
+        empName=F('empId__empName'),
+        category=F('vacationCategory__categoryName'),
+        days=Count('vacationDate'),
+    )
+
+    rows = []
+    for emp in employees:
+        empAdminVacation = adminVacations.filter(empId=emp.empId)
+        empVacation = vacations.filter(empId=emp.empId)
+
+        a_1, b_1, c_1, d_1 = 0, 0, 0, 0
+        if empAdminVacation.filter(category='연차'):
+            a_1 = empAdminVacation.filter(category='연차').first()['days']
+        if empAdminVacation.filter(category='근속연차'):
+            b_1 = empAdminVacation.filter(category='근속연차').first()['days']
+        if empAdminVacation.filter(category='금차'):
+            c_1 = empAdminVacation.filter(category='금차').first()['days']
+        if empAdminVacation.filter(category='대체휴무'):
+            d_1 = empAdminVacation.filter(category='대체휴무').first()['days']
+
+        a_2, b_2, c_2, d_2 = 0, 0, 0, 0
+        if empVacation.filter(category='연차'):
+            a_2 = empVacation.filter(category='연차').first()['days']
+        if empVacation.filter(category='근속연차'):
+            b_2 = empVacation.filter(category='근속연차').first()['days']
+        if empVacation.filter(category='금차'):
+            c_2 = empVacation.filter(category='금차').first()['days']
+        if empVacation.filter(category='금차'):
+            d_2 = empVacation.filter(category='금차').first()['days']
+
+        a_3 = a_1 - a_2
+        b_3 = b_1 - b_2
+        c_3 = c_1 - c_2
+        d_3 = d_1 - d_2
+
+        temp = {
+            'empDeptName': emp.empDeptName,
+            'empName': emp.empName,
+            'a_1': a_1, 'a_2': a_2, 'a_3': a_3,
+            'b_1': b_1, 'b_2': b_2, 'b_3': b_3,
+            'c_1': c_1, 'c_2': c_2, 'c_3': c_3,
+            'd_1': d_1, 'd_2': d_2, 'd_3': d_3,
+        }
+        rows.append(temp)
+
     context = {
         'employees': employees,
         'year': year,
+        'rows': rows,
     }
     return render(request, 'hr/showvacations.html', context)
 

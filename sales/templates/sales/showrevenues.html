@@ -89,12 +89,6 @@
                 <input type="date" id="copyDate" max="9999-12-31" class="input-form mr-3" value="{{ copyDate }}">
               </div>
             {% endif %}
-            {% if outstandingcollection == 'N' and modifyMode == 'N' %}
-              <div class="float-right" style="margin-right: 10px;">
-                <a class="btn btn-info" href="#" onclick="btn_changeDate()" role="button" id="changeDateLink" data-toggle="modal" data-target="#changeDateModal">
-                  <i class="fas fa-clock text-white"> 매출예정일 변경</i></a>
-              </div>
-            {% endif %}
           {% endif %}
 
           <div class="table-responsive">
@@ -104,9 +98,9 @@
                 <tr>
                   <th>구분</th>
                   <th>관리번호</th>
-                  <th>소속</th>
-                  <th>영업대표</th>
-                  <th>계약명</th>
+                  <th>담당부서</th>
+                  <th>담당자</th>
+                  <th>프로젝트명</th>
                   <th>매출처</th>
                   <th>매출예정일</th>
                   <th>매출일</th>
@@ -187,36 +181,29 @@
               <div class="col-6">
                 <label for="step" class="text-primary">단계</label>
                 <select class="form-control" id="contractStep" name="contractStep">
-                  <option value="전체" {% if contractStep == '전체' %}selected{% endif %}>전체</option>
-                  <option value="Opportunity" {% if contractStep == 'Opportunity' %}selected{% endif %}>Opportunity</option>
-                  <option value="Firm" {% if contractStep == 'Firm' %}selected{% endif %}>Firm</option>
+                  <option value="전체">전체</option>
+                  <option value="예정" {% if contractStep == "예정" %}selected{% endif %}>예정</option>
+                  <option value="확정" {% if contractStep == "확정" %}selected{% endif %}>확정</option>
                 </select>
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
-                <label for="empDeptName" class="text-primary">영업부서</label>
-                <select class="form-control" id="empDeptName" name="empDeptName" onchange="changeDeptName(this.value,'empName')">
-                  <option value='전체' {% if empDeptName == '전체' %}selected{% endif %}>전체</option>
-                  <option value="영업1팀" {% if empDeptName == '영업1팀' %}selected{% endif %}>영업1팀</option>
-                  <option value="영업2팀" {% if empDeptName == '영업2팀' %}selected{% endif %}>영업2팀</option>
+                <label for="empName" class="text-primary">담당자</label>
+                <select class="form-control" id="empName" name="empName">
+                  <option value='전체'>전체</option>
+                  {% for e in employees %}
+                    <option value="{{ e.empName }}" {% if e.empName == empName %}selected{% endif %}>{{ e.empName }}</option>
+                  {% endfor %}
                 </select>
               </div>
               <div class="col-6">
-                <label for="empName" class="text-primary">영업담당자</label>
-                <select class="form-control" id="empName" name="empName">
+                <label for="empDeptName" class="text-primary">담당부서</label>
+                <select class="form-control" id="empDeptNAme" name="empDeptName">
                   <option value='전체'>전체</option>
-                  {% if empDeptName != '전체' %}
-                    {% for e in employees %}
-                      {% if e.empDeptName == empDeptName %}
-                        <option value="{{ e.empName }}" {% if empName and empName == e.empName %}selected{% endif %}>{{ e.empName }}</option>
-                      {% endif %}
-                    {% endfor %}
-                  {% else %}
-                    {% for e in employees %}
-                      <option value="{{ e.empName }}" {% if e.empName == empName %}selected{% endif %}>{{ e.empName }}</option>
-                    {% endfor %}
-                  {% endif %}
+                  {% for d in departments %}
+                    <option value="{{ d.deptName }}" {% if d.deptName == empDeptName %}selected{% endif %}>{{ d.deptName }}</option>
+                  {% endfor %}
                 </select>
               </div>
             </div>
@@ -225,6 +212,12 @@
                 <label for="companyName" class="text-primary">거래처</label>
                 <input class="form-control" id="saleCompanyName" name="saleCompanyName" value="{{ saleCompanyName }}">
               </div>
+              <div class="col-6">
+                <label for="boardTitle" class="text-primary">프로젝트명</label>
+                <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
+              </div>
+            </div>
+            <div class="row mb-1">
               <div class="col-6">
                 <label for="issued" class="text-primary">진행상태</label>
                 <select class="form-control" id="issued" name="issued">
@@ -235,66 +228,12 @@
                 </select>
               </div>
             </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="boardTitle" class="text-primary">계약명</label>
-                <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
-              </div>
-              <div class="col-6">
-                <label for="maincategory" class="text-primary">대분류</label>
-                <input class="form-control" id="maincategory" name="maincategory" value="{{ maincategory }}">
-              </div>
-            </div>
           </form>
         </div>
 
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
           <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filter Modal -->
-  <div class="modal fade" id="changeDateModal" tabindex="-1" role="dialog" aria-labelledby="changeDateModalLabel" aria-hidden="true">
-    <div class="modal-lg modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="changeDateModalLabel">매출예정일 변경</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="changeDateForm" action="/sales/savepredictrevenue/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-12">
-                <h6 class="text-center"> < 매출예정일이 지난 매출 목록 > </h6>
-                <table id="changepredictrevenue" class="pc-table thtd" style="margin:2px">
-                  <thead>
-                  <tr class="bg-secondary text-white thtd">
-                    <th colspan=1>구분</th>
-                    <th colspan=3>계약명</th>
-                    <th colspan=2>(기존)매출예정일</th>
-                    <th class="text-warning" colspan=2>(변경)매출예정일</th>
-                    <th class="d-none">revenueId</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_savePredictDate()">확인</a>
         </div>
       </div>
     </div>

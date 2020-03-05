@@ -40,6 +40,13 @@
     {{ Date | date:"Y년 m월 d일" }} ({{ Date | date:"D" | slice:"0:1" }})
     <i class="fas fa-angle-right text-warning" onclick="location.href='/service/dayreport/{{ afterDate | date:'Y-m-d' }}/'"></i>
   </h5>
+  <div class="row mb-2">
+    <div class="col-xl-10"></div>
+    <div class="col-xl-2">
+      <input class="form-control" type="date" max="9999-12-31" value="{{ Date | date:'Y-m-d' }}" onchange="change_date(this.value)">
+    </div>
+  </div>
+
 
   {% for row in rows %}
     {% if row.title %}
@@ -84,7 +91,7 @@
                   <td class="text-left">{{ q.contractName }}</td>
                   <td class="text-left">{{ q.companyName }}</td>
                   <td>{{ q.serviceType }}</td>
-                  <td class="text-left">{{ q.serviceTitle }}</td>
+                  <td class="text-left">{{ q.serviceTitle }} {% if q.serviceDetails %}<i class="far fa-sticky-note text-primary"></i>{% endif %}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -130,7 +137,7 @@
                 </tr>
 
                 <tr {% if q.serviceId != '' %} onclick="document.location.href='/service/viewservice/{{ q.serviceId }}/'" {% endif %}>
-                  <td colspan="2" class="text-left">{{ q.serviceTitle }}</td>
+                  <td colspan="2" class="text-left">{{ q.serviceTitle }} {% if q.serviceDetails %}<i class="far fa-sticky-note text-primary"></i>{% endif %}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -172,7 +179,7 @@
                       {% if q.serviceStatus == 'E' %}<div style="color: red">(이동중)</div>{% endif %}
                       {% if q.serviceStatus == 'Y' %}<div style="color:red">(완료)</div>{% endif %}
                     </td>
-                    <td style="white-space: normal">{{ q.serviceTitle }}</td>
+                    <td style="white-space: normal">{{ q.serviceTitle }} {% if q.serviceDetails %}<i class="far fa-sticky-note text-primary"></i>{% endif %}</td>
                   </tr>
                 {% endfor %}
                 </tbody>
@@ -211,7 +218,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td style="white-space: normal">{{ q.serviceTitle }}</td>
+                    <td style="white-space: normal">{{ q.serviceTitle }} {% if q.serviceDetails %}<i class="far fa-sticky-note text-primary"></i>{% endif %}</td>
                   </tr>
                 {% endfor %}
                 </tbody>
@@ -240,6 +247,9 @@
 {% block script %}
 
   <script type="text/javascript">
+    function change_date(date) {
+        location.href='/service/dayreport/' + date + '/'
+    }
 
   </script>
 

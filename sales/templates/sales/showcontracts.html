@@ -193,13 +193,22 @@
                 </select>
               </div>
               <div class="col-6">
-                <label for="saleCompanyName" class="text-primary">거래처</label>
-                <input class="form-control" id="saleCompanyName" name="saleCompanyName" value="{{ saleCompanyName }}">
+                <label for="empDeptName" class="text-primary">담당부서</label>
+                <select class="form-control" id="empDeptNAme" name="empDeptName">
+                  <option value='전체'>전체</option>
+                  {% for d in departments %}
+                    <option value="{{ d.deptName }}" {% if d.deptName == empDeptName %}selected{% endif %}>{{ d.deptName }}</option>
+                  {% endfor %}
+                </select>
               </div>
             </div>
             <div class="row mb-1">
-              <div class="col-12">
-                <label for="contractName" class="text-primary">계약명</label>
+              <div class="col-6">
+                <label for="saleCompanyName" class="text-primary">거래처</label>
+                <input class="form-control" id="saleCompanyName" name="saleCompanyName" value="{{ saleCompanyName }}">
+              </div>
+              <div class="col-6">
+                <label for="contractName" class="text-primary">프로젝트명</label>
                 <input class="form-control" id="contractName" name="contractName" value="{{ contractName }}">
               </div>
             </div>
@@ -473,7 +482,7 @@
                   }
               ],
               "deferRender": true,
-              "order": [[6, 'desc']],
+              "order": [[1, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,

@@ -36,9 +36,6 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <span>
     <h1 class="h3 mb-0 text-gray-800">직원별 작업 통계</h1>
-    <h6 class="h6 mb-0 text-gray-800"> ( {{ startdate }}~{{ enddate }}{%if empDeptName %}, {{ empDeptName }}{% endif %})
-
-    </h6>
     </span>
     <span>
       <a href="#" class="d-sm-inline-block btn btn-sm btn-info shadow-sm" id="filterLink" data-toggle="modal" data-target="#filterModal"><i class="fas fa-filter fa-sm text-white-50"></i> 날짜 검색 </a>
@@ -55,8 +52,16 @@
         <div class="card-body">
           <div class="row no-gutters align-items-center">
             <div class="col mr-2">
-              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">전체 작업 횟수</div>
-              <div class="h5 mb-0 font-weight-bold text-gray-800">{% if all_support_time.serviceHour__count %}{{ all_support_time.serviceHour__count }}{% else %}0{% endif %} 건</div>
+              <div class="text-sm font-weight-bold text-primary text-uppercase mb-1">조회기간</div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+              {% if startdate or enddate %}
+                  {% if startdate %}{{ startdate }}{% else %}전체{% endif %}
+                  ~
+                  {% if enddate %}{{ enddate }}{% else %}전체{% endif %}
+              {% else %}
+                  전체기간
+              {% endif %}
+              </div>
             </div>
             <div class="col-auto">
               <i class="fas fa-briefcase fa-2x text-gray-300"></i>
@@ -301,25 +306,8 @@
 
 
   <div class="row">
-
     <!-- Bar Chart -->
-    <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-        <!-- Card Header - Dropdown -->
-        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 font-weight-bold text-primary">직원별 작업 횟수</h6>
-        </div>
-        <!-- Card Body -->
-        <div class="card-body">
-          <div class="chart-area">
-            <canvas id="empSupportCount"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bar Chart -->
-    <div class="col-xl-6 col-lg-6">
+    <div class="col-xl-12 col-lg-12">
       <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -397,11 +385,11 @@
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
                 <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
-                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate">
+                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" value="{{ startdate | date:'Y-m-d' }}">
               </div>
               <div class="col-6">
                 <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
-                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate">
+                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" value="{{ enddate | date:'Y-m-d' }}">
               </div>
             </div>
             <div class="row mb-1">
@@ -619,30 +607,6 @@
               pushData(serviceTable2);
           }
       );
-      // Bar Chart 3
-      var ctx = document.getElementById("empSupportCount");
-      var empSupportCount = new Chart(ctx, {
-          type: 'bar',
-          data: {
-              labels: [
-                  {% for i in emp_support_time %}
-                      "{{ i.empName }}",
-                  {% endfor %}
-              ],
-              datasets: [{
-                  label: "지원 횟수",
-                  hoverBackgroundColor: "#2e59d9",
-                  borderColor: "#4e73df",
-                  backgroundColor: colors,
-                  data: [
-                      {% for i in emp_support_time %}
-                          "{{ i.sum_supportCount }}",
-                      {% endfor %}
-                  ],
-              }],
-          },
-          options: options
-      });
 
       $("#empSupportCount").click(
           function (evt) {

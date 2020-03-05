@@ -40,13 +40,22 @@ def scheduler(request, day=None):
     if request.method == "POST":
         postDeptList = request.POST.getlist('ckdept')
     else:
-        postDeptList = [empDeptName]
+        postDeptList = []
+        for d in Department.objects.all():
+            postDeptList.append(d.deptName)
+
     # 일정, 휴가, 휴일, 사내일정 (한달)
     services = Servicereport.objects.filter(
         Q(serviceDate__gte=startDate) &
         Q(serviceDate__lte=endDate) &
         Q(empDeptName__in=postDeptList) &
-        Q(serviceType__calendarStatus='Y')
+        (
+            Q(calendarStatus='Y') |
+            (
+                Q(calendarStatus='M') &
+                Q(empId=empId)
+            )
+        )
     )
     vacations = Vacation.objects.filter(
         Q(vacationDate__gte=startDate) &
@@ -61,6 +70,11 @@ def scheduler(request, day=None):
     )
     event = Eventday.objects.filter(
         Q(eventType="사내일정") &
+        Q(eventDate__gte=startDate) &
+        Q(eventDate__lte=endDate)
+    )
+    project = Eventday.objects.filter(
+        Q(eventType="프로젝트일정") &
         Q(eventDate__gte=startDate) &
         Q(eventDate__lte=endDate)
     )
@@ -115,6 +129,7 @@ def scheduler(request, day=None):
         'DeptList': DeptList,
         'holiday': holiday,
         'event': event,
+        'project': project,
         'beforeMonth': beforeMonth,
         'afterMonth': afterMonth,
         'Date': Date,

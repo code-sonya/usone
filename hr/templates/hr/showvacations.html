@@ -18,7 +18,7 @@
     }
 
     .pc-table td, .pc-table th {
-      padding: 12px 10px 12px 10px;
+      padding: 6px 5px;
       text-align: center;
       vertical-align: middle;
       font-size: 16px;
@@ -71,6 +71,55 @@
         </div>
       </div>
       <div class="card-body">
+        <table class="pc-table">
+          <thead>
+          <tr class="bg-light">
+            <td rowspan="2" class="font-weight-bold">부서</td>
+            <td rowspan="2" class="font-weight-bold">성함</td>
+            <td colspan="3" class="font-weight-bold">연차</td>
+            <td colspan="3" class="font-weight-bold">근속연차</td>
+            <td colspan="3" class="font-weight-bold">금차</td>
+            <td colspan="3" class="font-weight-bold">대체휴무</td>
+          </tr>
+          <tr class="bg-light">
+            <td class="font-weight-bold">부여</td>
+            <td class="font-weight-bold">사용</td>
+            <td class="font-weight-bold">잔여</td>
+            <td class="font-weight-bold">부여</td>
+            <td class="font-weight-bold">사용</td>
+            <td class="font-weight-bold">잔여</td>
+            <td class="font-weight-bold">부여</td>
+            <td class="font-weight-bold">사용</td>
+            <td class="font-weight-bold">잔여</td>
+            <td class="font-weight-bold">부여</td>
+            <td class="font-weight-bold">사용</td>
+            <td class="font-weight-bold">잔여</td>
+          </tr>
+          </thead>
+          <tbody>
+          {% for row in rows %}
+            {% if row.empName != '관리자' %}
+          <tr>
+            <td class="bg-light font-weight-bold">{{ row.empDeptName }}</td>
+            <td class="bg-light font-weight-bold">{{ row.empName }}</td>
+            <td>{{ row.a_1 }}</td>
+            <td>{{ row.a_2 }}</td>
+            <td>{{ row.a_3 }}</td>
+            <td>{{ row.b_1 }}</td>
+            <td>{{ row.b_2 }}</td>
+            <td>{{ row.b_3 }}</td>
+            <td>{{ row.c_1 }}</td>
+            <td>{{ row.c_2 }}</td>
+            <td>{{ row.c_3 }}</td>
+            <td>{{ row.d_1 }}</td>
+            <td>{{ row.d_2 }}</td>
+            <td>{{ row.d_3 }}</td>
+          </tr>
+            {% endif %}
+          {% endfor %}
+          </tbody>
+        </table>
+
         <div class="table-responsive">
           <table id="showvacations" class="hover row-border" style="width: 100%;">
             <thead>

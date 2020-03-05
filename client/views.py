@@ -22,7 +22,7 @@ def service_asjson(request):
     companyName = request.POST['companyName']
     services = Servicereport.objects.filter(companyName=companyName).values(
         'serviceId', 'serviceDate', 'empName', 'empDeptName',
-        'serviceType__typeName', 'serviceHour', 'serviceOverHour', 'serviceTitle'
+        'serviceType__typeName', 'serviceHour', 'serviceOverHour', 'serviceTitle', 'serviceDetails'
     )
     structure = json.dumps(list(services), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

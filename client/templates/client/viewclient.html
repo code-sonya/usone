@@ -361,11 +361,11 @@
               "columnDefs": [
                   {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
-                  {targets: 6, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 4, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 5, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap c"},
+                  {targets: 6, width: "50%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap c"},
                   {targets: 7, className: "d-none"},
               ],
               "deferRender": true,
@@ -386,6 +386,19 @@
                       "previous": "이전"
                   },
               },
+              "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                  if (aData.serviceDetails) {
+                      $('td:eq(6)', nRow).html(
+                          '<a  target="_blank" href="/service/viewservice/' + aData.serviceId + '/">' +
+                          aData.serviceTitle + ' <i class="far fa-sticky-note text-primary"></i></a>'
+                      );
+                  } else {
+                      $('td:eq(6)', nRow).html(
+                          '<a  target="_blank" href="/service/viewservice/' + aData.serviceId + '/">' +
+                          aData.serviceTitle + '</a>'
+                      );
+                  }
+              },
               "footerCallback": function () {
                   var api = this.api(), data;
 
@@ -403,12 +416,6 @@
               },
           });
 
-          var table = $('#showservices').DataTable();
-
-          $("#showservices").on("click", 'tr', function () {
-              const data = table.row(this).data();
-              window.open('about:blank').location.href = '/service/viewservice/' + data.serviceId + '/'
-          });
       });
 
   </script>

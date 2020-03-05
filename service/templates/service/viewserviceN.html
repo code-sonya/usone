@@ -161,9 +161,13 @@
               </a>
               {% if service.serviceType.punctualityStatus == 'Y' %}
                 {% if service.serviceStatus == 'N' %}
-                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_finish()">
+                <a href="#" class="btn btn-primary btn-icon-split" onclick="btn_finish('list')">
                   <span class="icon text-white"> <i class="fas fa-check"> </i> </span>
-                  <span class="text p-2"> 마감 </span>
+                  <span class="text p-2"> 마감 후 목록으로 </span>
+                </a>
+                <a href="#" class="btn btn-success btn-icon-split" onclick="btn_finish('calendar')">
+                  <span class="icon text-white"> <i class="fas fa-check"> </i> </span>
+                  <span class="text p-2"> 마감 후 캘린더로 </span>
                 </a>
                 {% endif %}
               {% endif %}
@@ -201,12 +205,12 @@
           }
       }
 
-      function btn_finish(){
+      function btn_finish(redirect){
           let msg = '마감하신 뒤에는 수정이 불가능 합니다.\n' +
               '마감하시겠습니까?';
 
           if (confirm(msg) === true) {
-              location.href = '/service/finishservice/{{ service.serviceId }}/';
+              location.href = '/service/finishservice/{{ service.serviceId }}/' + redirect + '/';
           }
       }
 

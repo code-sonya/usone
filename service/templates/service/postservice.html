@@ -107,10 +107,10 @@
             </div>
             <div class="form-group row">
               <div class="col-6">
-                <label for="serviceLocation" class="font-weight-bold text-primary"> 지역 구분 </label> {{ form.serviceLocation }}
+                <label for="directgo" class="font-weight-bold text-primary"> 직출 여부 </label> {{ form.directgo }}
               </div>
               <div class="col-6">
-                <label for="directgo" class="font-weight-bold text-primary"> 직출 여부 </label> {{ form.directgo }}
+                <label for="serviceLocation" class="font-weight-bold text-primary"> 캘린더 표시 </label> {{ form.calendarStatus }}
               </div>
             </div>
             <div class="form-group">
@@ -156,11 +156,23 @@
 
   <script type="text/javascript">
 
-      // function btn_serviceType() {
-      //     if ($('#serviceType option:selected').text() === '내근') {
-      //         $('#companyName').trigger('set', {id: '볕터건축사사무소'});
-      //     }
-      // }
+      function change_calendar_status(type) {
+          console.log(type);
+          $.ajax({
+              url: "{% url 'service:calendarstatus' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "typeId": type,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData !== 'error') {
+                      $('#calendarStatus').val(returnData);
+                  }
+              }
+          });
+      }
 
       function showVal(newVal) {
           $('#enddate').val(newVal);

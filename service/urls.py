@@ -31,7 +31,8 @@ urlpatterns = [
     url(r'^postservicetype/$', views.post_service_type, name='postservicetype'),
     url(r'^deleteservicetype/(?P<typeId>.+)/$', views.delete_service_type, name='deleteservicetype'),
     url(r'^coworkersign/(?P<serviceId>.+)/$', views.coworker_sign, name='coworkersign'),
-    url(r'^finishservice/(?P<serviceId>.+)/$', views.finish_service, name='finishservice'),
+    url(r'^finishservice/(?P<serviceId>.+)/(?P<redirectType>.+)/$', views.finish_service, name='finishservice'),
     url(r'^deleteservicefile/(?P<fileId>.+)/$', views.delete_service_file, name='deleteservicefile'),
     url(r'^uploadservicefiles/(?P<serviceId>.+)/$', views.upload_service_files, name='uploadservicefiles'),
+    url(r'^calendarstatus/$', views.calendar_status, name='calendarstatus'),
 ]

@@ -346,9 +346,13 @@
                 <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
                 <span class="text"> 취소 </span>
               </a>
-              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save()">
+              <a href="#" class="btn btn-success btn-icon-split" onclick="btn_save('view')">
                 <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
                 <span class="text"> 저장 </span>
+              </a>
+              <a href="#" class="btn btn-primary btn-icon-split" onclick="btn_save('list')">
+                <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+                <span class="text"> 저장 후 목록으로 </span>
               </a>
             </div>
           </form>
@@ -1263,7 +1267,7 @@
           return false;
       }
 
-      function btn_save() {
+      function btn_save(redirect) {
           if (document.getElementById("empId").value === '') {
               alert("영업대표를 입력해주세요.");
               return false;
@@ -1534,6 +1538,12 @@
               }
           }
 
+          const redirectFlag = document.createElement("input");
+          redirectFlag.setAttribute("type", "hidden");
+          redirectFlag.setAttribute("name", "redirect");
+          redirectFlag.setAttribute("value", redirect);
+          ContractForm.appendChild(redirectFlag);
+
           if (confirm("저장 하시겠습니까?") === true) {
               ContractForm.submit();
           }
@@ -1706,7 +1716,7 @@
           if (totalRevenue === 0) {
               $('#profitRatio').val(0)
           } else {
-              $('#profitRatio').val(((profit/totalRevenue)*100).toFixed(0));
+              $('#profitRatio').val(((profit/revenue)*100).toFixed(0));
           }
 
           // 매출별 이익 : 이익 / 매출개수
@@ -2003,8 +2013,15 @@
                       $('#item2'+itemCounter).empty();
                       $('#item2'+itemCounter).append('<option value="" selected="">--대분류--</option>');
                       for (var count=0; count<maincategory.length; count++) {
-                          var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
-                          $('#item2'+itemCounter).append(option);
+                          if (maincategory[count].mainCategory === '기타'){
+                              var option = $("<option value=" + maincategory[count].mainCategory + " selected>" + maincategory[count].mainCategory + "</option>");
+                              $('#item2'+itemCounter).append(option);
+                              itemChange('#item2' + itemCounter, '#item3' + itemCounter);
+                          } else {
+                              var option = $("<option value=" + maincategory[count].mainCategory + ">" + maincategory[count].mainCategory + "</option>");
+                              $('#item2'+itemCounter).append(option);
+                          }
+
                       }
                       itemCounter++;
                   }, error:function(request,status,error){
@@ -2286,7 +2303,7 @@
               totalPrice('revenueProfitPrice', 'totalRevenueProfitPrice');
           });
 
-          // 매입세부정보 (세금계산서 접수항목)
+          // 매입 빌링스케쥴 (세금계산서 접수항목)
           var t3 = $('#purchase').DataTable({
               "autoWidth": true,
               "searching": false,
@@ -2422,8 +2439,6 @@
               $('input[name=purchasePrice]').on("change keyup paste input", function() {
                   totalPrice('purchasePrice', 'totalPurchasePrice');
               });
-          {% else %}
-              $('#addPurchase').click();
           {% endif %}
 
           $('#purchase').on('click', 'i', function () {
@@ -2434,7 +2449,7 @@
               totalPrice('purchasePrice', 'totalPurchasePrice');
           });
 
-          // 매입세부정보 (세금계산서 미접수항목)
+          // 매입 빌링스케쥴 (세금계산서 미접수항목)
           var t4 = $('#cost').DataTable({
               "autoWidth": true,
               "searching": false,
@@ -2753,8 +2768,6 @@
               $('input[name=purchaseItemTotalPrice]').on("change keyup paste input", function() {
                   totalPrice('purchaseItemTotalPrice', 'totalpurchaseItemTotalPrice');
               });
-          {% else %}
-              $('#purchaseAddItem').click();
           {% endif %}
 
           $('#purchaseCategoryItem').on('click', 'i', function () {

@@ -28,12 +28,12 @@ class ServicereportForm(forms.ModelForm):
         model = Servicereport
         fields = ('contractId', 'companyName', 'serviceType',
                   'startdate', 'starttime', 'enddate', 'endtime',
-                  'serviceLocation', 'directgo', 'coWorkers', 'serviceTitle', 'serviceDetails')
+                  'calendarStatus', 'directgo', 'coWorkers', 'serviceTitle', 'serviceDetails')
 
         widgets = {
             'companyName': forms.TextInput(attrs={'class': 'form-control magicsearch', 'id': 'companyName', 'autocomplete': 'off', 'onkeydown': 'magicsearchtab(companyName)'}),
-            'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType", 'onchange': 'btn_serviceType()'}),
-            'serviceLocation': forms.Select(attrs={'class': 'form-control', 'id': 'serviceLocation'}),
+            'serviceType': forms.Select(attrs={'class': 'form-control', 'id': "serviceType", 'onchange': 'change_calendar_status(this.value)'}),
+            'calendarStatus': forms.Select(attrs={'class': 'form-control', 'id': 'calendarStatus'}),
             'directgo': forms.Select(attrs={'class': 'form-control', 'id': 'directgo'}),
             'serviceTitle': forms.TextInput(attrs={'class': 'form-control', 'id': 'serviceTitle'}),
             'serviceDetails': forms.Textarea(attrs={'class': 'form-control', 'id': 'serviceDetails'}),

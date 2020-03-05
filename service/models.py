@@ -25,6 +25,7 @@ class Servicetype(models.Model):
 class Servicereport(models.Model):
     serviceLocationChoices = (('서울', '서울'), ('경기', '경기'), ('기타', '기타'))
     statusChoices = (('Y', 'Y'), ('N', 'N'))
+    calendarStatusChoices = (('Y', '전체노출'), ('M', '개인노출'), ('N', '미노출'))
 
     serviceId = models.AutoField(primary_key=True)
     contractId = models.ForeignKey(Contract, on_delete=models.SET_NULL, null=True, blank=True)
@@ -51,6 +52,7 @@ class Servicereport(models.Model):
     customerPhone = models.CharField(max_length=20, null=True, blank=True)
     customerEmail = models.EmailField(max_length=254, null=True, blank=True)
     serviceSignPath = models.CharField(max_length=254, default='/media/images/signature/nosign.jpg')
+    calendarStatus = models.CharField(max_length=10, choices=calendarStatusChoices, default='Y')
     serviceStatus = models.CharField(max_length=1, default='N')
 
     def __str__(self):

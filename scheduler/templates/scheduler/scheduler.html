@@ -290,6 +290,9 @@
                   if (event.imageurl2) {
                       element.find("span.fc-title").append("<img src='" + event.imageurl2 + "' width='12' height='12' >");
                   }
+                  if (event.imageicon) {
+                      element.find("span.fc-title").prepend('<i class="' + event.imageicon + '"></i> ');
+                  }
               },
               eventDrop: function (event, delta, revertFunc) {
                   // 로그인한 유저 엔지니어 이름
@@ -535,7 +538,7 @@
               },
           );
           $('#calendar').fullCalendar('addEventSource',
-              {#5. unione event#}
+              {#5. 사내일정#}
               {
                   events: [
                       {% for i in event %}
@@ -555,6 +558,31 @@
                   color: "#fffcb4",
                   textColor: "#85680f",
                   borderColor: "#fbe261",
+              },
+          );
+
+          $('#calendar').fullCalendar('addEventSource',
+              {#6. 프로젝트일정#}
+              {
+                  events: [
+                      {% for i in project %}
+                          {
+                              title: '{{ i.eventName }}',
+                              start: '{{ i.eventDate|date:"Y-m-d" }}',
+                              end: '{{ i.eventDate|date:"Y-m-d" }}',
+                              service_id: '{{ i.serviceId }}',
+                              name: '{{ i.eventName }}',
+                              detail: '{{ i.eventName }}',
+                              service_type: '프로젝트일정',
+                              className: 'holiday',
+                              type: 'holiday',
+                              imageicon: 'fas fa-star',
+                          },
+                      {% endfor %}
+                  ],
+                  color: "#4e73df",
+                  textColor: "white",
+                  borderColor: "#4e73df",
               },
           );
 

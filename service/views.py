@@ -77,7 +77,7 @@ def service_asjson(request):
     services = services.values(
         'serviceDate', 'companyName__companyName', 'serviceTitle', 'empName', 'directgo', 'serviceType',
         'serviceBeginDatetime', 'serviceStartDatetime', 'serviceEndDatetime', 'serviceFinishDatetime',
-        'serviceHour', 'serviceOverHour', 'serviceDetails',
+        'serviceHour', 'serviceOverHour', 'serviceDetails', 'serviceType__typeName',
         'serviceStatus', 'contractId__contractName', 'serviceId'
     )
 
@@ -112,9 +112,29 @@ def post_service(request, postdate):
             post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
             post.serviceDate = str(post.serviceBeginDatetime)[:10]
             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
-            post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
+            post.serviceOverHour = 0
             post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
             post.save()
+
+            # 초과근무 계산
+            standardWorkTime = 8
+            todayServices = Servicereport.objects.filter(
+                empId=post.empId,
+                serviceDate=post.serviceDate,
+            ).order_by('serviceStartDatetime')
+            todayServiceTime = todayServices.aggregate(Sum('serviceHour'))['serviceHour__sum']
+            if todayServiceTime > standardWorkTime:
+                for s in todayServices:
+                    standardWorkTime -= s.serviceHour
+                    if standardWorkTime < 0:
+                        s.serviceOverHour = standardWorkTime * -1
+                        s.serviceRegHour = s.serviceHour - s.serviceOverHour
+                        s.save()
+                        standardWorkTime = 0
+                    else:
+                        s.serviceOverHour = 0
+                        s.serviceRegHour = s.serviceHour
+                        s.save()
 
             if request.POST['redirect'] == 'calendar':
                 return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
@@ -565,17 +585,7 @@ def show_services(request):
             contractCheck = 1
         serviceTitle = request.POST['serviceTitle']
     else:
-        today = str(datetime.datetime.now())[:10]
-        yyyy = today[:4]
-        mm = today[5:7]
-        if mm == '01':
-            yyyyBefore = str(int(yyyy) - 1)
-            mmBefore = '12'
-        else:
-            yyyyBefore = yyyy
-            mmBefore = str(int(mm) - 1).zfill(2)
-
-        startdate = yyyyBefore + '-' + mmBefore + '-01'
+        startdate = ""
         enddate = ""
         empDeptName = ""
         empName = ""
@@ -772,6 +782,26 @@ def modify_service(request, serviceId):
             post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
             post.coWorker = request.POST['coWorkerId']
             post.save()
+
+            # 초과근무 계산
+            standardWorkTime = 8
+            todayServices = Servicereport.objects.filter(
+                empId=post.empId,
+                serviceDate=post.serviceDate,
+            ).order_by('serviceStartDatetime')
+            todayServiceTime = todayServices.aggregate(Sum('serviceHour'))['serviceHour__sum']
+            if todayServiceTime > standardWorkTime:
+                for s in todayServices:
+                    standardWorkTime -= s.serviceHour
+                    if standardWorkTime < 0:
+                        s.serviceOverHour = standardWorkTime * -1
+                        s.serviceRegHour = s.serviceHour - s.serviceOverHour
+                        s.save()
+                        standardWorkTime = 0
+                    else:
+                        s.serviceOverHour = 0
+                        s.serviceRegHour = s.serviceHour
+                        s.save()
 
             if request.POST['redirect'] == 'calendar':
                 return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
@@ -1460,11 +1490,17 @@ def coworker_sign(request, serviceId):
 
 
 @login_required
-def finish_service(request, serviceId):
+def finish_service(request, serviceId, redirectType):
     service = Servicereport.objects.get(serviceId=serviceId)
     service.serviceStatus = 'Y'
     service.save()
-    return redirect('service:viewservice', serviceId)
+
+    if redirectType == 'calendar':
+        return redirect('scheduler:scheduler', str(service.serviceBeginDatetime)[:10])
+    elif redirectType == 'list':
+        return redirect('service:showservices')
+    else:
+        return redirect('service:viewservice', serviceId)
 
 
 @login_required
@@ -1486,3 +1522,16 @@ def delete_service_file(request, fileId):
     serviceId = serviceFile.serviceId.serviceId
     serviceFile.delete()
     return redirect('service:viewservice', serviceId)
+
+
+@login_required
+def calendar_status(request):
+    typeId = request.POST['typeId']
+
+    if Servicetype.objects.filter(typeId=typeId):
+        calendarStatus = Servicetype.objects.get(typeId=typeId).calendarStatus
+    else:
+        calendarStatus = 'error'
+
+    structure = json.dumps(calendarStatus, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

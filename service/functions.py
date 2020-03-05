@@ -563,6 +563,7 @@ def dayreport_query(empDeptName, day):
                 'serviceStatus': service.serviceStatus,
                 'contractName': contractName,
                 'serviceTitle': service.serviceTitle,
+                'serviceDetails': service.serviceDetails,
                 'sortKey': service.empId.empRank,
             })
         else:
@@ -577,6 +578,7 @@ def dayreport_query(empDeptName, day):
                 'serviceType': service.serviceType.typeName,
                 'contractName': contractName,
                 'serviceTitle': service.serviceTitle,
+                'serviceDetails': service.serviceDetails,
                 'sortKey': service.empId.empRank,
             })
 

@@ -16,7 +16,7 @@ from django.db.models.functions import Coalesce
 from django.views.decorators.http import require_POST
 
 from approval.models import Document
-from hr.models import Employee, AdminEmail
+from hr.models import Employee, AdminEmail, Department
 from service.models import Servicereport
 from client.models import Company, Customer
 from logs.models import OrderLog, ContractLog
@@ -149,7 +149,10 @@ def post_contract(request):
                     comment=cost["costComment"],
                 )
 
-            return redirect('sales:viewcontract', post.pk)
+            if request.POST['redirect'] == 'view':
+                return redirect('sales:viewcontract', post.pk)
+            elif request.POST['redirect'] == 'list':
+                return redirect('sales:showcontracts')
 
     else:
         form = ContractForm()
@@ -269,12 +272,13 @@ def copy_contract(request, contractId):
 @login_required
 def show_contracts(request):
     employees = Employee.objects.filter(Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    departments = Department.objects.all().order_by('deptName')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
         enddate = request.POST["enddate"]
         contractStep = request.POST["contractStep"]
-        empDeptName = '전체'
+        empDeptName = request.POST['empDeptName']
         empName = request.POST['empName']
         saleCompanyName = request.POST['saleCompanyName']
         endCompanyName = ''
@@ -286,7 +290,7 @@ def show_contracts(request):
         startdate = ''
         enddate = ''
         contractStep = ''
-        empDeptName = '전체'
+        empDeptName = ''
         empName = ''
         saleCompanyName = ''
         endCompanyName = ''
@@ -296,6 +300,7 @@ def show_contracts(request):
 
     context = {
         'employees': employees,
+        'departments': departments,
         'startdate': startdate,
         'enddate': enddate,
         'contractStep': contractStep,
@@ -577,7 +582,11 @@ def modify_contract(request, contractId):
                 for Id in delCostId:
                     Cost.objects.filter(costId=Id).delete()
 
-            return redirect('sales:viewcontract', str(contractId))
+            if request.POST['redirect'] == 'view':
+                return redirect('sales:viewcontract', str(contractId))
+            elif request.POST['redirect'] == 'list':
+                return redirect('sales:showcontracts')
+
 
     else:
         form = ContractForm(instance=contractInstance)
@@ -645,7 +654,8 @@ def modify_contract(request, contractId):
 
 @login_required
 def show_revenues(request):
-    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    employees = Employee.objects.filter(Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    departments = Department.objects.all().order_by('deptName')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -656,7 +666,7 @@ def show_revenues(request):
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
-        maincategory = request.POST['maincategory']
+        maincategory = ''
         issued = request.POST['issued']
 
     else:
@@ -674,6 +684,7 @@ def show_revenues(request):
     outstandingcollection = 'N'
     context = {
         'employees': employees,
+        'departments': departments,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,
@@ -1102,8 +1113,8 @@ def save_purchase(request):
 
 
 def show_purchases(request):
-    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
-    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
+    employees = Employee.objects.filter(Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    departments = Department.objects.all().order_by('deptName')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -1114,7 +1125,7 @@ def show_purchases(request):
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
-        maincategory = request.POST['maincategory']
+        maincategory = ''
         issued = request.POST['issued']
     else:
         startdate = ''
@@ -1131,7 +1142,7 @@ def show_purchases(request):
     accountspayable = 'N'
     context = {
         'employees': employees,
-        'pastEmployees': pastEmployees,
+        'departments': departments,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,
@@ -1337,8 +1348,8 @@ def save_revenuetable(request):
 @login_required
 @csrf_exempt
 def show_outstandingcollections(request):
-    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
-    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
+    employees = Employee.objects.filter(Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    departments = Department.objects.all().order_by('deptName')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -1349,7 +1360,7 @@ def show_outstandingcollections(request):
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
-        maincategory = request.POST['maincategory']
+        maincategory = ''
         issued = request.POST['issued']
 
     else:
@@ -1370,7 +1381,7 @@ def show_outstandingcollections(request):
     before = datetime.today() - timedelta(days=180)
     context = {
         'employees': employees,
-        'pastEmployees': pastEmployees,
+        'departments': departments,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,
@@ -1409,8 +1420,8 @@ def view_contract_pdf(request, contractId):
 @login_required
 @csrf_exempt
 def show_accountspayables(request):
-    employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
-    pastEmployees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='N')).order_by('empDeptName', 'empRank')
+    employees = Employee.objects.filter(Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+    departments = Department.objects.all().order_by('deptName')
 
     if request.method == "POST":
         startdate = request.POST["startdate"]
@@ -1421,7 +1432,7 @@ def show_accountspayables(request):
         contractName = request.POST['contractName']
         contractStep = request.POST['contractStep']
         modifyMode = request.POST['modifyMode']
-        maincategory = request.POST['maincategory']
+        maincategory = ''
         issued = request.POST['issued']
     else:
         startdate = ''
@@ -1440,7 +1451,7 @@ def show_accountspayables(request):
     before = datetime.today() - timedelta(days=180)
     context = {
         'employees': employees,
-        'pastEmployees': pastEmployees,
+        'departments': departments,
         'startdate': startdate,
         'enddate': enddate,
         'empDeptName': empDeptName,

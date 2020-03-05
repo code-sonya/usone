@@ -60,7 +60,9 @@ def dashboard_service(request):
                                                         .annotate(sum_supportCount=Count('empName')).order_by('-sum_supportTime')
 
 
-    overSpportTime = all_support_data.values('empName').annotate(sum_overTime=Sum('serviceOverHour')).exclude(sum_overTime=0).order_by('-sum_overTime')
+    overSpportTime = all_support_data.values('empName').annotate(
+        sum_overTime=Sum('serviceOverHour')
+    ).exclude(sum_overTime=0).order_by('-sum_overTime')
 
     # 타입별 지원통계
     type_support_time = all_support_data.values('serviceType__typeName').annotate(sum_supportTime=Sum('serviceHour')).order_by('serviceType__typeName')
