@@ -704,7 +704,6 @@ def overhour_all(request):
 def post_overhour(request):
     if request.method == "POST":
         overhourDate = request.POST['overhourDate']
-        print(overhourDate)
         overhouYear = overhourDate[:4]
         overhourMonth = overhourDate[5:7]
         # 특수직, 엔지니어
@@ -754,7 +753,6 @@ def post_overhour(request):
         elif empType == '엔지니어':
             overhour = request.POST['empOverHour']
             comment = request.POST['comment']
-
         else:
             return HttpResponse('empType 미선택')
 
