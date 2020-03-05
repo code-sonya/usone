@@ -20,6 +20,7 @@ from service.functions import link_callback
 from hr.models import Employee, Department
 from service.models import Servicereport, Geolocation
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
+from client.models import Company
 from .functions import cal_overhour, Round, cal_extraPay, cal_fuel
 from usone.security import MAP_KEY, testMAP_KEY
 
@@ -27,6 +28,7 @@ from usone.security import MAP_KEY, testMAP_KEY
 @login_required
 def over_hour(request):
     template = loader.get_template('extrapay/overhourlist.html')
+    companyNames = Company.objects.filter(companyStatus="Y")
 
     if request.method == "POST":
         searchdate = request.POST['searchdate']
@@ -42,6 +44,7 @@ def over_hour(request):
         'filter': filter,
         'searchdate': searchdate,
         'employee': employee,
+        "companyNames": companyNames,
     }
 
     return HttpResponse(template.render(context, request))
@@ -701,79 +704,115 @@ def overhour_all(request):
 def post_overhour(request):
     if request.method == "POST":
         overhourDate = request.POST['overhourDate']
+        print(overhourDate)
+        overhouYear = overhourDate[:4]
+        overhourMonth = overhourDate[5:7]
+        # 특수직, 엔지니어
         empType = request.POST['empType']
         empId = request.POST['empName']
         hourType = request.POST['hourType']
-        # 평일
-        overHourWeekDay = request.POST['overHourWeekDay']
-        overHourCostWeekDay = request.POST['overHourCostWeekDay']
-        # 주말
-        overhour = request.POST['overhour']
-        overHourCost = request.POST['overHourCost']
-        overhouYear = overhourDate[:4]
-        overhourMonth = overhourDate[5:7]
 
         if empType == '특수직':
+            # 특수직 일때
             status = 'X'
+            # 평일
+            overHourWeekDay = request.POST['overHourWeekDay']
+            overHourCostWeekDay = request.POST['overHourCostWeekDay']
+            # 주말
+            overhour = request.POST['overhour']
+            overHourCost = request.POST['overHourCost']
 
-        if hourType == '일':
-            if overhour:
-                overHourCost = float(overhour) * int(overHourCost)
-                overhour = float(overhour)*24
-            else:
-                overHourCost = 0
-                overhour = 0
+            if hourType == '일':
+                if overhour:
+                    overHourCost = float(overhour) * int(overHourCost)
+                    overhour = float(overhour)*24
+                else:
+                    overHourCost = 0
+                    overhour = 0
 
-            if overHourWeekDay:
-                overHourCostWeekDay = float(overHourWeekDay) * int(overHourCostWeekDay)
-                overHourWeekDay = float(overHourWeekDay)*24
+                if overHourWeekDay:
+                    overHourCostWeekDay = float(overHourWeekDay) * int(overHourCostWeekDay)
+                    overHourWeekDay = float(overHourWeekDay)*24
+                else:
+                    overHourCostWeekDay = 0
+                    overHourWeekDay = 0
             else:
-                overHourCostWeekDay = 0
-                overHourWeekDay = 0
+                if overhour:
+                    overhour = float(overhour)
+                    overHourCost = overhour * int(overHourCost)
+                else:
+                    overhour = 0
+                    overHourCost = 0
+
+                if overHourWeekDay:
+                    overHourWeekDay = float(overHourWeekDay)
+                    overHourCostWeekDay = overHourWeekDay * int(overHourCostWeekDay)
+                else:
+                    overHourWeekDay = 0
+                    overHourCostWeekDay = 0
+
+        elif empType == '엔지니어':
+            overhour = request.POST['empOverHour']
+            comment = request.POST['comment']
+
         else:
-            if overhour:
-                overhour = float(overhour)
-                overHourCost = overhour * int(overHourCost)
-            else:
-                overhour = 0
-                overHourCost = 0
-
-            if overHourWeekDay:
-                overHourWeekDay = float(overHourWeekDay)
-                overHourCostWeekDay = overHourWeekDay * int(overHourCostWeekDay)
-            else:
-                overHourWeekDay = 0
-                overHourCostWeekDay = 0
+            return HttpResponse('empType 미선택')
 
         ## IF문으로 해당 엔지니어의 월별 정보가 extrapay에 있는지 확인하고 없으면 생성
         emp = Employee.objects.get(empId=empId)
         extrapay = ExtraPay.objects.filter(Q(overHourDate__year=overhouYear) &
                                            Q(overHourDate__month=overhourMonth) &
                                            Q(empId=emp)).first()
-
         if extrapay:
-            sumOverHour = extrapay.sumOverHour
-            extrapay.sumOverHour = float(sumOverHour) + overhour + overHourWeekDay
-            extrapay.save()
+            if empType == '특수직':
+                sumOverHour = extrapay.sumOverHour
+                extrapay.sumOverHour = float(sumOverHour) + overhour + overHourWeekDay
+                extrapay.save()
+            elif empType == '엔지니어':
+                sumOverHour = extrapay.sumOverHour
+                extrapay.sumOverHour = float(sumOverHour) + int(overhour)
+                extrapay.save()
         else:
-            extrapay = ExtraPay.objects.create(
+            if empType == '특수직':
+                extrapay = ExtraPay.objects.create(
+                    empId=emp,
+                    empName=emp.empName,
+                    overHourDate='{}-01'.format(overhourDate),
+                    sumOverHour=overhour + overHourWeekDay,
+                    payStatus=status,
+                    empSalary=emp.empSalary
+                )
+            elif empType == '엔지니어':
+                extrapay = ExtraPay.objects.create(
+                    empId=emp,
+                    empName=emp.empName,
+                    overHourDate='{}-01'.format(overhourDate),
+                    sumOverHour=overhour,
+                    empSalary=emp.empSalary
+                )
+        if empType == '특수직':
+            OverHour.objects.create(
                 empId=emp,
                 empName=emp.empName,
-                overHourDate='{}-01'.format(overhourDate),
-                sumOverHour=overhour + overHourWeekDay,
-                payStatus=status,
-                empSalary=emp.empSalary
+                overHour=overhour,
+                overHourWeekDay=overHourWeekDay,
+                overHourCost=overHourCost,
+                overHourCostWeekDay=overHourCostWeekDay,
+                extraPayId=extrapay,
+            )
+        elif empType == '엔지니어':
+            overHourCost = float(overhour) * int(emp.empSalary) * 1.5
+            OverHour.objects.create(
+                empId=emp,
+                empName=emp.empName,
+                overHour=overhour,
+                extraPayId=extrapay,
+                overHourTitle=comment,
+                overHourStartDate='{}-01'.format(overhourDate),
+                overHourEndDate='{}-01'.format(overhourDate),
+                overHourCost=overHourCost
             )
 
-        OverHour.objects.create(
-            empId=emp,
-            empName=emp.empName,
-            overHour=overhour,
-            overHourWeekDay=overHourWeekDay,
-            overHourCost=overHourCost,
-            overHourCostWeekDay=overHourCostWeekDay,
-            extraPayId=extrapay,
-        )
     return redirect('extrapay:overhour')
 
 

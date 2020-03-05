@@ -134,15 +134,16 @@
             <div class="row mb-1">
               <div class="col-12">
                 <label for="overhourDate" class="font-weight-light text-primary">일자</label>
-                <input type="month" class="form-control" id="overhourDate" name="overhourDate" required='required'>
+                <input type="month" class="form-control" id="overhourDate" name="overhourDate" max="9999-12" required='required'>
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6">
                 <label for="empType" class="font-weight-light text-primary">직원유형</label>
-                <select class="form-control" id="empType" name="empType">
+                <select class="form-control" id="empType" name="empType" onchange="change_div(this.value)">
+                  <option value="">----</option>
                   <option value="특수직">특수직</option>
-                  <!--<option value="조기출근">조기출근</option>-->
+                  <option value="엔지니어">엔지니어</option>
                 </select>
               </div>
               <div class="col-6">
@@ -155,33 +156,47 @@
                 </select>
               </div>
             </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="hourType" class="font-weight-light text-primary">시간유형</label>
-                <select class="form-control" id="hourType" name="hourType">
-                  <option value="일">일</option>
-                  <option value="시간">시간</option>
-                </select>
+            <div id="type1">
+              <div class="row mb-1">
+                <div class="col-6">
+                  <label for="hourType" class="font-weight-light text-primary">시간유형</label>
+                  <select class="form-control" id="hourType" name="hourType">
+                    <option value="일">일</option>
+                    <option value="시간">시간</option>
+                  </select>
+                </div>
+                <div class="col-3">
+                  <label for="overHourWeekDay" class="font-weight-light text-primary">평일초과근무</label>
+                  <input class="form-control" id="overHourWeekDay" name="overHourWeekDay" type="number">
+                </div>
+                 <div class="col-3">
+                  <label for="overhour" class="font-weight-light text-primary">주말초과근무</label>
+                  <input class="form-control" id="overhour" name="overhour" type="number">
+                </div>
               </div>
-              <div class="col-3">
-                <label for="overHourWeekDay" class="font-weight-light text-primary">평일초과근무</label>
-                <input class="form-control" id="overHourWeekDay" name="overHourWeekDay" type="number">
-              </div>
-               <div class="col-3">
-                <label for="overhour" class="font-weight-light text-primary">주말초과근무</label>
-                <input class="form-control" id="overhour" name="overhour" type="number">
+              <div class="row mb-1">
+                <div class="col-6">
+                </div>
+                <div class="col-3">
+                  <label for="overHourCostWeekDay" class="font-weight-light text-primary">평일근무수당</label>
+                  <input class="form-control" id="overHourCostWeekDay" name="overHourCostWeekDay" type="number"  placeholder="">
+                </div>
+                 <div class="col-3">
+                  <label for="overHourCost" class="font-weight-light text-primary">주말근무수당</label>
+                  <input class="form-control" id="overHourCost" name="overHourCost" type="number" placeholder="">
+                </div>
               </div>
             </div>
-            <div class="row mb-1">
-              <div class="col-6">
-              </div>
-              <div class="col-3">
-                <label for="overHourCostWeekDay" class="font-weight-light text-primary">평일근무수당</label>
-                <input class="form-control" id="overHourCostWeekDay" name="overHourCostWeekDay" type="number"  placeholder="">
-              </div>
-               <div class="col-3">
-                <label for="overHourCost" class="font-weight-light text-primary">주말근무수당</label>
-                <input class="form-control" id="overHourCost" name="overHourCost" type="number" placeholder="">
+            <div id="type2">
+              <div class="row mb-1">
+                <div class="col-6">
+                  <label for="empOverHour" class="font-weight-light text-primary">초과근무시간</label>
+                  <input class="form-control" id="empOverHour" name="empOverHour" type="number"  placeholder="">
+                </div>
+                <div class="col-6">
+                  <label for="comment" class="font-weight-light text-primary">비고</label>
+                  <input class="form-control" id="comment" name="comment" type="text"  placeholder="">
+                </div>
               </div>
             </div>
           </form>
@@ -201,6 +216,20 @@
 {% block script %}
   <script type="text/javascript">
 
+      function change_div(empType) {
+        if(empType=="특수직"){
+          $("#type1").show();
+          $("#type2").hide();
+        }else if(empType=="엔지니어"){
+          $("#type2").show();
+          $("#type1").hide();
+        }else{
+          $("#type1").hide();
+          $("#type2").hide();
+        }
+
+      }
+
       function btn_filter() {
           document.getElementById("filterForm").submit();
       }
@@ -219,30 +248,30 @@
       }
 
       $('#saveOverhourTable').click(function () {
-                  const overhourForm = document.getElementById("overhourForm");
+          const overhourForm = document.getElementById("overhourForm");
 
-                  const lengthOverhour = $('[name="extraPayId"]').length;
-                  for (var i = 0; i <= lengthOverhour - 1; i++) {
-                      const overHour = document.createElement("input");
-                      const data = $('div[name="extraPayId"]').eq(i).text();
-                      overHour.setAttribute("type", "hidden");
-                      overHour.setAttribute("name", "extraPayId");
-                      overHour.setAttribute("value", data);
-                      overhourForm.appendChild(overHour);
-                  }
-                  overhourForm.submit();
-              });
+          const lengthOverhour = $('[name="extraPayId"]').length;
+          for (var i = 0; i <= lengthOverhour - 1; i++) {
+              const overHour = document.createElement("input");
+              const data = $('div[name="extraPayId"]').eq(i).text();
+              overHour.setAttribute("type", "hidden");
+              overHour.setAttribute("name", "extraPayId");
+              overHour.setAttribute("value", data);
+              overhourForm.appendChild(overHour);
+          }
+          overhourForm.submit();
+      });
 
       $(document).ready(function () {
-
-
+          $("#type1").hide();
+          $("#type2").hide();
           $('#overhourlist').DataTable({
               "processing": true,
               "ajax": {
                   "processing": true,
                   "type": 'POST',
                   "data": {
-                      "searchdate": {% if searchdate %}"{{ searchdate }}",{% else %}"",{% endif %}
+                      "searchdate": "{{ searchdate }}",
                   },
                   "url": "{% url 'extrapay:over_ajax_url' %}",
                   "dataSrc": ""

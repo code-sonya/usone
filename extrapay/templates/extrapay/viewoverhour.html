@@ -116,21 +116,37 @@
         <tbody>
         {% for row in overhour %}
         <tr class="thtd">
+          {% if row.serviceId %}
           <td class="thtd" colspan="1">{{ row.serviceId.serviceDate }}</td>
           <td class="thtd" colspan="2">{{ row.serviceId.companyName }}</td>
           <td class="thtd" colspan="1">{{ row.serviceId.serviceBeginDatetime | date:"Y/m/d H:i"}}</td>
           <td class="thtd" colspan="1">{{ row.serviceId.serviceFinishDatetime | date:"Y/m/d H:i"}}</td>
           <td class="thtd" colspan="1">{{ row.serviceId.serviceHour }}</td>
+          {% else %}
+          <td class="thtd" colspan="1">{{ row.overHourStartDate | date:"Y/m/d" }}</td>
+          <td class="thtd" colspan="2">-</td>
           <td class="thtd" colspan="1">{{ row.overHourStartDate | date:"Y/m/d H:i" }}</td>
           <td class="thtd" colspan="1">{{ row.overHourEndDate | date:"Y/m/d H:i" }}</td>
           <td class="thtd" colspan="1">{{ row.overHour }}</td>
-          <td class="thtd" colspan="3"><a href="/service/viewservice/{{row.serviceId_id}}/">{{ row.overHourTitle }}</a></td>
+          {% endif %}
+          <td class="thtd" colspan="1">{{ row.overHourStartDate | date:"Y/m/d H:i" }}</td>
+          <td class="thtd" colspan="1">{{ row.overHourEndDate | date:"Y/m/d H:i" }}</td>
+          <td class="thtd" colspan="1">{{ row.overHour }}</td>
+          <td class="thtd" colspan="3">
+            {% if row.serviceId %}
+            <a href="/service/viewservice/{{row.serviceId_id}}/">{{ row.overHourTitle }}</a>
+            {% else %}
+            {{ row.overHourTitle }}
+            {% endif %}
+          </td>
           <td class="thtd" colspan="1">{{ row.overHourCost |floatformat:0|intcomma}}</td>
           <td class="thtd" colspan="1">{{ row.foodCost |floatformat:0|intcomma}}</td>
           <td class="thtd" colspan="1">
+            {% if row.serviceId %}
             <a href="#" onclick="location.href='/service/viewservicepdf/{{ row.serviceId.serviceId }}'">
               <i class="fas fa-file-pdf btn btn-danger" style="font-size: 1.0em;"></i>
             </a>
+            {% endif %}
           </td>
           <td class="thtd text-gray-600" colspan="1"><i class="fas fa-times-circle" id="{{ row.overHourId }}" onclick="btn_delete(this)"></i></td>
         </tr>
