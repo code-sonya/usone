@@ -82,9 +82,9 @@
                   <td class="font-weight-bold">{{ punctuality.empName }}</td>
                   <td>{{ punctuality.start | date:'H:i' }}</td>
                   <td>{{ punctuality.end | date:'H:i' }}</td>
-                  <td>{{ punctuality.reg }}</td>
-                  <td class="text-danger">{{ punctuality.over }}</td>
-                  <td>{{ punctuality.hour }}</td>
+                  <td>{{ punctuality.reg | floatformat:1 }}</td>
+                  <td class="text-danger">{{ punctuality.over | floatformat:1 }}</td>
+                  <td>{{ punctuality.hour | floatformat:1 }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>

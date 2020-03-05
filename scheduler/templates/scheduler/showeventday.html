@@ -147,12 +147,9 @@
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   if (aData.eventType === '휴일') {
-                      $('td', nRow).css('background-color', '#fbc9d3');
-                  } else if (aData.eventType === '사내일정') {
-                      $('td', nRow).css('background-color', '#fffcb4');
+                      $('td', nRow).css('color', 'red');
                   } else if (aData.eventType === '프로젝트일정') {
-                      $('td', nRow).css('background-color', '#4e73df');
-                      $('td', nRow).css('color', 'white');
+                      $('td', nRow).css('color', 'blue');
                   }
               },
               "footerCallback": function () {
