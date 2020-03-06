@@ -39,5 +39,9 @@ urlpatterns = [
     url(r'^vacationdocumentasjson/$', views.vacationdocument_asjson, name='vacationdocumentasjson'),
     url(r'^cancelvacation/$', views.cancel_vacation, name='cancelvacation'),
     url(r'^detailvacationasjson/$', views.detailvacation_asjson, name='detailvacationasjson'),
+    # 알림
+    url(r'^alertcountingasjson/$', views.alertcounting_asjson, name='alertcountingasjson'),
+    url(r'^clickalertasjson/$', views.clickalert_asjson, name='clickalertasjson'),
+    url(r'^pastalertasjson/$', views.pastalert_asjson, name='pastalertasjson'),
 ]
 

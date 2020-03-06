@@ -127,8 +127,10 @@ class ReturnVacation(models.Model):
 
 
 class Alert(models.Model):
+    typeChoices = (('전자결재', '전자결재'), ('의견', '의견'), ('유류비', '유류비'), ('기타', '기타'))
     alertId = models.AutoField(primary_key=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    type = models.CharField(max_length=20, choices=typeChoices, null=True, blank=True,)
     text = models.CharField(max_length=255, null=True, blank=True)
     url = models.CharField(max_length=255, null=True, blank=True)
     createdDatetime = models.DateTimeField(default=timezone.now)

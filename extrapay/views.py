@@ -17,7 +17,7 @@ from django.db.models.functions import Coalesce, Concat
 from xhtml2pdf import pisa
 from service.functions import link_callback
 
-from hr.models import Employee, Department
+from hr.models import Employee, Department, Alert
 from service.models import Servicereport, Geolocation
 from .models import OverHour, Car, Oil, Fuel, ExtraPay
 from client.models import Company
@@ -237,6 +237,19 @@ def post_fuel(request):
                 fuelMoney=fuelMoney,
                 comment2=geolocationId[1]
             )
+        # 알림 기능
+        if request.user.employee.departmentName.deptLevel == 2:
+            if request.user.employee.departmentName.parentDept:
+                parentdept = Department.objects.get(deptId=request.user.employee.departmentName.parentDept.deptId)
+                print(parentdept)
+                if parentdept.deptManager.empId:
+                    Alert.objects.create(
+                        empId=Employee.objects.get(empId=parentdept.deptManager.empId),
+                        type="유류비",
+                        text="'{}'님이 '{}'건의 유류비를 신청했습니다.".format(request.user.employee.empName, len(geolocationIds)),
+                        url="/extrapay/showfuel/"
+                    )
+
     return redirect('extrapay:showfuel')
 
 

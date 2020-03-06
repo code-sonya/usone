@@ -21,6 +21,7 @@ from .models import Documentcategory, Documentform, Documentfile, Document, Appr
 from logs.models import ApprovalLog
 from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
 from hr.functions import siteMap
+from hr.models import Alert
 from sales.functions import detailPurchase, summary
 
 @login_required
@@ -168,6 +169,13 @@ def post_document(request):
                 for empId in whoApproval['do']:
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "결재요청")
+                    # 알림생성
+                    Alert.objects.create(
+                        empId=employee,
+                        type="전자결재",
+                        text="'{}'님이 '{}결재를 요청했습니다.".format(document.writeEmp.empName, document.title),
+                        url="/approval/viewdocument/{}/".format(document.documentId)
+                    )
                 for empId in whoApproval['check']:
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "참조문서")
@@ -339,6 +347,13 @@ def modify_document(request, documentId):
                 for empId in whoApproval['do']:
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "결재요청")
+                    # 알림생성
+                    Alert.objects.create(
+                        empId=employee,
+                        type="전자결재",
+                        text="'{}'님이 '{}'결재를 요청했습니다.".format(document.writeEmp.empName, document.title),
+                        url="/approval/viewdocument/{}/".format(document.documentId)
+                    )
                 for empId in whoApproval['check']:
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "참조문서")
@@ -1350,6 +1365,12 @@ def approve_document(request, approvalId):
             # 결재 완료 메일
             employee = Employee.objects.get(empId=document.writeEmp_id)
             mail_approval(employee, document, "결재완료")
+            Alert.objects.create(
+                empId=employee,
+                type="전자결재",
+                text="'{}'님의 '{}'결재가 완료됐습니다.".format(document.writeEmp.empName, document.title),
+                url="/approval/viewdocument/{}/".format(document.documentId)
+            )
 
             if document.formId.formTitle == '휴가신청서':
                 Vacation.objects.filter(documentId=document).update(vacationStatus='Y')
@@ -1366,6 +1387,13 @@ def approve_document(request, approvalId):
 
                 # 결재 요청 메일
                 mail_approval(employee, document, "결재요청")
+                # 알림생성
+                Alert.objects.create(
+                    empId=employee,
+                    type="전자결재",
+                    text="'{}'님이 '{}'결재를 요청했습니다.".format(document.writeEmp.empName, document.title),
+                    url="/approval/viewdocument/{}/".format(document.documentId)
+                )
 
     return redirect('approval:viewdocument', approval.documentId_id)
 

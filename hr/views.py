@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from extrapay.models import Car
 from .forms import EmployeeForm, DepartmentForm, UserForm
 from .functions import save_punctuality, check_absence, year_absence, adminemail_test, siteMap
-from .models import Attendance, Employee, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation
+from .models import Attendance, Employee, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation, Alert
 from service.models import Vacation
 from approval.models import Document
 from extrapay.models import ExtraPay
@@ -857,3 +857,46 @@ def detailvacation_asjson(request):
     return HttpResponse(structure, content_type='application/json')
 
 
+@csrf_exempt
+@login_required
+def alertcounting_asjson(request):
+    empId = request.user.employee.empId
+    jsonList = []
+    alerts = Alert.objects.filter(
+        Q(empId=empId) &
+        Q(clickedDatetime__isnull=True)
+    ).order_by('-createdDatetime')
+    alertsCount = alerts.aggregate(alertCount=Count('empId'))['alertCount'] or 0
+    alerts = alerts.values('alertId', 'text', 'url', 'createdDatetime', 'type')
+    jsonList.append(alertsCount)
+    jsonList.append(list(alerts))
+    structure = json.dumps(jsonList, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@csrf_exempt
+@login_required
+def clickalert_asjson(request):
+    alertId = request.POST['alertId']
+    try:
+        alert = Alert.objects.get(alertId=alertId)
+        alert.clickedDatetime = datetime.datetime.now()
+        alert.save()
+        result = 'Y'
+    except:
+        result = 'N'
+    structure = json.dumps(list(result), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@csrf_exempt
+@login_required
+def pastalert_asjson(request):
+    empId = request.user.employee.empId
+    alerts = Alert.objects.filter(
+        Q(empId=empId) &
+        Q(clickedDatetime__isnull=False)
+    ).order_by('-createdDatetime')
+    alerts = alerts.values('alertId', 'text', 'url', 'createdDatetime', 'type')
+    structure = json.dumps(list(alerts), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

@@ -336,13 +336,28 @@
 
         <!-- Topbar Navbar -->
         <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown no-arrow mx-1">
+            <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-bell fa-fw"></i>
+              <!-- Counter - Alerts -->
+              <span class="badge badge-danger badge-counter" id="alertCount"></span>
+            </a>
+            <!-- Dropdown - Alerts -->
+            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+              <h6 class="dropdown-header">알림</h6>
+              <div id="alert-contents">
+              </div>
+              <a class="dropdown-item text-center small text-gray-500" href="#">닫기</a>
+<!--              <a class="dropdown-item text-center small text-gray-500" href="#" onclick="btn_pastAlert()">더보기</a>-->
+            </div>
+          </li>
           <!-- Divider -->
           <div class="topbar-divider d-none d-sm-block"></div>
 
           <!-- Nav Item - User Information -->
           <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <span class="mr-2 d-none d-lg-inline text-gray-600 small">환영합니다. <B>{{ user.employee.empName }}</B> 님 </span>
+              <span class="mr-2 d-none d-lg-inline text-gray-600 small">반갑습니다. <B>{{ user.employee.empName }}</B> 님 </span>
               <img src="/media/icon/profile.png" class="img-profile rounded-circle">
             </a>
             <!-- Dropdown - User Information -->
@@ -449,6 +464,11 @@
 {% block script %}{% endblock %}
 
 <script type="text/javascript">
+
+    function replaceAll(str, searchStr, replaceStr) {
+        var new_str = str.split(searchStr).join(replaceStr);
+        return new_str.split("T").join(" ").slice(0, 16);
+    }
 
     let buttonStatus = false;
     const sideBarButton = $('#sidebarToggleTop');
@@ -560,6 +580,156 @@
         }
     }
 
+    // alert 새로운 알림 카운팅
+    function alert() {
+       const alertCount = $('#alertCount');
+       $.ajax({
+          url: "{% url 'hr:alertcountingasjson' %}",
+          method: 'POST',
+          cache: false,
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          success: function (returnData) {
+            const cnt = returnData[0];
+            const data = returnData[1];
+            if(cnt == 0){
+                alertCount.css('background', '');
+            }else{
+              alertCount.text(cnt);
+              for(var i=0; i < data.length; i++){
+                const type = data[i].type;
+                if(type=='전자결재'){
+                  $('#alert-contents').append(
+                  '<a class="dropdown-item d-flex align-items-center" href="#" ' +
+                  'onclick="click_alert( this, ' + "'" + data[i].url + "'" + ')"' +
+                  'id="' + data[i].alertId + '">\n' +
+                  '<div class="mr-3">\n' +
+                  '<div class="icon-circle bg-primary">\n' +
+                  '<i class="fas fa-file-alt text-white"></i>\n' +
+                  '</div>\n' +
+                  '</div>\n' +
+                  '<div>\n' +
+                  '<div class="small text-gray-500">' +
+                  replaceAll(data[i].createdDatetime) +
+                  '</div>\n' +
+                  '<span>' + data[i].text + '</span>\n' +
+                  '</div>\n' +
+                  '</a>' );
+                }else if(type=="의견"){
+                  $('#alert-contents').append(
+                  '<a class="dropdown-item d-flex align-items-center" href="#" ' +
+                  'onclick="click_alert( this, ' + "'" + data[i].url + "'" + ')"' +
+                  'id="' + data[i].alertId + '">\n' +
+                  '<div class="mr-3">\n' +
+                  '<div class="icon-circle bg-info">\n' +
+                  '<i class="fas fa-comment-dots text-white"></i>\n' +
+                  '</div>\n' +
+                  '</div>\n' +
+                  '<div>\n' +
+                  '<div class="small text-gray-500">' +
+                  replaceAll(data[i].createdDatetime) +
+                  '</div>\n' +
+                  '<span>' + data[i].text + '</span>\n' +
+                  '</div>\n' +
+                  '</a>' );
+                }else if(type=="유류비") {
+                  $('#alert-contents').append(
+                  '<a class="dropdown-item d-flex align-items-center" href="#" ' +
+                  'onclick="click_alert( this, ' + "'" + data[i].url + "'" + ')"' +
+                  'id="' + data[i].alertId + '">\n' +
+                  '<div class="mr-3">\n' +
+                  '<div class="icon-circle bg-warning">\n' +
+                  '<i class="fas fa-car text-white"></i>\n' +
+                  '</div>\n' +
+                  '</div>\n' +
+                  '<div>\n' +
+                  '<div class="small text-gray-500">' +
+                  replaceAll(data[i].createdDatetime) +
+                  '</div>\n' +
+                  '<span>' + data[i].text + '</span>\n' +
+                  '</div>\n' +
+                  '</a>' );
+                }
+              }
+            }
+          }
+       });
+    }
+
+    // // alert 지난 알림 불러오기
+    // function btn_pastAlert() {
+    //    const alertCount = $('#alertCount');
+    //    $.ajax({
+    //       url: "{% url 'hr:pastalertasjson' %}",
+    //       method: 'POST',
+    //       cache: false,
+    //       headers: {'X-CSRFToken': '{{ csrf_token }}'},
+    //       success: function (returnData) {
+    //         const data = returnData;
+    //         for(var i=0; i < data.length; i++){
+    //           const type = data[i].type;
+    //           if(type=='전자결재'){
+    //             $('#alert-contents').append(
+    //             '<a class="dropdown-item d-flex align-items-center" href="#" ' +
+    //             'onclick="click_alert( this, ' + "'" + data[i].url + "'" + ')"' +
+    //             'id="' + data[i].alertId + '">\n' +
+    //             '<div>\n' +
+    //             '<div class="small text-gray-500">' +
+    //             replaceAll(data[i].createdDatetime) +
+    //             '</div>\n' +
+    //             '<span class="text-gray-500">' + data[i].text + '</span>\n' +
+    //             '</div>\n' +
+    //             '</a>' );
+    //           }else if(type=="의견"){
+    //             $('#alert-contents').append(
+    //             '<a class="dropdown-item d-flex align-items-center" href="#" ' +
+    //             'onclick="click_alert( this, ' + "'" + data[i].url + "'" + ')"' +
+    //             'id="' + data[i].alertId + '">\n' +
+    //             '<div>\n' +
+    //             '<div class="small text-gray-500">' +
+    //             replaceAll(data[i].createdDatetime) +
+    //             '</div>\n' +
+    //             '<span class="text-gray-500">' + data[i].text + '</span>\n' +
+    //             '</div>\n' +
+    //             '</a>' );
+    //           }else if(type=="유류비") {
+    //             $('#alert-contents').append(
+    //             '<a class="dropdown-item d-flex align-items-center" href="#" ' +
+    //             'onclick="click_alert( this, ' + "'" + data[i].url + "'" + ')"' +
+    //             'id="' + data[i].alertId + '">\n' +
+    //             '<div>\n' +
+    //             '<div class="small text-gray-500">' +
+    //             replaceAll(data[i].createdDatetime) +
+    //             '</div>\n' +
+    //             '<span class="text-gray-500">' + data[i].text + '</span>\n' +
+    //             '</div>\n' +
+    //             '</a>' );
+    //           }
+    //         }
+    //       }
+    //    });
+    // }
+
+    function click_alert(id, url) {
+      const alertId = $(id).attr('id');
+      $.ajax({
+          url: "{% url 'hr:clickalertasjson' %}",
+          method: 'POST',
+          data: {
+            "alertId": alertId
+          },
+          cache: false,
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          success: function (returnData) {
+              if(returnData == "Y"){
+                location.href = url;
+              }else{
+                  alert("오류발생 관리자에게 문의하세요 : (");
+              }
+          }
+        });
+    }
+
+    // 전자결재 진행중인 문서 카운팅
     function counting() {
        const counting = $('#counting');
        $.ajax({
@@ -647,6 +817,7 @@
     $(document).ready(function () {
         changeToggled(1200);
         counting();
+        alert();
     })
 
 </script>
