@@ -16,7 +16,7 @@ from django.db.models.functions import Coalesce
 from django.views.decorators.http import require_POST
 
 from approval.models import Document
-from hr.models import Employee, AdminEmail, Alert
+from hr.models import Employee, AdminEmail, Alert, Department
 from service.models import Servicereport
 from client.models import Company, Customer
 from logs.models import OrderLog, ContractLog
@@ -3903,6 +3903,10 @@ def save_comment(request):
     alertEmpList = []
     # 계약의 영업대표 추가
     alertEmpList.append(contract.empId_id)
+    # level=1 추가
+    deptManager = Department.objects.get(deptLevel=0).deptManager.empId
+    if deptManager:
+        alertEmpList.append(deptManager)
     # 계약에 댓글을 달은 모든 사람 추가
     alertEmpList.extend(Contractcomment.objects.filter(contractId=contractId).values_list('author_id', flat=True).distinct())
     # 해당 댓글을 달은 사람 뺴기
