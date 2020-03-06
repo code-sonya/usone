@@ -1342,6 +1342,15 @@ def post_document_comment(request):
         created=datetime.datetime.now(),
         updated=datetime.datetime.now(),
     )
+    approvals = Approval.objects.filter(documentId=request.POST['documentId']).values_list('approvalEmp__empId', flat=True)
+    approvals = set(approvals)-{request.user.employee.empId}
+    for approval in approvals:
+        Alert.objects.create(
+            empId=Employee.objects.get(empId=approval),
+            type="의견",
+            text="'{}'님이 '{}'문서에 의견을 올렸습니다.".format(request.user.employee.empName, document.title),
+            url="/approval/viewdocument/{}/".format(document.documentId)
+        )
     return redirect('approval:viewdocument', request.POST['documentId'])
 
 
