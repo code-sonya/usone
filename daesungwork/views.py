@@ -1077,7 +1077,7 @@ def show_dailyreports(request):
         enddate = ''
         writer = ''
 
-    form = DailyReportForm(initial={'writeEmp': request.user.employee.user_id})
+    form = DailyReportForm(initial={'writeEmp': request.user.employee.empId})
     context = {
         'form': form,
         'startdate': startdate,
@@ -1100,7 +1100,7 @@ def dailyreports_asjson(request):
     if request.user.is_staff:
         dailyreports = DailyReport.objects.all()
     else:
-        dailyreports = DailyReport.objects.filter(writeEmp=request.user.employee.user_id)
+        dailyreports = DailyReport.objects.filter(writeEmp=request.user.employee.empId)
 
     if startdate:
         dailyreports = dailyreports.filter(workDate__gte=startdate)
@@ -1208,7 +1208,7 @@ def show_productlocation(request):
     else:
         sectionImage = Warehouse.objects.filter(Q(mainCategory=maincategoryId) & Q(subCategory=subcategoryId)).first()
 
-    form = DailyReportForm(initial={'writeEmp': request.user.employee.user_id})
+    form = DailyReportForm(initial={'writeEmp': request.user.employee.empId})
     context = {
         'form': form,
         'productId': productId,
@@ -1299,7 +1299,7 @@ def post_stock(request, typeId):
         stockChecks = StockCheck.objects.create(
             checkDate=request.POST['checkDate'],
             typeName=Type.objects.get(typeId=request.POST['typeId']),
-            checkEmp=Employee.objects.get(empId=request.user.employee.user_id)
+            checkEmp=Employee.objects.get(empId=request.user.employee.empId)
         )
         jsonStocks = json.loads(request.POST['jsonStocks'])
 
@@ -1508,7 +1508,7 @@ def post_stockinout(request, typeName):
         form = StockManagementForm(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
-            post.managerEmp = Employee.objects.get(empId=request.user.employee.user_id)
+            post.managerEmp = Employee.objects.get(empId=request.user.employee.empId)
             post.typeName = typeName
             post.save()
             return redirect('daesungwork:showstockinout')
