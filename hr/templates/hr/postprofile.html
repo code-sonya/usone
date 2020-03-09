@@ -80,7 +80,7 @@
               <tr>
                 <td class="text-center align-middle bg-light text-primary"><b>전화번호</b></td>
                 <td>{{ empForm.empPhone }}</td>
-                <td class="text-center align-middle bg-light text-primary"><b>이&nbsp;&nbsp;메&nbsp;&nbsp;일</b></td>
+                <td class="text-center align-middle bg-light"><b>이&nbsp;&nbsp;메&nbsp;&nbsp;일</b></td>
                 <td>{{ empForm.empEmail }}</td>
               </tr>
               <tr>
@@ -153,10 +153,6 @@
           }
           if (!empPhone) {
               alert('전화번호를 입력해주세요.');
-              return false;
-          }
-          if (!empEmail) {
-              alert('이메일을 입력해주세요.');
               return false;
           }
 
