@@ -514,11 +514,17 @@ def show_vacations(request):
         vacationDate__year=year,
         vacationCategory__categoryName__in=vacationCategories,
     ).values(
-        'empId', 'empId__empName', 'vacationCategory__categoryName'
+        'empId', 'empId__empName', 'vacationCategory__categoryName', 'vacationType',
     ).annotate(
         empName=F('empId__empName'),
         category=F('vacationCategory__categoryName'),
-        days=Count('vacationDate'),
+        days=Sum(
+            Case(
+                When(vacationType='일차', then=1.0),
+                default=0.5,
+                output_field=FloatField()
+            ),
+        ),
     )
 
     rows = []
@@ -526,25 +532,25 @@ def show_vacations(request):
         empAdminVacation = adminVacations.filter(empId=emp.empId)
         empVacation = vacations.filter(empId=emp.empId)
 
-        a_1, b_1, c_1, d_1 = 0, 0, 0, 0
+        a_1, b_1, c_1, d_1 = 0.0, 0.0, 0.0, 0.0
         if empAdminVacation.filter(category='연차'):
-            a_1 = empAdminVacation.filter(category='연차').first()['days']
+            a_1 = empAdminVacation.filter(category='연차').aggregate(Sum('days'))['days__sum']
         if empAdminVacation.filter(category='근속연차'):
-            b_1 = empAdminVacation.filter(category='근속연차').first()['days']
+            b_1 = empAdminVacation.filter(category='근속연차').aggregate(Sum('days'))['days__sum']
         if empAdminVacation.filter(category='금차'):
-            c_1 = empAdminVacation.filter(category='금차').first()['days']
+            c_1 = empAdminVacation.filter(category='금차').aggregate(Sum('days'))['days__sum']
         if empAdminVacation.filter(category='대체휴무'):
-            d_1 = empAdminVacation.filter(category='대체휴무').first()['days']
+            d_1 = empAdminVacation.filter(category='대체휴무').aggregate(Sum('days'))['days__sum']
 
-        a_2, b_2, c_2, d_2 = 0, 0, 0, 0
+        a_2, b_2, c_2, d_2 = 0.0, 0.0, 0.0, 0.0
         if empVacation.filter(category='연차'):
-            a_2 = empVacation.filter(category='연차').first()['days']
+            a_2 = empVacation.filter(category='연차').aggregate(Sum('days'))['days__sum']
         if empVacation.filter(category='근속연차'):
-            b_2 = empVacation.filter(category='근속연차').first()['days']
+            b_2 = empVacation.filter(category='근속연차').aggregate(Sum('days'))['days__sum']
         if empVacation.filter(category='금차'):
-            c_2 = empVacation.filter(category='금차').first()['days']
-        if empVacation.filter(category='금차'):
-            d_2 = empVacation.filter(category='금차').first()['days']
+            c_2 = empVacation.filter(category='금차').aggregate(Sum('days'))['days__sum']
+        if empVacation.filter(category='대체휴무'):
+            d_2 = empVacation.filter(category='대체휴무').aggregate(Sum('days'))['days__sum']
 
         a_3 = a_1 - a_2
         b_3 = b_1 - b_2
