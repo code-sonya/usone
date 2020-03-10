@@ -850,7 +850,7 @@ def view_product(request, productId):
 
     else:
         form = ProductForm(instance=instance)
-        sizes = Size.objects.filter(productId=productId)
+        sizes = Size.objects.filter(productId=productId).order_by('size')
         context = {
             'form': form,
             'instance': instance,
@@ -885,15 +885,27 @@ def delete_size(request, sizeId):
 @csrf_exempt
 def post_size(request, productId):
     product = Product.objects.get(productId=productId)
-    size = request.POST['size']
-    sizes = Size.objects.filter(Q(productId=productId) & Q(size=size))
-    if len(sizes) > 0:
-        return HttpResponse("이미 등록된 사이즈 입니다.")
-    else:
-        Size.objects.create(
-            productId=product,
-            size=size
+    sizeList = request.POST['size']
+    sizeList = sizeList.split(',')
+
+    returnSize = []
+    for size in sizeList:
+        size = size.strip()
+        sizes = Size.objects.filter(Q(productId=productId) & Q(size=size))
+        if len(sizes) > 0:
+            returnSize.append(size)
+        else:
+            Size.objects.create(
+                productId=product,
+                size=size
+            )
+
+    if returnSize:
+        return HttpResponse(
+            ', '.join(returnSize) + ' 사이즈는 이미 등록되어있습니다. 나머지 사이즈는 등록되었습니다.<br><br>' +
+            '<a href="/daesungwork/viewproduct/' + productId + '" role="button">제품보기</a>'
         )
+    else:
         return redirect('daesungwork:viewproduct', productId)
 
 

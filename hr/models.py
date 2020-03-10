@@ -45,6 +45,7 @@ class Employee(models.Model):
     empStartDate = models.DateField(null=True, blank=True)
     empEndDate = models.DateField(null=True, blank=True)
     empStamp = models.FileField(upload_to="stamp/", default='stamp/accepted.png', null=True, blank=True)
+    profilePhoto = models.FileField(upload_to="profile/", default='profile/default.png', null=True, blank=True)
     empStatus = models.CharField(max_length=1, choices=statusChoices, default='Y', null=True, blank=True)
 
     def __str__(self):
