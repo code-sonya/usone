@@ -556,9 +556,9 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                  if (aData.contractId__contractStep == 'Firm') {
+                  if (aData.contractId__contractStep == '확정') {
                       $('td:eq(0)', nRow).css('color', '#4e73df');
-                  } else if (aData.contractId__contractStep == 'Opportunity') {
+                  } else if (aData.contractId__contractStep == '예정') {
                       $('td:eq(0)', nRow).css('color', '#1cc88a');
                   }
                   $('td:eq(10)', nRow).text(aData.revenuePrice.toLocaleString());
