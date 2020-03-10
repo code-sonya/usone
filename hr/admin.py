@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Position, Employee, Attendance, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation, Alert
+from .models import Position, Employee, Attendance, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation, Alert, Menu, Authorization
 
 
 @admin.register(Position)
@@ -70,3 +70,17 @@ class AlertAdmin(admin.ModelAdmin):
     list_display = ('alertId', 'empId', 'text', 'url', 'createdDatetime', 'clickedDatetime')
     list_filter = ('empId', )
     list_display_links = ['alertId', 'empId', 'text', 'url', 'createdDatetime', 'clickedDatetime']
+
+
+@admin.register(Menu)
+class MenuAdmin(admin.ModelAdmin):
+    list_display = ('menuId', 'menuName', 'defaultStatus',)
+    list_filter = ('menuName', 'defaultStatus')
+    list_display_links = ['menuId', 'menuName', 'defaultStatus', ]
+
+
+@admin.register(Authorization)
+class AuthorizationAdmin(admin.ModelAdmin):
+    list_display = ('authorizationId', 'empId', )
+    list_filter = ('empId', )
+    list_display_links = ['authorizationId', 'empId', ]

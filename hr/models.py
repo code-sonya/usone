@@ -137,3 +137,20 @@ class Alert(models.Model):
 
     def __str__(self):
         return str(self.alertId)
+
+
+class Menu(models.Model):
+    statusChoices = (('Y', 'Y'), ('N', 'N'))
+    menuId = models.AutoField(primary_key=True)
+    menuName = models.CharField(max_length=20, null=True, blank=True)
+    defaultStatus = models.CharField(max_length=10, choices=statusChoices, default='N')
+
+    def __str__(self):
+        return str(self.menuId)
+
+class Authorization(models.Model):
+    authorizationId = models.AutoField(primary_key=True)
+    empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.authorizationId)
