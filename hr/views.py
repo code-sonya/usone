@@ -594,6 +594,21 @@ def redo_default_stamp(request, empId):
     return redirect('hr:profile')
 
 
+def upload_profile_photo(request, empId):
+    emp = Employee.objects.get(empId=empId)
+    for f in request.FILES.getlist('profilePhoto'):
+        emp.profilePhoto = f
+        emp.save()
+    return redirect('hr:profile')
+
+
+def redo_default_photo(request, empId):
+    emp = Employee.objects.get(empId=empId)
+    emp.profilePhoto = 'profile/default.png'
+    emp.save()
+    return redirect('hr:profile')
+
+
 @login_required
 @csrf_exempt
 def show_vacations(request):

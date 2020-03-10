@@ -44,9 +44,20 @@
 
         <div class="card-body">
           <div style="text-align: center">
-            <img src="/media/icon/profile.png" width="11%">
+<!--            <img src="/media/icon/profile.png" width="11%">-->
+            <label style="cursor: pointer">
+              <img id="profilePhoto" src="/media/{{ user.employee.profilePhoto }}" width="100px">
+              <form id="photoForm" method="POST" enctype="multipart/form-data" class="d-none">
+                {% csrf_token %}
+                <input name="profilePhoto" type="file" class="d-none" onchange="file_upload('photo')">
+              </form>
+              <br><br>※ 프로필 사진을 클릭하여 변경가능.
+              <a href="/hr/redodefaultphoto/{{ user.employee.empId }}/" class="btn btn-secondary btn-icon-split btn-sm">
+                <span class="icon text-white-50"><i class="fas fa-redo"></i></span>
+                <span class="text">기본사진사용</span>
+              </a>
+            </label>
           </div>
-          <br>
 
           <div class="row">
             <div class="col-xl-2"></div>
@@ -100,7 +111,7 @@
                       <img id="empStamp" src="/media/{{ user.employee.empStamp }}" width="100px">
                       <form id="fileForm" method="POST" enctype="multipart/form-data" class="d-none">
                         {% csrf_token %}
-                        <input name="empStamp" type="file" class="d-none" onchange="file_upload()">
+                        <input name="empStamp" type="file" class="d-none" onchange="file_upload('stamp')">
                       </form>
                       <br>※ 전자 결재시 사용되는 서명 파일. 클릭하여 변경가능.
                     </label>
@@ -170,10 +181,16 @@
         empForm.submit();
     }
 
-    function file_upload() {
-        let form = $('#fileForm');
-        form.attr("action", "/hr/uploadempstamp/{{ user.employee.empId }}/");
-        form.submit();
+    function file_upload(fileType) {
+        if (fileType === 'stamp') {
+            let form = $('#fileForm');
+            form.attr("action", "/hr/uploadempstamp/{{ user.employee.empId }}/");
+            form.submit();
+        } else if (fileType === 'photo') {
+            let form = $('#photoForm');
+            form.attr("action", "/hr/uploadprofilephoto/{{ user.employee.empId }}/");
+            form.submit();
+        }
     }
   </script>
 {% endblock %}

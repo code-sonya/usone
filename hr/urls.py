@@ -3,6 +3,7 @@ from . import views
 
 app_name = 'hr'
 
+
 urlpatterns = [
     url(r'^$', views.profile, name='profile'),
     url(r'^showprofiles/$', views.show_profiles, name='showprofiles'),
@@ -28,6 +29,8 @@ urlpatterns = [
     url(r'^adminemailasjson/$', views.adminemail_asjson, name='adminemail_ajax_url'),
     url(r'^uploadempstamp/(?P<empId>.+)/$', views.upload_emp_stamp, name='uploadempstamp'),
     url(r'^redodefaultstamp/(?P<empId>.+)/$', views.redo_default_stamp, name='redodefaultstamp'),
+    url(r'^uploadprofilephoto/(?P<empId>.+)/$', views.upload_profile_photo, name='uploadprofilephoto'),
+    url(r'^redodefaultphoto/(?P<empId>.+)/$', views.redo_default_photo, name='redodefaultphoto'),
     url(r'^showvacations/$', views.show_vacations, name='showvacations'),
     url(r'^showvacationsasjson/$', views.showvacations_asjson, name='showvacationsasjson'),
     url(r'^deletevacation/$', views.delete_vacation, name='deletevacation'),
@@ -41,4 +44,3 @@ urlpatterns = [
     url(r'^detailvacationasjson/$', views.detailvacation_asjson, name='detailvacationasjson'),
     url(r'^deleteemployee/(?P<empId>.+)/$', views.delete_employee, name='deleteemployee'),
 ]
-
