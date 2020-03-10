@@ -266,7 +266,11 @@ def show_contracts(request):
             startdate = str(datetime.now())[:4] + '-01-01'
         enddate = str(datetime.now())[:4] + '-12-31'
         contractStep = ''
-        empDeptName = '전체'
+        if request.user.employee.empDeptName == '영업팀':
+            empDeptName = '영업전체'
+        else:
+            empDeptName = '전체'
+
         empName = ''
         saleCompanyName = ''
         endCompanyName = ''
@@ -615,7 +619,10 @@ def show_revenues(request):
     else:
         startdate = str(datetime.now())[:4] + '-01-01'
         enddate = str(datetime.now())[:4] + '-12-31'
-        empDeptName = '전체'
+        if request.user.employee.empDeptName == '영업팀':
+            empDeptName = '영업전체'
+        else:
+            empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         contractName = ''
@@ -821,7 +828,10 @@ def revenues_asjson(request):
     if enddate:
         revenues = revenues.filter(predictBillingDate__lte=enddate)
     if empDeptName != '전체' and empDeptName != '':
-        revenues = revenues.filter(contractId__empDeptName=empDeptName)
+        if empDeptName == '영업전체':
+            revenues = revenues.filter(Q(contractId__empDeptName='영업1팀') | Q(contractId__empDeptName='영업2팀') | Q(contractId__empDeptName='영업팀'))
+        else:
+            revenues = revenues.filter(contractId__empDeptName=empDeptName)
     if empName != '전체' and empName != '':
         revenues = revenues.filter(contractId__empName=empName)
     if saleCompanyName:
@@ -1078,7 +1088,10 @@ def show_purchases(request):
     else:
         startdate = str(datetime.now())[:4] + '-01-01'
         enddate = str(datetime.now())[:4] + '-12-31'
-        empDeptName = '전체'
+        if request.user.employee.empDeptName == '영업팀':
+            empDeptName = '영업전체'
+        else:
+            empDeptName = '전체'
         empName = ''
         saleCompanyName = ''
         contractName = ''
@@ -1205,7 +1218,10 @@ def purchases_asjson(request):
     if enddate:
         purchase = purchase.filter(predictBillingDate__lte=enddate)
     if empDeptName != '전체' and empDeptName != '':
-        purchase = purchase.filter(contractId__empDeptName=empDeptName)
+        if empDeptName == '영업전체':
+            purchase = purchase.filter(Q(contractId__empDeptName='영업1팀') | Q(contractId__empDeptName='영업2팀') | Q(contractId__empDeptName='영업팀'))
+        else:
+            purchase = purchase.filter(contractId__empDeptName=empDeptName)
     if empName != '전체' and empName != '':
         purchase = purchase.filter(contractId__empName=empName)
     if saleCompanyName:
