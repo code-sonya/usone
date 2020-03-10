@@ -680,16 +680,19 @@ def salemanager_asjson(request):
 def empdept_asjson(request):
     empDeptName = request.POST['empDeptName']
     empStatus = request.POST['empStatus']
-    if empDeptName == '전체':
-        if empStatus == 'N':
-            employees = Employee.objects.filter(Q(empDeptName__icontains='영업')).order_by('empDeptName', 'empRank')
-        else:
-            employees = Employee.objects.filter(Q(empDeptName__icontains='영업') & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+
+    if empStatus == 'Y':
+        employees = Employee.objects.filter(Q(empStatus='Y')).order_by('empDeptName','empRank')
     else:
-        if empStatus == 'N':
-            employees = Employee.objects.filter(Q(empDeptName=empDeptName)).order_by('empDeptName', 'empRank')
-        else:
-            employees = Employee.objects.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+        employees = Employee.objects.all().order_by('empDeptName', 'empRank')
+
+    if empDeptName == '전체':
+        employees = employees.filter(Q(empDeptName__icontains='영업')).order_by('empDeptName', 'empRank')
+    elif empDeptName == '영업전체':
+        employees = employees.filter(Q(empDeptName='영업1팀')|Q(empDeptName='영업2팀')|Q(empDeptName='영업팀')).order_by('empDeptName', 'empRank')
+    else:
+        employees = employees.filter(Q(empDeptName=empDeptName) & Q(empStatus='Y')).order_by('empDeptName', 'empRank')
+
     json = serializers.serialize('json', employees)
     return HttpResponse(json, content_type='application/json')
 
@@ -730,15 +733,10 @@ def contracts_asjson(request):
     elif user.empManager == 'Y':
         contracts = contracts.filter(empDeptName=user.empDeptName)
     else:
-        # if user.empName == '최규성':
-        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='이용주'))
-        # elif user.empName == '전세현':
-        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표') | Q(empName='이용주'))
-        # elif user.empName == '전병선':
-        #     contracts = contracts.filter(Q(empId=user.empId) | Q(empName='홍형표'))
-        # else:
-        #     contracts = contracts.filter(empId=user.empId)
-        contracts = contracts.filter(Q(empId=user.empId) | Q(empId__empStatus='N'))
+        if user.empName == '채해성':
+            contracts = contracts.filter(Q(empId=user.empId) | Q(saleCompanyName__companyName__icontains='NH투자') | Q(empId__empStatus='N'))
+        else:
+            contracts = contracts.filter(Q(empId=user.empId) | Q(empId__empStatus='N'))
 
     revenues = Revenue.objects.all()
     purchases = Purchase.objects.all()
@@ -755,7 +753,10 @@ def contracts_asjson(request):
     if contractStep != '전체' and contractStep != '':
         contracts = contracts.filter(contractStep=contractStep)
     if empDeptName != '전체' and empDeptName != '':
-        contracts = contracts.filter(empDeptName=empDeptName)
+        if empDeptName == '영업전체':
+            contracts = contracts.filter(Q(empDeptName='영업1팀')|Q(empDeptName='영업2팀')|Q(empDeptName='영업팀'))
+        else:
+            contracts = contracts.filter(empDeptName=empDeptName)
     if empName != '전체' and empName != '':
         contracts = contracts.filter(empName=empName)
     if companyName:
