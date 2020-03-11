@@ -180,7 +180,7 @@
           </div>
         </form>
         <div class="input-group" style="width: 220px;">
-          <input type="month" class="form-control" name="pdfmonth" id="pdfmonth" max="9999-12">
+          <input type="month" class="form-control" name="pdfmonth" id="pdfmonth" max="9999-12" value="{{ today | date:'Y-m' }}">
           <a class="btn bg-warning text-white" onclick="btn_pdf()">
             <span>PDF</span>
           </a>

@@ -169,7 +169,14 @@
             <div class="row mb-1">
               <div class="col-6">
                 <label for="filterProduct" class="font-weight-bold text-primary">모델명</label>
-                <input type="text" class="form-control" id="filterProduct" name="filterProduct" required>
+                <select id="filterProduct" name="filterProduct">
+                  <option value="">------</option>
+                  {% for product in products %}
+                  <option value="{{ product.modelName }}">
+                    {{ product.modelName }}
+                  </option>
+                  {% endfor %}
+                </select>
               </div>
               <div class="col-6">
                 <label for="filterSize" class="font-weight-bold text-primary">사이즈</label>
@@ -399,7 +406,7 @@
               },
               "columns": [
                   {data: "postDate"},
-                  {data: "product__productName"},
+                  {data: "product__modelName"},
                   {data: "size__size"},
                   {data: "quantity"},
                   {data: "comment"},
@@ -488,13 +495,15 @@
 
           $('#addDisplay').on('click', function () {
               insertTable.row.add([
-                  '<select class="input-form" name="insertProduct" id="display1' + displayCounter + '" onchange="changeModel(this.value, \'display2' + displayCounter + '\')">',
-                  '<select class="input-form" name="insertSize" id="display2' + displayCounter + '">',
+                  '<select name="insertProduct" id="display1' + displayCounter + '" onchange="changeModel(this.value, \'display2' + displayCounter + '\')">',
+                  '<select name="insertSize" id="display2' + displayCounter + '">',
                   '<input class="input-form" name="insertQuantity" id="display3' + displayCounter + '" type="number">',
                   '<input class="input-form" name="insertComment" id="display4' + displayCounter + '">',
                   '<i class="fas fa-times-circle insertTableCount">',
               ]).draw();
               product_select('display1' + displayCounter);
+              select2_modal('display1' + displayCounter, 'insertModal');
+              select2_modal('display2' + displayCounter, 'insertModal');
               displayCounter++;
           });
 
@@ -504,6 +513,9 @@
                   .remove()
                   .draw();
           });
+
+          // modal select2
+          select2_modal('filterProduct', 'filterModal');
 
       });
 

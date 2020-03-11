@@ -765,10 +765,10 @@
 
         $('#addSale').on('click', function () {
             insertTable.row.add([
-                '<select class="single-select" name="insertProduct" id="buy1' + saleCounter + '"' +
+                '<select name="insertProduct" id="buy1' + saleCounter + '"' +
                     'onchange="changeModel(this.value, \'buy2' + saleCounter + '\', \'buy3' + saleCounter + '\', ' +
                     '\'buy4' + saleCounter + '\', \'buy5' + saleCounter + '\')"></select>',
-                '<select class="single-select" name="insertSize" id="buy2' + saleCounter + '"></select>',
+                '<select name="insertSize" id="buy2' + saleCounter + '"></select>',
                 '<input class="form-control" name="insertUnitPrice" id="buy3' + saleCounter + '" type="number"' +
                     'onchange="changePrice(\'buy3' + saleCounter + '\', \'buy4' + saleCounter + '\', \'buy5' + saleCounter + '\')">',
                 '<input class="form-control" name="insertQuantity" id="buy4' + saleCounter + '" type="number"' +
