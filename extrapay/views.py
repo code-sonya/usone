@@ -202,10 +202,10 @@ def show_fuel(request):
 
     btnStatus = 'N'
     if m == 12:
-        if datetime(y+1, 1, 7) > datetime.today():
+        if datetime(y+1, 1, 15) > datetime.today():
             btnStatus = 'Y'
     else:
-        if datetime(y, m+1, 7) > datetime.today():
+        if datetime(y, m+1, 15) > datetime.today():
             btnStatus = 'Y'
     context = {
         'empId': request.user.employee.empId,
