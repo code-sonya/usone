@@ -219,14 +219,14 @@
     <!--<hr class="sidebar-divider">-->
 
      <!-- Nav Item - Calendar -->
-    <li class="nav-item">
+    <li class="nav-item d-none" id="m01">
       <a class="nav-link" href="#" onclick="btn_dayreport('/scheduler/scheduler/')">
         <i class="fas fa-fw fa-calendar-alt text-white"></i>
         <span class="text-white">캘린더</span></a>
     </li>
 
     <!-- Nav Item - 일정관리 -->
-    <li class="nav-item">
+    <li class="nav-item d-none" id="m02">
       <a class="nav-link" href="/service/showservices/">
         <i class="fas fa-fw fa-pencil-ruler text-white"></i>
         <span class="text-white">일정관리</span></a>
@@ -256,15 +256,16 @@
       <!--</div>-->
     <!--</li>-->
 
-    <li class="nav-item">
+    <li class="nav-item d-none" id="t00">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval" aria-expanded="true" aria-controls="collapseApproval">
         <i class="far fa-fw fa-paper-plane text-white"></i>
         <span class="text-white">전자결재</span>
       </a>
       <div id="collapseApproval" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="/approval/postdocument/">문서작성</a>
-          <a class="collapse-item" href="/service/showvacations/">휴가관리</a>
+          <a class="collapse-item d-none" id="s01" href="/approval/postdocument/">문서작성</a>
+          <a class="collapse-item d-none" id="s02" href="/service/showvacations/">휴가관리</a>
+          <div class="d-none" id="s03">
           <h6 class="collapse-header">━━━ 문서함 ━━━</h6>
           <a class="collapse-item" href="/approval/showdocument/all/">전체</a>
           <a class="collapse-item" href="/approval/showdocument/ing/">진행
@@ -273,20 +274,23 @@
           </a>
           <a class="collapse-item" href="/approval/showdocument/done/">완료</a>
           <a class="collapse-item" href="/approval/showdocument/temp/">임시</a>
-          {% if user.is_staff or user.employee.empPosition.positionName == '임원' %}
+          </div>
+          <div class="d-none" id="s04">
           <h6 class="collapse-header">━━ 관리자문서함 ━━</h6>
           <a class="collapse-item" href="/approval/showdocument/admin/ing/">전체진행문서</a>
           <a class="collapse-item" href="/approval/showdocument/admin/done/">전체완료문서</a>
           <a class="collapse-item" href="/approval/showdocument/admin/reject/">전체반려문서</a>
+          </div>
+          <div class="d-none" id="s05">
           <h6 class="collapse-header">━━━ 관&nbsp;&nbsp;&nbsp;&nbsp;리 ━━━</h6>
           <a class="collapse-item" href="/approval/showdocumentform/">문서 양식 관리</a>
-          {% endif %}
+          </div>
         </div>
       </div>
     </li>
 
     <!-- Nav Item - Board -->
-    <li class="nav-item">
+    <li class="nav-item d-none" id="m03">
       <a class="nav-link" href="/noticeboard/showboards">
         <i class="fas fa-fw fa-clipboard text-white"></i>
         <span class="text-white">게시판</span>
@@ -294,69 +298,63 @@
     </li>
 
     <!-- Nav Item - Client -->
-    <li class="nav-item">
+    <li class="nav-item d-none" id="m04">
       <a class="nav-link" href="/client/">
         <i class="fas fa-fw fa-building text-white"></i>
         <span class="text-white">고객사</span>
       </a>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item d-none" id="t10">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseWorks" aria-expanded="true" aria-controls="collapseWorks">
         <i class="fas fa-fw fa-industry text-white"></i>
         <span class="text-white">업무관리</span>
       </a>
       <div id="collapseWorks" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="/daesungwork/showcentermanagers/">센터별담당자관리</a>
-          <a class="collapse-item" href="/daesungwork/showchecklist/">센터별체크리스트</a>
+          <a class="collapse-item d-none" id="s11" href="/daesungwork/showcentermanagers/">센터별담당자관리</a>
+          <a class="collapse-item d-none" id="s12" href="/daesungwork/showchecklist/">센터별체크리스트</a>
         </div>
       </div>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item d-none" id="t20">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#report" aria-expanded="true" aria-controls="report">
         <i class="fas fa-fw fa-bookmark text-white"></i>
         <span class="text-white">보고관리<span>
       </a>
       <div id="report" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-          {% if user.is_staff %}
-          <a class="collapse-item" href="/service/showreports/">주간회의록</a>
-          {% endif %}
-          <a class="collapse-item" href="/daesungwork/showdailyreports/">일일보고</a>
-          <h6 class="collapse-header">━━━ 제품 현황 ━━━</h6>
-          <a class="collapse-item" href="/daesungwork/showsalestatus/all/">판매현황</a>
-          <a class="collapse-item" href="/daesungwork/showbuystatus/">구매현황</a>
-          <a class="collapse-item" href="/daesungwork/showreproductionstatus/">재생현황</a>
-          <a class="collapse-item" href="/daesungwork/showdisplaystatus/">DP현황</a>
+          <a class="collapse-item d-none" id="s21" href="/service/showreports/">주간회의록</a>
+          <a class="collapse-item d-none" id="s22" href="/daesungwork/showdailyreports/">일일보고</a>
+          <a class="collapse-item d-none" id="s23" href="/daesungwork/showsalestatus/all/">판매현황</a>
+          <a class="collapse-item d-none" id="s24" href="/daesungwork/showbuystatus/">구매현황</a>
+          <a class="collapse-item d-none" id="s25" href="/daesungwork/showreproductionstatus/">재생현황</a>
+          <a class="collapse-item d-none" id="s26" href="/daesungwork/showdisplaystatus/">DP현황</a>
         </div>
       </div>
     </li>
 
-    <li class="nav-item">
+    <li class="nav-item d-none" id="t30">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#supply" aria-expanded="true" aria-controls="supply">
         <i class="fas fa-fw fa-box-open text-white"></i>
         <span class="text-white">물품관리<span>
       </a>
       <div id="supply" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
-          <a class="collapse-item" href="/supply/postrentals/">도서신청</a>
-          {% if user.is_staff %}
-          <a class="collapse-item" href="/supply/showrentals/">도서열람대장</a>
-          <a class="collapse-item" href="/supply/showsavings/">비품관리대장</a>
-          <a class="collapse-item" href="/daesungwork/showstocks/">재고현황</a>
-          {% endif %}
-          <a class="collapse-item" href="/daesungwork/showstockinout/">입출고관리</a>
-          <a class="collapse-item" href="/daesungwork/showproductlocation/">제품위치조회</a>
+          <a class="collapse-item d-none" id="s31" href="/supply/postrentals/">도서신청</a>
+          <a class="collapse-item d-none" id="s32" href="/supply/showrentals/">도서열람대장</a>
+          <a class="collapse-item d-none" id="s33"  href="/supply/showsavings/">비품관리대장</a>
+          <a class="collapse-item d-none" id="s34" href="/daesungwork/showstocks/">재고현황</a>
+          <a class="collapse-item d-none" id="s35" href="/daesungwork/showstockinout/">입출고관리</a>
+          <a class="collapse-item d-none" id="s36" href="/daesungwork/showproductlocation/">제품위치조회</a>
         </div>
       </div>
     </li>
 
     <!-- Divider -->
-    {% if user.is_staff or user.employee.empPosition.positionName == '임원' %}
     <hr class="sidebar-divider d-none d-md-block">
-      <li class="nav-item">
+      <li class="nav-item d-none" id="t90">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="true" aria-controls="collapseSettings">
             <i class="fas fa-fw fa-tools text-white"></i>
             <span class="text-white">설정&관리</span>
@@ -364,27 +362,22 @@
           <div id="collapseSettings" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">━━━ 제품&창고 등록 ━━━</h6>
-              <a class="collapse-item" href="/daesungwork/showproducts/">제품관리</a>
-              <a class="collapse-item" href="/daesungwork/showwarehouses/">창고관리</a>
-              <a class="collapse-item" href="/daesungwork/showcenters/">센터관리</a>
+              <a class="collapse-item d-none" id="s91" href="/daesungwork/showproducts/">제품관리</a>
+              <a class="collapse-item d-none" id="s92" href="/daesungwork/showwarehouses/">창고관리</a>
+              <a class="collapse-item d-none" id="s93" href="/daesungwork/showcenters/">센터관리</a>
               <h6 class="collapse-header">━━━ 정보 등록 ━━━</h6>
-              <a class="collapse-item" href="/hr/showdepartments/">부서관리</a>
-              <a class="collapse-item" href="/hr/showprofiles/">직원관리</a>
-              <a class="collapse-item" href="/hr/showvacations/">휴가관리</a>
-              <a class="collapse-item" href="/scheduler/showeventday/">휴일&사내일정관리</a>
-              <a class="collapse-item" href="/service/showservicetype/">일정구분관리</a>
-              <!--<a class="collapse-item" href="/hr/emailregistration/">관리자이메일등록</a>-->
-              <!--<h6 class="collapse-header">━━━ 영업 관리 ━━━</h6>-->
-              <!--<a class="collapse-item" href="/sales/showgoals/">영업목표관리</a>-->
-              <!--<a class="collapse-item" href="/sales/transfercontract/">계약이관</a>-->
+              <a class="collapse-item d-none" id="s94" href="/hr/showdepartments/">부서관리</a>
+              <a class="collapse-item d-none" id="s95" href="/hr/showprofiles/">직원관리</a>
+              <a class="collapse-item d-none" id="s96" href="/hr/showauthorizations/">권한관리</a>
+              <a class="collapse-item d-none" id="s97" href="/hr/showvacations/">휴가관리</a>
+              <a class="collapse-item d-none" id="s98" href="/scheduler/showeventday/">휴일&사내일정관리</a>
+              <a class="collapse-item d-none" id="s99" href="/service/showservicetype/">일정구분관리</a>
               <h6 class="collapse-header">━━━ 이력 관리 ━━━</h6>
-              <!--<a class="collapse-item" href="/logs/showdownloads/">문서다운로드이력</a>-->
-              <!--<a class="collapse-item" href="/logs/showorders/">매입발주서전송이력</a>-->
-              <a class="collapse-item" href="/logs/showapprovals/">전자결재공유이력</a>
+              <a class="collapse-item d-none" id="s910" href="/logs/showapprovals/">전자결재공유이력</a>
             </div>
           </div>
         </li>
-    {% endif %}
+
 
     <!-- Sidebar Toggler (Sidebar) -->
     <div class="text-center d-none d-md-inline">
@@ -656,6 +649,22 @@
         });
     }
 
+    function authorizations() {
+       $.ajax({
+          url: "{% url 'hr:authorizationasjson' %}",
+          method: 'POST',
+          cache: false,
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          success: function (returnData) {
+              if(returnData.length > 0){
+                  for(var i=0;i<returnData.length;i++){
+                     $('#'+returnData[i].menuId__codeName).removeClass('d-none');
+                  }
+              }
+          }
+        });
+    }
+
     function my_incentive() {
         const dateToday = new Date();
         const yyyy = dateToday.getFullYear();
@@ -726,6 +735,7 @@
     $(document).ready(function () {
         changeToggled(1200);
         counting();
+        authorizations();
     })
 
 </script>

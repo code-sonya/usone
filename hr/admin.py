@@ -74,13 +74,13 @@ class AlertAdmin(admin.ModelAdmin):
 
 @admin.register(Menu)
 class MenuAdmin(admin.ModelAdmin):
-    list_display = ('menuId', 'menuName', 'defaultStatus',)
-    list_filter = ('menuName', 'defaultStatus')
-    list_display_links = ['menuId', 'menuName', 'defaultStatus', ]
+    list_display = ('menuId', 'codeName', 'mainCategory', 'subCategory', 'defaultStatus', 'comment')
+    list_filter = ('mainCategory', 'subCategory', 'defaultStatus')
+    list_display_links = ['menuId', 'mainCategory', 'subCategory', 'defaultStatus', ]
 
 
 @admin.register(Authorization)
 class AuthorizationAdmin(admin.ModelAdmin):
-    list_display = ('authorizationId', 'empId', )
-    list_filter = ('empId', )
-    list_display_links = ['authorizationId', 'empId', ]
+    list_display = ('authorizationId', 'empId', 'menuId')
+    list_filter = ('empId', 'menuId', )
+    list_display_links = ['authorizationId', 'empId', 'menuId']
