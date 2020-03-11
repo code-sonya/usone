@@ -43,4 +43,7 @@ urlpatterns = [
     url(r'^cancelvacation/$', views.cancel_vacation, name='cancelvacation'),
     url(r'^detailvacationasjson/$', views.detailvacation_asjson, name='detailvacationasjson'),
     url(r'^deleteemployee/(?P<empId>.+)/$', views.delete_employee, name='deleteemployee'),
+    url(r'^authorizationasjson/$', views.authorization_asjson, name='authorizationasjson'),
+    url(r'^showauthorizations/$', views.show_authorizations, name='showauthorizations'),
+    url(r'^checkauthorizationasjson/$', views.checkauthorization_asjson, name='checkauthorizationasjson'),
 ]

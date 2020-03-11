@@ -1,0 +1,135 @@
+{% extends "dashboard/layout.html" %}
+
+
+{% block title %}
+ 권한관리
+{% endblock %}
+
+
+{% block css %}
+
+  <style type="text/css">
+    .pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border: 1px solid lightgray;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 10px 4px 10px 4px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 15px;
+      border: 1px solid lightgray;
+    }
+
+  </style>
+
+{% endblock %}
+
+
+{% block content %}
+
+  <div>
+    <div class="card shadow mb-4">
+      <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 h3 text-gray-800">권한관리</h6>
+      </div>
+      <div class="card-body">
+        <div style="font-size:20px" class="text-primary ml-3 mr-3">기본 권한</div>
+        <div class="input-group">
+          <select id="default-auth" class="form-control m-3">
+            {% for menu in menus %}
+            <option id="{{ menu.menuId }}">
+              {{ menu.subCategory }}
+            </option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary m-2">설정</button>
+        </div>
+        <div class="table-responsive">
+          <table id="showauthorizations" class="hover row-border pc-table m-3" style="width: 100%">
+            <thead>
+            <tr>
+              <td style="width: 50px;" class="bg-light">No</td>
+              <td style="width: 120px;" class="bg-light">직원명</td>
+              {% for menu in menus %}
+                {% if menu.defaultStatus == "Y" %}
+                <td style="width: 120px" class="bg-primary text-white">
+                  {{ menu.subCategory }}
+                </td>
+                {% else %}
+                <td style="width: 120px" class="bg-light">
+                  {{ menu.subCategory }}
+                </td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+            </thead>
+            {% for authorization in authorizations %}
+            <tr id="{{ authorization.empId }}">
+              {% for key, value in authorization.items %}
+              <td name="{{ value }}">
+                {% if value == 'Y' %}
+                <input type="checkbox" checked class="checkBtn" name="{{ key }}">
+                {% elif value == 'N' %}
+                <input type="checkbox" class="checkBtn" name="{{ key }}">
+                {% else %}
+                {{ value }}
+                {% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      $(".checkBtn").click(function(){
+			var checkBtn = $(this);
+			var tr = checkBtn.parent().parent();
+			var empId = tr.attr('id');
+			var menuId = checkBtn.attr('name');
+            var btnchecked = checkBtn.is(":checked");
+
+            $.ajax({
+                url: "{% url 'hr:checkauthorizationasjson' %}",
+                method: 'POST',
+                cache: false,
+                data: {"empId": empId,
+                  "menuId": menuId,
+                  "btnchecked": btnchecked,
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                success: function (returnData) {
+                    console.log(returnData)
+                }
+            });
+
+
+		});
+
+      $(document).ready(function () {
+
+
+          // $("#showauthorizations").on("click", 'tr', function () {
+          //     const data = showprofiles.row(this).data();
+          //     console.log(data);
+          //     location.href = '/hr/viewprofile/' + data.empId + '/'
+          // });
+
+      });
+
+  </script>
+
+{% endblock %}

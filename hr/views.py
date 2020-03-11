@@ -18,7 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from extrapay.models import Car
 from .forms import EmployeeForm, DepartmentForm, UserForm
 from .functions import save_punctuality, check_absence, year_absence, adminemail_test, siteMap
-from .models import Attendance, Employee, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation
+from .models import Attendance, Employee, Punctuality, Department, AdminEmail, AdminVacation, ReturnVacation, Authorization, Menu
 from service.models import Vacation
 from approval.models import Document
 from extrapay.models import ExtraPay
@@ -879,3 +879,92 @@ def detailvacation_asjson(request):
 def delete_employee(request, empId):
     Employee.objects.get(empId=empId).delete()
     return redirect('hr:showprofiles')
+
+
+@login_required
+@csrf_exempt
+def authorization_asjson(request):
+    authorization = Authorization.objects.filter(Q(empId=request.user.employee.empId)).values('menuId__codeName')
+
+    structure = json.dumps(list(authorization), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def show_authorizations(request):
+    menus = Menu.objects.all().exclude(codeName__contains='t').order_by('-defaultStatus', 'menuId')
+    employees = Employee.objects.filter(empStatus='Y')
+    authorizations = []
+    for employee in employees:
+        authorizationList = {}
+        authorizationList["empId"] = employee.empId
+        authorizationList[employee.empName] = employee.empName
+        auths = Authorization.objects.filter(Q(empId=employee.empId))
+        for menu in menus:
+            auth = auths.filter(menuId=menu.menuId)
+            if auth:
+                authorizationList[menu.menuId] = 'Y'
+            else:
+                authorizationList[menu.menuId] = 'N'
+        authorizations.append(authorizationList)
+
+    context = {
+        "menus": menus,
+        "authorizations": authorizations,
+    }
+    return render(request, 'hr/showauthorizations.html', context)
+
+
+def checkauthorization_asjson(request):
+    empId = request.POST['empId']
+    menuId = request.POST['menuId']
+    btnchecked = request.POST['btnchecked']
+    menu = Menu.objects.get(menuId=menuId)
+    codeName = menu.codeName
+    if btnchecked == 'false':
+        if Authorization.objects.filter(Q(empId=empId) & Q(menuId=menuId)):
+            # 해당 소분류 삭제
+            Authorization.objects.get(Q(empId=empId) & Q(menuId=menuId)).delete()
+            # 대분류 체크 후 삭제
+            if codeName[0] == 's':
+                try:
+                    if Authorization.objects.filter(menuId__codeName__icontains=codeName[:2]):
+                        result = 's-delete t-exits'
+                    else:
+                        Authorization.objects.get(menuId__codeName='t{}0'.format(codeName[1])).delete()
+                        result = 's-delete t-delete'
+                except Exception as e:
+                    print(e)
+                    result = 'except'
+            else:
+                result = 's-delete not-s'
+        else:
+            result = 'nothing'
+    else:
+        if Authorization.objects.filter(Q(empId=empId) & Q(menuId=menuId)):
+            result = 'exits'
+        else:
+            # 대분류 체크 후 추가
+            if codeName[0] == 's':
+                try:
+                    if Authorization.objects.filter(menuId__codeName='t{}0'.format(codeName[1])):
+                        result = 's-create t-exits'
+                    else:
+                        Authorization.objects.create(
+                            empId=Employee.objects.get(empId=empId),
+                            menuId=Menu.objects.get(codeName='t{}0'.format(codeName[1]))
+                        )
+                        result = 's-create t-create'
+                except Exception as e:
+                    print(e)
+                    result = 'except'
+            else:
+                result = 's-create not-s'
+
+            Authorization.objects.create(
+                empId=Employee.objects.get(empId=empId),
+                menuId=menu
+            )
+
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')

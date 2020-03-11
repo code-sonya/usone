@@ -142,15 +142,19 @@ class Alert(models.Model):
 class Menu(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'))
     menuId = models.AutoField(primary_key=True)
-    menuName = models.CharField(max_length=20, null=True, blank=True)
+    codeName = models.CharField(max_length=20, null=True, blank=True)
+    mainCategory = models.CharField(max_length=20, null=True, blank=True)
+    subCategory = models.CharField(max_length=20, null=True, blank=True)
+    comment = models.CharField(max_length=50, null=True, blank=True)
     defaultStatus = models.CharField(max_length=10, choices=statusChoices, default='N')
 
     def __str__(self):
-        return str(self.menuId)
+        return str(self.codeName)
 
 class Authorization(models.Model):
     authorizationId = models.AutoField(primary_key=True)
     empId = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    menuId = models.ForeignKey(Menu, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return str(self.authorizationId)
