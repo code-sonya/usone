@@ -110,7 +110,7 @@ def insert_display(request):
 @login_required
 def show_reproductionstatus(request):
     template = loader.get_template('daesungwork/showreproductionstatus.html')
-    form = DisplayForm()
+    form = ReproductionForm()
 
     if request.method == 'POST':
         startdate = request.POST['startdate']
@@ -162,7 +162,7 @@ def reproduction_asjson(request):
         reproductions = reproductions.filter(size__size__icontains=request.POST['filterSize'])
 
     reproductions = reproductions.values(
-        'reproductionId', 'postDate', 'product__productName', 'size__size', 'quantity', 'comment'
+        'reproductionId', 'postDate', 'product__modelName', 'size__size', 'quantity', 'comment'
     )
     structure = json.dumps(list(reproductions), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

@@ -198,15 +198,26 @@ class ReproductionForm(forms.ModelForm):
         fields = ('postDate', 'product', 'size', 'quantity', 'comment')
 
         widgets = {
-            'postDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'postDate'}),
-            'product': forms.Select(attrs={'class': 'form-control', 'id': 'product', 'onchange': 'changeModel(this.value, "size")'}),
-            'size': forms.Select(attrs={'class': 'form-control', 'id': 'size'}),
-            'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity'}),
-            'comment': forms.TextInput(attrs={'class': 'form-control', 'id': 'comment'})
+            'postDate': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'postDate'
+            }),
+            'product': forms.Select(attrs={
+                'class': 'single-select', 'id': 'product', 'onchange': 'changeModel(this.value, "size")'
+            }),
+            'size': forms.Select(attrs={
+                'class': 'single-select', 'id': 'size'
+            }),
+            'quantity': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'quantity'
+            }),
+            'comment': forms.TextInput(attrs={
+                'class': 'form-control', 'id': 'comment'
+            })
         }
 
     def __init__(self, *args, **kwargs):
         super(ReproductionForm, self).__init__(*args, **kwargs)
+        self.fields["postDate"].initial = str(datetime.today())[:10]
 
 
 class StockManagementForm(forms.ModelForm):
