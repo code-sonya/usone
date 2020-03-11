@@ -25,6 +25,7 @@ import json
 @login_required
 def show_displaystatus(request):
     template = loader.get_template('daesungwork/showdisplaystatus.html')
+    products = Product.objects.filter(productStatus='Y')
     form = DisplayForm()
 
     if request.method == 'POST':
@@ -40,6 +41,7 @@ def show_displaystatus(request):
 
     context = {
         'form': form,
+        'products': products,
         'startdate': startdate,
         'enddate': enddate,
         'filterProduct': filterProduct,
@@ -72,12 +74,12 @@ def display_asjson(request):
     if request.POST['enddate']:
         displays = displays.filter(postDate__lte=request.POST['enddate'])
     if request.POST['filterProduct']:
-        displays = displays.filter(product__productName__icontains=request.POST['filterProduct'])
+        displays = displays.filter(product__modelName__icontains=request.POST['filterProduct'])
     if request.POST['filterSize']:
         displays = displays.filter(size__size__icontains=request.POST['filterSize'])
 
     displays = displays.values(
-        'displayId', 'postDate', 'product__productName', 'size__size', 'quantity', 'comment'
+        'displayId', 'postDate', 'product__modelName', 'size__size', 'quantity', 'comment'
     )
     structure = json.dumps(list(displays), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -110,6 +112,7 @@ def insert_display(request):
 @login_required
 def show_reproductionstatus(request):
     template = loader.get_template('daesungwork/showreproductionstatus.html')
+    products = Product.objects.filter(productStatus='Y')
     form = ReproductionForm()
 
     if request.method == 'POST':
@@ -125,6 +128,7 @@ def show_reproductionstatus(request):
 
     context = {
         'form': form,
+        'products': products,
         'startdate': startdate,
         'enddate': enddate,
         'filterProduct': filterProduct,
@@ -157,7 +161,7 @@ def reproduction_asjson(request):
     if request.POST['enddate']:
         reproductions = reproductions.filter(postDate__lte=request.POST['enddate'])
     if request.POST['filterProduct']:
-        reproductions = reproductions.filter(product__productName__icontains=request.POST['filterProduct'])
+        reproductions = reproductions.filter(product__modelName__icontains=request.POST['filterProduct'])
     if request.POST['filterSize']:
         reproductions = reproductions.filter(size__size__icontains=request.POST['filterSize'])
 

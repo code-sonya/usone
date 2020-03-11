@@ -124,7 +124,7 @@ class ProductForm(forms.ModelForm):
             'modelName': forms.TextInput(attrs={'class': 'form-control', 'type': 'text', 'id': 'modelName'}),
             'productName': forms.TextInput(attrs={'class': 'form-control', 'type': 'text', 'id': 'productName'}),
             'unitPrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'unitPrice'}),
-            'position': forms.Select(attrs={'class': 'form-control', 'id': 'position'}),
+            'position': forms.Select(attrs={'class': 'single-select', 'id': 'position'}),
             'productPicture': forms.FileInput(attrs={
                 'class': 'form-control', 'id': 'productPicture',
                 'onchange': "javascript:document.getElementById('productPicture').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"
@@ -180,15 +180,26 @@ class DisplayForm(forms.ModelForm):
         fields = ('postDate', 'product', 'size', 'quantity', 'comment')
 
         widgets = {
-            'postDate': forms.TextInput(attrs={'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'postDate'}),
-            'product': forms.Select(attrs={'class': 'form-control', 'id': 'product', 'onchange': 'changeModel(this.value, "size")'}),
-            'size': forms.Select(attrs={'class': 'form-control', 'id': 'size'}),
-            'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity'}),
-            'comment': forms.TextInput(attrs={'class': 'form-control', 'id': 'comment'})
+            'postDate': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'postDate',
+            }),
+            'product': forms.Select(attrs={
+                'class': 'single-select', 'id': 'product', 'onchange': 'changeModel(this.value, "size")',
+            }),
+            'size': forms.Select(attrs={
+                'class': 'single-select', 'id': 'size',
+            }),
+            'quantity': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'quantity',
+            }),
+            'comment': forms.TextInput(attrs={
+                'class': 'form-control', 'id': 'comment',
+            })
         }
 
     def __init__(self, *args, **kwargs):
         super(DisplayForm, self).__init__(*args, **kwargs)
+        self.fields["postDate"].initial = str(datetime.today())[:10]
 
 
 class ReproductionForm(forms.ModelForm):
@@ -227,8 +238,12 @@ class StockManagementForm(forms.ModelForm):
         fields = ('productName', 'sizeName', 'quantity')
 
         widgets = {
-            'productName': forms.Select(attrs={'class': 'form-control', 'id': 'productName', 'onchange': 'changeModel(this.value, "sizeName")'}),
-            'sizeName': forms.Select(attrs={'class': 'form-control', 'id': 'sizeName'}),
+            'productName': forms.Select(attrs={
+                'class': 'single-select', 'id': 'productName', 'onchange': 'changeModel(this.value, "sizeName")'
+            }),
+            'sizeName': forms.Select(attrs={
+                'class': 'single-select', 'id': 'sizeName'
+            }),
             'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity'}),
         }
 
