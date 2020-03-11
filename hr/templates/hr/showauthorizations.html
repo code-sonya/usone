@@ -9,6 +9,7 @@
 {% block css %}
 
   <style type="text/css">
+
     .pc-table {
       color: #333333;
       table-layout: fixed;
@@ -39,17 +40,23 @@
       </div>
       <div class="card-body">
         <div style="font-size:20px" class="text-primary ml-3 mr-3">기본 권한</div>
-        <div class="input-group">
-          <select id="default-auth" class="form-control m-3">
-            {% for menu in menus %}
-            <option id="{{ menu.menuId }}">
-              {{ menu.subCategory }}
-            </option>
-            {% endfor %}
-          </select>
-          <button class="btn btn-primary m-2">설정</button>
-        </div>
-        <div class="table-responsive">
+        <form id="defaultForm" method="POST">
+          <div class="row m-1">
+            <div class="col-xl-11">
+              <select id="defaultAuth" name="defaultAuth" class="multi-select m-3" multiple="multiple">
+                {% for menu in menus %}
+                <option value="{{ menu.menuId }}" {% if menu.defaultStatus == 'Y' %} selected {% endif %}>
+                  {{ menu.subCategory }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-xl-1 text-center">
+              <button class="btn btn-primary" onclick="btn_default()">설정</button>
+            </div>
+          </div>
+        </form>
+        <div class="table-responsive" id="table_container">
           <table id="showauthorizations" class="hover row-border pc-table m-3" style="width: 100%">
             <thead>
             <tr>
@@ -117,16 +124,15 @@
             });
 
 
-		});
+      });
+
+      function btn_default(){
+          const defaultForm = document.getElementById('defaultForm');
+          defaultForm.submit();
+      }
+
 
       $(document).ready(function () {
-
-
-          // $("#showauthorizations").on("click", 'tr', function () {
-          //     const data = showprofiles.row(this).data();
-          //     console.log(data);
-          //     location.href = '/hr/viewprofile/' + data.empId + '/'
-          // });
 
       });
 

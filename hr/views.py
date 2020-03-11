@@ -890,8 +890,18 @@ def authorization_asjson(request):
     return HttpResponse(structure, content_type='application/json')
 
 
+@csrf_exempt
 @login_required
 def show_authorizations(request):
+    employees = Employee.objects.filter(empStatus='Y')
+    if request.method == 'POST':
+        defaultAuth = request.POST.getlist('defaultAuth')
+        if len(defaultAuth) > 0:
+            # 기존 기본값에서 추가되는 기본값들은 모든 직원에게 권한 추가해주기 set 이용
+            menus = Menu.objects.all()
+            menus.update(defaultStatus='N')
+            menus.filter(menuId__in=defaultAuth).update(defaultStatus='Y')
+
     menus = Menu.objects.all().exclude(codeName__contains='t').order_by('-defaultStatus', 'menuId')
     employees = Employee.objects.filter(empStatus='Y')
     authorizations = []
