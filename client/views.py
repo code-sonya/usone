@@ -199,6 +199,7 @@ def post_customer(request, companyName):
 
 @login_required
 def delete_client(request, companyName):
-    company = Company.objects.filter(companyName=companyName).first()
-    company.delete()
+    company = Company.objects.get(companyName=companyName)
+    company.companyStatus = 'N'
+    company.save()
     return redirect('client:show_clientlist')

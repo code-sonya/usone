@@ -27,13 +27,29 @@
   <link href="{% static 'hr/vendor/jqueryui/jquery-ui.min.css' %}" rel="stylesheet">
   <link href="{% static 'hr/vendor/magicsearch/jquery.magicsearch.min.css' %}" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
   <style>
-  p {
-    margin-top: .5rem;
-    margin-bottom: .5rem;
-  }
+    p {
+      margin-top: .5rem;
+      margin-bottom: .5rem;
+    }
+
+    /*select2 관련 css*/
+    .select2-container--form-control-single {
+      display: block;
+      padding: .375rem .75rem;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      color: #6e707e;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid #d1d3e2;
+      border-radius: .35rem;
+      transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+    }
+
   </style>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
   {% block css %}{% endblock %}
 
 </head>
@@ -417,7 +433,7 @@
           <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <span class="mr-2 d-none d-lg-inline text-gray-600 small">환영합니다. <B>{{ user.employee.empName }}</B> 님 </span>
-              <img src="/media/icon/profile.png" class="img-profile rounded-circle">
+              <img src="/media/{{ user.employee.profilePhoto }}" class="img-profile rounded-circle">
             </a>
             <!-- Dropdown - User Information -->
             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -719,6 +735,15 @@
         }
     }
 
+    function select2_modal(selectId, modalId) {
+        $('#' + selectId).select2({
+            theme: 'form-control-single',
+            width: '100%',
+            dropdownAutoWidth : true,
+            dropdownParent: $('#' + modalId),
+        });
+    }
+
     $(window).resize(function() {
         changeToggled(1200);
     });
@@ -726,6 +751,16 @@
     $(document).ready(function () {
         changeToggled(1200);
         counting();
+        $('.single-select').select2({
+            theme: 'form-control-single',
+            width: '100%',
+            dropdownAutoWidth : true,
+        });
+        $('.multi-select').select2({
+            // theme: 'form-control-multi',
+            width: '100%',
+            dropdownAutoWidth : true,
+        });
     })
 
 </script>

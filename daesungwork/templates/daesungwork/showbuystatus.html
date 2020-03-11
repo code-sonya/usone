@@ -311,7 +311,7 @@
           <div class="row mb-1">
             <div class="col-6">
               <label for="filterClient" class="font-weight-bold text-primary">거래처</label>
-              <select class="form-control" id="filterClient" name="filterClient">
+              <select id="filterClient" name="filterClient">
                 <option value="">------</option>
                 {% for client in clients %}
                 <option value="{{ client.companyName }}">
@@ -357,7 +357,7 @@
             </div>
             <div class="col-3">
               <label for="insertClient" class="font-weight-bold text-primary">거래처</label>
-              <select class="form-control" id="insertClient" name="insertClient">
+              <select id="insertClient" name="insertClient">
                 <option value="">------</option>
                 {% for client in clients %}
                 <option value="{{ client.companyName }}">
@@ -412,11 +412,12 @@
     function changePrice(quantityId, salePriceId, vatPriceId, totalPriceId) {
         const quantity = $('#' + quantityId).val();
         const salePrice = $('#' + salePriceId).val();
+        const vatPrice = $('#' + vatPriceId).val();
 
         if (salePrice !== '' && quantity !== '') {
-            $('#' + vatPriceId).val((salePrice * 0.1).toFixed(0));
-            $('#' + totalPriceId).val((Number(salePrice) + Number((salePrice * 0.1).toFixed(0))) * Number(quantity));
-            console.log((Number(salePrice) + Number((salePrice * 0.1).toFixed(0))) * Number(quantity));
+            $('#' + totalPriceId).val(
+                (Number(salePrice) + Number(vatPrice)) * Number(quantity)
+            );
         }
     }
 
@@ -565,7 +566,6 @@
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(0)', nRow).text(replaceAll(aData.buyDate, "-", "-"));
-                $('td:eq(1)', nRow).css('color', '#4e73df');
                 $('td:eq(3)', nRow).text(aData.quantity.toLocaleString());
                 $('td:eq(4)', nRow).text(aData.salePrice.toLocaleString());
                 $('td:eq(5)', nRow).text(aData.vatPrice.toLocaleString());
@@ -598,13 +598,6 @@
                 });
                 $(api.column(6).footer()).html(totalResult.toLocaleString());
             },
-        });
-
-        const buysTable = $('#showbuys').DataTable();
-
-        $("#showbuys tbody").on("click", 'tr td:eq(1)', function () {
-            const data = buysTable.data();
-            window.open('about:blank').location.href = '/client/viewclient/' + data[0].client__companyName + '/'
         });
 
         let insertTable = $('#insertTable').DataTable({
@@ -686,6 +679,10 @@
         });
 
         changePrice('quantity', 'salePrice', 'vatPrice', 'totalPrice');
+
+        // modal select2
+        select2_modal('insertClient', 'insertForm');
+        select2_modal('filterClient', 'filterForm');
 
     });
 

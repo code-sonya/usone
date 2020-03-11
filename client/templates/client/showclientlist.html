@@ -115,12 +115,12 @@
                   "processing": true,
                   "type": 'POST',
                   "data": {
-                      "companyName": {% if companyName %}"{{ companyName }}",{% else %}"",{% endif %}
-                      "empName": {% if empName %}"{{ empName }}",{% else %}"",{% endif %}
-                      "chkbox": {% if chkbox %}"{{ chkbox }}",{% else %}"",{% endif %}
+                      "companyName": {% if companyName %}"{{ companyName }}"{% else %}""{% endif %},
+                      "empName": {% if empName %}"{{ empName }}"{% else %}""{% endif %},
+                      "chkbox": {% if chkbox %}"{{ chkbox }}"{% else %}""{% endif %},
                   },
                   "url": "{% url 'client:filter_ajax_url' %}",
-                  "dataSrc": ""
+                  "dataSrc": "",
               },
               columns: [
                   {data: "companyNameKo"},
@@ -136,7 +136,7 @@
                   {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "20%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "30%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
               ],
               "searching": true,
               "paging": true,

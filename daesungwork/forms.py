@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django import forms
 from django.db.models import Q
 
@@ -33,17 +35,17 @@ class SaleForm(forms.ModelForm):
                 'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'saleDate'
             }),
             'affiliate': forms.Select(attrs={
-                'class': 'form-control', 'id': 'affiliate'
+                'class': 'single-select', 'id': 'affiliate',
             }),
             'client': forms.Select(attrs={
-                'class': 'form-control', 'id': "client"
+                'class': 'single-select', 'id': "client"
             }),
             'product': forms.Select(attrs={
-                'class': 'form-control', 'id': 'product',
+                'class': 'single-select', 'id': 'product',
                 'onchange': 'changeModel(this.value, "size", "unitPrice", "quantity", "salePrice")'
             }),
             'size': forms.Select(attrs={
-                'class': 'form-control', 'id': 'size'
+                'class': 'single-select', 'id': 'size'
             }),
             'unitPrice': forms.TextInput(attrs={
                 'class': 'form-control', 'type': 'number', 'id': 'unitPrice',
@@ -60,6 +62,7 @@ class SaleForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SaleForm, self).__init__(*args, **kwargs)
+        self.fields["saleDate"].initial = str(datetime.today())[:10]
         self.fields["client"].queryset = Company.objects.filter(Q(companyStatus='Y'))
         self.fields["product"].queryset = Product.objects.filter(Q(productStatus='Y'))
         # self.fields["size"].queryset = Size.objects.filter(Q(productId=self.fields["product"]["productId"]))
@@ -79,7 +82,7 @@ class BuyForm(forms.ModelForm):
                 'class': 'form-control', 'type': 'date', 'max': '9999-12-31', 'id': 'buyDate',
             }),
             'client': forms.Select(attrs={
-                'class': 'form-control', 'id': "client",
+                'class': 'single-select', 'id': "client",
             }),
             'product': forms.TextInput(attrs={
                 'class': 'form-control', 'id': 'product',
@@ -93,7 +96,8 @@ class BuyForm(forms.ModelForm):
                 'onchange': "changePrice('quantity', 'salePrice', 'vatPrice', 'totalPrice')",
             }),
             'vatPrice': forms.TextInput(attrs={
-                'class': 'form-control', 'type': 'number', 'id': 'vatPrice', 'readonly': 'readonly',
+                'class': 'form-control', 'type': 'number', 'id': 'vatPrice',
+                'onchange': "changePrice('quantity', 'salePrice', 'vatPrice', 'totalPrice')",
             }),
             'totalPrice': forms.TextInput(attrs={
                 'class': 'form-control', 'type': 'number', 'id': 'totalPrice', 'readonly': 'readonly',
@@ -105,6 +109,7 @@ class BuyForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(BuyForm, self).__init__(*args, **kwargs)
+        self.fields["buyDate"].initial = str(datetime.today())[:10]
         self.fields["client"].queryset = Company.objects.filter(Q(companyStatus='Y'))
 
 

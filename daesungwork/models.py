@@ -133,7 +133,7 @@ class Affiliate(models.Model):
 class Sale(models.Model):
     saleId = models.AutoField(primary_key=True)
     saleDate = models.DateField()
-    affiliate = models.ForeignKey(Affiliate, on_delete=models.PROTECT, null=True)
+    affiliate = models.ForeignKey(Affiliate, on_delete=models.PROTECT, null=True, blank=True)
     client = models.ForeignKey(Company, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
     size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True)
@@ -155,8 +155,8 @@ class Buy(models.Model):
     # size = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.IntegerField(default=0)
     salePrice = models.IntegerField(default=0)
-    vatPrice = models.IntegerField()
-    totalPrice = models.IntegerField()
+    vatPrice = models.IntegerField(default=0)
+    totalPrice = models.IntegerField(default=0)
     comment = models.CharField(max_length=200, null=True, blank=True)
     createdDate = models.DateTimeField(default=timezone.now)
 

@@ -992,7 +992,7 @@ def model_asjson(request):
     productId = request.POST['modelName']
     models = Product.objects.filter(productId=productId)\
         .values('productId', 'modelName', 'productName', 'unitPrice').order_by('productId')
-    sizes = Size.objects.filter(productId=productId).values()
+    sizes = Size.objects.filter(productId=productId).order_by('size').values()
 
     jsonList = []
     jsonList.append(list(models))
