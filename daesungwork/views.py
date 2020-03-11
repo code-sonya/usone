@@ -553,10 +553,14 @@ def show_checklist(request):
                     employees = Employee.objects.filter(empId=request.user.employee.empId)
                     centermanager = centermanager.filter(Q(centerManagerId__endDate__gte=thisMonday) & Q(centerManagerId__startDate__lte=thisSunday))
                     centers = centers.filter(centerId__in=centermanager.values_list('manageArea__centerId'))
-                # 센터 정보
-                centerName = centers.first().centerName
-                confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
-                confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
+
+                if centers:
+                    # 센터 정보
+                    centerName = centers.first().centerName
+                    confirmCheckList = confirmCheckList.filter(centerId__centerName=centerName)
+                    confirmCheckList = confirmCheckList.filter(Q(confirmDate__gte=thisMonday) & Q(confirmDate__lte=thisSunday)).order_by('checkListId')
+                else:
+                    return HttpResponse('배정받은 센터가 없어 접근이 불가능합니다. : (')
 
             cheklistDict = {}
             for check in checklist:
