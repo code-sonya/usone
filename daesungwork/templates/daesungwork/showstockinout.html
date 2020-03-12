@@ -143,6 +143,7 @@
             </div>
           </div>
           <h5 class="m-3">▼ <span class="text-primary font-weight-bold">입출고 목록</span></h5>
+          {% if authorizations %}
           <form method="POST" id="postForm">
             {% csrf_token %}
             <div class="form-group row m-2">
@@ -156,11 +157,18 @@
                 <label for="quantity" class="font-weight-bold text-primary"> 수량 </label> {{ form.quantity }}
               </div>
               <div class="col-xl-1 text-center">
-                <span class="btn bg-danger m-1 text-white center" onclick="btn_post('입고')">입고</span>
-                <span class="btn bg-primary m-1  text-white center" onclick="btn_post('출고')">출고</span>
+                {% for auth in authorizations %}
+                  {% if auth.menuId.codeName == 's35-1' %}
+                    <span class="btn bg-danger m-1 text-white center" onclick="btn_post('입고')">입고</span>
+                  {% endif %}
+                  {% if auth.menuId.codeName == 's35-2' %}
+                    <span class="btn bg-primary m-1  text-white center" onclick="btn_post('출고')">출고</span>
+                  {% endif %}
+                {% endfor %}
               </div>
             </div>
           </form>
+          {% endif %}
           <div class="p-3">
             <table id="showreproduction" class="display" style="width:100%">
               <thead>

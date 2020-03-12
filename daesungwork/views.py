@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
-from hr.models import Employee
+from hr.models import Employee, Authorization
 from client.models import Company
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, \
     WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction, Type, Buy, StockCheck, ProductCheck, StockManagement
@@ -1511,21 +1511,25 @@ def show_stockinout(request):
     remaining = inRemaining - outRemaining
     form = StockManagementForm()
     products = Product.objects.filter(productStatus="Y")
+    authorizations = Authorization.objects.filter(Q(empId=request.user.employee.empId) & Q(menuId__codeName__in=['s35', 's35-1', 's35-2']))
+    if authorizations:
+        context = {
+            "form": form,
+            "startdate": startdate,
+            "enddate": enddate,
+            "modelName": modelName,
+            "sizeName": sizeName,
+            "products": products,
+            "authorizations": authorizations.exclude(menuId__codeName='s35'),
 
-    context = {
-        "form": form,
-        "startdate": startdate,
-        "enddate": enddate,
-        "modelName": modelName,
-        "sizeName": sizeName,
-        "products": products,
-
-        # 상단 카드
-        "product": product,
-        "size": size,
-        "remaining": remaining,
-    }
-    return HttpResponse(template.render(context, request))
+            # 상단 카드
+            "product": product,
+            "size": size,
+            "remaining": remaining,
+        }
+        return HttpResponse(template.render(context, request))
+    else:
+        return HttpResponse("접근권한이 없습니다.")
 
 
 
@@ -1569,6 +1573,7 @@ def stockinout_asjson(request):
     structure = json.dumps(list(stockmanagement), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
+
 @login_required
 @csrf_exempt
 def inoutcheck_asjson(request):
@@ -1580,4 +1585,14 @@ def inoutcheck_asjson(request):
     # 잔여 수량
     remaining = inRemaining - outRemaining
     structure = json.dumps(str(remaining), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def warehouseimage_asjson(request):
+    warehouseId = request.POST['warehouseId']
+    warehouseDrawing = Warehouse.objects.get(warehouseId=warehouseId).warehouseDrawing
+    warehouse = {'img': str(warehouseDrawing)}
+    structure = json.dumps(warehouse, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
