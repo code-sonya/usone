@@ -10,9 +10,10 @@ class Book(models.Model):
     statusChoices = (('Y', 'Y'), ('N', 'N'))
 
     bookId = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
     publisher = models.CharField(max_length=100)
+    code = models.CharField(max_length=100, default='#1')
     status = models.CharField(max_length=10, choices=statusChoices, default='Y')
     rentalId = models.ForeignKey('Bookrental', null=True, blank=True, on_delete=models.SET_NULL)
 

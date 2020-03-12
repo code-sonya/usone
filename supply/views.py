@@ -63,8 +63,8 @@ def rentals_asjson(request):
     if renterName:
         rentals = rentals.filter(renter__empName__icontains=renterName)
     result = rentals.values(
-        'rentDate', 'bookId__name', 'bookId__author', 'bookId__publisher', 'renter__empName',
-        'returnDate', 'comment', 'rentalId'
+        'rentDate', 'bookId__name', 'bookId__author', 'bookId__publisher', 'bookId__code',
+        'renter__empName', 'returnDate', 'comment', 'rentalId'
     )
     structure = json.dumps(list(result), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -74,17 +74,39 @@ def rentals_asjson(request):
 def post_book(request):
     if request.method == 'POST':
         if Book.objects.filter(name=request.POST['name']):
-            result = 'N'
+            codeNumber = Book.objects.filter(name=request.POST['name']).count() + 1
         else:
+            codeNumber = 1
+        code = int(request.POST['code'])
+        for i in range(code):
             Book.objects.create(
                 name=request.POST['name'],
                 author=request.POST['author'],
                 publisher=request.POST['publisher'],
+                code='#' + str(codeNumber)
             )
-            result = 'Y'
+            codeNumber += 1
+        result = 'Y'
 
         structure = json.dumps(result, cls=DjangoJSONEncoder)
         return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def show_books(request):
+    # 보유도서
+    allBook = Book.objects.all().count()
+    # 대출도서
+    rentalBook = Book.objects.filter(status='N').count()
+    # 연체도서
+    overdueBook = Book.objects.filter(status='N', rentalId__predictReturnDate__lte=datetime.today()).count()
+
+    context = {
+        'allBook': allBook,
+        'rentalBook': rentalBook,
+        'overdueBook': overdueBook,
+    }
+    return render(request, 'supply/showbooks.html', context)
 
 
 @login_required
@@ -98,7 +120,7 @@ def post_rentals(request):
 def books_asjson(request):
     books = Book.objects.all()
     result = books.values(
-        'bookId', 'name', 'author', 'publisher', 'status', 'rentalId__predictReturnDate', 'rentalId__renter__empId',
+        'bookId', 'name', 'author', 'publisher', 'code', 'status', 'rentalId__predictReturnDate', 'rentalId__renter__empId',
     )
     structure = json.dumps(list(result), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

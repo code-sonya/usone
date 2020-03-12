@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^booksasjson/$', views.books_asjson, name='booksasjson'),
     url(r'^postrent/$', views.post_rent, name='postrent'),
     url(r'^showsavings/$', views.show_savings, name='showsavings'),
+    url(r'^showbooks/$', views.show_books, name='showbooks'),
     url(r'^savingsasjson/$', views.savings_asjson, name='savingsasjson'),
     url(r'^postsaving/$', views.post_saving, name='postsaving'),
     url(r'^viewsaving/(?P<savingId>.+)/(?P<centerId>.+)/$', views.view_saving, name='viewsaving'),
