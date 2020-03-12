@@ -859,13 +859,18 @@ def view_product(request, productId):
     else:
         form = ProductForm(instance=instance)
         sizes = Size.objects.filter(productId=productId).order_by('size')
+        if instance.position:
+            warehouseImage = instance.position.warehouseDrawing
+        else:
+            warehouseImage = 'warehouse/noimage.png'
+
         context = {
             'form': form,
             'instance': instance,
             'sizes': sizes,
             'productId': productId,
             'productImage': instance.productPicture,
-            'warehouseImage': instance.position.warehouseDrawing,
+            'warehouseImage': warehouseImage,
         }
 
         return HttpResponse(template.render(context, request))
