@@ -127,8 +127,11 @@
             </tbody>
           </table>
 
+          <div class="text-center mb-2">
+              <a class="btn btn-secondary" href="/service/showservices/">
+                <i class="fas fa-exchange-alt d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-exchange-alt"></i> 목록으로</span>
+              </a>
           {% if service.empId.empId == user.employee.empId and service.serviceStatus != 'Y' %}
-            <div class="text-center mb-2">
               {% if service.serviceStatus == 'N' %}
               <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
                 <span class="icon text-white"> <i class="fas fa-trash-alt"></i> </span>
@@ -139,8 +142,8 @@
                 <span class="icon text-white"> <i class="fas fa-edit"></i> </span>
                 <span class="text p-2"> 수정 </span>
               </a>
-            </div>
           {% endif %}
+          </div>
         </div>
       </div>
     </div>

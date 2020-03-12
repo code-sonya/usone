@@ -54,7 +54,6 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 h3 text-gray-800">{{year}}년도 휴가 관리</h6>
         <div class="dropdown">
-          {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
 <!--            <a class="btn btn-info" href="/hr/vacationsexcel/" role="button">-->
 <!--              <i class="fas fa-file-excel d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-file-excel"></i> 엑셀</span>-->
 <!--            </a>-->
@@ -67,7 +66,6 @@
             <a class="btn btn-primary" href="#" role="button" id="vacationLink" data-toggle="modal" data-target="#vacationModal">
               <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i>등록</span>
             </a>
-          {% endif %}
         </div>
       </div>
       <div class="card-body">

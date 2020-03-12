@@ -24,11 +24,9 @@
         <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
           <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
         </a>
-        {% if user.is_staff or user.employee.empPosition.positionName == '임원' %}
         <a class="btn btn-primary" href="#" role="button" data-toggle="modal" data-target="#insertModal">
           <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
         </a>
-        {% endif %}
       </div>
     </div>
 
@@ -263,7 +261,7 @@
 
           $("#showreports").on("click", 'tr', function () {
               const data = reportsTable.row(this).data();
-              window.open('about:blank').location.href = '/service/viewreport/' + data.reportId + '/';
+              location.href = '/service/viewreport/' + data.reportId + '/';
           });
       });
 

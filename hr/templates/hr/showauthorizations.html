@@ -18,7 +18,7 @@
     }
 
     .pc-table td, .pc-table th {
-      padding: 10px 4px 10px 4px;
+      padding: 10px 2px 10px 2px;
       text-align: center;
       vertical-align: middle;
       font-size: 15px;
@@ -28,7 +28,6 @@
     .pc-table th.fixed, .pc-table td.fixed {
         position: relative;
         left: 0;
-        z-index: 1;
     }
 
   </style>
@@ -70,7 +69,7 @@
               <td style="width: 70px;" class="bg-warning text-white fixed">전체권한</td>
               {% for menu in menus %}
                 {% if menu.defaultStatus == "Y" %}
-                <td style="width: 80px" class="bg-info text-white">
+                <td style="width: 80px" class="bg-secondary text-white">
                   {{ menu.subCategory }}
                 </td>
                 {% else %}

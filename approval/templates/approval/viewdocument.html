@@ -489,26 +489,6 @@
           </div>
         {% endif %}
       </div>
-      {% if document.documentStatus == '임시' and document.writeEmp == user.employee %}
-        <div class="text-center mb-3">
-          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
-            <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
-            <span class="text">삭제</span>
-          </a>
-          <a href="#" class="btn btn-success btn-icon-split" onclick="btn_modify()">
-            <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
-            <span class="text">수정</span>
-          </a>
-        </div>
-      {% elif document.documentStatus == '진행' and draftCancelStatus == True %}
-        <div class="text-center mb-3">
-          <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_draftCancel()">
-            <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
-            <span class="text">기안취소</span>
-          </a>
-        </div>
-      {% endif %}
-
       <hr>
       <div>
         <label class="text-primary font-weight-bold mb-3">의견</label>
@@ -538,6 +518,30 @@
           {% endfor %}
           </tbody>
         </table>
+      </div>
+      <hr>
+      <div class="text-center mb-3">
+      {% if document.documentStatus == '임시' and document.writeEmp == user.employee %}
+        <a class="btn btn-secondary" href="/approval/showdocument/temp/">
+          <i class="fas fa-exchange-alt d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-exchange-alt"></i> 임시문서함</span>
+        </a>
+        <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_delete()">
+          <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+          <span class="text">삭제</span>
+        </a>
+        <a href="#" class="btn btn-success btn-icon-split" onclick="btn_modify()">
+          <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
+          <span class="text">수정</span>
+        </a>
+      {% elif document.documentStatus == '진행' and draftCancelStatus == True %}
+        <a class="btn btn-secondary" href="/approval/showdocument/all/">
+          <i class="fas fa-exchange-alt d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-exchange-alt"></i> 전체문서함</span>
+        </a>
+        <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_draftCancel()">
+          <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
+          <span class="text">기안취소</span>
+        </a>
+      {% endif %}
       </div>
     </div>
   </div>

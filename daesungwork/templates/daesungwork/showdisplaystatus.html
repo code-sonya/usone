@@ -90,11 +90,9 @@
             <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
             </a>
-            {% if user.is_staff %}
-              <a class="btn btn-primary" href="#" role="button" onclick="open_insertmodal()">
-                <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 일괄등록</span>
-              </a>
-            {% endif %}
+            <a class="btn btn-primary" href="#" role="button" onclick="open_insertmodal()">
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 일괄등록</span>
+            </a>
           </div>
         </div>
         <div class="card-body">

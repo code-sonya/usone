@@ -85,20 +85,16 @@
             <div class="form-group row m-2">
               <div class="col-xl-3">
                 <label for="mainCategory" class="font-weight-bold text-primary"> 창고명
-                  {% if user.is_staff %}
                   <a class="text-white" href="#" role="button" id="mainCategoryLink" data-toggle="modal" data-target="#mainCategoryModal">
                     <i class="fas fa-plus-circle fa-fw text-info"></i>
                   </a>
-                  {% endif %}
                 </label> {{ form.mainCategory }}
               </div>
               <div class="col-xl-3">
                 <label for="subCategory" class="font-weight-bold text-primary"> 섹션명
-                  {% if user.is_staff %}
                   <a class="text-white" href="#" role="button" id="subCategoryLink" data-toggle="modal" data-target="#subCategoryModal">
                     <i class="fas fa-plus-circle fa-fw text-info"></i>
                   </a>
-                  {% endif %}
                 </label> {{ form.subCategory }}
               </div>
               <div class="col-xl-5">

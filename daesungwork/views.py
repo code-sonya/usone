@@ -865,6 +865,7 @@ def view_product(request, productId):
             'sizes': sizes,
             'productId': productId,
             'productImage': instance.productPicture,
+            'warehouseImage': instance.position.warehouseDrawing,
         }
 
         return HttpResponse(template.render(context, request))

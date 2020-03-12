@@ -83,11 +83,9 @@
           <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
             <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
           </a>
-          {% if user.is_staff %}
           <a class="btn btn-primary" href="#" role="button" onclick="open_insertmodal()">
             <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 일괄등록</span>
           </a>
-          {% endif %}
         </div>
       </div>
       <div class="card-body">
@@ -228,11 +226,9 @@
             </div>
             <div class="col-xl-2">
               <label for="client" class="font-weight-bold text-primary"> 업체명
-                {% if user.is_staff %}
                 <a class="text-white" target="_blank" href="/client/postclient/">
                   <i class="fas fa-plus-circle fa-fw text-info"></i>
                 </a>
-                {% endif %}
               </label>
               {{ form.client }}
             </div>

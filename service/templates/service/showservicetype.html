@@ -25,11 +25,9 @@
           <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
             <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
           </a>
-          {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-            <a class="btn btn-primary" href="/service/postservicetype/" role="button">
-              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
-            </a>
-          {% endif %}
+          <a class="btn btn-primary" href="/service/postservicetype/" role="button">
+            <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
+          </a>
         </div>
       </div>
       <div class="card-body">
