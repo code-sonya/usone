@@ -1201,38 +1201,46 @@ def show_productlocation(request):
     products = Product.objects.filter(productStatus='Y')
 
     if request.method == 'POST':
-
-        # 검색 필터 통해서 모델명으로 검색 했을 때
-        productId = request.POST['productId']
-        sizeId = request.POST['sizeId']
-        # 창고 위치 바꾸는 셀렉트 이용했을 때
-        if request.POST['maincategoryId']:
+        selectType = request.POST['selectType']
+        # 창고명 또는 위치 변경하였을 때
+        if selectType == 'location':
+            productId = ''
             maincategoryId = int(request.POST['maincategoryId'])
-
-        if request.POST['subcategoryId']:
             subcategoryId = int(request.POST['subcategoryId'])
-
+            sectionImage = Warehouse.objects.filter(
+                Q(mainCategory=maincategoryId) & Q(subCategory=subcategoryId)
+            ).first()
+        # 모델명 변경하였을 때
+        elif selectType == 'product':
+            productId = int(request.POST['productId'])
+            if Product.objects.get(productId=productId).position:
+                sectionImage = Warehouse.objects.get(
+                    Q(warehouseId=Product.objects.get(productId=productId).position.warehouseId)
+                )
+                maincategoryId = int(sectionImage.mainCategory.categoryId)
+                subcategoryId = int(sectionImage.subCategory.categoryId)
+            else:
+                sectionImage = ''
+                maincategoryId = maincategorys.first().categoryId
+                subcategoryId = subcategorys.first().categoryId
+        # 여기로 오면 오류
+        else:
+            productId = ''
+            maincategoryId = maincategorys.first().categoryId
+            subcategoryId = subcategorys.first().categoryId
+            sectionImage = Warehouse.objects.filter(
+                Q(mainCategory=maincategoryId) & Q(subCategory=subcategoryId)
+            ).first()
     else:
         productId = ''
-        sizeId = ''
         maincategoryId = maincategorys.first().categoryId
         subcategoryId = subcategorys.first().categoryId
+        sectionImage = Warehouse.objects.filter(
+            Q(mainCategory=maincategoryId) & Q(subCategory=subcategoryId)
+        ).first()
 
-
-    # 모델명으로 검색했을
-    if productId:
-        sectionImage = Warehouse.objects.get(Q(warehouseId=Product.objects.get(productId=productId).position.warehouseId))
-        maincategoryId = int(sectionImage.mainCategory.categoryId)
-        subcategoryId = int(sectionImage.subCategory.categoryId)
-    # 창고 번호만 바꿨을 때 혹은 처음 제품위치 조회 클릭 시
-    else:
-        sectionImage = Warehouse.objects.filter(Q(mainCategory=maincategoryId) & Q(subCategory=subcategoryId)).first()
-
-    form = DailyReportForm(initial={'writeEmp': request.user.employee.empId})
     context = {
-        'form': form,
         'productId': productId,
-        'sizeId': sizeId,
         'employees': employees,
         'maincategorys': maincategorys,
         'subcategorys': subcategorys,
