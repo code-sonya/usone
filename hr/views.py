@@ -904,7 +904,6 @@ def show_authorizations(request):
         # for employee in employees:
         #     for auth in addMenus:
 
-
         menus.update(defaultStatus='N')
         menus.filter(menuId__in=defaultAuth).update(defaultStatus='Y')
 
@@ -943,10 +942,10 @@ def checkauthorization_asjson(request):
             # 대분류 체크 후 삭제
             if codeName[0] == 's':
                 try:
-                    if Authorization.objects.filter(menuId__codeName__icontains=codeName[:2]):
+                    if Authorization.objects.filter(Q(empId=empId) & Q(menuId__codeName__icontains=codeName[:2])):
                         result = 's-delete t-exits'
                     else:
-                        Authorization.objects.get(menuId__codeName='t{}0'.format(codeName[1])).delete()
+                        Authorization.objects.get(Q(empId=empId) & Q(menuId__codeName='t{}0'.format(codeName[1]))).delete()
                         result = 's-delete t-delete'
                 except Exception as e:
                     print(e)
@@ -962,7 +961,8 @@ def checkauthorization_asjson(request):
             # 대분류 체크 후 추가
             if codeName[0] == 's':
                 try:
-                    if Authorization.objects.filter(menuId__codeName='t{}0'.format(codeName[1])):
+                    print(codeName[1])
+                    if Authorization.objects.filter(Q(empId=empId) & Q(menuId__codeName='t{}0'.format(codeName[1]))):
                         result = 's-create t-exits'
                     else:
                         Authorization.objects.create(
