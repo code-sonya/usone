@@ -49,6 +49,7 @@ urlpatterns = [
     url(r'^productasjson/$', views.product_asjson, name='productasjson'),
     url(r'^viewproduct/(?P<productId>.+)/$', views.view_product, name='viewproduct'),
     url(r'^deleteproduct/(?P<productId>.+)/$', views.delete_product, name='deleteproduct'),
+    url(r'^warehouseimageasjson/$', views.warehouseimage_asjson, name='warehouseimageasjson'),
     # 사이즈 관리
     url(r'^postsize/(?P<productId>.+)/$', views.post_size, name='postsize'),
     url(r'^deletesize/(?P<sizeId>.+)/$', views.delete_size, name='deletesize'),

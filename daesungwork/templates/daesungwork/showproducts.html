@@ -107,6 +107,14 @@
             </div>
           </form>
         </div>
+        <div class="row d-none text-center" id="divImg">
+          <div class="col-xl-4"></div>
+          <div class="col-xl-4">
+            <span><창고도면></span>
+            <img id="warehouseImg" style="width: 100%">
+          </div>
+          <div class="col-xl-4"></div>
+        </div>
         <div id="centerManagerdiv">
           <table id="showproducts" class="display" style="width:100%">
             <thead style="width:100%">
@@ -131,6 +139,20 @@
   {% block script %}
 
   <script type="text/javascript">
+      function showPosition(value) {
+        $.ajax({
+              url: "{% url 'daesungwork:warehouseimageasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"warehouseId": value,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                $('#divImg').removeClass('d-none');
+                $('#warehouseImg').attr('src', '/media/'+returnData.img)
+              }
+          });
+      }
 
       function replaceAll(str, searchStr, replaceStr) {
           if (str != null) {

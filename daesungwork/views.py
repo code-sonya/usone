@@ -1572,4 +1572,13 @@ def inoutcheck_asjson(request):
     # 잔여 수량
     remaining = inRemaining - outRemaining
     structure = json.dumps(str(remaining), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')\
+
+@login_required
+@csrf_exempt
+def warehouseimage_asjson(request):
+    warehouseId = request.POST['warehouseId']
+    warehouseDrawing = Warehouse.objects.get(warehouseId=warehouseId).warehouseDrawing
+    warehouse = {'img': str(warehouseDrawing)}
+    structure = json.dumps(warehouse, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

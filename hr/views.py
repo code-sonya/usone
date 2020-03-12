@@ -127,6 +127,16 @@ def post_profile(request):
             post.empDeptName = post.departmentName.deptName
             post.save()
 
+            defaultMenu = Menu.objects.filter(defaultStatus='Y')
+            for menu in defaultMenu:
+                try:
+                    Authorization.objects.create(
+                        empId=post,
+                        menuId=menu
+                    )
+                except Exception as e:
+                    print(e)
+
             if post.empStatus == 'N':
                 new_user.is_active = 0
                 new_user.save()

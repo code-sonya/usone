@@ -124,7 +124,7 @@ class ProductForm(forms.ModelForm):
             'modelName': forms.TextInput(attrs={'class': 'form-control', 'type': 'text', 'id': 'modelName'}),
             'productName': forms.TextInput(attrs={'class': 'form-control', 'type': 'text', 'id': 'productName'}),
             'unitPrice': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'unitPrice'}),
-            'position': forms.Select(attrs={'class': 'single-select', 'id': 'position'}),
+            'position': forms.Select(attrs={'class': 'single-select', 'id': 'position', 'onchange': 'showPosition(this.value)'}),
             'productPicture': forms.FileInput(attrs={
                 'class': 'form-control', 'id': 'productPicture',
                 'onchange': "javascript:document.getElementById('productPicture').value=this.value.replace(/c:\\\\fakepath\\\\/i,'')"
