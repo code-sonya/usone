@@ -793,15 +793,19 @@ def contracts_asjson(request):
     revenues = Revenue.objects.all()
     purchases = Purchase.objects.all()
     if startdate:
-        revenues = revenues.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
-        purchases = purchases.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
+        print(startdate)
+        contracts.filter(contractDate__gte=startdate)
+        # revenues = revenues.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
+        # purchases = purchases.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
     if enddate:
-        revenues = revenues.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
-        purchases = purchases.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
-    contracts = contracts.filter(
-        Q(contractId__in=revenues) |
-        Q(contractId__in=purchases)
-    )
+        print(enddate)
+        contracts.filter(contractDate__lte=enddate)
+        # revenues = revenues.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+        # purchases = purchases.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+    # contracts = contracts.filter(
+    #     Q(contractId__in=revenues) |
+    #     Q(contractId__in=purchases)
+    # )
     if contractStep != '전체' and contractStep != '':
         contracts = contracts.filter(contractStep=contractStep)
     if empDeptName != '전체' and empDeptName != '':
