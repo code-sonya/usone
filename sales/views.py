@@ -793,11 +793,11 @@ def contracts_asjson(request):
     revenues = Revenue.objects.all()
     purchases = Purchase.objects.all()
     if startdate:
-        contracts = contracts.filter(contractDate__gte=startdate)
+        contracts.filter(contractDate__gte=startdate)
         # revenues = revenues.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
         # purchases = purchases.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
     if enddate:
-        contracts = contracts.filter(contractDate__lte=enddate)
+        contracts.filter(contractDate__lte=enddate)
         # revenues = revenues.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
         # purchases = purchases.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
     # contracts = contracts.filter(

@@ -1009,7 +1009,7 @@ def dashboard_client(request):
     if request.method == 'POST':
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
-        endCompanyName = request.POST['endCompanyName']
+        saleCompanyName = request.POST['saleCompanyName']
         contractStep = request.POST['contractStep']
         print(request.POST)
 
@@ -1021,13 +1021,13 @@ def dashboard_client(request):
         if enddate:
             contracts = contracts.filter(Q(contractDate__lte=enddate))
             services = services.filter(Q(contractId__contractDate__lte=enddate))
-        if endCompanyName:
-            contracts = contracts.filter(Q(endCompanyName__companyName__icontains=endCompanyName) | Q(endCompanyName__companyNameKo__icontains=endCompanyName))
-            services = services.filter(Q(contractId__endCompanyName__companyName__icontains=endCompanyName) | Q(contractId__endCompanyName__companyNameKo__icontains=endCompanyName))
+        if saleCompanyName:
+            contracts = contracts.filter(Q(saleCompanyName__companyName__icontains=saleCompanyName) | Q(saleCompanyName__companyNameKo__icontains=saleCompanyName))
+            services = services.filter(Q(contractId__saleCompanyName__companyName__icontains=saleCompanyName) | Q(contractId__saleCompanyName__companyNameKo__icontains=saleCompanyName))
 
         priceSummary = contracts.aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
         serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), serviceOverHour=Sum('serviceOverHour'))
-        companySummary = contracts.values('endCompanyName__companyNameKo').annotate(price=Sum('salePrice'), profit=Sum('profitPrice'), count=Count('salePrice'))
+        companySummary = contracts.values('saleCompanyName').annotate(price=Sum('salePrice'), profit=Sum('profitPrice'), count=Count('salePrice'))
         overhourSummary = services.aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
         axesMax = companySummary.aggregate(maxprice=Max('price'))['maxprice'] + 10
 
@@ -1035,19 +1035,19 @@ def dashboard_client(request):
         contracts = contracts.filter(contractDate__year=datetime.today().year)
         startdate = contracts.aggregate(startdate=Min('contractDate'))['startdate']
         enddate = contracts.aggregate(enddate=Max('contractDate'))['enddate']
-        endCompanyName = ''
+        saleCompanyName = ''
         contractStep = ''
         services = services.filter(Q(contractId__contractDate__gte=startdate) & Q(contractId__contractDate__lte=enddate))
         priceSummary = contracts.aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
         serviceSummary = services.aggregate(serviceHour=Sum('serviceHour'), serviceOverHour=Sum('serviceOverHour'))
-        companySummary = contracts.values('endCompanyName__companyNameKo').annotate(price=Sum('salePrice'), profit=Sum('profitPrice')).order_by('-price')
+        companySummary = contracts.values('saleCompanyName').annotate(price=Sum('salePrice'), profit=Sum('profitPrice')).order_by('-price')
         overhourSummary = services.aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
         axesMax = companySummary.aggregate(maxprice=Max('price'))['maxprice'] + 10
 
     context = {
         'startdate': startdate,
         'enddate': enddate,
-        'endCompanyName': endCompanyName,
+        'saleCompanyName': saleCompanyName,
         'contractStep': contractStep,
         'priceSummary': priceSummary,
         'serviceSummary': serviceSummary,
@@ -1078,8 +1078,8 @@ def client_graph(request):
         contracts = contracts.filter(Q(contractDate__lte=enddate))
         services = services.filter(Q(contractId__contractDate__lte=enddate))
 
-    companySummary = contracts.filter(endCompanyName__companyNameKo=companyName).aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
-    overhourSummary = services.filter(contractId__endCompanyName__companyNameKo=companyName).aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
+    companySummary = contracts.filter(saleCompanyName=companyName).aggregate(price=Sum('salePrice'), profit=Sum('profitPrice'))
+    overhourSummary = services.filter(contractId__saleCompanyName=companyName).aggregate(servicehour=Sum('serviceHour'), overhour=Sum('serviceOverHour'))
 
     structure = json.dumps([companySummary, overhourSummary], cls=DjangoJSONEncoder)
 
