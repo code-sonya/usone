@@ -100,11 +100,14 @@ def post_document(request):
         # 결재선 처리
         approval = []
         if request.POST['approvalFormat'] == '신청':
+            # 기안자 자동 등록
+            approval.append({'approvalEmp': request.user.employee.empId, 'approvalStep': 1, 'approvalCategory': '신청'})
+
             if request.POST['apply']:
                 applyList = request.POST['apply'].split(',')
                 for i, a in enumerate(applyList):
                     if a != '':
-                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '신청'})
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 2, 'approvalCategory': '신청'})
             if request.POST['process']:
                 processList = request.POST['process'].split(',')
                 for i, p in enumerate(processList):
@@ -115,12 +118,16 @@ def post_document(request):
                 for i, r in enumerate(referenceList):
                     if r != '':
                         approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+
         elif request.POST['approvalFormat'] == '결재':
+            # 기안자 자동 등록
+            approval.append({'approvalEmp': request.user.employee.empId, 'approvalStep': 1, 'approvalCategory': '결재'})
+
             if request.POST['approval'].split(','):
                 approvalList = request.POST['approval'].split(',')
                 for i, a in enumerate(approvalList):
                     if a != '':
-                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '결재'})
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 2, 'approvalCategory': '결재'})
             if request.POST['agreement'].split(','):
                 agreementList = request.POST['agreement'].split(',')
                 for i, a in enumerate(agreementList):
@@ -273,11 +280,14 @@ def modify_document(request, documentId):
         Approval.objects.filter(documentId=document).delete()
         approval = []
         if request.POST['approvalFormat'] == '신청':
+            # 기안자 자동 등록
+            approval.append({'approvalEmp': request.user.employee.empId, 'approvalStep': 1, 'approvalCategory': '신청'})
+
             if request.POST['apply']:
                 applyList = request.POST['apply'].split(',')
                 for i, a in enumerate(applyList):
                     if a != '':
-                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '신청'})
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 2, 'approvalCategory': '신청'})
             if request.POST['process']:
                 processList = request.POST['process'].split(',')
                 for i, p in enumerate(processList):
@@ -288,12 +298,16 @@ def modify_document(request, documentId):
                 for i, r in enumerate(referenceList):
                     if r != '':
                         approval.append({'approvalEmp': r, 'approvalStep': i + 1, 'approvalCategory': '참조'})
+
         elif request.POST['approvalFormat'] == '결재':
+            # 기안자 자동 등록
+            approval.append({'approvalEmp': request.user.employee.empId, 'approvalStep': 1, 'approvalCategory': '결재'})
+
             if request.POST['approval'].split(','):
                 approvalList = request.POST['approval'].split(',')
                 for i, a in enumerate(approvalList):
                     if a != '':
-                        approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '결재'})
+                        approval.append({'approvalEmp': a, 'approvalStep': i + 2, 'approvalCategory': '결재'})
             if request.POST['agreement'].split(','):
                 agreementList = request.POST['agreement'].split(',')
                 for i, a in enumerate(agreementList):

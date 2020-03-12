@@ -48,57 +48,75 @@ def data_format(ID, user, approvalFormat, document, model):
         applylst = []
         for a in apply:
             applylst.append(str(a['approvalEmp']))
-        if document == 'Y':
-            if empId in applylst:
-                applylst.remove(empId)
-            applylst.insert(0, empId)
+        # 기안자 자동추가로 인해 삭제
+        # if document == 'Y':
+        #     if empId in applylst:
+        #         applylst.remove(empId)
+        #     applylst.insert(0, empId)
+        if empId in applylst:
+            applylst.remove(empId)
         apply = ','.join(applylst)
-    else:
-        if approvalFormat == '신청' and document == 'Y':
-            apply = empId
+    # else:
+    #     if approvalFormat == '신청' and document == 'Y':
+    #         apply = empId
     if process:
         processlst = []
         for a in process:
             processlst.append(str(a['approvalEmp']))
-        if document == 'Y':
-            if empId in processlst:
-                processlst.remove(empId)
+        # 기안자 자동추가로 인해 삭제
+        # if document == 'Y':
+        #     if empId in processlst:
+        #         processlst.remove(empId)
+        if empId in processlst:
+            processlst.remove(empId)
         process = ','.join(processlst)
     if reference:
         referencelst = []
         for a in reference:
             referencelst.append(str(a['approvalEmp']))
-        if document == 'Y':
-            if empId in referencelst:
-                referencelst.remove(empId)
+        # 기안자 자동추가로 인해 삭제
+        # if document == 'Y':
+        #     if empId in referencelst:
+        #         referencelst.remove(empId)
+        if empId in referencelst:
+            referencelst.remove(empId)
         reference = ','.join(referencelst)
     if approval:
         approvallst = []
         for a in approval:
             approvallst.append(str(a['approvalEmp']))
-        if document == 'Y':
-            if empId in approvallst:
-                approvallst.remove(empId)
-            approvallst.insert(0, empId)
+        # 기안자 자동추가로 인해 삭제
+        # if document == 'Y':
+        #     if empId in approvallst:
+        #         approvallst.remove(empId)
+        #     approvallst.insert(0, empId)
+        if empId in approvallst:
+            approvallst.remove(empId)
         approval = ','.join(approvallst)
-    else:
-        if approvalFormat == '결재' and document == 'Y':
-            approval = empId
+    # else:
+    #     if approvalFormat == '결재' and document == 'Y':
+    #         approval = empId
     if agreement:
         agreementlst = []
         for a in agreement:
             agreementlst.append(str(a['approvalEmp']))
-        if document == 'Y':
-            if empId in agreementlst:
-                agreementlst.remove(empId)
+        # 기안자 자동추가로 인해 삭제
+        # if document == 'Y':
+        #     if empId in agreementlst:
+        #         agreementlst.remove(empId)
+        if empId in agreementlst:
+            agreementlst.remove(empId)
         agreement = ','.join(agreementlst)
     if financial:
         financiallst = []
         for a in financial:
             financiallst.append(str(a['approvalEmp']))
-        if document == 'Y':
-            if empId in financiallst:
-                financiallst.remove(empId)
+        # 기안자 자동추가로 인해 삭제
+        # if document == 'Y':
+        #     if empId in financiallst:
+        #         financiallst.remove(empId)
+        if empId in financiallst:
+            financiallst.remove(empId)
         financial = ','.join(financiallst)
     return apply, process, reference, approval, agreement, financial
 

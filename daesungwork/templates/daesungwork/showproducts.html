@@ -180,7 +180,7 @@
                   {
                       data: "position__mainCategory__categoryName",
                       "render": function (data, type, row) {
-                          return '<div>' + row['position__subCategory__categoryName'] + '(' + row['position__subCategory__categoryName'] + ')</div>'
+                          return '<div>' + row['position__mainCategory__categoryName'] + '(' + row['position__subCategory__categoryName'] + ')</div>'
                       },
                   },
               ],
@@ -224,7 +224,7 @@
 
           $("#showproducts").on("click", 'tr', function () {
               const data = showproductsTable.row(this).data();
-              location.href = '/daesungwork/viewproduct/' + data.productId + '/'
+              window.open('about:blank').location.href = '/daesungwork/viewproduct/' + data.productId + '/'
           });
       });
 

@@ -105,7 +105,7 @@ def post_service(request, postdate):
             post.empName = empName
             post.empDeptName = empDeptName
             post.coWorker = request.POST['coWorkerId']
-            for_status = request.POST['for']
+            for_status = 'for_n'
 
             # 기본등록
             if for_status == 'for_n':
@@ -115,8 +115,8 @@ def post_service(request, postdate):
                 post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
                 post.serviceDate = str(post.serviceBeginDatetime)[:10]
                 post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
-                post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
+                post.serviceOverHour = 0
+                post.serviceRegHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
                 post.save()
                 return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
 
@@ -250,21 +250,21 @@ def post_service(request, postdate):
         form.fields['endtime'].initial = "18:00"
         serviceforms = Serviceform.objects.filter(empId=empId)
 
-        # 계약명 자동완성
-        contractList = Contract.objects.filter(
-            Q(endCompanyName__isnull=False)
-            # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
-        )
-        contracts = []
-        for contract in contractList:
-            temp = {
-                'id': contract.pk,
-                'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
-                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
-                         str(contract.contractEndDate)[2:].replace('-', '.') + ')',
-                'company': contract.endCompanyName.pk
-            }
-            contracts.append(temp)
+        # # 계약명 자동완성
+        # contractList = Contract.objects.filter(
+        #     Q(endCompanyName__isnull=False)
+        #     # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+        # )
+        # contracts = []
+        # for contract in contractList:
+        #     temp = {
+        #         'id': contract.pk,
+        #         'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
+        #                  str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
+        #                  str(contract.contractEndDate)[2:].replace('-', '.') + ')',
+        #         'company': contract.endCompanyName.pk
+        #     }
+        #     contracts.append(temp)
 
         # 고객사명 자동완성
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
@@ -284,7 +284,7 @@ def post_service(request, postdate):
             'form': form,
             'postdate': postdate,
             'serviceforms': serviceforms,
-            'contracts': contracts,
+            # 'contracts': contracts,
             'companyNames': companyNames,
             'empNames': empNames,
         }
@@ -737,11 +737,8 @@ def modify_service(request, serviceId):
                 post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
             post.serviceDate = str(post.serviceBeginDatetime)[:10]
             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
-            post.serviceOverHour = overtime(
-                form.clean()['startdate'] + ' ' + form.clean()['starttime'],
-                form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            )
-            post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
+            post.serviceOverHour = 0
+            post.serviceRegHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
             post.coWorker = request.POST['coWorkerId']
             post.save()
             return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
@@ -752,26 +749,26 @@ def modify_service(request, serviceId):
         form.fields['enddate'].initial = str(instance.serviceFinishDatetime)[:10]
         form.fields['endtime'].initial = str(instance.serviceFinishDatetime)[11:16]
 
-        # 계약명 자동완성
-        contractList = Contract.objects.filter(
-            Q(endCompanyName__isnull=False)
-            # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
-        )
-        contracts = []
-        for contract in contractList:
-            temp = {
-                'id': contract.pk,
-                'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
-                         str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
-                         str(contract.contractEndDate)[2:].replace('-', '.') + ')',
-                'company': contract.endCompanyName.pk
-            }
-            contracts.append(temp)
-
-        if Servicereport.objects.get(serviceId=serviceId).contractId:
-            contractId = Servicereport.objects.get(serviceId=serviceId).contractId.contractId
-        else:
-            contractId = ''
+        # # 계약명 자동완성
+        # contractList = Contract.objects.filter(
+        #     Q(endCompanyName__isnull=False)
+        #     # & Q(contractStartDate__lte=datetime.datetime.today()) & Q(contractEndDate__gte=datetime.datetime.today())
+        # )
+        # contracts = []
+        # for contract in contractList:
+        #     temp = {
+        #         'id': contract.pk,
+        #         'value': '[' + contract.endCompanyName.pk + '] ' + contract.contractName + ' (' +
+        #                  str(contract.contractStartDate)[2:].replace('-', '.') + ' ~ ' +
+        #                  str(contract.contractEndDate)[2:].replace('-', '.') + ')',
+        #         'company': contract.endCompanyName.pk
+        #     }
+        #     contracts.append(temp)
+        #
+        # if Servicereport.objects.get(serviceId=serviceId).contractId:
+        #     contractId = Servicereport.objects.get(serviceId=serviceId).contractId.contractId
+        # else:
+        #     contractId = ''
 
         # 고객사명 자동완성
         companyList = Company.objects.filter(Q(companyStatus='Y')).order_by('companyNameKo')
@@ -794,10 +791,10 @@ def modify_service(request, serviceId):
 
         context = {
             'form': form,
-            'contracts': contracts,
+            # 'contracts': contracts,
             'companyNames': companyNames,
             'empNames': empNames,
-            'contractId': contractId,
+            # 'contractId': contractId,
             'companyName': companyName,
             'coWorkers': coWorkers,
             'serviceStatus': serviceStatus,
