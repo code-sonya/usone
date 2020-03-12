@@ -13,7 +13,6 @@
     .pc-table {
       color: #333333;
       table-layout: fixed;
-      width: 100%;
       border: 1px solid lightgray;
       margin-bottom: 1rem;
     }
@@ -24,6 +23,12 @@
       vertical-align: middle;
       font-size: 15px;
       border: 1px solid lightgray;
+    }
+
+    .pc-table th.fixed, .pc-table td.fixed {
+        position: relative;
+        left: 0;
+        z-index: 1;
     }
 
   </style>
@@ -60,28 +65,28 @@
           <table id="showauthorizations" class="hover row-border pc-table m-3" style="width: 100%">
             <thead>
             <tr>
-              <td style="width: 50px;" class="bg-light">No</td>
-              <td style="width: 120px;" class="bg-light">직원명</td>
-              <td style="width: 80px;" class="bg-warning text-white">전체권한</td>
+              <td style="width: 30px;" class="bg-light fixed">No</td>
+              <td style="width: 70px;" class="bg-light fixed">직원명</td>
+              <td style="width: 70px;" class="bg-warning text-white fixed">전체권한</td>
               {% for menu in menus %}
                 {% if menu.defaultStatus == "Y" %}
-                <td style="width: 120px" class="bg-info text-white">
+                <td style="width: 80px" class="bg-info text-white">
                   {{ menu.subCategory }}
                 </td>
                 {% else %}
-                <td style="width: 120px" class="bg-light">
+                <td style="width: 80px" class="bg-light">
                   {{ menu.subCategory }}
                 </td>
                 {% endif %}
               {% endfor %}
             </tr>
             </thead>
+            <tbody>
             {% for authorization in authorizations %}
             <tr id="{{ authorization.empId }}">
-<!--              <td><input type="checkbox" class="checkBtnAll"></td>-->
               {% for key, value in authorization.items %}
                 {% if key == 'all' %}
-                <td>
+                <td class="fixed">
                   <input type="checkbox" {% if value == "Y" %} checked {% endif %} class="checkBtnAll" name="{{ key }}">
                 </td>
                 {% elif value == 'Y' %}
@@ -93,13 +98,14 @@
                   <input type="checkbox" class="checkBtn" name="{{ key }}">
                 </td>
                 {% else %}
-                <td name="{{ key }}">
+                <td class="fixed" name="{{ key }}">
                   {{ value }}
                 </td>
                 {% endif %}
               {% endfor %}
             </tr>
             {% endfor %}
+            </tbody>
           </table>
         </div>
       </div>
@@ -112,9 +118,41 @@
 {% block script %}
 
   <script type="text/javascript">
-      $('.{{ group.deptId }}'+'all').click(function () {
-          $('.{{ group.deptId }}').prop('checked', this.checked);
-      });
+      var table = '.pc-table table',
+        th = table + ' > thead > tr > td.fixed',
+        td = table + ' > tbody > tr > td.fixed';    // 테이블 및 fixed 클래가 있는 요소를 정의합니다.
+      console.log(table);
+      console.log(th, td);
+      if ( $(table).length )    // 페이지에 '.board_list table'가 있을 경우에만 작동합니다.
+      {
+          var width = $(th).outerWidth(),
+              fixed_width = $(th).offset().left - $(table).offset().left,    // 스크롤 이벤트에서 열을 고정시켜주는 기준값입니다.
+              margin_left = $(table).css('margin-left');
+          var absolute = {'position': 'absolute'},
+              relative = {'position': 'relative'};
+
+          $(th).css('width', width);
+          $(td).each(function(i) {
+              $(this).css({
+                  'width': $(this).width()
+              });
+          });        // 포지션이 absolute가 될 경우에 대비해 넓이값을 미리 고정시켜줍니다.
+
+          $('#table_container').on('scroll', function() {    // table_wrapper은 테이블을 감싸고 있는 div의 클래스값입니다. 이 요소를 기준으로 스크롤 이벤트를 설정합니다.
+              if( $(this).scrollLeft() > fixed_width )    // 스크롤이 기준값만큼 이동하면
+              {
+                  $(th).css(absolute);
+                  $(td).css(absolute);    // fixed를 클래스값으로 가지는 th와 td에 absolute 포지션이 적용됩니다.
+                  $(table).css('margin-left', width);    // th와 td가 absolute로 빠져나가므로 테이블의 좌측 바깥 여백 값을 th와 td의 넓이만큼 적용합니다.
+              }
+              else    // 스크롤이 기준값보다 덜 이동하면 원래의 스타일 속성으로 돌아옵니다.
+              {
+                  $(th).css(relative);
+                  $(td).css(relative);
+                  $(table).css('margin-left', margin_left);
+              }
+          });
+      }
 
       $(".checkBtn").click(function(){
           var checkBtn = $(this);

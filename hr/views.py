@@ -944,7 +944,7 @@ def show_authorizations(request):
         menus.filter(menuId__in=defaultAuth).update(defaultStatus='Y')
 
     allmenus = Menu.objects.all()
-    menus = allmenus.exclude(codeName__contains='t').order_by('-defaultStatus', 'menuId')
+    menus = allmenus.exclude(codeName__contains='t').order_by('-defaultStatus', 'codeName')
     authorizations = []
     for employee in employees:
         authorizationList = {}

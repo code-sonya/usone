@@ -18,8 +18,10 @@ insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values 
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','Y','도서신청','s31');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','도서열람대장','s32');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','재고현황','s33');
-insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','입출고관리-입고','s34');
-insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','입출고관리-출고','s35');
+insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','비품관리대장','s34');
+insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','입출고관리','s35');
+insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','입출고관리(입고)','s35-1');
+insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','입출고관리(출고)','s35-2');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','Y','제품위치조회','s36');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('설정&관리','N','제품관리','s91');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('설정&관리','N','창고관리','s92');
