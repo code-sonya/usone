@@ -39,7 +39,7 @@
         <h6 class="m-0 h3 text-gray-800">권한관리</h6>
       </div>
       <div class="card-body">
-        <div style="font-size:20px" class="text-primary ml-3 mr-3">기본 권한</div>
+        <div style="font-size:20px" class="text-primary ml-3 mr-3">기본 권한<span class="text-secondary small"> (모든 사용자에게 기본 권한이 부여됩니다.) </span></div>
         <form id="defaultForm" method="POST">
           <div class="row m-1">
             <div class="col-xl-11">
@@ -62,9 +62,10 @@
             <tr>
               <td style="width: 50px;" class="bg-light">No</td>
               <td style="width: 120px;" class="bg-light">직원명</td>
+              <td style="width: 80px;" class="bg-warning text-white">전체권한</td>
               {% for menu in menus %}
                 {% if menu.defaultStatus == "Y" %}
-                <td style="width: 120px" class="bg-primary text-white">
+                <td style="width: 120px" class="bg-info text-white">
                   {{ menu.subCategory }}
                 </td>
                 {% else %}
@@ -77,16 +78,25 @@
             </thead>
             {% for authorization in authorizations %}
             <tr id="{{ authorization.empId }}">
+<!--              <td><input type="checkbox" class="checkBtnAll"></td>-->
               {% for key, value in authorization.items %}
-              <td name="{{ value }}">
-                {% if value == 'Y' %}
-                <input type="checkbox" checked class="checkBtn" name="{{ key }}">
+                {% if key == 'all' %}
+                <td>
+                  <input type="checkbox" {% if value == "Y" %} checked {% endif %} class="checkBtnAll" name="{{ key }}">
+                </td>
+                {% elif value == 'Y' %}
+                <td>
+                  <input type="checkbox" checked class="checkBtn" name="{{ key }}">
+                </td>
                 {% elif value == 'N' %}
-                <input type="checkbox" class="checkBtn" name="{{ key }}">
+                <td>
+                  <input type="checkbox" class="checkBtn" name="{{ key }}">
+                </td>
                 {% else %}
-                {{ value }}
+                <td name="{{ key }}">
+                  {{ value }}
+                </td>
                 {% endif %}
-              </td>
               {% endfor %}
             </tr>
             {% endfor %}
@@ -102,37 +112,65 @@
 {% block script %}
 
   <script type="text/javascript">
+      $('.{{ group.deptId }}'+'all').click(function () {
+          $('.{{ group.deptId }}').prop('checked', this.checked);
+      });
+
       $(".checkBtn").click(function(){
-			var checkBtn = $(this);
-			var tr = checkBtn.parent().parent();
-			var empId = tr.attr('id');
-			var menuId = checkBtn.attr('name');
-            var btnchecked = checkBtn.is(":checked");
+          var checkBtn = $(this);
+          var tr = checkBtn.parent().parent();
+          var empId = tr.attr('id');
+          var menuId = checkBtn.attr('name');
+          var btnchecked = checkBtn.is(":checked");
 
-            $.ajax({
-                url: "{% url 'hr:checkauthorizationasjson' %}",
-                method: 'POST',
-                cache: false,
-                data: {"empId": empId,
-                  "menuId": menuId,
-                  "btnchecked": btnchecked,
-                },
-                headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                success: function (returnData) {
-                    console.log(returnData)
-                }
-            });
+          $.ajax({
+              url: "{% url 'hr:checkauthorizationasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empId": empId,
+                "menuId": menuId,
+                "btnchecked": btnchecked,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  console.log(returnData);
+              }
+          });
+      });
 
+      $(".checkBtnAll").click(function(){
+          var checkBtn = $(this);
+          var tr = checkBtn.parent().parent();
+          var empId = tr.attr('id');
+          var btnchecked = checkBtn.is(":checked");
 
+          $.ajax({
+              url: "{% url 'hr:allauthorizationasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"empId": empId,
+                "btnchecked": btnchecked,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                console.log(returnData);
+                location.href = "/hr/showauthorizations/";
+              }
+          });
       });
 
       function btn_default(){
-          const defaultForm = document.getElementById('defaultForm');
-          defaultForm.submit();
+          if (confirm("기본권한을 수정하시겠습니까?") === true) {
+              const defaultForm = document.getElementById('defaultForm');
+              defaultForm.submit();
+          } else {
+              return false;
+          }
       }
 
 
       $(document).ready(function () {
+
 
       });
 
