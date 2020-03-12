@@ -40,7 +40,7 @@
             <th>도서명</th>
             <th>지은이</th>
             <th>출판사</th>
-            <th>권수</th>
+            <th>도서번호</th>
           </tr>
           </thead>
         </table>
@@ -93,6 +93,53 @@
     </div>
   </div>
 
+  <!-- modify Modal -->
+  <div class="modal fade" id="modifyModal" tabindex="-1" role="dialog" aria-labelledby="modifyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="modifyModalLabel">도서수정</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="modifyForm" method="POST" action="/supply/modifybook/" onkeydown="javascript: if (event.keyCode == 13) {btn_modify();}">
+            {% csrf_token %}
+            <input class="d-none" name="bookId">
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">도서명</label>
+                <input class="form-control" name="name">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">지은이</label>
+                <input class="form-control" name="author">
+              </div>
+            </div>
+            <div class="row mb-1">
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">출판사</label>
+                <input class="form-control" name="publisher">
+              </div>
+              <div class="col-6 mb-3 mb-sm-0">
+                <label class="text-primary font-weight-bold">도서번호</label>
+                <input class="form-control" name="code">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          <a class="btn btn-danger" href="#" onclick="btn_delete()">삭제</a>
+          <a class="btn btn-info" href="#" onclick="btn_modify()">수정</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
@@ -121,10 +168,6 @@
         return yyyy + '-' +  mm  + '-' + dd;
       }
 
-      function btn_filter() {
-          $("#filterForm").submit();
-      }
-
       function btn_insert() {
           $.ajax({
               url: "{% url 'supply:postbook' %}",
@@ -149,6 +192,50 @@
               }
           });
 
+      }
+
+      function btn_modify() {
+          $.ajax({
+              url: "{% url 'supply:modifybook' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "bookId": $('#modifyForm [name="bookId"]').val(),
+                  "name": $('#modifyForm [name="name"]').val(),
+                  "author": $('#modifyForm [name="author"]').val(),
+                  "publisher": $('#modifyForm [name="publisher"]').val(),
+                  "code": $('#modifyForm [name="code"]').val(),
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  if (returnData === 'Y') {
+                      $('.close').click();
+                      alert('수정이 완료되었습니다.');
+                      location.reload();
+                  }
+              }
+          });
+      }
+
+      function btn_delete() {
+          if (confirm('삭제하시겠습니까?')) {
+              $.ajax({
+                  url: "{% url 'supply:deletebook' %}",
+                  method: 'POST',
+                  cache: false,
+                  data: {
+                      "bookId": $('#modifyForm [name="bookId"]').val(),
+                  },
+                  headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                  success: function (returnData) {
+                      if (returnData === 'Y') {
+                          $('.close').click();
+                          alert('삭제가 완료되었습니다.');
+                          location.reload();
+                      }
+                  }
+              });
+          }
       }
 
       function replaceAll(str, searchStr, replaceStr) {
@@ -215,6 +302,17 @@
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                   let row = $('td', nRow);
               },
+          });
+
+          $("#showbooks").on("click", 'tr', function () {
+              const data = booksTable.row(this).data();
+
+              $('#modifyForm [name="bookId"]').val(data.bookId);
+              $('#modifyForm [name="name"]').val(data.name);
+              $('#modifyForm [name="author"]').val(data.author);
+              $('#modifyForm [name="publisher"]').val(data.publisher);
+              $('#modifyForm [name="code"]').val(data.code);
+              $('#modifyModal').modal('show');
           });
       });
 

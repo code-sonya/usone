@@ -17,6 +17,7 @@ insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values 
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('보고관리','Y','DP현황','s26');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','Y','도서신청','s31');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','도서열람대장','s32');
+insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','도서관리대장','s37');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','재고현황','s33');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','비품관리대장','s34');
 insert into hr_menu (mainCategory, defaultStatus, subCategory, codeName) values ('물품관리','N','입출고관리','s35');

@@ -93,6 +93,32 @@ def post_book(request):
 
 
 @login_required
+def modify_book(request):
+    if request.method == 'POST':
+        book = Book.objects.get(bookId=request.POST['bookId'])
+        book.name = request.POST['name']
+        book.author = request.POST['author']
+        book.publisher = request.POST['publisher']
+        book.code = request.POST['code']
+        book.save()
+        result = 'Y'
+
+        structure = json.dumps(result, cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def delete_book(request):
+    if request.method == 'POST':
+        book = Book.objects.get(bookId=request.POST['bookId'])
+        book.delete()
+        result = 'Y'
+
+        structure = json.dumps(result, cls=DjangoJSONEncoder)
+        return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
 def show_books(request):
     # 보유도서
     allBook = Book.objects.all().count()
