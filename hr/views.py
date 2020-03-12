@@ -890,6 +890,30 @@ def authorization_asjson(request):
     return HttpResponse(structure, content_type='application/json')
 
 
+@login_required
+@csrf_exempt
+def allauthorization_asjson(request):
+    empId = request.POST['empId']
+    btnchecked = request.POST['btnchecked']
+    employee = Employee.objects.get(empId=empId)
+    if btnchecked == 'false':
+        Authorization.objects.filter(Q(empId=empId)).delete()
+        result ='delete'
+    else:
+        menus = Menu.objects.all()
+        for menu in menus:
+            try:
+                Authorization.objects.get(Q(empId=empId) & Q(menuId=menu.menuId))
+            except:
+                Authorization.objects.create(
+                    empId=employee,
+                    menuId=menu
+                )
+        result = 'create'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
 @csrf_exempt
 @login_required
 def show_authorizations(request):
@@ -897,23 +921,30 @@ def show_authorizations(request):
     if request.method == 'POST':
         defaultAuth = request.POST.getlist('defaultAuth')
         menus = Menu.objects.all()
-        # 추가된 기본 메뉴 권한 추가
-        beforeMenus = set(menus.filter(defaultStatus='Y').values_list('menuId', flat=True))
-        afterMenus = set([int(d) for d in defaultAuth])
-        addMenus = afterMenus - beforeMenus
-        # for employee in employees:
-        #     for auth in addMenus:
-
+        for employee in employees:
+            for auth in defaultAuth:
+                try:
+                    Authorization.objects.get(Q(empId=employee.empId) & Q(menuId=auth))
+                except:
+                    Authorization.objects.create(
+                        empId=employee,
+                        menuId=Menu.objects.get(menuId=auth)
+                    )
         menus.update(defaultStatus='N')
         menus.filter(menuId__in=defaultAuth).update(defaultStatus='Y')
 
-    menus = Menu.objects.all().exclude(codeName__contains='t').order_by('-defaultStatus', 'menuId')
+    allmenus = Menu.objects.all()
+    menus = allmenus.exclude(codeName__contains='t').order_by('-defaultStatus', 'menuId')
     authorizations = []
     for employee in employees:
         authorizationList = {}
         authorizationList["empId"] = employee.empId
         authorizationList[employee.empName] = employee.empName
         auths = Authorization.objects.filter(Q(empId=employee.empId))
+        if allmenus.count() == auths.count():
+            authorizationList["all"] = 'Y'
+        else:
+            authorizationList["all"] = 'N'
         for menu in menus:
             auth = auths.filter(menuId=menu.menuId)
             if auth:
@@ -961,7 +992,6 @@ def checkauthorization_asjson(request):
             # 대분류 체크 후 추가
             if codeName[0] == 's':
                 try:
-                    print(codeName[1])
                     if Authorization.objects.filter(Q(empId=empId) & Q(menuId__codeName='t{}0'.format(codeName[1]))):
                         result = 's-create t-exits'
                     else:

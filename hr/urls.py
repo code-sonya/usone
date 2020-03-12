@@ -46,4 +46,6 @@ urlpatterns = [
     url(r'^authorizationasjson/$', views.authorization_asjson, name='authorizationasjson'),
     url(r'^showauthorizations/$', views.show_authorizations, name='showauthorizations'),
     url(r'^checkauthorizationasjson/$', views.checkauthorization_asjson, name='checkauthorizationasjson'),
+    url(r'^allauthorizationasjson/$', views.allauthorization_asjson, name='allauthorizationasjson'),
+
 ]
