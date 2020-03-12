@@ -783,25 +783,27 @@ def contracts_asjson(request):
     else:
         contracts = Contract.objects.filter(Q(contractStep='예정') | Q(contractStep='확정'))
 
-    if user.user.is_staff or user.empPosition.positionRank < 1:
-        None
-    elif user.empManager == 'Y':
-        contracts = contracts.filter(empDeptName=user.empDeptName)
-    else:
-        contracts = contracts.filter(Q(empId=user.empId) | Q(empId__empStatus='N'))
+    # if user.user.is_staff or user.empPosition.positionRank < 1:
+    #     None
+    # elif user.empManager == 'Y':
+    #     contracts = contracts.filter(empDeptName=user.empDeptName)
+    # else:
+    #     contracts = contracts.filter(Q(empId=user.empId) | Q(empId__empStatus='N'))
 
     revenues = Revenue.objects.all()
     purchases = Purchase.objects.all()
     if startdate:
-        revenues = revenues.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
-        purchases = purchases.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
+        contracts = contracts.filter(contractDate__gte=startdate)
+        # revenues = revenues.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
+        # purchases = purchases.filter(predictBillingDate__gte=startdate).values_list('contractId__contractId', flat=True).distinct()
     if enddate:
-        revenues = revenues.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
-        purchases = purchases.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
-    contracts = contracts.filter(
-        Q(contractId__in=revenues) |
-        Q(contractId__in=purchases)
-    )
+        contracts = contracts.filter(contractDate__lte=enddate)
+        # revenues = revenues.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+        # purchases = purchases.filter(predictBillingDate__lte=enddate).values_list('contractId__contractId', flat=True).distinct()
+    # contracts = contracts.filter(
+    #     Q(contractId__in=revenues) |
+    #     Q(contractId__in=purchases)
+    # )
     if contractStep != '전체' and contractStep != '':
         contracts = contracts.filter(contractStep=contractStep)
     if empDeptName != '전체' and empDeptName != '':
@@ -886,7 +888,7 @@ def revenues_asjson(request):
         'billingDate', 'contractId__contractCode', 'contractId__contractName', 'revenueCompany__companyNameKo',
         'revenuePrice', 'revenueProfitPrice', 'contractId__empName', 'contractId__empDeptName', 'revenueId',
         'predictBillingDate', 'predictDepositDate', 'depositDate', 'contractId__contractStep',
-        'contractId__depositCondition', 'contractId__depositConditionDay', 'comment'
+        'contractId__depositCondition', 'contractId__depositConditionDay', 'comment', 'contractId__contractEndDate'
     )
     structure = json.dumps(list(revenues), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -1269,8 +1271,11 @@ def purchases_asjson(request):
     if maincategory:
         purchase = purchase.filter(contractId__mainCategory__icontains=maincategory)
 
-    purchase = purchase.values('contractId__contractName', 'purchaseCompany__companyNameKo', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
-                               'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment')
+    purchase = purchase.values(
+        'contractId__contractName', 'purchaseCompany__companyNameKo', 'contractId__contractCode', 'predictBillingDate', 'billingDate', 'purchasePrice',
+        'predictWithdrawDate', 'withdrawDate', 'purchaseId', 'contractId__empDeptName', 'contractId__empName', 'contractId__contractStep', 'comment',
+        'contractId__contractEndDate',
+    )
     structure = json.dumps(list(purchase), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1358,10 +1363,10 @@ def show_outstandingcollections(request):
         empName = request.POST['empName']
         saleCompanyName = request.POST['saleCompanyName']
         contractName = request.POST['contractName']
-        contractStep = request.POST['contractStep']
+        contractStep = ''
         modifyMode = request.POST['modifyMode']
         maincategory = ''
-        issued = request.POST['issued']
+        issued = ''
 
     else:
         startdate = ''
@@ -1430,10 +1435,10 @@ def show_accountspayables(request):
         empName = request.POST['empName']
         saleCompanyName = request.POST['saleCompanyName']
         contractName = request.POST['contractName']
-        contractStep = request.POST['contractStep']
+        contractStep = '전체'
         modifyMode = request.POST['modifyMode']
         maincategory = ''
-        issued = request.POST['issued']
+        issued = '전체'
     else:
         startdate = ''
         enddate = ''
