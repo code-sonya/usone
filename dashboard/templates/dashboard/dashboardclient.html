@@ -747,14 +747,14 @@
         }
     });
 
-    $("#barPriceProfit").click(
-        function (evt) {
-            showcontracts.clear().draw();
-            $('#servicesRow').attr('class', 'row d-none');
-            $('#contractsRow').attr('class', 'row d-block');
-            pushContractTable(showcontracts);
-        }
-    );
+    {#$("#barPriceProfit").click(#}
+    {#    function (evt) {#}
+    {#        showcontracts.clear().draw();#}
+    {#        $('#servicesRow').attr('class', 'row d-none');#}
+    {#        $('#contractsRow').attr('class', 'row d-block');#}
+    {#        pushContractTable(showcontracts);#}
+    {#    }#}
+    {#);#}
 
     // Bar Chart 2
     const ctx2 = document.getElementById("barOverhour");
@@ -865,14 +865,14 @@
             }
         },
     });
-    $("#barOverhour").click(
-        function (evt) {
-            showservices.clear().draw();
-            $('#servicesRow').attr('class', 'row d-block');
-            $('#contractsRow').attr('class', 'row d-none');
-            pushServiceTable(showservices);
-        }
-    );
+    {#$("#barOverhour").click(#}
+    {#    function (evt) {#}
+    {#        showservices.clear().draw();#}
+    {#        $('#servicesRow').attr('class', 'row d-block');#}
+    {#        $('#contractsRow').attr('class', 'row d-none');#}
+    {#        pushServiceTable(showservices);#}
+    {#    }#}
+    {#);#}
 
    $(document).ready(function () {
        showservices = $('#showservices').DataTable({
