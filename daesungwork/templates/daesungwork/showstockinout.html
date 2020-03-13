@@ -87,11 +87,9 @@
             <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
               <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
             </a>
-            <!--{% if user.is_staff %}-->
-              <!--<a class="btn btn-primary" href="#" role="button" onclick="open_insertmodal()">-->
-                <!--<i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 일괄등록</span>-->
-              <!--</a>-->
-            <!--{% endif %}-->
+            <a class="btn btn-primary" href="#" role="button" onclick="open_insertmodal()">
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 일괄등록</span>
+            </a>
           </div>
         </div>
         <div class="card-body">
@@ -147,14 +145,17 @@
           <form method="POST" id="postForm">
             {% csrf_token %}
             <div class="form-group row m-2">
-              <div class="col-xl-4">
+              <div class="col-xl-3">
                 <label for="productName" class="font-weight-bold text-primary"> 모델명 </label> {{ form.productName }}
               </div>
-              <div class="col-xl-4">
+              <div class="col-xl-3">
                 <label for="sizeName" class="font-weight-bold text-primary"> 사이즈 </label> {{ form.sizeName }}
               </div>
-              <div class="col-xl-3">
+              <div class="col-xl-2">
                 <label for="quantity" class="font-weight-bold text-primary"> 수량 </label> {{ form.quantity }}
+              </div>
+              <div class="col-xl-3">
+                <label for="comment" class="font-weight-bold"> 비고 </label> {{ form.comment }}
               </div>
               <div class="col-xl-1 text-center">
                 {% for auth in authorizations %}
@@ -179,6 +180,7 @@
                 <td>사이즈</td>
                 <td>입고량</td>
                 <td>출고량</td>
+                <td>비고</td>
                 <td>작업자</td>
                 <td>작업일시</td>
               </tr>
@@ -189,6 +191,7 @@
                 <td></td>
                 <td></td>
                 <td class="text-right">TOTAL:</td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -255,12 +258,72 @@
     </div>
   </div>
 
+  <!-- insert Modal -->
+  <div class="modal fade" id="insertModal" tabindex="-1" role="dialog" aria-labelledby="insertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header bg-info text-gray-100">
+          <h5 class="modal-title" id="insertModalLabel">일괄등록</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span class="text-gray-100" aria-hidden="true">×</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <form id="insertForm" action="/daesungwork/insertstockinout/" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_insert();}">
+            {% csrf_token %}
+            <div class="row mb-1">
+              <div class="col-6">
+                <label for="insertProduct" class="font-weight-bold text-primary">모델명</label>
+                <select id="insertProduct" name="product" onchange="change_product()">
+                  <option value="">------</option>
+                  {% for product in products %}
+                  <option value="{{ product.productId }}">
+                    {{ product.modelName }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </form>
+          <table id="insertTable" class="display" style="width:100%">
+            <thead style="width:100%">
+            <tr>
+              <th class="font-weight-bold text-primary">사이즈</th>
+              <th class="font-weight-bold text-primary">수량</th>
+              <th class="font-weight-bold text-primary">비고</th>
+              <th><i id="addSize" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
+          {% for auth in authorizations %}
+            {% if auth.menuId.codeName == 's35-1' %}
+              <a class="btn btn-danger" href="#" onclick="btn_insert('in')">입고</a>
+            {% endif %}
+            {% if auth.menuId.codeName == 's35-2' %}
+              <a class="btn btn-primary" href="#" onclick="btn_insert('out')">출고</a>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 
 {% block script %}
 
   <script type="text/javascript">
+      function open_insertmodal() {
+          $('#insertModal').modal('show');
+          setTimeout("$('#addSale').click()", 150);
+      }
 
       function product_select(productSelectId) {
           let productSelectObj = $('#' + productSelectId);
@@ -321,6 +384,12 @@
           }
       }
 
+      function change_product() {
+          let insertTable = $('#insertTable').DataTable();
+          insertTable.rows().remove().draw();
+          console.log(insertTable);
+      }
+
       function btn_post(typeName) {
           const modelName = document.getElementById("productName").value;
           const sizeName = document.getElementById("sizeName").value;
@@ -339,10 +408,10 @@
           }
           const postForm = document.getElementById('postForm');
 
-          if(typeName == "입고") {
+          if (typeName == "입고") {
               postForm.action = "/daesungwork/poststockinout/입고/";
               postForm.submit();
-          }else if(typeName == "출고") {
+          } else if(typeName == "출고") {
               $.ajax({
               url: "{% url 'daesungwork:inoutcheckasjson' %}",
               method: 'POST',
@@ -364,7 +433,98 @@
                   }
               });
           }
+      }
 
+      function btn_insert(inout) {
+          const form = document.getElementById("insertForm");
+          const typeName = document.createElement("input");
+          typeName.setAttribute("type", "hidden");
+          typeName.setAttribute("name", "typeName");
+          typeName.setAttribute("value", inout);
+          form.appendChild(typeName);
+          if (!$('#insertProduct').val()) {
+              alert("모델명을 선택해주세요."); return false;
+          }
+
+          const lengthSale = $('.insertTableCount').length; // x 그림에 insertTableCount class 추가해서 길이 셈.
+          const listSale = [];
+          for (let i=0; i<lengthSale; i++) {
+              if ($('select[name="insertSize"]').eq(i).val() === null) {
+                  alert("사이즈를 선택해주세요."); return false;
+              }
+              if ($('input[name="insertQuantity"]').eq(i).val() === '') {
+                  alert("수량을 입력해주세요."); return false;
+              }
+              if (inout === 'out') {
+                  $.ajax({
+                      url: "{% url 'daesungwork:inoutcheckasjson' %}",
+                      method: 'POST',
+                      async: false,
+                      cache: false,
+                      data: {
+                          "modelName": $('#insertProduct').val(),
+                          "sizeName": $('select[name="insertSize"]').eq(i).val(),
+                      },
+                      headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                      success: function (returnData) {
+                          var result = parseInt(returnData);
+                          if (result >= $('input[name="insertQuantity"]').eq(i).val()) {
+                              var data = new Object();
+                              data.size = $('select[name="insertSize"]').eq(i).val();
+                              data.quantity = $('input[name="insertQuantity"]').eq(i).val();
+                              data.comment = $('input[name="insertComment"]').eq(i).val();
+                              listSale.push(data);
+                          } else{
+                              alert($('select[name="insertSize"] option:selected').eq(i).text() + ' 사이즈의 재고가 부족해 출고할 수 없습니다.\n' +
+                                  '현재 재고량은 ' + result + ' 입니다.');
+                              return false;
+                          }
+                      }
+                  });
+              } else if (inout === 'in') {
+                  var data = new Object();
+                  data.size = $('select[name="insertSize"]').eq(i).val();
+                  data.quantity = $('input[name="insertQuantity"]').eq(i).val();
+                  data.comment = $('input[name="insertComment"]').eq(i).val();
+                  listSale.push(data);
+              }
+          }
+          const jsonSale = JSON.stringify(listSale);
+          const sale = document.createElement("input");
+          sale.setAttribute("type", "hidden");
+          sale.setAttribute("name", "jsonStock");
+          sale.setAttribute("value", jsonSale);
+          form.appendChild(sale);
+
+          if (listSale.length > 0) {
+              if (confirm("일괄등록 하시겠습니까?") === true) {
+                  form.submit();
+              }
+          } else {
+              alert('등록할 수 있는 항목이 없습니다.');
+              return false;
+          }
+
+
+      }
+
+      function changeModel(modelName, sizeId) {
+          $.ajax({
+              url: "{% url 'daesungwork:modelasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"modelName": modelName,},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  let unitPrice = returnData[0];
+                  let sizes = returnData[1];
+                  $('#' + sizeId).empty();
+                  for (var count = 0; count < sizes.length; count++) {
+                      var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
+                      $('#' + sizeId).append(option);
+                  }
+              }
+          });
       }
 
       $(document).ready(function () {
@@ -393,22 +553,24 @@
                   {data: "sizeName__size"},
                   {data: "quantity"},
                   {data: "quantity"},
+                  {data: "comment"},
                   {data: "managerEmp__empName"},
                   {data: "createdDateTime"},
               ],
               "columnDefs": [
-                  {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 7, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "15%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 7, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
               "deferRender": true,
               "bLengthChange": false,
-              "order": [[7, 'desc']],
+              "order": [[8, 'desc']],
               "searching": true,
               "paging": true,
               "info": false,
@@ -437,7 +599,7 @@
                       $('td:eq(4)', nRow).text('');
                       $('td:eq(5)', nRow).text(aData.quantity.toLocaleString());
                   }
-                  $('td:eq(7)', nRow).text(replaceAll(aData.createdDateTime, "-", "-"));
+                  $('td:eq(8)', nRow).text(replaceAll(aData.createdDateTime, "-", "."));
               },
               "footerCallback": function () {
                   var api = this.api();
@@ -456,8 +618,74 @@
                }
           });
 
+          let insertTable = $('#insertTable').DataTable({
+              "autoWidth": true,
+              "searching": false,
+              "paging": false,
+              "info": false,
+              "scrollY": "60vh",
+              "scrollX": true,
+              "scrollCollapse": true,
+              'fnCreatedRow': function (nRow, aData, iDataIndex) {
+                  $(nRow).attr('id', 'row' + iDataIndex);
+              },
+              "ordering": false,
+              "columnDefs": [
+                  {
+                      targets: 0, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+                  {
+                      targets: 1, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+                  {
+                      targets: 2, width: "30%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+                  {
+                      targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      createdCell: function (td, cellData, rowData, row, col) {
+                          $(td).css('padding-bottom', '30px');
+                          $(td).css('padding-top', '20px');
+                      }
+                  },
+              ],
+          });
+
+          let sizeCounter = 0;
+
+          $('#addSize').on('click', function () {
+              insertTable.row.add([
+                  '<select name="insertSize" id="size1' + sizeCounter + '"></select>',
+                  '<input class="form-control" name="insertQuantity" id="size2' + sizeCounter + '" type="number">',
+                  '<input class="form-control" name="insertComment" id="size3' + sizeCounter + '">',
+                  '<i class="fas fa-times-circle insertTableCount">',
+              ]).draw();
+              select2_modal('size1' + sizeCounter, 'insertModal');
+              changeModel($('#insertProduct').val(), 'size1' + sizeCounter);
+              sizeCounter++;
+          });
+
+          $('#insertTable').on('click', 'i', function () {
+              insertTable
+                  .row($(this).parents('tr'))
+                  .remove()
+                  .draw();
+          });
+
           // modal select2
           select2_modal('filterProduct', 'filterModal');
+          select2_modal('insertProduct', 'insertModal');
 
       });
 

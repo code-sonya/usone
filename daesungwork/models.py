@@ -233,6 +233,7 @@ class StockManagement(models.Model):
     productName = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
     sizeName = models.ForeignKey(Size, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.IntegerField()
+    comment = models.CharField(max_length=200, null=True, blank=True)
     createdDateTime = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
