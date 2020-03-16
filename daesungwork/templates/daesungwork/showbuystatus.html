@@ -225,7 +225,7 @@
               {{ form.quantity }}
             </div>
             <div class="col-xl-1">
-              <label for="salePrice" class="font-weight-bold text-primary"> 공급가 </label>
+              <label for="salePrice" class="font-weight-bold text-primary"> 개별공급가 </label>
               {{ form.salePrice }}
             </div>
             <div class="col-xl-1">
@@ -253,7 +253,7 @@
             <td>거래처</td>
             <td>품명</td>
             <td>수량</td>
-            <td>공급가</td>
+            <td>개별공급가</td>
             <td>부가세</td>
             <td>합계</td>
             <td>비고</td>
@@ -369,7 +369,7 @@
           <tr>
             <th class="font-weight-bold text-primary">품명</th>
             <th class="font-weight-bold text-primary">수량</th>
-            <th class="font-weight-bold text-primary">공급가</th>
+            <th class="font-weight-bold text-primary">개별공급가</th>
             <th class="font-weight-bold text-primary">부가세</th>
             <th class="font-weight-bold text-primary">합계</th>
             <th class="font-weight-bold">비고</th>
@@ -440,7 +440,7 @@
             alert("수량을 입력해주세요"); return false;
         }
         if (document.getElementById("salePrice").value === '') {
-            alert("공급가를 입력해주세요."); return false;
+            alert("개별공급가를 입력해주세요."); return false;
         }
         const postForm = document.getElementById('postForm');
         postForm.submit();
@@ -472,7 +472,7 @@
                 alert("수량을 입력해주세요."); return false;
             }
             if ($('input[name="insertSalePrice"]').eq(i).val() === '') {
-                alert("공급가를 입력해주세요."); return false;
+                alert("개별공급가를 입력해주세요."); return false;
             }
 
             var data = new Object();
