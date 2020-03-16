@@ -930,18 +930,39 @@ def show_authorizations(request):
     employees = Employee.objects.filter(empStatus='Y')
     if request.method == 'POST':
         defaultAuth = request.POST.getlist('defaultAuth')
+        print(defaultAuth)
         menus = Menu.objects.all()
+        mainList = []
         for employee in employees:
             for auth in defaultAuth:
+                print("auth", auth)
+                # 소분류
                 try:
-                    Authorization.objects.get(Q(empId=employee.empId) & Q(menuId=auth))
+                    sub = Authorization.objects.get(Q(empId=employee.empId) & Q(menuId=auth))
                 except:
-                    Authorization.objects.create(
+                    sub = Authorization.objects.create(
                         empId=employee,
                         menuId=Menu.objects.get(menuId=auth)
                     )
+                # 대분류
+                if sub.menuId.codeName[0] == 's':
+                    try:
+                        print(sub.menuId.codeName)
+                        subName = str(sub.menuId.codeName)[1]
+                        print(subName)
+                        main = Authorization.objects.get(Q(empId=employee.empId) & Q(menuId__condeName='t{}0'.format(subName)))
+                    except:
+                        main = Authorization.objects.create(
+                                    empId=employee,
+                                    menuId=Menu.objects.get(Q(codeName='t{}0'.format(subName)))
+                                )
+                        mainList.append(str(main.menuId_id))
+
+        defaultAuth.extend(mainList)
+        print(defaultAuth)
         menus.update(defaultStatus='N')
-        menus.filter(menuId__in=defaultAuth).update(defaultStatus='Y')
+        if defaultAuth:
+            menus.filter(menuId__in=defaultAuth).update(defaultStatus='Y')
 
     allmenus = Menu.objects.all()
     menus = allmenus.exclude(codeName__contains='t').order_by('-defaultStatus', 'codeName')
