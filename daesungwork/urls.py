@@ -75,9 +75,12 @@ urlpatterns = [
     url(r'^modifystock/(?P<stockcheckId>.+)/$', views.modify_stock, name='modifystock'),
     url(r'^typeproductsasjson/$', views.typeproducts_asjson, name='typeproductsasjson'),
     url(r'^viewstockpdf/(?P<stockcheckId>.+)/$', views.view_stock_pdf, name='viewstockpdf'),
+    # 재고관리-2
+    url(r'^showstockmanagement/$', views.show_stockmanagement, name='showstockmanagement'),
     # 입출고 관리
     url(r'^showstockinout/$', views.show_stockinout, name='showstockinout'),
     url(r'^poststockinout/(?P<typeName>.+)/$', views.post_stockinout, name='sohwstockinout'),
     url(r'^stockinoutasjson/$', views.stockinout_asjson, name='stockinoutasjson'),
     url(r'^inoutcheckasjson/$', views.inoutcheck_asjson, name='inoutcheckasjson'),
+    url(r'^insertstockinout/$', views.insert_stock_inout, name='insertstockinout'),
 ]

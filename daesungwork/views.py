@@ -1,3 +1,4 @@
+from django.db import connection
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import loader
@@ -6,6 +7,7 @@ from client.models import Company
 from .models import Center, CenterManager, CenterManagerEmp, CheckList, ConfirmCheckList, Affiliate, Product, Size, Warehouse, \
     WarehouseMainCategory, WarehouseSubCategory, Sale, DailyReport, Display, Reproduction, Type, Buy, StockCheck, ProductCheck, StockManagement
 from .forms import CenterManagerForm, SaleForm, ProductForm, WarehouseForm, DailyReportForm, DisplayForm, ReproductionForm, BuyForm, StockManagementForm
+from .functions import show_stock_sql
 from django.contrib.auth.decorators import login_required
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -889,7 +891,7 @@ def delete_product(request, productId):
 @csrf_exempt
 def delete_size(request, sizeId):
     size = Size.objects.get(sizeId=sizeId)
-    productId = size.productId
+    productId = size.productId.productId
     size.delete()
     return redirect('daesungwork:viewproduct', productId)
 
@@ -1093,15 +1095,28 @@ def delete_sale(request, saleId):
 @csrf_exempt
 def show_dailyreports(request):
     template = loader.get_template('daesungwork/showdailyreports.html')
+    today = datetime.datetime.today()
+    yesterday = today - datetime.timedelta(days=1)
+    weekday = ['월', '화', '수', '목', '금', '토', '일']
+
     employees = Employee.objects.all()
     if request.method == 'POST':
         startdate = request.POST['startdate']
         enddate = request.POST['enddate']
         writer = request.POST['writer']
     else:
-        startdate = ''
-        enddate = ''
+        startdate = str(yesterday)[:10]
+        enddate = str(today)[:10]
         writer = ''
+
+    displayStartDate = ''
+    displayEndDate = ''
+    if startdate:
+        displayStartDate = startdate.replace('-', '.')[2:] + \
+                           '(' + weekday[datetime.date(int(startdate[:4]), int(startdate[5:7]), int(startdate[8:10])).weekday()] + ')'
+    if enddate:
+        displayEndDate = enddate.replace('-', '.')[2:] + \
+                         '(' + weekday[datetime.date(int(enddate[:4]), int(enddate[5:7]), int(enddate[8:10])).weekday()] + ')'
 
     form = DailyReportForm(initial={'writeEmp': request.user.employee.empId})
     context = {
@@ -1110,6 +1125,8 @@ def show_dailyreports(request):
         'enddate': enddate,
         'writer': writer,
         'employees': employees,
+        'displayStartDate': displayStartDate,
+        'displayEndDate': displayEndDate,
     }
 
     return HttpResponse(template.render(context, request))
@@ -1517,7 +1534,9 @@ def show_stockinout(request):
     remaining = inRemaining - outRemaining
     form = StockManagementForm()
     products = Product.objects.filter(productStatus="Y")
-    authorizations = Authorization.objects.filter(Q(empId=request.user.employee.empId) & Q(menuId__codeName__in=['s35', 's35-1', 's35-2']))
+    authorizations = Authorization.objects.filter(
+        Q(empId=request.user.employee.empId) & Q(menuId__codeName__in=['s35', 's35-1', 's35-2'])
+    ).order_by('menuId__codeName')
     if authorizations:
         context = {
             "form": form,
@@ -1575,7 +1594,10 @@ def stockinout_asjson(request):
     if sizeName:
         stockmanagement = stockmanagement.filter(sizeName=sizeName)
 
-    stockmanagement = stockmanagement.values('stockManagementId', 'managerEmp__empName', 'typeName', 'productName__productPicture', 'productName__modelName', 'sizeName__size', 'quantity', 'createdDateTime')
+    stockmanagement = stockmanagement.values(
+        'stockManagementId', 'managerEmp__empName', 'typeName', 'productName__productPicture',
+        'productName__modelName', 'sizeName__size', 'quantity', 'createdDateTime', 'comment'
+    )
     structure = json.dumps(list(stockmanagement), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
 
@@ -1602,3 +1624,77 @@ def warehouseimage_asjson(request):
     warehouse = {'img': str(warehouseDrawing)}
     structure = json.dumps(warehouse, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+@csrf_exempt
+def show_stockmanagement(request):
+    template = loader.get_template('daesungwork/showstockmanagement.html')
+
+    productTypeList = Type.objects.all()
+    if request.method == 'POST':
+        productType = request.POST['productType']
+    else:
+        productType = '안전화'
+
+    # productType에 따른 products
+    products = Product.objects.filter(productStatus='Y', typeName__typeName=productType).annotate(
+        sumQuantity=Sum(
+            Case(
+                When(stockmanagement__typeName='입고', then=F('stockmanagement__quantity')),
+                When(stockmanagement__typeName='출고', then=F('stockmanagement__quantity')*-1),
+                default=0, output_field=IntegerField()
+            )
+        )
+    )
+
+    # products의 sizes
+    sizes = products.filter(size__isnull=False).values('size__size').distinct().order_by('size__size')
+    # sizes = products.filter(size__isnull=False).values('size__size').distinct().order_by('size__size')
+
+    query = show_stock_sql(productType)
+    rows = []
+    for q in query:
+        tempId = str(q[0]) + '-' + str(q[3])
+        tempValue = '<div style="cursor:pointer" onclick="stock_filter(' + str(q[0]) + ', ' + str(q[1]) + ')">'
+        tempValue += format(q[4], ',')
+        if q[5] > 0:
+            tempValue += '<br><span class="text-danger">(+' + format(q[5], ',') + ')'
+        elif q[5] < 0:
+            tempValue += '<br><span class="text-primary">(' + format(q[5], ',') + ')'
+        tempValue += '</div>'
+        rows.append({'id': tempId, 'value': tempValue})
+
+    authorizations = Authorization.objects.filter(Q(empId=request.user.employee.empId) & Q(menuId__codeName__in=['s35', 's35-1', 's35-2']))
+    if authorizations:
+        context = {
+            'productTypeList': productTypeList,
+            'productType': productType,
+            'products': products,
+            'sizes': sizes,
+            'rows': rows,
+        }
+        return HttpResponse(template.render(context, request))
+    else:
+        return HttpResponse("접근권한이 없습니다.")
+
+
+def insert_stock_inout(request):
+    product = Product.objects.get(productId=request.POST['product'])
+    typeName = request.POST['typeName']
+    if typeName == 'in':
+        typeName = '입고'
+    elif typeName == 'out':
+        typeName = '출고'
+    jsonStock = json.loads(request.POST['jsonStock'])
+    print(jsonStock)
+    for stock in jsonStock:
+        StockManagement.objects.create(
+            managerEmp=Employee.objects.get(empId=request.user.employee.empId),
+            typeName=typeName,
+            productName=product,
+            sizeName=Size.objects.get(sizeId=stock['size']),
+            quantity=stock['quantity'],
+            comment=stock['comment'],
+        )
+    return redirect('daesungwork:showstockinout')

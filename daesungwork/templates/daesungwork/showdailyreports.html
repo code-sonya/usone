@@ -88,8 +88,12 @@
         </div>
       </div>
       <div class="card-body">
-        {% if startdate or enddate %}
-        <div>조회 기간 :  {% if startdate %} {{ startdate }} {% endif %} ~ {% if enddate %} {{ enddate }} {% endif %} </div>
+        {% if displayStartDate or displayEndDate %}
+        <div>
+          조회 기간 :
+          {% if displayStartDate %} {{ displayStartDate }} {% else %} 전체 {% endif %} ~
+          {% if displayEndDate %} {{ displayEndDate }} {% else %} 전체 {% endif %}
+        </div>
         {% endif %}
         <div id="dailyreportdiv">
           <table id="showdailyreports" class="display" style="width:100%">
@@ -174,11 +178,11 @@
           <div class="row mb-1">
             <div class="col-6">
               <label for="startdate" class="font-weight-bold text-primary">시작 일자</label>
-              <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" required>
+              <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate" value="{{ startdate }}" required>
             </div>
             <div class="col-6">
               <label for="enddate" class="font-weight-bold text-primary">종료 일자</label>
-              <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" required>
+              <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate" value="{{ enddate }}" required>
             </div>
           </div>
           <div class="row mb-1">

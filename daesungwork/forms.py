@@ -235,7 +235,7 @@ class StockManagementForm(forms.ModelForm):
 
     class Meta:
         model = StockManagement
-        fields = ('productName', 'sizeName', 'quantity')
+        fields = ('productName', 'sizeName', 'quantity', 'comment')
 
         widgets = {
             'productName': forms.Select(attrs={
@@ -244,7 +244,12 @@ class StockManagementForm(forms.ModelForm):
             'sizeName': forms.Select(attrs={
                 'class': 'single-select', 'id': 'sizeName'
             }),
-            'quantity': forms.TextInput(attrs={'class': 'form-control', 'type': 'number', 'id': 'quantity'}),
+            'quantity': forms.TextInput(attrs={
+                'class': 'form-control', 'type': 'number', 'id': 'quantity'
+            }),
+            'comment': forms.TextInput(attrs={
+                'class': 'form-control', 'id': 'comment'
+            }),
         }
 
     def __init__(self, *args, **kwargs):

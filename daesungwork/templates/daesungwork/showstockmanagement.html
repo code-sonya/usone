@@ -1,0 +1,248 @@
+{% extends "dashboard/layout.html" %}
+{% load humanize %}
+
+
+{% block title %}
+  재고관리
+{% endblock %}
+
+
+{% block css %}
+  <style>
+    pc-table {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 5px 15px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 17px;
+      border: 1px solid rgba(206, 210, 219, 0.64);
+    }
+
+    pc-table2 {
+      color: #333333;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+
+    .pc-table2 td, .pc-table th {
+      padding: 3px 10px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 15px;
+      border: 1px solid rgba(206, 210, 219, 0.64);
+    }
+
+    .thumbnail{
+    position: relative;
+    z-index: 0;
+    }
+
+    .thumbnail:hover{
+    background-color: transparent;
+    z-index: 50;
+    }
+
+    .thumbnail span{ /*CSS for enlarged image*/
+    position: absolute;
+    background-color: lightyellow;
+    padding: 5px;
+    left: -1000px;
+    border: 1px solid lightgrey;
+    visibility: hidden;
+    color: black;
+    text-decoration: none;
+    }
+
+    .thumbnail span img{ /*CSS for enlarged image*/
+    border-width: 0;
+    padding: 2px;
+    }
+
+    .thumbnail:hover span{ /*CSS for enlarged image on hover*/
+    visibility: visible;
+    top: 0;
+    left: 60px; /*position where enlarged image should offset horizontally */
+
+    }
+  </style>
+{% endblock %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 h3 text-gray-800">재고관리</h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-2">
+              <form method="POST" id="filterForm"> {% csrf_token %}
+              <select class="form-control" name="productType" onchange="btn_filter(this.value)">
+                {% for t in productTypeList %}
+                  <option value="{{ t.typeName }}" {% if productType == t.typeName %} selected {% endif %}>{{ t.typeName }}</option>
+                {% endfor %}
+              </select>
+              </form>
+            </div>
+            <div class="col-10 text-gray-900">
+              ※ 해당 모델에 없는 사이즈는 숫자가 표시되지 않습니다.<br>※ 하단의 숫자는 가장 최근의 변동량입니다.
+            </div>
+          </div>
+          <div class="p-3">
+            <table class="pc-table text-center" style="width:100%; color: black;">
+              <thead>
+              <tr class="font-weight-bold" style="background-color: #deeef8;">
+                <td>모델명</td>
+                <td>합계</td>
+                {% for size in sizes %}
+                  <td>{{ size.size__size }}</td>
+                {% endfor %}
+              </tr>
+              </thead>
+              <tbody>
+              {% for product in products %}
+              <tr>
+                <td><div style="cursor:pointer" onclick="stock_filter('{{ product.productId }}', '')">
+                  {{ product.modelName }}
+                </div></td>
+                <td class="font-weight-bold" style="background-color: lightgoldenrodyellow"><div style="cursor:pointer" onclick="stock_filter('{{ product.productId }}', '')">
+                  {{ product.sumQuantity | intcomma }}
+                </div></td>
+                {% for size in sizes %}
+                <td id="{{ product.productId }}-{{ size.size__size }}" class="quantity"></td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
+
+
+{% block script %}
+
+  <script type="text/javascript">
+      function btn_filter(val) {
+          document.getElementById("filterForm").submit();
+      }
+
+      function stock_filter(productId, sizeId) {
+          let $form = $('<form></form>');
+          $form.attr('action', '/daesungwork/showstockinout/');
+          $form.attr('method', 'post');
+          $form.attr('target', '_blank');
+          $form.appendTo('body');
+
+          var startdate = $('<input type="hidden" value="" name="startdate">');
+          var enddate = $('<input type="hidden" value="" name="enddate">');
+          var filterProduct = $('<input type="hidden" value="' + productId + '" name="filterProduct">');
+          var filterSize = $('<input type="hidden" value="' + sizeId + '" name="filterSize">');
+
+          $form.append(startdate).append(enddate).append(filterProduct).append(filterSize);
+          $form.submit();
+      }
+
+      function changeModel(modelName, sizeSelectId) {
+          $.ajax({
+              url: "{% url 'daesungwork:modelasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {"modelName": modelName,},
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                  var sizes = returnData[1];
+                  $('#' + sizeSelectId).empty();
+                   $('#' + sizeSelectId).append("<option value=''>------</option>");
+                  for (var count = 0; count < sizes.length; count++) {
+                      var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
+                      $('#' + sizeSelectId).append(option);
+                  }
+              }
+          });
+      }
+
+      function replaceAll(str, searchStr, replaceStr) {
+          if (str != null) {
+              var new_str = str.split(searchStr).join(replaceStr);
+              return new_str.split("T").join(" ").slice(0, 16);
+          } else {
+              return '-'
+          }
+      }
+
+      function btn_post(typeName) {
+          const modelName = document.getElementById("productName").value;
+          const sizeName = document.getElementById("sizeName").value;
+          const quantity = document.getElementById("quantity").value;
+          if (modelName === '') {
+              alert("제품명을 입력해주세요.");
+              return false;
+          }
+          if (sizeName === '') {
+              alert("사이즈를 선택해주세요.");
+              return false;
+          }
+          if (quantity === '') {
+              alert("수량을 입력해주세요.");
+              return false;
+          }
+          const postForm = document.getElementById('postForm');
+
+          if(typeName == "입고") {
+              postForm.action = "/daesungwork/poststockinout/입고/";
+              postForm.submit();
+          }else if(typeName == "출고") {
+              $.ajax({
+              url: "{% url 'daesungwork:inoutcheckasjson' %}",
+              method: 'POST',
+              cache: false,
+              data: {
+                  "modelName": modelName,
+                  "sizeName": sizeName,
+              },
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              success: function (returnData) {
+                    console.log(returnData)
+                    var result = parseInt(returnData);
+                    if((result-quantity) >= 0){
+                        postForm.action = "/daesungwork/poststockinout/출고/";
+                        postForm.submit();
+                    }else{
+                        alert('재고가 부족합니다 현재 재고량은 ' + result + ' 입니다.')
+                    }
+                  }
+              });
+          }
+      }
+
+      $(document).ready(function () {
+          let data = {};
+          {% for row in rows %}
+              data['{{ row.id }}'] = '{{ row.value|safe }}';
+          {% endfor %}
+
+          $('.quantity').each(function() {
+              $(this).html(data[$(this).attr('id')]);
+          } );
+      });
+
+
+  </script>
+
+{% endblock %}

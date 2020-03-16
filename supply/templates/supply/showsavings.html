@@ -52,14 +52,15 @@
             <th>품명</th>
             <th>현재수량</th>
             <th>누적금액</th>
-            <!--<th>규격</th>-->
-            <!--<th>구입처</th>-->
-            <!--<th>최근 설치장소<br>(사용기관)</th>-->
-            <!--<th>최근 구매일<br>(소모일)</th>-->
-            <!--<th>최근 인수자<br>(검수자)</th>-->
-            <!--<th>비고</th>-->
           </tr>
           </thead>
+          <tfoot>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
+          </tfoot>
         </table>
       </div>
     </div>
@@ -328,6 +329,15 @@
                   let row = $('td', nRow);
                   row.eq(1).text(aData.quantity.toLocaleString());
                   row.eq(2).text(aData.money.toLocaleString());
+              },
+              "footerCallback": function () {
+                  var api = this.api(), data;
+
+                  var moneyResult = 0;
+                  api.column(2, {search: 'applied'}).data().each(function (data, index) {
+                      moneyResult += parseFloat(data);
+                  });
+                  $(api.column(2).footer()).html(moneyResult.toLocaleString());
               },
           });
 
