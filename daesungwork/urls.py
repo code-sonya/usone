@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^buysasjson/$', views.buys_asjson, name='buysasjson'),
     url(r'^deletebuy/(?P<buyId>.+)/$', views.delete_buy, name='deletebuy'),
     url(r'^insertbuy/$', views.insert_buy, name='insertbuy'),
+    url(r'^change_buy_comment/$', views.change_buy_comment, name='change_buy_comment'),
     # 판매 현황
     url(r'^showsalestatus/(?P<affiliateId>.+)/$', views.show_salestatus, name='showsalestatus'),
     url(r'^postsale/(?P<affiliateId>.+)/$', views.post_sale, name='postsale'),
@@ -32,6 +33,7 @@ urlpatterns = [
     url(r'^salesasjson/$', views.sales_asjson, name='salesasjson'),
     url(r'^deletesale/(?P<saleId>.+)/$', views.delete_sale, name='deletesale'),
     url(r'^insertsale/$', views.insert_sale, name='insertsale'),
+    url(r'^change_sale_comment/$', views.change_sale_comment, name='change_sale_comment'),
     # 재생 현황
     url(r'^showreproductionstatus/$', views.show_reproductionstatus, name='showreproductionstatus'),
     url(r'^postreproduction/$', views.post_reproduction, name='postreproduction'),

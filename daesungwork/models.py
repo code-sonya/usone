@@ -140,6 +140,7 @@ class Sale(models.Model):
     unitPrice = models.IntegerField(null=True, blank=True)
     quantity = models.IntegerField(null=True, blank=True)
     salePrice = models.IntegerField()
+    comment = models.CharField(max_length=200, null=True, blank=True)
     createdDate = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

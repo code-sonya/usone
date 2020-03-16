@@ -28,7 +28,7 @@ class SaleForm(forms.ModelForm):
 
     class Meta:
         model = Sale
-        fields = ('saleDate', 'affiliate', 'client', 'product', 'size', 'unitPrice', 'quantity', 'salePrice',)
+        fields = ('saleDate', 'affiliate', 'client', 'product', 'size', 'unitPrice', 'quantity', 'salePrice', 'comment')
 
         widgets = {
             'saleDate': forms.TextInput(attrs={
@@ -57,6 +57,9 @@ class SaleForm(forms.ModelForm):
             }),
             'salePrice': forms.TextInput(attrs={
                 'class': 'form-control', 'type': 'number', 'id': 'salePrice'
+            }),
+            'comment': forms.TextInput(attrs={
+                'class': 'form-control', 'id': 'comment',
             }),
         }
 

@@ -221,7 +221,7 @@
             <div class="col-xl-2">
               <label for="saleDate" class="font-weight-bold text-primary"> 판매일자 </label> {{ form.saleDate }}
             </div>
-            <div class="col-xl-2">
+            <div class="col-xl-1">
               <label for="affiliate" class="font-weight-bold text-primary"> 판매처 </label> {{ form.affiliate }}
             </div>
             <div class="col-xl-2">
@@ -248,6 +248,9 @@
               <label for="salePrice" class="font-weight-bold text-primary"> 매출금액 </label> {{ form.salePrice }}
             </div>
             <div class="col-xl-1">
+              <label for="comment" class="font-weight-bold"> 비고 </label> {{ form.comment }}
+            </div>
+            <div class="col-xl-1 text-center">
               <span class="btn bg-primary text-white mt-4 center" onclick="btn_post()">등록</span>
             </div>
           </div>
@@ -264,20 +267,22 @@
               <td>단가</td>
               <td>수량</td>
               <td>매출금액</td>
+              <td>비고</td>
               <td><i class="fas fa-trash-alt text-secondary"></i></td>
             </tr>
             </thead>
             <tfoot>
             <tr>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
               <th style="padding: 8px 10px; text-align: right">TOTAL :</th>
               <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
               <th style="padding: 8px 10px; text-align: right"></th>
-              <th style="padding: 8px 10px; text-align: center"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
+              <th style="padding: 8px 10px; text-align: right"></th>
             </tr>
             </tfoot>
           </table>
@@ -405,6 +410,7 @@
             <th class="font-weight-bold text-primary">단가</th>
             <th class="font-weight-bold text-primary">수량</th>
             <th class="font-weight-bold text-primary">매출금액</th>
+            <th class="font-weight-bold">비고</th>
             <th><i id="addSale" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
           </tr>
           </thead>
@@ -570,6 +576,7 @@
             data.unitPrice = $('input[name="insertUnitPrice"]').eq(i).val();
             data.quantity = $('input[name="insertQuantity"]').eq(i).val();
             data.salePrice = $('input[name="insertSalePrice"]').eq(i).val();
+            data.comment = $('input[name="insertComment"]').eq(i).val();
             listSale.push(data);
         }
         const jsonSale = JSON.stringify(listSale);
@@ -604,6 +611,44 @@
         });
     }
 
+    function save_comment(obj, saleId) {
+        let divObj = $(obj).closest('div');
+        let comment = divObj.children('input').val();
+
+        $.ajax({
+            url: "{% url 'daesungwork:change_sale_comment' %}",
+            method: 'POST',
+            cache: false,
+            data: {
+                "saleId": saleId,
+                "comment": comment,
+            },
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                if (returnData === 'N') {
+                    alert('수정 중 오류가 발생했습니다. 다시한번 확인해주세요.');
+                    return false;
+                } else {
+                    divObj.parent().html(
+                        '<div style="cursor: pointer" onclick="change_input(this, ' + saleId + ')">' + comment + '</div>'
+                    );
+                    return false;
+                }
+            }
+        });
+    }
+
+    function change_input(obj, saleId) {
+        let inputValue = $(obj).text();
+        let inputHtml = '<div class="input-group">' +
+            '<input type="text" class="form-control" maxlength="200" value="' + inputValue + '" ' +
+                'onkeydown="javascript: if (event.keyCode == 13) {save_comment(this, ' + saleId + ')}">' +
+            '<span class="input-group-btn"><button class="btn btn-primary" onclick="save_comment(this, ' + saleId + ')">' +
+            '<i class="fas fa-check"></i></button></span>' +
+            '</div>';
+        $(obj).parent().html(inputHtml);
+    }
+
     $(document).ready(function () {
         $('#showsales').dataTable({
             "processing": true,
@@ -630,6 +675,7 @@
                 {data: "unitPrice"},
                 {data: "quantity"},
                 {data: "salePrice"},
+                {data: "comment"},
                 {
                     data: "saleId",
                     "render": function (data, type, row) {
@@ -638,15 +684,16 @@
                 },
             ],
             "columnDefs": [
-                {targets: 0, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 1, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                {targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 0, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                 {targets: 5, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 6, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
                 {targets: 7, width: "10%", className: "dt-head-center dt-body-right dt-head-nowrap dt-body-nowrap"},
-                {targets: 8, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 8, width: "20%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                {targets: 9, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
 
             ],
             "deferRender": true,
@@ -672,10 +719,20 @@
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(0)', nRow).text(replaceAll(aData.saleDate, "-", "-"));
-                // $('td:eq(2)', nRow).css('color', '#4e73df');
-                // $('td:eq(3)', nRow).css('color', '#4e73df');
                 $('td:eq(5)', nRow).text(aData.unitPrice.toLocaleString());
+                $('td:eq(6)', nRow).text(aData.quantity.toLocaleString());
                 $('td:eq(7)', nRow).text(aData.salePrice.toLocaleString());
+
+                // 수정을 위한 작업
+                let comment;
+                if (aData.comment) {
+                    comment = aData.comment
+                } else {
+                    comment = '&nbsp;'
+                }
+                $('td:eq(8)', nRow).html(
+                    '<div style="cursor: pointer" onclick="change_input(this, ' + aData.saleId + ')">' + comment + '</div>'
+                );
             },
             "footerCallback": function () {
                 var api = this.api(), data;
@@ -686,6 +743,12 @@
                 });
                 $(api.column(5).footer()).html(unitResult.toLocaleString());
 
+                var quantityResult = 0;
+                api.column(6, {search: 'applied'}).data().each(function (data, index) {
+                    quantityResult += parseFloat(data);
+                });
+                $(api.column(6).footer()).html(quantityResult.toLocaleString());
+
                 var saleResult = 0;
                 api.column(7, {search: 'applied'}).data().each(function (data, index) {
                     saleResult += parseFloat(data);
@@ -693,17 +756,6 @@
                 $(api.column(7).footer()).html(saleResult.toLocaleString());
             },
         });
-
-        // const salesTable = $('#showsales').DataTable();
-        //
-        // $("#showsales tbody").on("click", 'tr td:eq(3)', function () {
-        //     const data = salesTable.data();
-        //     window.open('about:blank').location.href = '/daesungwork/viewproduct/' + data[0].product__productId + '/'
-        // });
-        // $("#showsales tbody").on("click", 'tr td:eq(2)', function () {
-        //     const data = salesTable.data();
-        //     window.open('about:blank').location.href = '/client/viewclient/' + data[0].client__companyName + '/'
-        // });
 
         let insertTable = $('#insertTable').DataTable({
             "autoWidth": true,
@@ -733,14 +785,21 @@
                     }
                 },
                 {
-                    targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    targets: 2, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     createdCell: function (td, cellData, rowData, row, col) {
                         $(td).css('padding-bottom', '30px');
                         $(td).css('padding-top', '20px');
                     }
                 },
                 {
-                    targets: 3, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).css('padding-bottom', '30px');
+                        $(td).css('padding-top', '20px');
+                    }
+                },
+                {
+                    targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     createdCell: function (td, cellData, rowData, row, col) {
                         $(td).css('padding-bottom', '30px');
                         $(td).css('padding-top', '20px');
@@ -770,6 +829,7 @@
                 '<input class="form-control" name="insertQuantity" id="buy4' + saleCounter + '" type="number"' +
                     'onchange="changePrice(\'buy3' + saleCounter + '\', \'buy4' + saleCounter + '\', \'buy5' + saleCounter + '\')">',
                 '<input class="form-control" name="insertSalePrice" id="buy5' + saleCounter + '" type="number">',
+                '<input class="form-control" name="insertComment" id="buy6' + saleCounter + '">',
                 '<i class="fas fa-times-circle insertTableCount">',
             ]).draw();
             product_select('buy1' + saleCounter);

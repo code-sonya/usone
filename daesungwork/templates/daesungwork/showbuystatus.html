@@ -110,7 +110,7 @@
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매금액</div>
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체구매금액</div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.total %} {{ buys.total | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
@@ -125,7 +125,7 @@
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매건수</div>
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체구매건수</div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.count %}{{ buys.count | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
@@ -496,8 +496,46 @@
         }
     }
 
+    function save_comment(obj, buyId) {
+        let divObj = $(obj).closest('div');
+        let comment = divObj.children('input').val();
+
+        $.ajax({
+            url: "{% url 'daesungwork:change_buy_comment' %}",
+            method: 'POST',
+            cache: false,
+            data: {
+                "buyId": buyId,
+                "comment": comment,
+            },
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function (returnData) {
+                if (returnData === 'N') {
+                    alert('수정 중 오류가 발생했습니다. 다시한번 확인해주세요.');
+                    return false;
+                } else {
+                    divObj.parent().html(
+                        '<div style="cursor: pointer" onclick="change_input(this, ' + buyId + ')">' + comment + '</div>'
+                    );
+                    return false;
+                }
+            }
+        });
+    }
+
+    function change_input(obj, buyId) {
+        let inputValue = $(obj).text();
+        let inputHtml = '<div class="input-group">' +
+            '<input type="text" class="form-control" maxlength="200" value="' + inputValue + '" ' +
+                'onkeydown="javascript: if (event.keyCode == 13) {save_comment(this, ' + buyId + ')}">' +
+            '<span class="input-group-btn"><button class="btn btn-primary" onclick="save_comment(this, ' + buyId + ')">' +
+            '<i class="fas fa-check"></i></button></span>' +
+            '</div>';
+        $(obj).parent().html(inputHtml);
+    }
+
     $(document).ready(function () {
-        $('#showbuys').dataTable({
+        let showbuysTable = $('#showbuys').DataTable({
             "processing": true,
             "ajax": {
                 "processing": true,
@@ -566,6 +604,17 @@
                 $('td:eq(4)', nRow).text(aData.salePrice.toLocaleString());
                 $('td:eq(5)', nRow).text(aData.vatPrice.toLocaleString());
                 $('td:eq(6)', nRow).text(aData.totalPrice.toLocaleString());
+
+                // 수정을 위한 작업
+                let comment;
+                if (aData.comment) {
+                    comment = aData.comment
+                } else {
+                    comment = '&nbsp;'
+                }
+                $('td:eq(7)', nRow).html(
+                    '<div style="cursor: pointer" onclick="change_input(this, ' + aData.buyId + ')">' + comment + '</div>'
+                );
             },
             "footerCallback": function () {
                 let api = this.api(), data;

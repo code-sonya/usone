@@ -1042,7 +1042,10 @@ def sales_asjson(request):
     if filterSize:
         sales = sales.filter(size__size__iexact=filterSize)
 
-    sales = sales.values('saleId', 'saleDate', 'product__productId', 'affiliate__affiliateName', 'client__companyName', 'product__modelName', 'size__size', 'unitPrice', 'quantity', 'salePrice').order_by('-saleDate')
+    sales = sales.values(
+        'saleId', 'saleDate', 'product__productId', 'affiliate__affiliateName', 'client__companyName',
+        'product__modelName', 'size__size', 'unitPrice', 'quantity', 'salePrice', 'comment'
+    ).order_by('-saleDate')
 
     structure = json.dumps(list(sales), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -1079,6 +1082,7 @@ def insert_sale(request):
             unitPrice=sale['unitPrice'],
             quantity=sale['quantity'],
             salePrice=sale['salePrice'],
+            comment=sale['comment'],
         )
     return redirect('daesungwork:showsalestatus', request.POST['affiliates'])
 
@@ -1678,7 +1682,7 @@ def show_stockmanagement(request):
     else:
         return HttpResponse("접근권한이 없습니다.")
 
-
+@login_required
 def insert_stock_inout(request):
     product = Product.objects.get(productId=request.POST['product'])
     typeName = request.POST['typeName']
@@ -1698,3 +1702,33 @@ def insert_stock_inout(request):
             comment=stock['comment'],
         )
     return redirect('daesungwork:showstockinout')
+
+
+@login_required
+def change_buy_comment(request):
+    if request.method == 'POST':
+        buyId = request.POST['buyId']
+        comment = request.POST['comment']
+        buyObj = Buy.objects.get(buyId=buyId)
+        buyObj.comment = comment
+        buyObj.save()
+        result = 'Y'
+    else:
+        result = 'N'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def change_sale_comment(request):
+    if request.method == 'POST':
+        saleId = request.POST['saleId']
+        comment = request.POST['comment']
+        saleObj = Sale.objects.get(saleId=saleId)
+        saleObj.comment = comment
+        saleObj.save()
+        result = 'Y'
+    else:
+        result = 'N'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
