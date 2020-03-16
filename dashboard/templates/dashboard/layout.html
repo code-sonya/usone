@@ -237,7 +237,10 @@
     <li class="nav-item">
       <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval" aria-expanded="true" aria-controls="collapseApproval">
         <i class="far fa-fw fa-paper-plane text-white"></i>
-        <span class="text-white">전자결재</span>
+        <span class="text-white">전자결재
+          <span class="text-danger pl-2 pr-2 pt-1 pb-1 m-1 document-counting" style="background-color: gainsboro; border-radius: 15px 15px 15px 15px">
+          </span>
+        </span>
       </a>
       <div id="collapseApproval" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
@@ -246,7 +249,7 @@
           <h6 class="collapse-header">━━━ 문서함 ━━━</h6>
           <a class="collapse-item" href="/approval/showdocument/all/">전체</a>
           <a class="collapse-item" href="/approval/showdocument/ing/">진행
-            <span class="text-danger pl-2 pr-2 pt-1 pb-1 m-1" id="counting" style="background-color: gainsboro; border-radius: 15px 15px 15px 15px">
+            <span class="text-danger pl-2 pr-2 pt-1 pb-1 m-1 document-counting" style="background-color: gainsboro; border-radius: 15px 15px 15px 15px">
             </span>
           </a>
           <a class="collapse-item" href="/approval/showdocument/done/">완료</a>
@@ -731,7 +734,7 @@
 
     // 전자결재 진행중인 문서 카운팅
     function counting() {
-       const counting = $('#counting');
+       const counting = $('.document-counting');
        $.ajax({
           url: "{% url 'approval:countingasjson' %}",
           method: 'POST',
