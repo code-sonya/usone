@@ -719,9 +719,15 @@
             },
             "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                 $('td:eq(0)', nRow).text(replaceAll(aData.saleDate, "-", "-"));
-                $('td:eq(5)', nRow).text(aData.unitPrice.toLocaleString());
-                $('td:eq(6)', nRow).text(aData.quantity.toLocaleString());
-                $('td:eq(7)', nRow).text(aData.salePrice.toLocaleString());
+                if (aData.unitPrice) {
+                    $('td:eq(5)', nRow).text(aData.unitPrice.toLocaleString());
+                }
+                if (aData.quantity) {
+                    $('td:eq(6)', nRow).text(aData.quantity.toLocaleString());
+                }
+                if (aData.salePrice) {
+                    $('td:eq(7)', nRow).text(aData.salePrice.toLocaleString());
+                }
 
                 // 수정을 위한 작업
                 let comment;
@@ -739,19 +745,25 @@
 
                 var unitResult = 0;
                 api.column(5, {search: 'applied'}).data().each(function (data, index) {
-                    unitResult += parseFloat(data);
+                    if (data){
+                        unitResult += parseFloat(data);
+                    }
                 });
                 $(api.column(5).footer()).html(unitResult.toLocaleString());
 
                 var quantityResult = 0;
                 api.column(6, {search: 'applied'}).data().each(function (data, index) {
-                    quantityResult += parseFloat(data);
+                    if (data) {
+                        quantityResult += parseFloat(data);
+                    }
                 });
                 $(api.column(6).footer()).html(quantityResult.toLocaleString());
 
                 var saleResult = 0;
                 api.column(7, {search: 'applied'}).data().each(function (data, index) {
-                    saleResult += parseFloat(data);
+                    if (data) {
+                        saleResult += parseFloat(data);
+                    }
                 });
                 $(api.column(7).footer()).html(saleResult.toLocaleString());
             },
