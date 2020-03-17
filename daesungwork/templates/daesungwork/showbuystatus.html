@@ -110,7 +110,7 @@
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체구매금액</div>
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체구매ㆍ지출금액</div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.total %} {{ buys.total | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
@@ -125,7 +125,7 @@
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체구매건수</div>
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체구매ㆍ지출건수</div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.count %}{{ buys.count | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
@@ -143,7 +143,7 @@
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">일간구매현황</div>
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">일간구매ㆍ지출현황</div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.today %}{{ buys.today | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
@@ -158,7 +158,7 @@
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">주간구매현황</div>
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">주간구매ㆍ지출현황</div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.weekly %}{{ buys.weekly | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
@@ -173,7 +173,7 @@
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">월간구매현황</div>
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">월간구매ㆍ지출현황</div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.monthly %}{{ buys.monthly | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
@@ -188,7 +188,7 @@
               <div class="card-body">
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">연간구매현황</div>
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">연간구매ㆍ지출현황</div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800">{% if buys.yearly %}{{ buys.yearly | intcomma }}{% endif %}</div>
                   </div>
                   <div class="col-auto">
