@@ -101,13 +101,16 @@ class Type(models.Model):
 
 class Product(models.Model):
     productId = models.AutoField(primary_key=True)
-    typeName = models.ForeignKey(Type, on_delete=models.SET_NULL, null=True, blank=True)
-    modelName = models.CharField(max_length=20, unique=True)
+    typeName = models.ForeignKey(Type, on_delete=models.CASCADE, null=True, blank=True)
+    modelName = models.CharField(max_length=20)
     productName = models.CharField(max_length=20, null=True, blank=True)
     unitPrice = models.IntegerField(null=True, blank=True, default=0)
     position = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True, blank=True)
     productPicture = models.FileField(upload_to="product/", null=True, blank=True, default="product/noimage.png")
     productStatus = models.CharField(max_length=20, default='Y')
+
+    class Meta:
+        unique_together = (('typeName', 'modelName'),)
 
     def __str__(self):
         return str(self.modelName)

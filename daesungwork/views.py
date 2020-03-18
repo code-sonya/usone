@@ -827,6 +827,32 @@ def show_products(request):
             post = form.save(commit=False)
             post.save()
             return redirect('daesungwork:showproducts')
+        else:
+            modelName = request.POST['modelName']
+            typeName = request.POST['typeName']
+            position = request.POST['position']
+            productName = request.POST['productName']
+            unitPrice = request.POST['unitPrice'] or 0
+            if 'productPicture' in request.FILES.keys():
+                productPicture = request.FILES['productPicture']
+            else:
+                productPicture = 'product/noimage.png'
+            products = Product.objects.get(Q(typeName=typeName) & Q(modelName=modelName) & Q(productStatus='N'))
+            products.productStatus = 'Y'
+            if productName:
+                products.productName = productName
+            else:
+                products.productName = None
+            if position:
+                products.position = Warehouse.objects.get(warehouseId=position)
+            else:
+                products.position = None
+            products.unitPrice = unitPrice
+            if productPicture:
+                products.productPicture = productPicture
+
+            products.save()
+            return redirect('daesungwork:showproducts')
 
     else:
         form = ProductForm()
