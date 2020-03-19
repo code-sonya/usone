@@ -36,13 +36,26 @@ def scheduler(request, day=None):
     # 로그인 유저, 부서 정보
     empId = request.user.employee.empId
     empName = request.user.employee.empName
+    empDept = Department.objects.get(deptName=request.user.employee.departmentName)
     empDeptName = request.user.employee.empDeptName
 
     # 선택한 부서의 일정, 휴가 (기본값은 로그인 사용자의 부서)
     if request.method == "POST":
         postDeptList = request.POST.getlist('ckdept')
     else:
-        postDeptList = [empDeptName]
+        if empDept.deptLevel == 0:
+            postDeptList = Department.objects.filter(Q(startDate__year__lte=todayYear) &
+                                                     Q(startDate__month__lte=todayMonth) &
+                                                    ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(endDate__isnull=True))).values_list('deptName', flat=True)
+        elif empDept.deptLevel == 1:
+            postDeptList = [empDeptName]
+            postDeptList.extend(Department.objects.filter(Q(parentDept__deptName=empDeptName) &
+                                      Q(startDate__year__lte=todayYear) &
+                                      Q(startDate__month__lte=todayMonth) &
+                                      ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(
+                                          endDate__isnull=True))).values_list('deptName', flat=True).values_list('deptName', flat=True))
+        else:
+            postDeptList = [empDeptName]
 
     # 일정, 휴가, 휴일, 사내일정 (한달)
     services = Servicereport.objects.filter(

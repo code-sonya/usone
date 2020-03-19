@@ -150,8 +150,6 @@
 
       {% for top in DeptTop %}
         $('.{{ top.deptId }}'+'top').click(function () {
-           const groupId = $('.{{ top.deptId }}'+'all');
-           const topId = $('.{{ top.deptId }}'+'top');
            $('.{{ top.deptId }}'+'all').click();
         });
       {% endfor %}
