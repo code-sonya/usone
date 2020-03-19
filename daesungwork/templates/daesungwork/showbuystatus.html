@@ -348,7 +348,7 @@
           {% csrf_token %}
           <div class="row mb-1">
             <div class="col-3">
-              <label class="font-weight-bold text-primary">발생 일자</label>
+              <label class="font-weight-bold text-primary">구매일자</label>
               <input type="date" max="9999-12-31" class="form-control" name="buyDate" id="insertPostDate" required>
             </div>
             <div class="col-3">
@@ -361,6 +361,14 @@
                 </option>
                 {% endfor %}
               </select>
+            </div>
+            <div class="col-6">
+              <label class="font-weight-bold">비고일괄등록</label>
+              <div class="input-group">
+                <input class="form-control" id="insertTotalComment" maxlength="200">
+                <span class="input-group-text bg-primary text-gray-100" onclick="insert_comment()">
+                  <i class="fas fa-arrow-down"></i></span>
+              </div>
             </div>
           </div>
         </form>
@@ -557,6 +565,11 @@
         $('.' + className).text(price.toLocaleString());
     }
 
+    function insert_comment() {
+        const comment = $('#insertTotalComment').val();
+        $('input[name=insertComment]').val(comment);
+    }
+
     $(document).ready(function () {
         let showbuysTable = $('#showbuys').DataTable({
             "processing": true,
@@ -715,7 +728,7 @@
                 '<input class="form-control" name="insertVatPrice" id="buy4' + buyCounter + '" type="number" value="0"' +
                 'onchange="changePrice(\'buy2' + buyCounter + '\', \'buy3' + buyCounter + '\', \'buy4' + buyCounter + '\', \'buy5' + buyCounter + '\')">',
                 '<input class="form-control" name="insertTotalPrice" id="buy5' + buyCounter + '" type="number" readonly>',
-                '<input class="form-control" name="insertComment" id="display6' + buyCounter + '">',
+                '<input class="form-control" name="insertComment" id="display6' + buyCounter + '" maxlength="200">',
                 '<i class="fas fa-times-circle insertTableCount">',
             ]).draw();
             changePrice('buy2'+buyCounter, 'buy3'+buyCounter, 'buy4'+buyCounter, 'buy5'+buyCounter);

@@ -533,14 +533,14 @@
           <span class="icon text-white-50"> <i class="fas fa-check"> </i> </span>
           <span class="text">수정</span>
         </a>
-      {% elif document.documentStatus == '진행' and draftCancelStatus == True %}
+      {% else %}
         <a class="btn btn-secondary" href="/approval/showdocument/all/">
           <i class="fas fa-exchange-alt d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-exchange-alt"></i> 전체문서함</span>
         </a>
-        <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_draftCancel()">
-          <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>
-          <span class="text">기안취소</span>
-        </a>
+<!--        <a href="#" class="btn btn-danger btn-icon-split" onclick="btn_draftCancel()">-->
+<!--          <span class="icon text-white-50"> <i class="fas fa-times"> </i> </span>-->
+<!--          <span class="text">기안취소</span>-->
+<!--        </a>-->
       {% endif %}
       </div>
     </div>
