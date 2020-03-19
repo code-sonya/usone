@@ -111,144 +111,148 @@ def post_service(request, postdate):
             if for_status == 'for_n':
                 post.serviceBeginDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
                 post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                # post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                # post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceEndDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceFinishDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
                 post.serviceDate = str(post.serviceBeginDatetime)[:10]
-                post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+                # post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+                post.serviceHour = 0
                 post.serviceOverHour = 0
-                post.serviceRegHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+                # post.serviceRegHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+                post.serviceRegHour = 0
                 post.save()
                 return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
 
-            # 매월반복
-            elif for_status == 'for_my':
-                dateRange = month_list(form.clean()['startdate'], form.clean()['enddate'])
-                firstDate = str(dateRange[0])[:10]
-                timeCalculateFlag = True
-                for date in dateRange:
-                    post.serviceBeginDatetime = str(date) + ' ' + form.clean()['starttime']
-                    post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
-                    post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
-                    post.serviceFinishDatetime = str(date) + ' ' + form.clean()['endtime']
-                    post.serviceDate = str(post.serviceBeginDatetime)[:10]
-                    if timeCalculateFlag:
-                        post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
-                        post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                        post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
-                        timeCalculateFlag = False
-                    Servicereport.objects.create(
-                        # contractId=post.contractId,
-                        serviceDate=post.serviceDate,
-                        empId=post.empId,
-                        empName=post.empName,
-                        empDeptName=post.empDeptName,
-                        companyName=post.companyName,
-                        serviceType=post.serviceType,
-                        serviceBeginDatetime=post.serviceBeginDatetime,
-                        serviceStartDatetime=post.serviceStartDatetime,
-                        serviceEndDatetime=post.serviceEndDatetime,
-                        serviceFinishDatetime=post.serviceFinishDatetime,
-                        serviceHour=post.serviceHour,
-                        serviceOverHour=post.serviceOverHour,
-                        serviceRegHour=post.serviceRegHour,
-                        serviceLocation=post.serviceLocation,
-                        directgo=post.directgo,
-                        coWorker=post.coWorker,
-                        serviceTitle=post.serviceTitle,
-                        serviceDetails=post.serviceDetails,
-                        serviceStatus=post.serviceStatus,
-                    )
-                return redirect('scheduler:scheduler', firstDate)
-
-            # 기간(휴일제외)
-            elif for_status == 'for_hn':
-                dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
-                firstDate = str(dateRange[0])[:10]
-                timeCalculateFlag = True
-                for date in dateRange:
-                    if not Eventday.objects.filter(Q(eventDate=date) & Q(eventType='휴일')) \
-                            and date.weekday() != 5 and date.weekday() != 6:
-                        post.serviceBeginDatetime = str(date) + ' ' + form.clean()['starttime']
-                        post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
-                        post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
-                        post.serviceFinishDatetime = str(date) + ' ' + form.clean()['endtime']
-                        post.serviceDate = str(post.serviceBeginDatetime)[:10]
-                        if timeCalculateFlag:
-                            post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
-                            post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                            post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
-                            timeCalculateFlag = False
-                        Servicereport.objects.create(
-                            # contractId=post.contractId,
-                            serviceDate=post.serviceDate,
-                            empId=post.empId,
-                            empName=post.empName,
-                            empDeptName=post.empDeptName,
-                            companyName=post.companyName,
-                            serviceType=post.serviceType,
-                            serviceBeginDatetime=post.serviceBeginDatetime,
-                            serviceStartDatetime=post.serviceStartDatetime,
-                            serviceEndDatetime=post.serviceEndDatetime,
-                            serviceFinishDatetime=post.serviceFinishDatetime,
-                            serviceHour=post.serviceHour,
-                            serviceOverHour=post.serviceOverHour,
-                            serviceRegHour=post.serviceRegHour,
-                            serviceLocation=post.serviceLocation,
-                            directgo=post.directgo,
-                            coWorker=post.coWorker,
-                            serviceTitle=post.serviceTitle,
-                            serviceDetails=post.serviceDetails,
-                            serviceStatus=post.serviceStatus,
-                        )
-                return redirect('scheduler:scheduler', firstDate)
-
-            # 기간(휴일포함)
-            elif for_status == 'for_hy':
-                dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
-                firstDate = str(dateRange[0])[:10]
-                timeCalculateFlag = True
-                for date in dateRange:
-                    post.serviceBeginDatetime = str(date) + ' ' + form.clean()['starttime']
-                    post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
-                    post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
-                    post.serviceFinishDatetime = str(date) + ' ' + form.clean()['endtime']
-                    post.serviceDate = str(post.serviceBeginDatetime)[:10]
-                    if timeCalculateFlag:
-                        post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
-                        post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
-                        post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
-                        timeCalculateFlag = False
-                    Servicereport.objects.create(
-                        # contractId=post.contractId,
-                        serviceDate=post.serviceDate,
-                        empId=post.empId,
-                        empName=post.empName,
-                        empDeptName=post.empDeptName,
-                        companyName=post.companyName,
-                        serviceType=post.serviceType,
-                        serviceBeginDatetime=post.serviceBeginDatetime,
-                        serviceStartDatetime=post.serviceStartDatetime,
-                        serviceEndDatetime=post.serviceEndDatetime,
-                        serviceFinishDatetime=post.serviceFinishDatetime,
-                        serviceHour=post.serviceHour,
-                        serviceOverHour=post.serviceOverHour,
-                        serviceRegHour=post.serviceRegHour,
-                        serviceLocation=post.serviceLocation,
-                        directgo=post.directgo,
-                        coWorker=post.coWorker,
-                        serviceTitle=post.serviceTitle,
-                        serviceDetails=post.serviceDetails,
-                        serviceStatus=post.serviceStatus,
-                    )
-                return redirect('scheduler:scheduler', firstDate)
+            # # 매월반복
+            # elif for_status == 'for_my':
+            #     dateRange = month_list(form.clean()['startdate'], form.clean()['enddate'])
+            #     firstDate = str(dateRange[0])[:10]
+            #     timeCalculateFlag = True
+            #     for date in dateRange:
+            #         post.serviceBeginDatetime = str(date) + ' ' + form.clean()['starttime']
+            #         post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+            #         post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+            #         post.serviceFinishDatetime = str(date) + ' ' + form.clean()['endtime']
+            #         post.serviceDate = str(post.serviceBeginDatetime)[:10]
+            #         if timeCalculateFlag:
+            #             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+            #             post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
+            #             post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
+            #             timeCalculateFlag = False
+            #         Servicereport.objects.create(
+            #             # contractId=post.contractId,
+            #             serviceDate=post.serviceDate,
+            #             empId=post.empId,
+            #             empName=post.empName,
+            #             empDeptName=post.empDeptName,
+            #             companyName=post.companyName,
+            #             serviceType=post.serviceType,
+            #             serviceBeginDatetime=post.serviceBeginDatetime,
+            #             serviceStartDatetime=post.serviceStartDatetime,
+            #             serviceEndDatetime=post.serviceEndDatetime,
+            #             serviceFinishDatetime=post.serviceFinishDatetime,
+            #             serviceHour=post.serviceHour,
+            #             serviceOverHour=post.serviceOverHour,
+            #             serviceRegHour=post.serviceRegHour,
+            #             serviceLocation=post.serviceLocation,
+            #             directgo=post.directgo,
+            #             coWorker=post.coWorker,
+            #             serviceTitle=post.serviceTitle,
+            #             serviceDetails=post.serviceDetails,
+            #             serviceStatus=post.serviceStatus,
+            #         )
+            #     return redirect('scheduler:scheduler', firstDate)
+            #
+            # # 기간(휴일제외)
+            # elif for_status == 'for_hn':
+            #     dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
+            #     firstDate = str(dateRange[0])[:10]
+            #     timeCalculateFlag = True
+            #     for date in dateRange:
+            #         if not Eventday.objects.filter(Q(eventDate=date) & Q(eventType='휴일')) \
+            #                 and date.weekday() != 5 and date.weekday() != 6:
+            #             post.serviceBeginDatetime = str(date) + ' ' + form.clean()['starttime']
+            #             post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+            #             post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+            #             post.serviceFinishDatetime = str(date) + ' ' + form.clean()['endtime']
+            #             post.serviceDate = str(post.serviceBeginDatetime)[:10]
+            #             if timeCalculateFlag:
+            #                 post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+            #                 post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
+            #                 post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
+            #                 timeCalculateFlag = False
+            #             Servicereport.objects.create(
+            #                 # contractId=post.contractId,
+            #                 serviceDate=post.serviceDate,
+            #                 empId=post.empId,
+            #                 empName=post.empName,
+            #                 empDeptName=post.empDeptName,
+            #                 companyName=post.companyName,
+            #                 serviceType=post.serviceType,
+            #                 serviceBeginDatetime=post.serviceBeginDatetime,
+            #                 serviceStartDatetime=post.serviceStartDatetime,
+            #                 serviceEndDatetime=post.serviceEndDatetime,
+            #                 serviceFinishDatetime=post.serviceFinishDatetime,
+            #                 serviceHour=post.serviceHour,
+            #                 serviceOverHour=post.serviceOverHour,
+            #                 serviceRegHour=post.serviceRegHour,
+            #                 serviceLocation=post.serviceLocation,
+            #                 directgo=post.directgo,
+            #                 coWorker=post.coWorker,
+            #                 serviceTitle=post.serviceTitle,
+            #                 serviceDetails=post.serviceDetails,
+            #                 serviceStatus=post.serviceStatus,
+            #             )
+            #     return redirect('scheduler:scheduler', firstDate)
+            #
+            # # 기간(휴일포함)
+            # elif for_status == 'for_hy':
+            #     dateRange = date_list(form.clean()['startdate'], form.clean()['enddate'])
+            #     firstDate = str(dateRange[0])[:10]
+            #     timeCalculateFlag = True
+            #     for date in dateRange:
+            #         post.serviceBeginDatetime = str(date) + ' ' + form.clean()['starttime']
+            #         post.serviceStartDatetime = str(date) + ' ' + form.clean()['starttime']
+            #         post.serviceEndDatetime = str(date) + ' ' + form.clean()['endtime']
+            #         post.serviceFinishDatetime = str(date) + ' ' + form.clean()['endtime']
+            #         post.serviceDate = str(post.serviceBeginDatetime)[:10]
+            #         if timeCalculateFlag:
+            #             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+            #             post.serviceOverHour = overtime(post.serviceBeginDatetime, post.serviceFinishDatetime)
+            #             post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
+            #             timeCalculateFlag = False
+            #         Servicereport.objects.create(
+            #             # contractId=post.contractId,
+            #             serviceDate=post.serviceDate,
+            #             empId=post.empId,
+            #             empName=post.empName,
+            #             empDeptName=post.empDeptName,
+            #             companyName=post.companyName,
+            #             serviceType=post.serviceType,
+            #             serviceBeginDatetime=post.serviceBeginDatetime,
+            #             serviceStartDatetime=post.serviceStartDatetime,
+            #             serviceEndDatetime=post.serviceEndDatetime,
+            #             serviceFinishDatetime=post.serviceFinishDatetime,
+            #             serviceHour=post.serviceHour,
+            #             serviceOverHour=post.serviceOverHour,
+            #             serviceRegHour=post.serviceRegHour,
+            #             serviceLocation=post.serviceLocation,
+            #             directgo=post.directgo,
+            #             coWorker=post.coWorker,
+            #             serviceTitle=post.serviceTitle,
+            #             serviceDetails=post.serviceDetails,
+            #             serviceStatus=post.serviceStatus,
+            #         )
+            #     return redirect('scheduler:scheduler', firstDate)
 
     else:
         form = ServicereportForm()
         form.fields['startdate'].initial = postdate
         form.fields['starttime'].initial = "09:00"
-        form.fields['enddate'].initial = postdate
-        form.fields['endtime'].initial = "18:00"
-        serviceforms = Serviceform.objects.filter(empId=empId)
+        # form.fields['enddate'].initial = postdate
+        # form.fields['endtime'].initial = "18:00"
+        # serviceforms = Serviceform.objects.filter(empId=empId)
 
         # # 계약명 자동완성
         # contractList = Contract.objects.filter(
@@ -283,7 +287,7 @@ def post_service(request, postdate):
         context = {
             'form': form,
             'postdate': postdate,
-            'serviceforms': serviceforms,
+            # 'serviceforms': serviceforms,
             # 'contracts': contracts,
             'companyNames': companyNames,
             'empNames': empNames,
@@ -726,21 +730,21 @@ def modify_service(request, serviceId):
             if post.serviceStatus == 'N':
                 post.serviceBeginDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
                 post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            elif post.serviceStatus == 'B':
-                post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
-                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            elif post.serviceStatus == 'S':
-                post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            elif post.serviceStatus == 'E':
-                post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+                post.serviceEndDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+                post.serviceFinishDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+            # elif post.serviceStatus == 'B':
+            #     post.serviceStartDatetime = form.clean()['startdate'] + ' ' + form.clean()['starttime']
+            #     post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            #     post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            # elif post.serviceStatus == 'S':
+            #     post.serviceEndDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            #     post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
+            # elif post.serviceStatus == 'E':
+            #     post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
             post.serviceDate = str(post.serviceBeginDatetime)[:10]
-            post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+            post.serviceHour = 0
             post.serviceOverHour = 0
-            post.serviceRegHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
+            post.serviceRegHour = 0
             post.coWorker = request.POST['coWorkerId']
             post.save()
             return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
@@ -748,8 +752,8 @@ def modify_service(request, serviceId):
         form = ServicereportForm(instance=instance)
         form.fields['startdate'].initial = str(instance.serviceBeginDatetime)[:10]
         form.fields['starttime'].initial = str(instance.serviceBeginDatetime)[11:16]
-        form.fields['enddate'].initial = str(instance.serviceFinishDatetime)[:10]
-        form.fields['endtime'].initial = str(instance.serviceFinishDatetime)[11:16]
+        # form.fields['enddate'].initial = str(instance.serviceFinishDatetime)[:10]
+        # form.fields['endtime'].initial = str(instance.serviceFinishDatetime)[11:16]
 
         # # 계약명 자동완성
         # contractList = Contract.objects.filter(

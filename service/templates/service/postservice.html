@@ -40,14 +40,14 @@
                 <label for="starttime" class="font-weight-bold text-primary"> 시작 시간 </label> {{ form.starttime }}
               </div>
             </div>
-            <div class="form-group row">
-              <div class="col-6">
-                <label for="enddate" class="font-weight-bold text-primary"> 종료 일자 </label> {{ form.enddate }}
-              </div>
-              <div class="col-6">
-                <label for="endtime" class="font-weight-bold text-primary"> 종료 시간 </label> {{ form.endtime }}
-              </div>
-            </div>
+<!--            <div class="form-group row">-->
+<!--              <div class="col-6">-->
+<!--                <label for="enddate" class="font-weight-bold text-primary"> 종료 일자 </label> {{ form.enddate }}-->
+<!--              </div>-->
+<!--              <div class="col-6">-->
+<!--                <label for="endtime" class="font-weight-bold text-primary"> 종료 시간 </label> {{ form.endtime }}-->
+<!--              </div>-->
+<!--            </div>-->
 
             <div class="form-group row">
               <div class="col-6">
@@ -109,11 +109,11 @@
       }
 
       function btn_save() {
-          const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g, '/') +
-              ' ' + document.getElementById("starttime").value);
-          const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g, '/') +
-              ' ' + document.getElementById("endtime").value);
-          const diff = ((serviceEndDatetime - serviceStartDatetime) / 3600000).toFixed(1);
+          // const serviceStartDatetime = Date.parse(document.getElementById("startdate").value.replace(/-/g, '/') +
+          //     ' ' + document.getElementById("starttime").value);
+          // const serviceEndDatetime = Date.parse(document.getElementById("enddate").value.replace(/-/g, '/') +
+          //     ' ' + document.getElementById("endtime").value);
+          // const diff = ((serviceEndDatetime - serviceStartDatetime) / 3600000).toFixed(1);
 
           let Form = document.getElementById("ServicereportForm");
           const coWorkers = document.getElementById('coWorkers').getAttribute('data-id');
@@ -142,10 +142,10 @@
               alert("내용을 입력해주세요.");
               return false;
           }
-          if (diff < 0) {
-              alert("시작일시가 종료일시보다 느립니다. 확인해주세요.");
-              return false;
-          }
+          // if (diff < 0) {
+          //     alert("시작일시가 종료일시보다 느립니다. 확인해주세요.");
+          //     return false;
+          // }
           if (confirm("일정 등록 하시겠습니까?") === true) {
               Form.submit();
           }

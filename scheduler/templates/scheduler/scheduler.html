@@ -236,20 +236,39 @@
               eventLimit: false,
               timeFormat: 'HH:mm',
               eventMouseover: function (data, event, view) {
-                  if (data.type == 'X') {
-                      tooltip = '<div class="tooltiptopicevent" style="color:black;width:auto;height:auto;background:#cceeee;position:absolute;z-index:10001;padding:10px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' + '<b>' + '[' + data.vacationType + '] ' + data.name + '</b></div>';
-                  } else {
-                      tooltip = '<div class="tooltiptopicevent" style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' + '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br><span class="text-primary">' + data.contractName + '</span><br>' + data.start.format('HH:mm') + ' ~ ' + data.end.format('HH:mm') + '<br>' + data.service_title + '</div>';
+                  if (data.service_type !== '공휴일' && data.service_type !== '사내일정') {
+                      if (data.type == 'X') {
+                          tooltip = '<div class="tooltiptopicevent" ' +
+                              'style="color:black;width:auto;height:auto;background:#cceeee;position:absolute;z-index:10001;padding:10px;' +
+                              'line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' +
+                              '<b>[' + data.vacationType + '] ' + data.name + '</b></div>';
+                      } else {
+                          if (data.company !== 'None') {
+                              tooltip = '<div class="tooltiptopicevent" ' +
+                              'style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;' +
+                              'line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' +
+                              '<b>[' + data.service_type + '] ' + data.start.format('HH:mm') + '</b><br>' +
+                              data.company + '<br>' +
+                              data.service_title + '</div>';
+                          } else {
+                              tooltip = '<div class="tooltiptopicevent" ' +
+                              'style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;' +
+                              'line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' +
+                              '<b>[' + data.service_type + '] ' + data.start.format('HH:mm') + '</b><br>' +
+                              data.service_title + '</div>';
+                          }
+                      }
+                      $("body").append(tooltip);
+                      $(this).mouseover(function (e) {
+                          $(this).css('z-index', 10000);
+                          $('.tooltiptopicevent').fadeIn('500');
+                          $('.tooltiptopicevent').fadeTo('10', 1.9);
+                      }).mousemove(function (e) {
+                          $('.tooltiptopicevent').css('top', e.pageY + 10);
+                          $('.tooltiptopicevent').css('left', e.pageX + 20);
+                      });
                   }
-                  $("body").append(tooltip);
-                  $(this).mouseover(function (e) {
-                      $(this).css('z-index', 10000);
-                      $('.tooltiptopicevent').fadeIn('500');
-                      $('.tooltiptopicevent').fadeTo('10', 1.9);
-                  }).mousemove(function (e) {
-                      $('.tooltiptopicevent').css('top', e.pageY + 10);
-                      $('.tooltiptopicevent').css('left', e.pageX + 20);
-                  });
+
               },
               eventMouseout: function (data, event, view) {
                   $(this).css('z-index', 8);

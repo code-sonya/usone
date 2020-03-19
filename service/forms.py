@@ -11,12 +11,12 @@ class ServicereportForm(forms.ModelForm):
     starttime = forms.CharField(max_length=16, widget=forms.TextInput(attrs={
         'class': 'form-control', 'type': 'time', 'id': 'starttime'
     }))
-    enddate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={
-        'class': 'form-control', 'type': 'date', "max": '9999-12-31', 'id': 'enddate'
-    }))
-    endtime = forms.CharField(max_length=16, widget=forms.TextInput(attrs={
-        'class': 'form-control', 'type': 'time', 'id': 'endtime'
-    }))
+    # enddate = forms.CharField(max_length=16, widget=forms.TextInput(attrs={
+    #     'class': 'form-control', 'type': 'date', "max": '9999-12-31', 'id': 'enddate'
+    # }))
+    # endtime = forms.CharField(max_length=16, widget=forms.TextInput(attrs={
+    #     'class': 'form-control', 'type': 'time', 'id': 'endtime'
+    # }))
     coWorkers = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={
         'class': 'magicsearch form-control', 'id': 'coWorkers', 'autocomplete': 'off'
     }))
@@ -29,7 +29,8 @@ class ServicereportForm(forms.ModelForm):
         fields = (
                   # 'contractId',
                   'companyName', 'serviceType',
-                  'startdate', 'starttime', 'enddate', 'endtime',
+                  'startdate', 'starttime',
+                  # 'enddate', 'endtime',
                   'serviceLocation', 'directgo', 'coWorkers', 'serviceTitle', 'serviceDetails')
 
         widgets = {
