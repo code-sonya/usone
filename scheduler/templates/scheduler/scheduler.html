@@ -259,7 +259,8 @@
                           tooltip = '<div class="tooltiptopicevent" ' +
                               'style="color:black;width:auto;height:auto;background:#cceeee;position:absolute;z-index:10001;padding:10px;' +
                               'line-height: 130%; font-size : 13px; border-radius:0.5em;border:1px solid lightblue;">' +
-                              '<b>[' + data.vacationType + '] ' + data.name + '</b></div>';
+                              '<b>[' + data.vacationType + '] ' + data.name + '</b><br>' +
+                              data.comment + '</div>';
                       } else {
                           if (data.company !== 'None') {
                               tooltip = '<div class="tooltiptopicevent" ' +
@@ -367,6 +368,7 @@
                               vacationType: '{{ i.vacationType }}',
                               type: 'X',
                               className: 'me',
+                              comment: '{{ i.comment }}',
                               {% if i.vacationStatus == 'N' %}
                                 title: '[{{ i.vacationType }}] {{ i.empName }} [결재중]',
                                 backgroundColor: '#FFFF0000',
@@ -390,6 +392,7 @@
                               vacationType: '{{ i.vacationType }}',
                               type: 'X',
                               className: 'team',
+                              comment: '{{ i.comment }}',
                               {% if i.vacationStatus == 'N' %}
                                 title: '[{{ i.vacationType }}] {{ i.empName }}(결재중)',
                                 backgroundColor: '#FFFF0000',
