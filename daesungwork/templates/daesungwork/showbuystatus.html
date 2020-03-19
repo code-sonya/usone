@@ -376,6 +376,17 @@
             <th><i id="addBuy" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
           </tr>
           </thead>
+          <tfoot>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th class="text-right">TOTAL :</th>
+            <th><span class="totalInsertPrice"></span></th>
+            <th></th>
+            <th></th>
+          </tr>
+          </tfoot>
         </table>
       </div>
 
@@ -415,6 +426,7 @@
                 (Number(salePrice) + Number(vatPrice)) * Number(quantity)
             );
         }
+        totalPrice('insertTotalPrice', 'totalInsertPrice');
     }
 
     function replaceAll(str, searchStr, replaceStr) {
@@ -535,6 +547,14 @@
             '<i class="fas fa-check"></i></button></span>' +
             '</div>';
         $(obj).parent().html(inputHtml);
+    }
+
+    function totalPrice(inputName, className) {
+        let price = 0;
+        for (var i = 0; i < $('input[name=' + inputName + ']').length; i++) {
+            price += Number($('input[name=' + inputName + ']').eq(i).val().replace(/,/g, ''));
+        }
+        $('.' + className).text(price.toLocaleString());
     }
 
     $(document).ready(function () {
@@ -707,6 +727,7 @@
                 .row($(this).parents('tr'))
                 .remove()
                 .draw();
+            totalPrice('insertTotalPrice', 'totalInsertPrice');
         });
 
         changePrice('quantity', 'salePrice', 'vatPrice', 'totalPrice');
@@ -715,6 +736,8 @@
         select2_modal('insertClient', 'insertForm');
         select2_modal('filterClient', 'filterForm');
 
+        // 일괄등록 합계출력
+        totalPrice('insertTotalPrice', 'totalInsertPrice');
     });
 
 

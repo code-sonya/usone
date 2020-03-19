@@ -389,11 +389,13 @@ def post_vacation(request):
 
         # 결재선 처리
         approval = []
+        # 기안자 자동 등록
+        approval.append({'approvalEmp': request.user.employee.empId, 'approvalStep': 1, 'approvalCategory': '신청'})
         if request.POST['apply']:
             applyList = request.POST['apply'].split(',')
             for i, a in enumerate(applyList):
                 if a != '':
-                    approval.append({'approvalEmp': a, 'approvalStep': i + 1, 'approvalCategory': '신청'})
+                    approval.append({'approvalEmp': a, 'approvalStep': i + 2, 'approvalCategory': '신청'})
         if request.POST['process']:
             processList = request.POST['process'].split(',')
             for i, p in enumerate(processList):

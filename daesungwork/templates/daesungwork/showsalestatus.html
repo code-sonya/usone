@@ -411,9 +411,20 @@
             <th class="font-weight-bold text-primary">수량</th>
             <th class="font-weight-bold text-primary">매출금액</th>
             <th class="font-weight-bold">비고</th>
-            <th><i id="addSale" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+            <th class="text-center"><i id="addSale" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
           </tr>
           </thead>
+          <tfoot>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="text-right">TOTAL : </td>
+            <td><span class="totalInsertPrice"></span></td>
+            <td></td>
+            <td></td>
+          </tr>
+          </tfoot>
         </table>
       </div>
 
@@ -649,6 +660,14 @@
         $(obj).parent().html(inputHtml);
     }
 
+    function totalPrice(inputName, className) {
+        let price = 0;
+        for (var i = 0; i < $('input[name=' + inputName + ']').length; i++) {
+            price += Number($('input[name=' + inputName + ']').eq(i).val().replace(/,/g, ''));
+        }
+        $('.' + className).text(price.toLocaleString());
+    }
+
     $(document).ready(function () {
         $('#showsales').dataTable({
             "processing": true,
@@ -818,13 +837,13 @@
                     }
                 },
                 {
-                    targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     createdCell: function (td, cellData, rowData, row, col) {
                         $(td).css('padding-bottom', '30px');
                         $(td).css('padding-top', '20px');
                     }
                 },
-                {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
             ],
         });
 
@@ -848,6 +867,10 @@
             select2_modal('buy1' + saleCounter, 'insertModal');
             select2_modal('buy2' + saleCounter, 'insertModal');
             saleCounter++;
+
+            $('input[name=insertSalePrice]').on("change keyup paste input", function() {
+                totalPrice('insertSalePrice', 'totalInsertPrice');
+            });
         });
 
         $('#insertTable').on('click', 'i', function () {
@@ -855,6 +878,7 @@
                 .row($(this).parents('tr'))
                 .remove()
                 .draw();
+            totalPrice('insertSalePrice', 'totalInsertPrice');
         });
 
         // modal select2
@@ -862,6 +886,9 @@
         select2_modal('filterProduct', 'filterModal');
         select2_modal('insertAffiliates', 'insertModal');
         select2_modal('insertClient', 'insertModal');
+
+        // 일괄등록 합계출력
+        totalPrice('insertSalePrice', 'totalInsertPrice');
 
     });
 
