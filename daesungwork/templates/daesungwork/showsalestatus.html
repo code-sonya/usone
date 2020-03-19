@@ -400,6 +400,14 @@
                 {% endfor %}
               </select>
             </div>
+            <div class="col-3">
+              <label class="font-weight-bold">비고일괄등록</label>
+              <div class="input-group">
+                <input class="form-control" id="insertTotalComment" maxlength="200">
+                <span class="input-group-text bg-primary text-gray-100" onclick="insert_comment()">
+                  <i class="fas fa-arrow-down"></i></span>
+              </div>
+            </div>
           </div>
         </form>
         <table id="insertTable" class="display" style="width:100%">
@@ -411,9 +419,20 @@
             <th class="font-weight-bold text-primary">수량</th>
             <th class="font-weight-bold text-primary">매출금액</th>
             <th class="font-weight-bold">비고</th>
-            <th><i id="addSale" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
+            <th class="text-center"><i id="addSale" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
           </tr>
           </thead>
+          <tfoot>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="text-right">TOTAL : </td>
+            <td><span class="totalInsertPrice"></span></td>
+            <td></td>
+            <td></td>
+          </tr>
+          </tfoot>
         </table>
       </div>
 
@@ -438,7 +457,6 @@
             location.href = '/daesungwork/deletesale/' + saleId + '/';
         }
     }
-
 
     function btn_filter() {
         document.getElementById("filterForm").submit();
@@ -649,6 +667,19 @@
         $(obj).parent().html(inputHtml);
     }
 
+    function totalPrice(inputName, className) {
+        let price = 0;
+        for (var i = 0; i < $('input[name=' + inputName + ']').length; i++) {
+            price += Number($('input[name=' + inputName + ']').eq(i).val().replace(/,/g, ''));
+        }
+        $('.' + className).text(price.toLocaleString());
+    }
+
+    function insert_comment() {
+        const comment = $('#insertTotalComment').val();
+        $('input[name=insertComment]').val(comment);
+    }
+
     $(document).ready(function () {
         $('#showsales').dataTable({
             "processing": true,
@@ -818,13 +849,13 @@
                     }
                 },
                 {
-                    targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                    targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
                     createdCell: function (td, cellData, rowData, row, col) {
                         $(td).css('padding-bottom', '30px');
                         $(td).css('padding-top', '20px');
                     }
                 },
-                {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                {targets: 6, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
             ],
         });
 
@@ -841,13 +872,17 @@
                 '<input class="form-control" name="insertQuantity" id="buy4' + saleCounter + '" type="number"' +
                     'onchange="changePrice(\'buy3' + saleCounter + '\', \'buy4' + saleCounter + '\', \'buy5' + saleCounter + '\')">',
                 '<input class="form-control" name="insertSalePrice" id="buy5' + saleCounter + '" type="number">',
-                '<input class="form-control" name="insertComment" id="buy6' + saleCounter + '">',
+                '<input class="form-control" name="insertComment" id="buy6' + saleCounter + '" maxlength="200">',
                 '<i class="fas fa-times-circle insertTableCount">',
             ]).draw();
             product_select('buy1' + saleCounter);
             select2_modal('buy1' + saleCounter, 'insertModal');
             select2_modal('buy2' + saleCounter, 'insertModal');
             saleCounter++;
+
+            $('input[name=insertSalePrice]').on("change keyup paste input", function() {
+                totalPrice('insertSalePrice', 'totalInsertPrice');
+            });
         });
 
         $('#insertTable').on('click', 'i', function () {
@@ -855,6 +890,7 @@
                 .row($(this).parents('tr'))
                 .remove()
                 .draw();
+            totalPrice('insertSalePrice', 'totalInsertPrice');
         });
 
         // modal select2
@@ -862,6 +898,9 @@
         select2_modal('filterProduct', 'filterModal');
         select2_modal('insertAffiliates', 'insertModal');
         select2_modal('insertClient', 'insertModal');
+
+        // 일괄등록 합계출력
+        totalPrice('insertSalePrice', 'totalInsertPrice');
 
     });
 

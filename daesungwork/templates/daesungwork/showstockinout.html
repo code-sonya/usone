@@ -300,6 +300,14 @@
                   {% endfor %}
                 </select>
               </div>
+              <div class="col-6">
+                <label class="font-weight-bold">비고일괄등록</label>
+                <div class="input-group">
+                  <input class="form-control" id="insertTotalComment" maxlength="200">
+                  <span class="input-group-text bg-primary text-gray-100" onclick="insert_comment()">
+                    <i class="fas fa-arrow-down"></i></span>
+                </div>
+              </div>
             </div>
           </form>
           <table id="insertTable" class="display" style="width:100%">
@@ -358,7 +366,6 @@
               }
           });
       }
-
 
       function btn_filter() {
           if(document.getElementById("startdate").value === '' &&
@@ -519,8 +526,6 @@
               alert('등록할 수 있는 항목이 없습니다.');
               return false;
           }
-
-
       }
 
       function changeModel(modelName, sizeId) {
@@ -540,6 +545,11 @@
                   }
               }
           });
+      }
+
+      function insert_comment() {
+          const comment = $('#insertTotalComment').val();
+          $('input[name=insertComment]').val(comment);
       }
 
       $(document).ready(function () {

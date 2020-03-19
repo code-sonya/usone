@@ -209,8 +209,16 @@
             {% csrf_token %}
             <div class="row mb-1">
               <div class="col-3">
-                <label class="font-weight-bold text-primary">발생 일자</label>
+                <label class="font-weight-bold text-primary">발생일자</label>
                 <input type="date" max="9999-12-31" class="form-control" name="postDate" id="insertPostDate" required>
+              </div>
+              <div class="col-9">
+                <label class="font-weight-bold">비고일괄등록</label>
+                <div class="input-group">
+                  <input class="form-control" id="insertTotalComment" maxlength="200">
+                  <span class="input-group-text bg-primary text-gray-100" onclick="insert_comment()">
+                    <i class="fas fa-arrow-down"></i></span>
+                </div>
               </div>
             </div>
           </form>
@@ -385,6 +393,11 @@
           }
           const postForm = document.getElementById('postForm');
           postForm.submit();
+      }
+
+      function insert_comment() {
+          const comment = $('#insertTotalComment').val();
+          $('input[name=insertComment]').val(comment);
       }
 
       $(document).ready(function () {

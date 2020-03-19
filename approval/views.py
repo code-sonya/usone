@@ -407,6 +407,25 @@ def draft_cancel(request, documentId):
     beforeDocument.documentStatus = '삭제'
     beforeDocument.save()
 
+    if beforeDocument.formId.formTitle == '휴가신청서':
+        vacations = Vacation.objects.filter(documentId=beforeDocument)
+        vacations.update(vacationStatus='R')
+        vacationDay = 0
+        for vacation in vacations:
+            if vacation.vacationType == '일차':
+                vacationDay += 1
+            else:
+                vacationDay += 0.5
+
+        emp = beforeDocument.writeEmp
+        categoryName = vacations.first().vacationCategory.categoryName
+        if categoryName == '하계휴가':
+            emp.empAnnualLeave += vacationDay
+            emp.save()
+        elif categoryName == '동계휴가':
+            emp.empSpecialLeave += vacationDay
+            emp.save()
+
     if beforeDocument.formId.copyAuth == 'Y':
         # 기존 문서 복사
         document = Document.objects.get(documentId=documentId)

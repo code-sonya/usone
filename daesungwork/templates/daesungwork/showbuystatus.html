@@ -348,7 +348,7 @@
           {% csrf_token %}
           <div class="row mb-1">
             <div class="col-3">
-              <label class="font-weight-bold text-primary">발생 일자</label>
+              <label class="font-weight-bold text-primary">구매일자</label>
               <input type="date" max="9999-12-31" class="form-control" name="buyDate" id="insertPostDate" required>
             </div>
             <div class="col-3">
@@ -361,6 +361,14 @@
                 </option>
                 {% endfor %}
               </select>
+            </div>
+            <div class="col-6">
+              <label class="font-weight-bold">비고일괄등록</label>
+              <div class="input-group">
+                <input class="form-control" id="insertTotalComment" maxlength="200">
+                <span class="input-group-text bg-primary text-gray-100" onclick="insert_comment()">
+                  <i class="fas fa-arrow-down"></i></span>
+              </div>
             </div>
           </div>
         </form>
@@ -376,6 +384,17 @@
             <th><i id="addBuy" class="fas fa-plus-square fa-fw text-info" style="font-size: 2rem"></i></th>
           </tr>
           </thead>
+          <tfoot>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th class="text-right">TOTAL :</th>
+            <th><span class="totalInsertPrice"></span></th>
+            <th></th>
+            <th></th>
+          </tr>
+          </tfoot>
         </table>
       </div>
 
@@ -415,6 +434,7 @@
                 (Number(salePrice) + Number(vatPrice)) * Number(quantity)
             );
         }
+        totalPrice('insertTotalPrice', 'totalInsertPrice');
     }
 
     function replaceAll(str, searchStr, replaceStr) {
@@ -535,6 +555,19 @@
             '<i class="fas fa-check"></i></button></span>' +
             '</div>';
         $(obj).parent().html(inputHtml);
+    }
+
+    function totalPrice(inputName, className) {
+        let price = 0;
+        for (var i = 0; i < $('input[name=' + inputName + ']').length; i++) {
+            price += Number($('input[name=' + inputName + ']').eq(i).val().replace(/,/g, ''));
+        }
+        $('.' + className).text(price.toLocaleString());
+    }
+
+    function insert_comment() {
+        const comment = $('#insertTotalComment').val();
+        $('input[name=insertComment]').val(comment);
     }
 
     $(document).ready(function () {
@@ -695,7 +728,7 @@
                 '<input class="form-control" name="insertVatPrice" id="buy4' + buyCounter + '" type="number" value="0"' +
                 'onchange="changePrice(\'buy2' + buyCounter + '\', \'buy3' + buyCounter + '\', \'buy4' + buyCounter + '\', \'buy5' + buyCounter + '\')">',
                 '<input class="form-control" name="insertTotalPrice" id="buy5' + buyCounter + '" type="number" readonly>',
-                '<input class="form-control" name="insertComment" id="display6' + buyCounter + '">',
+                '<input class="form-control" name="insertComment" id="display6' + buyCounter + '" maxlength="200">',
                 '<i class="fas fa-times-circle insertTableCount">',
             ]).draw();
             changePrice('buy2'+buyCounter, 'buy3'+buyCounter, 'buy4'+buyCounter, 'buy5'+buyCounter);
@@ -707,6 +740,7 @@
                 .row($(this).parents('tr'))
                 .remove()
                 .draw();
+            totalPrice('insertTotalPrice', 'totalInsertPrice');
         });
 
         changePrice('quantity', 'salePrice', 'vatPrice', 'totalPrice');
@@ -715,6 +749,8 @@
         select2_modal('insertClient', 'insertForm');
         select2_modal('filterClient', 'filterForm');
 
+        // 일괄등록 합계출력
+        totalPrice('insertTotalPrice', 'totalInsertPrice');
     });
 
 
