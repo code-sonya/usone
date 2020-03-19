@@ -67,6 +67,16 @@ def scheduler(request, day=None):
         Q(eventDate__lte=endDate)
     )
 
+    DeptTop = Department.objects.filter(
+        Q(deptLevel=0) &
+        Q(startDate__year__lte=todayYear) &
+        Q(startDate__month__lte=todayMonth) &
+        ((Q(endDate__year__gte=todayYear) & Q(endDate__month__gte=todayMonth)) | Q(endDate__isnull=True))) \
+        .annotate(checked=Case(
+        When(deptName__in=postDeptList, then=Value('Y')),
+        default=Value("N"),
+        output_field=CharField())).values('deptId', 'deptName', 'deptLevel', 'parentDept__deptName', 'checked')
+
     GroupDeptList = Department.objects.filter(
         Q(deptLevel=1) &
         Q(startDate__year__lte=todayYear) &
@@ -75,7 +85,7 @@ def scheduler(request, day=None):
         .annotate(checked=Case(
         When(deptName__in=postDeptList, then=Value('Y')),
         default=Value("N"),
-        output_field=CharField())).values('deptId', 'deptName', 'deptLevel', 'parentDept__deptName', 'checked')
+        output_field=CharField())).values('deptId', 'deptName', 'deptLevel', 'parentDept', 'parentDept__deptName', 'checked')
 
     DeptList = Department.objects.filter(
         Q(deptLevel=2) &
@@ -87,7 +97,6 @@ def scheduler(request, day=None):
             default=Value("N"),
             output_field=CharField())).values('deptName', 'deptLevel', 'parentDept', 'parentDept__deptName', 'checked')
 
-    # print(postDeptList)
     # 내 일정, 팀 일정
     myServices = services.filter(empId=empId)
     teamServices = services.exclude(empId=empId)
@@ -104,6 +113,7 @@ def scheduler(request, day=None):
         'teamServices': teamServices,
         'myVacations': myVacations,
         'teamVacations': teamVacations,
+        'DeptTop': DeptTop,
         'GroupDeptList': GroupDeptList,
         'DeptList': DeptList,
         'holiday': holiday,
@@ -229,8 +239,6 @@ def check_eventday(request):
     result = 'Y'
     if Eventday.objects.filter(eventDate=request.GET['eventDate']):
         result = 'N'
-
-    print(result)
 
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
