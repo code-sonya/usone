@@ -98,21 +98,25 @@
               <form name="DeptCheck" id="DeptCheck" method="post">
                 {% csrf_token %}
                 <div class="h6 mb-0 font-weight-bold text-gray-800" style="align:center;margin-left: 30px">
-
-                  {% for group in GroupDeptList %}
+                  {% for top in DeptTop %}
                     <div class="row">
-                      <label><input type="checkbox" name="ckdept" class="{{ group.deptId }}all"  value="{{ group.deptName }}" {% if group.checked == "Y" %} checked {% endif %}> {{ group.deptName }}</label>
+                      <label><input type="checkbox" name="ckdept" class="{{ top.deptId }}top"  value="{{ top.deptName }}" {% if top.checked == "Y" %} checked {% endif %}> {{ top.deptName }}</label>
                     </div>
-                    {% for i in DeptList %}
-
-                      {% if i.parentDept__deptName == group.deptName %}
-                       <div class="row">
-                        <label><input type="checkbox" class="{{ i.parentDept }} ml-3" name="ckdept" value="{{ i.deptName }}" {% if group.checked == "Y" %} checked {% endif %} {% if i.checked == "Y" %} checked {% endif %}> {{ i.deptName }}</label>
-                       </div>
-                      {% endif %}
+                    {% for group in GroupDeptList %}
+                       {% if group.parentDept__deptName == top.deptName %}
+                        <div class="row">
+                          <label><input type="checkbox" name="ckdept" class="{{ group.parentDept }}all {{ group.deptId }}all ml-3"  value="{{ group.deptName }}"  {% if group.checked == "Y" %} checked {% endif %}> {{ group.deptName }}</label>
+                        </div>
+                       {% endif %}
+                      {% for i in DeptList %}
+                        {% if i.parentDept__deptName == group.deptName %}
+                         <div class="row">
+                          <label><input type="checkbox" class="{{ i.parentDept }}dept ml-5" name="ckdept" value="{{ i.deptName }}" {% if group.checked == "Y" %} checked {% endif %} {% if i.checked == "Y" %} checked {% endif %}> {{ i.deptName }}</label>
+                         </div>
+                        {% endif %}
+                      {% endfor %}
                     {% endfor %}
                   {% endfor %}
-
 
                 </div>
                 <div class="text-center">
@@ -144,11 +148,25 @@
 
   <script type="text/javascript">
 
-      {% for group in GroupDeptList %}
-            $('.{{ group.deptId }}'+'all').click(function () {
-            $('.{{ group.deptId }}').prop('checked', this.checked);
+      {% for top in DeptTop %}
+        $('.{{ top.deptId }}'+'top').click(function () {
+           const groupId = $('.{{ top.deptId }}'+'all');
+           const topId = $('.{{ top.deptId }}'+'top');
+           $('.{{ top.deptId }}'+'all').click();
         });
       {% endfor %}
+
+      {% for group in GroupDeptList %}
+        $('.{{ group.deptId }}'+'all').click(function () {
+          const groupId = $('.{{ group.deptId }}'+'all');
+          const topId = $('.{{ group.parentDept }}'+'top');
+          if(groupId.is(":checked") == false){
+            topId.prop("checked", false);
+          }
+          $('.{{ group.deptId }}'+'dept').prop('checked', this.checked);
+        });
+      {% endfor %}
+
       function btnView() {
           document.getElementById("SearchLayer").style.display = 'inline'
       }

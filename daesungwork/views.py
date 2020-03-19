@@ -233,8 +233,9 @@ def show_buystatus(request):
             buys = buys.filter(product__icontains=filterProduct)
 
     else:
-        startdate = ''
-        enddate = ''
+        today = datetime.datetime.today()
+        startdate = '{}-{}-{}'.format(today.year, today.month, today.day)
+        enddate = '{}-{}-{}'.format(today.year, today.month, today.day)
         filterClient = ''
         filterProduct = ''
 
@@ -762,8 +763,9 @@ def show_salestatus(request, affiliateId):
             sales = sales.filter(size__size__iexact=filterSize)
 
     else:
-        startdate = ''
-        enddate = ''
+        today = datetime.datetime.today()
+        startdate = '{}-{}-{}'.format(today.year, today.month, today.day)
+        enddate = '{}-{}-{}'.format(today.year, today.month, today.day)
         filterClient = ''
         filterProduct = ''
         filterSize = ''
@@ -1540,8 +1542,9 @@ def show_stockinout(request):
         modelName = request.POST['filterProduct']
         sizeName = request.POST['filterSize']
     else:
-        startdate = ''
-        enddate = ''
+        today = datetime.datetime.today()
+        startdate = '{}-{}-{}'.format(today.year, today.month, today.day)
+        enddate = '{}-{}-{}'.format(today.year, today.month, today.day)
         modelName = ''
         sizeName = ''
 
