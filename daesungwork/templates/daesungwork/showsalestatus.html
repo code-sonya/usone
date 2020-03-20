@@ -103,55 +103,7 @@
             </span>
           </div>
         </form>
-        {% if startdate or enddate %}
-        <div class="row m-2 pt-3">
-          <div class="col-xl-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">조회기간</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if startdate %}{{ startdate }}{% endif %} ~ {% if enddate %} {{ enddate }} {% endif %}</div>
-                  </div>
-                  <div class="col-auto">
-                    <i class="fas fa-coins fa-2x text-gray-300"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-4">
-            <div class="card border-left-success shadow h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매금액</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.total %}{{ sales.total | intcomma }}{% endif %}</div>
-                  </div>
-                  <div class="col-auto">
-                    <i class="fas fa-coins fa-2x text-gray-300"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-xl-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div class="font-weight-bold text-primary text-uppercase mb-1">전체판매건수</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.count %}{{ sales.count | intcomma }}{% endif %}</div>
-                  </div>
-                  <div class="col-auto">
-                    <i class="fas fa-coins fa-2x text-gray-300"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% else %}
+
         <div class="row m-2 pt-3">
           <div class="col-xl-3">
             <div class="card border-left-primary shadow h-100 py-2">
@@ -159,10 +111,12 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">일간매출현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.today %}{{ sales.today | intcomma }}{% endif %}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {% if allSales.today %}{{ allSales.today | intcomma }}{% else %}0{% endif %}
+                    </div>
                   </div>
                   <div class="col-auto">
-                    <i class="fas fa-coins fa-2x text-gray-300"></i>
+                    <i class="fas fa-won-sign fa-2x text-gray-300"></i>
                   </div>
                 </div>
               </div>
@@ -174,10 +128,12 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">주간매출현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.weekly %}{{ sales.weekly | intcomma }}{% endif %}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {% if allSales.weekly %}{{ allSales.weekly | intcomma }}{% else %}0{% endif %}
+                    </div>
                   </div>
                   <div class="col-auto">
-                    <i class="fas fa-money-bill fa-2x text-gray-300"></i>
+                    <i class="fas fa-won-sign fa-2x text-gray-300"></i>
                   </div>
                 </div>
               </div>
@@ -189,7 +145,9 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">월간매출현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.monthly %}{{ sales.monthly | intcomma }}{% endif %}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {% if allSales.monthly %}{{ allSales.monthly | intcomma }}{% else %}0{% endif %}
+                    </div>
                   </div>
                   <div class="col-auto">
                     <i class="fas fa-won-sign fa-2x text-gray-300"></i>
@@ -204,17 +162,78 @@
                 <div class="row no-gutters align-items-center">
                   <div class="col mr-2">
                     <div class="font-weight-bold text-primary text-uppercase mb-1">연간매출현황</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">{% if sales.yearly %}{{ sales.yearly | intcomma }}{% endif %}</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {% if allSales.yearly %}{{ allSales.yearly | intcomma }}{% else %}0{% endif %}
+                    </div>
                   </div>
                   <div class="col-auto">
-                    <i class="fas fa-comment-dollar fa-2x text-gray-300"></i>
+                    <i class="fas fa-won-sign fa-2x text-gray-300"></i>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {% endif %}
+
+        <div class="row m-2 pt-3">
+          <div class="col-xl-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">조회기간</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {% if startdate or enddate %}
+                        {% if startdate %}{{ startdate }}{% else %}전체{% endif %} ~
+                        {% if enddate %}{{ enddate }}{% else %}전체{% endif %}
+                      {% else %}
+                        전체
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card border-left-success shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">기간 내 판매금액</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {% if filterSales.total %}{{ filterSales.total | intcomma }}{% else %}0{% endif %}
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-won-sign fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="font-weight-bold text-primary text-uppercase mb-1">기간 내 판매건수</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      {% if filterSales.count %}{{ filterSales.count | intcomma }}{% else %}0{% endif %}
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-coins fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <form method="POST" id="postForm" action="/daesungwork/postsale/{{ affiliateId }}/">
           {% csrf_token %}
           <div class="form-group row m-2 pt-4">

@@ -100,7 +100,14 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="font-weight-bold text-primary text-uppercase mb-1">조회기간</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">{% if startdate %}{{ startdate }}{% endif %} ~ {% if enddate %} {{ enddate }} {% endif %}</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        {% if startdate or enddate %}
+                          {% if startdate %}{{ startdate }}{% else %}전체{% endif %} ~
+                          {% if enddate %}{{ enddate }}{% else %}전체{% endif %}
+                        {% else %}
+                          전체
+                        {% endif %}
+                      </div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -115,7 +122,9 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="font-weight-bold text-primary text-uppercase mb-1">모델명</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">{% if product %}{{ product }}{% else %} 전체 {% endif %}</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        {% if product %}{{ product }}{% else %} 전체 {% endif %}
+                      </div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-coins fa-2x text-gray-300"></i>
@@ -130,7 +139,9 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="font-weight-bold text-primary text-uppercase mb-1">사이즈</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">{% if size %}{{ size }}{% else %} 전체 {% endif %}</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        {% if size %}{{ size }}{% else %} 전체 {% endif %}
+                      </div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-money-bill fa-2x text-gray-300"></i>
@@ -145,7 +156,9 @@
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
                       <div class="font-weight-bold text-primary text-uppercase mb-1">재고량</div>
-                      <div class="h5 mb-0 font-weight-bold text-gray-800">{{ remaining | intcomma}}</div>
+                      <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        {{ remaining | intcomma}}
+                      </div>
                     </div>
                     <div class="col-auto">
                       <i class="fas fa-won-sign fa-2x text-gray-300"></i>

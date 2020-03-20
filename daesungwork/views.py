@@ -214,7 +214,8 @@ def show_buystatus(request):
 
     form = BuyForm()
 
-    buys = Buy.objects.all()
+    allBuys = Buy.objects.all()
+    filterBuys = Buy.objects.all()
     clients = Company.objects.filter(companyStatus="Y")
 
     if request.method == 'POST':
@@ -224,22 +225,52 @@ def show_buystatus(request):
         filterProduct = request.POST['filterProduct']
 
         if startdate:
-            buys = buys.filter(buyDate__gte=startdate)
+            filterBuys = filterBuys.filter(buyDate__gte=startdate)
         if enddate:
-            buys = buys.filter(buyDate__lte=enddate)
+            filterBuys = filterBuys.filter(buyDate__lte=enddate)
         if filterClient:
-            buys = buys.filter(client=filterClient)
+            filterBuys = filterBuys.filter(client=filterClient)
         if filterProduct:
-            buys = buys.filter(product__icontains=filterProduct)
+            filterBuys = filterBuys.filter(product__icontains=filterProduct)
 
     else:
         today = datetime.datetime.today()
         startdate = str(today)[:10]
+        filterBuys = filterBuys.filter(buyDate__gte=startdate)
         enddate = str(today)[:10]
+        filterBuys = filterBuys.filter(buyDate__lte=enddate)
         filterClient = ''
         filterProduct = ''
 
-    buys = buys.aggregate(
+    allBuys = allBuys.aggregate(
+        yearly=Sum(
+            Case(
+                When(buyDate__year=todayYear, then='totalPrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        monthly=Sum(
+            Case(
+                When(Q(buyDate__year=todayYear) & Q(buyDate__month=todayMonth), then='totalPrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        weekly=Sum(
+            Case(
+                When(Q(buyDate__gte=thisMonday) & Q(buyDate__lte=thisSunday), then='totalPrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        today=Sum(
+            Case(
+                When(buyDate=today, then='totalPrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        total=Sum('totalPrice'),
+        count=Count('buyId'),
+    )
+    filterBuys = filterBuys.aggregate(
         yearly=Sum(
             Case(
                 When(buyDate__year=todayYear, then='totalPrice'),
@@ -269,7 +300,8 @@ def show_buystatus(request):
     )
     context = {
         'form': form,
-        'buys': buys,
+        'allBuys': allBuys,
+        'filterBuys': filterBuys,
         'clients': clients,
         'startdate': startdate,
         'enddate': enddate,
@@ -735,7 +767,8 @@ def show_salestatus(request, affiliateId):
 
     form = SaleForm()
     affiliates = Affiliate.objects.all()
-    sales = Sale.objects.all()
+    allSales = Sale.objects.all()
+    filterSales = Sale.objects.all()
     clients = Company.objects.filter(companyStatus="Y")
     products = Product.objects.filter(productStatus='Y')
 
@@ -747,34 +780,37 @@ def show_salestatus(request, affiliateId):
         filterSize = request.POST['filterSize']
 
         if startdate:
-            sales = sales.filter(saleDate__gte=startdate)
+            filterSales = filterSales.filter(saleDate__gte=startdate)
 
         if enddate:
-            sales = sales.filter(saleDate__lte=enddate)
+            filterSales = filterSales.filter(saleDate__lte=enddate)
 
         if filterClient:
-            sales = sales.filter(client=filterClient)
+            filterSales = filterSales.filter(client=filterClient)
 
         if filterProduct:
-            sales = sales.filter(product__modelName__icontains=filterProduct)
+            filterSales = filterSales.filter(product__modelName__icontains=filterProduct)
 
         if filterSize:
             # iexact - 대소문자 구별하지 않음.
-            sales = sales.filter(size__size__iexact=filterSize)
+            filterSales = filterSales.filter(size__size__iexact=filterSize)
 
     else:
         today = datetime.datetime.today()
         startdate = str(today)[:10]
+        filterSales = filterSales.filter(saleDate__gte=startdate)
         enddate = str(today)[:10]
+        filterSales = filterSales.filter(saleDate__lte=enddate)
         filterClient = ''
         filterProduct = ''
         filterSize = ''
 
     if affiliateId != 'all':
         affiliateId = int(affiliateId)
-        sales = sales.filter(affiliate=affiliateId)
+        allSales = allSales.filter(affiliate=affiliateId)
+        filterSales = filterSales.filter(affiliate=affiliateId)
 
-    sales = sales.aggregate(
+    allSales = allSales.aggregate(
         yearly=Sum(
                 Case(
                     When(saleDate__year=todayYear, then='salePrice'),
@@ -802,11 +838,41 @@ def show_salestatus(request, affiliateId):
         total=Sum('salePrice'),
         count=Count('saleId'),
     )
+
+    filterSales = filterSales.aggregate(
+        yearly=Sum(
+            Case(
+                When(saleDate__year=todayYear, then='salePrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        monthly=Sum(
+            Case(
+                When(Q(saleDate__year=todayYear) & Q(saleDate__month=todayMonth), then='salePrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        weekly=Sum(
+            Case(
+                When(Q(saleDate__gte=thisMonday) & Q(saleDate__lte=thisSunday), then='salePrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        today=Sum(
+            Case(
+                When(saleDate=today, then='salePrice'),
+                default=0, output_field=IntegerField()
+            )
+        ),
+        total=Sum('salePrice'),
+        count=Count('saleId'),
+    )
     context = {
         'form': form,
         'affiliates': affiliates,
         'affiliateId': affiliateId,
-        'sales': sales,
+        'allSales': allSales,
+        'filterSales': filterSales,
         'clients': clients,
         'products': products,
         'startdate': startdate,
@@ -1552,9 +1618,23 @@ def show_stockinout(request):
     size = ''
     stockmanagement = StockManagement.objects.all()
     if startdate:
-        stockmanagement = stockmanagement.filter(createdDateTime__gte=startdate)
+        tempstartdate = datetime.datetime(
+            year=int(startdate[:4]),
+            month=int(startdate[5:7]),
+            day=int(startdate[8:10]),
+            hour=0,
+            minute=0,
+        )
+        stockmanagement = stockmanagement.filter(createdDateTime__gte=tempstartdate)
     if enddate:
-        stockmanagement = stockmanagement.filter(createdDateTime__lte=enddate)
+        tempenddate = datetime.datetime(
+            year=int(enddate[:4]),
+            month=int(enddate[5:7]),
+            day=int(enddate[8:10]),
+            hour=0,
+            minute=0,
+        ) + datetime.timedelta(days=1)
+        stockmanagement = stockmanagement.filter(createdDateTime__lt=tempenddate)
     if modelName:
         stockmanagement = stockmanagement.filter(productName=modelName)
         product = Product.objects.get(productId=modelName).modelName
@@ -1619,9 +1699,23 @@ def stockinout_asjson(request):
 
     stockmanagement = StockManagement.objects.all()
     if startdate:
+        startdate = datetime.datetime(
+            year=int(startdate[:4]),
+            month=int(startdate[5:7]),
+            day=int(startdate[8:10]),
+            hour=0,
+            minute=0,
+        )
         stockmanagement = stockmanagement.filter(createdDateTime__gte=startdate)
     if enddate:
-        stockmanagement = stockmanagement.filter(createdDateTime__lte=enddate)
+        enddate = datetime.datetime(
+            year=int(enddate[:4]),
+            month=int(enddate[5:7]),
+            day=int(enddate[8:10]),
+            hour=0,
+            minute=0,
+        ) + datetime.timedelta(days=1)
+        stockmanagement = stockmanagement.filter(createdDateTime__lt=enddate)
     if modelName:
         stockmanagement = stockmanagement.filter(productName=modelName)
     if sizeName:
