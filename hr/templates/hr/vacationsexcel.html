@@ -70,15 +70,17 @@
               <th>부서명</th>
               <th>성함</th>
               <th>입사일</th>
-              <th>연차[생성]</th>
-              <th>연차[잔여]</th>
-              <th>특별휴가[생성]</th>
-              <th>특별휴가[잔여]</th>
-              <th>훈련[사용]</th>
-              <th>경조사[사용]</th>
-              <th>병가[사용]</th>
-              <th>출산[사용]</th>
-              <th>보상휴가[사용]</th>
+              <th>하계휴가[부여]</th>
+              <th>하계휴가[사용]</th>
+              <th>하계휴가[잔여]</th>
+              <th>동계휴가[부여]</th>
+              <th>동계휴가[사용]</th>
+              <th>동계휴가[잔여]</th>
+<!--              <th>훈련[사용]</th>-->
+<!--              <th>경조사[사용]</th>-->
+<!--              <th>병가[사용]</th>-->
+<!--              <th>출산[사용]</th>-->
+<!--              <th>보상휴가[사용]</th>-->
             </tr>
             </thead>
           </table>
@@ -117,7 +119,7 @@
 
   <!-- detail Modal -->
   <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
 
         <div class="modal-header bg-primary text-gray-100">
@@ -128,14 +130,9 @@
         </div>
 
         <div class="modal-body">
-            <label for="details" class="font-weight-bold text-primary" id="detailEmpName"></label>
-              <table class="pc-table" id="details">
-                <tr class="bg-light">
-                   <th>휴가일</th>
-                   <th>휴가유형(일차/반차)</th>
-                   <th>휴가종류</th>
-                </tr>
-              </table>
+          <label for="details" class="font-weight-bold text-primary" id="detailEmpName"></label>
+          <table class="pc-table" id="details">
+          </table>
         </div>
       </div>
     </div>
@@ -202,51 +199,62 @@
                       targets: 4,
                       width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "remainingAnnualLeave",
+                      data: "useAnnualLeave",
                   },
                   {
                       targets: 5,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "createSpecialLeave",
+                      data: "remainingAnnualLeave",
                   },
                   {
                       targets: 6,
                       width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "remainingSpecialLeave",
+                      data: "createSpecialLeave",
                   },
                   {
                       targets: 7,
-                      width: "15%",
+                      width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "useTraining",
+                      data: "useSpecialLeave",
                   },
                   {
                       targets: 8,
-                      width: "15%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "useInvestigation",
-                  },
-                  {
-                      targets: 9,
                       width: "10%",
                       className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "useSickleave",
+                      data: "remainingSpecialLeave",
                   },
-                  {
-                      targets: 10,
-                      width: "10%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "useMaternityleave",
-                  },
-                  {
-                      targets: 11,
-                      width: "10%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
-                      data: "useCompensation",
-                  },
-
+                  // {
+                  //     targets: 7,
+                  //     width: "15%",
+                  //     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  //     data: "useTraining",
+                  // },
+                  // {
+                  //     targets: 8,
+                  //     width: "15%",
+                  //     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  //     data: "useInvestigation",
+                  // },
+                  // {
+                  //     targets: 9,
+                  //     width: "10%",
+                  //     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  //     data: "useSickleave",
+                  // },
+                  // {
+                  //     targets: 10,
+                  //     width: "10%",
+                  //     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  //     data: "useMaternityleave",
+                  // },
+                  // {
+                  //     targets: 11,
+                  //     width: "10%",
+                  //     className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                  //     data: "useCompensation",
+                  // },
               ],
               dom: 'Blfrtip',
               buttons: [
@@ -268,7 +276,7 @@
               ],
               "deferRender": true,
               "searching": true,
-              "paging": true,
+              "paging": false,
               "info": false,
               "scrollY": "60vh",
               "scrollX": false,
@@ -285,9 +293,10 @@
                   },
               },
               "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                    $('td:eq(4)', nRow).css('color', '#4e73df');
-                    $('td:eq(6)', nRow).css('color', '#4e73df');
-
+                    $('td:eq(4)', nRow).css('color', '#e74a3b');
+                    $('td:eq(5)', nRow).css('color', '#4e73df');
+                    $('td:eq(7)', nRow).css('color', '#e74a3b');
+                    $('td:eq(8)', nRow).css('color', '#4e73df');
               },
               "footerCallback": function() {
               },
@@ -315,13 +324,15 @@
                   console.log(empName);
                   $('#detailEmpName').text(empName+"님");
                   $('#details').empty();
-                  $('#details').append("<tr style='background-color: #d2e1f8'><td>휴가일자</td><td>휴가종류</td><td>일차/반차</td><td>휴가일수</td></tr>");
+                  $('#details').append("<tr style='background-color: #d2e1f8'>" +
+                      "<td style='width: 20%'>휴가일자</td>" +
+                      "<td style='width: 20%'>휴가종류</td>" +
+                      "<td style='width: 10%'>일차/반차</td>" +
+                      "<td style='width: 50%'>사유</td></tr>");
                   if (vacations.length == 0) {
                       $('#details').append("<tr><td colspan=4>휴가내역없음</td></tr>");
                   } else {
                       for (var count = 0; count < vacations.length; count++) {
-
-
                           if (vacations[count].vacationType == '일차') {
                               vacationDays = 1;
                           } else {
@@ -330,7 +341,7 @@
                           var tr = $("<tr><td>" + vacations[count].vacationDate + "</td>" +
                               "<td>" + vacations[count].vacationCategory__categoryName + "</td>" +
                               "<td>" + vacations[count].vacationType + "</td>" +
-                              "<td>" + vacationDays + "</td>" +
+                              "<td>" + vacations[count].comment + "</td>" +
                               "</tr>");
                           $('#details').append(tr);
                       }

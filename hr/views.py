@@ -708,18 +708,18 @@ def vacations_excel(request):
 def vacationsexcel_asjson(request):
     year = request.POST['year']
     # 직원별 연차, 특별 휴가 생성 일 수
-    if year:
-        adminvacation = AdminVacation.objects.filter(Q(creationDateTime__year=year)).values('empId', 'vacationType').annotate(sumvacationDays=Sum('vacationDays'))
-        empvacation = AdminVacation.objects.filter(Q(creationDateTime__year=year)).values('empId').annotate(empcount=Count('empId'))
-
-    else:
-        adminvacation = AdminVacation.objects.all().values('empId',  'vacationType').annotate(sumvacationDays=Sum('vacationDays'))
-        empvacation = AdminVacation.objects.filter(Q(creationDateTime__year=year)).values('empId').annotate(empcount=Count('empId'))
+    adminvacation = AdminVacation.objects.filter(Q(creationDateTime__year=year))
+    adminvacation = adminvacation.values('empId', 'vacationType').annotate(sumvacationDays=Sum('vacationDays'))
+    empvacation = AdminVacation.objects.filter(Q(creationDateTime__year=year))
+    empvacation = empvacation.values('empId').annotate(empcount=Count('empId'))
 
     # 직원별 휴가 타입별 휴가 사용 일 수
     # vacationType => 일차, 오전반차, 오후반차
     # vacationCategory => 일차, 오전반차, 오후반차
-    vacations = Vacation.objects.filter(Q(vacationDate__year=year)&(Q(vacationStatus='Y')|Q(vacationStatus='N'))).annotate(
+    vacations = Vacation.objects.filter(
+        Q(vacationDate__year=year) &
+        (Q(vacationStatus='Y') | Q(vacationStatus='N'))
+    ).annotate(
         vacationDay=Case(
             When(vacationType='일차', then=1.0),
             default=0.5,
@@ -732,33 +732,37 @@ def vacationsexcel_asjson(request):
 
     vacationList = []
     for emp in empvacation:
-        vacationDict = {'createAnnualLeave': 0, 'createSpecialLeave': 0, 'remainingAnnualLeave': 0, 'remainingSpecialLeave': 0,
-                        'useAnnualLeave': 0, 'useSpecialLeave': 0, 'useTraining': 0, 'useInvestigation': 0, 'useSickleave': 0, 'useMaternityleave': 0, 'useCompensation': 0}
+        vacationDict = {
+            'createAnnualLeave': 0, 'createSpecialLeave': 0,
+            'remainingAnnualLeave': 0, 'remainingSpecialLeave': 0,
+            'useAnnualLeave': 0, 'useSpecialLeave': 0,
+            # 'useTraining': 0, 'useInvestigation': 0, 'useSickleave': 0, 'useMaternityleave': 0, 'useCompensation': 0
+        }
         employee = Employee.objects.get(empId=emp['empId'])
         vacationDict['empId'] = employee.empId
         vacationDict['empName'] = employee.empName
         vacationDict['empStartDate'] = employee.empStartDate
         vacationDict['empDeptName'] = employee.empDeptName
         for create in adminvacation.filter(Q(empId=emp['empId'])):
-            if create['vacationType'] == '연차':
+            if create['vacationType'] == '하계휴가':
                 vacationDict['createAnnualLeave'] = create['sumvacationDays']
-            elif create['vacationType'] == '특별휴가':
+            elif create['vacationType'] == '동계휴가':
                 vacationDict['createSpecialLeave'] = create['sumvacationDays']
             for useVacation in vacations.filter(empId=create['empId']):
-                if useVacation['categoryName'] == '연차':
+                if useVacation['categoryName'] == '하계휴가':
                     vacationDict['useAnnualLeave'] = useVacation['vacationDays']
-                elif useVacation['categoryName'] == '특별휴가':
+                elif useVacation['categoryName'] == '동계휴가':
                     vacationDict['useSpecialLeave'] = useVacation['vacationDays']
-                elif useVacation['categoryName'] == '훈련':
-                    vacationDict['useTraining'] = useVacation['vacationDays']
-                elif useVacation['categoryName'] == '경조사':
-                    vacationDict['useInvestigation'] = useVacation['vacationDays']
-                elif useVacation['categoryName'] == '병가':
-                    vacationDict['useSickleave'] = useVacation['vacationDays']
-                elif useVacation['categoryName'] == '출산':
-                    vacationDict['useMaternityleave'] = useVacation['vacationDays']
-                elif useVacation['categoryName'] == '보상휴가':
-                    vacationDict['useCompensation'] = useVacation['vacationDays']
+                # elif useVacation['categoryName'] == '훈련':
+                #     vacationDict['useTraining'] = useVacation['vacationDays']
+                # elif useVacation['categoryName'] == '경조사':
+                #     vacationDict['useInvestigation'] = useVacation['vacationDays']
+                # elif useVacation['categoryName'] == '병가':
+                #     vacationDict['useSickleave'] = useVacation['vacationDays']
+                # elif useVacation['categoryName'] == '출산':
+                #     vacationDict['useMaternityleave'] = useVacation['vacationDays']
+                # elif useVacation['categoryName'] == '보상휴가':
+                #     vacationDict['useCompensation'] = useVacation['vacationDays']
 
         vacationDict['remainingAnnualLeave'] = vacationDict['createAnnualLeave'] - vacationDict['useAnnualLeave']
         vacationDict['remainingSpecialLeave'] = vacationDict['createSpecialLeave'] - vacationDict['useSpecialLeave']
@@ -879,7 +883,12 @@ def detailvacation_asjson(request):
     empId = request.POST['empId']
     year = request.POST['year']
 
-    vacations = Vacation.objects.filter(Q(empId=empId) & Q(vacationDate__year=year) & Q(vacationStatus='Y')).values('vacationDate', 'vacationType', 'vacationCategory__categoryName')
+    vacations = Vacation.objects.filter(
+        Q(empId=empId) & Q(vacationDate__year=year) &
+        (Q(vacationStatus='Y') | Q(vacationStatus='N'))
+    ).values(
+        'vacationDate', 'vacationType', 'vacationCategory__categoryName', 'comment'
+    )
 
     structure = json.dumps(list(vacations), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')

@@ -54,17 +54,17 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 h3 text-gray-800">{{year}}년도 휴가등록</h6>
         <div class="dropdown">
-<!--            <a class="btn btn-info" href="/hr/vacationsexcel/" role="button">-->
-<!--              <i class="fas fa-file-excel d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-file-excel"></i> 엑셀</span>-->
-<!--            </a>-->
+            <a class="btn btn-info" href="/hr/vacationsexcel/" role="button">
+              <i class="fas fa-file-excel d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-file-excel"></i> 현황</span>
+            </a>
 <!--            <a class="btn btn-danger" href="/hr/returnvacation/" role="button">-->
 <!--              <i class="fas fa-times d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-times"></i> 취소</span>-->
 <!--            </a>-->
             <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i>조회</span>
+              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
             </a>
             <a class="btn btn-primary" href="#" role="button" id="vacationLink" data-toggle="modal" data-target="#vacationModal">
-              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i>등록</span>
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
             </a>
         </div>
       </div>
@@ -256,7 +256,7 @@
                   {
                       targets: 7,
                       width: "15%",
-                      className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap",
+                      className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap",
                       data: "comment",
                   },
                   {
