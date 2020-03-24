@@ -1663,6 +1663,8 @@ def show_stockinout(request):
             # 상단 카드
             "product": product,
             "size": size,
+            "inRemaining": inRemaining,
+            "outRemaining": outRemaining,
             "remaining": remaining,
         }
         return HttpResponse(template.render(context, request))
@@ -1722,7 +1724,7 @@ def stockinout_asjson(request):
         stockmanagement = stockmanagement.filter(sizeName=sizeName)
 
     stockmanagement = stockmanagement.values(
-        'stockManagementId', 'managerEmp__empName', 'typeName', 'productName__productPicture',
+        'stockManagementId', 'managerEmp__empId', 'managerEmp__empName', 'typeName', 'productName__productPicture',
         'productName__modelName', 'sizeName__size', 'quantity', 'createdDateTime', 'comment'
     )
     structure = json.dumps(list(stockmanagement), cls=DjangoJSONEncoder)
@@ -1850,6 +1852,21 @@ def change_sale_comment(request):
         saleObj = Sale.objects.get(saleId=saleId)
         saleObj.comment = comment
         saleObj.save()
+        result = 'Y'
+    else:
+        result = 'N'
+    structure = json.dumps(result, cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def change_stockinout_comment(request):
+    if request.method == 'POST':
+        stockManagementId = request.POST['stockManagementId']
+        comment = request.POST['comment']
+        stockManagementObj = StockManagement.objects.get(stockManagementId=stockManagementId)
+        stockManagementObj.comment = comment
+        stockManagementObj.save()
         result = 'Y'
     else:
         result = 'N'

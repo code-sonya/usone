@@ -85,4 +85,5 @@ urlpatterns = [
     url(r'^stockinoutasjson/$', views.stockinout_asjson, name='stockinoutasjson'),
     url(r'^inoutcheckasjson/$', views.inoutcheck_asjson, name='inoutcheckasjson'),
     url(r'^insertstockinout/$', views.insert_stock_inout, name='insertstockinout'),
+    url(r'^change_stockinout_comment/$', views.change_stockinout_comment, name='change_stockinout_comment'),
 ]

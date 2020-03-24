@@ -26,24 +26,24 @@
         </a>
       </div>
     </div>
-    <form method="POST" id="searchForm">
-    <div class="row ml-3 mt-3">
-      <span>
-        <select class="form-control" id="center" name="center" onchange="btn_center(this.value)">
-          <option value="">전체</option>
-          {% for center in centers %}
-          <option value="{{ center.centerId }}" {% if centerId == center.centerId %} selected {% endif %} >
-            {{ center.centerName }}
-          </option>
-          {% endfor %}
-        </select>
-      </span>
-    </div>
-    </form>
 
     <div class="card-body">
-      <div class="mb-3">
-        <h5>▼ <span class="text-primary font-weight-bold">비품 목록</span></h5>
+      <div class="row mb-3">
+        <div class="col-2">
+          <form method="POST" id="searchForm">
+            <select class="form-control" id="center" name="center" onchange="btn_center(this.value)">
+              <option value="">전체</option>
+              {% for center in centers %}
+              <option value="{{ center.centerId }}" {% if centerId == center.centerId %} selected {% endif %} >
+                {{ center.centerName }}
+              </option>
+              {% endfor %}
+            </select>
+          </form>
+        </div>
+        <div class="col-10">
+          <span class="text-primary font-weight-bold form-control-plaintext" style="font-size: 20px">비품 목록</span>
+        </div>
       </div>
       <div class="table-responsive">
         <table id="showsavings" class="hover row-border" style="width: 100%;">
@@ -51,7 +51,7 @@
           <tr style="background-color: #deeef8; color: black;">
             <th>품명</th>
             <th>현재수량</th>
-            <th>누적금액</th>
+            <th>공급가</th>
           </tr>
           </thead>
           <tfoot>

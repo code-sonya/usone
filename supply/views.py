@@ -217,7 +217,10 @@ def savings_asjson(request):
     centerId = request.POST['centerId']
     if centerId:
         quantity = quantity.filter(location=centerId)
-    quantity = quantity.values('savingId', 'savingId__name').annotate(quantity=Sum('quantity'), money=Sum('money'))
+    quantity = quantity.values('savingId', 'savingId__name').annotate(
+        quantity=Sum('quantity'),
+        money=Sum('money'),
+    )
 
     structure = json.dumps(list(quantity), cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
@@ -279,6 +282,8 @@ def view_saving(request, savingId, centerId):
     saving = Saving.objects.get(savingId=savingId)
     quantity = SavingQuantity.objects.filter(savingId__savingId=savingId).order_by('-purchaseDate', '-quantityId')
     emps = Employee.objects.filter(empStatus='Y')
+    centers = Center.objects.filter(centerStatus='Y')
+
     if centerId != '전체':
         quantity = quantity.filter(location=centerId)
 
@@ -288,6 +293,7 @@ def view_saving(request, savingId, centerId):
         'quantity': quantity,
         'sumQuantity': sumQuantity,
         'emps': emps,
+        'centers': centers,
     }
     return render(request, 'supply/viewsaving.html', context)
 

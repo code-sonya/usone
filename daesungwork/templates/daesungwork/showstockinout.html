@@ -121,9 +121,10 @@
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="font-weight-bold text-primary text-uppercase mb-1">모델명</div>
+                      <div class="font-weight-bold text-primary text-uppercase mb-1">모델명 / 사이즈</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800">
-                        {% if product %}{{ product }}{% else %} 전체 {% endif %}
+                        {% if product %}{{ product }}{% else %} 전체 {% endif %} /
+                        {% if size %}{{ size }}{% else %} 전체 {% endif %}
                       </div>
                     </div>
                     <div class="col-auto">
@@ -138,9 +139,10 @@
                 <div class="card-body">
                   <div class="row no-gutters align-items-center">
                     <div class="col mr-2">
-                      <div class="font-weight-bold text-primary text-uppercase mb-1">사이즈</div>
+                      <div class="font-weight-bold text-primary text-uppercase mb-1">입고 / 출고</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800">
-                        {% if size %}{{ size }}{% else %} 전체 {% endif %}
+                        {{ inRemaining | intcomma }} /
+                        {{ outRemaining | intcomma }}
                       </div>
                     </div>
                     <div class="col-auto">
@@ -157,7 +159,7 @@
                     <div class="col mr-2">
                       <div class="font-weight-bold text-primary text-uppercase mb-1">재고량</div>
                       <div class="h5 mb-0 font-weight-bold text-gray-800">
-                        {{ remaining | intcomma}}
+                        {{ remaining | intcomma }}
                       </div>
                     </div>
                     <div class="col-auto">
@@ -541,28 +543,65 @@
           }
       }
 
-      function changeModel(modelName, sizeId) {
+      // function changeModel(modelName, sizeId) {
+      //     $.ajax({
+      //         url: "{% url 'daesungwork:modelasjson' %}",
+      //         method: 'POST',
+      //         cache: false,
+      //         data: {"modelName": modelName,},
+      //         headers: {'X-CSRFToken': '{{ csrf_token }}'},
+      //         success: function (returnData) {
+      //             let unitPrice = returnData[0];
+      //             let sizes = returnData[1];
+      //             $('#' + sizeId).empty();
+      //             for (var count = 0; count < sizes.length; count++) {
+      //                 var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
+      //                 $('#' + sizeId).append(option);
+      //             }
+      //         }
+      //     });
+      // }
+
+      function insert_comment() {
+          const comment = $('#insertTotalComment').val();
+          $('input[name=insertComment]').val(comment);
+      }
+
+      function save_comment(obj, stockManagementId) {
+          let divObj = $(obj).closest('div');
+          let comment = divObj.children('input').val();
           $.ajax({
-              url: "{% url 'daesungwork:modelasjson' %}",
+              url: "{% url 'daesungwork:change_stockinout_comment' %}",
               method: 'POST',
               cache: false,
-              data: {"modelName": modelName,},
+              data: {
+                  "stockManagementId": stockManagementId,
+                  "comment": comment,
+              },
               headers: {'X-CSRFToken': '{{ csrf_token }}'},
               success: function (returnData) {
-                  let unitPrice = returnData[0];
-                  let sizes = returnData[1];
-                  $('#' + sizeId).empty();
-                  for (var count = 0; count < sizes.length; count++) {
-                      var option = $("<option value=" + sizes[count].sizeId + ">" + sizes[count].size + "</option>");
-                      $('#' + sizeId).append(option);
+                  if (returnData === 'N') {
+                      alert('수정 중 오류가 발생했습니다. 다시한번 확인해주세요.');
+                      return false;
+                  } else {
+                      divObj.parent().html(
+                          '<div style="cursor: pointer" onclick="change_input(this, ' + stockManagementId + ')">' + comment + '</div>'
+                      );
+                      return false;
                   }
               }
           });
       }
 
-      function insert_comment() {
-          const comment = $('#insertTotalComment').val();
-          $('input[name=insertComment]').val(comment);
+      function change_input(obj, stockManagementId) {
+          let inputValue = $(obj).text();
+          let inputHtml = '<div class="input-group">' +
+              '<input type="text" class="form-control" maxlength="200" value="' + inputValue + '" ' +
+                  'onkeydown="javascript: if (event.keyCode == 13) {save_comment(this, ' + stockManagementId + ')}">' +
+              '<span class="input-group-btn"><button class="btn btn-primary" onclick="save_comment(this, ' + stockManagementId + ')">' +
+              '<i class="fas fa-check"></i></button></span>' +
+              '</div>';
+          $(obj).parent().html(inputHtml);
       }
 
       $(document).ready(function () {
@@ -600,9 +639,9 @@
                   {targets: 1, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 2, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 3, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 4, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 5, width: "15%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
-                  {targets: 6, width: "15%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
+                  {targets: 4, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 5, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
+                  {targets: 6, width: "25%", className: "dt-head-center dt-body-left dt-head-nowrap dt-body-nowrap"},
                   {targets: 7, width: "5%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
                   {targets: 8, width: "10%", className: "dt-head-center dt-body-center dt-head-nowrap dt-body-nowrap"},
               ],
@@ -638,6 +677,22 @@
                       $('td:eq(5)', nRow).text(aData.quantity.toLocaleString());
                   }
                   $('td:eq(8)', nRow).text(replaceAll(aData.createdDateTime, "-", "."));
+
+                  // 수정을 위한 작업
+                  let comment;
+                  if (aData.comment) {
+                      comment = aData.comment
+                  }
+                  else {
+                      comment = '&nbsp;'
+                  }
+
+                  if (aData.managerEmp__empId === {{ user.employee.empId }}) {
+                      $('td:eq(6)', nRow).html(
+                          '<div style="cursor: pointer" onclick="change_input(this, ' + aData.stockManagementId + ')">' +
+                          comment + aData.managerEmp__empId + '{{ user.employee.empId }}</div>'
+                      );
+                  }
               },
               "footerCallback": function () {
                   var api = this.api();

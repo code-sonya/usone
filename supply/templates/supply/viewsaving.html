@@ -1,5 +1,6 @@
 {% extends "dashboard/layout.html" %}
 {% load humanize %}
+{% load abs %}
 
 
 {% block title %}
@@ -58,7 +59,7 @@
             <div class="card-body">
               <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                  <div class="font-weight-bold text-primary text-uppercase mb-1">품 명</div>
+                  <div class="font-weight-bold text-primary text-uppercase mb-1">품명</div>
                   <div class="h5 mb-0 font-weight-bold text-gray-800">{{ saving.name }}</div>
                 </div>
                 <div class="col-auto">
@@ -88,7 +89,7 @@
             <div class="card-body">
               <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                  <div class="font-weight-bold text-primary text-uppercase mb-1">누적 구매 비용</div>
+                  <div class="font-weight-bold text-primary text-uppercase mb-1">누적 공급가</div>
                   <div class="h5 mb-0 font-weight-bold text-gray-800">{{ sumQuantity.money | intcomma }}원</div>
                 </div>
                 <div class="col-auto">
@@ -107,13 +108,14 @@
         <table class="pc-table" style="width: 100%;">
           <thead>
           <tr style="background-color: #deeef8; color: black;">
+            <th style="width: 5%">구분</th>
             <th style="width: 10%">품명</th>
             <th style="width: 10%">수량</th>
-            <th style="width: 10%">금액</th>
-            <th style="width: 10%">규격</th>
+            <th style="width: 10%">공급가</th>
+            <th style="width: 5%">규격</th>
             <th style="width: 10%">구입처</th>
             <th style="width: 10%">설치장소<br>(사용기관)</th>
-            <th style="width: 10%">구매일<br>(소모일)</th>
+            <th style="width: 10%">구입일<br>(소모일)</th>
             <th style="width: 10%">인수자<br>(검수자)</th>
             <th style="width: 20%">비고</th>
           </tr>
@@ -121,8 +123,13 @@
           <tbody>
           {% for q in quantity %}
           <tr>
+            <td>
+              {% if q.quantity > 0 %}<span class="text-danger font-weight-bold">구입</span>
+              {% else %}<span class="text-primary font-weight-bold">소모</span>
+              {% endif %}
+            </td>
             <td>{{ saving.name }}</td>
-            <td>{{ q.quantity | intcomma }}</td>
+            <td>{{ q.quantity | abs | intcomma }}</td>
             <td class="text-right">{{ q.money | intcomma }}</td>
             <td>{% if q.standard %}{{ q.standard }}{% endif %}</td>
             <td>{% if q.purchaseCompany %}{{ q.purchaseCompany }}{% endif %}</td>
@@ -190,12 +197,18 @@
               </div>
               <div class="col-6 mb-3 mb-sm-0">
                 <label class="text-primary font-weight-bold">설치장소 (사용기관)</label>
-                <input class="form-control" name="location">
+                <select class="form-control" name="location">
+                  {% for center in centers %}
+                  <option value="{{ center.centerId }}" {% if centerName == center.centerName %} selected {% endif %} >
+                    {{ center.centerName }}
+                  </option>
+                  {% endfor %}
+                </select>
               </div>
             </div>
             <div class="row mb-1">
               <div class="col-6 mb-3 mb-sm-0">
-                <label class="text-primary font-weight-bold">구매일 (소모일)</label>
+                <label class="text-primary font-weight-bold">구입일 (소모일)</label>
                 <input class="form-control" name="purchaseDate" type="date" max="9999-12-31">
               </div>
               <div class="col-6 mb-3 mb-sm-0">
@@ -262,7 +275,7 @@
               return false;
           }
           if (!$('#insertForm [name="purchaseDate"]').val()) {
-              alert('구매일 (소모일)을 입력해주세요.');
+              alert('구입일 (소모일)을 입력해주세요.');
               return false;
           }
           if (!$('#insertForm [name="purchaseEmp"]').val()) {
