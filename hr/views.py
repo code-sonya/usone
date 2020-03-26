@@ -93,12 +93,12 @@ def view_profile(request, empId):
         post.save()
 
         if employee.empStatus == 'Y':
-            emp = User.objects.get(id=employee.empId)
+            emp = User.objects.get(id=employee.user.id)
             emp.is_active = 1
             emp.save()
 
         if employee.empStatus == 'N':
-            emp = User.objects.get(id=employee.empId)
+            emp = User.objects.get(id=employee.user.id)
             emp.is_active = 0
             emp.save()
 
