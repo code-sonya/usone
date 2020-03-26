@@ -52,12 +52,13 @@
                       <input type="password" class="form-control form-control-user" id="{{ form.password.id_for_label }}" placeholder="Password" name="{{ form.password.html_name }}">
                     </div>
                     <div class="form-group">
-                      <div class="custom-control custom-checkbox small">
-                        <input type="checkbox" class="custom-control-input" id="customCheck">
-                        <label class="custom-control-label" for="customCheck">Remember Me</label>
-                      </div>
+                      {% if form.errors %}
+                        <p class="text-danger">ID 또는 Password가 일치하지 않습니다.</p>
+                      {% else %}
+                        <br>
+                      {% endif %}
                     </div>
-                       <input type="submit" class="btn btn-primary btn-user btn-block" value="로그인" >
+                    <input type="submit" class="btn btn-primary btn-user btn-block" value="로그인" >
                   </form>
                   <hr>
                   <div class="copyright text-center my-auto">
