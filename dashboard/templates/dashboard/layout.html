@@ -28,7 +28,16 @@
   <link href="{% static 'hr/vendor/magicsearch/jquery.magicsearch.min.css' %}" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css" rel="stylesheet">
 
-  {% block css %}{% endblock %}
+  {% block css %}
+  <style>
+    .mainTop{
+      background-color: #1e3053;
+      border-radius: .35rem;
+
+    }
+  </style>
+
+  {% endblock %}
 
 </head>
 
@@ -38,18 +47,51 @@
 <div id="wrapper">
 
   <!-- Sidebar -->
-  <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
+  <ul class="navbar-nav sidebar sidebar-dark accordion bg-gradient-primary" id="accordionSidebar">
     <!-- Sidebar - Brand -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center m-2" href="#" onclick="btn_dayreport('/service/dayreport/')">
+<!--    <a class="sidebar-brand d-flex align-items-center justify-content-center m-2" href="#" onclick="btn_dayreport('/service/dayreport/')">-->
+<!--      <div class="sidebar-brand-text mx-4"><img src="/media/logo/usails.png" width="120px"></div>-->
+<!--    </a>-->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center m-2" href="/dashboard/home/">
       <div class="sidebar-brand-text mx-4"><img src="/media/logo/usails.png" width="120px"></div>
     </a>
+      <li class="nav-item d-none d-xl-block">
+        <div style="background-color: #375592;border-radius: .35rem" class="m-2">
+          <div class="card-group">
+            <a class="nav-link pb-0" href="#" role="button">
+              <img src="/media/icon/profile.png" class="img-profile rounded-circle">
+               <span class="mr-2 d-none d-lg-inline text-white small">반갑습니다. <B>{{ user.employee.empName }}</B> 님 </span>
+            </a>
+          </div>
+          <div class="card-group">
+            <a class="nav-link pb-0" href="#" role="button">
+               <span class="text-white small">알 &nbsp; &nbsp; &nbsp;림
+               <span class="text-danger d-none d-lg-inline col-lg-4 p-1 text-center" style="background-color: #ffffff; border-radius: 15px 15px 15px 15px;float: right">3</span>
+               </span>
+            </a>
+          </div>
+          <div class="card-group">
+            <a class="nav-link" href="#" role="button">
+               <span class="text-white small">전자결재
+               <span class="text-danger d-none d-lg-inline col-lg-4 p-1 text-center" style="background-color: #ffffff; border-radius: 15px 15px 15px 15px;float: right">10</span>
+               </span>
+            </a>
+          </div>
+          <div class="card-group ml-2 mr-2 pb-3">
+            <button class="col-lg-4 text-white small text-center pt-2 pb-2 font-weight-bold" style="background-color: #5893ad;border: #5893ad">전자<br>메일</button>
+            <button class="col-lg-4 text-white small text-center pt-2 pb-2 font-weight-bold" style="background-color: #5270b2;border: #5270b2">전자<br>결재</button>
+            <button class="col-lg-4 text-white small text-center pt-2 pb-2 font-weight-bold" style="background-color: #4f6a82;border: #4f6a82">직원<br>조회</button>
+          </div>
+        </div>
+      </li>
       <!-- Nav Item - Dashboard -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDashboard" aria-expanded="true" aria-controls="collapseUtilities">
-          <i class="fas fa-fw fa-tachometer-alt text-white"></i>
-          <span class="text-white">대시보드</span>
-        </a>
+        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDashboard" aria-expanded="true" aria-controls="collapseUtilities">
+            <i class="fas fa-fw fa-tachometer-alt text-white"></i>
+            <span class="text-white">대시보드</span>
+          </a>
+        </div>
         <div id="collapseDashboard" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             {% if user.employee.empPosition.positionName == '임원' or user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff %}
@@ -74,59 +116,31 @@
     {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName or user.employee.empPosition.positionName == '임원' %}
       <!-- Nav Item - 영업관리 -->
       <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
-          <i class="fas fa-fw fa-briefcase text-white"></i>
-          <span class="text-white">영업관리</span>
-        </a>
+        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
+            <i class="fas fa-fw fa-briefcase text-white"></i>
+            <span class="text-white">영업관리</span>
+          </a>
+        </div>
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header text-secondary" style="padding: .0rem 1.5rem;">━━━영업관리━━━</h6>
             <a class="collapse-item" href="/sales/showcontracts/">계약관리</a>
             <a class="collapse-item" href="/sales/showrevenues/">매출관리</a>
             <a class="collapse-item" href="/sales/showpurchases/">매입관리</a>
-            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/showoutstandingcollections/">미수금관리</a>
             <a class="collapse-item" href="/sales/showaccountspayables/">외상매입금관리</a>
-            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
             <a class="collapse-item" href="/sales/showpurchaseinadvance/">선매입관리</a>
             <a class="collapse-item" href="/sales/showrevenueinadvance/">미접수관리</a>
             {% if user.employee.empDeptName == '경영지원본부' or user.is_staff or user.employee.empPosition.positionName == '임원' %}
-              <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
               <a class="collapse-item" href="/sales/checkservice/">계약별투입원가</a>
               <a class="collapse-item" href="/logs/contractlog/">계약금액변경이력</a>
-              <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>
+<!--              <a class="collapse-item" href="/sales/checkgp/">데이터검증</a>-->
             {% endif %}
-          </div>
-        </div>
-      </li>
-    {% endif %}
-    {% if user.employee.empPosition.positionName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}
-      <!-- Nav Item - 발주서관리 -->
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFiles" aria-expanded="true" aria-controls="collapseFiles">
-          <i class="fas fa-fw fa-folder text-white"></i>
-          <span class="text-white">발주서관리</span>
-        </a>
-        <div id="collapseFiles" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header text-secondary" style="padding: .0rem 1.5rem;">━━━발주서관리━━━</h6>
             <a class="collapse-item" href="/sales/showpurchaseorder/">매입발주서</a>
             <a class="collapse-item" href="/logs/showorders/">매입발주서전송이력</a>
-            {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>
-            <a class="collapse-item" href="/sales/showpurchaseorderform/">매입발주서양식</a>
-            {% endif %}
-          </div>
-        </div>
-      </li>
-    {% endif %}
-
-    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or '영업' in user.employee.empDeptName %}
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInsentive" aria-expanded="true" aria-controls="collapseUtilities">
-          <i class="fas fa-fw fa-won-sign text-white"></i>
-          <span class="text-white">인센티브</span>
-        </a>
-        <div id="collapseInsentive" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header text-secondary" style="padding: .0rem 1.5rem;">━━━인센티브━━━</h6>
             {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' %}
               <a class="collapse-item" href="/sales/viewincentiveall/">인센티브현황</a>
               <a class="collapse-item" href="#" onclick="view_salary()">급여증감현황</a>
@@ -137,93 +151,187 @@
             {% if user.employee.empDeptName == '경영지원본부' %}
             <a class="collapse-item" href="/sales/showincentives/">인센티브관리</a>
             {% endif %}
+            <h6 class="collapse-header text-secondary" style="padding: .0rem 1.5rem;">━━━고객사━━━</h6>
+            <a class="collapse-item" href="/client/">고객사</a>
           </div>
         </div>
       </li>
-    <hr class="sidebar-divider my-0">
     {% endif %}
+<!--    {% if user.employee.empPosition.positionName == '임원' or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName %}-->
+<!--      &lt;!&ndash; Nav Item - 발주서관리 &ndash;&gt;-->
+<!--      <li class="nav-item">-->
+<!--        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">-->
+<!--          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFiles" aria-expanded="true" aria-controls="collapseFiles">-->
+<!--            <i class="fas fa-fw fa-folder text-white"></i>-->
+<!--            <span class="text-white">발주서관리</span>-->
+<!--          </a>-->
+<!--        </div>-->
+<!--        <div id="collapseFiles" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">-->
+<!--          <div class="bg-white py-2 collapse-inner rounded">-->
+<!--            <a class="collapse-item" href="/sales/showpurchaseorder/">매입발주서</a>-->
+<!--            <a class="collapse-item" href="/logs/showorders/">매입발주서전송이력</a>-->
+<!--            {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}-->
+<!--            <h6 class="collapse-header" style="padding: .0rem 1.5rem;color:rgba(116,114,112,0.18)">━━━━━━━━━━━</h6>-->
+<!--            <a class="collapse-item" href="/sales/showpurchaseorderform/">매입발주서양식</a>-->
+<!--            {% endif %}-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </li>-->
+<!--    {% endif %}-->
 
-    {% if user.employee.empDeptName == '경영지원본부' %}
-      <!-- Nav Item - 초과근무 -->
-      <li class="nav-item">
+<!--    {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or '영업' in user.employee.empDeptName %}-->
+<!--      <li class="nav-item">-->
+<!--        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">-->
+<!--          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseInsentive" aria-expanded="true" aria-controls="collapseUtilities">-->
+<!--            <i class="fas fa-fw fa-won-sign text-white"></i>-->
+<!--            <span class="text-white">인센티브</span>-->
+<!--          </a>-->
+<!--        </div>-->
+<!--        <div id="collapseInsentive" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">-->
+<!--          <div class="bg-white py-2 collapse-inner rounded">-->
+<!--            {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' %}-->
+<!--              <a class="collapse-item" href="/sales/viewincentiveall/">인센티브현황</a>-->
+<!--              <a class="collapse-item" href="#" onclick="view_salary()">급여증감현황</a>-->
+<!--            {% endif %}-->
+<!--            {% if '영업' in user.employee.empDeptName %}-->
+<!--              <a class="collapse-item" href="#" onclick="my_incentive()">나의인센티브현황</a>-->
+<!--            {% endif %}-->
+<!--            {% if user.employee.empDeptName == '경영지원본부' %}-->
+<!--            <a class="collapse-item" href="/sales/showincentives/">인센티브관리</a>-->
+<!--            {% endif %}-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </li>-->
+<!--    <hr class="sidebar-divider my-0">-->
+<!--    {% endif %}-->
+
+    <!-- Nav Item - 초과근무 -->
+    <li class="nav-item">
+        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOverhour" aria-expanded="true" aria-controls="collapseOverhour">
             <i class="fas fa-fw fa-clock text-white"></i>
-            <span class="text-white">시간외수당</span>
+            <span class="text-white">경영관리</span>
           </a>
-          <div id="collapseOverhour" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-              <a class="collapse-item" href="/extrapay/overhourall/">월별시간외수당현황</a>
-              <a class="collapse-item" href="/extrapay/overhour/">시간외수당관리</a>
-              <a class="collapse-item" href="/extrapay/showsalarys/">수당금액관리</a>
-            </div>
-          </div>
-        </li>
-
-      <!-- Nav Item - 근태관리 -->
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHr" aria-expanded="true" aria-controls="collapseHr">
-          <i class="fas fa-fw fa-user-check text-white"></i>
-          <span class="text-white">근태관리</span>
-        </a>
-        <div id="collapseHr" class="collapse" aria-labelledby="headingHr" data-parent="#accordionSidebar">
+        </div>
+        <div id="collapseOverhour" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
+            {% if user.employee.empDeptName == '경영지원본부' %}
+            <h6 class="collapse-header text-secondary" style="padding: .0rem 1.5rem;">━━━시간외수당━━━</h6>
+            <a class="collapse-item" href="/extrapay/overhourall/">월별시간외수당현황</a>
+            <a class="collapse-item" href="/extrapay/overhour/">시간외수당관리</a>
+            <a class="collapse-item" href="/extrapay/showsalarys/">수당금액관리</a>
+            <h6 class="collapse-header text-secondary" style="padding: .0rem 1.5rem;">━━━근태관리━━━</h6>
             <a class="collapse-item" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">근태현황</a>
             <a class="collapse-item" href="#" onclick="btn_yearreport('/hr/showyearpunctuality/')">연간지각현황</a>
             <a class="collapse-item" href="/hr/showabsence/">지각관리</a>
             <a class="collapse-item" href="/hr/uploadcaps/">CAPS데이터업로드</a>
+            {% endif %}
+            <h6 class="collapse-header text-secondary" style="padding: .0rem 1.5rem;">━━━유류비━━━</h6>
+            {% if user.employee.empManager == 'Y' or user.employee.empDeptName == '경영지원본부' or user.employee.departmentName.deptLevel == 0 %}
+            <a class="collapse-item" href="/extrapay/adminfuel/">유류비현황</a>
+            {% endif %}
+            <a class="collapse-item" href="/extrapay/showfuel/">유류비신청</a>
+            <a class="collapse-item" href="/extrapay/showoils/">유류대현황</a>
+            {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
+            <a class="collapse-item" href="/extrapay/postcar/">차종관리</a>
+            {% endif %}
           </div>
         </div>
-      </li>
-    {% endif %}
-
-    {% if user.employee.departmentName.deptLevel == 0 %}
-      <li class="nav-item">
-        <a class="nav-link" href="/extrapay/overhourall/">
-          <i class="fas fa-fw fa-clock text-white"></i>
-          <span class="text-white">시간외수당</span>
-        </a>
-      </li>
-
-      <!-- Nav Item - 근태관리 -->
-      <li class="nav-item">
-        <a class="nav-link" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">
-          <i class="fas fa-fw fa-folder text-white"></i>
-          <span class="text-white">근태관리</span>
-        </a>
-      </li>
-    {% endif %}
-
-    <!-- Nav Item - 유류비 -->
-    <li class="nav-item">
-      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFuel" aria-expanded="true" aria-controls="collapseFuel">
-        <i class="fas fa-fw fa-car text-white"></i>
-        <span class="text-white">유류비</span>
-      </a>
-      <div id="collapseFuel" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
-        <div class="bg-white py-2 collapse-inner rounded">
-          {% if user.employee.empManager == 'Y' or user.employee.empDeptName == '경영지원본부' or user.employee.departmentName.deptLevel == 0 %}
-          <h6 class="collapse-header">유류비관리</h6>
-          <a class="collapse-item" href="/extrapay/adminfuel/">유류비현황</a>
-          {% endif %}
-          <a class="collapse-item" href="/extrapay/showfuel/">유류비신청</a>
-          <h6 class="collapse-header">유류대관리</h6>
-          <a class="collapse-item" href="/extrapay/showoils/">유류대현황</a>
-          {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}
-          <a class="collapse-item" href="/extrapay/postcar/">차종관리</a>
-          {% endif %}
-        </div>
-      </div>
     </li>
 
-    <!-- Divider -->
-    <hr class="sidebar-divider">
+<!--    {% if user.employee.empDeptName == '경영지원본부' %}-->
+<!--      &lt;!&ndash; Nav Item - 초과근무 &ndash;&gt;-->
+<!--      <li class="nav-item">-->
+<!--          <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">-->
+<!--            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOverhour" aria-expanded="true" aria-controls="collapseOverhour">-->
+<!--              <i class="fas fa-fw fa-clock text-white"></i>-->
+<!--              <span class="text-white">시간외수당</span>-->
+<!--            </a>-->
+<!--          </div>-->
+<!--          <div id="collapseOverhour" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">-->
+<!--            <div class="bg-white py-2 collapse-inner rounded">-->
+<!--              <a class="collapse-item" href="/extrapay/overhourall/">월별시간외수당현황</a>-->
+<!--              <a class="collapse-item" href="/extrapay/overhour/">시간외수당관리</a>-->
+<!--              <a class="collapse-item" href="/extrapay/showsalarys/">수당금액관리</a>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </li>-->
+
+<!--      &lt;!&ndash; Nav Item - 근태관리 &ndash;&gt;-->
+<!--      <li class="nav-item">-->
+<!--        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">-->
+<!--          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseHr" aria-expanded="true" aria-controls="collapseHr">-->
+<!--            <i class="fas fa-fw fa-user-check text-white"></i>-->
+<!--            <span class="text-white">근태관리</span>-->
+<!--          </a>-->
+<!--        </div>-->
+<!--        <div id="collapseHr" class="collapse" aria-labelledby="headingHr" data-parent="#accordionSidebar">-->
+<!--          <div class="bg-white py-2 collapse-inner rounded">-->
+<!--            <a class="collapse-item" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">근태현황</a>-->
+<!--            <a class="collapse-item" href="#" onclick="btn_yearreport('/hr/showyearpunctuality/')">연간지각현황</a>-->
+<!--            <a class="collapse-item" href="/hr/showabsence/">지각관리</a>-->
+<!--            <a class="collapse-item" href="/hr/uploadcaps/">CAPS데이터업로드</a>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </li>-->
+<!--    {% endif %}-->
+
+<!--    {% if user.employee.departmentName.deptLevel == 0 %}-->
+<!--      <li class="nav-item">-->
+<!--        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">-->
+<!--          <a class="nav-link" href="/extrapay/overhourall/">-->
+<!--            <i class="fas fa-fw fa-clock text-white"></i>-->
+<!--            <span class="text-white">시간외수당</span>-->
+<!--          </a>-->
+<!--        </div>-->
+<!--      </li>-->
+
+<!--      &lt;!&ndash; Nav Item - 근태관리 &ndash;&gt;-->
+<!--      <li class="nav-item">-->
+<!--        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">-->
+<!--          <a class="nav-link" href="#" onclick="btn_dayreport('/hr/showpunctuality/')">-->
+<!--            <i class="fas fa-fw fa-folder text-white"></i>-->
+<!--            <span class="text-white">근태관리</span>-->
+<!--          </a>-->
+<!--        </div>-->
+<!--      </li>-->
+<!--    {% endif %}-->
+
+<!--    &lt;!&ndash; Nav Item - 유류비 &ndash;&gt;-->
+<!--    <li class="nav-item">-->
+<!--      <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">-->
+<!--        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFuel" aria-expanded="true" aria-controls="collapseFuel">-->
+<!--          <i class="fas fa-fw fa-car text-white"></i>-->
+<!--          <span class="text-white">유류비</span>-->
+<!--        </a>-->
+<!--      </div>-->
+<!--      <div id="collapseFuel" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">-->
+<!--        <div class="bg-white py-2 collapse-inner rounded">-->
+<!--          {% if user.employee.empManager == 'Y' or user.employee.empDeptName == '경영지원본부' or user.employee.departmentName.deptLevel == 0 %}-->
+<!--          <h6 class="collapse-header">유류비관리</h6>-->
+<!--          <a class="collapse-item" href="/extrapay/adminfuel/">유류비현황</a>-->
+<!--          {% endif %}-->
+<!--          <a class="collapse-item" href="/extrapay/showfuel/">유류비신청</a>-->
+<!--          <h6 class="collapse-header">유류대관리</h6>-->
+<!--          <a class="collapse-item" href="/extrapay/showoils/">유류대현황</a>-->
+<!--          {% if user.employee.empDeptName == '경영지원본부' or user.is_staff %}-->
+<!--          <a class="collapse-item" href="/extrapay/postcar/">차종관리</a>-->
+<!--          {% endif %}-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </li>-->
+
+<!--    &lt;!&ndash; Divider &ndash;&gt;-->
+<!--    <hr class="sidebar-divider">-->
 
     <!-- Nav Item - Daily Report -->
     <li class="nav-item">
-      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSchedule" aria-expanded="true" aria-controls="collapseSchedule">
-        <i class="far fa-fw fa-calendar-check text-white"></i>
-        <span class="text-white">일정관리</span>
-      </a>
+      <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSchedule" aria-expanded="true" aria-controls="collapseSchedule">
+          <i class="far fa-fw fa-calendar-check text-white"></i>
+          <span class="text-white">일정관리</span>
+        </a>
+      </div>
       <div id="collapseSchedule" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
           <h6 class="collapse-header">일정관리</h6>
@@ -235,13 +343,15 @@
     </li>
 
     <li class="nav-item">
-      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval" aria-expanded="true" aria-controls="collapseApproval">
-        <i class="far fa-fw fa-paper-plane text-white"></i>
-        <span class="text-white">전자결재
-          <span class="text-danger pl-2 pr-2 pt-1 pb-1 m-1 document-counting" style="background-color: gainsboro; border-radius: 15px 15px 15px 15px">
+      <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval" aria-expanded="true" aria-controls="collapseApproval">
+          <i class="far fa-fw fa-paper-plane text-white"></i>
+          <span class="text-white">전자결재
+            <span class="text-danger pl-2 pr-2 pt-1 pb-1 m-1 document-counting" style="background-color: gainsboro; border-radius: 15px 15px 15px 15px">
+            </span>
           </span>
-        </span>
-      </a>
+        </a>
+      </div>
       <div id="collapseApproval" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
           <a class="collapse-item" href="/approval/postdocument/">문서작성</a>
@@ -270,29 +380,35 @@
 
     <!-- Nav Item - Board -->
     <li class="nav-item">
-      <a class="nav-link" href="/noticeboard/showboards">
-        <i class="fas fa-fw fa-clipboard text-white"></i>
-        <span class="text-white">게시판</span>
-      </a>
+      <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+        <a class="nav-link" href="/noticeboard/showboards">
+          <i class="fas fa-fw fa-clipboard text-white"></i>
+          <span class="text-white">게시판</span>
+        </a>
+      </div>
     </li>
 
-    <!-- Nav Item - Client -->
-    <li class="nav-item">
-      <a class="nav-link" href="/client/">
-        <i class="fas fa-fw fa-building text-white"></i>
-        <span class="text-white">고객사</span>
-      </a>
-    </li>
+<!--    &lt;!&ndash; Nav Item - Client &ndash;&gt;-->
+<!--    <li class="nav-item">-->
+<!--      <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">-->
+<!--        <a class="nav-link" href="/client/">-->
+<!--          <i class="fas fa-fw fa-building text-white"></i>-->
+<!--          <span class="text-white">고객사</span>-->
+<!--        </a>-->
+<!--      </div>-->
+<!--    </li>-->
 
-    <!-- Divider -->
-    <hr class="sidebar-divider d-none d-md-block">
+<!--    &lt;!&ndash; Divider &ndash;&gt;-->
+<!--    <hr class="sidebar-divider d-none d-md-block">-->
 
     {% if user.is_staff or user.employee.empDeptName == '경영지원본부' %}
       <li class="nav-item">
+        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="true" aria-controls="collapseSettings">
             <i class="fas fa-fw fa-tools text-white"></i>
             <span class="text-white">설정&관리</span>
           </a>
+        </div>
           <div id="collapseSettings" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">━━━ 정보 등록 ━━━</h6>
