@@ -47,7 +47,7 @@
 <div id="wrapper">
 
   <!-- Sidebar -->
-  <ul class="navbar-nav sidebar sidebar-dark accordion bg-gradient-primary" id="accordionSidebar">
+  <ul class="navbar-nav sidebar sidebar-dark accordion bg-primary" id="accordionSidebar">
     <!-- Sidebar - Brand -->
 <!--    <a class="sidebar-brand d-flex align-items-center justify-content-center m-2" href="#" onclick="btn_dayreport('/service/dayreport/')">-->
 <!--      <div class="sidebar-brand-text mx-4"><img src="/media/logo/usails.png" width="120px"></div>-->
@@ -56,7 +56,7 @@
       <div class="sidebar-brand-text mx-4"><img src="/media/logo/usails.png" width="120px"></div>
     </a>
       <li class="nav-item d-none d-xl-block">
-        <div style="background-color: #375592;border-radius: .35rem" class="m-2">
+        <div style="border-radius: .35rem;border: 1px solid #ffffff" class="m-2 bg-primary">
           <div class="card-group">
             <a class="nav-link pb-0" href="#" role="button">
               <img src="/media/icon/profile.png" class="img-profile rounded-circle">
@@ -86,7 +86,7 @@
       </li>
       <!-- Nav Item - Dashboard -->
       <li class="nav-item">
-        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+        <div style="border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseDashboard" aria-expanded="true" aria-controls="collapseUtilities">
             <i class="fas fa-fw fa-tachometer-alt text-white"></i>
             <span class="text-white">대시보드</span>
@@ -116,7 +116,7 @@
     {% if user.employee.departmentName.deptLevel == 0 or user.employee.empDeptName == '경영지원본부' or user.is_staff or '영업' in user.employee.empDeptName or user.employee.empPosition.positionName == '임원' %}
       <!-- Nav Item - 영업관리 -->
       <li class="nav-item">
-        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+        <div style="border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
             <i class="fas fa-fw fa-briefcase text-white"></i>
             <span class="text-white">영업관리</span>
@@ -207,7 +207,7 @@
 
     <!-- Nav Item - 초과근무 -->
     <li class="nav-item">
-        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+        <div style="border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOverhour" aria-expanded="true" aria-controls="collapseOverhour">
             <i class="fas fa-fw fa-clock text-white"></i>
             <span class="text-white">경영관리</span>
@@ -326,7 +326,7 @@
 
     <!-- Nav Item - Daily Report -->
     <li class="nav-item">
-      <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+      <div style="border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSchedule" aria-expanded="true" aria-controls="collapseSchedule">
           <i class="far fa-fw fa-calendar-check text-white"></i>
           <span class="text-white">일정관리</span>
@@ -343,7 +343,7 @@
     </li>
 
     <li class="nav-item">
-      <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+      <div style="border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
         <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseApproval" aria-expanded="true" aria-controls="collapseApproval">
           <i class="far fa-fw fa-paper-plane text-white"></i>
           <span class="text-white">전자결재
@@ -380,7 +380,7 @@
 
     <!-- Nav Item - Board -->
     <li class="nav-item">
-      <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+      <div style="border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
         <a class="nav-link" href="/noticeboard/showboards">
           <i class="fas fa-fw fa-clipboard text-white"></i>
           <span class="text-white">게시판</span>
@@ -403,7 +403,7 @@
 
     {% if user.is_staff or user.employee.empDeptName == '경영지원본부' %}
       <li class="nav-item">
-        <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
+        <div style="border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
           <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSettings" aria-expanded="true" aria-controls="collapseSettings">
             <i class="fas fa-fw fa-tools text-white"></i>
             <span class="text-white">설정&관리</span>
