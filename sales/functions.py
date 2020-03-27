@@ -31,7 +31,7 @@ from django.template import loader
 
 def viewContract(request, contractId):
     # 첨부파일
-    files_a = Purchasefile.objects.filter(contractId__contractId=contractId, fileCategory='매입견적서').order_by('uploadDatetime')
+    files_a = Purchasefile.objects.filter(contractId__contractId=contractId, fileCategory='매입견적서').order_by('purchaseCompany__companyNameKo', 'uploadDatetime')
     files_b = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매출견적서').order_by('uploadDatetime')
     files_c = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='계약서').order_by('uploadDatetime')
     files_e = Contractfile.objects.filter(contractId__contractId=contractId, fileCategory='매입발주서').order_by('uploadDatetime')
@@ -190,7 +190,7 @@ def viewContract(request, contractId):
 
     # 매입발주서
     purchaseOrderForm = list(Purchaseorderform.objects.all().values_list('formTitle', flat=True).order_by('formNumber'))
-    purchaseOrderDocument = Purchaseorder.objects.filter(contractId=contract)
+    purchaseOrderDocument = Purchaseorder.objects.filter(contractId=contract).order_by('purchaseCompany__companyNameKo')
 
     context = {
         'revenueId': '',

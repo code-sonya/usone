@@ -1050,19 +1050,15 @@
             </tr>
             </thead>
             <tbody>
-          {% for company in purchaseCompany %}
             {% for f in files_a %}
-              {% if f.purchaseCompany.companyNameKo == company %}
               <tr name="filesA">
-                <td>{{ company }}</td>
+                <td>{{ f.purchaseCompany.companyNameKo }}</td>
                 <td>{{ f.uploadDatetime | date:"Y.m.d H:i" }}</td>
                 <td>{{ f.uploadEmp.empName }}</td>
                 <td class="text-left"><a onclick="downloadLog('/media/{{ f.file }}', '매입견적서')" href="/media/{{ f.file }}" download>{{ f.fileName }}</a></td>
                 <td class="text-right">{{ f.fileSize }} MB</td>
               </tr>
-              {% endif %}
             {% endfor %}
-          {% endfor %}
             </tbody>
           </table>
         </div>
@@ -1213,23 +1209,19 @@
             </tr>
             </thead>
             <tbody>
-          {% for company in purchaseCompany %}
             {% for document in purchaseOrderDocument %}
-              {% if document.purchaseCompany.companyNameKo == company %}
-                <tr name="filesE">
-                  <td>{{ company }}</td>
-                  <td>{{ document.modifyDatetime | date:"Y.m.d H:i" }}</td>
-                  <td>{{ document.writeEmp }}</td>
-                  <td class="text-left">
-                    <a href="/sales/viewpurchaseorder/{{ document.orderId }}">
-                      {{ document.title }}
-                    </a>
-                  </td>
-                  <td>{% if document.sendDatetime %}{{ document.sendDatetime }}{% else %}-{% endif %}</td>
-                </tr>
-              {% endif %}
+              <tr name="filesE">
+                <td>{{ document.purchaseCompany.companyNameKo }}</td>
+                <td>{{ document.modifyDatetime | date:"Y.m.d H:i" }}</td>
+                <td>{{ document.writeEmp }}</td>
+                <td class="text-left">
+                  <a href="/sales/viewpurchaseorder/{{ document.orderId }}">
+                    {{ document.title }}
+                  </a>
+                </td>
+                <td>{% if document.sendDatetime %}{{ document.sendDatetime }}{% else %}-{% endif %}</td>
+              </tr>
             {% endfor %}
-          {% endfor %}
             </tbody>
           </table>
         </div>
