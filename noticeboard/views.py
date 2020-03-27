@@ -154,3 +154,34 @@ def modify_board(request, boardId):
         }
 
         return render(request, 'noticeboard/postboard.html', context)
+
+
+@login_required
+def show_notices(request):
+    if request.method == "POST":
+        startdate = request.POST['startdate']
+        enddate = request.POST['enddate']
+        empDeptName = request.POST['empDeptName']
+        empName = request.POST['empName']
+        companyName = request.POST['companyName']
+        serviceType = request.POST['serviceType']
+        boardTitle = request.POST['boardTitle']
+
+        context = {
+            'filter': 'Y',
+            'startdate': startdate,
+            'enddate': enddate,
+            'empDeptName': empDeptName,
+            'empName': empName,
+            'companyName': companyName,
+            'serviceType': serviceType,
+            'boardTitle': boardTitle,
+
+        }
+        return render(request, 'noticeboard/shownotices.html', context)
+
+    else:
+        context = {
+            'filter': 'N',
+        }
+        return render(request, 'noticeboard/shownotices.html', context)
