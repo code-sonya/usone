@@ -17,6 +17,26 @@ from sales.models import Contract, Contractitem, Revenue, Goal, Purchase
 from hr.models import Employee
 from django.db.models.functions import Coalesce
 from usone.security import MAP_KEY, testMAP_KEY
+from service.functions import dayreport_query
+
+
+@login_required
+def home(request):
+    template = loader.get_template('dashboard/home.html')
+    empId = request.user.employee.empId
+    empName = request.user.employee.empName
+    empDeptName = request.user.employee.empDeptName
+    day = str(datetime.today())[:10]
+    queryService, queryEducation, queryVacation = dayreport_query([empDeptName], day)
+    serviceYear = Servicereport.objects.filter(Q(empId=empId) & Q(serviceStatus="Y")).exclude(serviceType__typeName="교육").values('serviceDate__year').annotate(sumHour=Sum('serviceHour'))
+    context = {
+        "empName": empName,
+        "queryService": queryService,
+        "queryEducation": queryEducation,
+        # "queryVacation": queryVacation,
+        "serviceYear": serviceYear,
+    }
+    return HttpResponse(template.render(context, request))
 
 
 @login_required

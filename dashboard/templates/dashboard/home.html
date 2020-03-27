@@ -1,0 +1,364 @@
+{% extends "dashboard/layout.html" %}
+{% block title %}
+ Home
+{% endblock %}
+
+{% block css %}
+<style>
+    .pc-table {
+      color: #333333;
+      /*table-layout: fixed;*/
+      width: 100%;
+      /*height:28vh;*/
+      /*display: block;*/
+      /*overflow: auto;*/
+    }
+
+    .pc-table td, .pc-table th {
+      padding: 3px 3px 3px 3px;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 16px;
+      border: 1px solid #e4f8ff;
+    }
+
+    .border-tag-red{
+        border: 1px solid #fcdfe0;
+        background-color: #ffe3e4;
+        color: #ff4e59;
+
+    }
+
+    .border-tag-orange{
+        border: 1px solid #fccaa0;
+        background-color: #ffe1d7;
+        color: #ff6f3e;
+
+    }
+
+    .border-tag-yellow{
+        border: 1px solid #fcec85;
+        background-color: #fffcd3;
+        color: #ffcb13;
+
+    }
+
+    .border-tag-green{
+        border: 1px solid #64cbad;
+        background-color: #dff8db;
+        color: #29ac78;
+
+    }
+
+    .border-tag-blue{
+        border: 1px solid #bbe2f8;
+        background-color: #e0f5f8;
+        color: #2c6ef1;
+
+    }
+
+    .border-tag-navy{
+        border: 1px solid #748aa2;
+        background-color: #cbdbe4;
+        color: #182046;
+
+    }
+
+    .border-tag-purple{
+        border: 1px solid #e3c8ff;
+        background-color: #dfdae9;
+        color: #992cd0;
+
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-xl-5">
+        <div class="card shadow mb-2" style="height: 39vh">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #355191">
+              <h6 class="m-0 h5 text-white">전사공지</h6>
+            </div>
+            <div class="card-body">
+                <div style="width: 100%; height: 28vh; overflow: auto">
+                <table class="pc-table">
+                    <thead>
+                        <tr style="background-color: #e0f1ef">
+                            <td width="10%"></td>
+                            <td width="45%">제목</td>
+                            <td width="10%">작성자</td>
+                            <td width="15%">작성일</td>
+                            <td width="10%">조회</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><div class="border-tag-red">공지</div></td>
+                            <td>공지사항을 공지할게염 알겠쥬?</td>
+                            <td>김소령</td>
+                            <td>2020.3.16</td>
+                            <td>21</td>
+                        </tr>
+                        <tr>
+                            <td><div class="border-tag-blue">전사일정</div></td>
+                            <td>5월 워크샵 일정 안내</td>
+                            <td>임형균</td>
+                            <td>2020.3.14</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+                            <td><div class="border-tag-green">소식</div></td>
+                            <td>임중정 과장 둘째 순산! 축하드립니다~</td>
+                            <td>임형균</td>
+                            <td>2020.3.09</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+<!--                            <td><div class="border-tag-navy">테스트</div></td>-->
+                            <td></td>
+                            <td>그냥 아무거나 아무거나 아무거나</td>
+                            <td>김소령</td>
+                            <td>2020.2.19</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+<!--                            <td><div class="border-tag-orange">테스트</div></td>-->
+                            <td></td>
+                            <td>그냥 아무거나 아무거나 아무거나</td>
+                            <td>김소령</td>
+                            <td>2020.2.19</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+<!--                            <td><div class="border-tag-yellow">테스트</div></td>-->
+                            <td></td>
+                            <td>그냥 아무거나 아무거나 아무거나</td>
+                            <td>김소령</td>
+                            <td>2020.2.19</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+<!--                            <td><div class="border-tag-purple">테스트</div></td>-->
+                            <td></td>
+                            <td>그냥 아무거나 아무거나 아무거나</td>
+                            <td>김소령</td>
+                            <td>2020.2.19</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>그냥 아무거나 아무거나 아무거나</td>
+                            <td>김소령</td>
+                            <td>2020.2.19</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>그냥 아무거나 아무거나 아무거나</td>
+                            <td>김소령</td>
+                            <td>2020.2.19</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>그냥 아무거나 아무거나 아무거나</td>
+                            <td>김소령</td>
+                            <td>2020.2.19</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>그냥 아무거나 아무거나 아무거나</td>
+                            <td>김소령</td>
+                            <td>2020.2.19</td>
+                            <td>10</td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+        <div class="card shadow mb-2" style="height: 39vh">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #4d8688">
+              <h6 class="m-0 h5 text-white">오늘의업무</h6>
+            </div>
+            <div class="card-body">
+                <table class="pc-table">
+                    <thead>
+                        <tr style="background-color: #e0f1ef">
+                            <td colspan="2">일자</td>
+                            <td colspan="1">유형</td>
+                            <td colspan="2">장소</td>
+                            <td colspan="3">업무내용</td>
+                        </tr>
+                    </thead>
+                {% for service in queryService %}
+                    {% if service.empName == empName %}
+                    <tr href="/service/viewservice/{{ service.serviceId }}/">
+                        <td colspan="2">{{ service.serviceBeginDatetime | date:"Y-m-d" }}</td>
+                        <td colspan="1">{{ service.serviceType }}</td>
+                        <td colspan="2">{{ service.companyName }}</td>
+                        <td colspan="3">{{ service.serviceTitle}}</td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                {% for education in queryEducation %}
+                    {% if education.empName == empName %}
+                    <tr href="/service/viewservice/{{ education.serviceId }}/">
+                        <td colspan="2">{{ education.serviceBeginDatetime | date:"Y-m-d" }}</td>
+                        <td colspan="1">{{ education.serviceType }}</td>
+                        <td colspan="2">{{ education.companyName }}</td>
+                        <td colspan="3">{{ education.serviceTitle}}</td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-5">
+        <div class="card shadow mb-2" style="height: 39vh">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #35415f">
+              <h6 class="m-0 h5 text-white">최신게시판</h6>
+            </div>
+            <div class="card-body">
+                <table class="pc-table">
+                    <thead>
+                        <tr style="background-color: #e0f1ef">
+                            <td colspan="1">No</td>
+                            <td colspan="2">작성자</td>
+                            <td colspan="3">제목</td>
+                            <td colspan="2">작성시간</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div class="card shadow mb-2" style="height: 39vh">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #49648a">
+              <h6 class="m-0 h5 text-white">캘린더</h6>
+            </div>
+            <div class="card-body"></div>
+        </div>
+    </div>
+    <div class="col-xl-2">
+<!--        <div class="card shadow mb-4" style="height: 24vh">-->
+<!--            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #fff7bc">-->
+<!--              <i class="fa fa-plus"></i>-->
+<!--              <h6 class="m-0 h5 text-primary">메모장</h6>-->
+<!--              <i class="fa fa-times"></i>-->
+<!--            </div>-->
+<!--            <div class="card-body" style="background-color: #fff7bc"></div>-->
+<!--        </div>-->
+<!--        <div class="card shadow mb-4" style="height: 24vh">-->
+<!--            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between" style="background-color: #5a78ba">-->
+<!--              <h6 class="m-0 h5 text-white">지원통계</h6>-->
+<!--            </div>-->
+<!--            <div class="card-body pt-0">-->
+<!--                <canvas id="servicePie"></canvas>-->
+<!--            </div>-->
+<!--        </div>-->
+        <div class="card shadow mb-2" style="height: 79vh">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between bg-success">
+              <h6 class="m-0 h5 text-white">커뮤니티</h6>
+            </div>
+            <div class="card-body">
+                <div>
+                    <img width="100%" src="/media/icon/community.jpeg" style="height: 15vh">
+                    <div class="text-center font-weight-bold" style="color: #4e73df"># 송년의 밤 # NEW 2020</div>
+                </div>
+                <div>
+                    <img width="100%" src="/media/icon/commu1.jpeg" style="height: 15vh">
+                    <div class="text-center font-weight-bold" style="color: #4e73df"># 문화동아리 # 뮤지컬관람</div>
+                </div>
+                <div>
+                    <img width="100%" src="/media/icon/commu2.jpeg" style="height: 15vh">
+                    <div class="text-center font-weight-bold" style="color: #4e73df"># 선덕원 # 봉사활동 </div>
+                </div>
+                <div>
+                    <img width="100%" src="/media/icon/commu3.jpeg" style="height: 15vh">
+                    <div class="text-center font-weight-bold" style="color: #4e73df"># moonwalk # 총판 MOU</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.4.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-piechart-outlabels"></script>
+<script>
+    const colors = ["#fd7e14", "#e83e8c", "#1cc88a", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey",
+          "#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b", "#858796", "#e83e8c", "grey"];
+    // Pie Chart 1
+      var ctx = document.getElementById("servicePie");
+      var servicePie = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+              labels: [
+                  {% for service in serviceYear %}
+                      "{{ service.serviceDate__year }}년",
+                  {% endfor %}
+              ],
+              datasets: [{
+                  data: [
+                      {% for service in serviceYear %}
+                          "{{ service.sumHour |floatformat:'0' }}",
+                      {% endfor %}
+                  ],
+                  backgroundColor: colors,
+                  hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+                  hoverBorderColor: "rgba(234, 236, 244, 1)",
+              }],
+          },
+          options: {
+              layout: {
+                  padding: {
+                      left: 0,
+                      right: 0,
+                      top: 10,
+                      bottom: 10
+                  }
+              },
+              maintainAspectRatio: false,
+              legend: {
+                  display: false
+              },
+              cutoutPercentage: 50,
+              plugins: {
+                  datalabels: {
+                      formatter: (value, ctx) => {
+
+                          let sum = 0;
+                          let dataArr = ctx.chart.data.datasets[0].data;
+                          dataArr.map(data => {
+                              sum += data + "시간";
+                          });
+                          let dataSum = value;
+                          return dataSum;
+
+
+                      },
+                      color: '#fff',
+                  },
+                  outlabels: {
+                      text: '%l',
+                      color: 'white',
+                      stretch: 3,
+                      font: {
+                          resizable: true,
+                          minSize: 8,
+                          maxSize: 18
+                      }
+                  }
+              }
+          },
+      });
+</script>
+
+{% endblock %}

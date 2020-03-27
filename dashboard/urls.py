@@ -23,4 +23,6 @@ urlpatterns = [
     url(r'^clientgraph/$', views.client_graph, name='client_ajax_graph'),
     url(r'^servicesasjson/$', views.services_asjson, name='services_ajax_url'),
     url(r'^contractsasjson/$', views.contracts_asjson, name='contracts_ajax_url'),
+    # home 화면 / 메인 화면
+    url(r'^home/$', views.home, name='home'),
 ]
