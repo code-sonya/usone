@@ -11,4 +11,6 @@ urlpatterns = [
     url(r'^modifyboard/(?P<boardId>.+)/$', views.modify_board, name='modifyboard'),
     url(r'^json/$', views.board_asjson, name='board_ajax_url'),
     url(r'^shownotices/$', views.show_notices, name='show_notices'),
+
+    url(r'^adminnoticeboard/$', views.admin_notice_board, name='admin_notice_board'),
 ]

@@ -28,16 +28,13 @@
   <link href="{% static 'hr/vendor/magicsearch/jquery.magicsearch.min.css' %}" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css" rel="stylesheet">
 
-  {% block css %}
+  {% block css %} {% endblock %}
   <style>
     .mainTop{
       background-color: #1e3053;
       border-radius: .35rem;
-
     }
   </style>
-
-  {% endblock %}
 
 </head>
 
@@ -379,12 +376,25 @@
     </li>
 
     <!-- Nav Item - Board -->
+<!--    <li class="nav-item">-->
+<!--      <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">-->
+<!--        <a class="nav-link" href="/noticeboard/showboards">-->
+<!--          <i class="fas fa-fw fa-clipboard text-white"></i>-->
+<!--          <span class="text-white">게시판</span>-->
+<!--        </a>-->
+<!--      </div>-->
+<!--    </li>-->
+
     <li class="nav-item">
       <div style="background-color: #327dff; border-radius: 0.35rem" class="ml-2 mr-2 mb-1">
-        <a class="nav-link" href="/noticeboard/showboards">
-          <i class="fas fa-fw fa-clipboard text-white"></i>
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseNoticeBoard" aria-expanded="true" aria-controls="collapseApproval">
+          <i class="far fa-fw fa-clipboard text-white"></i>
           <span class="text-white">게시판</span>
         </a>
+      </div>
+      <div id="collapseNoticeBoard" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+        <div class="bg-white py-2 collapse-inner rounded">
+        </div>
       </div>
     </li>
 
@@ -937,6 +947,15 @@
         changeToggled(1200);
         counting();
         alert_count();
+
+        console.log($('#collapseNoticeBoard').children('div').append(
+            '<h6 class="collapse-header">중분류</h6>'
+            + '<a class="collapse-item" href="/noticeboard/shownotices/">소분류</a>'
+            + '<h6 class="collapse-header">미분류</h6>'
+            + '<a class="collapse-item" href="/noticeboard/showboards/">기존 게시판</a>'
+            + '<h6 class="collapse-header">관리</h6>'
+            + '<a class="collapse-item" href="/noticeboard/adminnoticeboard/">게시판 관리</a>'
+        ));
     })
 
 </script>

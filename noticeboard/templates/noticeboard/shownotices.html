@@ -18,18 +18,13 @@
 {% block content %}
 
   <div class="row">
-    <div class="col-xl-2"></div>
-
-    <div class="col-xl-10">
+    <div class="col-xl-12">
       <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-          <h6 class="m-0 h3 text-gray-800"> 게시판 </h6>
+          <h6 class="m-0 h3 text-gray-800">게시판</h6>
           <div class="dropdown no-arrow">
-            <a class="btn btn-success" href="#" role="button" id="filterLink" data-toggle="modal" data-target="#filterModal">
-              <i class="fas fa-filter d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-filter"></i> 조회</span>
-            </a>
-            <a class="btn btn-primary" href="/noticeboard/postboard/0/" role="button">
-              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 등록</span>
+            <a class="btn btn-primary" href="#" role="button">
+              <i class="fas fa-pen d-xl-none"></i><span class="d-none d-xl-block"><i class="fas fa-pen"></i> 글쓰기</span>
             </a>
           </div>
         </div>
@@ -39,79 +34,16 @@
             <table id="showboards" class="hover row-border" width="100%" style="width: 100%;">
               <thead>
               <tr>
-                <th>작성일</th>
-                <th>작성자</th>
-                <th>구분</th>
-                <th>고객사</th>
+                <th></th>
                 <th>제목</th>
+                <th>작성자</th>
+                <th>작성일</th>
+                <th>조회</th>
                 <th class="d-none">boardId</th>
               </tr>
               </thead>
             </table>
           </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Filter Modal -->
-  <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-
-        <div class="modal-header bg-info text-gray-100">
-          <h5 class="modal-title" id="filterModalLabel">검색조건</h5>
-          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-            <span class="text-gray-100" aria-hidden="true">×</span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <form id="filterForm" method="POST" onkeydown="javascript: if (event.keyCode == 13) {btn_filter();}">
-            {% csrf_token %}
-            <div class="row mb-1">
-              <div class="col-6 mb-3 mb-sm-0">
-                <label for="startdate" class="font-weight-light text-primary">시작 일자</label>
-                <input type="date" max="9999-12-31" class="form-control" id="startdate" name="startdate">
-              </div>
-              <div class="col-6">
-                <label for="enddate" class="font-weight-light text-primary">종료 일자</label>
-                <input type="date" max="9999-12-31" class="form-control" id="enddate" name="enddate">
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="empDeptName" class="font-weight-light text-primary">부서</label>
-                <input class="form-control" id="empDeptName" name="empDeptName">
-              </div>
-              <div class="col-6">
-                <label for="empName" class="font-weight-light text-primary">성함</label>
-                <input class="form-control" id="empName" name="empName">
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-6">
-                <label for="companyName" class="font-weight-light text-primary">고객사</label>
-                <input class="form-control" id="companyName" name="companyName">
-              </div>
-              <div class="col-6">
-                <label for="serviceType" class="font-weight-light text-primary">일정구분</label>
-                <input class="form-control" id="serviceType" name="serviceType">
-              </div>
-            </div>
-            <div class="row mb-1">
-              <div class="col-12">
-                <label for="boardTitle" class="font-weight-light text-primary">제목 & 내용</label>
-                <input class="form-control" id="boardTitle" name="boardTitle">
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-          <a class="btn btn-info" href="#" onclick="btn_filter()">검색</a>
         </div>
       </div>
     </div>

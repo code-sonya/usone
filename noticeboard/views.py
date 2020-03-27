@@ -185,3 +185,8 @@ def show_notices(request):
             'filter': 'N',
         }
         return render(request, 'noticeboard/shownotices.html', context)
+
+
+@login_required
+def admin_notice_board(request):
+    return render(request, 'noticeboard/adminnoticeboard.html')
