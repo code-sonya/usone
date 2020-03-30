@@ -893,6 +893,8 @@ def show_products(request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
+            if not post.unitPrice:
+                post.unitPrice = 0
             post.save()
             return redirect('daesungwork:showproducts')
         else:
