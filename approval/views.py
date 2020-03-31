@@ -2007,10 +2007,28 @@ def post_contract_document(request, contractId, documentType):
             contentHtml = contentHtml.replace('매입처자동입력', purchaseCompany)
         else:
             contentHtml = contentHtml.replace('매입처자동입력', '')
-        if purchasePrice:
-            contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
+        # if purchasePrice:
+        #     contentHtml = contentHtml.replace('매입액자동입력', format(purchasePrice, ',') + '원')
+        # else:
+        #     contentHtml = contentHtml.replace('매입액자동입력', '')
+        if contract.saleTaxCustomerId:
+            if contract.saleTaxCustomerId.customerName:
+                contentHtml = contentHtml.replace('세금담당자이름자동입력', contract.saleTaxCustomerId.customerName)
+            else:
+                contentHtml = contentHtml.replace('세금담당자이름자동입력', '-')
+            if contract.saleTaxCustomerId.customerPhone:
+                contentHtml = contentHtml.replace('세금담당자연락처자동입력', contract.saleTaxCustomerId.customerPhone)
+            else:
+                contentHtml = contentHtml.replace('세금담당자연락처자동입력', '-')
+            if contract.saleTaxCustomerId.customerEmail:
+                contentHtml = contentHtml.replace('세금담당자이메일자동입력', contract.saleTaxCustomerId.customerEmail)
+            else:
+                contentHtml = contentHtml.replace('세금담당자이메일자동입력', '-')
         else:
-            contentHtml = contentHtml.replace('매입액자동입력', '')
+            contentHtml = contentHtml.replace('세금담당자이름자동입력', '-')
+            contentHtml = contentHtml.replace('세금담당자연락처자동입력', '-')
+            contentHtml = contentHtml.replace('세금담당자이메일자동입력', '-')
+
         contentHtml = contentHtml.replace('수주통보서링크', orderPaper)
         contentHtml = contentHtml.replace('납품,구축,검수확인서링크', confirmPaper)
 
