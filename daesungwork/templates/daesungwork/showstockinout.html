@@ -432,7 +432,7 @@
           const sizeName = document.getElementById("sizeName").value;
           const quantity = document.getElementById("quantity").value;
           if (modelName === '') {
-              alert("제품명을 입력해주세요.");
+              alert("모델명을 입력해주세요.");
               return false;
           }
           if (sizeName === '') {
@@ -445,8 +445,11 @@
           }
           const postForm = document.getElementById('postForm');
 
+          if (doubleSubmitCheck()) return;
+
           if (typeName == "입고") {
               postForm.action = "/daesungwork/poststockinout/입고/";
+              alert('입고되었습니다.');
               postForm.submit();
           } else if(typeName == "출고") {
               $.ajax({
@@ -463,6 +466,7 @@
                     var result = parseInt(returnData);
                     if((result-quantity) >= 0){
                         postForm.action = "/daesungwork/poststockinout/출고/";
+                        alert('출고되었습니다.');
                         postForm.submit();
                     }else{
                         alert('재고가 부족합니다 현재 재고량은 ' + result + ' 입니다.')
@@ -486,7 +490,7 @@
           const lengthSale = $('.insertTableCount').length; // x 그림에 insertTableCount class 추가해서 길이 셈.
           const listSale = [];
           for (let i=0; i<lengthSale; i++) {
-              if ($('select[name="insertSize"]').eq(i).val() === null) {
+              if ($('select[name="insertSize"]').eq(i).val() === '') {
                   alert("사이즈를 선택해주세요."); return false;
               }
               if ($('input[name="insertQuantity"]').eq(i).val() === '') {
@@ -690,7 +694,7 @@
                   if (aData.managerEmp__empId === {{ user.employee.empId }}) {
                       $('td:eq(6)', nRow).html(
                           '<div style="cursor: pointer" onclick="change_input(this, ' + aData.stockManagementId + ')">' +
-                          comment + aData.managerEmp__empId + '{{ user.employee.empId }}</div>'
+                          comment + '</div>'
                       );
                   }
               },

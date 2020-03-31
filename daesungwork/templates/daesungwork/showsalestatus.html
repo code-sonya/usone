@@ -472,7 +472,7 @@
 
     function btn_deletesale(val) {
         const saleId = val.id;
-        if (confirm("판매정보를 삭제하시겠습니까?") == true) {
+        if (confirm("해당 판매정보를 삭제하시겠습니까?") == true) {
             location.href = '/daesungwork/deletesale/' + saleId + '/';
         }
     }
@@ -571,6 +571,9 @@
             return false;
         }
         const postForm = document.getElementById('postForm');
+
+        if (doubleSubmitCheck()) return;
+        alert('등록되었습니다.');
         postForm.submit();
     }
 

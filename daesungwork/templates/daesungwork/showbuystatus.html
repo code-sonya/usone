@@ -433,7 +433,7 @@
 
     function btn_deletebuy(val) {
         const buyId = val.id;
-        if (confirm("구매정보를 삭제하시겠습니까?") == true) {
+        if (confirm("해당 구매정보를 삭제하시겠습니까?") == true) {
             location.href = '/daesungwork/deletebuy/' + buyId + '/';
         }
     }
@@ -484,6 +484,8 @@
             alert("부가세를 입력해주세요."); return false;
         }
         const postForm = document.getElementById('postForm');
+        if (doubleSubmitCheck()) return;
+        alert('등록되었습니다.');
         postForm.submit();
     }
 
@@ -496,7 +498,7 @@
         const form = document.getElementById("insertForm");
 
         if (!$('#insertPostDate').val()) {
-            alert("발생일자를 입력해주세요."); return false;
+            alert("구매일자를 입력해주세요."); return false;
         }
         if (!$('#insertClient').val()) {
             alert("거래처를 선택해주세요."); return false;
@@ -506,7 +508,8 @@
         const lengthBuy = $('.insertTableCount').length; // x 그림에 insertTableCount class 추가해서 길이 셈.
         const listBuy = [];
         for (let i=0; i<lengthBuy; i++) {
-            if ($('input[name="insertProduct"]').eq(i).val() === null) {
+
+            if (!$('input[name="insertProduct"]').eq(i).val()) {
                 alert("품명을 입력해주세요."); return false;
             }
             if ($('input[name="insertQuantity"]').eq(i).val() === '') {
@@ -514,6 +517,9 @@
             }
             if ($('input[name="insertSalePrice"]').eq(i).val() === '') {
                 alert("개별공급가를 입력해주세요."); return false;
+            }
+            if ($('input[name="insertVatPrice"]').eq(i).val() === '') {
+                alert("부가세를 입력해주세요."); return false;
             }
 
             var data = new Object();

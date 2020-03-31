@@ -755,6 +755,16 @@
         });
     }
 
+    var doubleSubmitFlag = false;
+    function doubleSubmitCheck(){
+        if(doubleSubmitFlag){
+            return doubleSubmitFlag;
+        }else{
+            doubleSubmitFlag = true;
+            return false;
+        }
+    }
+
     $(window).resize(function() {
         changeToggled(1200);
     });
