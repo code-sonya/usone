@@ -47,5 +47,5 @@ urlpatterns = [
     url(r'^showauthorizations/$', views.show_authorizations, name='showauthorizations'),
     url(r'^checkauthorizationasjson/$', views.checkauthorization_asjson, name='checkauthorizationasjson'),
     url(r'^allauthorizationasjson/$', views.allauthorization_asjson, name='allauthorizationasjson'),
-
+    url(r'^changeuserpassword/(?P<userId>.+)/$', views.change_user_password, name='changeuserpassword'),
 ]

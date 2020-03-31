@@ -1049,3 +1049,17 @@ def checkauthorization_asjson(request):
 
     structure = json.dumps(result, cls=DjangoJSONEncoder)
     return HttpResponse(structure, content_type='application/json')
+
+
+@login_required
+def change_user_password(request, userId):
+    user = User.objects.get(id=userId)
+    if request.method == 'POST':
+        user.set_password(request.POST['new_password1'])
+        user.save()
+        return redirect('hr:viewprofile', user.employee.empId)
+    else:
+        context = {
+            'username': user.employee.empName
+        }
+        return render(request, 'hr/changeuserpassword.html', context)
