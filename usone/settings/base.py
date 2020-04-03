@@ -152,3 +152,5 @@ MEDIA_ROOT = join(BASE_DIR, 'media')
 
 # post data limit(The number of GET/POST parameters exceeded)
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+
+FILE_UPLOAD_PERMISSIONS = 0o644
