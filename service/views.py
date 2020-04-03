@@ -117,24 +117,32 @@ def post_service(request, postdate):
             post.save()
 
             # 초과근무 계산
-            standardWorkTime = 8
-            todayServices = Servicereport.objects.filter(
-                empId=post.empId,
-                serviceDate=post.serviceDate,
-            ).order_by('serviceStartDatetime')
-            todayServiceTime = todayServices.aggregate(Sum('serviceHour'))['serviceHour__sum']
-            if todayServiceTime > standardWorkTime:
-                for s in todayServices:
-                    standardWorkTime -= s.serviceHour
-                    if standardWorkTime < 0:
-                        s.serviceOverHour = standardWorkTime * -1
-                        s.serviceRegHour = s.serviceHour - s.serviceOverHour
-                        s.save()
-                        standardWorkTime = 0
-                    else:
-                        s.serviceOverHour = 0
-                        s.serviceRegHour = s.serviceHour
-                        s.save()
+            # 주말은 업무시간 전체가 초과근무
+            serviceDate = datetime.date(year=int(post.serviceDate[:4]), month=int(post.serviceDate[5:7]), day=int(post.serviceDate[8:10]))
+            if serviceDate.weekday() >= 5 or is_holiday(serviceDate):
+                post.serviceRegHour = 0
+                post.serviceOverHour = post.serviceHour
+                post.save()
+            # 평일은 기준 업무시간(8시간) 이후 근무가 초과근무
+            else:
+                standardWorkTime = 8
+                todayServices = Servicereport.objects.filter(
+                    empId=post.empId,
+                    serviceDate=post.serviceDate,
+                ).order_by('serviceStartDatetime')
+                todayServiceTime = todayServices.aggregate(Sum('serviceHour'))['serviceHour__sum']
+                if todayServiceTime > standardWorkTime:
+                    for s in todayServices:
+                        standardWorkTime -= s.serviceHour
+                        if standardWorkTime < 0:
+                            s.serviceOverHour = standardWorkTime * -1
+                            s.serviceRegHour = s.serviceHour - s.serviceOverHour
+                            s.save()
+                            standardWorkTime = 0
+                        else:
+                            s.serviceOverHour = 0
+                            s.serviceRegHour = s.serviceHour
+                            s.save()
 
             if request.POST['redirect'] == 'calendar':
                 return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])
@@ -775,33 +783,38 @@ def modify_service(request, serviceId):
             post.serviceFinishDatetime = form.clean()['enddate'] + ' ' + form.clean()['endtime']
             post.serviceDate = str(post.serviceBeginDatetime)[:10]
             post.serviceHour = str_to_timedelta_hour(post.serviceFinishDatetime, post.serviceBeginDatetime)
-            post.serviceOverHour = overtime(
-                form.clean()['startdate'] + ' ' + form.clean()['starttime'],
-                form.clean()['enddate'] + ' ' + form.clean()['endtime']
-            )
+            post.serviceOverHour = 0
             post.serviceRegHour = round(post.serviceHour - post.serviceOverHour, 1)
             post.coWorker = request.POST['coWorkerId']
             post.save()
 
             # 초과근무 계산
-            standardWorkTime = 8
-            todayServices = Servicereport.objects.filter(
-                empId=post.empId,
-                serviceDate=post.serviceDate,
-            ).order_by('serviceStartDatetime')
-            todayServiceTime = todayServices.aggregate(Sum('serviceHour'))['serviceHour__sum']
-            if todayServiceTime > standardWorkTime:
-                for s in todayServices:
-                    standardWorkTime -= s.serviceHour
-                    if standardWorkTime < 0:
-                        s.serviceOverHour = standardWorkTime * -1
-                        s.serviceRegHour = s.serviceHour - s.serviceOverHour
-                        s.save()
-                        standardWorkTime = 0
-                    else:
-                        s.serviceOverHour = 0
-                        s.serviceRegHour = s.serviceHour
-                        s.save()
+            # 주말은 업무시간 전체가 초과근무
+            serviceDate = datetime.date(year=int(post.serviceDate[:4]), month=int(post.serviceDate[5:7]), day=int(post.serviceDate[8:10]))
+            if serviceDate.weekday() >= 5 or is_holiday(serviceDate):
+                post.serviceRegHour = 0
+                post.serviceOverHour = post.serviceHour
+                post.save()
+            # 평일은 기준 업무시간(8시간) 이후 근무가 초과근무
+            else:
+                standardWorkTime = 8
+                todayServices = Servicereport.objects.filter(
+                    empId=post.empId,
+                    serviceDate=post.serviceDate,
+                ).order_by('serviceStartDatetime')
+                todayServiceTime = todayServices.aggregate(Sum('serviceHour'))['serviceHour__sum']
+                if todayServiceTime > standardWorkTime:
+                    for s in todayServices:
+                        standardWorkTime -= s.serviceHour
+                        if standardWorkTime < 0:
+                            s.serviceOverHour = standardWorkTime * -1
+                            s.serviceRegHour = s.serviceHour - s.serviceOverHour
+                            s.save()
+                            standardWorkTime = 0
+                        else:
+                            s.serviceOverHour = 0
+                            s.serviceRegHour = s.serviceHour
+                            s.save()
 
             if request.POST['redirect'] == 'calendar':
                 return redirect('scheduler:scheduler', str(post.serviceBeginDatetime)[:10])

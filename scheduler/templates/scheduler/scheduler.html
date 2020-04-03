@@ -252,7 +252,18 @@
               timeFormat: 'HH:mm',
               eventMouseover: function (data, event, view) {
                   if (data.type === 'holiday') {
-                      tooltip = '';
+                      let spanColor = '';
+                      if (data.service_type === '공휴일') {
+                          spanColor = 'text-danger';
+                      }
+                      else {
+                          spanColor = 'text-primary';
+                      }
+                      tooltip = '<div class="tooltiptopicevent" ' +
+                          'style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;' +
+                          'line-height:130%;font-size:13px;border-radius:0.5em;border:1px solid lightblue;">' +
+                          '<b class="' + spanColor + '">' + '[' + data.service_type + ']' + '</b><br>' + data.title +
+                          '</div>';
                   } else if (data.type === 'X') {
                       tooltip = '<div class="tooltiptopicevent" ' +
                           'style="color:black;width:auto;height:auto;background:#cceeee;position:absolute;z-index:10001;padding:10px;' +
@@ -260,14 +271,25 @@
                           '<b>' + '[' + data.vacationType + '] ' + data.name + '</b>' +
                           '</div>';
                   } else {
-                      tooltip = '<div class="tooltiptopicevent" ' +
+                      if (data.end) {
+                          tooltip = '<div class="tooltiptopicevent" ' +
+                              'style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;' +
+                              'line-height:130%;font-size:13px;border-radius:0.5em;border:1px solid lightblue;">' +
+                              '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br>' +
+                              data.name + ' (' + data.start.format('HH:mm') + ' ~ ' + data.end.format('HH:mm') + ')<br>' +
+                              '<span class="text-primary">' + data.contractName + '</span><br>' +
+                              data.service_title +
+                              '</div>';
+                      } else {
+                          tooltip = '<div class="tooltiptopicevent" ' +
                           'style="color:black;width:auto;height:auto;background:#cceeff;position:absolute;z-index:10001;padding:10px;' +
                           'line-height:130%;font-size:13px;border-radius:0.5em;border:1px solid lightblue;">' +
                           '<b>' + '[' + data.service_type + '] ' + data.company + '</b><br>' +
-                          data.name + ' (' + data.start.format('HH:mm') + ' ~ ' + data.end.format('HH:mm') + ')<br>' +
+                          data.name + ' (' + data.start.format('HH:mm') + ')<br>' +
                           '<span class="text-primary">' + data.contractName + '</span><br>' +
                           data.service_title +
                           '</div>';
+                      }
                   }
                   $("body").append(tooltip);
                   $(this).mouseover(function (e) {

@@ -9,7 +9,7 @@ class Eventday(models.Model):
         ('프로젝트일정', '프로젝트일정'),
     )
     eventDate = models.DateField(primary_key=True)
-    eventName = models.CharField(max_length=10)
+    eventName = models.CharField(max_length=200)
     eventType = models.CharField(max_length=10, choices=eventTypeChoices, default='휴일')
 
     def __str__(self):
