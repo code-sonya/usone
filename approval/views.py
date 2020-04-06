@@ -857,6 +857,7 @@ def post_documentcategory(request):
 
 
 @login_required
+@csrf_exempt
 def showdocument_asjson(request):
     empId = request.user.employee.empId
     if request.method == 'GET':
