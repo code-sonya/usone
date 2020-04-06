@@ -20,17 +20,29 @@ class Board(models.Model):
 
 class NoticeList(models.Model):
     list = models.CharField(max_length=200)
+    orderNumber = models.IntegerField(default=100)
+
+    def __str__(self):
+        return self.list
 
 
 class NoticeCategory(models.Model):
     noticeList = models.ForeignKey(NoticeList, on_delete=models.SET_NULL, null=True, blank=True)
     category = models.CharField(max_length=200)
+    orderNumber = models.IntegerField(default=100)
+
+    def __str__(self):
+        return self.category
 
 
 class NoticeSubject(models.Model):
     noticeCategory = models.ForeignKey(NoticeCategory, on_delete=models.CASCADE, null=True, blank=True)
     subject = models.CharField(max_length=200)
-    color = models.CharField(max_length=50,)
+    color = models.CharField(max_length=50)
+    orderNumber = models.IntegerField(default=100)
+
+    def __str__(self):
+        return self.noticeCategory.category + ':' + self.subject
 
 
 class Notice(models.Model):
@@ -47,12 +59,18 @@ class Notice(models.Model):
     contents = models.TextField()
     thumbnail = models.ImageField(upload_to="notice/thumbnail/%Y_%m", max_length=200)
 
+    def __str__(self):
+        return self.title
+
 
 class NoticeFile(models.Model):
     notice = models.ForeignKey(Notice, on_delete=models.CASCADE)
     file = models.FileField(upload_to="notice/file/%Y_%m")
     fileName = models.CharField(max_length=200)
     fileSize = models.FloatField()
+
+    def __str__(self):
+        return self.fileName
 
 
 class NoticeComment(models.Model):
@@ -62,7 +80,13 @@ class NoticeComment(models.Model):
     updated = models.DateTimeField(auto_now=True)
     comment = models.TextField()
 
+    def __str__(self):
+        return self.author.empName
+
 
 class NoticeTag(models.Model):
     notice = models.ForeignKey(Notice, on_delete=models.CASCADE)
     tag = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.tag

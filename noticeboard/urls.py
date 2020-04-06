@@ -12,5 +12,6 @@ urlpatterns = [
     url(r'^json/$', views.board_asjson, name='board_ajax_url'),
     url(r'^shownotices/$', views.show_notices, name='show_notices'),
 
+    # 게시판 추가 작업
     url(r'^adminnoticeboard/$', views.admin_notice_board, name='admin_notice_board'),
 ]

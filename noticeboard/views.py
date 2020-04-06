@@ -189,4 +189,16 @@ def show_notices(request):
 
 @login_required
 def admin_notice_board(request):
+    # 게시판 설정 화면. 추후 개발 예정
     return render(request, 'noticeboard/adminnoticeboard.html')
+
+
+@login_required
+@csrf_exempt
+def notice_board_list_asjson(request):
+    lists = {
+        '전사게시판': ['사내공지', '주요일정'],
+        '그룹게시판': ['영업팀', '솔루션팀', 'DB팀', 'Biz팀'],
+    }
+    structure = json.dumps(list(lists), cls=DjangoJSONEncoder)
+    return HttpResponse(structure, content_type='application/json')
