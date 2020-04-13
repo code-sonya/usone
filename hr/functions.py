@@ -357,18 +357,22 @@ def make_alert(empId, alertType, text, url):
     if appToken:
         registration_token = [token.token for token in appToken]
 
-        cred = credentials.Certificate(firebaseKeyFile)
-        firebase_admin.initialize_app(cred)
+        for token in registration_token:
+            try:
+                firebase_admin.get_app()
+            except ValueError as e:
+                cred = credentials.Certificate(firebaseKeyFile)
+                firebase_admin.initialize_app(cred)
 
-        android_config = messaging.Notification(
-            title='[' + alertType + ']',
-            body=text
-        )
+            android_config = messaging.Notification(
+                title='[' + alertType + ']',
+                body=text
+            )
 
-        # {'url': '0'}: 어플 실행, 이 외 값은 해당 URL로 링크 됨.
-        message = messaging.Message(
-            data={'url': url},
-            notification=android_config,
-            token=registration_token,
-        )
-        messaging.send(message)
+            # {'url': '0'}: 어플 실행, 이 외 값은 해당 URL로 링크 됨.
+            message = messaging.Message(
+                data={'url': url},
+                notification=android_config,
+                token=token,
+            )
+            messaging.send(message)
