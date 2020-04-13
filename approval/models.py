@@ -35,7 +35,7 @@ class Documentform(models.Model):
 class Document(models.Model):
     documentId = models.AutoField(primary_key=True)
     documentNumber = models.CharField(max_length=100, default='')
-    writeEmp = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    writeEmp = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='documentWriteEmp')
     formId = models.ForeignKey(Documentform, on_delete=models.SET_NULL, null=True, blank=True)
     preservationYear = models.IntegerField(default=9999)
     securityLevel = models.CharField(max_length=1, default='S')

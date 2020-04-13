@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db.models import Q, Max, Min, Count
-from .models import Attendance, Employee, Punctuality, AdminEmail, Department
+from .models import Attendance, Employee, Punctuality, AdminEmail, Department, Alert
 from service.models import Servicereport, Vacation
 from scheduler.models import Eventday
 import datetime
@@ -9,6 +9,10 @@ from smtplib import SMTP_SSL
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import firebase_admin
+from firebase_admin import credentials, messaging
+from usone.security import firebaseKeyFile
+from api.models import AppToken
 
 
 def employee_empPosition(positionNumber):
@@ -340,3 +344,31 @@ def siteMapCol(departments, department, deptLevel, deptLevel_max, deptId):
         deptId = list(department.values_list('deptId', flat=True))
         return siteMapCol(departments, department, deptLevel + 1, deptLevel_max, deptId)
 
+
+def make_alert(empId, alertType, text, url):
+    # 알람 생성
+    alert = Alert.objects.create(empId=empId, type=alertType, text=text, url=url)
+
+    # 푸시 생성
+    mainURL = 'https://lop.unioneinc.co.kr'
+    url = mainURL + url
+
+    appToken = AppToken.objects.filter(empId=alert.empId)
+    if appToken:
+        registration_token = [token.token for token in appToken]
+
+        cred = credentials.Certificate(firebaseKeyFile)
+        firebase_admin.initialize_app(cred)
+
+        android_config = messaging.Notification(
+            title='[' + alertType + ']',
+            body=text
+        )
+
+        # {'url': '0'}: 어플 실행, 이 외 값은 해당 URL로 링크 됨.
+        message = messaging.Message(
+            data={'url': url},
+            notification=android_config,
+            token=registration_token,
+        )
+        messaging.send(message)

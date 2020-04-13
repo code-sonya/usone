@@ -1,3 +1,6 @@
+django-filter
+django-rest-knox
+djangorestframework
 django_mysql
 xhtml2pdf
 xlrd

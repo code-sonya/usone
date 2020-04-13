@@ -42,6 +42,10 @@ INSTALLED_APPS = [
     'extrapay',
     'approval',
     'logs',
+    # Django REST Framework
+    'rest_framework',
+    'knox',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -151,3 +155,14 @@ MEDIA_ROOT = join(BASE_DIR, 'media')
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
 
 FILE_UPLOAD_PERMISSIONS = 0o644
+
+# Django REST config
+REST_FRAMEWORK = {
+    # Pagination
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10,
+    # Authorization
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
+    # Filter
+    # 'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+}

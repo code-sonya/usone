@@ -20,6 +20,7 @@ from extrapay.models import ExtraPay
 from .models import Documentcategory, Documentform, Documentfile, Document, Approvalform, Relateddocument, Approval, Documentcomment
 from logs.models import ApprovalLog
 from .functions import data_format, who_approval, template_format, mail_approval, mail_document, intcomma
+from hr.functions import make_alert
 from hr.functions import siteMap
 from hr.models import Alert
 from sales.functions import detailPurchase, summary
@@ -170,12 +171,16 @@ def post_document(request):
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "결재요청")
                     # 알림생성
-                    Alert.objects.create(
-                        empId=employee,
-                        type="전자결재",
-                        text="'{}'님이 '{}결재를 요청했습니다.".format(document.writeEmp.empName, document.title),
-                        url="/approval/viewdocument/{}/".format(document.documentId)
-                    )
+                    # Alert.objects.create(
+                    #     empId=employee,
+                    #     type="전자결재",
+                    #     text="'{}'님이 '{}결재를 요청했습니다.".format(document.writeEmp.empName, document.title),
+                    #     url="/approval/viewdocument/{}/".format(document.documentId)
+                    # )
+                    alertType = "전자결재"
+                    alertText = "'{}'님이 '{}결재를 요청했습니다.".format(document.writeEmp.empName, document.title)
+                    alertURL = "/approval/viewdocument/{}/".format(document.documentId)
+                    make_alert(employee, alertType, alertText, alertURL)
                 for empId in whoApproval['check']:
                     employee = Employee.objects.get(empId=empId)
                     mail_approval(employee, document, "참조문서")

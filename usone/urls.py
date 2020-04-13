@@ -25,6 +25,7 @@ import datetime
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(r'', views.day_report),
+    url(r'^api/', include('api.urls')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^client/', include('client.urls')),
     url(r'^dashboard/', include('dashboard.urls')),
@@ -38,7 +39,6 @@ urlpatterns = [
     url(r'^extrapay/', include('extrapay.urls')),
     url(r'^approval/', include('approval.urls')),
     url(r'^logs/', include('logs.urls')),
-
 ]
 
 urlpatterns += static(
